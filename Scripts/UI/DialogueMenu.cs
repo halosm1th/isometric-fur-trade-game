@@ -103,6 +103,12 @@ public partial class DialogueMenu : Control
         if (npc.Faction == Faction.Cree && npc.Role is Role.CreeChief or Role.CreeHunter)
             AddOption("Ask about the hunting", () => ShowTopics(AskHunting(npc)));
         if (npc.Role == Role.Factor) AddOption("Ask for work", () => ShowTopics(AskForWork(npc)));
+        if (npc.Role == Role.Factor && Sim.Fort != null)
+        {
+            int news = 0;
+            foreach (var sname in _player.KnownSites) if (!Sim.Fort.Knows(sname)) news++;
+            if (news > 0) AddOption($"Tell him where the game is ({news} places)", () => ShowTopics(TellSites(npc)));
+        }
         if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief)
             AddOption("Trade", () => ShowTrade(npc));
         AddOption("Give a gift", () => ShowGive(npc));
@@ -176,8 +182,16 @@ public partial class DialogueMenu : Control
             else if (site.Scarcity) s += $"\"{site.Name} is crowded and hungry; the animals are wandering toward your post.\" ";
             else if (site.Count < site.Capacity * 0.4f) s += $"\"{site.Name} is getting thin.\" ";
         }
-        // Knowledge is currency (design doc 10): the sites are told, not shown.
+        // Knowledge is currency (design doc 10): the sites are told, not shown,
+        // and only to someone the hunter has some regard for.
         npc.ChangeRapport(_player, 1f);
+        if (npc.RapportWith(_player) >= 15f)
+        {
+            int learned = 0;
+            foreach (var site in eco.Sites) if (_player.KnownSites.Add(site.Name)) learned++;
+            if (learned > 0) s += $" He describes where the game is: {learned} places you did not know. The Factor would want to hear it.";
+        }
+        else s += " He says nothing of where the game is. You are not yet a friend.";
         return s == "" ? "\"The country is in good heart. Game everywhere it should be.\"" : s;
     }
 
@@ -189,6 +203,15 @@ public partial class DialogueMenu : Control
         foreach (var a in Sim.Animals) if (!a.IsDead && a.IsDangerous) threats++;
         if (threats > 0) return "\"There are beasts about the post. Take a musket from the stores and see them off.\"";
         return "\"Keep the fires up and the woodpile high. When the ship comes you'll have work enough.\"";
+    }
+
+    private string TellSites(Npc factor)
+    {
+        int told = 0;
+        foreach (var sname in _player.KnownSites) if (Sim.Fort.Learn(sname)) told++;
+        _player.Standing += 3f * told;
+        factor.ChangeRapport(_player, 4f * told);
+        return told > 0 ? $"\"Good man. That is worth knowing.\" He notes it in the journal. (standing +{3 * told})" : "\"You have told me nothing new.\"";
     }
 
     private void ShowTrade(Npc npc)

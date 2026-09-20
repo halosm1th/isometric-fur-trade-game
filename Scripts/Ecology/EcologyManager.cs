@@ -124,15 +124,27 @@ public partial class EcologyManager : Node2D
         }
     }
 
-    public SpawnSite BestSite(Species s)
+    public SpawnSite BestSite(Species s, Economy.Household knownBy = null)
     {
         SpawnSite best = null;
         foreach (var site in Sites)
         {
             if (site.Species != s || site.IsDead || site.Count < 1f) continue;
+            if (knownBy != null && !knownBy.Knows(site.Name)) continue;
             if (best == null || site.Count > best.Count) best = site;
         }
         return best;
+    }
+
+    // Anyone passing close to a site learns where it is for their household.
+    public void Scout(Agents.Npc npc)
+    {
+        if (npc.HomeStores == null) return;
+        foreach (var site in Sites)
+        {
+            if (npc.HomeStores.Knows(site.Name)) continue;
+            if (site.WorldPos.DistanceTo(npc.GlobalPosition) < site.RadiusPx * 0.6f) npc.HomeStores.Learn(site.Name);
+        }
     }
 
     public float PreyPressure
@@ -174,6 +186,7 @@ public partial class EcologyManager : Node2D
         {
             _promoteTimer = 1.5f;
             Promote();
+            foreach (var n in Sim.Npcs) if (!n.IsDead) Scout(n);
         }
     }
 

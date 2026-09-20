@@ -18,6 +18,19 @@ public partial class Household : Node
     public readonly List<Vector2I> HearthCells = new();
     public string Title = "stores";
 
+    // Which wildlife sites this household knows about (design doc 16.4:
+    // sites are learned, not given). Names match WorldLayout.Sites.
+    public readonly System.Collections.Generic.HashSet<string> KnownSites = new();
+
+    public bool Knows(string siteName) => KnownSites.Contains(siteName);
+
+    public bool Learn(string siteName)
+    {
+        if (!KnownSites.Add(siteName)) return false;
+        Sim.Notice($"{Title}: the location of {siteName} is now known.");
+        return true;
+    }
+
     // Takes up to n pieces of the plainest food available into the agent's pack.
     public bool TakeRation(Agent agent, int n)
     {

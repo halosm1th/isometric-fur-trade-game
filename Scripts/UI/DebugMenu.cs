@@ -85,6 +85,7 @@ public partial class DebugMenu : Control
                 int mouths = 0; foreach (var n in Sim.Npcs) if (n.Faction == Agents.Faction.Cree && !n.IsDead) mouths++;
                 return $"Cache: {band.Stores.Summary()}\nFood for {band.FoodDays(mouths):0} days ({mouths} people)";
             });
+            AddSlider("Cree band", "Standing w/ Company", 0f, 100f, 1f, () => band.StandingWithCompany, v => band.StandingWithCompany = v, "0");
             AddButtonRow("Cree band", ("Empty their food", () => { foreach (var id in new[] { ItemId.Venison, ItemId.Goose, ItemId.DriedGoose, ItemId.Pemmican }) band.Stores.TakeUpTo(id, 9999); }));
         }
         var eco = Sim.Ecology;

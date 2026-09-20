@@ -59,12 +59,19 @@ public partial class FortLedger : Household
         Stores.Add(ItemId.BeaverPelt, 22);
         Stores.Add(ItemId.CaribouHide, 4);
         Year = GameCalendar.Instance?.Year ?? 1811;
+
+        // The post knows its goose grounds and the lodge nearest the fort;
+        // the rest of the country it has to be told about, or stumble on.
+        KnownSites.Add("Goose marsh");
+        KnownSites.Add("Beaver lodge (upper)");
     }
 
     // A Cree party sells furs at the counter. Returns the MB of goods paid.
     public float BuyFurs(Inventory seller, Inventory buyerGoodsTo)
     {
         float paidMb = 0f;
+        // A fair deal is remembered too.
+        if (Sim.Band != null) Sim.Band.StandingWithCompany = Mathf.Min(100f, Sim.Band.StandingWithCompany + (PeltPrice >= 1f ? 2f : 0.5f));
         var furs = new List<(ItemId, int)>();
         foreach (var (id, n) in seller.All()) if (Items.Items.Of(id).Kind == ItemKind.Fur) furs.Add((id, n));
         foreach (var (id, n) in furs)

@@ -122,7 +122,7 @@ public class CreeChiefBehaviour : RoleBehaviour
         bool hungry = band.FoodDays(mouths) < 4f;
         float fursMb = 0f;
         foreach (var (id, n) in band.Stores.All()) if (Items.Items.Of(id).Kind == ItemKind.Fur) fursMb += Items.Items.Of(id).ValueMb * n;
-        if (IsWorkHours && (fursMb >= 8f || (hungry && (fursMb > 0f || band.Stores.Has(ItemId.TradeGoods)))))
+        if (band.WillTrade && IsWorkHours && (fursMb >= 8f || (hungry && (fursMb > 0f || band.Stores.Has(ItemId.TradeGoods)))))
             return new TradeTripGoal(hungry);
         return new WanderGoal(WorldLayout.CampCentre, 3, 1.5f);
     }
@@ -150,9 +150,9 @@ public class CreeHunterBehaviour : RoleBehaviour
         // Hunts start in the morning; a long walk out in the afternoon means
         // a night in the open.
         if (Cal.Hour >= 12f) return new WanderGoal(WorldLayout.CampCentre, 3, 1f);
-        SpawnSite site = needMeat ? eco.BestSite(Species.Caribou) ?? eco.BestSite(Species.Goose) : null;
-        if (site == null && furHunt) site = eco.BestSite(Species.Beaver);
-        if (site == null && GD.Randf() < 0.3f) site = eco.BestSite(Species.Caribou);
+        SpawnSite site = needMeat ? eco.BestSite(Species.Caribou, band) ?? eco.BestSite(Species.Goose, band) : null;
+        if (site == null && furHunt) site = eco.BestSite(Species.Beaver, band);
+        if (site == null && GD.Randf() < 0.3f) site = eco.BestSite(Species.Caribou, band);
         if (site != null) return new HuntSiteGoal(site, 5f);
         return new WanderGoal(WorldLayout.CampCentre, 3, 1f);
     }
@@ -199,7 +199,7 @@ public static class Delegation
         foreach (var a in Sim.Animals) if (!a.IsDead && a.IsDangerous && a.GlobalPosition.DistanceTo(fortCentre) < 1800f) threats++;
 
         bool shipIn = ship != null && ship.IsDocked;
-        bool gooseSeason = (Cal().Month == 9 || Cal().Month == 10 || Cal().Month == 5) && Sim.Ecology?.BestSite(Species.Goose) != null;
+        bool gooseSeason = (Cal().Month == 9 || Cal().Month == 10 || Cal().Month == 5) && Sim.Ecology?.BestSite(Species.Goose, fort) != null;
         int mouths = 0;
         foreach (var n in Sim.Npcs) if (n.Faction == Faction.HBC && !n.IsDead) mouths++;
         bool foodShort = fort.FoodDays(mouths + 1) < 30f;
@@ -221,7 +221,7 @@ public static class Delegation
             }
             else if ((gooseSeason || foodShort) && i % 2 == 0)
             {
-                var site = Sim.Ecology?.BestSite(gooseSeason ? Species.Goose : Species.Caribou);
+                var site = Sim.Ecology?.BestSite(gooseSeason ? Species.Goose : Species.Caribou, fort) ?? Sim.Ecology?.BestSite(Species.Beaver, fort);
                 if (site != null)
                 {
                     if (!m.Inventory.Has(ItemId.Musket) && fort.Stores.Remove(ItemId.Musket)) m.Inventory.Add(ItemId.Musket);

@@ -35,6 +35,14 @@ public class HuntSiteGoal : Goal
             case 2:
                 _worked += hours;
                 _tryTimer -= hours;
+                // Weather closing in or the light going: head home with what you have.
+                var sky = GameCalendar.Instance.Weather.Current;
+                if (sky == SkyState.Blizzard || sky == SkyState.Storm || GameCalendar.Instance.Hour >= 16f)
+                {
+                    _phase = 3;
+                    if (npc.HomeStores == null) return GoalStatus.Done;
+                    return Delegate(new GoToGoal(npc.HomeStores.AccessCell, 100f));
+                }
                 // A live animal within reach is fair game.
                 var prey = _site.NearestLiveAnimal(npc.GlobalPosition, 500f);
                 if (prey != null && !prey.IsDead && npc.Weapon != null)

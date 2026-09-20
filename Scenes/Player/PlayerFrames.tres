@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps="18" format="3"]
+[gd_resource type="SpriteFrames" load_steps="21" format="3"]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/player/idle_front.png" id="tex_1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/walk_front_0.png" id="tex_2"]
@@ -17,6 +17,9 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/player/drink_1.png" id="tex_15"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/drink_2.png" id="tex_16"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/drink_3.png" id="tex_17"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/death_1.png" id="tex_death_1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/death_2.png" id="tex_death_2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/death_3.png" id="tex_death_3"]
 
 [resource]
 animations = [{
@@ -94,5 +97,19 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": ExtResource("tex_17")
+}]
+}, {
+"name": &"death",
+"speed": 4.0,
+"loop": false,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("tex_death_1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_death_2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_death_3")
 }]
 }]

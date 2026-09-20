@@ -462,16 +462,24 @@ public partial class Npc : Agent
         StopMoving();
         if (_sprite != null)
         {
-            _sprite.Play("idle");
-            _sprite.Rotation = Mathf.Pi / 2f;
-            _sprite.Modulate = new Color(0.6f, 0.6f, 0.65f, 0.95f);
-            _sprite.Position += new Vector2(30, -10);
+            if (_sprite.SpriteFrames.HasAnimation("death"))
+            {
+                _sprite.Play("death");
+            }
+            else
+            {
+                _sprite.Play("idle");
+                _sprite.Rotation = Mathf.Pi / 2f;
+                _sprite.Position += new Vector2(30, -10);
+            }
+            _sprite.Modulate = new Color(0.7f, 0.7f, 0.72f, 0.95f);
         }
         if (_label != null) _label.Text = $"{DisplayName} (dead)";
         CollisionLayer = 0; CollisionMask = 0;
         AddToGroup("corpses");
         Sim.Unregister(this);
         Sim.Notice($"{DisplayName} has died.");
+        if (Faction == Faction.Cree && LastAttacker != null && LastAttackedAgo < 30f) Sim.Band?.OnMemberKilledBy(LastAttacker);
         if (Spouse is Npc widow) widow.Spouse = null;
         Succession();
         // Bodies don't lie there forever.

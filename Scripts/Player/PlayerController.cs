@@ -22,6 +22,7 @@ public partial class PlayerController : Agent
 	// Standing with the Company (design doc 3.6): slow, bureaucratic, reviewed by results.
 	public float Standing = 10f;
 	public readonly PlayerTask Task = new();
+	public readonly System.Collections.Generic.HashSet<string> KnownSites = new();
 	private int _lastTaskDay = -1;
 
 	// The Factor's morning orders for the new hand.
@@ -298,7 +299,7 @@ public partial class PlayerController : Agent
 
 		if (IsDead)
 		{
-			_sprite.Play("idle");
+			if (_sprite.Animation != "death") _sprite.Play("death");
 			return;
 		}
 		if (_busy)
