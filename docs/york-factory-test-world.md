@@ -125,6 +125,22 @@ Two birchbark canoes: one at the shore by the wharf, one at the Nor'Westers' lan
 
 The marsh empties in November and fills again in April — no goose hunt in winter.
 
+## Water (design doc 17.2)
+
+Water is an item now. Each household keeps a barrel (`Water` in the stores); women fill it - kettles to the shore in open water, snow melted at the fire in winter (costs fuel) - and everyone drinks from it when they're at the counter. You start with a copper kettle: **Q** (or using the kettle) at the water's edge drinks and fills it (3 water); at a fire in winter it melts snow. Carry water on long trips or you'll die of thirst in the bush like the first voyageurs did in testing.
+
+## Rum (design doc 13.4)
+
+Rum and ale carry intoxication (35 / 12), which wears off at 8 an hour. Drunk: slower, worse aim, and NPCs quarrel - two drunk men within reach may brawl (fists, a few blows). Men take an evening dram if the household has drink (talkative and disloyal ones more), and a man still drunk at first light does no work. **Trade**: posts pay part of a fur's price in rum when they have it - the Nor'Westers 35%, the Company 15% - and every dram raises the band's standing with that post and its **taste** for rum, which pulls its furs toward whoever has drink. Gifting rum doubles the rapport gain and they drink it on the spot. This is the doc's alcohol trap, in miniature.
+
+## Fever (design doc 13.5)
+
+When the ship docks there's a one-in-three chance a sailor has fever. It spreads between people standing together (more so indoors), lasts 6-11 days, costs ~8 health a day and appetite, weakens the arm. Survivors are immune for the year. Talk to someone feverish and you're told to keep your distance.
+
+## Age (design doc 9.4)
+
+Everyone has an age (Factor ~50, chief ~48, labourers 20s-30s, daughters 16-20); New Year adds one, and past 45 people slow a little each year. "Ask about them" tells you.
+
 ## Trapping (design doc 16.1, 16.3)
 
 Beaver are trapped, not hunted. Steel traps are items (the post has 10, the band 8, the ship brings 12). Use a trap from the hotbar while standing at a beaver lodge to set your line (up to 6 at once); traps catch overnight against how thick the lodge is; E at the lodge lifts the catch (pelt + meat per beaver) and leaves the traps. Cree hunters and, in winter, the Factor's men run their own lines. Anyone checking a lodge with other parties' traps may rob them (the less loyal, the likelier); the owner finds the traps robbed, and witnesses remember who did it.

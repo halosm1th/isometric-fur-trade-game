@@ -284,6 +284,7 @@ public partial class DebugMenu : Control
         AddSlider(S, "Water", 0, 100, 1, () => n.Thirst, v => n.Thirst = v, "0");
         AddSlider(S, "Walk speed", 60, 400, 10, () => _player.MoveSpeed, v => _player.MoveSpeed = v, "0");
         AddButton(S, "Toggle invulnerable", () => _player.Invulnerable = !_player.Invulnerable);
+        AddButtonRow(S, ("Get drunk", () => _player.Intoxication = 80f), ("Catch fever", () => _player.CatchFever()), ("Cure", () => { _player.SickDaysLeft = 0f; _player.Intoxication = 0f; }));
 
         var names = Enum.GetNames<ItemId>();
         AddOptionAction(S, "Give x1", names, i => _player.Inventory.Add((ItemId)i, 1));

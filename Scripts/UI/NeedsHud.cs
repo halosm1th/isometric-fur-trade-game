@@ -100,6 +100,8 @@ public partial class NeedsHud : Control
             task = (t != "" ? $"\n{t}" : "") + $"\nStanding with {company}: {pc.Standing:0}" + (skip != "" ? $"\n{skip}" : "");
         }
         string weapon = _player.Weapon != null ? Items.Items.Of(_player.Weapon.Value).Name : "bare hands";
+        if (_player.IsDrunk) weapon += "  |  drunk";
+        if (_player.IsSick) weapon += "  |  FEVER";
         _shelter.Text = $"{(_player.IsSheltered ? "Indoors  " : "")}Load {_player.Inventory.TotalWeightLbs:0} lb  |  {weapon}" + task;
     }
 

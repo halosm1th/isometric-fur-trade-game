@@ -140,8 +140,11 @@ public class DrinkGoal : Goal
     {
         if (_phase == 0)
         {
+            if (npc.Inventory.Has(ItemId.Water)) { npc.Consume(ItemId.Water); return GoalStatus.Done; }
             if (npc.Inventory.Has(ItemId.Ale)) { npc.Consume(ItemId.Ale); return GoalStatus.Done; }
-            if (npc.Drink()) return GoalStatus.Done;   // snow melted at a fire
+            if (npc.Drink()) return GoalStatus.Done;   // snow melted at a fire, or the barrel at hand
+            // The household's water barrel is the first place to look.
+            if (npc.HomeStores != null && npc.HomeStores.Stores.Has(ItemId.Water)) { _phase = 3; return Delegate(new GoToGoal(npc.HomeStores.AccessCell, 110f)); }
             if (GameCalendar.Instance.IsFrozen)
             {
                 // Head for the nearest burning fire to melt snow.
@@ -156,6 +159,7 @@ public class DrinkGoal : Goal
         if (!ChildFinished(out var r)) return GoalStatus.Running;
         if (r != GoalStatus.Done) return GoalStatus.Failed;
         if (npc.Drink()) return GoalStatus.Done;
+        if (_phase == 3) { _phase = 0; return GoalStatus.Running; }   // barrel emptied meanwhile: start over
         if (_phase == 2)
         {
             // The fire was out when we got there: fall back to the water.

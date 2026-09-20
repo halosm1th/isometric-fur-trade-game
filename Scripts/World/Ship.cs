@@ -66,6 +66,8 @@ public partial class Ship : Node2D
         Cargo.Add(ItemId.Ale, 30);
         Cargo.Add(ItemId.Musket, 8);
         Cargo.Add(ItemId.SteelTrap, 12);
+        Cargo.Add(ItemId.Rum, 24);
+        Cargo.Add(ItemId.Kettle, 4);
         Cargo.Add(ItemId.PointBlanket, 20);
         Cargo.Add(ItemId.Capote, 6);
         Position = WorldLayout.ShipOffscreen;
@@ -139,6 +141,13 @@ public partial class Ship : Node2D
         {
             Crew.Clear();
             Crew.AddRange(_population.SpawnCrew(8));
+            // The ship is how the fever comes to the Bay (design doc 13.5).
+            if (GD.Randf() < 0.35f && Crew.Count > 0)
+            {
+                var sick = Crew[(int)(GD.Randi() % (uint)Crew.Count)];
+                sick.CatchFever();
+                Sim.Notice("There is fever aboard, the mate says. Keep the men off her if you can.");
+            }
         }
         // An event the Factor replans on (design doc 3.9 step 7).
         foreach (var n in Sim.Npcs) if (n.Role == Role.Factor && !n.IsDead) { Agents.Delegation.AssignDailyTasks(n); break; }

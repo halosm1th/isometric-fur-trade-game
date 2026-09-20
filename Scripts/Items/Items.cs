@@ -10,6 +10,8 @@ public enum ItemId
     DriedGoose,
     Bread,
     Ale,
+    Rum,
+    Water,
     Venison,
     Goose,
     DriedMeat,
@@ -25,6 +27,7 @@ public enum ItemId
     WolfPelt,
     TradeGoods,
     SteelTrap,
+    Kettle,
     // Weapons
     Musket,
     Bow,
@@ -41,7 +44,7 @@ public enum ItemKind { Food, Drink, Fuel, Clothing, Fur, Goods, Weapon, Tool }
 public readonly record struct ItemDef(
     string Name, ItemKind Kind, float WeightLbs, string Icon,
     float Nutrition = 0f, float Thirst = 0f, float Warmth = 0f, float FuelHours = 0f, float ValueMb = 0f,
-    float Damage = 0f, float Range = 0f, float Cooldown = 1f);
+    float Damage = 0f, float Range = 0f, float Cooldown = 1f, float Intoxication = 0f);
 
 public static class Items
 {
@@ -52,7 +55,9 @@ public static class Items
         { ItemId.Pemmican,     new("Pemmican",       ItemKind.Food,     1.5f, IconDir + "pemmican.png",     Nutrition: 45f, ValueMb: 0.3f) },
         { ItemId.DriedGoose,   new("Dried goose",    ItemKind.Food,     1.0f, IconDir + "dried_goose.png",  Nutrition: 30f, ValueMb: 0.2f) },
         { ItemId.Bread,        new("Loaf of bread",  ItemKind.Food,     1.0f, IconDir + "bread_loaf.png",   Nutrition: 25f, ValueMb: 0.15f) },
-        { ItemId.Ale,          new("Tankard of ale", ItemKind.Drink,    2.0f, IconDir + "ale_tankard.png",  Nutrition: 6f, Thirst: 45f, Warmth: 4f, ValueMb: 0.2f) },
+        { ItemId.Ale,          new("Tankard of ale", ItemKind.Drink,    2.0f, IconDir + "ale_tankard.png",  Nutrition: 6f, Thirst: 45f, Warmth: 4f, ValueMb: 0.2f, Intoxication: 12f) },
+        { ItemId.Rum,          new("Dram of rum",    ItemKind.Drink,    1.0f, IconDir + "rum.png",          Thirst: 10f, Warmth: 8f, ValueMb: 0.8f, Intoxication: 35f) },
+        { ItemId.Water,        new("Water",          ItemKind.Drink,    2.0f, IconDir + "water.png",        Thirst: 50f) },
         { ItemId.Venison,      new("Fresh meat",     ItemKind.Food,     2.0f, IconDir + "venison.png",      Nutrition: 30f, ValueMb: 0.15f) },
         { ItemId.DriedMeat,    new("Dried meat",     ItemKind.Food,     0.8f, IconDir + "dried_goose.png",  Nutrition: 35f, ValueMb: 0.25f) },
         { ItemId.Goose,        new("Goose",          ItemKind.Food,     1.5f, IconDir + "goose_item.png",   Nutrition: 35f, ValueMb: 0.15f) },
@@ -65,6 +70,7 @@ public static class Items
         { ItemId.WolfPelt,     new("Wolf pelt",      ItemKind.Fur,      3.0f, IconDir + "wolf_pelt.png",    ValueMb: 0.6f) },
         { ItemId.TradeGoods,   new("Trade goods",    ItemKind.Goods,    3.0f, IconDir + "trade_goods.png",  ValueMb: 1f) },
         { ItemId.SteelTrap,    new("Steel trap",     ItemKind.Tool,     4.0f, IconDir + "steel_trap.png",   ValueMb: 1.5f) },
+        { ItemId.Kettle,       new("Copper kettle",  ItemKind.Tool,     3.0f, IconDir + "kettle.png",       ValueMb: 2f) },
         { ItemId.Musket,       new("Trade musket",   ItemKind.Weapon,   9.0f, IconDir + "musket.png",       ValueMb: 12f, Damage: 55f, Range: 340f, Cooldown: 4f) },
         { ItemId.Bow,          new("Bow",            ItemKind.Weapon,   2.0f, IconDir + "bow.png",          ValueMb: 2f,  Damage: 30f, Range: 260f, Cooldown: 1.6f) },
         { ItemId.Knife,        new("Knife",          ItemKind.Weapon,   0.5f, IconDir + "knife.png",        ValueMb: 0.5f, Damage: 18f, Range: 60f, Cooldown: 0.7f) },

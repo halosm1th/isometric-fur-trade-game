@@ -12,6 +12,7 @@ namespace IsometricFurTradeGame.Scripts.Economy;
 public partial class NwcLedger : FortLedger
 {
     public override Agents.Faction Company => Agents.Faction.NWC;
+    public override float RumShare => 0.35f;
     public override float BandStanding
     {
         get => Sim.Band?.StandingWithNwc ?? 50f;
@@ -41,6 +42,9 @@ public partial class NwcLedger : FortLedger
         Stores.Add(ItemId.Musket, 4);
         Stores.Add(ItemId.SteelTrap, 8);
         Stores.Add(ItemId.BeaverPelt, 10);
+        Stores.Add(ItemId.Rum, 40);
+        Stores.Add(ItemId.Kettle, 2);
+        Stores.Add(ItemId.Water, 16);
         foreach (var s in WorldLayout.Sites) KnownSites.Add(s.Name);   // they winter inland; they know the country
         var cal = GameCalendar.Instance;
         if (cal != null) cal.CalendarEvent += OnEvent;
@@ -50,7 +54,7 @@ public partial class NwcLedger : FortLedger
     {
         if (name != "Brigade" || !Net.Net.IsServer) return;
         // The brigade lands the year's outfit and carries the furs off.
-        Stores.Add(ItemId.TradeGoods, 90); Stores.Add(ItemId.Pemmican, 30); Stores.Add(ItemId.Ale, 30); Stores.Add(ItemId.Musket, 4); Stores.Add(ItemId.SteelTrap, 8);
+        Stores.Add(ItemId.TradeGoods, 90); Stores.Add(ItemId.Pemmican, 30); Stores.Add(ItemId.Rum, 50); Stores.Add(ItemId.Musket, 4); Stores.Add(ItemId.SteelTrap, 8);
         float shipped = FursInStoreMb;
         foreach (var id in new[] { ItemId.BeaverPelt, ItemId.CaribouHide, ItemId.WolfPelt }) Stores.TakeUpTo(id, 9999);
         // The partner answers to his peers at the rendezvous: poor returns

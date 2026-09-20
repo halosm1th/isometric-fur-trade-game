@@ -83,7 +83,7 @@ public class Conversation
             _ => "",
         };
         string busy = npc.Brain.Top != null ? $" They were {npc.Brain.Top.Label}." : "";
-        string state = npc.Needs.Hunger < 35 ? " They look hungry." : npc.Needs.Warmth < 35 ? " They are shivering." : npc.Needs.Health < 50 ? " They are hurt." : "";
+        string state = npc.IsSick ? " They are grey with fever - keep your distance." : npc.IsDrunk ? " They are drunk." : npc.Needs.Hunger < 35 ? " They look hungry." : npc.Needs.Warmth < 35 ? " They are shivering." : npc.Needs.Health < 50 ? " They are hurt." : "";
         return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{busy}{state}";
     }
 
@@ -233,7 +233,7 @@ public class Conversation
         if (npc.Children.Count > 0) family += $" Children: {string.Join(", ", npc.Children.ConvertAll(c => c.DisplayName))}.";
         if (npc.Father != null) family += $" {npc.Father.DisplayName}'s child.";
         npc.ChangeRapport(_player, 1.5f);
-        return $"{s} You judge them {temper}, {tongue} sort who {want}.{family} (rapport {npc.RapportWith(_player):0})";
+        return $"{s} About {npc.Age} years old. You judge them {temper}, {tongue} sort who {want}.{family} (rapport {npc.RapportWith(_player):0})";
     }
 
     private string AskGossip(Npc npc)
@@ -425,6 +425,8 @@ public class Conversation
                 _player.Inventory.Remove(id); npc.Inventory.Add(id);
                 npc.GiftsFromPlayerMb += def.ValueMb;
                 float gain = 4f + def.ValueMb * 6f;
+                // Drink is the quick way to a man's good opinion, and he drinks it now.
+                if (id == ItemId.Rum || id == ItemId.Ale) { gain *= 2f; npc.Inventory.Remove(id); npc.Consume(id); npc.PlayAnimation("drink"); if (npc.Faction == Faction.Cree) Sim.Band?.OnRum(1); }
                 npc.ChangeRapport(_player, gain);
                 ShowTopics($"{npc.DisplayName} accepts the {def.Name.ToLower()}. (rapport {npc.RapportWith(_player):0})");
             });

@@ -110,11 +110,46 @@ public partial class Population : Node2D
         Sim.Notice($"York Factory: {Sim.Npcs.Count} souls in the world.");
     }
 
+    // Fever spreads between people who stand together (design doc 13.5),
+    // and everyone is a year older each New Year (design doc 9.4).
+    private float _contagionTimer;
+    private int _lastYear = -1;
+    private void SicknessAndYears(float hours)
+    {
+        var cal = GameCalendar.Instance;
+        if (cal == null) return;
+        if (_lastYear < 0) _lastYear = cal.Year;
+        if (cal.Year != _lastYear)
+        {
+            _lastYear = cal.Year;
+            foreach (var n in Sim.Npcs) if (!n.IsDead) { n.Age++; n.Immune = false; if (n.Age > 45) n.MoveSpeed = Mathf.Max(80f, n.MoveSpeed * 0.97f); }
+            foreach (var p in Sim.Players()) { p.Age++; p.Immune = false; }
+        }
+        _contagionTimer -= hours;
+        if (_contagionTimer > 0f) return;
+        _contagionTimer = 1f;
+        var everyone = new List<Agent>();
+        foreach (var n in Sim.Npcs) if (!n.IsDead) everyone.Add(n);
+        foreach (var p in Sim.Players()) if (!p.IsDead) everyone.Add(p);
+        foreach (var a in everyone)
+        {
+            if (!a.IsSick) continue;
+            foreach (var b in everyone)
+            {
+                if (b == a || b.IsSick || b.Immune) continue;
+                if (a.GlobalPosition.DistanceTo(b.GlobalPosition) > 130f) continue;
+                float chance = b.IsSheltered ? 0.10f : 0.05f;
+                if (GD.Randf() < chance) b.CatchFever();
+            }
+        }
+    }
+
     // Dev aid: `-- --trace` prints everyone's goal and needs every 2 game hours.
     private bool _trace;
     private float _traceTimer;
     public override void _Process(double delta)
     {
+        if (Net.Net.IsServer) SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f);
         if (!_trace) return;
         _traceTimer -= GameCalendar.Instance?.DeltaGameHours ?? 0f;
         if (_traceTimer > 0f) return;
@@ -133,6 +168,12 @@ public partial class Population : Node2D
         var npc = NpcScene.Instantiate<Npc>();
         npc.DisplayName = name;
         npc.Role = role;
+        npc.Age = role switch
+        {
+            Role.Factor => GD.RandRange(46, 58), Role.NwcPartner => GD.RandRange(35, 50), Role.CreeChief => GD.RandRange(40, 55),
+            Role.Clerk => GD.RandRange(19, 28), Role.CreeDaughter => GD.RandRange(16, 20), Role.Sailor => GD.RandRange(18, 40),
+            _ => GD.RandRange(20, 38),
+        };
         npc.Faction = faction;
         npc.BedCell = bed;
         npc.WorkCell = work;

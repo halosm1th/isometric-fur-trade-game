@@ -20,6 +20,9 @@ public partial class FortLedger : Household
     public float QuotaMb = 60f;
     public float QuotaNextMb = 60f;
 
+    // How much of a fur payment goes out as drink. The Nor'Westers lean on it.
+    public virtual float RumShare => 0.15f;
+
     // Trade goods per MB of food when a band buys provisions from the post.
     public float FoodPriceMultiplier = 1.5f;
 
@@ -71,6 +74,9 @@ public partial class FortLedger : Household
         Stores.Add(ItemId.TradeGoods, 90);
         Stores.Add(ItemId.Musket, 6);
         Stores.Add(ItemId.SteelTrap, 10);
+        Stores.Add(ItemId.Kettle, 3);
+        Stores.Add(ItemId.Water, 24);
+        Stores.Add(ItemId.Rum, 12);
         Stores.Add(ItemId.PointBlanket, 12);
         Stores.Add(ItemId.BeaverPelt, 22);
         Stores.Add(ItemId.CaribouHide, 4);
@@ -117,8 +123,19 @@ public partial class FortLedger : Household
                 if (Stores.Count(ItemId.TradeGoods) < goods) return paidMb; // the post is bought out
                 seller.Remove(id);
                 Stores.Add(id);
-                Stores.Remove(ItemId.TradeGoods, goods);
-                buyerGoodsTo.Add(ItemId.TradeGoods, goods);
+                // Part of the price in rum, when there's rum and the band takes it.
+                int rum = 0;
+                if (RumShare > 0f && Stores.Has(ItemId.Rum) && GD.Randf() < RumShare * 2f) { rum = Mathf.Min(goods, Mathf.Max(1, Mathf.RoundToInt(goods * RumShare * 2f))); }
+                Stores.Remove(ItemId.TradeGoods, goods - rum);
+                buyerGoodsTo.Add(ItemId.TradeGoods, goods - rum);
+                if (rum > 0)
+                {
+                    rum = Stores.TakeUpTo(ItemId.Rum, rum);
+                    buyerGoodsTo.Add(ItemId.Rum, rum);
+                    // Drink buys goodwill quickly and cheaply - that's the trap.
+                    BandStanding = Mathf.Min(100f, BandStanding + 1.5f * rum);
+                    Sim.Band?.OnRum(rum);
+                }
                 paidMb += goods;
                 FursTakenMb += Items.Items.Of(id).ValueMb;
                 GoodsPaidMb += goods;

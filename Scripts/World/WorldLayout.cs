@@ -106,9 +106,9 @@ public static class WorldLayout
     {
         new("Caribou yard", Species.Caribou, new Vector2I(12, 200), 90, 140, 900f),
         new("Goose marsh", Species.Goose, new Vector2I(66, 46), 180, 300, 700f),
-        new("Beaver lodge (upper)", Species.Beaver, new Vector2I(62, 118), 28, 40, 350f),
-        new("Beaver lodge (bend)", Species.Beaver, new Vector2I(55, 182), 32, 40, 350f),
-        new("Beaver lodge (lower)", Species.Beaver, new Vector2I(60, 246), 24, 40, 350f),
+        new("Beaver lodge (upper)", Species.Beaver, new Vector2I(62, 118), 40, 60, 350f),
+        new("Beaver lodge (bend)", Species.Beaver, new Vector2I(55, 182), 45, 60, 350f),
+        new("Beaver lodge (lower)", Species.Beaver, new Vector2I(60, 246), 36, 60, 350f),
         new("Wolf den", Species.Wolf, new Vector2I(6, 280), 6, 10, 800f),
     };
 

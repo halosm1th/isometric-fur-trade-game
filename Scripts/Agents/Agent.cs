@@ -50,6 +50,18 @@ public partial class Agent : CharacterBody2D
     public float HeatNear { get; private set; }
     public bool HeatEnclosed { get; private set; }
 
+    // Drink (design doc 13.4): 0..100, wears off; slows you, spoils your aim,
+    // loosens your tongue. Unarmed forces fists for a brawl.
+    public float Intoxication;
+    public bool Unarmed;
+    public bool IsDrunk => Intoxication > 40f;
+
+    // Fever (design doc 13.5). Days left; 0 = well. Recovered people don't catch it again that year.
+    public float SickDaysLeft;
+    public bool IsSick => SickDaysLeft > 0f;
+    public bool Immune;
+    public int Age = 25;
+
     // Fixed clothing not carried as items (animals' hides, sailors' slops).
     public float InnateWarmth = 0f;
 
@@ -93,6 +105,14 @@ public partial class Agent : CharacterBody2D
         HeatEnclosed = enclosed;
 
         bool moving = Velocity.LengthSquared() > 1f;
+        Intoxication = Mathf.Max(0f, Intoxication - 8f * cal.DeltaGameHours);
+        if (IsSick)
+        {
+            SickDaysLeft -= cal.DeltaGameHours / 24f;
+            Needs.Health = Mathf.Max(0f, Needs.Health - 0.35f * cal.DeltaGameHours);   // ~8 a day
+            Needs.Hunger = Mathf.Max(0f, Needs.Hunger - 0.4f * cal.DeltaGameHours);
+            if (SickDaysLeft <= 0f) { Immune = true; Sim.Notice($"{Describe()} is over the fever."); }
+        }
         Needs.Tick(
             cal.DeltaGameHours,
             activity: !moving ? 1f : (IsSprinting ? 2.4f : 1.5f),
@@ -128,7 +148,16 @@ public partial class Agent : CharacterBody2D
     // A voyageur carried two 90-lb pieces on a portage; anyone else slows
     // down well before that (design doc 12).
     public float LoadFactor => Mathf.Clamp(1f - (Inventory.TotalWeightLbs - 50f) / 160f, 0.35f, 1f);
-    public float EffectiveSpeed => MoveSpeed * Needs.CapabilityFactor * LoadFactor * (IsSprinting ? SprintMultiplier : IsSneaking ? 0.45f : 1f);
+    public float DrunkFactor => Intoxication > 40f ? Mathf.Lerp(1f, 0.6f, (Intoxication - 40f) / 60f) : 1f;
+    public float SickFactor => IsSick ? 0.7f : 1f;
+    public float EffectiveSpeed => MoveSpeed * Needs.CapabilityFactor * LoadFactor * DrunkFactor * SickFactor * (IsSprinting ? SprintMultiplier : IsSneaking ? 0.45f : 1f);
+
+    public void CatchFever()
+    {
+        if (IsSick || Immune || IsDead) return;
+        SickDaysLeft = (float)GD.RandRange(6.0, 11.0);
+        Sim.Notice($"{Describe()} has come down with the fever.");
+    }
 
     // ---- shared action vocabulary (design doc 3.3) ----
 
@@ -151,6 +180,7 @@ public partial class Agent : CharacterBody2D
         Needs.Hunger = Mathf.Min(100f, Needs.Hunger + def.Nutrition);
         Needs.Thirst = Mathf.Min(100f, Needs.Thirst + def.Thirst);
         if (def.Kind == ItemKind.Drink) Needs.Warmth = Mathf.Min(100f, Needs.Warmth + def.Warmth);
+        Intoxication = Mathf.Min(100f, Intoxication + def.Intoxication);
         return true;
     }
 
@@ -169,6 +199,17 @@ public partial class Agent : CharacterBody2D
                 Needs.Thirst = 100f;
                 return true;
             }
+        }
+        // Carried water first.
+        if (Inventory.Has(ItemId.Water)) { Consume(ItemId.Water); return true; }
+        // The household's barrel, if you're at it.
+        if (this is Npc npc && npc.HomeStores != null && npc.HomeStores.Stores.Has(ItemId.Water) && GlobalPosition.DistanceTo(IsoGrid.ToWorld(npc.HomeStores.AccessCell)) < 140f)
+        {
+            npc.HomeStores.Stores.Remove(ItemId.Water); Needs.Thirst = 100f; return true;
+        }
+        if (this is Player.PlayerController pc && pc.HomePost != null && pc.HomePost.Stores.Has(ItemId.Water) && GlobalPosition.DistanceTo(IsoGrid.ToWorld(pc.HomePost.AccessCell)) < 140f)
+        {
+            pc.HomePost.Stores.Remove(ItemId.Water); Needs.Thirst = 100f; return true;
         }
         var terrain = Sim.Terrain;
         if (terrain == null || !terrain.IsWaterNear(GlobalPosition)) return false;
@@ -201,7 +242,7 @@ public partial class Agent : CharacterBody2D
 
     // The weapon in hand: a chosen one if still carried, else the best owned.
     public ItemId? PreferredWeapon;
-    public ItemId? Weapon => PreferredWeapon != null && Inventory.Has(PreferredWeapon.Value) ? PreferredWeapon : Inventory.BestWeapon();
+    public ItemId? Weapon => Unarmed ? null : PreferredWeapon != null && Inventory.Has(PreferredWeapon.Value) ? PreferredWeapon : Inventory.BestWeapon();
 
     // Brief red flash when hit; subclasses with a sprite read this.
     public float HurtFlash { get; private set; }
@@ -251,7 +292,10 @@ public partial class Agent : CharacterBody2D
         float mult = Needs.CapabilityFactor;
         if (IsSneaking && target.Unaware) mult *= 2.5f;
         if (range > 100f) CombatFx.Shot(this, target.GlobalPosition + new Vector2(0, -40), Weapon == ItemId.Musket);
-        if (range > 100f && GD.Randf() > 0.7f) { OnAttackMissed(target); return false; }
+        // Drink spoils the aim; fever weakens the arm.
+        float missChance = (range > 100f ? 0.3f : 0f) + Intoxication / 250f;
+        if (IsSick) mult *= 0.6f;
+        if (GD.Randf() < missChance) { OnAttackMissed(target); return false; }
         target.TakeDamage(damage * mult, this);
         OnAttacked(target);
         return true;

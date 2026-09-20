@@ -42,6 +42,11 @@ public partial class BandLedger : Household
         if (!was && WillTrade) Sim.Notice("The band is willing to trade with the post again.");
     }
 
+    // Rum in the camp (design doc 13.4): the band comes to want it, and the
+    // post that has it gets the furs.
+    public float RumTaste;
+    public void OnRum(int drams) { RumTaste = Mathf.Min(100f, RumTaste + drams * 4f); }
+
     public void OnInsult() { StandingWithCompany = Mathf.Max(0f, StandingWithCompany - 4f); }
 
     public void OnMemberKilledBy(Agents.Agent killer)
@@ -65,6 +70,8 @@ public partial class BandLedger : Household
         Stores.Add(ItemId.BeaverPelt, 6);
         Stores.Add(ItemId.TradeGoods, 4);
         Stores.Add(ItemId.SteelTrap, 8);
+        Stores.Add(ItemId.Kettle, 2);
+        Stores.Add(ItemId.Water, 12);
         foreach (var s in WorldLayout.Sites) KnownSites.Add(s.Name);   // it's their country
     }
 }

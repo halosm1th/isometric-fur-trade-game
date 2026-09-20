@@ -144,6 +144,8 @@ public partial class PlayerController : Agent
 		Inventory.Add(ItemId.Knife, 1);
 		Inventory.Add(ItemId.TradeGoods, 6);
 		Inventory.Add(ItemId.SteelTrap, 3);
+		Inventory.Add(ItemId.Kettle, 1);
+		Inventory.Add(ItemId.Water, 2);
 	}
 
 	public void BecomeLocal()
@@ -323,6 +325,7 @@ public partial class PlayerController : Agent
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "",
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
+			["drunk"] = Intoxication, ["sick"] = SickDaysLeft,
 		};
 		_oneShotAnim = ""; _teleported = false;
 		return d;
@@ -344,6 +347,7 @@ public partial class PlayerController : Agent
 		if ((bool)d["tele"]) GlobalPosition = new Vector2((float)d["px"], (float)d["py"]);
 		Faction = (Faction)(int)d["faction"];
 		_afloatMirror = (bool)d["afloat"];
+		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"];
 		bool dead = (bool)d["dead"];
 		if (dead && !wasDead) EmitSignal(SignalName.Died);
 		if (!dead && wasDead) EmitSignal(SignalName.Revived);
@@ -377,7 +381,21 @@ public partial class PlayerController : Agent
 				}
 				return best != null ? TryAttack(best) : "Nothing hostile within reach.";
 			}
-			case "drink": return Drink() ? "You drink." : "No water within reach.";
+			case "drink":
+			{
+				// At the water with a kettle you fill it; otherwise you drink what's there.
+				if (Inventory.Has(ItemId.Kettle) && Sim.Terrain != null && Sim.Terrain.IsWaterNear(GlobalPosition) && !GameCalendar.Instance.IsFrozen)
+				{
+					Inventory.Add(ItemId.Water, 3); Needs.Thirst = 100f;
+					return "You drink and fill the kettle (3 water).";
+				}
+				if (Inventory.Has(ItemId.Kettle) && GameCalendar.Instance.IsFrozen && HeatNear > 0.3f)
+				{
+					var h = Sim.Structures?.HearthNear(GlobalPosition, 400f);
+					if (h != null && h.IsBurning) { h.FuelHours = Mathf.Max(0.1f, h.FuelHours - 0.6f); Inventory.Add(ItemId.Water, 3); Needs.Thirst = 100f; return "You melt a kettle of snow at the fire (3 water)."; }
+				}
+				return Drink() ? "You drink." : "No water within reach - carry some, or find a fire in winter.";
+			}
 			case "wait":
 			{
 				var cal = GameCalendar.Instance;
@@ -471,6 +489,8 @@ public partial class PlayerController : Agent
 			}
 			case ItemKind.Clothing:
 				return $"You're wearing the {def.Name.ToLower()}. (+{def.Warmth:0} warmth)";
+			case ItemKind.Tool when id == ItemId.Kettle:
+				return ServerAction("drink", new Godot.Collections.Array());
 			case ItemKind.Tool when id == ItemId.SteelTrap:
 			{
 				var site = Sim.Ecology?.SiteNear(GlobalPosition, Ecology.Species.Beaver);

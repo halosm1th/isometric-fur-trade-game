@@ -34,6 +34,10 @@ public abstract class RoleBehaviour
     public virtual Goal NextGoal(Npc npc)
     {
         if (IsNight) return new SleepGoal();
+        var dram = EveningDrink(npc);
+        if (dram != null) return dram;
+        // Hangover: a man still drunk at first light does no work worth the name.
+        if (npc.Intoxication > 35f && IsWorkHours) return new WanderGoal(npc.BedCell, 1, 0.8f);
         if (npc.AssignedTask != null && IsWorkHours && !(npc.AssignedTaskIsHunt && Cal.Hour >= 12f))
         {
             var g = npc.AssignedTask(npc);
@@ -66,6 +70,26 @@ public abstract class RoleBehaviour
         }
         var target = eco.BestSite(Species.Beaver, home);
         return target != null ? new SetTraplineGoal(target) : null;
+    }
+
+    // The barrel needs filling (design doc 17.2).
+    protected static Goal WaterDuty(Npc npc, int threshold)
+    {
+        var s = npc.HomeStores;
+        if (s == null || s.Stores.Count(ItemId.Water) >= threshold) return null;
+        if (!s.Stores.Has(ItemId.Kettle) && !npc.Inventory.Has(ItemId.Kettle)) return null;
+        return new FetchWaterGoal();
+    }
+
+    // An evening dram if there's drink in the cache and the man's that sort.
+    protected static Goal EveningDrink(Npc npc)
+    {
+        var s = npc.HomeStores;
+        if (s == null || npc.IsFemale) return null;
+        if (Cal.Hour < 19f || Cal.Hour >= 22f) return null;
+        if (!s.Stores.Has(ItemId.Rum) && !s.Stores.Has(ItemId.Ale)) return null;
+        float inclination = 0.3f + npc.Personality.Talkative * 0.4f - npc.Personality.Loyalty * 0.3f;
+        return GD.Randf() < inclination * 0.5f ? new CarouseGoal() : null;
     }
 
     // Fires need wood; whoever notices first deals with it.
@@ -115,6 +139,8 @@ public class LabourerBehaviour : RoleBehaviour
         if (!IsWorkHours) return new WanderGoal(npc.BedCell, 2, 1f);
         var fire = FireDuty(npc, 3f);
         if (fire != null) return fire;
+        var water = WaterDuty(npc, 6);
+        if (water != null) return water;
         // Nothing assigned: keep the woodpile up.
         if (npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Firewood) < 30) return new ChopWoodGoal();
         return new WanderGoal(npc.WorkCell, 3, 1f);
@@ -127,6 +153,8 @@ public class HouseholdBehaviour : RoleBehaviour
     {
         var fire = FireDuty(npc, 5f);
         if (fire != null) return fire;
+        var water = WaterDuty(npc, 12);
+        if (water != null) return water;
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Venison) >= 3) return new DryMeatGoal();
         if (npc.Needs.Thirst < 60f) return new DrinkGoal();
         return new WanderGoal(npc.WorkCell, 2, 1.2f);
@@ -157,6 +185,7 @@ public class CreeChiefBehaviour : RoleBehaviour
             if (!band.WillTradeWith(post) || post.Stores.Count(ItemId.TradeGoods) < 5) continue;
             float walk = IsoGrid.ToWorld(post.AccessCell).DistanceTo(IsoGrid.ToWorld(band.AccessCell));
             float score = post.PeltPrice * (0.5f + post.BandStanding / 100f) / (1f + walk / 4000f);
+            if (post.Stores.Has(ItemId.Rum)) score *= 1f + band.RumTaste / 200f;
             if (post.BandDebt > 0f) score *= 1.15f;   // you go back where you owe
             if (score > bestScore) { bestScore = score; best = post; }
         }
@@ -205,6 +234,8 @@ public class CreeWomanBehaviour : RoleBehaviour
     {
         var fire = FireDuty(npc, 5f);
         if (fire != null) return fire;
+        var water = WaterDuty(npc, 10);
+        if (water != null) return water;
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Venison) >= 3) return new DryMeatGoal();
         if (npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Firewood) < 12 && IsWorkHours) return new ChopWoodGoal();
         return new WanderGoal(WorldLayout.CampCentre, 3, 1.2f);
