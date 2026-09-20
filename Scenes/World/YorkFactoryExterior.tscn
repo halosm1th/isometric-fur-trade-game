@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://bs5tneknhil2f" path="res://Scripts/UI/NeedsHud.cs" id="7_needs"]
 [ext_resource type="PackedScene" path="res://Scenes/Items/WorldItem.tscn" id="8_worlditem"]
 [ext_resource type="Script" uid="uid://bj8iby1i0cfn0" path="res://Scripts/UI/Hotbar.cs" id="9_hotbar"]
+[ext_resource type="Script" path="res://Scripts/UI/DebugMenu.cs" id="10_debug"]
 
 [node name="YorkFactoryExterior" type="Node2D" unique_id=1419352490]
 
