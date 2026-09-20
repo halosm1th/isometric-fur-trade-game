@@ -27,7 +27,8 @@ public abstract class RoleBehaviour
 
     protected static GameCalendar Cal => GameCalendar.Instance;
     protected static bool IsNight => Cal.Hour >= 21f || Cal.Hour < 6f;
-    protected static bool IsWorkHours => Cal.Hour >= 7f && Cal.Hour < 18f;
+    protected static bool IsWorkHours => Cal.Hour >= 7f && Cal.Hour < 18f && !FoulWeather;
+    protected static bool FoulWeather => Cal.Weather.Current == SkyState.Blizzard || Cal.Weather.Current == SkyState.Storm;
 
     public virtual Goal NextGoal(Npc npc)
     {
@@ -235,6 +236,14 @@ public static class Delegation
             summary += $"{m.DisplayName}: {m.AssignedTaskName}; ";
         }
         Sim.Notice($"{factor.DisplayName} gives the morning's orders. {summary}");
+
+        // The new hand gets his orders like everyone else.
+        if (Sim.Player is Player.PlayerController pc && !pc.IsDead)
+        {
+            if (threats > 0) pc.AssignTask(Player.TaskKind.DriveOffAnimals, 1);
+            else if (shipIn && ship.Cargo.SlotCount > 0) pc.AssignTask(Player.TaskKind.CarryCargo, 8);
+            else pc.AssignTask(Player.TaskKind.Firewood, 4);
+        }
     }
 
     private static GameCalendar Cal() => GameCalendar.Instance;

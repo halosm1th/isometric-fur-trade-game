@@ -66,6 +66,7 @@ public partial class DebugMenu : Control
             AddSlider(S, "Pelt price now", 0.2f, 3f, 0.1f, () => fort.PeltPrice, v => fort.PeltPrice = v);
             AddSlider(S, "Next ship's price", 0.2f, 3f, 0.1f, () => fort.LondonIncentiveNext, v => fort.LondonIncentiveNext = v);
             AddSlider(S, "Quota (MB)", 10f, 300f, 5f, () => fort.QuotaMb, v => { fort.QuotaMb = v; fort.QuotaNextMb = v; }, "0");
+            AddButton(S, "Toggle London deciding prices itself (on)", () => { Economy.LondonCommittee.Automatic = !Economy.LondonCommittee.Automatic; Sim.Notice($"London sets prices automatically: {Economy.LondonCommittee.Automatic}"); });
             AddReadout(S, () =>
             {
                 int mouths = 0; foreach (var n in Sim.Npcs) if (n.Faction == Agents.Faction.HBC && !n.IsDead) mouths++;
@@ -241,6 +242,10 @@ public partial class DebugMenu : Control
         Section(S).AddChild(row);
         _refreshers.Add(() => { year.Value = cal.Year; month.Value = cal.Month; day.Value = cal.Day; hour.Value = Mathf.FloorToInt(cal.Hour); });
 
+        AddButtonRow(S,
+            ("Blizzard", () => cal.Weather.Force(SkyState.Blizzard, 12f)),
+            ("Clear sky", () => cal.Weather.Force(SkyState.Clear, 24f)),
+            ("Gale", () => cal.Weather.Force(SkyState.Storm, 8f)));
         AddButtonRow(S,
             ("Ship eve (19 Aug)", () => cal.SetDate(cal.Year, 8, 19, 8)),
             ("Goose hunt (Sep)", () => cal.SetDate(cal.Year, 9, 20, 8)),

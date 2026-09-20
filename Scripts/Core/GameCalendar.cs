@@ -34,6 +34,7 @@ public partial class GameCalendar : Node
     [Export] public bool Paused = false;
 
     public Season CurrentSeason { get; private set; }
+    public readonly Weather Weather = new();
 
     // Game hours that elapsed during the last frame; agents tick off this.
     public float DeltaGameHours { get; private set; }
@@ -138,6 +139,7 @@ public partial class GameCalendar : Node
 
         (_startYear, _startMonth, _startDay, _startHour) = (Year, Month, Day, Hour);
         CurrentSeason = SeasonFor(Month);
+        Weather.Roll(CurrentSeason);
         _lastHour = Mathf.FloorToInt(Hour);
     }
 
@@ -161,6 +163,7 @@ public partial class GameCalendar : Node
             SkipRemaining -= DeltaGameHours;
         }
         Hour += DeltaGameHours;
+        Weather.Tick(DeltaGameHours, CurrentSeason);
         MotionScale = delta > 0 ? Mathf.Max(1f, DeltaGameHours / ((float)delta / BaselineSecondsPerHour)) : 1f;
 
         int h = Mathf.FloorToInt(Hour);

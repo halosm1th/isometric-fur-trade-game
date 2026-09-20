@@ -19,6 +19,21 @@ public partial class PlayerController : Agent
 
 	public Npc Spouse;
 
+	// Standing with the Company (design doc 3.6): slow, bureaucratic, reviewed by results.
+	public float Standing = 10f;
+	public readonly PlayerTask Task = new();
+	private int _lastTaskDay = -1;
+
+	// The Factor's morning orders for the new hand.
+	public void AssignTask(TaskKind kind, int need)
+	{
+		var cal = GameCalendar.Instance;
+		if (Task.Kind != TaskKind.None && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; EmitSignal(SignalName.Notice, "Yesterday's task went undone. Mr. Auld noticed."); }
+		if (Task.Kind != TaskKind.None && Task.IsComplete) Standing += 5f;
+		Task.Kind = kind; Task.Need = need; Task.Done = 0; Task.DayAssigned = cal.Day;
+		if (kind != TaskKind.None) EmitSignal(SignalName.Notice, Task.Describe());
+	}
+
 	public override void _Ready()
 	{
 		_sprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
@@ -105,12 +120,14 @@ public partial class PlayerController : Agent
 		if (!CanAttack) return;
 		_sprite.FlipH = target.GlobalPosition.X < GlobalPosition.X;
 		bool hit = Attack(target);
+		if (hit && target.IsDead && target is Animal dead && dead.IsDangerous) Task.Progress(TaskKind.DriveOffAnimals, 1);
 		string what = Weapon != null ? Items.Items.Of(Weapon.Value).Name : "fists";
 		if (hit) EmitSignal(SignalName.Notice, target.IsDead ? $"{target.Describe()} is dead." : $"You strike {target.Describe()} with your {what.ToLower()}.");
 		else EmitSignal(SignalName.Notice, "Missed.");
 	}
 
-	// E: talk to whoever is close, else pick up, loot a body, work a door, look at a fire.
+	// E: talk to whoever is close, else pick up, loot a body, use the woodpile
+	// or warehouse, work a door, look at a fire.
 	private void Interact()
 	{
 		var npc = NearestNpc(110f);
@@ -143,6 +160,49 @@ public partial class PlayerController : Agent
 			EmitSignal(SignalName.Notice, $"Picked up {pickup.Label}.");
 			pickup.QueueFree();
 			return;
+		}
+
+		// The Company's woodpile and warehouse take what you carry.
+		var fort = Sim.Fort;
+		if (fort != null)
+		{
+			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.WoodpileCell)) < 120f)
+			{
+				int n = Inventory.Count(ItemId.Firewood);
+				if (n > 0) { Inventory.Remove(ItemId.Firewood, n); fort.Stores.Add(ItemId.Firewood, n); Task.Progress(TaskKind.Firewood, n); EmitSignal(SignalName.Notice, $"You stack {n} firewood on the pile ({fort.Stores.Count(ItemId.Firewood)} there now)."); }
+				else { int take = fort.Stores.TakeUpTo(ItemId.Firewood, 2); Inventory.Add(ItemId.Firewood, take); EmitSignal(SignalName.Notice, take > 0 ? $"You take {take} firewood from the pile." : "The woodpile is bare."); }
+				return;
+			}
+			if (WorldLayout.Warehouse.Contains(Cell))
+			{
+				int moved = 0;
+				foreach (var (id, n) in new System.Collections.Generic.List<(ItemId, int)>(Inventory.All()))
+				{
+					var kind = Items.Items.Of(id).Kind;
+					if (kind == ItemKind.Weapon || kind == ItemKind.Clothing || kind == ItemKind.Fuel) continue;
+					if (kind == ItemKind.Food || kind == ItemKind.Drink) continue;   // keep your own rations
+					Inventory.Remove(id, n); fort.Stores.Add(id, n); moved += n;
+					if (kind == ItemKind.Goods) Task.Progress(TaskKind.CarryCargo, n);
+				}
+				EmitSignal(SignalName.Notice, moved > 0 ? $"You stow {moved} lots in the warehouse." : "Nothing to stow. (Goods and furs go in here; keep your food and kit.)");
+				return;
+			}
+			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.AccessCell)) < 110f && Inventory.CountOfKind(ItemKind.Food) < 3)
+			{
+				if (fort.TakeRation(this, 2)) { EmitSignal(SignalName.Notice, "You draw a ration from the stores."); return; }
+			}
+			var ship = Sim.Ship;
+			if (ship != null && ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 160f && ship.Cargo.SlotCount > 0)
+			{
+				int carried = 0;
+				foreach (var (id, n) in new System.Collections.Generic.List<(ItemId, int)>(ship.Cargo.All()))
+				{
+					int take = Mathf.Min(n, 4 - carried); if (take <= 0) break;
+					ship.Cargo.Remove(id, take); Inventory.Add(id, take); carried += take;
+				}
+				EmitSignal(SignalName.Notice, $"You shoulder {carried} lots from the ship. Take them to the warehouse.");
+				return;
+			}
 		}
 
 		var structures = Sim.Structures;

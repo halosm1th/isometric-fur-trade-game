@@ -42,7 +42,8 @@ public class Needs
 
         // Shelter blocks wind; only a fire produces warmth. Real shelter is
         // both together (design doc 17.3 / 18.4).
-        float exposure = Climate.ExposurePerHour(season, daylight) * (sheltered ? ShelterWindFactor : 1f);
+        float weather = GameCalendar.Instance?.Weather.ExposureMultiplier ?? 1f;
+        float exposure = Climate.ExposurePerHour(season, daylight) * (sheltered ? ShelterWindFactor : weather);
         float loss = Mathf.Max(0f, exposure - clothingWarmth);
         float gain = heat * HearthRecovery * (sheltered || fireEnclosed ? 1f : OpenFireFactor);
         Warmth = Mathf.Clamp(Warmth + (gain - loss) * gameHours, 0f, 100f);

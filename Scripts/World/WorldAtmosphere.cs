@@ -33,7 +33,8 @@ public partial class WorldAtmosphere : CanvasModulate
             Season.OpenWater => SummerTint,
             _ => Colors.White,
         };
-        Color target = new(c.R * season.R, c.G * season.G, c.B * season.B, 1f);
+        float sky = cal.Weather.LightMultiplier;
+        Color target = new(c.R * season.R * sky, c.G * season.G * sky, c.B * season.B * Mathf.Lerp(1f, sky, 0.7f), 1f);
 
         Color = Color.Lerp(target, (float)delta * 2f);
     }

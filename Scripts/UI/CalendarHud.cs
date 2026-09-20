@@ -36,7 +36,7 @@ public partial class CalendarHud : Label
         if (cal == null) return;
 
         string fast = Input.IsActionPressed("time_fast") ? "  >>" : "";
-        Text = $"{cal.DateString}   {cal.TimeString}{fast}\n{cal.SeasonString}";
+        Text = $"{cal.DateString}   {cal.TimeString}{fast}\n{cal.SeasonString} - {cal.Weather.Describe()}";
 
         if (_eventTimer > 0f)
         {

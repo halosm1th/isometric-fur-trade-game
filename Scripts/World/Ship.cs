@@ -89,7 +89,11 @@ public partial class Ship : Node2D
         Current = State.Departing;
         float mb = Hold.TotalValueMb;
         Sim.Notice($"The ship has sailed for London with {mb:0} MB of furs aboard" + (Sim.Fort != null ? $" (quota was {Sim.Fort.QuotaMb:0})." : "."));
-        if (Sim.Fort != null) { Sim.Fort.FursTakenMb = 0f; Sim.Fort.GoodsPaidMb = 0f; }
+        if (Sim.Fort != null)
+        {
+            Economy.LondonCommittee.ReviewReturns(Sim.Fort, mb);
+            Sim.Fort.FursTakenMb = 0f; Sim.Fort.GoodsPaidMb = 0f;
+        }
     }
 
     public override void _Process(double delta)
