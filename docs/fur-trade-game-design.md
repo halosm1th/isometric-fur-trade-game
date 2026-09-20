@@ -891,6 +891,11 @@ Fire is a real object that sits on a tile and does things over time, not a boole
 - **Accord breach severity scaling** (Section 3.8.2) — whether every broken Accord carries the same weight or scales with what was promised (a minor trade term vs. a peace treaty) needs concrete rules.
 - **NPC-initiated post founding** — Section 13.8 is written from the player's side; whether NPC leaders (a Factor, a partner) pursue this same goal autonomously, and how often, is undecided.
 
+**New — from the crafting and interface discussion:**
+- **Recipe list and balance** (Section 12.6) — the actual catalog of what's craftable, its material costs, and the skill-to-quality formula all need full authoring; only the shape of the system (anywhere vs. facility-gated, crafting vs. smithing) is decided here.
+- **Perk trigger list** (Section 12.7) — which specific events grant which specific perks, and whether any beyond goal-reading (Section 3.5) should also be reserved as player-exclusive, is unwritten.
+- **Facility siting** — which existing posts start with a forge (Section 12.6), and whether one can be built at a new or existing post outside the founding process (Section 13.8), is undecided.
+
 ---
 
 ## 21. Multiplayer
@@ -946,4 +951,5 @@ This revision folds the follow-up planning discussion into the document. Where t
 - **Council outcomes as Accords** (Section 3.8.2): new generic agreement object — parties, terms, a breach condition — with peace treaties, trade exclusivity, safe passage, alliances, debt restructuring, vendetta settlements, and the 1821 merger itself all as named parameterizations of the same object, matching Section 19's one-generic-system principle.
 - **Legacy across kinship** (Section 10.9): new subsection — a dead agent's existing memories apply to their heir one kinship hop further removed, using the same weight/decay math as an ordinary retelling, giving succession and the multi-generational family goal (Section 3.1) real accumulated weight.
 - **Founding a new post** (Section 13.8): new subsection — expansion as a Tier 1 goal running through site selection, metropole/council approval, vulnerable construction, and competition for the same finite recruit pool as every existing post.
+- **Crafting and player interface** (Sections 12.6, 12.7, 3.10, 19): new subsections — recipes as reusable chains with an anywhere/facility-gated split (crafting vs. a new smithing skill), manufactured trade goods deliberately excluded as repairable-only rather than craftable, and four interface screens (inventory, character, skills, perks) surfacing existing simulation state rather than adding new mechanics. Perks introduced as a discrete-trait condition type alongside addiction and disease, with goal-reading (Section 3.5) as the one deliberately player-exclusive instance.
 - **Open questions** (Section 20): updated and extended.

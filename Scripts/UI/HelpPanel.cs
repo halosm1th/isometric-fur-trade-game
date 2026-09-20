@@ -15,6 +15,7 @@ public partial class HelpPanel : Control
         "1-9  use a hotbar slot     mouse wheel + Enter  pick and use     Q  drink\n" +
         "Left click  strike whoever is under the cursor      F  strike the nearest hostile\n" +
         "Z  wait an hour (sleep at night)     T  hold to fast-forward     Tab  chat\n" +
+        "Space  stop/start the clock (host)     [ / ]  slower / faster clock (host)\n" +
         "J  journal      M  map      F1  test console (host)      F5 / F9  save / load (host)\n" +
         "R  begin again after death      Esc  close a menu      H  this\n\n" +
         "You are the Company's new hand at York Factory. Keep warm (a hearth, a capote), fed and watered;\n" +

@@ -93,6 +93,37 @@ public partial class Net : Node
         if (IsServer && Current != Mode.Dedicated) SpawnPlayer(1, _names.GetValueOrDefault(1, LocalName));
     }
 
+    // The host's hand on the clock (design doc 21.3): pause, or a slower or
+    // faster hour. Everyone's clock follows; only the host may touch it.
+    public static bool HostPaused { get; private set; }
+    public void TogglePause()
+    {
+        if (!IsServer) { Sim.NoticeLocal("Only the host can stop the clock."); return; }
+        SetClock(!HostPaused, GameCalendar.Instance?.SecondsPerGameHour ?? 10f);
+    }
+    public void ChangeSpeed(float factor)
+    {
+        if (!IsServer) { Sim.NoticeLocal("Only the host can set the pace."); return; }
+        var cal = GameCalendar.Instance; if (cal == null) return;
+        SetClock(HostPaused, Mathf.Clamp(cal.SecondsPerGameHour * factor, 0.5f, 120f));
+    }
+    private void SetClock(bool paused, float secondsPerHour)
+    {
+        ApplyClock(paused, secondsPerHour);
+        if (Current != Mode.Offline) Rpc(nameof(ClockState), paused, secondsPerHour);
+        Sim.Notice(paused ? "The host has stopped the clock." : $"The clock runs: {secondsPerHour:0.#} s to the hour.");
+    }
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void ClockState(bool paused, float secondsPerHour) => ApplyClock(paused, secondsPerHour);
+    private static void ApplyClock(bool paused, float secondsPerHour)
+    {
+        HostPaused = paused;
+        var cal = GameCalendar.Instance;
+        if (cal != null) { cal.SecondsPerGameHour = secondsPerHour; cal.Paused = paused; }
+        // Time stops for the bodies too, not just the calendar; the menu still works.
+        if (!UI.PauseMenu.IsOpen) Engine.TimeScale = paused ? 0.0 : 1.0;
+    }
+
     // Back to the menu: drop the connection (or the hosted game) and forget the world.
     public void Leave()
     {
@@ -172,6 +203,7 @@ public partial class Net : Node
         foreach (var a in Agents.Values) RpcId(peer, nameof(SpawnAgent), Describe(a));
         foreach (var kv in Players) RpcId(peer, nameof(BindPlayer), kv.Key, kv.Value.NetId, kv.Value.DisplayName);
         Sim.Structures?.SendCellStateTo(peer);
+        RpcId(peer, nameof(ClockState), HostPaused, GameCalendar.Instance?.SecondsPerGameHour ?? 10f);
         SpawnPlayer(peer, name);
         Sim.Notice($"{name} has joined.");
     }

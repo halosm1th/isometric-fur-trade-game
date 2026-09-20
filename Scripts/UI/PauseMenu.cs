@@ -73,7 +73,7 @@ public partial class PauseMenu : Control
             ("move_up", "walk up"), ("move_down", "walk down"), ("move_left", "walk left"), ("move_right", "walk right"),
             ("sprint", "run"), ("sneak", "crouch / sneak (and deliberate arson with flint)"), ("interact", "talk / use what's in front of you"),
             ("attack_nearest", "strike the nearest hostile"), ("drink", "drink"), ("wait", "wait an hour / sleep at night"),
-            ("time_fast", "hold to fast-forward"), ("hotbar_use", "use the selected hotbar slot"), ("hotbar_1", "hotbar 1 (… to 9)"),
+            ("time_fast", "hold to fast-forward"), ("pause_clock", "stop / start the clock (host)"), ("clock_slower", "slower clock (host)"), ("clock_faster", "faster clock (host)"), ("hotbar_use", "use the selected hotbar slot"), ("hotbar_1", "hotbar 1 (… to 9)"),
             ("chat", "chat"), ("journal", "journal"), ("log", "the log"), ("inventory", "your pack"), ("map", "map"), ("help", "help"),
             ("debug_menu", "test console (host)"), ("restart", "begin again after death"),
         };
@@ -120,7 +120,7 @@ public partial class PauseMenu : Control
     private void Close()
     {
         _panel.Visible = false; IsOpen = false;
-        Engine.TimeScale = 1.0;
+        Engine.TimeScale = NetHub.HostPaused ? 0.0 : 1.0;
     }
 
     private void ToMainMenu()

@@ -32,6 +32,8 @@ Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--nam
 | Q | drink (from water, or melt snow at a fire in winter) |
 | Z | wait an hour; at night, sleep until 07:00 |
 | T | hold for fast-forward (×40) |
+| Space | stop / start the clock (host only; everyone's clock follows; bodies stop too) |
+| [ / ] | slower / faster clock - doubles or halves the seconds per game hour (host only; shown on the calendar) |
 | Tab | chat |
 | J / L / I | your book: **Journal** (what you witnessed, dated) · **Log** (everything the world announced, timestamped - the old scrolling top-left log now lives here; only the newest line or two flash on screen) · **Pack** (every item with weight, worth and what it does) |
 | F1 | test console: now also a **World log** section with the last 30 notices (nothing flashes in the corner any more) |

@@ -236,6 +236,10 @@ public partial class PlayerController : Agent
 		if (_dialogue != null && _dialogue.IsOpen) return;
 		if (UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping) return;
 		if (UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen) return;
+		// The clock: Space stops it, [ and ] slow and quicken it (host).
+		if (@event.IsActionPressed("pause_clock")) { NetHub.I?.TogglePause(); GetViewport().SetInputAsHandled(); return; }
+		if (@event.IsActionPressed("clock_slower")) { NetHub.I?.ChangeSpeed(2f); return; }
+		if (@event.IsActionPressed("clock_faster")) { NetHub.I?.ChangeSpeed(0.5f); return; }
 		// Quick save / load: the host's privilege.
 		if (@event is InputEventKey { Pressed: true, Echo: false } key && NetHub.IsServer)
 		{
