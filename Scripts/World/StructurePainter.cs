@@ -405,6 +405,34 @@ public partial class StructurePainter : TileMapLayer
         }
     }
 
+    // A hearth object for a fire cell that hasn't got one (a campfire built
+    // in the bush, or one that arrived from the server).
+    private Hearth EnsureHearth(Vector2I cell, float fuel)
+    {
+        if (_hearthByCell.TryGetValue(cell, out var have)) return have;
+        var hearth = new Hearth { Position = MapToLocal(cell), Name = $"Hearth_{cell.X}_{cell.Y}", Cell = cell, FuelHours = fuel, Enclosed = false };
+        AddChild(hearth);
+        _hearths.Add(hearth);
+        _hearthByCell[cell] = hearth;
+        return hearth;
+    }
+
+    // Build a fire in the open (design doc 17.3, 18.4): a ring of stones
+    // on bare ground. Returns the hearth, or null if the ground won't do.
+    private readonly List<Vector2I> _campfires = new();
+    public Hearth BuildCampfire(Vector2I cell)
+    {
+        if (GetCellSourceId(cell) != -1 || (_front ?? this).GetCellSourceId(cell) != -1) return null;
+        if (_floor != null && _floor.GetCellSourceId(cell) != -1) return null;
+        if (Sim.Terrain != null && Sim.Terrain.IsWaterOrIce(cell)) return null;
+        if (IsSheltered(MapToLocal(cell))) return null;
+        SetBack(cell, SourceCampfire);
+        _campfires.Add(cell);
+        RebuildCollision();
+        Net.Net.I?.BroadcastCell(0, cell, SourceCampfire);
+        return EnsureHearth(cell, 0f);
+    }
+
     // A tree was felled: the cell clears and the cutter gets wood.
     public bool FellTreeAt(Vector2I cell)
     {
@@ -500,6 +528,7 @@ public partial class StructurePainter : TileMapLayer
         }
         var l = layer == 0 ? this : layer == 1 ? (_front ?? this) : (_floor ?? this);
         if (source < 0) l.EraseCell(cell); else l.SetCell(cell, source, Vector2I.Zero);
+        if (layer == 0 && source == SourceCampfire) { EnsureHearth(cell, 0f); if (!_campfires.Contains(cell)) _campfires.Add(cell); }
         RebuildCollision();
     }
 
@@ -523,6 +552,7 @@ public partial class StructurePainter : TileMapLayer
             foreach (var (cell, _) in CampCells(WorldLayout.WinterCamp)) net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, -1);
             foreach (var (cell, source) in CampCells(_paintedCamp)) net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, source);
         }
+        foreach (var cell in _campfires) net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, SourceCampfire);
         foreach (var cell in _felled)
         {
             net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, -1);
@@ -545,6 +575,7 @@ public partial class StructurePainter : TileMapLayer
                 if (OpenDoors.Contains(s)) a.Add(new Godot.Collections.Array { idx, cell.X, cell.Y, s });
             }
         }
+        foreach (var cell in _campfires) a.Add(new Godot.Collections.Array { 0, cell.X, cell.Y, SourceCampfire });
         foreach (var cell in _felled)
         {
             a.Add(new Godot.Collections.Array { 0, cell.X, cell.Y, -1 });

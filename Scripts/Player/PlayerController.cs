@@ -175,6 +175,7 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
 			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
+			if (arg.StartsWith("--use=") && int.TryParse(arg.Substring(6), out int slot)) GetTree().CreateTimer(3.0).Timeout += () => NetHub.I?.Act("use", new Godot.Collections.Array { slot });
 			if (arg == "--follow" && NetHub.IsServer) GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(600f); if (n != null) { n.Brain.Clear(n); n.Brain.Push(n, new Agents.Goals.FollowGoal(this, 10f)); GD.Print($"[dev] {n.DisplayName} follows"); GetTree().CreateTimer(8.0).Timeout += () => { GlobalPosition = IsoGrid.ToWorld(WorldLayout.GateOutside) + new Vector2(0, 600); GD.Print("[dev] player moved outside the gate"); }; } };
 			if (arg == "--scurvy" && NetHub.IsServer) GetTree().CreateTimer(2.0).Timeout += () => { foreach (var n in Sim.Npcs) if (n.Faction == Faction.HBC) n.DaysSinceFresh = 41.5f; DaysSinceFresh = 41.5f; };
 			if (arg.StartsWith("--autoload=") && double.TryParse(arg.Substring(11), out double lsecs) && NetHub.IsServer) GetTree().CreateTimer(lsecs).Timeout += () => { if (!SaveGame.BeginLoad(GetTree())) GD.Print("[load] " + SaveGame.LastMessage); };
@@ -533,13 +534,39 @@ public partial class PlayerController : Agent
 			{
 				var fire = World.Fire.I;
 				if (fire == null) return "";
-				// Light the wood under your feet or the wall beside you.
-				Vector2I target = Cell;
-				if (!Sim.Structures.IsFlammable(target))
+				// A cold hearth in reach: light it (with wood, if it's empty).
+				var cold = Sim.Structures.HearthNear(GlobalPosition, 160f);
+				if (cold != null && !cold.IsBurning)
 				{
-					foreach (var n in IsoGrid.EdgeNeighbours(Cell)) if (Sim.Structures.IsFlammable(n)) { target = n; break; }
+					if (!Inventory.Has(ItemId.Firewood)) return "The hearth is cold and you have no wood for it.";
+					Inventory.Remove(ItemId.Firewood);
+					cold.Feed(Items.Items.Of(ItemId.Firewood).FuelHours);
+					return "You lay the wood, strike a spark, and the hearth catches.";
 				}
-				if (!Sim.Structures.IsFlammable(target)) return "Nothing here will take a spark.";
+				// Arson takes intent: crouched (Ctrl), against wood, deliberately.
+				Vector2I target = Cell;
+				if (IsSneaking)
+				{
+					if (!Sim.Structures.IsFlammable(target))
+					{
+						foreach (var n in IsoGrid.EdgeNeighbours(Cell)) if (Sim.Structures.IsFlammable(n)) { target = n; break; }
+					}
+				}
+				if (!IsSneaking || !Sim.Structures.IsFlammable(target))
+				{
+					// Otherwise: make camp, if you have wood and open ground.
+					if (IsSheltered) return "Not indoors. Take it outside, or feed the hearth. (Crouch with Ctrl if you mean to burn the place.)";
+					if (!Inventory.Has(ItemId.Firewood)) return "You have flint but no wood. Cut some first.";
+					Vector2I spot = Cell;
+					foreach (var n in IsoGrid.EdgeNeighbours(Cell)) if (n != Cell && !(Sim.Terrain?.IsWaterOrIce(n) ?? true) && !Sim.Structures.IsCellSolid(n)) { spot = n; break; }
+					if (spot == Cell) return "No clear ground here for a fire.";
+					var hearth = Sim.Structures.BuildCampfire(spot);
+					if (hearth == null) return "The ground here won't take a fire.";
+					Inventory.Remove(ItemId.Firewood);
+					hearth.Feed(Items.Items.Of(ItemId.Firewood).FuelHours);
+					if (HomePost != null && GlobalPosition.DistanceTo(IsoGrid.ToWorld(HomePost.AccessCell)) > 1500f) Chronicle.Event($"{DisplayName} made camp in the open.", GlobalPosition, this, weight: 0.3f);
+					return "You strike a spark into the tinder and the fire catches. Feed it wood from the hotbar; it warms about six paces and melts snow for drinking.";
+				}
 				if (!fire.Ignite(target)) return "It won't catch.";
 				Chronicle.Event($"{DisplayName} set fire to the buildings.", GlobalPosition, this, weight: 3f);
 				// Anyone whose house this is, and saw it, comes for you.
