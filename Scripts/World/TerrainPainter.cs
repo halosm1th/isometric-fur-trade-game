@@ -197,6 +197,7 @@ public partial class TerrainPainter : TileMapLayer
         "warehouse" => WorldLayout.Warehouse.Centre,
         "menshouse" => WorldLayout.MensHouse.Centre,
         "wharf" => WorldLayout.WharfRoot,
+        "berth" => IsoGrid.Cell(WorldLayout.WharfEnd, -2, 0),
         "camp" => IsoGrid.Cell(WorldLayout.CampCentre, 1, 1),
         "caribou" => WorldLayout.Sites[0].Cell,
         "geese" => WorldLayout.Sites[1].Cell,

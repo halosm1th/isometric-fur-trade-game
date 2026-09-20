@@ -145,10 +145,22 @@ public partial class EcologyManager : Node2D
         }
     }
 
+    private bool _scenarioDone;
+
     public override void _Process(double delta)
     {
         var cal = GameCalendar.Instance;
         if (cal == null) return;
+        if (!_scenarioDone)
+        {
+            _scenarioDone = true;
+            // Dev aid: `-- --wolves` drops a hungry pack outside the gate at start.
+            foreach (string arg in OS.GetCmdlineUserArgs())
+            {
+                if (arg == "--wolves") SpawnPackNear(Species.Wolf, IsoGrid.ToWorld(WorldLayout.GateOutside) + new Vector2(350, 250), 4, true);
+                if (arg == "--scarcity") foreach (var s in Sites) { s.FoodStock = 0.1f; s.Count = s.Capacity * 1.2f; s.Scarcity = true; }
+            }
+        }
         _hoursToWeek -= cal.DeltaGameHours;
         if (_hoursToWeek <= 0f)
         {

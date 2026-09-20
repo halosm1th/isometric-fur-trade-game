@@ -31,7 +31,7 @@ public partial class Ship : Node2D
     public override void _Ready()
     {
         Sim.Ship = this;
-        _sprite = new Sprite2D { Texture = GD.Load<Texture2D>("res://assets/sprites/ship.png"), Offset = new Vector2(0, -150), ZIndex = 2 };
+        _sprite = new Sprite2D { Texture = GD.Load<Texture2D>("res://assets/sprites/ship.png"), Offset = new Vector2(-240 + 230, -245 + 170), ZIndex = 2 };
         AddChild(_sprite);
         Position = WorldLayout.ShipOffscreen;
         Visible = false;
@@ -40,7 +40,12 @@ public partial class Ship : Node2D
         CallDeferred(nameof(FindPopulation));
     }
 
-    private void FindPopulation() => _population = GetTree().GetFirstNodeInGroup("population") as Population;
+    private void FindPopulation()
+    {
+        _population = GetTree().GetFirstNodeInGroup("population") as Population;
+        // Dev aid: `-- --ship` brings her in at once.
+        foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--ship") { Summon(); Position = WorldLayout.ShipBerth + new Vector2(400, -100); }
+    }
 
     private void OnCalendarEvent(string name)
     {
@@ -121,6 +126,8 @@ public partial class Ship : Node2D
             Crew.Clear();
             Crew.AddRange(_population.SpawnCrew(8));
         }
+        // An event the Factor replans on (design doc 3.9 step 7).
+        foreach (var n in Sim.Npcs) if (n.Role == Role.Factor && !n.IsDead) { Agents.Delegation.AssignDailyTasks(n); break; }
     }
 
     // The Committee's letter takes effect when it's read (design doc 10.1).

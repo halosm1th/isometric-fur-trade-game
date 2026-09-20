@@ -117,6 +117,16 @@ public partial class GameCalendar : Node
         foreach (string arg in OS.GetCmdlineUserArgs())
         {
             if (arg.StartsWith("--hour=") && float.TryParse(arg.Substring(7), out float h)) Hour = h;
+            if (arg.StartsWith("--speed=") && float.TryParse(arg.Substring(8), out float s)) SecondsPerGameHour = s;
+            // --date=1811-08-19
+            if (arg.StartsWith("--date="))
+            {
+                var parts = arg.Substring(7).Split('-');
+                if (parts.Length == 3 && int.TryParse(parts[0], out int y) && int.TryParse(parts[1], out int m) && int.TryParse(parts[2], out int d))
+                {
+                    Year = y; Month = Mathf.Clamp(m, 1, 12); Day = Mathf.Clamp(d, 1, DaysInMonth[Month - 1]);
+                }
+            }
         }
 
         (_startYear, _startMonth, _startDay, _startHour) = (Year, Month, Day, Hour);

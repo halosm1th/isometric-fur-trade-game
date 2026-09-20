@@ -66,7 +66,7 @@ public static class WorldLayout
         get { var c = WharfRoot; for (int i = 0; i < WharfLength - 1; i++) c = IsoGrid.UpRight(c); return c; }
     }
     // Where the ship's hull sits when tied up: alongside the last planks.
-    public static Vector2 ShipBerth => IsoGrid.ToWorld(IsoGrid.UpLeft(IsoGrid.UpLeft(IsoGrid.UpLeft(WharfEnd)))) + new Vector2(90, -20);
+    public static Vector2 ShipBerth => IsoGrid.ToWorld(WharfEnd) + new Vector2(-40, -120);
     public static Vector2 ShipOffscreen => new(MapWidth * IsoGrid.TileW + 600, 700);
 
     // ---- the Cree camp ----------------------------------------------------
