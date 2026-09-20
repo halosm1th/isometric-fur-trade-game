@@ -279,7 +279,9 @@ public static class Delegation
         bool gooseSeason = (Cal().Month == 9 || Cal().Month == 10 || Cal().Month == 5) && Sim.Ecology?.BestSite(Species.Goose, fort) != null;
         int mouths = 0;
         foreach (var n in Sim.Npcs) if (n.Faction == fort.Company && !n.IsDead) mouths++;
-        bool foodShort = fort.FoodDays(mouths + 1) < 30f;
+        int scorbutic = 0;
+        foreach (var n in Sim.Npcs) if (n.Faction == fort.Company && !n.IsDead && n.DaysSinceFresh > 28f) scorbutic++;
+        bool foodShort = fort.FoodDays(mouths + 1) < 30f || scorbutic >= 3;
 
         // The rivalry (design doc 7.1): with tempers past the mark and the
         // other post's stores worth having, a leader with any ambition sends

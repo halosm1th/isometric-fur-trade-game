@@ -154,8 +154,11 @@ public partial class PlayerController : Agent
 		Inventory.Add(ItemId.FishingLine, 1);
 	}
 
+	private bool _becameLocal;
 	public void BecomeLocal()
 	{
+		if (_becameLocal) return;
+		_becameLocal = true;
 		IsPuppet = false;
 		if (_camera != null) { _camera.Enabled = true; _camera.MakeCurrent(); }
 		if (_label != null) _label.Visible = false;
@@ -172,6 +175,8 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
 			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
+			if (arg == "--follow" && NetHub.IsServer) GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(600f); if (n != null) { n.Brain.Clear(n); n.Brain.Push(n, new Agents.Goals.FollowGoal(this, 10f)); GD.Print($"[dev] {n.DisplayName} follows"); GetTree().CreateTimer(8.0).Timeout += () => { GlobalPosition = IsoGrid.ToWorld(WorldLayout.GateOutside) + new Vector2(0, 600); GD.Print("[dev] player moved outside the gate"); }; } };
+			if (arg == "--scurvy" && NetHub.IsServer) GetTree().CreateTimer(2.0).Timeout += () => { foreach (var n in Sim.Npcs) if (n.Faction == Faction.HBC) n.DaysSinceFresh = 41.5f; DaysSinceFresh = 41.5f; };
 			if (arg.StartsWith("--autoload=") && double.TryParse(arg.Substring(11), out double lsecs) && NetHub.IsServer) GetTree().CreateTimer(lsecs).Timeout += () => { if (!SaveGame.BeginLoad(GetTree())) GD.Print("[load] " + SaveGame.LastMessage); };
 			if (arg.StartsWith("--autosave=") && double.TryParse(arg.Substring(11), out double secs)) GetTree().CreateTimer(secs).Timeout += () => { SaveGame.Save(); GD.Print("[save] " + SaveGame.LastMessage); };
 			if (arg == "--leave") GetTree().CreateTimer(6.0).Timeout += () => { var d = UI.DialogueMenu.Instance; if (d != null && d.IsOpen) NetHub.I?.DialogueRequest(d.CurrentNpc, d.OptionCount - 1); };
@@ -339,7 +344,7 @@ public partial class PlayerController : Agent
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "",
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
-			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank,
+			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh,
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
 		};
 		_oneShotAnim = ""; _teleported = false;
@@ -362,7 +367,7 @@ public partial class PlayerController : Agent
 		if ((bool)d["tele"]) GlobalPosition = new Vector2((float)d["px"], (float)d["py"]);
 		Faction = (Faction)(int)d["faction"];
 		_afloatMirror = (bool)d["afloat"];
-		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"]; Rank = (string)d["rank"];
+		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"]; Rank = (string)d["rank"]; if (d.ContainsKey("fresh")) DaysSinceFresh = (float)d["fresh"];
 		Journal.Clear(); foreach (var e in (Godot.Collections.Array)d["journal"]) Journal.Add((string)e);
 		bool dead = (bool)d["dead"];
 		if (dead && !wasDead) EmitSignal(SignalName.Died);

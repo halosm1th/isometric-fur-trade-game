@@ -42,6 +42,8 @@ public partial class Npc : Agent
     public bool Sleeping;
     // Stopped to talk to the player; movement pauses.
     public bool Conversing;
+    // Whom we're walking with, if anyone (FollowGoal).
+    public Agent Following;
     public bool IsFemale;
 
     // Kinship for the marriage system (design doc 8).
@@ -254,6 +256,11 @@ public partial class Npc : Agent
             if (brave && Needs.Health > 30f) Brain.Push(this, new AttackGoal(LastAttacker));
             else Brain.Push(this, new FleeGoal(LastAttacker, 8f));
             return;
+        }
+        // Walking with someone: their fight is your fight.
+        if (Following != null && IsInstanceValid(Following) && !Following.IsDead && Following.LastAttackedAgo < 2f && Following.LastAttacker != null && IsInstanceValid(Following.LastAttacker) && !Following.LastAttacker.IsDead && Following.LastAttacker != this)
+        {
+            if (Weapon != null && Personality.Courage > 0.15f) { Brain.Push(this, new AttackGoal(Following.LastAttacker)); return; }
         }
         // Fire: run from flames at your feet; men of the house go for water.
         var fire = World.Fire.I;

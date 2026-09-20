@@ -377,6 +377,35 @@ public class AttackGoal : Goal
     public override void OnExit(Npc npc) => npc.StopMoving();
 }
 
+// Go where someone else goes (design doc 3.9: a party is people following
+// a leader). Keeps a few paces back; ends when the leader is gone, far
+// off, dead, or the day is over. Fighting still interrupts it.
+public class FollowGoal : Goal
+{
+    public readonly Agent Leader;
+    private float _hoursLeft;
+    private float _repath;
+    public FollowGoal(Agent leader, float hours = 10f) { Leader = leader; _hoursLeft = hours; }
+    public override string Label => $"follow {Leader?.Describe()}";
+
+    public override void OnEnter(Npc npc) { npc.Following = Leader; }
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        _hoursLeft -= hours;
+        if (Leader == null || !GodotObject.IsInstanceValid(Leader) || Leader.IsDead || _hoursLeft <= 0f || npc.Following != Leader) { npc.StopMoving(); return GoalStatus.Done; }
+        float dist = npc.GlobalPosition.DistanceTo(Leader.GlobalPosition);
+        if (dist > 3000f) { npc.StopMoving(); Sim.Notice($"{npc.DisplayName} has lost sight of {Leader.Describe()} and turns back."); return GoalStatus.Done; }
+        if (dist < 150f) { npc.StopMoving(); return GoalStatus.Running; }
+        if (dist < 420f) { npc.ChaseToward(Leader.GlobalPosition, dt); return GoalStatus.Running; }
+        _repath -= dt;
+        if (_repath <= 0f) { _repath = 0.8f; npc.SetDestination(Leader.Cell); }
+        return GoalStatus.Running;
+    }
+
+    public override void OnExit(Npc npc) { if (npc.Following == Leader) npc.Following = null; npc.StopMoving(); }
+}
+
 // Run from something for a while.
 public class FleeGoal : Goal
 {

@@ -189,6 +189,14 @@ The caribou site is now a **herd**: each month it makes for that month's ground 
 
 At **Breakup** (5 June) the band strikes camp and pitches the tipis on the trail beside the post (`WorldLayout.SummerCamp`, 23,100) for the trading season; at **Freeze-up** (10 November) they go back to the winter camp in the bush (14,140). The cells, the campfire hearth, the cache, the woodpile, everyone's bed and work cell move; clients and late joiners get the repaint. `WorldLayout.CampCentre` is wherever they are now.
 
+## Orders and company (design doc 3.9)
+
+Talk to one of your own company's men (labourer or voyageur) with rank *clerk*/*postmaster* or standing ≥ 35 and you get **Give orders**: cut wood · hunt at the best known site · work the trapline · stand guard at the stores · come with me · carry on as the Factor set you. He weighs your rank, his opinion of you and his loyalty to the chain of command; a sulky man says he takes his orders from Mr. Auld. Anyone else who isn't a leader, clerk, sailor or woman can be **asked to come with you** (rapport ≥ 20 across factions, ≥ 5 in your own; kin always) - `FollowGoal`: they keep a few paces behind for the day, fight whoever attacks you, and go home if they lose you or you say "that will do". Take a Cree hunter to the herd, or two labourers across the river.
+
+## Scurvy (design doc 13.5)
+
+Everyone counts days since fresh meat (venison, goose, fish - dried and pemmican don't count). Past 42 days it is scurvy: ~3 health a day, slower, "gums black" in conversation, a HUD flag; fresh meat cures it. The Factor treats three or more men a month without fresh meat as a food shortage and sends hunters. `--scurvy` starts the post a day short of it.
+
 ## Recruits (design doc 5.5)
 
 When the ship docks she lands enough Orkneymen to bring the post back to six labourers (green lads, 17–24); the July brigade does the same for the Nor'Westers' three voyageurs. Dead men's beds get filled.
@@ -207,7 +215,7 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 
 ## Command-line dev args (after `--`)
 
-`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze`
+`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze`
 
 ## Known gaps / next
 

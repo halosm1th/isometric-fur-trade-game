@@ -62,6 +62,13 @@ public partial class Agent : CharacterBody2D
     public bool Immune;
     public int Age = 25;
 
+    // Scurvy (design doc 13.5): the winter disease of posts living on
+    // dried and salted rations. Fresh meat and fish keep it off; six weeks
+    // without and it sets in, and then it slowly kills.
+    public float DaysSinceFresh;
+    public bool HasScurvy => DaysSinceFresh > 42f;
+    private bool _scurvyTold;
+
     // Fixed clothing not carried as items (animals' hides, sailors' slops).
     public float InnateWarmth = 0f;
 
@@ -113,6 +120,12 @@ public partial class Agent : CharacterBody2D
 
         bool moving = Velocity.LengthSquared() > 1f;
         Intoxication = Mathf.Max(0f, Intoxication - 8f * cal.DeltaGameHours);
+        DaysSinceFresh += cal.DeltaGameHours / 24f;
+        if (HasScurvy)
+        {
+            if (!_scurvyTold) { _scurvyTold = true; Sim.Notice($"{Describe()} has the scurvy: gums bleeding, old wounds opening. Fresh meat is the cure."); }
+            Needs.Health = Mathf.Max(0f, Needs.Health - 0.12f * cal.DeltaGameHours);   // ~3 a day
+        }
         if (IsSick)
         {
             SickDaysLeft -= cal.DeltaGameHours / 24f;
@@ -159,7 +172,7 @@ public partial class Agent : CharacterBody2D
     public bool IsOverloaded => Inventory.TotalWeightLbs > CarryCapacityLbs;
     public float LoadFactor => Mathf.Clamp(1f - (Inventory.TotalWeightLbs - CarryCapacityLbs) / 160f, 0.35f, 1f);
     public float DrunkFactor => Intoxication > 40f ? Mathf.Lerp(1f, 0.6f, (Intoxication - 40f) / 60f) : 1f;
-    public float SickFactor => IsSick ? 0.7f : 1f;
+    public float SickFactor => IsSick ? 0.7f : HasScurvy ? 0.8f : 1f;
     public float EffectiveSpeed => MoveSpeed * Needs.CapabilityFactor * LoadFactor * DrunkFactor * SickFactor * (IsSprinting ? SprintMultiplier : IsSneaking ? 0.45f : 1f);
 
     public void CatchFever()
@@ -189,6 +202,7 @@ public partial class Agent : CharacterBody2D
         if (!Inventory.Remove(id)) return false;
         Needs.Hunger = Mathf.Min(100f, Needs.Hunger + def.Nutrition);
         Needs.Thirst = Mathf.Min(100f, Needs.Thirst + def.Thirst);
+        if (id == ItemId.Venison || id == ItemId.Goose || id == ItemId.Fish) { if (HasScurvy) Sim.Notice($"{Describe()} is mending: fresh meat at last."); DaysSinceFresh = 0f; _scurvyTold = false; }
         if (def.Kind == ItemKind.Drink) Needs.Warmth = Mathf.Min(100f, Needs.Warmth + def.Warmth);
         Intoxication = Mathf.Min(100f, Intoxication + def.Intoxication);
         return true;

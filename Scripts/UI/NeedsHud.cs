@@ -102,6 +102,7 @@ public partial class NeedsHud : Control
         string weapon = _player.Weapon != null ? Items.Items.Of(_player.Weapon.Value).Name : "bare hands";
         if (_player.IsDrunk) weapon += "  |  drunk";
         if (_player.IsSick) weapon += "  |  FEVER";
+        if (_player.HasScurvy) weapon += "  |  SCURVY (eat fresh meat)";
         _shelter.Text = $"{(_player.IsSheltered ? "Indoors  " : "")}Load {_player.Inventory.TotalWeightLbs:0}/{_player.CarryCapacityLbs:0} lb{(_player.IsOverloaded ? " (overloaded)" : "")}  |  {weapon}" + task;
     }
 

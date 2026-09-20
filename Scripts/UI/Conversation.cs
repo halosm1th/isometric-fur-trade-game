@@ -83,7 +83,7 @@ public class Conversation
             _ => "",
         };
         string busy = npc.Brain.Top != null ? $" They were {npc.Brain.Top.Label}." : "";
-        string state = npc.IsSick ? " They are grey with fever - keep your distance." : npc.IsDrunk ? " They are drunk." : npc.Needs.Hunger < 35 ? " They look hungry." : npc.Needs.Warmth < 35 ? " They are shivering." : npc.Needs.Health < 50 ? " They are hurt." : "";
+        string state = npc.IsSick ? " They are grey with fever - keep your distance." : npc.HasScurvy ? " Their gums are black with scurvy." : npc.IsDrunk ? " They are drunk." : npc.Needs.Hunger < 35 ? " They look hungry." : npc.Needs.Warmth < 35 ? " They are shivering." : npc.Needs.Health < 50 ? " They are hurt." : "";
         return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{busy}{state}";
     }
 
@@ -129,6 +129,14 @@ public class Conversation
         if (npc.Role == Role.Factor && _player.Faction == Faction.NWC)
             AddOption("Ask to be taken back into the Company's service", () => ShowTopics(Return(npc)));
         AddOption("Give a gift", () => ShowGive(npc));
+        // Command (design doc 3.9): a man of standing can set the Company's
+        // men to work; anyone can ask a friend to come along.
+        bool ownMan = npc.Faction == _player.Faction && (npc.Role == Role.Labourer || npc.Role == Role.Voyageur);
+        bool canCommand = _player.Rank == "clerk" || _player.Rank == "postmaster" || _player.Standing >= 35f;
+        if (ownMan && canCommand) AddOption("Give orders", () => ShowOrders(npc));
+        else if (npc.Following == _player) AddOption("\"That will do - carry on.\"", () => { npc.Following = null; ShowTopics($"{npc.DisplayName} nods and goes back to their own business."); });
+        else if (!npc.IsFemale && npc.Role != Role.Factor && npc.Role != Role.NwcPartner && npc.Role != Role.Clerk && npc.Role != Role.Sailor)
+            AddOption("Ask them to come with you", () => ShowTopics(AskAlong(npc)));
         if (npc.Role == Role.CreeChief || (npc.Role == Role.CreeHunter && npc.Children.Count > 0))
         {
             foreach (var d in npc.Children)
@@ -278,6 +286,67 @@ public class Conversation
         for (int i = 0; i < n && lines.Count > 0; i++) { int k = (int)(GD.Randi() % (uint)lines.Count); picked.Add(lines[k]); lines.RemoveAt(k); }
         npc.ChangeRapport(_player, 0.5f);
         return string.Join(" ", picked) + (npc.Personality.Talkative < 0.3f ? " They say no more." : "");
+    }
+
+    // Orders to one of the Company's men. He weighs your rank against his
+    // own loyalty to the Factor; a sulky man does it slowly or not at all.
+    private void ShowOrders(Npc man)
+    {
+        _text = $"{man.DisplayName} waits to hear it. (set to: {(man.AssignedTaskName == "" ? "nothing" : man.AssignedTaskName)})";
+        ClearOptions();
+        var fort = _player.HomePost; var eco = Sim.Ecology;
+        AddOption("\"Cut wood.\"", () => ShowTopics(Order(man, "cut wood", _ => new Agents.Goals.ChopWoodGoal())));
+        if (eco != null && fort != null)
+        {
+            var site = eco.BestSite(Ecology.Species.Goose, fort) ?? eco.BestSite(Ecology.Species.Caribou, fort) ?? eco.BestSite(Ecology.Species.Beaver, fort);
+            if (site != null) AddOption($"\"Hunt at {site.Name}.\"", () => ShowTopics(Order(man, $"hunt at {site.Name}", _ => new Agents.Goals.HuntSiteGoal(site, 6f), hunt: true)));
+            if (fort.Stores.Has(ItemId.SteelTrap) || man.Inventory.Has(ItemId.SteelTrap))
+                AddOption("\"Work the trapline.\"", () => ShowTopics(Order(man, "work the trapline", n => RoleBehaviour.TraplineWork(n, fort, eco, true) ?? new Agents.Goals.ChopWoodGoal())));
+        }
+        if (fort != null)
+        {
+            var door = fort.Company == Faction.HBC ? World.WorldLayout.Warehouse.DoorCell : World.WorldLayout.NwcHouse.DoorCell;
+            AddOption("\"Stand guard at the stores.\"", () => ShowTopics(Order(man, "stand guard at the stores", _ => new Agents.Goals.GuardGoal(door, 4f), arm: true)));
+        }
+        AddOption("\"Come with me.\"", () => ShowTopics(Order(man, "go with " + _player.DisplayName, _ => new Agents.Goals.FollowGoal(_player, 10f), follow: true)));
+        if (man.AssignedTaskName != "") AddOption("\"Carry on as the Factor set you.\"", () => { man.AssignedTask = null; man.AssignedTaskName = ""; man.Following = null; ShowTopics($"\"Aye.\" {man.DisplayName} goes back to the morning's orders."); });
+        AddOption("Back", () => ShowTopics(Greeting(man)));
+    }
+
+    private string Order(Npc man, string name, Func<Npc, Agents.Goals.Goal> task, bool hunt = false, bool arm = false, bool follow = false)
+    {
+        // Will he take it from you? Loyalty here is loyalty to the Factor's
+        // chain of command; your rank and his opinion of you carry it.
+        float will = (_player.Rank == "postmaster" ? 0.6f : _player.Rank == "clerk" ? 0.4f : 0.2f) + man.RapportWith(_player) / 100f + (1f - man.Personality.Loyalty) * 0.2f + (man.Personality.Ambition > 0.6f ? -0.1f : 0.1f);
+        if (man.IsDrunk) return $"{man.DisplayName} is too drunk to take an order from anyone.";
+        if (will < 0.4f)
+        {
+            man.ChangeRapport(_player, -2f);
+            return $"\"I take my orders from {(man.Faction == Faction.NWC ? "Mr. Cameron" : "Mr. Auld")}, not from you.\" {man.DisplayName} does not move.";
+        }
+        if ((arm || hunt) && !man.Inventory.Has(ItemId.Musket) && _player.HomePost != null && _player.HomePost.Stores.Remove(ItemId.Musket)) man.Inventory.Add(ItemId.Musket);
+        man.AssignedTask = follow ? null : task;
+        man.AssignedTaskName = name;
+        man.AssignedTaskIsHunt = hunt;
+        man.Brain.Clear(man);
+        man.Brain.Push(man, task(man));
+        man.ChangeRapport(_player, 1f);
+        Chronicle.Event($"{_player.DisplayName} set {man.DisplayName} to {name}.", man.GlobalPosition, _player, weight: 0.4f);
+        return $"\"Aye, sir.\" {man.DisplayName} goes to {name}.";
+    }
+
+    // A friend asked along for the day.
+    private string AskAlong(Npc npc)
+    {
+        float r = npc.RapportWith(_player);
+        bool kin = npc.Spouse == _player || (_player.Spouse != null && (npc.Children.Contains(_player.Spouse as Npc) || npc == (_player.Spouse as Npc)?.Father));
+        if (npc.Faction != _player.Faction && !kin && r < 20f) return $"{npc.DisplayName} shakes their head. They do not know you well enough to walk into the bush with you. (rapport {r:0}, needs 20)";
+        if (npc.Faction == _player.Faction && r < 5f && !kin) return $"\"I have my own work.\" (rapport {r:0}, needs 5)";
+        if (npc.Needs.Hunger < 30f || npc.Needs.Warmth < 30f) return $"{npc.DisplayName} is in no state to go anywhere.";
+        npc.Brain.Clear(npc);
+        npc.Brain.Push(npc, new Agents.Goals.FollowGoal(_player, 8f));
+        npc.ChangeRapport(_player, 2f);
+        return $"{npc.DisplayName} picks up {(npc.Weapon != null ? "their " + Items.Items.Of(npc.Weapon.Value).Name.ToLower() : "their things")} and falls in beside you. They will follow till evening, or till you tell them to stop.";
     }
 
     private string ProposeRaid(Npc leader)

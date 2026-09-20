@@ -176,7 +176,7 @@ public static class SaveGame
             ["name"] = a.DisplayName, ["faction"] = (int)a.Faction, ["x"] = a.GlobalPosition.X, ["y"] = a.GlobalPosition.Y,
             ["hunger"] = a.Needs.Hunger, ["thirst"] = a.Needs.Thirst, ["warmth"] = a.Needs.Warmth, ["health"] = a.Needs.Health,
             ["inv"] = Inv(a.Inventory), ["age"] = a.Age, ["sick"] = a.SickDaysLeft, ["immune"] = a.Immune, ["drunk"] = a.Intoxication,
-            ["weapon"] = a.PreferredWeapon?.ToString() ?? "", ["dead"] = a.IsDead,
+            ["weapon"] = a.PreferredWeapon?.ToString() ?? "", ["dead"] = a.IsDead, ["fresh"] = a.DaysSinceFresh,
         };
     }
 
@@ -290,7 +290,7 @@ public static class SaveGame
         a.GlobalPosition = Pos(d);
         a.Needs.Hunger = F(d, "hunger", 100f); a.Needs.Thirst = F(d, "thirst", 100f); a.Needs.Warmth = F(d, "warmth", 100f); a.Needs.Health = F(d, "health", 100f);
         LoadInv(a.Inventory, d["inv"].AsGodotDictionary());
-        a.Age = I(d, "age", 25); a.SickDaysLeft = F(d, "sick"); a.Immune = B(d, "immune"); a.Intoxication = F(d, "drunk");
+        a.Age = I(d, "age", 25); a.SickDaysLeft = F(d, "sick"); a.Immune = B(d, "immune"); a.Intoxication = F(d, "drunk"); a.DaysSinceFresh = F(d, "fresh");
         a.Faction = (Faction)I(d, "faction");
         string w = S(d, "weapon");
         a.PreferredWeapon = w != "" && Enum.TryParse(w, out ItemId wid) ? wid : null;
