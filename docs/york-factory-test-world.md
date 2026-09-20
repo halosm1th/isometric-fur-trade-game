@@ -9,7 +9,7 @@
 | W A S D / arrows | walk |
 | Shift | sprint (1.7× speed, ~2.4× hunger) |
 | E | context action: talk to a person · pick up · loot a body / butcher a carcass · woodpile (stack or take firewood) · warehouse (stow goods/furs) · stores counter (draw a ration when short) · ship (shoulder cargo) · open/close door · look at a fire |
-| 1–9 | use hotbar slot (eat / drink / feed a fire / read clothing) |
+| 1–9 | use hotbar slot (eat / drink / feed a fire / ready a weapon / read clothing) |
 | Mouse wheel + Enter | select and use hotbar slot |
 | Left click | attack whoever is under the cursor with your best weapon (knife, tomahawk, bow, musket) |
 | F | attack the nearest hostile |
@@ -66,6 +66,22 @@ Each site has count, capacity, browse, and a breeding structure. Weekly tick: lo
 
 Arrives on the calendar event with the outfit, docks, crew spawn, the Factor reads the orders an hour later (price/quota take effect on the read), everyone carries cargo to the warehouse, then furs aboard. Sails on 15 Sept if ≥ 3 crew are alive; otherwise she's stranded.
 
+## Knowledge (design doc 10 / 16.4)
+
+Wildlife sites are known per household. The band knows its country; the post starts knowing only the goose marsh and the nearest beaver lodge. The Factor can only send men to sites the post knows. Ways to learn: HBC men stumble on a site while out; you ask a Cree hunter who thinks well of you (rapport ≥ 15) "about the hunting", then "Tell him where the game is" to the Factor (+3 standing per site).
+
+## Band standing
+
+`BandLedger.StandingWithCompany` (0–100, starts 50). Fair trades raise it; a hungry camp under a poor Company price lowers it fast; a Cree killed by a Company man costs 25. Below 20 the chief stops bringing furs to the post. Slider in F1.
+
+## Weather
+
+Rolled from the season a few times a day: clear / overcast / snow / **blizzard** / rain / gale. Blizzards double-plus exposure outdoors and dim the light; nobody starts a hunt or a wood trip in one, and hunters turn for home when one comes on. Buttons in F1.
+
+## Roofs
+
+Each building has a roof layer drawn above everything that fades out while you are under it. It's the design doc's "roof is a property of the cells" made visible.
+
 ## Marriage (design doc 8)
 
 Talk to a father (E): "Ask for X's hand". Needs rapport ≥ 30 (gifts, talking) and ≥ 8 MB of gifts given to him. HBC rule: one wife. She moves into the trading room and keeps house.
@@ -76,7 +92,7 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 
 ## Command-line dev args (after `--`)
 
-`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity`
+`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity`
 
 ## Known gaps / next
 

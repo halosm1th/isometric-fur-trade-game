@@ -288,6 +288,14 @@ public partial class PlayerController : Agent
 
 			case ItemKind.Clothing:
 				return $"You're wearing the {def.Name.ToLower()}. (+{def.Warmth:0} warmth)";
+
+			case ItemKind.Weapon:
+				PreferredWeapon = id;
+				return $"You ready the {def.Name.ToLower()} (damage {def.Damage:0}, reach {def.Range:0}).";
+
+			case ItemKind.Fur:
+			case ItemKind.Goods:
+				return $"{def.Name}: worth {def.ValueMb:0.#} MB at the counter.";
 		}
 		return "";
 	}
@@ -308,6 +316,7 @@ public partial class PlayerController : Agent
 			return;
 		}
 
+		_sprite.Modulate = HurtFlash > 0f ? new Color(1f, 0.45f, 0.45f) : Colors.White;
 		Vector2 input = Input.GetVector("move_left", "move_right", "move_up", "move_down");
 		Velocity = input * EffectiveSpeed;
 

@@ -84,9 +84,12 @@ public partial class Npc : Agent
 
     public void ResetBehaviour() => _behaviour = RoleBehaviour.For(Role);
 
+    private Color _tint = Colors.White;
+
     public void SetAppearance(SpriteFrames frames, Color tint, float scale)
     {
         if (_sprite == null) return;
+        _tint = tint;
         _sprite.SpriteFrames = frames;
         _sprite.Modulate = tint;
         _sprite.Scale = Vector2.One * scale;
@@ -327,6 +330,7 @@ public partial class Npc : Agent
     private void Animate()
     {
         if (_sprite == null) return;
+        if (HurtFlash > 0f) _sprite.Modulate = new Color(1f, 0.45f, 0.45f); else if (_sprite.Modulate.G < 0.5f) _sprite.Modulate = _tint;
         if (_sinceEatAnim < 0.9f) return; // let one-shot anims play
         var v = Velocity;
         string target;

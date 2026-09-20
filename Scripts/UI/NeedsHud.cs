@@ -86,7 +86,8 @@ public partial class NeedsHud : Control
         _bars[2].Value = n.Hunger;
         _bars[3].Value = n.Thirst;
         string task = _player is Player.PlayerController pc && pc.Task.Kind != Player.TaskKind.None ? $"\n{pc.Task.Describe()}{(pc.Task.IsComplete ? " - done" : "")}\nStanding with the Company: {pc.Standing:0}" : "";
-        _shelter.Text = (_player.IsSheltered ? "Indoors" : "") + task;
+        string weapon = _player.Weapon != null ? Items.Items.Of(_player.Weapon.Value).Name : "bare hands";
+        _shelter.Text = $"{(_player.IsSheltered ? "Indoors  " : "")}Load {_player.Inventory.TotalWeightLbs:0} lb  |  {weapon}" + task;
     }
 
     private void OnDied()

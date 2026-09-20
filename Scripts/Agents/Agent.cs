@@ -62,6 +62,7 @@ public partial class Agent : CharacterBody2D
         var cal = GameCalendar.Instance;
         if (cal == null) return;
         float scaled = (float)delta * cal.MotionScale;
+        HurtFlash = Mathf.Max(0f, HurtFlash - (float)delta);
         _attackCooldown = Mathf.Max(0f, _attackCooldown - scaled);
         LastAttackedAgo += scaled;
         if (IsDead) return;
@@ -168,7 +169,12 @@ public partial class Agent : CharacterBody2D
     public float NaturalRange = 60f;
     public float NaturalCooldown = 1.2f;
 
-    public ItemId? Weapon => Inventory.BestWeapon();
+    // The weapon in hand: a chosen one if still carried, else the best owned.
+    public ItemId? PreferredWeapon;
+    public ItemId? Weapon => PreferredWeapon != null && Inventory.Has(PreferredWeapon.Value) ? PreferredWeapon : Inventory.BestWeapon();
+
+    // Brief red flash when hit; subclasses with a sprite read this.
+    public float HurtFlash { get; private set; }
 
     public (float damage, float range, float cooldown) AttackProfile()
     {
@@ -198,6 +204,7 @@ public partial class Agent : CharacterBody2D
         _attackCooldown = cooldown;
         // Weak agents hit softer; ranged shots can miss.
         float mult = Needs.CapabilityFactor;
+        if (range > 100f) CombatFx.Shot(this, target.GlobalPosition + new Vector2(0, -40), Weapon == ItemId.Musket);
         if (range > 100f && GD.Randf() > 0.7f) { OnAttackMissed(target); return false; }
         target.TakeDamage(damage * mult, this);
         OnAttacked(target);
@@ -211,6 +218,7 @@ public partial class Agent : CharacterBody2D
     {
         if (IsDead || Invulnerable) return;
         Needs.Health = Mathf.Max(0f, Needs.Health - amount);
+        HurtFlash = 0.18f;
         LastAttacker = from;
         LastAttackedAgo = 0f;
         EmitSignal(SignalName.Damaged, amount);
