@@ -105,6 +105,11 @@ public partial class JournalPanel : Control
         sb.AppendLine($"[b]Load[/b] {_player.Inventory.TotalWeightLbs:0} / {_player.CarryCapacityLbs:0} lb{(_player.IsOverloaded ? "  [color=#f88](overloaded - you are slow and hungry)[/color]" : "")}");
         sb.AppendLine($"[b]In hand[/b] {(_player.Weapon != null ? Items.Items.Of(_player.Weapon.Value).Name : "nothing")}     [b]Worn[/b] warmth {_player.Inventory.ClothingWarmth:0}");
         sb.AppendLine($"[b]Worth[/b] {_player.Inventory.TotalValueMb:0.#} MB in all");
+        if (_player.Mail.Count > 0)
+        {
+            sb.AppendLine("[color=#dcb][b]Papers[/b][/color]");
+            foreach (var m in _player.Mail) sb.AppendLine($"   {m.Summary}{(m.Read ? $"\n      [color=#998]{m.Text}[/color]" : "")}");
+        }
         sb.AppendLine();
         foreach (ItemKind kind in System.Enum.GetValues(typeof(ItemKind)))
         {

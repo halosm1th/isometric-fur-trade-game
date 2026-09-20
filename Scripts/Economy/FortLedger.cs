@@ -38,6 +38,14 @@ public partial class FortLedger : Household
     public int LastRaidedDay = -999;
     public int LastRaidDay = -999;
     public int LotsLostToRaids;
+    // What the leader has given out, for the overdue check (design doc 3.9).
+    public readonly List<Agents.Assignment> Assignments = new();
+    // The Tier 2 directive as last read (design doc 10.1.2): locked between read events.
+    public string DirectiveText = "No orders read yet: the post runs on last year's standard.";
+    public int DirectiveReadDay = -999;
+    public int DirectiveYear;
+    // Furs a shading Factor has set aside for himself (design doc 3.9 step 8).
+    public float SkimmedMb;
     public bool RaidedRecently(int today) => today - LastRaidedDay >= 0 && today - LastRaidedDay < 6;
 
     // Which company this counter belongs to, for standing and debt.

@@ -31,6 +31,12 @@ public class Conversation
         npc.Conversing = true;
         npc.StopMoving();
         npc.FaceToward(_player.GlobalPosition);
+        if (npc.Role == Role.Factor && _player.Task.Kind == TaskKind.Report && !_player.Task.IsComplete)
+        {
+            _player.Task.Progress(TaskKind.Report, 1);
+            _player.Standing += 3f;
+            Chronicle.Event($"{_player.DisplayName} reported to {npc.DisplayName}.", npc.GlobalPosition, _player, weight: 0.4f);
+        }
         ShowTopics(Greeting(npc));
         return State();
     }
@@ -93,8 +99,18 @@ public class Conversation
         ClearOptions();
         var npc = _npc;
 
-        if (npc.Role == Role.CreeChief && _player.Task.Kind == TaskKind.DeliverLetter && !_player.Task.IsComplete)
+        if (npc.Role == Role.CreeChief && (_player.Task.Kind == TaskKind.DeliverLetter && !_player.Task.IsComplete || HasMailFor(npc)))
             AddOption("Hand him the Factor's letter", () => ShowTopics(DeliverLetter(npc)));
+        // Papers (design doc 10.3): hand over what's addressed to them, or
+        // sell the other company's packet to this one.
+        foreach (var m in new List<Message>(_player.Mail))
+        {
+            if (m.Read) continue;
+            bool addressed = m.To == npc.DisplayName || m.To == Mail.RoleName(npc);
+            if (addressed && npc.Role != Role.CreeChief) AddOption($"Hand over the {m.Kind} from {m.From}", () => ShowTopics(HandOver(npc, m)));
+            else if ((npc.Role == Role.Factor || npc.Role == Role.NwcPartner) && Economy.Rivalry.AreRivals(m.Company, npc.Faction))
+                AddOption($"Sell them the {m.Kind} from {m.From} ({PacketPrice(m)} trade goods)", () => ShowTopics(SellPacket(npc, m)));
+        }
         AddOption("Ask how things stand", () => ShowTopics(AskNews(npc)));
         AddOption("Ask about them", () => ShowTopics(AskAboutThem(npc)));
         AddOption("Ask about the others", () => ShowTopics(AskGossip(npc)));
@@ -107,6 +123,16 @@ public class Conversation
         if ((npc.Faction == Faction.Cree && npc.Role is Role.CreeChief or Role.CreeHunter) || npc.Role is Role.Labourer or Role.Voyageur or Role.NwcPartner)
             AddOption("Ask about the hunting", () => ShowTopics(AskHunting(npc)));
         if (npc.Role == Role.Factor) AddOption("Ask for work", () => ShowTopics(AskForWork(npc)));
+        if ((npc.Role == Role.Factor || npc.Role == Role.NwcPartner) && npc.Faction == _player.Faction)
+        {
+            AddOption("Ask what London wants", () => ShowTopics(AskDirective(npc)));
+            if (_player.Task.Kind != TaskKind.None && !_player.Task.IsComplete && _player.Task.Kind != TaskKind.Report)
+            {
+                AddOption("Decline today's task", () => ShowTopics(DeclineTask(npc)));
+                AddOption("Ask for a different task", () => ShowTopics(CounterTask(npc)));
+            }
+            AddOption("Volunteer for something", () => ShowVolunteer(npc));
+        }
         if (npc.Role == Role.Factor && Sim.Fort != null)
         {
             int news = 0;
@@ -200,13 +226,115 @@ public class Conversation
 
     // A message takes effect when it's read (design doc 10.1), and it has
     // to be carried there by someone.
+    private bool HasMailFor(Npc npc)
+    {
+        foreach (var m in _player.Mail) if (!m.Read && (m.To == npc.DisplayName || m.To == Mail.RoleName(npc))) return true;
+        return false;
+    }
+
+    private string HandOver(Npc npc, Message m)
+    {
+        _player.Mail.Remove(m);
+        Mail.Give(m, npc);
+        npc.ChangeRapport(_player, 3f);
+        if (npc.Faction == _player.Faction) _player.Standing += 2f;
+        Chronicle.Event($"{_player.DisplayName} handed {npc.DisplayName} a {m.Kind} from {m.From}.", npc.GlobalPosition, _player, weight: 0.6f);
+        return $"{npc.DisplayName} takes the {m.Kind}, breaks the seal, and reads it there and then." + (m.Kind == "directive" ? " His face gives nothing away." : "");
+    }
+
+    private static int PacketPrice(Message m) => m.Kind == "directive" || m.Kind == "mandate" ? 8 : 3;
+
+    // Sold paper is read paper (design doc 10.3): whoever opens it is
+    // affected. Then a hidden roll decides whether word gets back.
+    private string SellPacket(Npc buyer, Message m)
+    {
+        var counter = buyer.HomeStores?.Stores;
+        int price = PacketPrice(m);
+        if (counter == null || counter.Count(ItemId.TradeGoods) < price) return "\"I'd take it, but the shelves are bare. Come back when the outfit's in.\"";
+        counter.Remove(ItemId.TradeGoods, price); _player.Inventory.Add(ItemId.TradeGoods, price);
+        _player.Mail.Remove(m);
+        Mail.Open(m, buyer);
+        buyer.ChangeRapport(_player, 6f);
+        Chronicle.Event($"{_player.DisplayName} sold {buyer.DisplayName} a {m.Kind} meant for the other company.", buyer.GlobalPosition, _player, weight: 2.5f);
+        if (m.Company == Faction.HBC && GD.Randf() < 0.4f)
+        {
+            // Somebody talks. It takes days to reach the Factor.
+            Mail.Send(Letters.Rumour(_player.DisplayName, $"{_player.DisplayName} sold the Company's {m.Kind} to the Nor'Westers.", 20f), 24f * GD.RandRange(3, 9));
+        }
+        return $"\"Well now.\" {buyer.DisplayName} counts out {price} trade goods and reads the {m.Kind} on the spot. Whether anyone ever hears of this is not up to you.";
+    }
+
+    private string AskDirective(Npc leader)
+    {
+        var fort = leader.HomeStores as Economy.FortLedger;
+        if (fort == null) return "\"...\"";
+        string when = fort.DirectiveReadDay < -100 ? "" : $" (read {GameCalendar.Instance.Day - fort.DirectiveReadDay} days ago)";
+        string progress = $" We hold {fort.FursInStoreMb:0} MB against {fort.QuotaMb:0}; the ship is {DaysToShip()} days off.";
+        return $"\"{fort.DirectiveText}\"{when}{progress}" + (fort.Assignments.Count > 0 ? $" The men are set as you heard this morning." : "");
+    }
+
+    private static int DaysToShip()
+    {
+        int doy = Mathf.RoundToInt(GameCalendar.Instance.DayOfYear);
+        int ship = 31 + 28 + 31 + 30 + 31 + 30 + 31 + 20;
+        return ship >= doy ? ship - doy : 365 - doy + ship;
+    }
+
+    // Declining costs standing; a leader with a temper costs more (design doc 3.9).
+    private string DeclineTask(Npc leader)
+    {
+        float cost = 3f + leader.Personality.Suspicion * 3f;
+        _player.Standing -= cost;
+        leader.ChangeRapport(_player, -5f);
+        string was = _player.Task.Describe();
+        _player.Task.Kind = TaskKind.None;
+        Chronicle.Event($"{_player.DisplayName} declined the Factor's order.", leader.GlobalPosition, _player, weight: 0.8f);
+        return leader.Personality.Suspicion > 0.6f
+            ? $"\"You'll not? Then you'll not eat at my table with the same face.\" He writes something in his book. (standing -{cost:0})"
+            : $"\"Suit yourself. There are men here who do as they're bid.\" (standing -{cost:0})";
+    }
+
+    private string CounterTask(Npc leader)
+    {
+        var fort = leader.HomeStores as Economy.FortLedger;
+        if (fort == null) return "\"...\"";
+        var kind = _player.Task.Kind;
+        _player.Standing -= 1f;
+        var options = new List<(TaskKind, int, string)> { (TaskKind.Firewood, 4, "the woodpile"), (TaskKind.CarryCargo, 8, "the ship"), (TaskKind.DriveOffAnimals, 1, "the beasts about the post"), (TaskKind.DeliverLetter, 1, "the band's furs") };
+        options.RemoveAll(o => o.Item1 == kind || (o.Item1 == TaskKind.CarryCargo && !(Sim.Ship?.IsDocked ?? false)) || (o.Item1 == TaskKind.DeliverLetter && (Sim.Band?.InvitedToTrade ?? true)));
+        if (options.Count == 0) return "\"There is nothing else. Do what you were set.\"";
+        var pick = options[0];
+        _player.AssignTask(pick.Item1, pick.Item2, pick.Item3);
+        if (pick.Item1 == TaskKind.DeliverLetter) Delegation.WriteLetterToChief(leader, _player);
+        return $"\"Very well.\" He thinks a moment. \"{_player.Task.Describe()}.\"";
+    }
+
+    private void ShowVolunteer(Npc leader)
+    {
+        _text = "\"What is it you fancy?\"";
+        ClearOptions();
+        var fort = leader.HomeStores as Economy.FortLedger; var eco = Sim.Ecology;
+        AddOption("\"Let me carry your letter to the band.\"", () => { _player.AssignTask(TaskKind.DeliverLetter, 1, "the band's furs"); Delegation.WriteLetterToChief(leader, _player); _player.Standing += 1f; ShowTopics("\"Good. Tell the chief the Company's counter is open and his people are welcome.\" He writes a few lines, seals them, and hands you the letter."); });
+        if (fort != null && eco != null)
+        {
+            var site = eco.BestSite(Ecology.Species.Caribou, fort) ?? eco.BestSite(Ecology.Species.Goose, fort);
+            if (site != null) AddOption($"\"Let me hunt at {site.Name}.\"", () => { _player.AssignTask(TaskKind.Firewood, 0, $"hunt at {site.Name} - bring meat to the stores"); _player.Standing += 1f; ShowTopics($"\"Bring back meat and I'll remember it.\" {(fort.Stores.Remove(ItemId.Musket) ? "He hands you a musket from the stores." : "")}"); if (!_player.Inventory.Has(ItemId.Musket) && _player.Task.Intent.StartsWith("hunt")) _player.Inventory.Add(ItemId.Musket); });
+        }
+        if (Economy.Rivalry.Tension >= 40f && Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(leader.Faction)) != null)
+            AddOption("\"Let me stand guard at the stores.\"", () => { _player.AssignTask(TaskKind.Firewood, 0, "guard the storeroom"); _player.Standing += 1f; ShowTopics("\"Keep your eyes open, then.\""); });
+        AddOption("Back", () => ShowTopics(Greeting(leader)));
+    }
+
     private string DeliverLetter(Npc chief)
     {
         var band = Sim.Band;
         _player.Task.Progress(TaskKind.DeliverLetter, 1);
         if (band == null) return "\"...\"";
-        band.InvitedToTrade = true;
-        band.StandingWithCompany = Mathf.Min(100f, band.StandingWithCompany + 6f);
+        // The letter itself, if you're carrying it (design doc 10.1.1); else the word of mouth version.
+        Message letter = null;
+        foreach (var m in _player.Mail) if (!m.Read && (m.To == chief.DisplayName || m.To == Mail.RoleName(chief))) { letter = m; break; }
+        if (letter != null) { _player.Mail.Remove(letter); Mail.Open(letter, chief); }
+        else { band.InvitedToTrade = true; band.StandingWithCompany = Mathf.Min(100f, band.StandingWithCompany + 6f); }
         chief.ChangeRapport(_player, 4f);
         Chronicle.Event($"{_player.DisplayName} brought the Factor's letter to {chief.DisplayName}.", chief.GlobalPosition, _player, weight: 0.6f);
         return band.WillTrade

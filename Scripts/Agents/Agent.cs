@@ -18,6 +18,8 @@ public partial class Agent : CharacterBody2D
 
     public readonly Needs Needs = new();
     public readonly Inventory Inventory = new();
+    // Letters and packets carried (design doc 10.1.1). Not items: each is one particular paper.
+    public readonly System.Collections.Generic.List<Message> Mail = new();
 
     [Export] public string DisplayName = "";
 

@@ -207,6 +207,7 @@ public partial class Population : Node2D
             m.Inventory.Add(ItemId.Capote); m.Inventory.Add(ItemId.Knife); m.Inventory.Add(ItemId.Bread, 2);
             m.Age = GD.RandRange(17, 24);
             m.GlobalPosition = IsoGrid.ToWorld(WorldLayout.WharfEnd) + new Vector2(GD.RandRange(-40, 40), 30 + i * 10);
+            m.Brain.Push(m, new Agents.Goals.ReportForDutyGoal());   // design doc 5.5: his first order
             landed++;
         }
         if (landed > 0) Sim.Notice($"{landed} new hands off the ship from Stromness: {(landed == 1 ? "a green lad" : "green lads")} with a five-year contract.");
@@ -229,6 +230,7 @@ public partial class Population : Node2D
             int slot = alive + landed;
             var v = Spawn(names[i], Role.Voyageur, Faction.NWC, IsoGrid.Cell(house.Top, 2 + slot % 3, 3), IsoGrid.Cell(WorldLayout.NwcTop, 6, 5), nwc, _factorFrames, new Color(0.85f, 0.75f, 0.75f));
             v.Inventory.Add(ItemId.Capote); v.Inventory.Add(ItemId.Knife); v.Inventory.Add(ItemId.Pemmican, 2);
+            v.Brain.Push(v, new Agents.Goals.ReportForDutyGoal());
             landed++;
         }
         if (landed > 0) Sim.Notice($"{landed} voyageurs came north with the brigade to fill the Nor'Westers' ranks.");

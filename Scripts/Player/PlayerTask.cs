@@ -2,7 +2,7 @@ using IsometricFurTradeGame.Scripts.Core;
 
 namespace IsometricFurTradeGame.Scripts.Player;
 
-public enum TaskKind { Firewood, CarryCargo, DriveOffAnimals, DeliverLetter, Raid, None }
+public enum TaskKind { Firewood, CarryCargo, DriveOffAnimals, DeliverLetter, Raid, Report, None }
 
 // An assignment the Factor hands the player (design doc 3.9, seen from the
 // subordinate's side): intent and a count, not steps. Doing it earns
@@ -13,6 +13,8 @@ public class PlayerTask
     public int Need;
     public int Done;
     public int DayAssigned;
+    public string Intent = "";      // why, in the leader's words (design doc 3.5: intent, not reasoning)
+    public int Deadline;            // day it's wanted by
 
     public bool IsComplete => Kind != TaskKind.None && Done >= Need;
 
@@ -23,8 +25,9 @@ public class PlayerTask
         TaskKind.DriveOffAnimals => $"Mr. Auld: drive off the animals about the post ({Done}/{Need})",
         TaskKind.DeliverLetter => "Mr. Auld: carry his letter to the chief at the camp and bring back his answer",
         TaskKind.Raid => $"Go with the men and seize what you can from the other company's stores ({Done}/{Need} lots)",
+        TaskKind.Report => "Report to the Factor: find Mr. Auld and speak to him",
         _ => "",
-    };
+    } + (Intent != "" ? $" - {Intent}" : "");
 
     public void Progress(TaskKind kind, int n)
     {

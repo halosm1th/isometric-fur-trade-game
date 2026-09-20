@@ -187,17 +187,24 @@ public partial class PlayerController : Agent
 	private void FindDialogue() => _dialogue = UI.DialogueMenu.Instance;
 
 	// The Factor's morning orders for the new hand (server side).
-	public void AssignTask(TaskKind kind, int need)
+	public void AssignTask(TaskKind kind, int need, string intent = "")
 	{
 		var cal = GameCalendar.Instance;
 		if (Task.Kind != TaskKind.None && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say("Yesterday's task went undone. Mr. Auld noticed."); }
 		if (Task.Kind != TaskKind.None && Task.IsComplete) Standing += 5f;
-		Task.Kind = kind; Task.Need = need; Task.Done = 0; Task.DayAssigned = cal.Day;
+		Task.Kind = kind; Task.Need = need; Task.Done = 0; Task.DayAssigned = cal.Day; Task.Intent = intent ?? ""; Task.Deadline = cal.Day + 1;
 		if (kind != TaskKind.None) Say(Task.Describe());
 	}
 
 	// A line for this player's owner, wherever they are.
 	public void Say(string text) => NetHub.I?.NoticeTo(this, text);
+
+	private string[] MailSummary()
+	{
+		var a = new string[Mail.Count];
+		for (int i = 0; i < Mail.Count; i++) a[i] = $"{Mail[i].Kind}|{Mail[i].From}|{Mail[i].To}|{Mail[i].Subject}|{(Mail[i].Read ? 1 : 0)}|{Mail[i].Text}";
+		return a;
+	}
 
 	// ---- input (local only) -------------------------------------------------------
 
@@ -346,7 +353,7 @@ public partial class PlayerController : Agent
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "",
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
-			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh,
+			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
 		};
 		_oneShotAnim = ""; _teleported = false;
@@ -370,6 +377,7 @@ public partial class PlayerController : Agent
 		Faction = (Faction)(int)d["faction"];
 		_afloatMirror = (bool)d["afloat"];
 		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"]; Rank = (string)d["rank"]; if (d.ContainsKey("fresh")) DaysSinceFresh = (float)d["fresh"];
+		if (d.ContainsKey("mail") && !NetHub.IsServer) { Mail.Clear(); foreach (string line in (string[])d["mail"]) { var parts = line.Split('|'); Mail.Add(new Message { Kind = parts[0], From = parts[1], To = parts[2], Subject = parts[3], Read = parts[4] == "1", Text = parts.Length > 5 ? parts[5] : "" }); } }
 		Journal.Clear(); foreach (var e in (Godot.Collections.Array)d["journal"]) Journal.Add((string)e);
 		bool dead = (bool)d["dead"];
 		if (dead && !wasDead) EmitSignal(SignalName.Died);
@@ -616,7 +624,9 @@ public partial class PlayerController : Agent
 				return animal.Butcher(Inventory) ? $"You butcher the {animal.Describe().ToLower()}." : "Nothing more to take.";
 			int moved = 0;
 			foreach (var (id, n) in new List<(ItemId, int)>(body.Inventory.All())) { body.Inventory.Remove(id, n); Inventory.Add(id, n); moved += n; }
-			return moved > 0 ? $"You take what {body.Describe()} carried." : "Nothing left on the body.";
+			int papers = body.Mail.Count;
+			if (papers > 0) { Mail.AddRange(body.Mail); body.Mail.Clear(); Chronicle.Event($"{DisplayName} took the papers off {body.Describe()}'s body.", GlobalPosition, this, weight: 1.5f); }
+			return moved + papers > 0 ? $"You take what {body.Describe()} carried{(papers > 0 ? $", papers and all ({papers})" : "")}." : "Nothing left on the body.";
 		}
 
 		var pickup = NearestPickup();

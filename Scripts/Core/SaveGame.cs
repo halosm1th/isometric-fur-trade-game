@@ -77,6 +77,7 @@ public static class SaveGame
             ["calendar"] = new GDict { ["year"] = cal.Year, ["month"] = cal.Month, ["day"] = cal.Day, ["hour"] = cal.Hour, ["sky"] = (int)cal.Weather.Current, ["skyHours"] = cal.Weather.HoursLeft },
             ["tension"] = Rivalry.Tension,
             ["camp"] = new GArr { WorldLayout.CampCentre.X, WorldLayout.CampCentre.Y },
+            ["abroad"] = MailOf(Mail.Abroad),
             ["fort"] = Ledger(Sim.Fort),
             ["nwc"] = Ledger(Sim.Nwc),
             ["band"] = Band(Sim.Band),
@@ -107,6 +108,7 @@ public static class SaveGame
         d["peltPrice"] = f.PeltPrice; d["incentiveNext"] = f.LondonIncentiveNext; d["quota"] = f.QuotaMb; d["quotaNext"] = f.QuotaNextMb;
         d["fursTaken"] = f.FursTakenMb; d["lostToRival"] = f.LostToRivalMb; d["goodsPaid"] = f.GoodsPaidMb; d["year"] = f.Year;
         d["lastRaided"] = f.LastRaidedDay; d["lastRaid"] = f.LastRaidDay; d["lotsLost"] = f.LotsLostToRaids;
+        d["directive"] = f.DirectiveText; d["directiveDay"] = f.DirectiveReadDay; d["directiveYear"] = f.DirectiveYear; d["skimmed"] = f.SkimmedMb;
         return d;
     }
 
@@ -176,8 +178,23 @@ public static class SaveGame
             ["name"] = a.DisplayName, ["faction"] = (int)a.Faction, ["x"] = a.GlobalPosition.X, ["y"] = a.GlobalPosition.Y,
             ["hunger"] = a.Needs.Hunger, ["thirst"] = a.Needs.Thirst, ["warmth"] = a.Needs.Warmth, ["health"] = a.Needs.Health,
             ["inv"] = Inv(a.Inventory), ["age"] = a.Age, ["sick"] = a.SickDaysLeft, ["immune"] = a.Immune, ["drunk"] = a.Intoxication,
-            ["weapon"] = a.PreferredWeapon?.ToString() ?? "", ["dead"] = a.IsDead, ["fresh"] = a.DaysSinceFresh,
+            ["weapon"] = a.PreferredWeapon?.ToString() ?? "", ["dead"] = a.IsDead, ["fresh"] = a.DaysSinceFresh, ["mail"] = MailOf(a.Mail),
         };
+    }
+
+    private static GArr MailOf(List<Message> mail)
+    {
+        var a = new GArr();
+        foreach (var m in mail) a.Add(MailEntry(m));
+        return a;
+    }
+    private static GDict MailEntry(Message m) => new() { ["kind"] = m.Kind, ["from"] = m.From, ["to"] = m.To, ["subject"] = m.Subject, ["text"] = m.Text, ["company"] = (int)m.Company, ["day"] = m.DayWritten, ["read"] = m.Read, ["transit"] = m.TransitHoursLeft, ["payload"] = m.Payload };
+    private static Message MailFrom(GDict d)
+    {
+        var m = Letters.Build(S(d, "kind"), d["payload"].AsGodotDictionary());
+        m.From = S(d, "from", m.From); m.To = S(d, "to", m.To); m.Subject = S(d, "subject", m.Subject); if (S(d, "text") != "") m.Text = S(d, "text");
+        m.Company = (Faction)I(d, "company"); m.DayWritten = I(d, "day"); m.Read = B(d, "read"); m.TransitHoursLeft = F(d, "transit");
+        return m;
     }
 
     private static GArr Npcs()
@@ -215,7 +232,7 @@ public static class SaveGame
         {
             var d = AgentCommon(p);
             d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? "";
-            d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned };
+            d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline;
             var known = new GArr(); foreach (var s in p.KnownSites) known.Add(s);
             d["knownSites"] = known;
             var belief = new GDict(); foreach (var kv in p.SiteBelief) belief[kv.Key] = new GArr { kv.Value.X, kv.Value.Y };
@@ -283,6 +300,7 @@ public static class SaveGame
         f.PeltPrice = F(d, "peltPrice", 1f); f.LondonIncentiveNext = F(d, "incentiveNext", 1f); f.QuotaMb = F(d, "quota", 60f); f.QuotaNextMb = F(d, "quotaNext", 60f);
         f.FursTakenMb = F(d, "fursTaken"); f.LostToRivalMb = F(d, "lostToRival"); f.GoodsPaidMb = F(d, "goodsPaid"); f.Year = I(d, "year", 1811);
         f.LastRaidedDay = I(d, "lastRaided", -999); f.LastRaidDay = I(d, "lastRaid", -999); f.LotsLostToRaids = I(d, "lotsLost");
+        if (d.ContainsKey("directive")) { f.DirectiveText = S(d, "directive"); f.DirectiveReadDay = I(d, "directiveDay", -999); f.DirectiveYear = I(d, "directiveYear"); f.SkimmedMb = F(d, "skimmed"); }
     }
 
     private static void LoadAgentCommon(Agent a, GDict d)
@@ -294,6 +312,8 @@ public static class SaveGame
         a.Faction = (Faction)I(d, "faction");
         string w = S(d, "weapon");
         a.PreferredWeapon = w != "" && Enum.TryParse(w, out ItemId wid) ? wid : null;
+        a.Mail.Clear();
+        if (d.ContainsKey("mail")) foreach (var mv in d["mail"].AsGodotArray()) a.Mail.Add(MailFrom(mv.AsGodotDictionary()));
     }
 
     // Called by Population.SpawnAll instead of the default cast. Spawns the
@@ -311,6 +331,8 @@ public static class SaveGame
             cal.Weather.Force((SkyState)I(c, "sky"), F(c, "skyHours", 6f));
             Rivalry.Tension = F(d, "tension", 20f);
             if (d.ContainsKey("camp")) Sim.Band?.MoveCamp(CellOf(d["camp"].AsGodotArray()));
+            Mail.Abroad.Clear();
+            if (d.ContainsKey("abroad")) foreach (var mv in d["abroad"].AsGodotArray()) Mail.Abroad.Add(MailFrom(mv.AsGodotDictionary()));
 
             LoadLedger(Sim.Fort, d["fort"].AsGodotDictionary());
             LoadLedger(Sim.Nwc, d["nwc"].AsGodotDictionary());
@@ -428,6 +450,7 @@ public static class SaveGame
         p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer");
         var t = d["task"].AsGodotArray();
         p.Task.Kind = (TaskKind)t[0].AsInt32(); p.Task.Need = t[1].AsInt32(); p.Task.Done = t[2].AsInt32(); p.Task.DayAssigned = t[3].AsInt32();
+        p.Task.Intent = S(d, "taskIntent"); p.Task.Deadline = I(d, "taskDeadline");
         p.KnownSites.Clear(); foreach (var s in d["knownSites"].AsGodotArray()) p.KnownSites.Add(s.AsString());
         p.SiteBelief.Clear(); foreach (var kv in d["belief"].AsGodotDictionary()) p.SiteBelief[kv.Key.AsString()] = CellOf(kv.Value.AsGodotArray());
         p.Journal.Clear(); foreach (var j in d["journal"].AsGodotArray()) p.Journal.Add(j.AsString());

@@ -298,6 +298,7 @@ public partial class Net : Node
         _spawnParent.AddChild(p);
         Players[peer] = p;
         SaveGame.ApplyPlayer(p);
+        if (p.Task.Kind == Player.TaskKind.None && p.Faction == Faction.HBC) p.AssignTask(Player.TaskKind.Report, 1, "you are the Company's new hand");
         if (peer == LocalPeerId) SetLocal(p);
         if (Current != Mode.Offline)
         {

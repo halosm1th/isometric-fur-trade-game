@@ -4,9 +4,8 @@ using IsometricFurTradeGame.Scripts.Core;
 
 namespace IsometricFurTradeGame.Scripts.UI;
 
-// The world's running commentary. Only the newest line or two show on
-// screen, briefly, under the calendar; the whole history lives in the
-// Log tab of your book (J / L).
+// The world's running commentary. Nothing is flashed on screen; the
+// history lives in the Log tab of your book (L) and in the F1 console.
 public partial class NoticeLog : Control
 {
     public static readonly List<(string when, string text)> History = new();
@@ -34,12 +33,7 @@ public partial class NoticeLog : Control
         History.Add((cal != null ? $"{cal.Day} {cal.DateString.Split(' ')[1].Substring(0, 3)} {cal.TimeString}" : "", text));
         if (History.Count > HistoryMax) History.RemoveAt(0);
 
-        var l = new Label { Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(460, 0) };
-        l.AddThemeFontSizeOverride("font_size", 12);
-        l.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.85f));
-        _box.AddChild(l);
-        _lines.Add((l, 0f));
-        while (_lines.Count > MaxLines) { _lines[0].label.QueueFree(); _lines.RemoveAt(0); }
+        // Nothing on screen: the world's news is read in the Log (L) or the F1 console.
     }
 
     public override void _Process(double delta)

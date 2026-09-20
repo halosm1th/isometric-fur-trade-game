@@ -143,6 +143,8 @@ public class HuntSiteGoal : Goal
             default:
                 if (!ChildFinished(out var r2)) return GoalStatus.Running;
                 DepositTake(npc);
+                npc.PendingReport = _kills > 0 ? $"took {_kills} at {_site.Name}, the ground {(_site.Count > _site.Capacity * 0.5f ? "thick with game" : "thin")}" : $"nothing to be had at {_site.Name}";
+                npc.PendingReportSite = _site.Name; npc.PendingReportCell = _site.Cell;
                 return GoalStatus.Done;
         }
     }
@@ -523,6 +525,7 @@ public class ForageGoal : Goal
                     int n = npc.Inventory.Count(ItemId.Hare);
                     if (n > 1) { npc.Inventory.Remove(ItemId.Hare, n - 1); npc.HomeStores.Stores.Add(ItemId.Hare, n - 1); }
                 }
+                npc.PendingReport = _got > 0 ? $"snared {_got} hares" : "the snares were empty";
                 return GoalStatus.Done;
         }
     }

@@ -27,6 +27,8 @@ public partial class Ship : Node2D
     private Population _population;
     private float _dockedHours;
     private bool _ordersRead;
+    // London's packet, aboard till the bos'n carries it up (design doc 10.1.2).
+    public Message Packet;
     public float DockedHours => _dockedHours;
     public bool OrdersRead => _ordersRead;
 
@@ -86,6 +88,7 @@ public partial class Ship : Node2D
         Visible = true;
         Current = State.Arriving;
         _ordersRead = false;
+        if (Sim.Fort != null) Packet = Letters.Directive(Sim.Fort.LondonIncentiveNext, Sim.Fort.QuotaNextMb, GameCalendar.Instance?.Year ?? 1811);
         Sim.Notice("A sail on the bay: the ship from England is standing in.");
     }
 
@@ -103,6 +106,19 @@ public partial class Ship : Node2D
         foreach (var c in Crew) if (c != null && IsInstanceValid(c)) c.QueueFree();
         Crew.Clear();
         Current = State.Departing;
+        // A Factor with little loyalty and some ambition shades the books:
+        // a share of the furs never reaches the hold (design doc 3.9 step 8).
+        Npc factor = null; foreach (var n in Sim.Npcs) if (n.Role == Role.Factor && !n.IsDead) factor = n;
+        if (factor != null && factor.Personality.Loyalty < 0.35f && factor.Personality.Ambition > 0.5f && Sim.Fort != null)
+        {
+            float skim = 0f;
+            foreach (var id in new[] { Items.ItemId.BeaverPelt, Items.ItemId.WolfPelt })
+            {
+                int n = Hold.Count(id); int take = Mathf.FloorToInt(n * 0.1f);
+                if (take > 0) { Hold.Remove(id, take); skim += Items.Items.Of(id).ValueMb * take; }
+            }
+            if (skim > 0f) { Sim.Fort.SkimmedMb += skim; Chronicle.Event($"{factor.DisplayName} kept back furs of his own from the ship's hold.", factor.GlobalPosition, factor, weight: 2f); }
+        }
         float mb = Hold.TotalValueMb;
         Sim.Notice($"The ship has sailed for London with {mb:0} MB of furs aboard" + (Sim.Fort != null ? $" (quota was {Sim.Fort.QuotaMb:0})." : "."));
         foreach (var pc in Sim.Players())
@@ -115,7 +131,8 @@ public partial class Ship : Node2D
         }
         if (Sim.Fort != null)
         {
-            Economy.LondonCommittee.ReviewReturns(Sim.Fort, mb);
+            // The books go home with her; London reads them in the autumn (design doc 10.1.2).
+            Mail.Send(Letters.Accounts(mb, Sim.Fort.QuotaMb), 24f * 75f);
             Sim.Fort.FursTakenMb = 0f; Sim.Fort.GoodsPaidMb = 0f;
         }
     }
@@ -147,7 +164,7 @@ public partial class Ship : Node2D
                 break;
             case State.Docked:
                 _dockedHours += cal.DeltaGameHours;
-                if (!_ordersRead && _dockedHours > 1f) ReadOrders();
+                _ordersRead = true;
                 break;
         }
     }
@@ -170,19 +187,20 @@ public partial class Ship : Node2D
                 Sim.Notice("There is fever aboard, the mate says. Keep the men off her if you can.");
             }
         }
+        // The bos'n carries the Committee's packet up to the Factor; it is
+        // inert until he opens it (design doc 10.1.1). Kill the bos'n on the
+        // way and the packet is on his body.
+        if (Packet != null && Crew.Count > 0)
+        {
+            var bosun = Crew[0];
+            bosun.Mail.Add(Packet);
+            bosun.Brain.Clear(bosun);
+            bosun.Brain.Push(bosun, new Agents.Goals.DeliverMailGoal());
+            Sim.Notice($"{bosun.DisplayName} comes ashore with the Committee's packet under his arm.");
+            Packet = null;
+        }
         // An event the Factor replans on (design doc 3.9 step 7).
         foreach (var n in Sim.Npcs) if (n.Role == Role.Factor && !n.IsDead) { Agents.Delegation.AssignDailyTasks(n); break; }
-    }
-
-    // The Committee's letter takes effect when it's read (design doc 10.1).
-    private void ReadOrders()
-    {
-        _ordersRead = true;
-        var fort = Sim.Fort;
-        if (fort == null) return;
-        fort.PeltPrice = fort.LondonIncentiveNext;
-        fort.QuotaMb = fort.QuotaNextMb;
-        Sim.Notice($"The Factor reads the Committee's orders: pay {fort.PeltPrice:0.00} MB in goods per MB of fur; London expects {fort.QuotaMb:0} MB of returns.");
     }
 
     public string Status() => Current switch

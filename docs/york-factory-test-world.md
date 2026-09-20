@@ -34,6 +34,7 @@ Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--nam
 | T | hold for fast-forward (×40) |
 | Tab | chat |
 | J / L / I | your book: **Journal** (what you witnessed, dated) · **Log** (everything the world announced, timestamped - the old scrolling top-left log now lives here; only the newest line or two flash on screen) · **Pack** (every item with weight, worth and what it does) |
+| F1 | test console: now also a **World log** section with the last 30 notices (nothing flashes in the corner any more) |
 | Esc | pause menu: resume, key bindings (read from the InputMap), save, main menu, exit. Alone, time stops; hosting or joined, the world goes on |
 | M | map: coast, river, posts, the camp where it stands, the sites you know (a herd where you last heard of it), other players, the ship |
 | H | help: controls and the gist |
@@ -175,6 +176,14 @@ Events (deaths, blows struck, trades, traplines set or robbed, letters carried) 
 ## Credit (design doc 13.3)
 
 A band in good standing (> 40) that comes to the post hungry without goods is advanced food on credit; the debt is settled first out of the next furs they bring. `BandLedger.DebtMb`.
+
+## Messages (design doc 10.1.1)
+
+`Core/Message.cs`: one message object - kind, from, to, subject, text, whose company's paper it is, a payload, and two effects: **OnRead** (the intended one) and **OnIntercepted** (what a rival learns). Nothing happens until `Mail.Open` - the read event. `Mail.Abroad` holds the abstract legs (ship to London, brigade to Fort William) and delivers when the hours run out; `Agent.Mail` is the papers a person carries; loot a body and you take its papers. Written so far (`Letters`): London's **directive** (price + quota; the Nor'Westers reading it undercut the Company), the year's **accounts** (London reviews them ~75 days after the ship sails and writes next year's directive from them), the council's **mandate** to the partner (carried by the brigade), the Factor's **letter to the chief** (now a real object in your pack), and **rumours** (the blowback of a sold packet, days in transit). The ship carries the directive; the bos'n walks it up to the Factor (`DeliverMailGoal`), who sits at his desk to open it (`ReadMailGoal`). Kill the bos'n and the packet is on his body; hand it to Cameron, or **sell** either company's packet to the other leader (8 goods for a directive/mandate, 3 for a letter) and he reads it on the spot - with a 40% hidden chance that word reaches the Factor a few days later (standing -20). A Factor with low loyalty and some ambition keeps back a tenth of the beaver from the hold (witnessed; gossip). The Pack tab lists your papers; F1 shows the directive text and the post's mail log.
+
+## Delegation (design doc 3.9)
+
+`Agents/Delegation.cs`. Each morning the leader (Factor or partner; the same code) builds the day's **objectives** from what he has in hand: threats (urgency 100), the ship (90), a guard after a robbery or with tension ≥ 60, provisions when food is under 30 days or three men are a month without fresh meat, the **returns quota at the pace the ship's deadline leaves** (trapline men in winter, more when behind), wood. Men are scored per task on capability (musket, courage, knowing the ground, health) and **trust** (loyalty + rapport); a **suspicious** leader keeps key tasks for men he trusts, an **ambitious** one keeps his most ambitious man off the hunts. Each man then **decides** (loyalty, ambition, hunger, the task's dignity; the ship and wolves brook no argument): willing, grudging (an hour's dawdle first), or **refuses** (rapport both ways, a Chronicle event, "he'll not cut wood today"). Men back from a hunt **report** to the leader in person (`ReportGoal`: what they took, how thick the ground was → the post's site belief updates from the report). A man sent out who **hasn't come back** by the next morning gets someone sent to look (`LookForGoal`: finds him, his body, or nothing, and reports). New hands off the ship carry the order *report to the Factor* (`ReportForDutyGoal`) - the disloyal find the rum first, the sociable the men's house - and get a real assignment when they arrive. You start with the same order (talk to Mr. Auld). Your tasks carry the leader's **intent** and a deadline; at the Factor you can *ask what London wants*, **decline** (standing -3 to -6 by his temper), **ask for a different task**, or **volunteer** (carry his letter, hunt, guard).
 
 ## Letters (design doc 10.1)
 

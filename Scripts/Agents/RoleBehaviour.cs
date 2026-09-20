@@ -33,6 +33,12 @@ public abstract class RoleBehaviour
 
     public virtual Goal NextGoal(Npc npc)
     {
+        if (npc.PendingReport != null && !IsNight)
+        {
+            var g = new ReportGoal(npc.PendingReport, npc.PendingReportSite, npc.PendingReportCell);
+            npc.PendingReport = null; npc.PendingReportSite = null; npc.PendingReportCell = null;
+            return g;
+        }
         if (IsNight) return new SleepGoal();
         var dram = EveningDrink(npc);
         if (dram != null) return dram;
@@ -261,116 +267,4 @@ public class SailorBehaviour : RoleBehaviour
         return new WanderGoal(WorldLayout.WharfEnd, 2, 1f);
     }
     protected override Goal Work(Npc npc) => null;
-}
-
-// The Factor turning orders into work (design doc 3.9).
-public static class Delegation
-{
-    public static void AssignDailyTasks(Npc factor)
-    {
-        var fort = factor.HomeStores as Economy.FortLedger; var ship = Sim.Ship;
-        if (fort == null) return;
-        bool hbc = fort.Company == Faction.HBC;
-        if (!hbc) ship = null;   // the Nor'Westers get a brigade, not a ship
-        var men = new System.Collections.Generic.List<Npc>();
-        foreach (var n in Sim.Npcs) if (n.Faction == fort.Company && (n.Role == Role.Labourer || n.Role == Role.Voyageur) && !n.IsDead) men.Add(n);
-        if (men.Count == 0) return;
-
-        var fortCentre = IsoGrid.ToWorld(fort.AccessCell);
-        int threats = 0;
-        foreach (var a in Sim.Animals) if (!a.IsDead && a.IsDangerous && a.GlobalPosition.DistanceTo(fortCentre) < 1800f) threats++;
-
-        bool shipIn = ship != null && ship.IsDocked;
-        bool gooseSeason = (Cal().Month == 9 || Cal().Month == 10 || Cal().Month == 5) && Sim.Ecology?.BestSite(Species.Goose, fort) != null;
-        int mouths = 0;
-        foreach (var n in Sim.Npcs) if (n.Faction == fort.Company && !n.IsDead) mouths++;
-        int scorbutic = 0;
-        foreach (var n in Sim.Npcs) if (n.Faction == fort.Company && !n.IsDead && n.DaysSinceFresh > 28f) scorbutic++;
-        bool foodShort = fort.FoodDays(mouths + 1) < 30f || scorbutic >= 3;
-
-        // The rivalry (design doc 7.1): with tempers past the mark and the
-        // other post's stores worth having, a leader with any ambition sends
-        // men across. A post that was robbed puts a guard on the door.
-        var rival = Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(fort.Company));
-        int today = Cal().Day;
-        int raidersSent = 0;
-        if (rival != null && Economy.Rivalry.OpenHostility && men.Count >= 2 && today - fort.LastRaidDay > 4 && !shipIn)
-        {
-            bool worthIt = foodShort || fort.Stores.Count(ItemId.TradeGoods) < 15 || Economy.Rivalry.Tension >= 90f || fort.RaidedRecently(today);
-            if (worthIt && GD.Randf() < 0.35f + factor.Personality.Ambition * 0.4f)
-                raidersSent = Economy.Rivalry.OrderRaid(factor, fort, rival, Mathf.Min(3, men.Count - 1)).Count;
-        }
-        bool wantGuard = rival != null && (fort.RaidedRecently(today) || Economy.Rivalry.Tension >= 60f);
-        var storeDoor = fort.Company == Faction.HBC ? WorldLayout.Warehouse.DoorCell : WorldLayout.NwcHouse.DoorCell;
-
-        string summary = "";
-        for (int i = 0; i < men.Count; i++)
-        {
-            var m = men[i];
-            if (m.AssignedTaskName.StartsWith("seize ") && raidersSent > 0) { summary += $"{m.DisplayName}: {m.AssignedTaskName}; "; continue; }
-            m.AssignedTaskIsHunt = false;
-            if (wantGuard && i == men.Count - 1 && men.Count > 1)
-            {
-                if (!m.Inventory.Has(ItemId.Musket) && fort.Stores.Remove(ItemId.Musket)) m.Inventory.Add(ItemId.Musket);
-                m.AssignedTask = _ => new GuardGoal(storeDoor, 4f); m.AssignedTaskName = "stand guard at the stores";
-            }
-            else if (threats > 0 && i < Mathf.Min(men.Count, threats + 1))
-            {
-                if (!m.Inventory.Has(ItemId.Musket) && fort.Stores.Remove(ItemId.Musket)) m.Inventory.Add(ItemId.Musket);
-                m.AssignedTask = _ => new HuntThreatGoal(); m.AssignedTaskName = "drive off the animals";
-            }
-            else if (shipIn)
-            {
-                bool unload = ship.Cargo.SlotCount > 0;
-                m.AssignedTask = _ => new CarryCargoGoal(unload); m.AssignedTaskName = unload ? "unload the ship" : "load the furs";
-            }
-            else if (fort.Stores.Has(ItemId.SteelTrap) && Cal().CurrentSeason == Season.Winter && i % 3 == 2 && Sim.Ecology?.BestSite(Species.Beaver, fort) != null)
-            {
-                var eco = Sim.Ecology;
-                m.AssignedTask = n => RoleBehaviour.TraplineWork(n, fort, eco, true) ?? new ChopWoodGoal();
-                m.AssignedTaskName = "work the trapline";
-            }
-            else if ((gooseSeason || foodShort) && i % 2 == 0)
-            {
-                var site = Sim.Ecology?.BestSite(gooseSeason ? Species.Goose : Species.Caribou, fort);
-                // A beaver lodge is furs, not a larder: only when it's thick, and only one man.
-                if (site == null) { var lodge = Sim.Ecology?.BestSite(Species.Beaver, fort); if (lodge != null && lodge.Count > lodge.Capacity * 0.6f && i == 0) site = lodge; }
-                if (site != null)
-                {
-                    if (!m.Inventory.Has(ItemId.Musket) && fort.Stores.Remove(ItemId.Musket)) m.Inventory.Add(ItemId.Musket);
-                    m.AssignedTask = _ => new HuntSiteGoal(site, 6f); m.AssignedTaskName = $"hunt at {site.Name}"; m.AssignedTaskIsHunt = true;
-                }
-                else { m.AssignedTask = _ => new ForageGoal(5f); m.AssignedTaskName = "snare small game"; m.AssignedTaskIsHunt = true; }
-            }
-            else
-            {
-                m.AssignedTask = null; m.AssignedTaskName = "cut wood";
-            }
-            summary += $"{m.DisplayName}: {m.AssignedTaskName}; ";
-        }
-        Sim.Notice($"{factor.DisplayName} gives the morning's orders. {summary}");
-        if (fort.LostToRivalMb > 0f && hbc) { Sim.Notice($"{factor.DisplayName}: \"{fort.LostToRivalMb:0} Made Beaver walked past us to the Nor'Westers this season. London will want to know why.\""); }
-        if (fort.LotsLostToRaids > 0 && fort.RaidedRecently(today)) Sim.Notice($"{factor.DisplayName}: \"{fort.LotsLostToRaids} lots gone out of our stores to the other side. That will be answered.\"");
-
-        // The new hand gets his orders like everyone else - if he's at the
-        // post to hear them (design doc 10: nothing travels by telepathy).
-        foreach (var pc in Sim.Players())
-        {
-            if (pc.IsDead || pc.Faction != fort.Company) continue;
-            if (pc.GlobalPosition.DistanceTo(factor.GlobalPosition) > 900f)
-            {
-                pc.Standing -= 1f;
-                pc.Say("You were not at the post when the morning's orders were given. Mr. Auld noticed.");
-                continue;
-            }
-            var band = Sim.Band;
-            if (raidersSent > 0) pc.AssignTask(Player.TaskKind.Raid, 4);
-            else if (threats > 0) pc.AssignTask(Player.TaskKind.DriveOffAnimals, 1);
-            else if (shipIn && ship.Cargo.SlotCount > 0) pc.AssignTask(Player.TaskKind.CarryCargo, 8);
-            else if (band != null && !band.InvitedToTrade && band.WillTrade && fort.FursInStoreMb < fort.QuotaMb && GD.Randf() < 0.4f) pc.AssignTask(Player.TaskKind.DeliverLetter, 1);
-            else pc.AssignTask(Player.TaskKind.Firewood, 4);
-        }
-    }
-
-    private static GameCalendar Cal() => GameCalendar.Instance;
 }

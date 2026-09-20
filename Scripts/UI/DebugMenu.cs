@@ -87,13 +87,20 @@ public partial class DebugMenu : Control
             AddReadout(S, () =>
             {
                 int mouths = 0; foreach (var n in Sim.Npcs) if (n.Faction == Agents.Faction.HBC && !n.IsDead) mouths++;
-                return $"Stores: {fort.Stores.Summary()}\nFurs in store {fort.FursInStoreMb:0} MB; food for {fort.FoodDays(mouths + 1):0} days ({mouths} men)";
+                string post = ""; for (int i = System.Math.Max(0, Mail.Log.Count - 4); i < Mail.Log.Count; i++) post += "\n  " + Mail.Log[i];
+                return $"Stores: {fort.Stores.Summary()}\nFurs in store {fort.FursInStoreMb:0} MB; food for {fort.FoodDays(mouths + 1):0} days ({mouths} men)\nDirective: {fort.DirectiveText}\nIn transit: {Mail.Abroad.Count} packet(s){post}";
             });
             AddButtonRow(S,
                 ("+50 trade goods", () => fort.Stores.Add(ItemId.TradeGoods, 50)),
                 ("+50 food", () => fort.Stores.Add(ItemId.DriedGoose, 50)),
                 ("Empty food", () => { foreach (var id in new[] { ItemId.Pemmican, ItemId.DriedGoose, ItemId.Bread, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat }) fort.Stores.TakeUpTo(id, 9999); }));
         }
+        AddReadout("World log", () =>
+        {
+            var h = NoticeLog.History; var sb = new System.Text.StringBuilder();
+            for (int i = h.Count - 1; i >= System.Math.Max(0, h.Count - 30); i--) sb.AppendLine($"{h[i].when}  {h[i].text}");
+            return sb.Length == 0 ? "Nothing yet." : sb.ToString();
+        });
         if (Sim.Nwc != null)
         {
             const string R = "The rivalry";

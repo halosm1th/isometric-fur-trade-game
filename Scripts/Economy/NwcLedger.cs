@@ -59,10 +59,13 @@ public partial class NwcLedger : FortLedger
         Stores.Add(ItemId.TradeGoods, 90); Stores.Add(ItemId.Pemmican, 30); Stores.Add(ItemId.Rum, 50); Stores.Add(ItemId.Musket, 4); Stores.Add(ItemId.SteelTrap, 8);
         float shipped = FursInStoreMb;
         foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.ShotPelt, ItemId.ShotHide, ItemId.CaribouHide, ItemId.WolfPelt }) Stores.TakeUpTo(id, 9999);
-        // The partner answers to his peers at the rendezvous: poor returns
-        // mean a sharper price next winter (design doc 10.1.4).
-        PeltPrice = Mathf.Clamp(shipped < QuotaMb * 0.7f ? PeltPrice * 1.2f : PeltPrice * 0.95f, 0.5f, 3f);
-        Sim.Notice($"The brigade from Fort William has come and gone: {shipped:0} MB of furs off to Montreal, the outfit landed. The Nor'Westers will pay {PeltPrice:0.00} for beaver.");
+        // The partner answers to his peers at the rendezvous: the council's
+        // word comes back with the brigade as a packet he must sit down and
+        // read (design doc 10.1.3).
+        Sim.Notice($"The brigade from Fort William has come and gone: {shipped:0} MB of furs off to Montreal, the outfit landed, and a packet from the partners.");
+        var mandate = Letters.Mandate(shipped, QuotaMb);
+        Agents.Npc partner = null; foreach (var n in Sim.Npcs) if (n.Role == Agents.Role.NwcPartner && !n.IsDead) partner = n;
+        if (partner != null) Mail.Give(mandate, partner); else Mail.Open(mandate, null);
         (GetTree().GetFirstNodeInGroup("population") as Population)?.LandVoyageurs(3);
     }
 }

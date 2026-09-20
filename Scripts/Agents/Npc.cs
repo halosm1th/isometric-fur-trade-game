@@ -93,6 +93,8 @@ public partial class Npc : Agent
     public System.Func<Npc, Goal> AssignedTask;
     public string AssignedTaskName = "";
     public bool AssignedTaskIsHunt;
+    // Something to tell the leader when next at the post (design doc 3.9 step 6).
+    public string PendingReport; public string PendingReportSite; public Vector2I? PendingReportCell;
 
     private AnimatedSprite2D _sprite;
     private Label _label;
