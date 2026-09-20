@@ -17,6 +17,8 @@ public partial class DialogueMenu : Control
     private int _npcId = -1;
 
     public bool IsOpen => _panel != null && _panel.Visible;
+    public int CurrentNpc => _npcId;
+    public int OptionCount => _buttons.Count;
 
     public override void _Ready()
     {
@@ -43,7 +45,7 @@ public partial class DialogueMenu : Control
 
     public void ShowState(Godot.Collections.Dictionary state)
     {
-        if ((bool)state["closed"]) { Close(); return; }
+        if ((bool)state["closed"]) { CloseLocal(); return; }
         _npcId = (int)state["npc"];
         _panel.Visible = true;
         _title.Text = (string)state["title"];
@@ -63,9 +65,18 @@ public partial class DialogueMenu : Control
 
     private void Pick(int idx) => NetHub.I?.DialogueRequest(_npcId, idx);
 
+    // The player walked away / pressed Esc: tell the server, then hide.
     public void Close()
     {
-        if (_panel.Visible && _npcId >= 0) NetHub.I?.DialogueRequest(_npcId, -1);
+        int npc = _npcId;
+        bool wasOpen = _panel.Visible;
+        CloseLocal();
+        if (wasOpen && npc >= 0) NetHub.I?.DialogueRequest(npc, -1);
+    }
+
+    // The server says the conversation is over: just hide.
+    private void CloseLocal()
+    {
         _panel.Visible = false;
         _npcId = -1;
     }
