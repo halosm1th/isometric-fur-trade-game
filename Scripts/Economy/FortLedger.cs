@@ -55,6 +55,7 @@ public partial class FortLedger : Household
         Stores.Add(ItemId.Firewood, 40);
         Stores.Add(ItemId.TradeGoods, 90);
         Stores.Add(ItemId.Musket, 6);
+        Stores.Add(ItemId.SteelTrap, 10);
         Stores.Add(ItemId.PointBlanket, 12);
         Stores.Add(ItemId.BeaverPelt, 22);
         Stores.Add(ItemId.CaribouHide, 4);
@@ -67,9 +68,26 @@ public partial class FortLedger : Household
     }
 
     // A Cree party sells furs at the counter. Returns the MB of goods paid.
+    // Debt on the books is settled first (design doc 13.3).
     public float BuyFurs(Inventory seller, Inventory buyerGoodsTo)
     {
         float paidMb = 0f;
+        var band = Sim.Band;
+        if (band != null && band.DebtMb > 0f)
+        {
+            float settled = 0f;
+            foreach (var (id, n) in new List<(ItemId, int)>(seller.All()))
+            {
+                if (Items.Items.Of(id).Kind != ItemKind.Fur) continue;
+                while (band.DebtMb > 0f && seller.Remove(id))
+                {
+                    float v = Items.Items.Of(id).ValueMb * PeltPrice;
+                    Stores.Add(id); FursTakenMb += Items.Items.Of(id).ValueMb;
+                    band.DebtMb = Mathf.Max(0f, band.DebtMb - v); settled += v;
+                }
+            }
+            if (settled > 0f) Sim.Notice($"The band's debt is worked down by {settled:0.#} MB of furs; {band.DebtMb:0.#} MB still owing.");
+        }
         // A fair deal is remembered too.
         if (Sim.Band != null) Sim.Band.StandingWithCompany = Mathf.Min(100f, Sim.Band.StandingWithCompany + (PeltPrice >= 1f ? 2f : 0.5f));
         var furs = new List<(ItemId, int)>();
@@ -94,20 +112,25 @@ public partial class FortLedger : Household
         return paidMb;
     }
 
-    // A band buys food with trade goods. Returns the pieces of food sold.
+    // A band buys food with trade goods; a band in good standing is
+    // advanced food on credit against next season's furs (design doc 13.3).
     public int SellFood(Inventory buyer, int goodsToSpend)
     {
         int sold = 0;
-        while (goodsToSpend > 0 && buyer.Has(ItemId.TradeGoods))
+        var band = Sim.Band;
+        bool credit = band != null && band.StandingWithCompany > 40f && band.DebtMb < 15f;
+        int creditUnits = credit ? 5 : 0;
+        while ((goodsToSpend > 0 && buyer.Has(ItemId.TradeGoods)) || creditUnits > 0)
         {
+            bool onCredit = !(goodsToSpend > 0 && buyer.Has(ItemId.TradeGoods));
+            if (onCredit) { creditUnits--; band.DebtMb += 1f; }
             ItemId? food = null;
             foreach (var id in new[] { ItemId.DriedGoose, ItemId.DriedMeat, ItemId.Pemmican, ItemId.Bread })
                 if (Stores.Count(id) > 20) { food = id; break; }   // keeps a reserve for its own men
             if (food == null) break;
             // One unit of goods buys a few days of food at the post's mark-up.
             int pieces = Mathf.Max(1, Mathf.RoundToInt(3f / FoodPriceMultiplier));
-            buyer.Remove(ItemId.TradeGoods);
-            goodsToSpend--;
+            if (!onCredit) { buyer.Remove(ItemId.TradeGoods); goodsToSpend--; }
             for (int i = 0; i < pieces && Stores.Remove(food.Value); i++) { buyer.Add(food.Value); sold++; }
         }
         return sold;

@@ -24,6 +24,7 @@ public enum ItemId
     CaribouHide,
     WolfPelt,
     TradeGoods,
+    SteelTrap,
     // Weapons
     Musket,
     Bow,
@@ -31,7 +32,7 @@ public enum ItemId
     Tomahawk,
 }
 
-public enum ItemKind { Food, Drink, Fuel, Clothing, Fur, Goods, Weapon }
+public enum ItemKind { Food, Drink, Fuel, Clothing, Fur, Goods, Weapon, Tool }
 
 // Weights are real: a bag of pemmican was ~90 lb, so one "piece" here is a
 // day-ration slab. Warmth is the clothing rating used by exposure; FuelHours
@@ -63,6 +64,7 @@ public static class Items
         { ItemId.CaribouHide,  new("Caribou hide",   ItemKind.Fur,      6.0f, IconDir + "caribou_hide.png", ValueMb: 0.5f) },
         { ItemId.WolfPelt,     new("Wolf pelt",      ItemKind.Fur,      3.0f, IconDir + "wolf_pelt.png",    ValueMb: 0.6f) },
         { ItemId.TradeGoods,   new("Trade goods",    ItemKind.Goods,    3.0f, IconDir + "trade_goods.png",  ValueMb: 1f) },
+        { ItemId.SteelTrap,    new("Steel trap",     ItemKind.Tool,     4.0f, IconDir + "steel_trap.png",   ValueMb: 1.5f) },
         { ItemId.Musket,       new("Trade musket",   ItemKind.Weapon,   9.0f, IconDir + "musket.png",       ValueMb: 12f, Damage: 55f, Range: 340f, Cooldown: 4f) },
         { ItemId.Bow,          new("Bow",            ItemKind.Weapon,   2.0f, IconDir + "bow.png",          ValueMb: 2f,  Damage: 30f, Range: 260f, Cooldown: 1.6f) },
         { ItemId.Knife,        new("Knife",          ItemKind.Weapon,   0.5f, IconDir + "knife.png",        ValueMb: 0.5f, Damage: 18f, Range: 60f, Cooldown: 0.7f) },

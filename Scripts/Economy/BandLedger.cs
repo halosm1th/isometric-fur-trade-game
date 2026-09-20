@@ -13,6 +13,10 @@ public partial class BandLedger : Household
     // How the band feels about the Company: fed and fairly paid, it trades;
     // starved or shot at, it stops coming (design doc 3.6, 10.5).
     public float StandingWithCompany = 50f;
+    // What the band owes the post for goods advanced against next season's furs.
+    public float DebtMb;
+    // A letter from the Factor invites them in to trade.
+    public bool InvitedToTrade;
     public bool WillTrade => StandingWithCompany > 20f;
     private int _lastDay = -1;
 
@@ -56,6 +60,7 @@ public partial class BandLedger : Household
         Stores.Add(ItemId.Firewood, 20);
         Stores.Add(ItemId.BeaverPelt, 6);
         Stores.Add(ItemId.TradeGoods, 4);
+        Stores.Add(ItemId.SteelTrap, 8);
         foreach (var s in WorldLayout.Sites) KnownSites.Add(s.Name);   // it's their country
     }
 }

@@ -21,6 +21,26 @@ public class SpawnSite
     public float FoodStock = 1f;          // local browse, 0..1
 
     public readonly List<Animal> Live = new();
+    public readonly List<Trapline> Traplines = new();
+
+    public Trapline LineOf(string owner)
+    {
+        foreach (var l in Traplines) if (l.Owner == owner) return l;
+        return null;
+    }
+
+    public Trapline SetTraps(string owner, int n)
+    {
+        var line = LineOf(owner);
+        if (line == null) { line = new Trapline { Owner = owner }; Traplines.Add(line); }
+        line.Traps += n; line.HoursSinceSet = 0f;
+        return line;
+    }
+
+    public void TickTraplines(float hours)
+    {
+        foreach (var l in Traplines) { l.HoursSinceCheck += hours; l.HoursSinceSet += hours; }
+    }
 
     public Vector2 WorldPos => IsoGrid.ToWorld(Cell);
     public bool IsDead => BreedingCapacity <= 0f;
@@ -99,7 +119,9 @@ public class SpawnSite
     public string Status()
     {
         string state = IsDead ? "DEAD" : Scarcity ? "scarcity" : "ok";
-        return $"{Name}: {Count:0}/{Capacity} ({LiveCount} live) browse {FoodStock:0.00} [{state}]";
+        string traps = "";
+        foreach (var l in Traplines) traps += $" [{l.Owner}: {l.Traps} traps, {l.Caught} caught]";
+        return $"{Name}: {Count:0}/{Capacity} ({LiveCount} live) browse {FoodStock:0.00} [{state}]{traps}";
     }
 }
 
@@ -158,6 +180,17 @@ public partial class EcologyManager : Node2D
     }
 
     private bool _scenarioDone;
+    private int _lastTrapDay = -1;
+
+    public SpawnSite SiteNear(Vector2 pos, Species? species = null)
+    {
+        foreach (var s in Sites)
+        {
+            if (species != null && s.Species != species) continue;
+            if (s.WorldPos.DistanceTo(pos) <= s.RadiusPx) return s;
+        }
+        return null;
+    }
 
     public override void _Process(double delta)
     {
@@ -172,6 +205,14 @@ public partial class EcologyManager : Node2D
                 if (arg == "--wolves") SpawnPackNear(Species.Wolf, IsoGrid.ToWorld(WorldLayout.GateOutside) + new Vector2(350, 250), 4, true);
                 if (arg == "--scarcity") foreach (var s in Sites) { s.FoodStock = 0.1f; s.Count = s.Capacity * 1.2f; s.Scarcity = true; }
             }
+        }
+        foreach (var s in Sites) s.TickTraplines(cal.DeltaGameHours);
+        // Traps work at night.
+        int day = cal.Day;
+        if (day != _lastTrapDay && cal.Hour >= 5f)
+        {
+            _lastTrapDay = day;
+            foreach (var s in Sites) TraplineRules.NightlyCatch(s);
         }
         _hoursToWeek -= cal.DeltaGameHours;
         if (_hoursToWeek <= 0f)

@@ -48,6 +48,38 @@ public partial class Npc : Agent
     public Agent Spouse;
     public readonly List<Npc> Children = new();
 
+    // What this person knows (design doc 11.2), capped and fading.
+    public readonly List<MemoryEntry> Memories = new();
+    private float _gossipTimer;
+
+    public void Remember(MemoryEntry e)
+    {
+        foreach (var m in Memories) if (m.Key == e.Key) return;
+        Memories.Add(e);
+        // Personality filters (design doc 11.4): what you think of the actor.
+        if (e.Actor != null && e.Actor != this && e.Weight >= 1f && e.Text.Contains(" robbed ") || e.Text.Contains(" killed ") || e.Text.Contains(" struck "))
+        {
+            if (e.Actor != null && e.Actor != this) ChangeRapport(e.Actor, -6f * e.Weight / e.Directness);
+        }
+        if (Memories.Count > 24) Memories.RemoveAt(0);
+    }
+
+    // Standing about: swap a story with whoever's next to you (10.4).
+    private void Gossip(float dt)
+    {
+        _gossipTimer -= dt;
+        if (_gossipTimer > 0f || Memories.Count == 0) return;
+        _gossipTimer = (float)GD.RandRange(4.0, 9.0) / Mathf.Max(0.2f, Personality.Talkative);
+        foreach (var a in Sim.AgentsWithin(GlobalPosition, 140f))
+        {
+            if (a is not Npc other || other == this || other.IsDead) continue;
+            var m = Memories[(int)(GD.Randi() % (uint)Memories.Count)];
+            if (m.Directness >= 4) continue;   // too garbled to pass on
+            other.Remember(m.Copy());
+            break;
+        }
+    }
+
     // Fast-moving individual rapport with other agents (design doc 3.6).
     public readonly Dictionary<Agent, float> Rapport = new();
     // Worth of everything the player has given this person (bride-price etc.).
@@ -137,6 +169,7 @@ public partial class Npc : Agent
 
         Move(dt, cal.IsSkipping);
         Animate();
+        Gossip(dt);
     }
 
     // Things you do in passing, no plan needed.
@@ -365,6 +398,7 @@ public partial class Npc : Agent
     {
         base.TakeDamage(amount, from);
         if (from == null || from == this || IsDead) return;
+        if (from is not Animal) Chronicle.Event($"{from.Describe()} struck {DisplayName}.", GlobalPosition, from, DisplayName, 1f);
         foreach (var a in Sim.AgentsWithin(GlobalPosition, 500f))
         {
             if (a is not Npc ally || ally == this || ally.IsDead || ally.Faction != Faction || ally == from) continue;
@@ -506,6 +540,8 @@ public partial class Npc : Agent
         AddToGroup("corpses");
         Sim.Unregister(this);
         Sim.Notice($"{DisplayName} has died.");
+        string how = LastAttacker != null && LastAttackedAgo < 30f ? $"{DisplayName} was killed by {LastAttacker.Describe()}." : $"{DisplayName} died of want.";
+        Chronicle.Event(how, GlobalPosition, LastAttacker != null && LastAttackedAgo < 30f ? LastAttacker : null, DisplayName, 2f);
         if (Faction == Faction.Cree && LastAttacker != null && LastAttackedAgo < 30f) Sim.Band?.OnMemberKilledBy(LastAttacker);
         if (Spouse is Npc widow) widow.Spouse = null;
         Succession();

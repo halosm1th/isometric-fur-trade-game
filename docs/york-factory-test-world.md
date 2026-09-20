@@ -95,6 +95,22 @@ E on a person stops them and opens topics: how things stand, about them (role, t
 
 Left click / F. A reload bar shows over your head while your weapon cools down; anyone hit shows a health bar for a few seconds. Hitting someone makes their armed friends within earshot come at you, and costs standing if they're Company men. Sneaking (Ctrl) up on a grazing animal and knifing it is the cheap way to a caribou.
 
+## Trapping (design doc 16.1, 16.3)
+
+Beaver are trapped, not hunted. Steel traps are items (the post has 10, the band 8, the ship brings 12). Use a trap from the hotbar while standing at a beaver lodge to set your line (up to 6 at once); traps catch overnight against how thick the lodge is; E at the lodge lifts the catch (pelt + meat per beaver) and leaves the traps. Cree hunters and, in winter, the Factor's men run their own lines. Anyone checking a lodge with other parties' traps may rob them (the less loyal, the likelier); the owner finds the traps robbed, and witnesses remember who did it.
+
+## Memory and rumour (design doc 10.2, 10.4, 11.2)
+
+Events (deaths, blows struck, trades, traplines set or robbed, letters carried) are remembered firsthand by everyone within ~650 px, and passed on when people stand near each other — each retelling one hop less direct, fading after four. "Ask about the others" now draws on what that person actually knows, hedged by how they know it ("I saw it myself" / "I was told" / "They say"). Hearing that someone robbed traps or struck a friend lowers their opinion of the culprit.
+
+## Credit (design doc 13.3)
+
+A band in good standing (> 40) that comes to the post hungry without goods is advanced food on credit; the debt is settled first out of the next furs they bring. `BandLedger.DebtMb`.
+
+## Letters (design doc 10.1)
+
+One task the Factor may hand you: carry his letter to the chief. It takes effect when the chief reads it — the band is invited to trade (they come with what furs they have), standing +6.
+
 ## Food chain
 
 Fresh meat spoils (~12% a day in the cache, half that in winter). Women at the fire dry it: 3 fresh → 2 dried, which keeps. Rations come out of the plainest food first.

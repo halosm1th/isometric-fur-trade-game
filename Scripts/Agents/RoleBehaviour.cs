@@ -43,6 +43,30 @@ public abstract class RoleBehaviour
 
     protected abstract Goal Work(Npc npc);
 
+    // Trapping (design doc 16.1): check a ripe line, else set traps at the
+    // thickest known lodge.
+    public static Goal TraplineWork(Npc npc, Economy.Household home, EcologyManager eco, bool wantFurs)
+    {
+        if (home == null || eco == null) return null;
+        string owner = home.Title;
+        SpawnSite ripe = null;
+        foreach (var s in eco.Sites)
+        {
+            var line = s.LineOf(owner);
+            if (line != null && line.Traps > 0 && line.ReadyToCheck && (ripe == null || line.Caught > ripe.LineOf(owner).Caught)) ripe = s;
+        }
+        if (ripe != null) return new CheckTraplineGoal(ripe);
+        if (!wantFurs) return null;
+        if (!npc.Inventory.Has(ItemId.SteelTrap))
+        {
+            int n = home.Stores.TakeUpTo(ItemId.SteelTrap, 4);
+            if (n == 0) return null;
+            npc.Inventory.Add(ItemId.SteelTrap, n);
+        }
+        var target = eco.BestSite(Species.Beaver, home);
+        return target != null ? new SetTraplineGoal(target) : null;
+    }
+
     // Fires need wood; whoever notices first deals with it.
     protected static Goal FireDuty(Npc npc, float threshold)
     {
@@ -123,7 +147,7 @@ public class CreeChiefBehaviour : RoleBehaviour
         bool hungry = band.FoodDays(mouths) < 4f;
         float fursMb = 0f;
         foreach (var (id, n) in band.Stores.All()) if (Items.Items.Of(id).Kind == ItemKind.Fur) fursMb += Items.Items.Of(id).ValueMb * n;
-        if (band.WillTrade && IsWorkHours && (fursMb >= 8f || (hungry && (fursMb > 0f || band.Stores.Has(ItemId.TradeGoods)))))
+        if (band.WillTrade && IsWorkHours && (fursMb >= 8f || band.InvitedToTrade && fursMb > 0f || (hungry && (fursMb > 0f || band.Stores.Has(ItemId.TradeGoods) || band.StandingWithCompany > 40f))))
             return new TradeTripGoal(hungry);
         return new WanderGoal(WorldLayout.CampCentre, 3, 1.5f);
     }
@@ -151,8 +175,11 @@ public class CreeHunterBehaviour : RoleBehaviour
         // Hunts start in the morning; a long walk out in the afternoon means
         // a night in the open.
         if (Cal.Hour >= 12f) return new WanderGoal(WorldLayout.CampCentre, 3, 1f);
+        // The trapline comes first: check any line that's had a night, or set
+        // one if there are traps in the cache and the price makes it worth it.
+        var trapWork = TraplineWork(npc, band, eco, furHunt);
+        if (trapWork != null) return trapWork;
         SpawnSite site = needMeat ? eco.BestSite(Species.Caribou, band) ?? eco.BestSite(Species.Goose, band) : null;
-        if (site == null && furHunt) site = eco.BestSite(Species.Beaver, band);
         if (site == null && GD.Randf() < 0.3f) site = eco.BestSite(Species.Caribou, band);
         if (site != null) return new HuntSiteGoal(site, 5f);
         return new WanderGoal(WorldLayout.CampCentre, 3, 1f);
@@ -221,6 +248,12 @@ public static class Delegation
                 bool unload = ship.Cargo.SlotCount > 0;
                 m.AssignedTask = _ => new CarryCargoGoal(unload); m.AssignedTaskName = unload ? "unload the ship" : "load the furs";
             }
+            else if (fort.Stores.Has(ItemId.SteelTrap) && Cal().CurrentSeason == Season.Winter && i % 3 == 2 && Sim.Ecology?.BestSite(Species.Beaver, fort) != null)
+            {
+                var eco = Sim.Ecology;
+                m.AssignedTask = n => RoleBehaviour.TraplineWork(n, fort, eco, true) ?? new ChopWoodGoal();
+                m.AssignedTaskName = "work the trapline";
+            }
             else if ((gooseSeason || foodShort) && i % 2 == 0)
             {
                 var site = Sim.Ecology?.BestSite(gooseSeason ? Species.Goose : Species.Caribou, fort) ?? Sim.Ecology?.BestSite(Species.Beaver, fort);
@@ -249,8 +282,10 @@ public static class Delegation
                 Sim.Notice("You were not at the post when the morning's orders were given. Mr. Auld noticed.");
                 return;
             }
+            var band = Sim.Band;
             if (threats > 0) pc.AssignTask(Player.TaskKind.DriveOffAnimals, 1);
             else if (shipIn && ship.Cargo.SlotCount > 0) pc.AssignTask(Player.TaskKind.CarryCargo, 8);
+            else if (band != null && !band.InvitedToTrade && band.WillTrade && fort.FursInStoreMb < fort.QuotaMb && GD.Randf() < 0.4f) pc.AssignTask(Player.TaskKind.DeliverLetter, 1);
             else pc.AssignTask(Player.TaskKind.Firewood, 4);
         }
     }

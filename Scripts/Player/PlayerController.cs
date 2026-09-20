@@ -61,7 +61,11 @@ public partial class PlayerController : Agent
 		Inventory.Add(ItemId.Capote, 1);
 		Inventory.Add(ItemId.Knife, 1);
 		Inventory.Add(ItemId.TradeGoods, 6);
+		Inventory.Add(ItemId.SteelTrap, 3);
 	}
+
+	// Things you've seen happen (keys into the Chronicle).
+	public readonly System.Collections.Generic.HashSet<string> Known = new();
 
 	private void FindDialogue() => _dialogue = GetTree().GetFirstNodeInGroup("dialogue") as UI.DialogueMenu;
 
@@ -181,6 +185,31 @@ public partial class PlayerController : Agent
 			EmitSignal(SignalName.Notice, $"Picked up {pickup.Label}.");
 			pickup.QueueFree();
 			return;
+		}
+
+		// Your trapline: lift the catch, leave the traps set.
+		var lodge = Sim.Ecology?.SiteNear(GlobalPosition, Ecology.Species.Beaver);
+		if (lodge != null)
+		{
+			var line = lodge.LineOf("player");
+			if (line != null && line.Traps > 0)
+			{
+				int got = line.Caught; line.Caught = 0; line.HoursSinceCheck = 0f;
+				for (int i = 0; i < got; i++) Ecology.SpeciesInfo.Yield(Ecology.Species.Beaver, Inventory);
+				string robbed = line.Robbed > 0 ? $" Someone has been at your traps - {line.Robbed} taken." : "";
+				line.Robbed = 0;
+				EmitSignal(SignalName.Notice, got > 0 ? $"{got} beaver in the traps. Pelts and meat in your pack.{robbed}" : $"The traps are empty.{robbed} ({line.Traps} traps set here)");
+				return;
+			}
+			// Someone else's traps: you can rob them, and it will be remembered.
+			int poached = Ecology.TraplineRules.Poach(lodge, "player", 1f);
+			if (poached > 0)
+			{
+				for (int i = 0; i < poached; i++) Ecology.SpeciesInfo.Yield(Ecology.Species.Beaver, Inventory);
+				Chronicle.Event($"{DisplayName} robbed another party's traps at {lodge.Name}.", GlobalPosition, this, weight: 1.5f);
+				EmitSignal(SignalName.Notice, $"You take {poached} beaver from someone else's traps. If anyone saw, they'll remember.");
+				return;
+			}
 		}
 
 		// A bed: sleep till morning, or rest an hour by day.
@@ -321,6 +350,17 @@ public partial class PlayerController : Agent
 
 			case ItemKind.Clothing:
 				return $"You're wearing the {def.Name.ToLower()}. (+{def.Warmth:0} warmth)";
+
+			case ItemKind.Tool when id == ItemId.SteelTrap:
+			{
+				var site = Sim.Ecology?.SiteNear(GlobalPosition, Ecology.Species.Beaver);
+				if (site == null) return "No beaver lodge here. Traps go where the beaver are - along the river.";
+				if (site.IsDead) return "This lodge is dead. Nothing will come to a trap here.";
+				int n = Inventory.TakeUpTo(ItemId.SteelTrap, 6);
+				var line = site.SetTraps("player", n);
+				Chronicle.Event($"{DisplayName} set traps at {site.Name}.", GlobalPosition, this, weight: 0.5f);
+				return $"You set {n} traps at {site.Name} ({line.Traps} on your line). Come back tomorrow.";
+			}
 
 			case ItemKind.Weapon:
 				PreferredWeapon = id;

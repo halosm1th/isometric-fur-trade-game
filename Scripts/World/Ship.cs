@@ -64,6 +64,7 @@ public partial class Ship : Node2D
         Cargo.Add(ItemId.Bread, 40);
         Cargo.Add(ItemId.Ale, 30);
         Cargo.Add(ItemId.Musket, 8);
+        Cargo.Add(ItemId.SteelTrap, 12);
         Cargo.Add(ItemId.PointBlanket, 20);
         Cargo.Add(ItemId.Capote, 6);
         Position = WorldLayout.ShipOffscreen;

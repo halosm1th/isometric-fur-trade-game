@@ -110,6 +110,8 @@ public partial class DialogueMenu : Control
         ClearOptions();
         var npc = _npc;
 
+        if (npc.Role == Role.CreeChief && _player.Task.Kind == TaskKind.DeliverLetter && !_player.Task.IsComplete)
+            AddOption("Hand him the Factor's letter", () => ShowTopics(DeliverLetter(npc)));
         AddOption("Ask how things stand", () => ShowTopics(AskNews(npc)));
         AddOption("Ask about them", () => ShowTopics(AskAboutThem(npc)));
         AddOption("Ask about the others", () => ShowTopics(AskGossip(npc)));
@@ -190,6 +192,22 @@ public partial class DialogueMenu : Control
         return s == "" ? "\"Nothing to tell.\"" : s;
     }
 
+    // A message takes effect when it's read (design doc 10.1), and it has
+    // to be carried there by someone.
+    private string DeliverLetter(Npc chief)
+    {
+        var band = Sim.Band;
+        _player.Task.Progress(TaskKind.DeliverLetter, 1);
+        if (band == null) return "\"...\"";
+        band.InvitedToTrade = true;
+        band.StandingWithCompany = Mathf.Min(100f, band.StandingWithCompany + 6f);
+        chief.ChangeRapport(_player, 4f);
+        Chronicle.Event($"{_player.DisplayName} brought the Factor's letter to {chief.DisplayName}.", chief.GlobalPosition, _player, weight: 0.6f);
+        return band.WillTrade
+            ? "\"He wants our beaver. Tell him we will come when the furs are ready, and that his price had better be good.\" He gives you a string of beads for the Factor."
+            : "\"Tell your Factor we remember how his people have dealt with us. We will see.\"";
+    }
+
     private string AskAboutThem(Npc npc)
     {
         var p = npc.Personality;
@@ -229,8 +247,12 @@ public partial class DialogueMenu : Control
             else if (other.Role == Role.Labourer && other.AssignedTaskName != "") lines.Add($"\"{other.DisplayName} is set to {other.AssignedTaskName}.\"");
             else if (other.Spouse == null && !other.IsFemale && other.Role != Role.Factor && other.Role != Role.Sailor) lines.Add($"\"{other.DisplayName} wants a wife, if you ask me.\"");
         }
-        foreach (var d in GetTree().GetNodesInGroup("corpses"))
-            if (d is Npc dead) lines.Add($"\"{dead.DisplayName} is dead. You heard?\"");
+        // What they actually know, secondhand or not (design doc 10.2).
+        foreach (var m in npc.Memories)
+        {
+            string hedge = m.Directness == 1 ? "\"I saw it myself: " : m.Directness == 2 ? "\"I was told " : "\"They say ";
+            lines.Add($"{hedge}{m.Text}\"");
+        }
         if (lines.Count == 0) return "\"Nothing worth telling.\"";
         int n = npc.Personality.Talkative > 0.6f ? 4 : npc.Personality.Talkative > 0.3f ? 2 : 1;
         var picked = new List<string>();
