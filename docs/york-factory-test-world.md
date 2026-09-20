@@ -34,6 +34,8 @@ Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--nam
 | T | hold for fast-forward (×40) |
 | Tab | chat |
 | J | journal: what you have witnessed, dated |
+| M | map: coast, river, posts, the camp where it stands, the sites you know (a herd where you last heard of it), other players, the ship |
+| H | help: controls and the gist |
 | F1 | test console (host only) |
 | F5 / F9 | quick save / quick load (host only; clients are reloaded and re-seated) |
 | R | restart after death |
@@ -97,6 +99,8 @@ Wildlife sites are known per household. The band knows its country; the post sta
 
 Rolled from the season a few times a day: clear / overcast / snow / **blizzard** / rain / gale. Blizzards double-plus exposure outdoors and dim the light; nobody starts a hunt or a wood trip in one, and hunters turn for home when one comes on. Buttons in F1.
 
+*Ask about the hunting* works on Cree hunters and the chief, Company labourers, voyageurs and the partner: with rapport ≥ 15 they tell you the sites **their household** knows, at the places their household believes them to be.
+
 ## Roofs
 
 Each building has a roof layer drawn above everything that fades out while you are under it. It's the design doc's "roof is a property of the cells" made visible.
@@ -140,6 +144,8 @@ Rum and ale carry intoxication (35 / 12), which wears off at 8 an hour. Drunk: s
 When the ship docks there's a one-in-three chance a sailor has fever. It spreads between people standing together (more so indoors), lasts 6-11 days, costs ~8 health a day and appetite, weakens the arm. Survivors are immune for the year. Talk to someone feverish and you're told to keep your distance.
 
 ## Fire (design doc 18.4)
+
+**Flint** (hotbar): beside a cold hearth it lights it (uses a firewood); in the open with firewood in your pack it builds a **campfire** on the next clear cell - a hearth like any other (feed it, warm at it, melt snow at it), saved and replicated; **crouched (Ctrl) against wood** it is arson.
 
 Fire is an object on a wooden cell. It spreads to wooden neighbours each second (fast in clear weather or a gale, slow in rain and snow), hurts anyone standing in it, and after ~25 s burns the cell to nothing: no wall, no floor (no shelter), no roof, no bed. Starts: a hearth stuffed past 15 h of fuel throws sparks; or a man with **flint** (in your kit - use it from the hotbar on a wooden floor or beside a wall). Arson is witnessed and answered: anyone whose house it is who saw you comes at you armed, and the story travels. Put it out with water (using a water item near flames throws it on; 55% per throw). Men of a burning household fetch water from the barrel and fight it; everyone runs from flames at their feet. F1 has a "set the men's house alight" button.
 

@@ -76,6 +76,17 @@ public partial class BandLedger : Household
         KnowsTheCountry = true;
         var cal = GameCalendar.Instance;
         if (cal != null) cal.CalendarEvent += OnEvent;
+        // Starting mid-season: the band is already where the season puts them.
+        CallDeferred(nameof(InitialCamp));
+    }
+
+    private void InitialCamp()
+    {
+        if (!Net.Net.IsServer || Core.SaveGame.HasPending) return;
+        int m = GameCalendar.Instance?.Month ?? 1;
+        float day = GameCalendar.Instance?.Day ?? 1;
+        bool summer = (m == 6 && day >= 5) || (m >= 7 && m <= 10) || (m == 11 && day < 10);
+        if (summer) MoveCamp(WorldLayout.SummerCamp);
     }
 
     private void OnEvent(string name)

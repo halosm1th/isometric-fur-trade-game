@@ -104,7 +104,7 @@ public class Conversation
             AddOption($"Offer them something to eat ({Items.Items.Of(food).Name})", () => ShowTopics(OfferFood(npc, food)));
         if (npc.Faction != Faction.HBC || npc.Role == Role.Labourer)
             AddOption("Threaten them", () => ShowTopics(Threaten(npc)));
-        if (npc.Faction == Faction.Cree && npc.Role is Role.CreeChief or Role.CreeHunter)
+        if ((npc.Faction == Faction.Cree && npc.Role is Role.CreeChief or Role.CreeHunter) || npc.Role is Role.Labourer or Role.Voyageur or Role.NwcPartner)
             AddOption("Ask about the hunting", () => ShowTopics(AskHunting(npc)));
         if (npc.Role == Role.Factor) AddOption("Ask for work", () => ShowTopics(AskForWork(npc)));
         if (npc.Role == Role.Factor && Sim.Fort != null)
@@ -433,8 +433,10 @@ public class Conversation
         var eco = Sim.Ecology;
         if (eco == null) return "\"...\"";
         string s = "";
+        var home = npc.HomeStores;
         foreach (var site in eco.Sites)
         {
+            if (home != null && !home.Knows(site.Name)) continue;   // they can only tell what their house knows
             if (site.IsDead) s += $"\"{site.Name} is finished - hunted out. Nothing comes back there.\" ";
             else if (site.Scarcity) s += $"\"{site.Name} is crowded and hungry; the animals are wandering toward your post.\" ";
             else if (site.Count < site.Capacity * 0.4f) s += $"\"{site.Name} is getting thin.\" ";
@@ -445,10 +447,18 @@ public class Conversation
         if (npc.RapportWith(_player) >= 15f)
         {
             int learned = 0;
-            foreach (var site in eco.Sites) { if (_player.KnownSites.Add(site.Name)) learned++; _player.SiteBelief[site.Name] = site.Cell; }
-            if (learned > 0) s += $" He describes where the game is: {learned} places you did not know. The Factor would want to hear it.";
+            // They tell you where they believe things are - for a herd, where
+            // their people last saw it, which may be stale (design doc 16.5).
+            foreach (var site in eco.Sites)
+            {
+                if (home != null && !home.Knows(site.Name)) continue;
+                if (_player.KnownSites.Add(site.Name)) learned++;
+                var believed = home != null ? home.BelievedCell(site) : site.Cell;
+                if (!_player.SiteBelief.TryGetValue(site.Name, out var mine) || mine != believed) { _player.SiteBelief[site.Name] = believed; if (site.IsMobile) s += $" \"The caribou were last seen {(believed.Y < 130 ? "north, toward the coast" : "south, in the bush")}.\""; }
+            }
+            if (learned > 0) s += $" {(npc.IsFemale ? "She" : "He")} describes where the game is: {learned} places you did not know.{(npc.Faction == Faction.HBC ? "" : " The Factor would want to hear it.")}";
         }
-        else s += " He says nothing of where the game is. You are not yet a friend.";
+        else s += $" {(npc.IsFemale ? "She" : "He")} says nothing of where the game is. You are not yet a friend.";
         return s == "" ? "\"The country is in good heart. Game everywhere it should be.\"" : s;
     }
 
