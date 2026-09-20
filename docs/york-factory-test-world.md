@@ -97,8 +97,7 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 ## Known gaps / next
 
 - Art is placeholder everywhere new (trees, tipis, ship, women/factor recolours, item icons).
-- No roof rendering; the front wall fades when you're inside.
-- Player's own weapons have no animation; NPC attack has none either.
-- Sites are known to everyone (design doc wants them learned).
+- Roofs are flat placeholder planes; the front wall still fades when you're inside.
+- Player's own weapons have no swing animation; shots are a line and a flash.
 - Delegation is a fixed playbook, not a planner; no message objects yet (orders take effect immediately, except London's, which wait for the ship).
 - Balance numbers (need rates, site sizes, prices) are first guesses. Use `--trace` runs at `--speed=1` to watch a week in a few minutes.
