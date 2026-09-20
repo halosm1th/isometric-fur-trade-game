@@ -82,6 +82,106 @@ public class FetchWaterGoal : Goal
     }
 }
 
+// Fishing (design doc 14.4): a line at the water's edge for a few hours,
+// a handful of fish for the pot. Open water only.
+public class FishGoal : Goal
+{
+    private int _phase;
+    public override string Label => "fishing";
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        var stores = npc.HomeStores;
+        if (stores == null || GameCalendar.Instance.IsFrozen) return GoalStatus.Failed;
+        switch (_phase)
+        {
+            case 0:
+                var cell = npc.NearestWaterCell(9000f);
+                if (cell == null) return GoalStatus.Failed;
+                _phase = 1;
+                return Delegate(new GoToGoal(cell.Value, 30f));
+            case 1:
+                if (!ChildFinished(out var r)) return GoalStatus.Running;
+                if (r != GoalStatus.Done) return GoalStatus.Failed;
+                _phase = 2;
+                return Delegate(new WaitGoal(2.5f));
+            case 2:
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                int caught = GD.RandRange(0, 4);
+                npc.Inventory.Add(ItemId.Fish, caught);
+                _phase = 3;
+                return Delegate(new GoToGoal(stores.AccessCell, 100f));
+            default:
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                stores.Stores.Add(ItemId.Fish, npc.Inventory.TakeUpTo(ItemId.Fish, 99));
+                return GoalStatus.Done;
+        }
+    }
+}
+
+// Water on the flames. Tier 0: your house is burning.
+public class FightFireGoal : Goal
+{
+    public override int Tier => 0;
+    private int _phase;
+    private float _giveUp = 90f;
+    public override string Label => "fight the fire";
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        var fire = World.Fire.I; var stores = npc.HomeStores;
+        if (fire == null || stores == null) return GoalStatus.Failed;
+        _giveUp -= dt;
+        if (_giveUp <= 0f) return GoalStatus.Failed;
+        var target = fire.NearestBurning(IsoGrid.ToWorld(stores.AccessCell), 900f);
+        if (target == null) return GoalStatus.Done;
+        switch (_phase)
+        {
+            case 0:
+                if (npc.Inventory.Has(ItemId.Water)) { _phase = 2; return GoalStatus.Running; }
+                if (!stores.Stores.Has(ItemId.Water)) return GoalStatus.Failed;
+                _phase = 1;
+                return Delegate(new GoToGoal(stores.AccessCell, 100f));
+            case 1:
+                if (!ChildFinished(out var r)) return GoalStatus.Running;
+                if (r != GoalStatus.Done) return GoalStatus.Failed;
+                npc.Inventory.Add(ItemId.Water, stores.Stores.TakeUpTo(ItemId.Water, 3));
+                if (!npc.Inventory.Has(ItemId.Water)) return GoalStatus.Failed;
+                _phase = 2;
+                return GoalStatus.Running;
+            case 2:
+                _phase = 3;
+                return Delegate(new GoToGoal(npc.StandCellNear(target.Value), 110f));
+            default:
+            {
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                var near = fire.NearestBurning(npc.GlobalPosition, 150f);
+                if (near != null && npc.Inventory.Remove(ItemId.Water)) fire.Douse(near.Value);
+                _phase = npc.Inventory.Has(ItemId.Water) ? 2 : 0;
+                return GoalStatus.Running;
+            }
+        }
+    }
+}
+
+// Get away from a point (fire, mostly).
+public class FleePointGoal : Goal
+{
+    public override int Tier => 0;
+    private readonly Vector2 _from;
+    private float _left;
+    public FleePointGoal(Vector2 from, float seconds = 4f) { _from = from; _left = seconds; }
+    public override string Label => "run from the fire";
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        _left -= dt;
+        if (_left <= 0f) { npc.StopMoving(); return GoalStatus.Done; }
+        npc.SteerDirect(npc.GlobalPosition - _from, true);
+        return GoalStatus.Running;
+    }
+    public override void OnExit(Npc npc) => npc.StopMoving();
+}
+
 // An evening with the rum (design doc 13.4). Company men and Cree hunters
 // alike: take a dram from the cache, drink it, talk. Drunk men quarrel.
 public class CarouseGoal : Goal

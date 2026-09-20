@@ -18,6 +18,7 @@
 [ext_resource type="Script" path="res://Scripts/Ecology/EcologyManager.cs" id="14_ecology"]
 [ext_resource type="Script" path="res://Scripts/World/Population.cs" id="15_population"]
 [ext_resource type="Script" path="res://Scripts/World/Ship.cs" id="16_ship"]
+[ext_resource type="Script" path="res://Scripts/World/Fire.cs" id="16_fire"]
 [ext_resource type="PackedScene" path="res://Scenes/Npc/Npc.tscn" id="17_npc"]
 [ext_resource type="PackedScene" path="res://Scenes/Animals/Animal.tscn" id="18_animal"]
 [ext_resource type="Script" path="res://Scripts/UI/DialogueMenu.cs" id="19_dialogue"]
@@ -87,6 +88,9 @@ AnimalScene = ExtResource("18_animal")
 
 [node name="Ship" type="Node2D" parent="YSort"]
 script = ExtResource("16_ship")
+
+[node name="Fire" type="Node2D" parent="YSort"]
+script = ExtResource("16_fire")
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1419517200]
 

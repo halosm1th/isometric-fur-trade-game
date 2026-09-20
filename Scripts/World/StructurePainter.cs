@@ -444,7 +444,12 @@ public partial class StructurePainter : TileMapLayer
     // A cell change that arrived from the server.
     public void ApplyRemoteCell(int layer, Vector2I cell, int source)
     {
-        var l = layer == 0 ? this : (_front ?? this);
+        if (layer == 3)
+        {
+            foreach (var (_, roof) in _roofs) if (roof.GetCellSourceId(cell) >= 0) roof.EraseCell(cell);
+            return;
+        }
+        var l = layer == 0 ? this : layer == 1 ? (_front ?? this) : (_floor ?? this);
         if (source < 0) l.EraseCell(cell); else l.SetCell(cell, source, Vector2I.Zero);
         RebuildCollision();
     }
@@ -464,7 +469,11 @@ public partial class StructurePainter : TileMapLayer
                 if (OpenDoors.Contains(s)) net.RpcId(peer, nameof(Net.Net.SetCell), idx, cell.X, cell.Y, s);
             }
         }
-        foreach (var cell in _felled) net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, -1);
+        foreach (var cell in _felled)
+        {
+            net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, -1);
+            if ((_floor ?? this).GetCellSourceId(cell) < 0) { net.RpcId(peer, nameof(Net.Net.SetCell), 1, cell.X, cell.Y, -1); net.RpcId(peer, nameof(Net.Net.SetCell), 2, cell.X, cell.Y, -1); net.RpcId(peer, nameof(Net.Net.SetCell), 3, cell.X, cell.Y, -1); }
+        }
     }
     private readonly List<Vector2I> _felled = new();
 
@@ -485,6 +494,40 @@ public partial class StructurePainter : TileMapLayer
 
     private static bool IsDoor(int s) => (s >= 10 && s <= 13) || OpenDoors.Contains(s);
     private static bool IsClosedDoor(int s) => s >= 10 && s <= 13;
+
+    // ---- fire (design doc 18.4) -----------------------------------------------
+
+    // Wood burns: floors, walls, doors, fences, furniture, trees. Stone hearths don't.
+    public bool IsFlammable(Vector2I cell)
+    {
+        var floor = _floor ?? this;
+        if (floor.GetCellSourceId(cell) == SourceFloorPlanks) return true;
+        foreach (var layer in Layers())
+        {
+            int s = layer.GetCellSourceId(cell);
+            if (s < 0) continue;
+            if (Hearths.Contains(s) || s == SourceHearthLeft || s == SourceHearthRight) continue;
+            return true;   // walls, doors, fences, beds, tables, trees, tipis
+        }
+        return false;
+    }
+
+    // Everything on the cell is gone: no wall, no floor, no roof, no bed.
+    public void BurnOut(Vector2I cell)
+    {
+        foreach (var layer in Layers())
+        {
+            if (layer.GetCellSourceId(cell) >= 0) { layer.EraseCell(cell); Net.Net.I?.BroadcastCell(layer == this ? 0 : 1, cell, -1); }
+        }
+        var floor = _floor ?? this;
+        if (floor.GetCellSourceId(cell) == SourceFloorPlanks) { floor.EraseCell(cell); Net.Net.I?.BroadcastCell(2, cell, -1); }
+        foreach (var (b, roof) in _roofs)
+        {
+            if (roof.GetCellSourceId(cell) >= 0) { roof.EraseCell(cell); Net.Net.I?.BroadcastCell(3, cell, -1); }
+        }
+        _felled.Add(cell);
+        RebuildCollision();
+    }
 
     // ---- walkability (for pathfinding) --------------------------------------
 

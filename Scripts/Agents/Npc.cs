@@ -233,6 +233,8 @@ public partial class Npc : Agent
         Opportunities();
         var current = Brain.Tier0Goal();
         if (current is AttackGoal || current is FleeGoal) return;
+        var top = Brain.Top;
+        if (top is FleePointGoal || top is FightFireGoal || top is BrawlGoal) return;
 
         // Being attacked: fight back if there's a chance, else run.
         if (LastAttackedAgo < 2f && LastAttacker != null && IsInstanceValid(LastAttacker) && !LastAttacker.IsDead)
@@ -243,6 +245,18 @@ public partial class Npc : Agent
             else Brain.Push(this, new FleeGoal(LastAttacker, 8f));
             return;
         }
+        // Fire: run from flames at your feet; men of the house go for water.
+        var fire = World.Fire.I;
+        if (fire != null && fire.Count > 0)
+        {
+            var near = fire.NearestBurning(GlobalPosition, 110f);
+            if (near != null) { Brain.Push(this, new FleePointGoal(IsoGrid.ToWorld(near.Value), 3f)); return; }
+            if (HomeStores != null && !IsFemale && !Brain.Has<FightFireGoal>() && fire.NearestBurning(IsoGrid.ToWorld(HomeStores.AccessCell), 700f) != null)
+            {
+                Brain.Push(this, new FightFireGoal()); return;
+            }
+        }
+
         // A predator closing in: armed men stand, others run for the walls.
         var threat = NearestHostile(220f);
         if (threat != null)

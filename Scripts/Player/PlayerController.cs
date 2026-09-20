@@ -146,6 +146,8 @@ public partial class PlayerController : Agent
 		Inventory.Add(ItemId.SteelTrap, 3);
 		Inventory.Add(ItemId.Kettle, 1);
 		Inventory.Add(ItemId.Water, 2);
+		Inventory.Add(ItemId.Flint, 1);
+		Inventory.Add(ItemId.FishingLine, 1);
 	}
 
 	public void BecomeLocal()
@@ -477,9 +479,17 @@ public partial class PlayerController : Agent
 				_oneShotAnim = "eat";
 				return $"You eat the {def.Name.ToLower()}.";
 			case ItemKind.Drink:
+			{
+				// Water goes on a fire first if one's at hand.
+				if (id == ItemId.Water && World.Fire.I != null && World.Fire.I.NearestBurning(GlobalPosition, 130f) is Vector2I burning)
+				{
+					Inventory.Remove(id);
+					return World.Fire.I.Douse(burning) ? "You throw the water on. The flames die down." : "You throw the water on. It hisses and burns on.";
+				}
 				if (!Consume(id)) return "";
 				_oneShotAnim = "drink";
 				return $"You drink the {def.Name.ToLower()}.";
+			}
 			case ItemKind.Fuel:
 			{
 				var hearth = Sim.Structures?.HearthNear(GlobalPosition);
@@ -491,6 +501,34 @@ public partial class PlayerController : Agent
 				return $"You're wearing the {def.Name.ToLower()}. (+{def.Warmth:0} warmth)";
 			case ItemKind.Tool when id == ItemId.Kettle:
 				return ServerAction("drink", new Godot.Collections.Array());
+			case ItemKind.Tool when id == ItemId.FishingLine:
+			{
+				if (Sim.Terrain == null || !Sim.Terrain.IsWaterNear(GlobalPosition)) return "Cast where there's water.";
+				if (GameCalendar.Instance.IsFrozen) return "The water is frozen. You could jig through the ice if you had the patience - not yet.";
+				if (!CanAttack) return "";
+				_attackCooldownPublic(3f);
+				if (GD.Randf() < 0.45f) { int n = GD.RandRange(1, 2); Inventory.Add(ItemId.Fish, n); return $"You land {n} fish."; }
+				return "Nothing on the line.";
+			}
+			case ItemKind.Tool when id == ItemId.Flint:
+			{
+				var fire = World.Fire.I;
+				if (fire == null) return "";
+				// Light the wood under your feet or the wall beside you.
+				Vector2I target = Cell;
+				if (!Sim.Structures.IsFlammable(target))
+				{
+					foreach (var n in IsoGrid.EdgeNeighbours(Cell)) if (Sim.Structures.IsFlammable(n)) { target = n; break; }
+				}
+				if (!Sim.Structures.IsFlammable(target)) return "Nothing here will take a spark.";
+				if (!fire.Ignite(target)) return "It won't catch.";
+				Chronicle.Event($"{DisplayName} set fire to the buildings.", GlobalPosition, this, weight: 3f);
+				// Anyone whose house this is, and saw it, comes for you.
+				foreach (var a in Sim.AgentsWithin(GlobalPosition, 650f))
+					if (a is Npc n2 && !n2.IsDead && n2.HomeStores != null && n2.HomeStores.HearthCells.Count > 0 && IsoGrid.ToWorld(n2.HomeStores.AccessCell).DistanceTo(GlobalPosition) < 1200f)
+					{ n2.ChangeRapport(this, -60f); if (n2.Weapon != null) n2.Brain.Push(n2, new Agents.Goals.AttackGoal(this)); }
+				return "You strike sparks into the tinder. It catches.";
+			}
 			case ItemKind.Tool when id == ItemId.SteelTrap:
 			{
 				var site = Sim.Ecology?.SiteNear(GlobalPosition, Ecology.Species.Beaver);

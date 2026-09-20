@@ -137,6 +137,14 @@ Rum and ale carry intoxication (35 / 12), which wears off at 8 an hour. Drunk: s
 
 When the ship docks there's a one-in-three chance a sailor has fever. It spreads between people standing together (more so indoors), lasts 6-11 days, costs ~8 health a day and appetite, weakens the arm. Survivors are immune for the year. Talk to someone feverish and you're told to keep your distance.
 
+## Fire (design doc 18.4)
+
+Fire is an object on a wooden cell. It spreads to wooden neighbours each second (fast in clear weather or a gale, slow in rain and snow), hurts anyone standing in it, and after ~25 s burns the cell to nothing: no wall, no floor (no shelter), no roof, no bed. Starts: a hearth stuffed past 15 h of fuel throws sparks; or a man with **flint** (in your kit - use it from the hotbar on a wooden floor or beside a wall). Arson is witnessed and answered: anyone whose house it is who saw you comes at you armed, and the story travels. Put it out with water (using a water item near flames throws it on; 55% per throw). Men of a burning household fetch water from the barrel and fight it; everyone runs from flames at their feet. F1 has a "set the men's house alight" button.
+
+## Fishing (design doc 14.4)
+
+A fishing line is in your kit: use it at the water's edge in open water (45% for 1-2 fish, a 3 s cooldown). Women fish for the pot when food runs short. Fish spoils like fresh meat.
+
 ## Age (design doc 9.4)
 
 Everyone has an age (Factor ~50, chief ~48, labourers 20s-30s, daughters 16-20); New Year adds one, and past 45 people slow a little each year. "Ask about them" tells you.

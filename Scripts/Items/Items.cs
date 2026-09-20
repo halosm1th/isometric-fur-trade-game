@@ -15,6 +15,7 @@ public enum ItemId
     Venison,
     Goose,
     DriedMeat,
+    Fish,
     // Fuel
     Firewood,
     // Clothing
@@ -28,6 +29,8 @@ public enum ItemId
     TradeGoods,
     SteelTrap,
     Kettle,
+    Flint,
+    FishingLine,
     // Weapons
     Musket,
     Bow,
@@ -71,6 +74,9 @@ public static class Items
         { ItemId.TradeGoods,   new("Trade goods",    ItemKind.Goods,    3.0f, IconDir + "trade_goods.png",  ValueMb: 1f) },
         { ItemId.SteelTrap,    new("Steel trap",     ItemKind.Tool,     4.0f, IconDir + "steel_trap.png",   ValueMb: 1.5f) },
         { ItemId.Kettle,       new("Copper kettle",  ItemKind.Tool,     3.0f, IconDir + "kettle.png",       ValueMb: 2f) },
+        { ItemId.Flint,        new("Flint and steel",ItemKind.Tool,     0.3f, IconDir + "flint.png",        ValueMb: 0.5f) },
+        { ItemId.FishingLine,  new("Fishing line",   ItemKind.Tool,     0.5f, IconDir + "fishing_line.png", ValueMb: 0.5f) },
+        { ItemId.Fish,         new("Fish",           ItemKind.Food,     1.0f, IconDir + "fish.png",         Nutrition: 22f, ValueMb: 0.1f) },
         { ItemId.Musket,       new("Trade musket",   ItemKind.Weapon,   9.0f, IconDir + "musket.png",       ValueMb: 12f, Damage: 55f, Range: 340f, Cooldown: 4f) },
         { ItemId.Bow,          new("Bow",            ItemKind.Weapon,   2.0f, IconDir + "bow.png",          ValueMb: 2f,  Damage: 30f, Range: 260f, Cooldown: 1.6f) },
         { ItemId.Knife,        new("Knife",          ItemKind.Weapon,   0.5f, IconDir + "knife.png",        ValueMb: 0.5f, Damage: 18f, Range: 60f, Cooldown: 0.7f) },

@@ -75,6 +75,12 @@ public partial class Hearth : Node2D
         if (cal != null && Net.Net.IsServer)
         {
             FuelHours = Mathf.Max(0f, FuelHours - cal.DeltaGameHours);
+            // Stuffed past sense, a hearth throws sparks into the room (design doc 18.4).
+            if (FuelHours > 15f && Fire.I != null && GD.Randf() < cal.DeltaGameHours * 0.02f)
+            {
+                var floor = IsoGrid.DownLeft(Cell);
+                if (Fire.I.Ignite(floor, "A spark from an overloaded hearth has caught the floor!")) Sim.Notice("FIRE! Water, quick!");
+            }
         }
 
         _flicker += (float)delta * 9f;

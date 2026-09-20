@@ -259,6 +259,7 @@ public partial class Agent : CharacterBody2D
     }
 
     public bool CanAttack => _attackCooldown <= 0f && !IsDead;
+    protected void _attackCooldownPublic(float s) { _attackCooldown = s; _lastCooldown = s; }
     // 0 = ready, 1 = just fired.
     public float CooldownFraction => _lastCooldown <= 0f ? 0f : Mathf.Clamp(_attackCooldown / _lastCooldown, 0f, 1f);
     private float _lastCooldown;

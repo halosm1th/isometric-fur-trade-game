@@ -131,6 +131,7 @@ public partial class DebugMenu : Control
             }
             return sb.ToString();
         });
+        AddButton("People", "Set the men's house alight", () => World.Fire.I?.Ignite(World.IsoGrid.Cell(World.WorldLayout.MensHouse.Top, 2, 2), "Fire in the men's house!"));
         AddButton("People", "Teleport me to the camp", () => _player.GlobalPosition = World.IsoGrid.ToWorld(World.IsoGrid.Cell(World.WorldLayout.CampCentre, 2, 1)));
         AddButton("People", "Teleport me to the wharf", () => _player.GlobalPosition = World.IsoGrid.ToWorld(World.WorldLayout.WharfRoot));
         AddButton("People", "Teleport me to the trading room", () => _player.GlobalPosition = World.IsoGrid.ToWorld(World.WorldLayout.Depot.Centre));

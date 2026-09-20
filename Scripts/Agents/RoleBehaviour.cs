@@ -155,6 +155,7 @@ public class HouseholdBehaviour : RoleBehaviour
         if (fire != null) return fire;
         var water = WaterDuty(npc, 12);
         if (water != null) return water;
+        if (IsWorkHours && !Cal.IsFrozen && npc.HomeStores != null && npc.HomeStores.FoodDays(10) < 14f && GD.Randf() < 0.5f) return new FishGoal();
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Venison) >= 3) return new DryMeatGoal();
         if (npc.Needs.Thirst < 60f) return new DrinkGoal();
         return new WanderGoal(npc.WorkCell, 2, 1.2f);
@@ -236,6 +237,7 @@ public class CreeWomanBehaviour : RoleBehaviour
         if (fire != null) return fire;
         var water = WaterDuty(npc, 10);
         if (water != null) return water;
+        if (IsWorkHours && !Cal.IsFrozen && npc.HomeStores != null && npc.HomeStores.FoodDays(11) < 8f && GD.Randf() < 0.5f) return new FishGoal();
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Venison) >= 3) return new DryMeatGoal();
         if (npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Firewood) < 12 && IsWorkHours) return new ChopWoodGoal();
         return new WanderGoal(WorldLayout.CampCentre, 3, 1.2f);
