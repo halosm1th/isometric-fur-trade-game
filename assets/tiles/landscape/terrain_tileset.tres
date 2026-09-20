@@ -61,6 +61,8 @@
 [ext_resource type="Texture2D" path="res://assets/tiles/props/woodpile.png" id="tex_58"]
 [ext_resource type="Texture2D" path="res://assets/tiles/props/fur_bale.png" id="tex_59"]
 
+[ext_resource type="Texture2D" path="res://assets/tiles/buildings/roof.png" id="tex_60"]
+
 [sub_resource type="TileSetAtlasSource" id="Atlas_grass"]
 texture = ExtResource("tex_1")
 texture_region_size = Vector2i(132, 99)
@@ -415,6 +417,12 @@ texture_region_size = Vector2i(128, 256)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, 86)
 
+[sub_resource type="TileSetAtlasSource" id="Atlas_roof"]
+texture = ExtResource("tex_60")
+texture_region_size = Vector2i(132, 99)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, -16)
+
 [resource]
 tile_shape = 1
 tile_size = Vector2i(128, 64)
@@ -477,3 +485,4 @@ sources/55 = SubResource("Atlas_tipi")
 sources/56 = SubResource("Atlas_campfire")
 sources/57 = SubResource("Atlas_woodpile")
 sources/58 = SubResource("Atlas_fur_bale")
+sources/59 = SubResource("Atlas_roof")

@@ -34,6 +34,8 @@ public partial class StructurePainter : TileMapLayer
     public const int SourceFenceCornerBack = 47, SourceFenceCornerFront = 48;
     public const int SourceHearthLeft = 49, SourceHearthRight = 50;
     public const int SourceSpruce0 = 52, SourceTipi = 55, SourceCampfire = 56, SourceWoodpile = 57, SourceFurBale = 58;
+    public const int SourceRoof = 59;
+    private const float RoofLift = 118f;
 
     // Source id ranges whose tiles sit on a cell edge, laid out N,E,S,W.
     private static readonly int[] EdgeFamilyBases = { 6, 10, 14, 18, 22, 39 };
@@ -56,6 +58,11 @@ public partial class StructurePainter : TileMapLayer
     private StaticBody2D _body;
     private readonly List<Hearth> _hearths = new();
     private readonly Dictionary<Vector2I, Hearth> _hearthByCell = new();
+
+    // One roof layer per building, drawn above everything; it fades away
+    // while the player is under it (design doc 18.1: a roof is a property
+    // of the cells, and this is what it looks like from outside).
+    private readonly List<(BuildingDef building, TileMapLayer roof)> _roofs = new();
 
     // Kept for older callers; the layout is the source of truth.
     public Vector2I GateCell => WorldLayout.GateCell;
@@ -80,6 +87,7 @@ public partial class StructurePainter : TileMapLayer
             Sim.Structures = this;
             if (Sim.Terrain != null) Sim.Paths = new Pathfinder(Sim.Terrain, this);
             SpawnHearths();
+            CallDeferred(nameof(BuildRoofs));
         }
     }
 
@@ -90,6 +98,32 @@ public partial class StructurePainter : TileMapLayer
         var m = _front.Modulate;
         m.A = Mathf.MoveToward(m.A, target, (float)delta * 4f);
         _front.Modulate = m;
+
+        var playerCell = LocalToMap(_player.Position);
+        foreach (var (b, roof) in _roofs)
+        {
+            bool under = b.Contains(playerCell) || b.Contains(IsoGrid.DownLeft(playerCell)) || b.Contains(IsoGrid.DownRight(playerCell));
+            var rm = roof.Modulate;
+            rm.A = Mathf.MoveToward(rm.A, under ? 0f : 1f, (float)delta * 4f);
+            roof.Modulate = rm;
+        }
+    }
+
+    private void BuildRoofs()
+    {
+        // Sits beside YSort on the scene root so it draws over people and walls.
+        var host = GetParent()?.GetParent();
+        if (host == null) return;
+        foreach (var b in WorldLayout.Buildings)
+        {
+            // Lifted by the wall height so it sits on top of the walls.
+            var roof = new TileMapLayer { TileSet = TileSet, ZIndex = 5, ZAsRelative = false, Name = $"Roof_{b.Kind}", Position = new Vector2(0, -RoofLift) };
+            // Two extra courses toward the viewer so the lifted roof still
+            // covers the front of the room from above.
+            foreach (var cell in IsoGrid.Rhombus(b.Top, b.Width + 2, b.Depth + 2)) roof.SetCell(cell, SourceRoof, Vector2I.Zero);
+            host.AddChild(roof);
+            _roofs.Add((b, roof));
+        }
     }
 
     // "Indoors" is a property of the tile you stand on (design doc 18.1): a

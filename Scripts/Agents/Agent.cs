@@ -94,7 +94,10 @@ public partial class Agent : CharacterBody2D
         EmitSignal(SignalName.Died);
     }
 
-    public float EffectiveSpeed => MoveSpeed * Needs.CapabilityFactor * (IsSprinting ? SprintMultiplier : 1f);
+    // A voyageur carried two 90-lb pieces on a portage; anyone else slows
+    // down well before that (design doc 12).
+    public float LoadFactor => Mathf.Clamp(1f - (Inventory.TotalWeightLbs - 50f) / 160f, 0.35f, 1f);
+    public float EffectiveSpeed => MoveSpeed * Needs.CapabilityFactor * LoadFactor * (IsSprinting ? SprintMultiplier : 1f);
 
     // ---- shared action vocabulary (design doc 3.3) ----
 
