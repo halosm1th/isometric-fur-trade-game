@@ -104,6 +104,23 @@ The largest instance of the council mechanic, and the generator behind NWC's yea
 
 **If the player isn't there**, the council resolves lazily with the same agents (Section 18.2), and the result reaches the player through the message system — later, and possibly garbled.
 
+### 3.8.2 Council Outcomes — What an Accord Actually Is
+A council (Section 3.8) or a smaller negotiation between kin or bands doesn't only produce a Tier 2 directive (Section 3.8.1's NWC case) — when the parties belong to different factions or kin groups, its output can be a durable **Accord**: one generic agreement object, specialized by its terms, rather than a separate mechanic per treaty type.
+
+**Every Accord has:**
+- **Parties** — two or more factions, bands, or specific individuals.
+- **Terms** — what's actually promised, reusing the goal/action framework (Section 3) rather than inventing new state. A term is a constraint layered onto a party's future goals (a promise not to raid, an obligation to trade preferentially, a commitment to grant passage) or a one-time transfer (a captive returned, a gift given, a marriage arranged, per Section 8).
+- **A breach condition** — what counts as violating it, always a witnessed event (Section 10.2) that propagates like anything else (Section 10.4). A broken Accord is one of the worst things an agent can be caught doing — Accords are the actual currency of trust in a world with no central law (Section 7.4), so violating one carries consequences on the scale of Section 7.4's vendetta mechanics, not an ordinary standing hit.
+
+**Named types are parameterizations, not separate systems:**
+- **Peace treaty** — caps or resets active hostility between two factions (Section 7.2, Section 4.1's interior war); may include terms like returned captives (Section 9.2) or an agreed territorial line.
+- **Trade exclusivity** — a band or nation commits to trading primarily or only with one company (Section 13), typically bought with better prices or gifts; a rival can still poach it by offering better terms or by damaging trust in the exclusive partner (Section 10.3/10.4).
+- **Safe passage** — a nation grants passage through its territory without the default ambush risk (Sections 12.2, 15.1); breaking it is a huge propagation event precisely because it suppressed a risk everyone knew was otherwise real.
+- **Alliance / mutual defense** — two factions commit to fighting together against a third, extending the personal kin-obligation-to-fight idea (Section 15.2) to an institutional scale; often sealed with a marriage (Section 8), itself just another term on the same Accord.
+- **Debt restructuring** — forgiving or renegotiating a debt (Section 13.3) as a negotiated term rather than a unilateral company decision.
+- **Vendetta settlement** — a kin-to-kin negotiation, not necessarily a full council, that formally closes an unresolved blood debt (Section 7.4) with restitution terms, retiring the grudge (Section 10.4) instead of leaving it to decay or escalate on its own.
+- **The 1821 merger** (Section 13.7) is the largest instance of this same object — two councils negotiating one Accord whose terms happen to be a full corporate merger.
+
 ### 3.9 Delegation & Task Assignment
 The layer between a Tier 2 directive (Section 3.1) and the shared action vocabulary (Section 3.3): how a leader who has read his orders turns them into work other agents actually do. It is written generically — a leader handing goals to followers — with the HBC Factor as the primary case and NWC partners and hunt captains as other parameterizations (table below), per Section 19.
 
@@ -134,7 +151,7 @@ The layer between a Tier 2 directive (Section 3.1) and the shared action vocabul
 **Example.** An inland post reads its orders late in the fall: 40 packs by ship. The factor has 12 men and two clerks. He sends the clerk he trusts, with six men, to a far outpost he has heard has lodges, and keeps the ambitious clerk close on a provisioning hunt. In January the outpost report is overdue, and he can't tell whether the clerk is dead, snowed in, or sitting on a site. He pulls two men off provisioning to check, and the post's food margin thins. Nothing scripted that crisis.
 
 ### 3.10 Skills
-Every agent — player and NPC alike — carries a skill value per action-relevant competency: shooting, hunting, trapping, berry-picking/foraging, talking, stealth, horse riding, sprinting, medicine (Section 17.5), strength (Section 12.4), and others as new action chains need them. Skills determine how well an action in Section 3.3's shared vocabulary resolves — a shooting check, a stealth roll, how much a foraging trip yields — rather than gating whether the action can be attempted at all.
+Every agent — player and NPC alike — carries a skill value per action-relevant competency: shooting, hunting, trapping, berry-picking/foraging, talking, stealth, horse riding, sprinting, medicine (Section 17.5), strength (Section 12.4), crafting and smithing (Section 12.6), and others as new action chains need them. Skills determine how well an action in Section 3.3's shared vocabulary resolves — a shooting check, a stealth roll, how much a foraging trip yields — rather than gating whether the action can be attempted at all.
 
 - **Base value from personality.** Each character's starting skill baseline is seeded by their personality profile (Section 11.4 — loyalty, discretion, suspicion, ambition, sociability) and background, not rolled independently — an ambitious clerk starts with a talking edge, a hunter raised in a band starts high on hunting/trapping/stealth, a voyageur starts high on sprinting and canoeing endurance. Personality does double duty: it already filters behavior (Section 11.4), and now it also explains *why* two agents in the same role differ in raw competence.
 - **Improves through use**, not a separate XP pool — repeatedly running a chain (Section 3.2) that depends on a skill nudges that skill up, so a clerk who spends a season actually hunting gets measurably better at it, and one who never leaves the trading room doesn't, with no experience-point abstraction sitting on top of the thing already being simulated.
@@ -285,6 +302,8 @@ Doesn't need to be a playable path to matter, and resolves into two differently-
 Section 4.1 already notes that interior violence happens "far from any court's reach" — none of the factions have real judicial infrastructure out there, and disputes have to resolve some other way. This reuses the grudge/memory system already built (Section 10.4) rather than inventing new state: an unresolved wrong doesn't just sit as a reputation penalty, it can escalate into an actual Tier 1 goal (Section 3.1) — get justice for X — that the aggrieved agent or their kin actively pursues.
 
 **Indigenous kinship-based justice is the sharpest case.** Real historical practice among Plains and Subarctic nations centered on restitution owed to the aggrieved family rather than punishment by a distant authority: compensation (goods, horses, sometimes a marriage) to make a killing right with the victim's kin, a blood debt that could pass down through a family if left unanswered, and — in some traditions — the offender or a substitute being adopted into the aggrieved family to literally replace what was lost. This dovetails directly with the marriage/kinship system (Section 8): a killing between bands can be resolved, worsened, or complicated by exactly the same kin ties that govern the player's own married-in obligations, so a player embedded in a band (the Nor'West track, Section 8.1) can find themselves personally responsible for settling, or personally targeted by, a debt they didn't create.
+
+**A blood debt can be formally closed, not just left to fester or explode.** A vendetta-settlement Accord (Section 3.8.2) — negotiated kin-to-kin rather than needing a full council — resolves an unanswered debt with restitution terms and actually retires the underlying grudge (Section 10.4), rather than leaving it to decay on its own or waiting for it to become a Tier 1 goal that erupts into violence.
 
 **Company justice is thinner, not absent.** HBC and NWC both have some internal authority over their own men (a Factor's standing, Section 3.6; a partner's exposure to peers at the rendezvous, Section 10.1.4), but neither has any real reach over a killing involving an outside party — which is exactly why so much of the "dirty war" years (Section 4.1) go unpunished by any formal process and instead pile up as exactly this kind of unresolved, kinship-adjacent debt.
 
@@ -450,6 +469,13 @@ Geography is knowledge like anything else in this section — no agent, includin
 
 A found or purchased map doesn't need to cover the whole world at once — a partial regional chart growing into a fuller one as more pieces are acquired or explored fits the same "grows as it's explored" idea, without requiring a single map object to somehow represent the entire game world from the start.
 
+### 10.9 Legacy — Memory Across Kinship
+A dead character's reputation doesn't vanish with them. Memories (Section 10.4) that NPCs already hold about a deceased agent don't just decay in place — when their kin (Section 8) are present, especially an heir who succeeds them (Section 9.3.3), those memories apply to the kin too, one hop further removed than an ordinary retelling, using the exact same weight-and-decay math rather than a new reputation stat.
+
+A Factor who cheated a band and was never caught, dying and passing his post to his son, means the band's chief — who still holds that memory at its original directness — treats the son with inherited suspicion from the day he arrives, entirely on the strength of a debt his father never answered for. A beloved trader's daughter inherits the same kind of banked goodwill. Trivial memories don't matter here any more than they matter anywhere else — they've already decayed away by the time they'd be relevant, so this needs no separate filter, only the propagation system running one hop further than it usually does.
+
+This also gives the multi-generational family-ambition goal (Section 3.1) its other half: a family climbing a hierarchy across generations is now visibly carrying — or living down — what the last generation actually did, rather than resetting clean at every succession.
+
 ---
 
 ## 11. NPC Simulation — Population, Memory, Personality, Objectives
@@ -539,6 +565,24 @@ One generic item model, not per-category logic. Every item — a trade good, a f
 
 **Equipment has three states, not one inventory list**: worn (clothing layers, Section 17.3), readied (the active weapon or tool a context action or attack draws on), and carried (everything else). Discrete states rather than a single flat list, matching how a character actually holds things.
 
+### 12.6 Crafting
+Making an item is a reusable chain (Section 3.2) like pemmican-making (Section 3.6) or founding a post (Section 13.8) — a **recipe** is just that chain formalized: inputs (materials, drawn from Section 12.5's item model), a skill check (Section 3.10) that governs the output's quality (the same quality property furs already carry, Section 13.6, generalized to crafted goods), and a location requirement.
+
+**Most things can be made anywhere**, with ordinary materials and time: moccasins and mittens (hide and sinew), snowshoes, a bow and arrows, snares and basic traps, a fishing net, a poultice from foraged plants (Section 17.5), a canoe repair patching bark with spruce gum, a lean-to. These use the **crafting** skill (Section 3.10), improved through use like any other.
+
+**Some things need a fixed facility.** Ironwork — repairing a musket, forging or mending a trap, tools — needs a forge, present only at certain posts, and uses a separate **smithing** skill rather than a variant of general crafting: real specialized training, not the same competence applied differently. A facility is a physical object in the world with its own properties (Section 18.1), built the same way a post itself is (Section 13.8), and it can burn (Section 18.4) or be lost the same way anything else physical can.
+
+**Manufactured trade goods are deliberately not craftable, only repairable.** Blankets, kettles, cloth, and the guns themselves are goods the fur trade exists *because* nobody in Rupert's Land can make them — that's the actual economic premise of the whole game (Sections 10.7, 13). A forge can fix a broken musket; it can't make a new one. This asymmetry — self-sufficient in subsistence goods, permanently dependent on the supply chain for manufactured ones — is a deliberate piece of the design, not a content gap to fill in later.
+
+**Pemmican (Section 3.6) is one example of a subsistence-craft chain among several** — dried/smoked fish, jerky, and rendered fat/tallow follow the same shape (process → preserve → pack), all feeding the same food-storage tension already established (Section 13.1, Section 17.4).
+
+### 12.7 Player Interface — Inventory, Character, Skills & Perks
+Four screens surfacing state that already exists elsewhere in this design, not new mechanics of their own:
+- **Inventory** — the carried side of Section 12.5's item model: what's on the body, in bags, worn, and readied.
+- **Character** — wounds and their treatment status (Section 17.5), exposure and hunger/thirst levels (Section 17), and persistent conditions: addiction (Section 13.4), disease progression (Section 13.5), and perks (below). The player's own body isn't epistemically hidden the way another agent's internal state stays inferred (Section 3.5) — this screen is just where existing simulation state gets laid out for the one agent allowed to see it directly.
+- **Skills** — the current value and recent trend of every skill in Section 3.10, plus which chains have been feeding it, so a player can see *why* a number moved rather than just that it did.
+- **Perks** — discrete, named traits earned from a specific notable event rather than accumulated gradually like a skill: surviving captivity (Section 9.2) might harden resolve or leave real knowledge of a captor community; deep adoption into a band (Section 9.2's darkest resolution) might grant standing beyond what ordinary reputation tracks; skill mastery can unlock a qualitative capability rather than another point of the same number. A perk is a condition like any other (addiction, disease) — persistent agent state, not a separate stat system — so any agent, not only the player, can carry one; a notable NPC who survived the same ordeal carries the same mark. Goal-reading (Section 3.5) stays the one deliberately player-exclusive instance, per Section 1's small set of player-specific abilities; most perks aren't reserved that way.
+
 ---
 
 ## 13. Economy & Attrition
@@ -580,7 +624,17 @@ Each company runs a **shared solvency ledger**: capital and available credit, un
 
 **A company nearing insolvency doesn't just collapse the moment its ledger crosses zero.** The same leadership agents already deciding the yearly directive (Sections 3.8, 10.7) have their own escalating fallback moves first: emergency austerity (voluntarily closing a marginal post rather than losing it to attrition), calling in debts harder (Section 13.3), seeking a bailout or extended credit from the metropole, or cutting wages and rations. These are real decisions made by real agents under the same goal/action framework as everything else (Section 3), not a scripted recovery arc — a company that mismanages its own crisis response can still fail for it.
 
-**This is where the 1821 merger comes from mechanically, not from a date.** Historically, mounting legal costs wore down both companies, each tried to buy the other out, HBC prevailed on deeper pockets and political connections, and by 1818 disaffection with Montreal's leadership was already driving desertions to HBC and to American rivals. The model reproduces the mechanism: when both ledgers cross an exhaustion threshold, the two councils (Section 3.8, Section 10.7) negotiate a merger, on terms shaped by whichever side is less depleted. As Section 4.4 lays out, this is tuned to land close to 1821 under expected play, but the crossing itself is real and simulated, not scheduled — 1821 is where history put it, not a timer this design copies.
+**This is where the 1821 merger comes from mechanically, not from a date.** Historically, mounting legal costs wore down both companies, each tried to buy the other out, HBC prevailed on deeper pockets and political connections, and by 1818 disaffection with Montreal's leadership was already driving desertions to HBC and to American rivals. The model reproduces the mechanism: when both ledgers cross an exhaustion threshold, the two councils (Section 3.8, Section 10.7) negotiate a merger, on terms shaped by whichever side is less depleted. As Section 4.4 lays out, this is tuned to land close to 1821 under expected play, but the crossing itself is real and simulated, not scheduled — 1821 is where history put it, not a timer this design copies. Mechanically it's the largest instance of a negotiated Accord (Section 3.8.2): the same generic object as a peace treaty or a trade deal, just with corporate-merger terms.
+
+### 13.8 Founding a New Post
+Every post on the map currently has a founding date (Section 6.1) — none of them let the player start one, which this closes. Founding a post is a Tier 1 ambition goal (Section 3.1) like any other, decomposing into the same kind of chain Section 3.2 already assumes rather than a bespoke system:
+
+1. **Identify a viable site** — requires either exploration (Section 10.8) or existing knowledge of what makes a location worth it: a good hunting ground (Section 16.4), a trade route junction, or deliberately contested ground already worked by a rival.
+2. **Secure approval and funding** — for HBC, an indent-like petition to London (Section 10.7) that waits on the normal read-event delay and can be refused or scaled back if the company's solvency ledger (Section 13.7) is already stretched; for NWC, an actual agenda item at the Fort William council (Section 3.8.1), competing directly against every other district's claim on the same year's outfit — a new post is the same zero-sum allocation fight as everything else the council decides, not a special case.
+3. **Build it** — a construction chain drawing on materials and labor (Section 12), producing new tiles with the same wall/roof/flammability properties as any other structure (Section 18.1/18.4) from the moment the first wall goes up, which means an under-construction post is genuinely vulnerable — to a raid before it can defend itself, or to an Indigenous nation objecting to the encroachment outright (Section 7.2).
+4. **Staff it** — draws on the same finite recruit pool as every existing post (Section 13.2), so expansion is a real tradeoff against reinforcing what's already there, not free growth.
+
+Once founded, a new post is simply a new location running the same simulation as every other one — its own ledger, its own agents, its own exposure to fire, ambush, and ecological depletion around it. Expansion is a real strategic choice with a real cost, not a checkbox unlocking a new building on a menu.
 
 ---
 
@@ -784,6 +838,7 @@ Fire is a real object that sits on a tile and does things over time, not a boole
 - The metropole (Section 10.7) and company solvency (Section 13.7) are the same discipline applied to the highest level of the game: a small set of always-background-tier agents and a shared ledger, rather than a new subsystem, feeding the same council mechanic (Section 3.8) and message object (Section 10.1.1) already built for everything else.
 - Historical determinism (Section 4.4) follows Section 2's own test: the two anchors kept fixed (the blockade, the colony's founding) are fixed because no in-world agent could plausibly cause or prevent them, not because they're more dramatically important than anything left emergent.
 - **Terminal failure states need an earlier, escapable warning state.** A starving post, an insolvent company, or an overharvested site shouldn't jump straight from fine to permanently lost — Section 13.1's subsistence fallbacks, Section 13.7's solvency crisis responses, and Section 16.4's rested-site option are all the same rule applied to different systems: give agents, the player included, a repertoire of increasingly desperate but real actions to try first, so failure reads as a cascade that could have been intervened in rather than a threshold that silently tripped.
+- Injuries (Section 15.3), addiction (Section 13.4), disease progression (Section 13.5), and perks (Section 12.7) are all long-running conditions that alter an agent's goals and capability over time — a strong candidate for one generic "condition" system specialized per case, rather than four separate ones.
 - **Every hidden system needs at least one learnable tell.** Section 2 commits to no ambient knowledge anywhere, but a rule that's hidden with no way to learn to read it stops feeling like mystery and starts feeling like arbitrary punishment. Goal inference from behavior (Section 3.5), personality-driven tells (Section 11.4), and visible ecological warning signs (Section 16.4's own beliefs a factor holds) are the existing instances of this; any new hidden system added later should come with its own observable tell as part of the same design pass, not as an afterthought.
 
 ---
@@ -830,6 +885,11 @@ Fire is a real object that sits on a tile and does things over time, not a boole
 - **Character-creation skill-point budget** (Section 5.4) — how many discretionary points, and how they compose with the personality-seeded baseline, folds into the skill-baseline-authoring question above rather than replacing it.
 - **Bag/pack capacity and the strength formula** (Section 12.4, Section 12.5) — the item model is now written; the actual numbers (base capacity by strength, specific bag bonuses) are still untuned placeholders.
 - **Warehouse quality-bucketing** (Section 12.5) — whether institutional fur storage should track a single blended quality value or a small distribution of quality buckets is undecided.
+
+**New — from the legacy, post-founding, and Accord discussion:**
+- **Legacy hop-decay tuning** (Section 10.9) — how much weight a memory should lose crossing the kinship hop from a deceased agent to their heir, relative to an ordinary retelling hop (Section 10.4), is unset.
+- **Accord breach severity scaling** (Section 3.8.2) — whether every broken Accord carries the same weight or scales with what was promised (a minor trade term vs. a peace treaty) needs concrete rules.
+- **NPC-initiated post founding** — Section 13.8 is written from the player's side; whether NPC leaders (a Factor, a partner) pursue this same goal autonomously, and how often, is undecided.
 
 ---
 
@@ -883,4 +943,7 @@ This revision folds the follow-up planning discussion into the document. Where t
 - **Items & inventory** (Section 12.5): new subsection — one generic item model, item-level fidelity for carried objects and ledger-level fidelity for institutional storage, with stow/withdraw as the ordinary-verb boundary between the two rather than a special inventory mode.
 - **Herd movement & contest** (Section 16.5): resolved the standing open question — migratory species are mobile spawn sites on a seasonal route; multi-faction contest and the resulting friction fall entirely out of Sections 16.3 and 15.1's existing logic rather than needing new mechanics.
 - **Graceful degradation and delegation agency** (Sections 13.1, 13.7, 16.4, 3.9, 19): subsistence fallbacks before a post starves, solvency crisis responses before a company collapses, a rested-site option before overharvest lands, and expanded method-of-fulfillment choice (including skimming) inside an ordinary delegated order — plus two new cross-cutting principles: terminal failures need an earlier escapable warning state, and every hidden system needs a learnable tell.
+- **Council outcomes as Accords** (Section 3.8.2): new generic agreement object — parties, terms, a breach condition — with peace treaties, trade exclusivity, safe passage, alliances, debt restructuring, vendetta settlements, and the 1821 merger itself all as named parameterizations of the same object, matching Section 19's one-generic-system principle.
+- **Legacy across kinship** (Section 10.9): new subsection — a dead agent's existing memories apply to their heir one kinship hop further removed, using the same weight/decay math as an ordinary retelling, giving succession and the multi-generational family goal (Section 3.1) real accumulated weight.
+- **Founding a new post** (Section 13.8): new subsection — expansion as a Tier 1 goal running through site selection, metropole/council approval, vulnerable construction, and competition for the same finite recruit pool as every existing post.
 - **Open questions** (Section 20): updated and extended.

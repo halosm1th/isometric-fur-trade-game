@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using Godot;
 using IsometricFurTradeGame.Scripts.Agents;
@@ -47,6 +48,21 @@ public partial class PlayerController : Agent
 	public readonly HashSet<string> Known = new();
 	public readonly List<string> Journal = new();
 	public string Rank = "labourer";
+	// The country's tongue (design doc 10.6): 0 = none, 1 = fluent. Grows with talk and marriage.
+	public float CreeFluency = 0.1f;
+	// You told the Factor you'd be across the river (design doc 11.5): sightings till then file as authorized.
+	public int AuthorizedAcrossUntilDay = -1;
+	private int _lastSeenAcrossDay = -1;
+	public bool HasInterpreter
+	{
+		get
+		{
+			if (Spouse != null && IsInstanceValid(Spouse) && !Spouse.IsDead && GlobalPosition.DistanceTo(Spouse.GlobalPosition) < 300f) return true;
+			foreach (var a in Sim.AgentsWithin(GlobalPosition, 300f)) if (a is Npc n && (n.Role == Role.Wife || n.Role == Role.Woman) && n.Faction == Faction.HBC) return true;
+			return false;
+		}
+	}
+	public float EffectiveFluency => HasInterpreter ? 1f : CreeFluency;
 	// Time-skip agreement: how many hours this player wants to skip (0 = none).
 	public float WantsSkipHours;
 	// Server-side conversation state with whoever you're talking to.
@@ -176,6 +192,7 @@ public partial class PlayerController : Agent
 			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
 			if (arg.StartsWith("--use=") && int.TryParse(arg.Substring(6), out int slot)) GetTree().CreateTimer(3.0).Timeout += () => NetHub.I?.Act("use", new Godot.Collections.Array { slot });
+			if (arg == "--kill" && NetHub.IsServer) GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(500f); if (n != null) { n.TakeDamage(999f, this); GD.Print($"[dev] killed {n.DisplayName}"); } };
 			if (arg == "--follow" && NetHub.IsServer) GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(600f); if (n != null) { n.Brain.Clear(n); n.Brain.Push(n, new Agents.Goals.FollowGoal(this, 10f)); GD.Print($"[dev] {n.DisplayName} follows"); GetTree().CreateTimer(8.0).Timeout += () => { GlobalPosition = IsoGrid.ToWorld(WorldLayout.GateOutside) + new Vector2(0, 600); GD.Print("[dev] player moved outside the gate"); }; } };
 			if (arg == "--scurvy" && NetHub.IsServer) GetTree().CreateTimer(2.0).Timeout += () => { foreach (var n in Sim.Npcs) if (n.Faction == Faction.HBC) n.DaysSinceFresh = 41.5f; DaysSinceFresh = 41.5f; };
 			if (arg.StartsWith("--autoload=") && double.TryParse(arg.Substring(11), out double lsecs) && NetHub.IsServer) GetTree().CreateTimer(lsecs).Timeout += () => { if (!SaveGame.BeginLoad(GetTree())) GD.Print("[load] " + SaveGame.LastMessage); };
@@ -256,8 +273,24 @@ public partial class PlayerController : Agent
 
 	// ---- movement ------------------------------------------------------------------
 
+	// Being seen where you shouldn't be (design doc 11.5): a Company man
+	// inside the Nor'Westers' palisade is a story, unless he said he'd go.
+	private void SeenAcross()
+	{
+		var cal = GameCalendar.Instance;
+		if (cal == null || cal.Day == _lastSeenAcrossDay || IsDead) return;
+		bool inRival = Faction == Faction.HBC ? WorldLayout.NwcYardCells().Contains(Cell) : Faction == Faction.NWC && WorldLayout.YardCells().Contains(Cell);
+		if (!inRival) return;
+		_lastSeenAcrossDay = cal.Day;
+		string where = Faction == Faction.HBC ? "the Nor'Westers' post" : "the Company's fort";
+		bool authorized = cal.Day <= AuthorizedAcrossUntilDay;
+		// Only your own people passing by would think anything of it - the event is witnessed like any other.
+		Chronicle.Event(authorized ? $"{DisplayName} went over to {where} on the Factor's business." : $"{DisplayName} was seen at {where}.", GlobalPosition, this, DisplayName, authorized ? 0.2f : 1f);
+	}
+
 	public override void _PhysicsProcess(double delta)
 	{
+		if (NetHub.IsServer) SeenAcross();
 		base._PhysicsProcess(delta);
 		float dt = (float)delta;
 		if (IsServerCopy) ServerCanoeTick();
@@ -353,7 +386,7 @@ public partial class PlayerController : Agent
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "",
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
-			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(),
+			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency,
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
 		};
 		_oneShotAnim = ""; _teleported = false;
@@ -377,6 +410,7 @@ public partial class PlayerController : Agent
 		Faction = (Faction)(int)d["faction"];
 		_afloatMirror = (bool)d["afloat"];
 		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"]; Rank = (string)d["rank"]; if (d.ContainsKey("fresh")) DaysSinceFresh = (float)d["fresh"];
+		if (d.ContainsKey("tongue")) CreeFluency = (float)d["tongue"];
 		if (d.ContainsKey("mail") && !NetHub.IsServer) { Mail.Clear(); foreach (string line in (string[])d["mail"]) { var parts = line.Split('|'); Mail.Add(new Message { Kind = parts[0], From = parts[1], To = parts[2], Subject = parts[3], Read = parts[4] == "1", Text = parts.Length > 5 ? parts[5] : "" }); } }
 		Journal.Clear(); foreach (var e in (Godot.Collections.Array)d["journal"]) Journal.Add((string)e);
 		bool dead = (bool)d["dead"];

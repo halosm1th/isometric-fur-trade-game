@@ -12,7 +12,13 @@ namespace IsometricFurTradeGame.Scripts.Economy;
 public partial class NwcLedger : FortLedger
 {
     public override Agents.Faction Company => Agents.Faction.NWC;
-    public override float RumShare => 0.35f;
+    // What the council settled (design doc 3.8.1), or what the partner does regardless.
+    public float RumShareSetting = 0.35f;
+    public override float RumShare => RumShareSetting;
+    public int OutfitPieces = 90;
+    public bool PriceAtDiscretion;
+    public bool RaidsSanctioned;
+    public string DirectiveSummary() => $"price {PeltPrice:0.00}{(PriceAtDiscretion ? " at his discretion" : "")}, {OutfitPieces} pieces, rum {(RumShareSetting > 0.3f ? "free" : "sparing")}{(RaidsSanctioned ? ", the Bay to be pressed" : "")}";
     public override float BandStanding
     {
         get => Sim.Band?.StandingWithNwc ?? 50f;
@@ -56,16 +62,22 @@ public partial class NwcLedger : FortLedger
     {
         if (name != "Brigade" || !Net.Net.IsServer) return;
         // The brigade lands the year's outfit and carries the furs off.
-        Stores.Add(ItemId.TradeGoods, 90); Stores.Add(ItemId.Pemmican, 30); Stores.Add(ItemId.Rum, 50); Stores.Add(ItemId.Musket, 4); Stores.Add(ItemId.SteelTrap, 8);
         float shipped = FursInStoreMb;
         foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.ShotPelt, ItemId.ShotHide, ItemId.CaribouHide, ItemId.WolfPelt }) Stores.TakeUpTo(id, 9999);
         // The partner answers to his peers at the rendezvous: the council's
         // word comes back with the brigade as a packet he must sit down and
         // read (design doc 10.1.3).
-        Sim.Notice($"The brigade from Fort William has come and gone: {shipped:0} MB of furs off to Montreal, the outfit landed, and a packet from the partners.");
-        var mandate = Letters.Mandate(shipped, QuotaMb);
+        // The council sits (design doc 3.8.1) and its minutes come north as
+        // a packet; the outfit it voted is what the canoes carry.
         Agents.Npc partner = null; foreach (var n in Sim.Npcs) if (n.Role == Agents.Role.NwcPartner && !n.IsDead) partner = n;
+        RaidsSanctioned = false;
+        var mandate = Council.Convene(this, partner, shipped, QuotaMb);
+        int pieces = OutfitPieces;
+        Stores.Add(ItemId.TradeGoods, pieces); Stores.Add(ItemId.Pemmican, pieces / 3); Stores.Add(ItemId.Rum, RumShareSetting > 0.3f ? 60 : 25); Stores.Add(ItemId.Musket, 4); Stores.Add(ItemId.SteelTrap, 8);
+        Sim.Notice($"The brigade from Fort William has come and gone: {shipped:0} MB of furs off to Montreal, {pieces} pieces landed, and the minutes of the council for the partner.");
         if (partner != null) Mail.Give(mandate, partner); else Mail.Open(mandate, null);
+        // A partner left to his own judgment sets the price the country requires.
+        if (PriceAtDiscretion && Sim.Fort != null) PeltPrice = Mathf.Clamp(Mathf.Max(PeltPrice, Sim.Fort.PeltPrice * 1.25f), 0.5f, 3f);
         (GetTree().GetFirstNodeInGroup("population") as Population)?.LandVoyageurs(3);
     }
 }

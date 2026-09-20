@@ -46,6 +46,8 @@ public partial class FortLedger : Household
     public int DirectiveYear;
     // Furs a shading Factor has set aside for himself (design doc 3.9 step 8).
     public float SkimmedMb;
+    // The other company's minutes have been read here (design doc 10.3).
+    public bool KnowsRivalPlan;
     public bool RaidedRecently(int today) => today - LastRaidedDay >= 0 && today - LastRaidedDay < 6;
 
     // Which company this counter belongs to, for standing and debt.

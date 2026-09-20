@@ -106,9 +106,9 @@ public partial class Ship : Node2D
         foreach (var c in Crew) if (c != null && IsInstanceValid(c)) c.QueueFree();
         Crew.Clear();
         Current = State.Departing;
+        Npc factor = null; foreach (var n in Sim.Npcs) if (n.Role == Role.Factor && !n.IsDead) factor = n;
         // A Factor with little loyalty and some ambition shades the books:
         // a share of the furs never reaches the hold (design doc 3.9 step 8).
-        Npc factor = null; foreach (var n in Sim.Npcs) if (n.Role == Role.Factor && !n.IsDead) factor = n;
         if (factor != null && factor.Personality.Loyalty < 0.35f && factor.Personality.Ambition > 0.5f && Sim.Fort != null)
         {
             float skim = 0f;
@@ -124,6 +124,20 @@ public partial class Ship : Node2D
         foreach (var pc in Sim.Players())
         {
             if (pc.Faction != Faction.HBC) continue;
+            // The year's unexplained sightings roll up into standing at the same
+            // cadence as the accounts (design doc 10.5).
+            if (factor != null)
+            {
+                float pile = 0f; int seen = 0;
+                foreach (var m in factor.Memories) if (m.Subject == pc.DisplayName && m.Text.Contains("was seen at")) { pile += m.Weight; seen++; }
+                if (seen > 0)
+                {
+                    float hit = Mathf.Min(25f, pile * 4f);
+                    pc.Standing -= hit;
+                    pc.Say($"The Factor has had you seen across the river {seen} time{(seen == 1 ? "" : "s")} this year with no account of it. It goes into his report. (standing -{hit:0})");
+                    factor.Memories.RemoveAll(m => m.Subject == pc.DisplayName && m.Text.Contains("was seen at"));
+                }
+            }
             string was = pc.Rank;
             pc.Rank = pc.Standing >= 60f ? "postmaster" : pc.Standing >= 35f ? "clerk" : pc.Standing >= 15f ? "labourer" : "on notice";
             if (pc.Rank != was) pc.Say(pc.Standing >= 35f ? $"The Factor writes well of you in the accounts that sail today. You are rated {pc.Rank}." : $"The Factor's report on you is cool. You are rated {pc.Rank}.");

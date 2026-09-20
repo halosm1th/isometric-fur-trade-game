@@ -106,6 +106,9 @@ public partial class DebugMenu : Control
             const string R = "The rivalry";
             AddReadout(R, () => $"Tension {Economy.Rivalry.Tension:0} ({Economy.Rivalry.Describe()}); lots lost to raids: Company {Sim.Fort?.LotsLostToRaids ?? 0}, Nor'Westers {Sim.Nwc.LotsLostToRaids}");
             AddSlider(R, "Tension", 0f, 100f, 1f, () => Economy.Rivalry.Tension, v => Economy.Rivalry.Tension = v, "0");
+            AddReadout(R, () => "Fort William:\n" + Economy.Council.Report());
+            AddButton(R, "Convene the council now (as if the brigade came)", () => { Agents.Npc p = null; foreach (var n in Sim.Npcs) if (n.Role == Agents.Role.NwcPartner && !n.IsDead) p = n; var m = Economy.Council.Convene(Sim.Nwc, p, Sim.Nwc.FursInStoreMb, Sim.Nwc.QuotaMb); if (p != null) Mail.Give(m, p); else Mail.Open(m, null); });
+            AddReadout(R, () => { var sb = new System.Text.StringBuilder("Blood debts:\n"); foreach (var g in Agents.Grudges.All) sb.AppendLine("  " + g.Summary); return sb.ToString(); });
             AddButtonRow(R,
                 ("Nor'Westers raid the fort", () => { Agents.Npc p = null; foreach (var n in Sim.Npcs) if (n.Role == Agents.Role.NwcPartner && !n.IsDead) p = n; if (p != null) Economy.Rivalry.OrderRaid(p, Sim.Nwc, Sim.Fort, 3); }),
                 ("Company raids the Nor'Westers", () => { Agents.Npc f = null; foreach (var n in Sim.Npcs) if (n.Role == Agents.Role.Factor && !n.IsDead) f = n; if (f != null) Economy.Rivalry.OrderRaid(f, Sim.Fort, Sim.Nwc, 3); }));

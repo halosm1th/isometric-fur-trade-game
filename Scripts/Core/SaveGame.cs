@@ -78,6 +78,8 @@ public static class SaveGame
             ["tension"] = Rivalry.Tension,
             ["camp"] = new GArr { WorldLayout.CampCentre.X, WorldLayout.CampCentre.Y },
             ["abroad"] = MailOf(Mail.Abroad),
+            ["council"] = CouncilState(),
+            ["grudges"] = GrudgeState(),
             ["fort"] = Ledger(Sim.Fort),
             ["nwc"] = Ledger(Sim.Nwc),
             ["band"] = Band(Sim.Band),
@@ -182,6 +184,35 @@ public static class SaveGame
         };
     }
 
+    private static GDict CouncilState()
+    {
+        Council.Seed();
+        var members = new GArr();
+        foreach (var c in Council.Members) members.Add(new GDict { ["name"] = c.Name, ["shares"] = c.Shares, ["standing"] = c.Standing });
+        var minutes = new GArr(); foreach (var l in Council.Minutes) minutes.Add(l);
+        var letters = new GArr(); foreach (var (item, opt, w, from) in Council.Letters) letters.Add(new GArr { item, opt, w, from });
+        var nwc = Sim.Nwc;
+        return new GDict { ["members"] = members, ["minutes"] = minutes, ["letters"] = letters, ["year"] = Council.LastYear,
+            ["rum"] = nwc?.RumShareSetting ?? 0.35f, ["outfit"] = nwc?.OutfitPieces ?? 90, ["discretion"] = nwc?.PriceAtDiscretion ?? false, ["raids"] = nwc?.RaidsSanctioned ?? false, ["knowsPlan"] = Sim.Fort?.KnowsRivalPlan ?? false };
+    }
+    private static void LoadCouncil(GDict d)
+    {
+        if (d.Count == 0) return;
+        Council.Seed();
+        foreach (var mv in d["members"].AsGodotArray()) { var md = mv.AsGodotDictionary(); var c = Council.Members.Find(x => x.Name == S(md, "name")); if (c != null) { c.Shares = I(md, "shares", c.Shares); c.Standing = F(md, "standing", c.Standing); } }
+        Council.Minutes.Clear(); foreach (var l in d["minutes"].AsGodotArray()) Council.Minutes.Add(l.AsString());
+        Council.Letters.Clear(); foreach (var lv in d["letters"].AsGodotArray()) { var a = lv.AsGodotArray(); Council.Letters.Add((a[0].AsString(), a[1].AsInt32(), a[2].AsSingle(), a[3].AsString())); }
+        Council.LastYear = I(d, "year");
+        if (Sim.Nwc != null) { Sim.Nwc.RumShareSetting = F(d, "rum", 0.35f); Sim.Nwc.OutfitPieces = I(d, "outfit", 90); Sim.Nwc.PriceAtDiscretion = B(d, "discretion"); Sim.Nwc.RaidsSanctioned = B(d, "raids"); }
+        if (Sim.Fort != null) Sim.Fort.KnowsRivalPlan = B(d, "knowsPlan");
+    }
+    private static GArr GrudgeState()
+    {
+        var a = new GArr();
+        foreach (var g in Grudges.All) a.Add(new GDict { ["holder"] = g.Holder, ["against"] = g.Against, ["victim"] = g.Victim, ["day"] = g.Day, ["debt"] = g.DebtMb, ["settled"] = g.Settled, ["blood"] = g.Blood });
+        return a;
+    }
+
     private static GArr MailOf(List<Message> mail)
     {
         var a = new GArr();
@@ -231,7 +262,7 @@ public static class SaveGame
         foreach (var p in Sim.Players())
         {
             var d = AgentCommon(p);
-            d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? "";
+            d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["authorized"] = p.AuthorizedAcrossUntilDay;
             d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline;
             var known = new GArr(); foreach (var s in p.KnownSites) known.Add(s);
             d["knownSites"] = known;
@@ -333,6 +364,9 @@ public static class SaveGame
             if (d.ContainsKey("camp")) Sim.Band?.MoveCamp(CellOf(d["camp"].AsGodotArray()));
             Mail.Abroad.Clear();
             if (d.ContainsKey("abroad")) foreach (var mv in d["abroad"].AsGodotArray()) Mail.Abroad.Add(MailFrom(mv.AsGodotDictionary()));
+            if (d.ContainsKey("council")) LoadCouncil(d["council"].AsGodotDictionary());
+            Grudges.All.Clear();
+            if (d.ContainsKey("grudges")) foreach (var gv in d["grudges"].AsGodotArray()) { var gd = gv.AsGodotDictionary(); Grudges.All.Add(new Grudge { Holder = S(gd, "holder"), Against = S(gd, "against"), Victim = S(gd, "victim"), Day = I(gd, "day"), DebtMb = F(gd, "debt"), Settled = B(gd, "settled"), Blood = B(gd, "blood") }); }
 
             LoadLedger(Sim.Fort, d["fort"].AsGodotDictionary());
             LoadLedger(Sim.Nwc, d["nwc"].AsGodotDictionary());
@@ -447,7 +481,7 @@ public static class SaveGame
     {
         if (p == null || !_savedPlayers.TryGetValue(p.DisplayName, out var d)) return;
         LoadAgentCommon(p, d);
-        p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer");
+        p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer"); p.CreeFluency = F(d, "tongue", 0.1f); p.AuthorizedAcrossUntilDay = I(d, "authorized", -1);
         var t = d["task"].AsGodotArray();
         p.Task.Kind = (TaskKind)t[0].AsInt32(); p.Task.Need = t[1].AsInt32(); p.Task.Done = t[2].AsInt32(); p.Task.DayAssigned = t[3].AsInt32();
         p.Task.Intent = S(d, "taskIntent"); p.Task.Deadline = I(d, "taskDeadline");

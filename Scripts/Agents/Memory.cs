@@ -19,8 +19,48 @@ public class MemoryEntry
 
     public MemoryEntry Copy() => new()
     {
-        Text = Text, Subject = Subject, Actor = Actor, Day = Day, Directness = Directness + 1, Weight = Weight * 0.7f, Key = Key,
+        Text = Text, Subject = Subject, Actor = Actor, Day = Day, Directness = Directness + 1, Weight = Weight * 0.7f, Key = Key, Distorted = Distorted,
     };
+
+    public int Distorted;   // how many retellings bent it
+
+    // A retelling (design doc 10.4): one of three things may shift - who
+    // did it, how bad it was, or where and when - with the odds set by the
+    // teller. A suspicious teller inflates; a careless one garbles names
+    // and places. Never all at once.
+    public MemoryEntry Retell(Npc teller)
+    {
+        var c = Copy();
+        if (teller == null || Directness <= 1 && GD.Randf() < 0.5f) return c;   // an eyewitness mostly tells it straight
+        float garble = 0.1f + (1f - teller.Personality.Suspicion) * 0.1f + teller.Personality.Talkative * 0.15f;
+        float inflate = 0.1f + teller.Personality.Suspicion * 0.3f;
+        float r = GD.Randf();
+        if (r < inflate)
+        {
+            c.Weight *= 1.6f;
+            if (!c.Text.Contains("worse")) c.Text = c.Text.TrimEnd('.') + " - and worse than that, they say.";
+            c.Distorted++;
+        }
+        else if (r < inflate + garble && Actor != null && GodotObject.IsInstanceValid(Actor))
+        {
+            // The wrong man gets the blame: someone of the same people.
+            Agent swap = null;
+            foreach (var a in Sim.Agents) if (a != Actor && !a.IsDead && a.Faction == Actor.Faction && a is Npc) { swap = a; if (GD.Randf() < 0.3f) break; }
+            if (swap != null && c.Text.Contains(Actor.Describe()))
+            {
+                c.Text = c.Text.Replace(Actor.Describe(), swap.Describe());
+                c.Actor = swap; if (c.Subject == Actor.Describe()) c.Subject = swap.Describe();
+                c.Distorted++;
+            }
+        }
+        else if (r < inflate + garble * 2f)
+        {
+            c.Day += GD.RandRange(-4, 4);
+            if (!c.Text.Contains("thereabouts")) c.Text = c.Text.TrimEnd('.') + " (or thereabouts).";
+            c.Distorted++;
+        }
+        return c;
+    }
 }
 
 // The world's event feed. Anyone within earshot when something happens

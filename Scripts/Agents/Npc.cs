@@ -44,6 +44,7 @@ public partial class Npc : Agent
     public bool Conversing;
     // Whom we're walking with, if anyone (FollowGoal).
     public Agent Following;
+    private float _grudgeTimer;
     public bool IsFemale;
 
     // Kinship for the marriage system (design doc 8).
@@ -78,7 +79,7 @@ public partial class Npc : Agent
             if (a is not Npc other || other == this || other.IsDead) continue;
             var m = Memories[(int)(GD.Randi() % (uint)Memories.Count)];
             if (m.Directness >= 4) continue;   // too garbled to pass on
-            other.Remember(m.Copy());
+            other.Remember(m.Retell(this));
             break;
         }
     }
@@ -259,6 +260,21 @@ public partial class Npc : Agent
             else Brain.Push(this, new FleeGoal(LastAttacker, 8f));
             return;
         }
+        // A blood debt (design doc 7.4): the man who owes it, in sight, and a hunter's nerve.
+        if (_grudgeTimer <= 0f)
+        {
+            _grudgeTimer = 2f;
+            foreach (var g in Grudges.HeldBy(DisplayName))
+            {
+                foreach (var a in Sim.AgentsWithin(GlobalPosition, 450f))
+                {
+                    if (a.IsDead || a.Describe() != g.Against) continue;
+                    var pursue = Grudges.Pursue(this, a);
+                    if (pursue != null) { Sim.Notice($"{DisplayName} sees {a.Describe()} and remembers {g.Victim}."); Brain.Push(this, pursue); return; }
+                }
+            }
+        }
+        _grudgeTimer -= 1f / 60f;
         // Walking with someone: their fight is your fight.
         if (Following != null && IsInstanceValid(Following) && !Following.IsDead && Following.LastAttackedAgo < 2f && Following.LastAttacker != null && IsInstanceValid(Following.LastAttacker) && !Following.LastAttacker.IsDead && Following.LastAttacker != this)
         {
@@ -641,6 +657,10 @@ public partial class Npc : Agent
         string how = LastAttacker != null && LastAttackedAgo < 30f ? $"{DisplayName} was killed by {LastAttacker.Describe()}." : $"{DisplayName} died of want.";
         Chronicle.Event(how, GlobalPosition, LastAttacker != null && LastAttackedAgo < 30f ? LastAttacker : null, DisplayName, 2f);
         if (Faction == Faction.Cree && LastAttacker != null && LastAttackedAgo < 30f) Sim.Band?.OnMemberKilledBy(LastAttacker);
+        // Blood debts (design doc 7.4): a killing makes one, a killer's death pays one, a holder's death passes one on.
+        if (LastAttacker != null && LastAttackedAgo < 30f) Grudges.OnKilled(this, LastAttacker);
+        foreach (var g in new List<Grudge>(Grudges.All)) if (!g.Settled && g.Against == DisplayName) { Grudges.Settle(g, true); Sim.Notice($"{DisplayName} is dead; the debt for {g.Victim} is paid in blood."); }
+        Grudges.OnHolderDied(this);
         if (Spouse is Npc widow) widow.Spouse = null;
         Succession();
         // Bodies don't lie there forever.

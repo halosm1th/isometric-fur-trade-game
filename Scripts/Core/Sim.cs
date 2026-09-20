@@ -58,6 +58,7 @@ public static class Sim
         // with it, and the new scene subscribes afresh in its _Ready.
         LocalPlayerChanged = null;
         Nwc = null;
+        IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear();
     }
 
     // Log line to the console and, if a HUD listener exists, the screen.

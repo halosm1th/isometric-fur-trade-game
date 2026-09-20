@@ -184,7 +184,8 @@ public static class Delegation
         var rival = Rivalry.PostOf(Rivalry.RivalOf(fort.Company));
         bool shipIn = fort.Company == Faction.HBC && Sim.Ship != null && Sim.Ship.IsDocked;
         int raidersSent = 0;
-        if (rival != null && Rivalry.OpenHostility && men.Count >= 2 && today - fort.LastRaidDay > 4 && !shipIn)
+        bool sanctioned = fort is NwcLedger nl && nl.RaidsSanctioned && Rivalry.Tension >= 45f;
+        if (rival != null && (Rivalry.OpenHostility || sanctioned) && men.Count >= 2 && today - fort.LastRaidDay > 4 && !shipIn)
         {
             int mouths = 0; foreach (var n in Sim.Npcs) if (n.Faction == fort.Company && !n.IsDead) mouths++;
             bool worthIt = fort.FoodDays(mouths + 1) < 30f || fort.Stores.Count(ItemId.TradeGoods) < 15 || Rivalry.Tension >= 90f || fort.RaidedRecently(today);

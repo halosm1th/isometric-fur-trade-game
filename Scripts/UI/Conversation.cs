@@ -89,8 +89,14 @@ public class Conversation
             _ => "",
         };
         string busy = npc.Brain.Top != null ? $" They were {npc.Brain.Top.Label}." : "";
+        string debt = "";
+        foreach (var g in Grudges.HeldBy(npc.DisplayName)) if (g.Against == _player.DisplayName) { debt = $" There is blood between you: {g.Victim}. {(npc.IsFighter ? "Their hand is on their knife." : "They will hear what you offer for it, or nothing.")}"; break; }
+        if (debt == "" && _player.Spouse is Npc wife && npc.Faction == Faction.Cree)
+            foreach (var g in Grudges.HeldBy(npc.DisplayName)) { debt = $" Your wife's people have a debt unanswered: {g.Against} killed {g.Victim}. As kin, it is yours to help settle."; break; }
+        string tongue = npc.Faction == Faction.Cree && _player.EffectiveFluency < 0.4f ? (_player.HasInterpreter ? "" : " You have little of their tongue; you get by with signs and a few words.") : "";
         string state = npc.IsSick ? " They are grey with fever - keep your distance." : npc.HasScurvy ? " Their gums are black with scurvy." : npc.IsDrunk ? " They are drunk." : npc.Needs.Hunger < 35 ? " They look hungry." : npc.Needs.Warmth < 35 ? " They are shivering." : npc.Needs.Health < 50 ? " They are hurt." : "";
-        return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{busy}{state}";
+        if (npc.Faction == Faction.Cree && !_player.HasInterpreter) _player.CreeFluency = Mathf.Min(1f, _player.CreeFluency + 0.02f);   // every talk teaches a little
+        return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{busy}{state}{debt}{tongue}";
     }
 
     private void ShowTopics(string text)
@@ -114,8 +120,9 @@ public class Conversation
         AddOption("Ask how things stand", () => ShowTopics(AskNews(npc)));
         AddOption("Ask about them", () => ShowTopics(AskAboutThem(npc)));
         AddOption("Ask about the others", () => ShowTopics(AskGossip(npc)));
+        bool canTalk = npc.Faction != Faction.Cree || _player.EffectiveFluency >= 0.3f;   // design doc 10.6
         if (npc.Faction == Faction.Cree && (npc.Role == Role.CreeChief || npc.Role == Role.CreeHunter))
-            AddOption("Ask about marriage in the custom of the country", () => ShowTopics(AskMarriage(npc)));
+            AddOption("Ask about marriage in the custom of the country", () => ShowTopics(canTalk ? AskMarriage(npc) : NoWords(npc)));
         if (npc.Needs.Hunger < 45f && _player.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
             AddOption($"Offer them something to eat ({Items.Items.Of(food).Name})", () => ShowTopics(OfferFood(npc, food)));
         if (npc.Faction != Faction.HBC || npc.Role == Role.Labourer)
@@ -154,6 +161,20 @@ public class Conversation
             AddOption("Sign on. Leave the Company's service.", () => ShowTopics(Defect(npc)));
         if (npc.Role == Role.Factor && _player.Faction == Faction.NWC)
             AddOption("Ask to be taken back into the Company's service", () => ShowTopics(Return(npc)));
+        // Blood debts (design doc 7.4): pay what the kin ask, for yourself or for your wife's people.
+        foreach (var g in new List<Grudge>(Grudges.HeldBy(npc.DisplayName)))
+        {
+            bool mine = g.Against == _player.DisplayName;
+            bool kin = _player.Spouse is Npc && npc.Faction == Faction.Cree;
+            if (mine || kin) AddOption($"Offer restitution for {g.Victim} ({g.DebtMb:0} trade goods{(mine ? "" : $", on {g.Against}'s behalf")})", () => ShowTopics(Restitution(npc, g)));
+        }
+        // The council (design doc 3.8.1): a Nor'Wester of standing can send a letter up with the brigade.
+        if (npc.Role == Role.NwcPartner && _player.Faction == Faction.NWC && GameCalendar.Instance.Month < 7 && _player.Standing >= 20f)
+            AddOption("Write to the partners at Fort William", () => ShowCouncilLetter(npc));
+        if (npc.Role == Role.NwcPartner && Sim.Nwc != null && Sim.Nwc.DirectiveReadDay > -100 && npc.Faction == _player.Faction)
+            AddOption("Ask what the council decided", () => ShowTopics($"\"{Sim.Nwc.DirectiveText}\""));
+        if (npc.Role == Role.Factor && _player.Faction == Faction.HBC && Sim.Nwc != null)
+            AddOption("Tell him you'll be across the river a few days", () => ShowTopics(Authorize(npc)));
         AddOption("Give a gift", () => ShowGive(npc));
         // Command (design doc 3.9): a man of standing can set the Company's
         // men to work; anyone can ask a friend to come along.
@@ -403,10 +424,13 @@ public class Conversation
             else if (other.Spouse == null && !other.IsFemale && other.Role != Role.Factor && other.Role != Role.Sailor) lines.Add($"\"{other.DisplayName} wants a wife, if you ask me.\"");
         }
         // What they actually know, secondhand or not (design doc 10.2).
+        bool garbled = npc.Faction == Faction.Cree && _player.EffectiveFluency < 0.5f;
         foreach (var m in npc.Memories)
         {
             string hedge = m.Directness == 1 ? "\"I saw it myself: " : m.Directness == 2 ? "\"I was told " : "\"They say ";
-            lines.Add($"{hedge}{m.Text}\"");
+            // Without a shared tongue even a direct account can come through bent (design doc 10.6).
+            var heard = garbled && GD.Randf() < 0.35f ? m.Retell(npc) : m;
+            lines.Add($"{hedge}{heard.Text}\"" + (heard != m ? " (as best you follow it)" : ""));
         }
         if (lines.Count == 0) return "\"Nothing worth telling.\"";
         int n = npc.Personality.Talkative > 0.6f ? 4 : npc.Personality.Talkative > 0.3f ? 2 : 1;
@@ -476,6 +500,44 @@ public class Conversation
         npc.Brain.Push(npc, new Agents.Goals.FollowGoal(_player, 8f));
         npc.ChangeRapport(_player, 2f);
         return $"{npc.DisplayName} picks up {(npc.Weapon != null ? "their " + Items.Items.Of(npc.Weapon.Value).Name.ToLower() : "their things")} and falls in beside you. They will follow till evening, or till you tell them to stop.";
+    }
+
+    private string NoWords(Npc npc) => $"You have not the words for it, and {npc.DisplayName} has not yours. Signs will buy meat; they will not carry this. Learn more of the tongue, or bring someone who has it - your wife, or a woman of the post.";
+
+    private string Restitution(Npc holder, Grudge g)
+    {
+        int cost = Mathf.CeilToInt(g.DebtMb);
+        if (_player.Inventory.Count(ItemId.TradeGoods) < cost) return $"\"{cost} pieces of goods, laid before the family. You have not got it.\" (you carry {_player.Inventory.Count(ItemId.TradeGoods)})";
+        _player.Inventory.Remove(ItemId.TradeGoods, cost);
+        holder.HomeStores?.Stores.Add(ItemId.TradeGoods, cost);
+        Grudges.Settle(g, false);
+        holder.ChangeRapport(_player, 25f);
+        if (Sim.Band != null) Sim.Band.StandingWithCompany = Mathf.Min(100f, Sim.Band.StandingWithCompany + 12f);
+        Chronicle.Event($"{_player.DisplayName} paid {cost} pieces to {holder.DisplayName}'s people for {g.Victim}.", holder.GlobalPosition, _player, weight: 1.5f);
+        return $"{holder.DisplayName} takes the goods and says the name of {g.Victim} once more. \"It is covered. There is no more between us for this.\"";
+    }
+
+    private void ShowCouncilLetter(Npc partner)
+    {
+        _text = "\"The canoes go in a month. What would you have the partners hear from the Bay?\"";
+        ClearOptions();
+        float w = Mathf.Clamp(_player.Standing / 25f, 0.3f, 2f);
+        void Letter(string item, int opt, string label) => AddOption(label, () => { Economy.Council.Letters.Add((item, opt, w, _player.DisplayName)); _player.Standing += 1f; ShowTopics($"He seals your letter with his own. \"It will be read, for what a clerk's word is worth. Yours weighs about {w:0.0} of a share.\""); });
+        Letter("price", 1, "Urge them to undercut the Company's price");
+        Letter("price", 0, "Urge them to hold the price and keep the margin");
+        Letter("outfit", 2, "Ask for a full outfit for this district");
+        Letter("bay", 0, "Urge peace with the Company's post");
+        Letter("bay", 1, "Urge them to press the Company hard");
+        Letter("share", 2, $"Speak for {partner.DisplayName}'s second share");
+        AddOption("Back", () => ShowTopics(Greeting(partner)));
+    }
+
+    private string Authorize(Npc factor)
+    {
+        int day = GameCalendar.Instance.Day;
+        _player.AuthorizedAcrossUntilDay = day + 5;
+        if (factor.Personality.Suspicion > 0.6f) { factor.ChangeRapport(_player, -2f); return "\"Are you. And what business has a Company servant over there?\" He lets it pass, but he has written it down. For five days, being seen at the Nor'Westers' is your business and not a story."; }
+        return "\"See what they are paying while you are at it.\" For five days, being seen across the river is no story against you.";
     }
 
     private string ProposeRaid(Npc leader)
@@ -634,8 +696,9 @@ public class Conversation
         }
         Inventory counter = npc.Faction == Faction.Cree ? band?.Stores : fort?.Stores;
         if (counter == null) { ShowTopics("\"Nothing to trade.\""); return; }
+        bool crude = npc.Faction == Faction.Cree && _player.EffectiveFluency < 0.5f;   // design doc 10.6: signs and fingers
         _text = npc.Faction == Faction.Cree
-            ? "The band will trade meat and hides for goods, one for one by worth."
+            ? (crude ? "Without the words, it is fingers and pointing: the band trades meat and hides for goods, and you pay a piece more for the misunderstanding." : "The band will trade meat and hides for goods, one for one by worth.")
             : $"The Company sells from the stores at cost and buys furs at {fort.PeltPrice:0.00} MB in goods per MB.";
         ClearOptions();
 
@@ -665,7 +728,7 @@ public class Conversation
             if (id == ItemId.TradeGoods) continue;
             if (shown >= 4) { more = true; break; }
             if (skipped < _tradePage * 4) { skipped++; continue; }
-            int cost = Mathf.Max(1, Mathf.CeilToInt(def.ValueMb * (def.Kind == ItemKind.Food ? fort.FoodPriceMultiplier : 1f)));
+            int cost = Mathf.Max(1, Mathf.CeilToInt(def.ValueMb * (def.Kind == ItemKind.Food ? fort.FoodPriceMultiplier : 1f))) + (crude ? 1 : 0);
             ItemId currency = ItemId.TradeGoods;
             if (_player.Inventory.Count(currency) >= cost)
             {
@@ -717,6 +780,7 @@ public class Conversation
         if (gifts < 8f) return $"\"A daughter is not given for nothing.\" He looks at what you have brought him. (gifts worth {gifts:0.#} MB, wants 8)";
         daughter.Spouse = _player;
         _player.Spouse = daughter;
+        _player.CreeFluency = Mathf.Min(1f, _player.CreeFluency + 0.3f);
         daughter.Role = Role.Wife;
         daughter.HomeStores = Sim.Fort;
         daughter.BedCell = World.IsoGrid.Cell(World.WorldLayout.Depot.Top, 4, 3);
