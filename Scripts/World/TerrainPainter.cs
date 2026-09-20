@@ -4,40 +4,33 @@ using IsometricFurTradeGame.Scripts.Core;
 
 namespace IsometricFurTradeGame.Scripts.World;
 
-// Lays down the ground: water along the bay, a beach, grass inland, and
-// trodden dirt inside the palisade yard. Runs as a [Tool] so the map is
-// visible in the editor without pressing Play.
+// Lays down the ground from WorldLayout: the bay, a beach, the river, grass
+// and bush inland, trodden dirt in the yard and the camp, and the wharf.
+// Runs as a [Tool] so the map is visible in the editor without pressing
+// Play; untick AutoGenerate and save to bake it for hand editing.
 [Tool]
 public partial class TerrainPainter : TileMapLayer
 {
-    private const int SourceGrass = 0;
-    private const int SourceDirt = 1;
-    private const int SourceHill = 2;
-    private const int SourceSand = 3;
-    private const int SourceWater = 5;
-    private const int SourceWaterIce = 38;
-    private const int SourceSnow = 43;
-    private const int SourceIce = 44;
+    public const int SourceGrass = 0;
+    public const int SourceDirt = 1;
+    public const int SourceHill = 2;
+    public const int SourceSand = 3;
+    public const int SourceWater = 5;
+    public const int SourceWaterIce = 38;
+    public const int SourceSnow = 43;
+    public const int SourceIce = 44;
+    public const int SourceWharf = 51;
 
     // What each cell looks like in open-water season, so a thaw can restore it.
     private readonly Dictionary<Vector2I, int> _thawed = new();
     private bool _frozen;
 
     [Export] public bool AutoGenerate = true;
-    [Export] public int MapWidth = 44;
-    [Export] public int MapHeight = 52;
-
-    // The bay has to be deep enough that the camera never sees past its far
-    // edge into empty space, since the player can walk right up to the shore.
-    [Export] public int WaterRows = 14;
-    [Export] public int BeachRows = 3;
     [Export] public NodePath WaterCollisionPath;
     [Export] public NodePath PlayerSpawnPath;
     [Export] public NodePath StructurePainterPath;
 
     // Drop the player on a specific cell instead of the gate approach.
-    // Useful for testing a particular spot, and for the eventual
-    // "start at Fort William / Fort Garry" selection.
     [Export] public Vector2I SpawnOverride = new(-1, -1);
 
     public override void _Ready()
@@ -95,6 +88,8 @@ public partial class TerrainPainter : TileMapLayer
         BuildWaterCollision();
     }
 
+    public bool IsFrozen => _frozen;
+
     private StructurePainter Structures =>
         StructurePainterPath == null || StructurePainterPath.IsEmpty
             ? null
@@ -104,28 +99,26 @@ public partial class TerrainPainter : TileMapLayer
     {
         Clear();
 
-        var yard = new HashSet<Vector2I>();
-        var structures = Structures;
-        if (structures != null)
-        {
-            foreach (Vector2I cell in structures.YardCells())
-            {
-                yard.Add(cell);
-            }
-        }
+        var yard = new HashSet<Vector2I>(WorldLayout.YardCells());
+        var wharf = new HashSet<Vector2I>(WorldLayout.WharfCells());
+        var camp = IsoGrid.ToWorld(WorldLayout.CampCentre);
 
-        for (int x = 0; x < MapWidth; x++)
+        for (int x = 0; x < WorldLayout.MapWidth; x++)
         {
-            for (int y = 0; y < MapHeight; y++)
+            for (int y = 0; y < WorldLayout.MapHeight; y++)
             {
                 var cell = new Vector2I(x, y);
+                var p = IsoGrid.ToWorld(cell);
                 int source = SourceGrass;
 
                 int shore = ShorelineRow(x);
-                if (y < shore) source = IsIceCell(cell) ? SourceWaterIce : SourceWater;
-                else if (y < shore + BeachRows) source = SourceSand;
+                if (wharf.Contains(cell)) source = SourceWharf;
+                else if (y < shore) source = IsIceCell(cell) ? SourceWaterIce : SourceWater;
+                else if (WorldLayout.IsRiver(cell)) source = SourceWater;
+                else if (y < shore + WorldLayout.BeachRows || WorldLayout.IsRiverBank(cell)) source = SourceSand;
                 else if (yard.Contains(cell)) source = SourceDirt;
-                else if (x == MapWidth - 3 && y == MapHeight - 3) source = SourceHill;
+                else if (p.DistanceTo(camp) < 300f) source = SourceDirt;
+                else if (WorldLayout.TrailDistance(p) < 70f) source = SourceDirt;
 
                 SetCell(cell, source, Vector2I.Zero);
             }
@@ -135,11 +128,11 @@ public partial class TerrainPainter : TileMapLayer
     // Where the water gives way to beach, for a given column. A dead-straight
     // boundary renders as a perfect isometric staircase, so the row wanders a
     // little to break it into something that reads as a coast.
-    private int ShorelineRow(int x)
+    public static int ShorelineRow(int x)
     {
         int h = (int)((x * 2654435761u) & 0x7fffffff);
         int jitter = (h % 5) - 2 + ((x / 3) % 3) - 1;
-        return Mathf.Max(2, WaterRows + jitter);
+        return Mathf.Max(2, WorldLayout.WaterRows + jitter);
     }
 
     // Sparse drift ice, scattered by a hash of the cell so the bay doesn't
@@ -150,31 +143,34 @@ public partial class TerrainPainter : TileMapLayer
         return (h & 0x7fffffff) % 11 == 0;
     }
 
+    public bool IsWater(Vector2I cell)
+    {
+        int src = GetCellSourceId(cell);
+        return src == SourceWater || src == SourceWaterIce;
+    }
+
+    // Water or ice: what you can drink from (or melt).
+    public bool IsWaterOrIce(Vector2I cell)
+    {
+        int src = GetCellSourceId(cell);
+        return src == SourceWater || src == SourceWaterIce || src == SourceIce;
+    }
+
     // Any water (or ice) within a cell of the position.
     public bool IsWaterNear(Vector2 localPos)
     {
         var c = LocalToMap(localPos);
-        foreach (var cell in new[] { c, IsoGrid.DownLeft(c), IsoGrid.DownRight(c),
-                                     new Vector2I(c.X - 1, c.Y), new Vector2I(c.X + 1, c.Y),
-                                     new Vector2I(c.X, c.Y - 1), new Vector2I(c.X - 1, c.Y - 1), new Vector2I(c.X + 1, c.Y - 1) })
-        {
-            int src = GetCellSourceId(cell);
-            if (src == SourceWater || src == SourceWaterIce || src == SourceIce) return true;
-        }
+        if (IsWaterOrIce(c)) return true;
+        foreach (var n in IsoGrid.EdgeNeighbours(c)) if (IsWaterOrIce(n)) return true;
+        foreach (var n in IsoGrid.CornerNeighbours(c)) if (IsWaterOrIce(n)) return true;
         return false;
     }
 
     private void PlacePlayer()
     {
-        if (PlayerSpawnPath == null || PlayerSpawnPath.IsEmpty)
-        {
-            return;
-        }
+        if (PlayerSpawnPath == null || PlayerSpawnPath.IsEmpty) return;
         var player = GetNodeOrNull<Node2D>(PlayerSpawnPath);
-        if (player == null)
-        {
-            return;
-        }
+        if (player == null) return;
 
         player.Position = MapToLocal(DefaultSpawnCell());
 
@@ -187,35 +183,38 @@ public partial class TerrainPainter : TileMapLayer
             {
                 player.Position = MapToLocal(new Vector2I(sx, sy));
             }
+            else if (parts.Length == 1)
+            {
+                player.Position = MapToLocal(NamedSpot(parts[0]));
+            }
         }
     }
 
-    // Arrive on the approach outside the palisade gate.
+    public static Vector2I NamedSpot(string name) => name switch
+    {
+        "depot" => WorldLayout.Depot.Centre,
+        "warehouse" => WorldLayout.Warehouse.Centre,
+        "menshouse" => WorldLayout.MensHouse.Centre,
+        "wharf" => WorldLayout.WharfRoot,
+        "camp" => IsoGrid.Cell(WorldLayout.CampCentre, 1, 1),
+        "caribou" => WorldLayout.Sites[0].Cell,
+        "geese" => WorldLayout.Sites[1].Cell,
+        "beaver" => WorldLayout.Sites[2].Cell,
+        "wolves" => IsoGrid.Cell(WorldLayout.Sites[5].Cell, 4, 0),
+        _ => WorldLayout.GateOutside,
+    };
+
     private Vector2I DefaultSpawnCell()
     {
-        if (SpawnOverride.X >= 0 && SpawnOverride.Y >= 0)
-        {
-            return SpawnOverride;
-        }
-        var structures = Structures;
-        if (structures == null)
-        {
-            return new Vector2I(MapWidth / 2, MapHeight / 2);
-        }
-        return IsoGrid.DownLeft(IsoGrid.DownLeft(structures.GateCell));
+        if (SpawnOverride.X >= 0 && SpawnOverride.Y >= 0) return SpawnOverride;
+        return WorldLayout.GateOutside;
     }
 
     private void BuildWaterCollision()
     {
-        if (WaterCollisionPath == null || WaterCollisionPath.IsEmpty)
-        {
-            return;
-        }
+        if (WaterCollisionPath == null || WaterCollisionPath.IsEmpty) return;
         var body = GetNodeOrNull<StaticBody2D>(WaterCollisionPath);
-        if (body == null)
-        {
-            return;
-        }
+        if (body == null) return;
 
         foreach (Node child in body.GetChildren())
         {
@@ -233,16 +232,8 @@ public partial class TerrainPainter : TileMapLayer
 
         foreach (Vector2I cell in GetUsedCells())
         {
-            int source = GetCellSourceId(cell);
-            if (source != SourceWater && source != SourceWaterIce)
-            {
-                continue;
-            }
-            body.AddChild(new CollisionShape2D
-            {
-                Shape = diamond,
-                Position = MapToLocal(cell),
-            });
+            if (!IsWater(cell)) continue;
+            body.AddChild(new CollisionShape2D { Shape = diamond, Position = MapToLocal(cell) });
         }
     }
 }

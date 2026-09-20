@@ -16,6 +16,8 @@ public partial class Hearth : Node2D
     [Export] public float InnerRadius = 90f;
     [Export] public float OuterRadius = 330f;
 
+    public Vector2I Cell;
+
     public bool IsBurning => FuelHours > 0f;
 
     // 0..1 - how much of the fire's warmth reaches this point.
@@ -75,8 +77,11 @@ public partial class Hearth : Node2D
         float pulse = 1f + 0.12f * Mathf.Sin(_flicker) * Mathf.Sin(_flicker * 0.37f);
         _light.Energy = Intensity * 2.2f * pulse;
         _light.Visible = IsBurning;
-        _glow.Visible = IsBurning;
-        _glow.Modulate = new Color(1f, 0.6f, 0.3f, 0.28f * Intensity * pulse);
+        // Firelight only shows once the day fades; in sun it just washes out.
+        float dark = 1f - (cal?.DaylightFactor ?? 1f);
+        _glow.Visible = IsBurning && dark > 0.02f;
+        _glow.Modulate = new Color(1f, 0.6f, 0.3f, 0.28f * Intensity * pulse * dark);
+        _light.Energy *= Mathf.Lerp(0.35f, 1f, dark);
     }
 
     public float HeatAt(Vector2 worldPos)

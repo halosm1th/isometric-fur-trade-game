@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 namespace IsometricFurTradeGame.Scripts.World;
 
-// Paints the York Factory palisade and the depot building, and owns the
-// doors in them. Everything is one continuous world: the building's interior
-// is just more cells, furnished in place.
+// Paints everything that stands on the ground - the palisade, the buildings,
+// the Cree camp, the bush - and owns the doors and the fires in them.
+// Everything is one continuous world: a building's interior is just more
+// cells, furnished in place.
 //
 // Wall tiles cover a single cell EDGE, and each of the four sides uses the
 // variant drawn on that edge:
@@ -19,23 +20,25 @@ namespace IsometricFurTradeGame.Scripts.World;
 [Tool]
 public partial class StructurePainter : TileMapLayer
 {
-    private const int SourceWallN = 6, SourceWallE = 7, SourceWallS = 8, SourceWallW = 9;
-    private const int SourceDoorN = 10;
-    private const int SourceFenceN = 22, SourceFenceE = 23, SourceFenceS = 24, SourceFenceW = 25;
-    private const int SourceFloorPlanks = 26;
-    private const int SourceShelf = 27, SourceShelfTall = 28, SourceTableChairs = 30;
-    private const int SourceDisplayCase = 32, SourceCandleStand = 33, SourceRug = 34;
-    private const int SourceCrate = 35, SourceHayBales = 36;
-    private const int SourceDoorOpenN = 39;
-    private const int SourceWallCornerBack = 45, SourceWallCornerFront = 46;
-    private const int SourceFenceCornerBack = 47, SourceFenceCornerFront = 48;
-    private const int SourceHearthLeft = 49, SourceHearthRight = 50;
+    public const int SourceWallN = 6, SourceWallE = 7, SourceWallS = 8, SourceWallW = 9;
+    public const int SourceDoorN = 10;
+    public const int SourceWindowN = 14;
+    public const int SourceFenceN = 22, SourceFenceE = 23, SourceFenceS = 24, SourceFenceW = 25;
+    public const int SourceFloorPlanks = 26;
+    public const int SourceShelf = 27, SourceShelfTall = 28, SourceTable = 29, SourceTableChairs = 30, SourceChair = 31;
+    public const int SourceDisplayCase = 32, SourceCandleStand = 33, SourceRug = 34;
+    public const int SourceCrate = 35, SourceHayBales = 36;
+    public const int SourceDoorOpenN = 39;
+    public const int SourceWallCornerBack = 45, SourceWallCornerFront = 46;
+    public const int SourceFenceCornerBack = 47, SourceFenceCornerFront = 48;
+    public const int SourceHearthLeft = 49, SourceHearthRight = 50;
+    public const int SourceSpruce0 = 52, SourceTipi = 55, SourceCampfire = 56, SourceWoodpile = 57, SourceFurBale = 58;
 
     // Source id ranges whose tiles sit on a cell edge, laid out N,E,S,W.
     private static readonly int[] EdgeFamilyBases = { 6, 10, 14, 18, 22, 39 };
     private static readonly HashSet<int> OpenDoors = new() { 39, 40, 41, 42 };
-    private static readonly HashSet<int> SolidProps = new() { 27, 28, 29, 30, 32, 35, 36, 49, 50 };
-    private static readonly HashSet<int> Hearths = new() { 49, 50 };
+    private static readonly HashSet<int> SolidProps = new() { 27, 28, 29, 30, 32, 35, 36, 49, 50, 52, 53, 54, 56, 57, 58 };
+    private static readonly HashSet<int> Hearths = new() { 49, 50, 56 };
 
     [Export] public bool AutoGenerate = true;
     [Export] public NodePath CollisionBodyPath;
@@ -43,30 +46,19 @@ public partial class StructurePainter : TileMapLayer
     [Export] public NodePath FrontLayerPath;
     [Export] public NodePath PlayerPath;
 
-    [Export] public Vector2I YardTopCorner = new(20, 20);
-    [Export] public int YardWidth = 16;
-    [Export] public int YardDepth = 13;
-    [Export] public int GateOffset = 7;
-
-    [Export] public Vector2I BuildingOffset = new(3, 2);
-    [Export] public int BuildingWidth = 7;
-    [Export] public int BuildingDepth = 5;
-    [Export] public int BuildingDoorOffset = 3;
-
     // How see-through the front wall goes while the player is indoors.
     [Export(PropertyHint.Range, "0,1")] public float IndoorFrontAlpha = 0.2f;
 
-    private readonly HashSet<Vector2I> _buildingCells = new();
     private TileMapLayer _floor;
     private TileMapLayer _front;
     private Node2D _player;
     private StaticBody2D _body;
     private readonly List<Hearth> _hearths = new();
+    private readonly Dictionary<Vector2I, Hearth> _hearthByCell = new();
 
-    public Vector2I BuildingTopCorner => IsoGrid.Cell(YardTopCorner, BuildingOffset.X, BuildingOffset.Y);
-    public Vector2I DoorCell => IsoGrid.Cell(BuildingTopCorner, BuildingDoorOffset, BuildingDepth - 1);
-    public Vector2I GateCell => IsoGrid.Cell(YardTopCorner, GateOffset, YardDepth - 1);
-    public IEnumerable<Vector2I> YardCells() => IsoGrid.Rhombus(YardTopCorner, YardWidth, YardDepth);
+    // Kept for older callers; the layout is the source of truth.
+    public Vector2I GateCell => WorldLayout.GateCell;
+    public Vector2I DoorCell => WorldLayout.Depot.DoorCell;
 
     public override void _Ready()
     {
@@ -74,12 +66,6 @@ public partial class StructurePainter : TileMapLayer
         _floor = GetNodeOrNull<TileMapLayer>(FloorLayerPath);
         _body = GetNodeOrNull<StaticBody2D>(CollisionBodyPath);
         _player = GetNodeOrNull<Node2D>(PlayerPath);
-
-        _buildingCells.Clear();
-        foreach (var c in IsoGrid.Rhombus(BuildingTopCorner, BuildingWidth, BuildingDepth))
-        {
-            _buildingCells.Add(c);
-        }
 
         if (AutoGenerate)
         {
@@ -94,21 +80,43 @@ public partial class StructurePainter : TileMapLayer
         }
     }
 
+    public override void _Process(double delta)
+    {
+        if (Engine.IsEditorHint() || _front == null || _player == null) return;
+        float target = IsSheltered(_player.Position) ? IndoorFrontAlpha : 1f;
+        var m = _front.Modulate;
+        m.A = Mathf.MoveToward(m.A, target, (float)delta * 4f);
+        _front.Modulate = m;
+    }
+
+    // "Indoors" is a property of the tile you stand on (design doc 18.1): a
+    // roofed floor, or a tipi's footprint.
+    public bool IsSheltered(Vector2 localPos) => IsShelteredCell(LocalToMap(localPos));
+
+    public bool IsShelteredCell(Vector2I cell)
+    {
+        var floor = _floor ?? this;
+        return floor.GetCellSourceId(cell) == SourceFloorPlanks || GetCellSourceId(cell) == SourceTipi;
+    }
+
     // ---- fire -----------------------------------------------------------
 
-    // Every hearth tile gets a live Hearth object with fuel and a glow. The
-    // tile is the picture and the collision; the object is the fire.
     private void SpawnHearths()
     {
         _hearths.Clear();
+        _hearthByCell.Clear();
         foreach (var cell in GetUsedCells())
         {
             if (!Hearths.Contains(GetCellSourceId(cell))) continue;
-            var hearth = new Hearth { Position = MapToLocal(cell), Name = $"Hearth_{cell.X}_{cell.Y}" };
+            var hearth = new Hearth { Position = MapToLocal(cell), Name = $"Hearth_{cell.X}_{cell.Y}", Cell = cell };
+            if (GetCellSourceId(cell) == SourceCampfire) hearth.FuelHours = 4f;
             AddChild(hearth);
             _hearths.Add(hearth);
+            _hearthByCell[cell] = hearth;
         }
     }
+
+    public IReadOnlyList<Hearth> AllHearths => _hearths;
 
     public float HeatAt(Vector2 worldPos)
     {
@@ -128,26 +136,7 @@ public partial class StructurePainter : TileMapLayer
         return best;
     }
 
-    public override void _Process(double delta)
-    {
-        if (Engine.IsEditorHint() || _front == null || _player == null)
-        {
-            return;
-        }
-        float target = IsSheltered(_player.Position) ? IndoorFrontAlpha : 1f;
-        var m = _front.Modulate;
-        m.A = Mathf.MoveToward(m.A, target, (float)delta * 4f);
-        _front.Modulate = m;
-    }
-
-    // "Indoors" is a property of the tile you stand on (design doc 18.1): a
-    // roofed floor. That's what exposure reads, and it works for rooms built
-    // by hand in the editor just as well as generated ones.
-    public bool IsSheltered(Vector2 localPos)
-    {
-        var floor = _floor ?? this;
-        return floor.GetCellSourceId(floor.LocalToMap(localPos)) == SourceFloorPlanks;
-    }
+    public Hearth NearestHearth(Vector2 worldPos) => HearthNear(worldPos, float.MaxValue);
 
     // ---- painting -------------------------------------------------------
 
@@ -155,11 +144,14 @@ public partial class StructurePainter : TileMapLayer
     {
         Clear();
         _front?.Clear();
-        var floor = GetNodeOrNull<TileMapLayer>(FloorLayerPath) ?? this;
+        var floor = _floor ?? this;
         floor.Clear();
 
         PaintPalisade();
-        PaintBuilding(floor);
+        foreach (var b in WorldLayout.Buildings) PaintBuilding(b, floor);
+        PaintYard();
+        PaintCamp();
+        PaintForest();
     }
 
     private void SetBack(Vector2I cell, int source) => SetCell(cell, source, Vector2I.Zero);
@@ -167,73 +159,146 @@ public partial class StructurePainter : TileMapLayer
 
     private void PaintPalisade()
     {
-        var gate = GateCell;
-        var gateNext = IsoGrid.Cell(YardTopCorner, GateOffset + 1, YardDepth - 1);
+        var top = WorldLayout.FortTop;
+        int w = WorldLayout.FortWidth, d = WorldLayout.FortDepth;
+        var gate = WorldLayout.GateCell;
+        var gateNext = IsoGrid.Cell(top, WorldLayout.GateOffset + 1, d - 1);
 
-        for (int i = 0; i < YardWidth; i++)
+        for (int i = 0; i < w; i++)
         {
-            SetBack(IsoGrid.Cell(YardTopCorner, i, 0), SourceFenceS);
-            var front = IsoGrid.Cell(YardTopCorner, i, YardDepth - 1);
-            if (front != gate && front != gateNext)
-            {
-                SetFront(front, SourceFenceN);
-            }
+            SetBack(IsoGrid.Cell(top, i, 0), SourceFenceS);
+            var front = IsoGrid.Cell(top, i, d - 1);
+            if (front != gate && front != gateNext) SetFront(front, SourceFenceN);
         }
-        for (int j = 0; j < YardDepth; j++)
+        for (int j = 0; j < d; j++)
         {
-            SetBack(IsoGrid.Cell(YardTopCorner, 0, j), SourceFenceE);
-            SetFront(IsoGrid.Cell(YardTopCorner, YardWidth - 1, j), SourceFenceW);
+            SetBack(IsoGrid.Cell(top, 0, j), SourceFenceE);
+            SetFront(IsoGrid.Cell(top, w - 1, j), SourceFenceW);
         }
-
         // Top and bottom corners need two walls that both belong on the same
         // layer, so they take a composite corner tile.
-        SetBack(YardTopCorner, SourceFenceCornerBack);
-        SetFront(IsoGrid.Cell(YardTopCorner, YardWidth - 1, YardDepth - 1), SourceFenceCornerFront);
+        SetBack(top, SourceFenceCornerBack);
+        SetFront(IsoGrid.Cell(top, w - 1, d - 1), SourceFenceCornerFront);
     }
 
-    private void PaintBuilding(TileMapLayer floor)
+    private void PaintBuilding(BuildingDef b, TileMapLayer floor)
     {
-        var top = BuildingTopCorner;
-        foreach (var cell in _buildingCells)
+        var top = b.Top;
+        foreach (var cell in IsoGrid.Rhombus(top, b.Width, b.Depth))
         {
             floor.SetCell(cell, SourceFloorPlanks, Vector2I.Zero);
         }
 
-        var door = DoorCell;
-        for (int i = 0; i < BuildingWidth; i++)
+        var door = b.DoorCell;
+        for (int i = 0; i < b.Width; i++)
         {
-            SetBack(IsoGrid.Cell(top, i, 0), SourceWallS);
-            var front = IsoGrid.Cell(top, i, BuildingDepth - 1);
+            // A window in the middle of the back wall.
+            SetBack(IsoGrid.Cell(top, i, 0), i == b.Width / 2 ? SourceWindowN + 2 : SourceWallS);
+            var front = IsoGrid.Cell(top, i, b.Depth - 1);
             SetFront(front, front == door ? SourceDoorN : SourceWallN);
         }
-        for (int j = 0; j < BuildingDepth; j++)
+        for (int j = 0; j < b.Depth; j++)
         {
             SetBack(IsoGrid.Cell(top, 0, j), SourceWallE);
-            SetFront(IsoGrid.Cell(top, BuildingWidth - 1, j), SourceWallW);
+            SetFront(IsoGrid.Cell(top, b.Width - 1, j), SourceWallW);
         }
         SetBack(top, SourceWallCornerBack);
-        SetFront(IsoGrid.Cell(top, BuildingWidth - 1, BuildingDepth - 1), SourceWallCornerFront);
+        SetFront(IsoGrid.Cell(top, b.Width - 1, b.Depth - 1), SourceWallCornerFront);
 
-        // Trading room. Furniture goes on the back layer so it y-sorts with
-        // the player like anything else.
-        SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
-        SetBack(IsoGrid.Cell(top, 1, 2), SourceShelf);
-        SetBack(IsoGrid.Cell(top, 2, 1), SourceShelfTall);
-        SetBack(IsoGrid.Cell(top, 5, 1), SourceCrate);
-        SetBack(IsoGrid.Cell(top, 1, 3), SourceDisplayCase);
-        SetBack(IsoGrid.Cell(top, 3, 2), SourceRug);
-        SetBack(IsoGrid.Cell(top, 4, 2), SourceTableChairs);
-        SetBack(IsoGrid.Cell(top, 5, 3), SourceCandleStand);
+        switch (b.Kind)
+        {
+            case BuildingKind.Depot:
+                // Trading room: hearth on the back-left wall, counter and
+                // shelves of trade goods, a table to eat at.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                SetBack(IsoGrid.Cell(top, 1, 2), SourceShelf);
+                SetBack(IsoGrid.Cell(top, 2, 1), SourceShelfTall);
+                SetBack(IsoGrid.Cell(top, 5, 1), SourceCrate);
+                SetBack(IsoGrid.Cell(top, 1, 3), SourceDisplayCase);
+                SetBack(IsoGrid.Cell(top, 3, 2), SourceRug);
+                SetBack(IsoGrid.Cell(top, 4, 2), SourceTableChairs);
+                SetBack(IsoGrid.Cell(top, 5, 3), SourceCandleStand);
+                break;
+            case BuildingKind.Warehouse:
+                // Bales of furs one side, cargo the other, an aisle between.
+                for (int j = 1; j <= 4; j++) SetBack(IsoGrid.Cell(top, 1, j), SourceFurBale);
+                for (int j = 1; j <= 4; j++) SetBack(IsoGrid.Cell(top, 2, j), j % 2 == 1 ? SourceFurBale : SourceCrate);
+                for (int j = 1; j <= 4; j++) SetBack(IsoGrid.Cell(top, 6, j), SourceCrate);
+                SetBack(IsoGrid.Cell(top, 5, 1), SourceCrate);
+                SetBack(IsoGrid.Cell(top, 5, 2), SourceHayBales);
+                break;
+            case BuildingKind.MensHouse:
+                // Where the labourers sleep: a big hearth, benches, a table.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceTable);
+                SetBack(IsoGrid.Cell(top, 4, 1), SourceChair);
+                SetBack(IsoGrid.Cell(top, 5, 1), SourceCrate);
+                SetBack(IsoGrid.Cell(top, 1, 3), SourceRug);
+                SetBack(IsoGrid.Cell(top, 5, 3), SourceCandleStand);
+                break;
+        }
+    }
 
-        // Cargo in the yard.
-        SetBack(IsoGrid.Cell(YardTopCorner, 10, 5), SourceCrate);
-        SetBack(IsoGrid.Cell(YardTopCorner, 11, 7), SourceHayBales);
+    private void PaintYard()
+    {
+        SetBack(WorldLayout.WoodpileCell, SourceWoodpile);
+        SetBack(IsoGrid.Cell(WorldLayout.FortTop, 15, 12), SourceCrate);
+        SetBack(IsoGrid.Cell(WorldLayout.FortTop, 16, 13), SourceHayBales);
+    }
+
+    private void PaintCamp()
+    {
+        SetBack(WorldLayout.CampFire, SourceCampfire);
+        foreach (var c in WorldLayout.TipiCells()) SetBack(c, SourceTipi);
+        SetBack(IsoGrid.Cell(WorldLayout.CampCentre, 2, -2), SourceWoodpile);
+    }
+
+    private void PaintForest()
+    {
+        for (int x = 0; x < WorldLayout.MapWidth; x++)
+        {
+            for (int y = WorldLayout.WaterRows; y < WorldLayout.MapHeight; y++)
+            {
+                var cell = new Vector2I(x, y);
+                float density = WorldLayout.ForestDensity(cell);
+                if (density <= 0f || IsoGrid.Hash(cell, 11) >= density) continue;
+                if (GetCellSourceId(cell) != -1) continue;
+                SetBack(cell, SourceSpruce0 + (int)(IsoGrid.Hash(cell, 12) * 3f));
+            }
+        }
+    }
+
+    // A tree was felled: the cell clears and the cutter gets wood.
+    public bool FellTreeAt(Vector2I cell)
+    {
+        int s = GetCellSourceId(cell);
+        if (s < SourceSpruce0 || s > SourceSpruce0 + 2) return false;
+        EraseCell(cell);
+        RebuildCollision();
+        return true;
+    }
+
+    public bool IsTree(Vector2I cell)
+    {
+        int s = GetCellSourceId(cell);
+        return s >= SourceSpruce0 && s <= SourceSpruce0 + 2;
+    }
+
+    public Vector2I? NearestTree(Vector2 worldPos, float maxDist = 4000f)
+    {
+        Vector2I? best = null;
+        float bestD = maxDist;
+        foreach (var cell in GetUsedCells())
+        {
+            if (!IsTree(cell)) continue;
+            float d = MapToLocal(cell).DistanceTo(worldPos);
+            if (d < bestD) { bestD = d; best = cell; }
+        }
+        return best;
     }
 
     // ---- doors ----------------------------------------------------------
 
-    // Toggles the nearest door within reach of `localPos`. Returns false if
-    // there isn't one.
     public bool TryToggleDoorNear(Vector2 localPos, float reach = 110f)
     {
         TileMapLayer bestLayer = null;
@@ -253,20 +318,88 @@ public partial class StructurePainter : TileMapLayer
                 }
             }
         }
-        if (bestLayer == null)
-        {
-            return false;
-        }
-
-        int src = bestLayer.GetCellSourceId(bestCell);
-        bool isOpen = OpenDoors.Contains(src);
-        int dir = src - (isOpen ? SourceDoorOpenN : SourceDoorN);
-        bestLayer.SetCell(bestCell, (isOpen ? SourceDoorN : SourceDoorOpenN) + dir, Vector2I.Zero);
-        RebuildCollision();
+        if (bestLayer == null) return false;
+        ToggleDoor(bestLayer, bestCell);
         return true;
     }
 
+    private void ToggleDoor(TileMapLayer layer, Vector2I cell)
+    {
+        int src = layer.GetCellSourceId(cell);
+        bool isOpen = OpenDoors.Contains(src);
+        int dir = src - (isOpen ? SourceDoorOpenN : SourceDoorN);
+        layer.SetCell(cell, (isOpen ? SourceDoorN : SourceDoorOpenN) + dir, Vector2I.Zero);
+        RebuildCollision();
+    }
+
+    // Make sure the door on this cell is open (NPCs use this on their way in).
+    public void OpenDoorAt(Vector2I cell)
+    {
+        foreach (var layer in Layers())
+        {
+            int s = layer.GetCellSourceId(cell);
+            if (s >= 10 && s <= 13) { ToggleDoor(layer, cell); return; }
+        }
+    }
+
     private static bool IsDoor(int s) => (s >= 10 && s <= 13) || OpenDoors.Contains(s);
+    private static bool IsClosedDoor(int s) => s >= 10 && s <= 13;
+
+    // ---- walkability (for pathfinding) --------------------------------------
+
+    // Does anything on the structure layers fill this cell?
+    public bool IsCellSolid(Vector2I cell)
+    {
+        foreach (var layer in Layers())
+        {
+            if (SolidProps.Contains(layer.GetCellSourceId(cell))) return true;
+        }
+        return false;
+    }
+
+    // Is there a wall/fence/closed door on the edge between two edge-adjacent
+    // cells? Closed doors count as passable-with-effort: the caller opens them.
+    public bool EdgeBlocked(Vector2I from, Vector2I to, out bool isDoor)
+    {
+        isDoor = false;
+        // Which edge of `from` faces `to`, and which edge of `to` faces `from`.
+        int fromDir = EdgeIndex(from, to);
+        int toDir = EdgeIndex(to, from);
+        if (fromDir < 0 || toDir < 0) return false;
+        return WallOnEdge(from, fromDir, ref isDoor) || WallOnEdge(to, toDir, ref isDoor);
+    }
+
+    // 0=N(SW edge) 1=E(NW) 2=S(NE) 3=W(SE), matching the wall variants.
+    private static int EdgeIndex(Vector2I cell, Vector2I neighbour)
+    {
+        if (neighbour == IsoGrid.DownLeft(cell)) return 0;
+        if (neighbour == IsoGrid.UpLeft(cell)) return 1;
+        if (neighbour == IsoGrid.UpRight(cell)) return 2;
+        if (neighbour == IsoGrid.DownRight(cell)) return 3;
+        return -1;
+    }
+
+    private bool WallOnEdge(Vector2I cell, int edge, ref bool isDoor)
+    {
+        foreach (var layer in Layers())
+        {
+            int s = layer.GetCellSourceId(cell);
+            if (s < 0) continue;
+            if (s == SourceWallCornerBack || s == SourceFenceCornerBack) { if (edge == 1 || edge == 2) return true; continue; }
+            if (s == SourceWallCornerFront || s == SourceFenceCornerFront) { if (edge == 0 || edge == 3) return true; continue; }
+            if (OpenDoors.Contains(s)) continue;
+            foreach (int b in EdgeFamilyBases)
+            {
+                if (s < b || s > b + 3) continue;
+                if (s - b == edge)
+                {
+                    if (IsClosedDoor(s)) { isDoor = true; return false; }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     // ---- collision ------------------------------------------------------
 
@@ -278,10 +411,7 @@ public partial class StructurePainter : TileMapLayer
 
     private void RebuildCollision()
     {
-        if (_body == null)
-        {
-            return;
-        }
+        if (_body == null) return;
         foreach (Node child in _body.GetChildren())
         {
             child.Free();
@@ -307,11 +437,18 @@ public partial class StructurePainter : TileMapLayer
     private static readonly Shape2D EdgeE = Strip(-64, 0, 0, -32, WallHalfThickness);  // NW edge
     private static readonly Shape2D EdgeS = Strip(0, -32, 64, 0, WallHalfThickness);   // NE edge
     private static readonly Shape2D EdgeW = Strip(0, 32, 64, 0, WallHalfThickness);    // SE edge
+    private static readonly Shape2D SmallDiamond = Diamond(0, -18, 36, 0, 0, 18, -36, 0);
 
     private static IEnumerable<Shape2D> ShapesFor(int source)
     {
         if (OpenDoors.Contains(source)) yield break;
 
+        if (source >= SourceSpruce0 && source <= SourceSpruce0 + 2)
+        {
+            // Trunks are thin; you can brush past a tree.
+            yield return SmallDiamond;
+            yield break;
+        }
         if (SolidProps.Contains(source))
         {
             yield return Diamond(0, -32, 64, 0, 0, 32, -64, 0);

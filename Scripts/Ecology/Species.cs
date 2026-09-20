@@ -1,0 +1,28 @@
+namespace IsometricFurTradeGame.Scripts.Ecology;
+
+public enum Species
+{
+    Caribou,
+    Goose,
+    Beaver,
+    Wolf,
+}
+
+public enum Diet { Prey, Predator }
+
+public readonly record struct SpeciesDef(
+    string Name, Diet Diet, float Speed, float Health, float BiteDamage,
+    float MeatLbs, float PeltValueMb, float RegrowthPerYear, float SustainFloor, string Frames);
+
+public static class SpeciesInfo
+{
+    public static readonly System.Collections.Generic.Dictionary<Species, SpeciesDef> Defs = new()
+    {
+        // MB = Made Beaver, the HBC unit of account: one prime beaver pelt.
+        { Species.Caribou, new("Caribou", Diet.Prey, 170f, 70f, 12f, 120f, 0.5f, 0.35f, 0.2f, "res://Scenes/Animals/CaribouFrames.tres") },
+        { Species.Goose,   new("Goose",   Diet.Prey, 140f, 8f,  0f,  6f,   0f,   1.2f,  0.15f, "res://Scenes/Animals/GooseFrames.tres") },
+        { Species.Beaver,  new("Beaver",  Diet.Prey, 90f,  20f, 4f,  25f,  1.0f, 0.5f,  0.25f, "res://Scenes/Animals/BeaverFrames.tres") },
+        { Species.Wolf,    new("Wolf",    Diet.Predator, 230f, 50f, 16f, 40f, 0.6f, 0.4f, 0.2f, "res://Scenes/Animals/WolfFrames.tres") },
+    };
+    public static SpeciesDef Of(Species s) => Defs[s];
+}

@@ -52,6 +52,15 @@
 [ext_resource type="Texture2D" uid="uid://bia2jlh1pjsl4" path="res://assets/tiles/props/hearth_left.png" id="tex_50"]
 [ext_resource type="Texture2D" uid="uid://chiry65vmpkx1" path="res://assets/tiles/props/hearth_right.png" id="tex_51"]
 
+[ext_resource type="Texture2D" path="res://assets/tiles/buildings/floor_planks.png" id="tex_52"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/spruce_0.png" id="tex_53"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/spruce_1.png" id="tex_54"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/spruce_2.png" id="tex_55"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/tipi.png" id="tex_56"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/campfire.png" id="tex_57"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/woodpile.png" id="tex_58"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/fur_bale.png" id="tex_59"]
+
 [sub_resource type="TileSetAtlasSource" id="Atlas_grass"]
 texture = ExtResource("tex_1")
 texture_region_size = Vector2i(132, 99)
@@ -358,6 +367,54 @@ texture_region_size = Vector2i(128, 256)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, 86)
 
+[sub_resource type="TileSetAtlasSource" id="Atlas_wharf"]
+texture = ExtResource("tex_52")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_spruce_0"]
+texture = ExtResource("tex_53")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_spruce_1"]
+texture = ExtResource("tex_54")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_spruce_2"]
+texture = ExtResource("tex_55")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_tipi"]
+texture = ExtResource("tex_56")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_campfire"]
+texture = ExtResource("tex_57")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_woodpile"]
+texture = ExtResource("tex_58")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_fur_bale"]
+texture = ExtResource("tex_59")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
 [resource]
 tile_shape = 1
 tile_size = Vector2i(128, 64)
@@ -412,3 +469,11 @@ sources/47 = SubResource("Atlas_fence_corner_back")
 sources/48 = SubResource("Atlas_fence_corner_front")
 sources/49 = SubResource("Atlas_hearth_left")
 sources/50 = SubResource("Atlas_hearth_right")
+sources/51 = SubResource("Atlas_wharf")
+sources/52 = SubResource("Atlas_spruce_0")
+sources/53 = SubResource("Atlas_spruce_1")
+sources/54 = SubResource("Atlas_spruce_2")
+sources/55 = SubResource("Atlas_tipi")
+sources/56 = SubResource("Atlas_campfire")
+sources/57 = SubResource("Atlas_woodpile")
+sources/58 = SubResource("Atlas_fur_bale")
