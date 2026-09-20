@@ -46,7 +46,7 @@ public partial class Hotbar : Control
         column.AddThemeConstantOverride("separation", 4);
         AddChild(column);
 
-        _notice = new Label { HorizontalAlignment = HorizontalAlignment.Center };
+        _notice = new Label { HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(500, 0), SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
         _notice.AddThemeFontSizeOverride("font_size", 15);
         _notice.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.8f));
         column.AddChild(_notice);
@@ -56,7 +56,7 @@ public partial class Hotbar : Control
         _name.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.8f));
         column.AddChild(_name);
 
-        var row = new HBoxContainer();
+        var row = new HBoxContainer { SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
         row.AddThemeConstantOverride("separation", 4);
         column.AddChild(row);
 
