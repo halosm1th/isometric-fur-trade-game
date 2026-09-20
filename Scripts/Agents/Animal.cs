@@ -61,6 +61,8 @@ public partial class Animal : Agent
     public override void _PhysicsProcess(double delta)
     {
         base._PhysicsProcess(delta);
+        var cal = GameCalendar.Instance;
+        if (cal == null) return;
         float dt = (float)delta;
         _hurtFlash = Mathf.Max(0f, _hurtFlash - dt);
         if (_sprite != null) _sprite.Modulate = _hurtFlash > 0f ? new Color(1f, 0.5f, 0.5f) : Colors.White;
@@ -73,9 +75,10 @@ public partial class Animal : Agent
         if (Site != null && Site.Scarcity) Hungry = true;
         Needs.Thirst = 100f;
 
-        _modeTimer -= dt;
+        float motion = cal.MotionScale;
+        _modeTimer -= dt * motion;
         Think(dt);
-        Act(dt);
+        Act(dt, motion);
         Animate();
     }
 
@@ -154,14 +157,14 @@ public partial class Animal : Agent
         return best;
     }
 
-    private void Act(float dt)
+    private void Act(float dt, float motion)
     {
         switch (_mode)
         {
             case Mode.Flee:
                 if (_quarry == null || !IsInstanceValid(_quarry)) { _mode = Mode.Graze; break; }
                 IsSprinting = true;
-                Velocity = (GlobalPosition - _quarry.GlobalPosition).Normalized() * EffectiveSpeed;
+                Velocity = (GlobalPosition - _quarry.GlobalPosition).Normalized() * EffectiveSpeed * motion;
                 MoveAndSlide();
                 if (_modeTimer <= 0f) { _mode = Mode.Graze; _modeTimer = 0f; }
                 return;
@@ -179,7 +182,7 @@ public partial class Animal : Agent
                     return;
                 }
                 IsSprinting = true;
-                Velocity = to.Normalized() * EffectiveSpeed;
+                Velocity = to.Normalized() * EffectiveSpeed * motion;
                 MoveAndSlide();
                 return;
         }
@@ -187,7 +190,7 @@ public partial class Animal : Agent
         IsSprinting = false;
         var d = _target - GlobalPosition;
         if (d.Length() < 20f) { Velocity = Vector2.Zero; return; }
-        Velocity = d.Normalized() * EffectiveSpeed * 0.45f;
+        Velocity = d.Normalized() * Mathf.Min(EffectiveSpeed * 0.45f * motion, d.Length() / Mathf.Max(dt, 1e-4f));
         MoveAndSlide();
         if (GetSlideCollisionCount() > 0) _modeTimer = 0f;
     }

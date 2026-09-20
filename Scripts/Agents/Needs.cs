@@ -14,8 +14,8 @@ public class Needs
     public float Health = 100f;
 
     // Points per game hour.
-    private const float HungerBase = 1.4f;      // ~3 days to empty
-    private const float ThirstBase = 2.8f;      // ~1.5 days
+    private const float HungerBase = 1.1f;      // ~4 days to empty
+    private const float ThirstBase = 1.8f;      // ~2.5 days
     // Warmth regained per hour standing right at a full fire, indoors.
     private const float HearthRecovery = 14f;
     // How much of the wind walls and a roof keep off you (design doc 18.1):
@@ -32,7 +32,7 @@ public class Needs
 
     public bool Invulnerable;
 
-    public void Tick(float gameHours, float activity, bool sheltered, float heat, float clothingWarmth, Season season, float daylight)
+    public void Tick(float gameHours, float activity, bool sheltered, float heat, float clothingWarmth, Season season, float daylight, bool fireEnclosed = false)
     {
         if (gameHours <= 0f || IsDead) return;
 
@@ -44,7 +44,7 @@ public class Needs
         // both together (design doc 17.3 / 18.4).
         float exposure = Climate.ExposurePerHour(season, daylight) * (sheltered ? ShelterWindFactor : 1f);
         float loss = Mathf.Max(0f, exposure - clothingWarmth);
-        float gain = heat * HearthRecovery * (sheltered ? 1f : OpenFireFactor);
+        float gain = heat * HearthRecovery * (sheltered || fireEnclosed ? 1f : OpenFireFactor);
         Warmth = Mathf.Clamp(Warmth + (gain - loss) * gameHours, 0f, 100f);
 
         float damage = 0f;

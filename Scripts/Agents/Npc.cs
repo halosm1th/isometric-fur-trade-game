@@ -53,6 +53,7 @@ public partial class Npc : Agent
     // chain to run when nothing more urgent is going on.
     public System.Func<Npc, Goal> AssignedTask;
     public string AssignedTaskName = "";
+    public bool AssignedTaskIsHunt;
 
     private AnimatedSprite2D _sprite;
     private Label _label;
@@ -108,6 +109,7 @@ public partial class Npc : Agent
         float hours = cal.DeltaGameHours;
         _sinceEatAnim += dt;
 
+        Sleeping = false;   // SleepGoal re-asserts this every tick it's lying down
         ConsiderInterrupts();
         if (Brain.IsEmpty)
         {
@@ -129,11 +131,23 @@ public partial class Npc : Agent
         Animate();
     }
 
-    // Tier 0 preempts everything (design doc 3.1). One interrupt at a time.
+    // Things you do in passing, no plan needed.
+    private void Opportunities()
+    {
+        if (Needs.Thirst < 70f) Drink();
+        if (Needs.Hunger < 55f && Inventory.FirstOfKind(ItemKind.Food) != null && _sinceEatAnim > 3f)
+        {
+            if (Eat()) PlayAnimation("eat");
+        }
+    }
+
+    // Tier 0 preempts everything (design doc 3.1). Fighting comes first;
+    // then whichever need is worst, which may bump a less urgent need's goal.
     private void ConsiderInterrupts()
     {
-        var top = Brain.Top;
-        if (top != null && top.Tier == 0) return;
+        Opportunities();
+        var current = Brain.Tier0Goal();
+        if (current is AttackGoal || current is FleeGoal) return;
 
         // Being attacked: fight back if there's a chance, else run.
         if (LastAttackedAgo < 2f && LastAttacker != null && IsInstanceValid(LastAttacker) && !LastAttacker.IsDead)
@@ -153,9 +167,20 @@ public partial class Npc : Agent
             return;
         }
 
-        if (Needs.Warmth < 30f && !Brain.Has<WarmUpGoal>()) { Brain.Push(this, new WarmUpGoal()); return; }
-        if (Needs.Thirst < 25f && !Brain.Has<DrinkGoal>()) { Brain.Push(this, new DrinkGoal()); return; }
-        if (Needs.Hunger < 30f && !Brain.Has<EatGoal>()) { Brain.Push(this, new EatGoal()); return; }
+        // Worst need first. Warmth bites fastest so it's weighted.
+        float w = Needs.Warmth - 5f, th = Needs.Thirst, h = Needs.Hunger + 5f;
+        float worst = Mathf.Min(w, Mathf.Min(th, h));
+        if (worst >= 30f) return;
+        Goal wanted = worst == w ? new WarmUpGoal() : worst == th ? new DrinkGoal() : new EatGoal();
+        if (current != null)
+        {
+            if (current.GetType() == wanted.GetType()) return;
+            // Only bump the running need-goal if this one is clearly worse.
+            float currentValue = current is WarmUpGoal ? w : current is DrinkGoal ? th : h;
+            if (worst > currentValue - 12f) return;
+            Brain.PopTier0(this);
+        }
+        Brain.Push(this, wanted);
     }
 
     public Agent NearestHostile(float radius)
@@ -234,11 +259,12 @@ public partial class Npc : Agent
     {
         IsSprinting = false;
         if (Sleeping) { Velocity = Vector2.Zero; return; }
+        float motion = GameCalendar.Instance?.MotionScale ?? 1f;
 
         if (_steer != Vector2.Zero)
         {
             IsSprinting = _steerRun;
-            Velocity = _steer * EffectiveSpeed;
+            Velocity = _steer * EffectiveSpeed * motion;
             MoveAndSlide();
             _steer = Vector2.Zero;
             return;
@@ -278,9 +304,12 @@ public partial class Npc : Agent
         }
 
         var before = GlobalPosition;
-        Velocity = to.Normalized() * EffectiveSpeed;
+        float step = EffectiveSpeed * motion;
+        // Don't overshoot the waypoint when time is running fast.
+        if (step * dt > to.Length()) step = to.Length() / Mathf.Max(dt, 1e-4f);
+        Velocity = to.Normalized() * step;
         MoveAndSlide();
-        if (GlobalPosition.DistanceTo(before) < EffectiveSpeed * dt * 0.2f)
+        if (GlobalPosition.DistanceTo(before) < step * dt * 0.2f)
         {
             _stuckTime += dt;
             if (_stuckTime > 1.5f)
@@ -322,16 +351,19 @@ public partial class Npc : Agent
 
     // ---- helpers for goals ---------------------------------------------------
 
+    // Nearest burning fire, preferring the household's own; a cold hearth
+    // is acceptable if we can light it (carrying wood, or the woodpile has some).
     public Hearth PreferredHearth()
     {
         var s = Sim.Structures;
         if (s == null) return null;
+        bool canLight = Inventory.Has(ItemId.Firewood) || (HomeStores != null && HomeStores.Stores.Has(ItemId.Firewood));
         Hearth best = null; float bestScore = float.MaxValue;
         foreach (var h in s.AllHearths)
         {
-            if (!h.IsBurning) continue;
+            if (!h.IsBurning && !canLight) continue;
             bool mine = HomeStores == null || HomeStores.HearthCells.Contains(h.Cell);
-            float score = h.GlobalPosition.DistanceTo(GlobalPosition) * (mine ? 1f : 2.5f);
+            float score = h.GlobalPosition.DistanceTo(GlobalPosition) * (mine ? 1f : 2.5f) + (h.IsBurning ? 0f : 400f);
             if (score < bestScore) { bestScore = score; best = h; }
         }
         return best;
@@ -359,30 +391,67 @@ public partial class Npc : Agent
         // Scan outward in rings from our cell for a walkable cell next to water.
         var c = Cell;
         int maxR = Mathf.CeilToInt(maxDist / 64f);
+        Vector2I? best = null; float bestD = float.MaxValue;
         for (int r = 1; r < maxR; r += 1)
         {
-            for (int dx = -r; dx <= r; dx += Mathf.Max(1, r / 3))
+            void Consider(Vector2I n)
             {
-                foreach (int dy in new[] { -2 * r, 2 * r })
-                {
-                    var n = new Vector2I(c.X + dx, c.Y + dy);
-                    if (paths.IsWalkable(n) && t.IsWaterNear(IsoGrid.ToWorld(n))) return n;
-                }
+                if (!paths.IsWalkable(n) || !t.IsWaterNear(IsoGrid.ToWorld(n))) return;
+                float d = IsoGrid.ToWorld(n).DistanceTo(GlobalPosition);
+                if (d < bestD) { bestD = d; best = n; }
+            }
+            for (int dx = -r; dx <= r; dx += Mathf.Max(1, r / 4))
+            {
+                Consider(new Vector2I(c.X + dx, c.Y - 2 * r));
+                Consider(new Vector2I(c.X + dx, c.Y + 2 * r));
             }
             for (int dy = -2 * r; dy <= 2 * r; dy += Mathf.Max(1, r / 2))
             {
-                foreach (int dx in new[] { -r, r })
-                {
-                    var n = new Vector2I(c.X + dx, c.Y + dy);
-                    if (paths.IsWalkable(n) && t.IsWaterNear(IsoGrid.ToWorld(n))) return n;
-                }
+                Consider(new Vector2I(c.X - r, c.Y + dy));
+                Consider(new Vector2I(c.X + r, c.Y + dy));
             }
+            // Once something is found, finish this ring and one more, then stop.
+            if (best != null && r > 2 && bestD < r * 64f) break;
         }
-        return null;
+        return best;
     }
 
     public float RapportWith(Agent a) => Rapport.GetValueOrDefault(a, 0f);
     public void ChangeRapport(Agent a, float delta) => Rapport[a] = Mathf.Clamp(RapportWith(a) + delta, -100f, 100f);
+
+    // Somebody steps into a dead leader's place (design doc 9.3.3): the
+    // most ambitious clerk becomes Factor; the band's senior hunter, chief.
+    private void Succession()
+    {
+        if (Role == Role.Factor)
+        {
+            Npc heir = null;
+            foreach (var n in Sim.Npcs) if (n.Role == Role.Clerk && !n.IsDead && (heir == null || n.Personality.Ambition > heir.Personality.Ambition)) heir = n;
+            if (heir == null) foreach (var n in Sim.Npcs) if (n.Role == Role.Labourer && !n.IsDead) { heir = n; break; }
+            if (heir == null) { Sim.Notice("There is no one left to take charge of the post."); return; }
+            heir.Role = Role.Factor;
+            heir.DisplayName = "Mr. " + heir.DisplayName.Replace(" (clerk)", "") + " (acting Factor)";
+            heir.ResetBehaviour(); heir.Brain.Clear(heir);
+            heir.BedCell = BedCell; heir.WorkCell = WorkCell;
+            if (heir._label != null) heir._label.Text = heir.DisplayName;
+            Sim.Notice($"{heir.DisplayName} takes charge of the post.");
+        }
+        else if (Role == Role.CreeChief)
+        {
+            Npc heir = null;
+            foreach (var n in Sim.Npcs) if (n.Role == Role.CreeHunter && !n.IsDead && (heir == null || n.Personality.Ambition > heir.Personality.Ambition)) heir = n;
+            if (heir == null) return;
+            heir.Role = Role.CreeChief;
+            heir.DisplayName += " (chief)";
+            heir.ResetBehaviour(); heir.Brain.Clear(heir);
+            foreach (var child in Children) { child.Father = heir; heir.Children.Add(child); }
+            if (heir._label != null) heir._label.Text = heir.DisplayName;
+            Sim.Notice($"{heir.DisplayName} now leads the band.");
+        }
+        int hbcAlive = 0;
+        foreach (var n in Sim.Npcs) if (n.Faction == Faction.HBC && !n.IsDead && !n.IsFemale) hbcAlive++;
+        if (hbcAlive == 0 && Faction == Faction.HBC) Sim.Notice("York Factory has no men left. The post has fallen.");
+    }
 
     // ---- death ------------------------------------------------------------
 
@@ -404,6 +473,7 @@ public partial class Npc : Agent
         Sim.Unregister(this);
         Sim.Notice($"{DisplayName} has died.");
         if (Spouse is Npc widow) widow.Spouse = null;
+        Succession();
         // Bodies don't lie there forever.
         GetTree().CreateTimer(GameCalendar.Instance.SecondsPerGameHour * 48f).Timeout += () => { if (IsInstanceValid(this)) QueueFree(); };
     }

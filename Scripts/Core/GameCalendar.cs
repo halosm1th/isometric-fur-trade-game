@@ -45,6 +45,13 @@ public partial class GameCalendar : Node
     // Simulation stays sane if no frame ever covers more than this.
     private const float MaxDeltaHours = 0.25f;
 
+    // How much faster than the baseline clock (10 s per game hour) time is
+    // running right now. NPCs and animals scale their movement by this so a
+    // sped-up world still resolves their days (design doc 18.2's lazy
+    // resolution, done crudely). 1 at normal speed.
+    public float MotionScale { get; private set; } = 1f;
+    private const float BaselineSecondsPerHour = 10f;
+
     // Fractional day-of-year, useful for anything seasonal.
     public float DayOfYear
     {
@@ -143,7 +150,7 @@ public partial class GameCalendar : Node
 
     public override void _Process(double delta)
     {
-        if (Paused) { DeltaGameHours = 0f; return; }
+        if (Paused) { DeltaGameHours = 0f; MotionScale = 1f; return; }
 
         float speed = Input.IsActionPressed("time_fast") ? FastForwardMultiplier : 1f;
         if (SkipRemaining > 0f) speed = SkipSpeed;
@@ -154,6 +161,7 @@ public partial class GameCalendar : Node
             SkipRemaining -= DeltaGameHours;
         }
         Hour += DeltaGameHours;
+        MotionScale = delta > 0 ? Mathf.Max(1f, DeltaGameHours / ((float)delta / BaselineSecondsPerHour)) : 1f;
 
         int h = Mathf.FloorToInt(Hour);
         if (h != _lastHour)

@@ -16,6 +16,7 @@ public class HuntSiteGoal : Goal
     private int _phase;
     private float _worked;
     private float _tryTimer;
+    private int _kills;
     public HuntSiteGoal(SpawnSite site, float workHours = 5f) { _site = site; _workHours = workHours; }
     public override string Label => $"hunt at {_site.Name}";
 
@@ -36,19 +37,21 @@ public class HuntSiteGoal : Goal
                 _tryTimer -= hours;
                 // A live animal within reach is fair game.
                 var prey = _site.NearestLiveAnimal(npc.GlobalPosition, 500f);
-                if (prey != null && !prey.IsDead)
+                if (prey != null && !prey.IsDead && npc.Weapon != null)
                 {
+                    _kills++;   // counted on the way in; the AttackGoal butchers it
                     return Delegate(new AttackGoal(prey));
                 }
                 if (_tryTimer <= 0f)
                 {
                     _tryTimer = 0.75f;
                     // Chance per attempt scales with how thick the game is.
-                    float chance = Mathf.Clamp(_site.Count / (float)_site.Capacity, 0.05f, 1f) * 0.75f;
+                    float chance = Mathf.Clamp(_site.Count / (float)_site.Capacity, 0.05f, 1f) * 0.35f;
                     if (GD.Randf() < chance && _site.Count > 0)
                     {
                         _site.Take(1);
                         SpeciesInfo.Yield(_site.Species, npc.Inventory);
+                        _kills++;
                     }
                     else
                     {
@@ -57,7 +60,9 @@ public class HuntSiteGoal : Goal
                         npc.SetDestination(new Vector2I(c.X + GD.RandRange(-4, 4), c.Y + GD.RandRange(-8, 8)));
                     }
                 }
-                bool loaded = npc.Inventory.TotalWeightLbs > 90f;
+                // One caribou is a load; small game you keep working.
+                int enough = _site.Species == Species.Caribou ? 1 : _site.Species == Species.Beaver ? 3 : 4;
+                bool loaded = npc.Inventory.TotalWeightLbs > 90f || _kills >= enough;
                 if (_worked >= _workHours || loaded || _site.Count <= 0)
                 {
                     _phase = 3;

@@ -141,14 +141,30 @@ public class DrinkGoal : Goal
         if (_phase == 0)
         {
             if (npc.Inventory.Has(ItemId.Ale)) { npc.Consume(ItemId.Ale); return GoalStatus.Done; }
+            if (npc.Drink()) return GoalStatus.Done;   // snow melted at a fire
+            if (GameCalendar.Instance.IsFrozen)
+            {
+                // Head for the nearest burning fire to melt snow.
+                var h = npc.PreferredHearth();
+                if (h != null && h.IsBurning) { _phase = 2; return Delegate(new GoToGoal(npc.StandCellNear(h.Cell), 110f)); }
+            }
             var cell = npc.NearestWaterCell(2600f);
             if (cell == null) return GoalStatus.Failed;
             _phase = 1;
-            return Delegate(new GoToGoal(cell.Value, 100f));
+            return Delegate(new GoToGoal(cell.Value, 30f));
         }
         if (!ChildFinished(out var r)) return GoalStatus.Running;
         if (r != GoalStatus.Done) return GoalStatus.Failed;
-        return npc.Drink() ? GoalStatus.Done : GoalStatus.Failed;
+        if (npc.Drink()) return GoalStatus.Done;
+        if (_phase == 2)
+        {
+            // The fire was out when we got there: fall back to the water.
+            var cell = npc.NearestWaterCell(2600f);
+            if (cell == null) return GoalStatus.Failed;
+            _phase = 1;
+            return Delegate(new GoToGoal(cell.Value, 30f));
+        }
+        return GoalStatus.Failed;
     }
 }
 
@@ -174,18 +190,29 @@ public class WarmUpGoal : Goal
                 if (r != GoalStatus.Done) return GoalStatus.Failed;
                 _phase = 2;
                 return GoalStatus.Running;
-            default:
+            case 2:
                 if (_hearth == null || !GodotObject.IsInstanceValid(_hearth)) return GoalStatus.Failed;
                 if (_hearth.FuelHours < 2f)
                 {
                     if (npc.Inventory.Has(ItemId.Firewood)) { npc.Inventory.Remove(ItemId.Firewood); _hearth.Feed(3f); }
-                    else if (npc.HomeStores != null && npc.HomeStores.Stores.Has(ItemId.Firewood) && npc.HomeStores.AccessCell.DistanceTo(_hearth.Cell) < 12)
+                    else if (npc.HomeStores != null && npc.HomeStores.Stores.Has(ItemId.Firewood))
                     {
-                        npc.HomeStores.Stores.Remove(ItemId.Firewood); _hearth.Feed(3f);
+                        // Fetch an armful from the woodpile and come back.
+                        _phase = 3;
+                        return Delegate(new GoToGoal(npc.HomeStores.WoodpileCell, 100f));
                     }
                 }
                 if (!_hearth.IsBurning) return GoalStatus.Failed;
                 return npc.Needs.Warmth >= 90f ? GoalStatus.Done : GoalStatus.Running;
+            case 3:
+                if (!ChildFinished(out var r3)) return GoalStatus.Running;
+                if (r3 != GoalStatus.Done || npc.HomeStores == null) return GoalStatus.Failed;
+                npc.Inventory.Add(ItemId.Firewood, npc.HomeStores.Stores.TakeUpTo(ItemId.Firewood, 3));
+                if (!npc.Inventory.Has(ItemId.Firewood)) return GoalStatus.Failed;
+                _phase = 1;
+                return Delegate(new GoToGoal(npc.StandCellNear(_hearth.Cell), 110f));
+            default:
+                return GoalStatus.Failed;
         }
     }
 }
@@ -217,6 +244,7 @@ public class SleepGoal : Goal
             npc.Sleeping = false;
             return GoalStatus.Done;
         }
+        npc.Sleeping = true;
         return GoalStatus.Running;
     }
 

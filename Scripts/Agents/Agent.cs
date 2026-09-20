@@ -33,6 +33,7 @@ public partial class Agent : CharacterBody2D
 
     // 0..1 warmth reaching this agent from the nearest fire.
     public float HeatNear { get; private set; }
+    public bool HeatEnclosed { get; private set; }
 
     // Fixed clothing not carried as items (animals' hides, sailors' slops).
     public float InnateWarmth = 0f;
@@ -60,13 +61,16 @@ public partial class Agent : CharacterBody2D
     {
         var cal = GameCalendar.Instance;
         if (cal == null) return;
-        _attackCooldown = Mathf.Max(0f, _attackCooldown - (float)delta);
-        LastAttackedAgo += (float)delta;
+        float scaled = (float)delta * cal.MotionScale;
+        _attackCooldown = Mathf.Max(0f, _attackCooldown - scaled);
+        LastAttackedAgo += scaled;
         if (IsDead) return;
 
         var structures = Sim.Structures;
         IsSheltered = structures?.IsSheltered(GlobalPosition) ?? false;
-        HeatNear = structures?.HeatAt(GlobalPosition) ?? 0f;
+        bool enclosed = false;
+        HeatNear = structures?.HeatAt(GlobalPosition, out enclosed) ?? 0f;
+        HeatEnclosed = enclosed;
 
         bool moving = Velocity.LengthSquared() > 1f;
         Needs.Tick(
@@ -76,7 +80,8 @@ public partial class Agent : CharacterBody2D
             heat: HeatNear,
             clothingWarmth: Inventory.ClothingWarmth + InnateWarmth,
             season: cal.CurrentSeason,
-            daylight: cal.DaylightFactor);
+            daylight: cal.DaylightFactor,
+            fireEnclosed: HeatEnclosed);
 
         if (IsDead) OnDeath();
     }
@@ -119,6 +124,18 @@ public partial class Agent : CharacterBody2D
     // winter that means melting snow, which you pay for in warmth.
     public bool Drink()
     {
+        // At a fire in winter you melt snow instead of walking to the shore;
+        // it costs the fire a little fuel.
+        if (GameCalendar.Instance.IsFrozen && HeatNear > 0.3f)
+        {
+            var hearth = Sim.Structures?.HearthNear(GlobalPosition, 400f);
+            if (hearth != null && hearth.IsBurning)
+            {
+                hearth.FuelHours = Mathf.Max(0.1f, hearth.FuelHours - 0.3f);
+                Needs.Thirst = 100f;
+                return true;
+            }
+        }
         var terrain = Sim.Terrain;
         if (terrain == null || !terrain.IsWaterNear(GlobalPosition)) return false;
 

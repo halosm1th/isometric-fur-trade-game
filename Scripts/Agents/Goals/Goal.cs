@@ -65,6 +65,28 @@ public class Brain
         _stack.Clear();
     }
 
+    // Drop the current Tier 0 goal (and whatever it delegated) so a more
+    // urgent need can take over.
+    public void PopTier0(Npc npc)
+    {
+        int i = _stack.FindIndex(g => g.Tier == 0);
+        if (i < 0) return;
+        for (int k = _stack.Count - 1; k >= i; k--) { _stack[k].OnExit(npc); _stack.RemoveAt(k); }
+        if (_stack.Count > 0) _stack[^1].ChildResult = GoalStatus.Failed;
+    }
+
+    public Goal Tier0Goal()
+    {
+        foreach (var g in _stack) if (g.Tier == 0) return g;
+        return null;
+    }
+
+    public bool HasTier0()
+    {
+        foreach (var g in _stack) if (g.Tier == 0) return true;
+        return false;
+    }
+
     public bool Has<T>() where T : Goal
     {
         foreach (var g in _stack) if (g is T) return true;
@@ -85,7 +107,7 @@ public class Brain
             top = child;
         }
 
-        var status = top.Tick(npc, dt, hours);
+        var status = top.Tick(npc, dt * (Core.GameCalendar.Instance?.MotionScale ?? 1f), hours);
         if (status == GoalStatus.Running) return;
 
         top.OnExit(npc);

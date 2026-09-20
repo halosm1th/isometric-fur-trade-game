@@ -121,10 +121,16 @@ public partial class StructurePainter : TileMapLayer
 
     public IReadOnlyList<Hearth> AllHearths => _hearths;
 
-    public float HeatAt(Vector2 worldPos)
+    public float HeatAt(Vector2 worldPos) => HeatAt(worldPos, out _);
+
+    public float HeatAt(Vector2 worldPos, out bool enclosed)
     {
-        float best = 0f;
-        foreach (var h in _hearths) best = Mathf.Max(best, h.HeatAt(worldPos));
+        float best = 0f; enclosed = false;
+        foreach (var h in _hearths)
+        {
+            float v = h.HeatAt(worldPos);
+            if (v > best) { best = v; enclosed = h.Enclosed; }
+        }
         return best;
     }
 

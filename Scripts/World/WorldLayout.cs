@@ -92,8 +92,8 @@ public static class WorldLayout
     // ---- wildlife sites (design doc 16.4) -------------------------------------
     public static readonly SiteDef[] Sites =
     {
-        new("Caribou yard", Species.Caribou, new Vector2I(12, 200), 24, 40, 900f),
-        new("Goose marsh", Species.Goose, new Vector2I(66, 46), 30, 60, 700f),
+        new("Caribou yard", Species.Caribou, new Vector2I(12, 200), 90, 140, 900f),
+        new("Goose marsh", Species.Goose, new Vector2I(66, 46), 180, 300, 700f),
         new("Beaver lodge (upper)", Species.Beaver, new Vector2I(62, 118), 10, 16, 350f),
         new("Beaver lodge (bend)", Species.Beaver, new Vector2I(55, 182), 12, 16, 350f),
         new("Beaver lodge (lower)", Species.Beaver, new Vector2I(60, 246), 8, 16, 350f),

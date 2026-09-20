@@ -157,13 +157,22 @@ public partial class TerrainPainter : TileMapLayer
         return src == SourceWater || src == SourceWaterIce || src == SourceIce;
     }
 
-    // Any water (or ice) within a cell of the position.
-    public bool IsWaterNear(Vector2 localPos)
+    // Any water (or ice) within reach of the position - about a cell and a
+    // half, so standing on the bank counts.
+    public bool IsWaterNear(Vector2 localPos, float reachPx = 120f)
     {
         var c = LocalToMap(localPos);
         if (IsWaterOrIce(c)) return true;
-        foreach (var n in IsoGrid.EdgeNeighbours(c)) if (IsWaterOrIce(n)) return true;
-        foreach (var n in IsoGrid.CornerNeighbours(c)) if (IsWaterOrIce(n)) return true;
+        int rings = Mathf.CeilToInt(reachPx / 64f);
+        for (int dx = -rings; dx <= rings; dx++)
+        {
+            for (int dy = -2 * rings; dy <= 2 * rings; dy++)
+            {
+                var n = new Vector2I(c.X + dx, c.Y + dy);
+                if (!IsWaterOrIce(n)) continue;
+                if (IsoGrid.ToWorld(n).DistanceTo(localPos) <= reachPx + 40f) return true;
+            }
+        }
         return false;
     }
 

@@ -32,7 +32,7 @@ public abstract class RoleBehaviour
     public virtual Goal NextGoal(Npc npc)
     {
         if (IsNight) return new SleepGoal();
-        if (npc.AssignedTask != null && IsWorkHours)
+        if (npc.AssignedTask != null && IsWorkHours && !(npc.AssignedTaskIsHunt && Cal.Hour >= 12f))
         {
             var g = npc.AssignedTask(npc);
             if (g != null) return g;
@@ -146,6 +146,9 @@ public class CreeHunterBehaviour : RoleBehaviour
         float incentive = fort?.PeltPrice ?? 1f;
         bool furHunt = GD.Randf() < Mathf.Clamp(0.25f * incentive, 0.05f, 0.95f);
 
+        // Hunts start in the morning; a long walk out in the afternoon means
+        // a night in the open.
+        if (Cal.Hour >= 12f) return new WanderGoal(WorldLayout.CampCentre, 3, 1f);
         SpawnSite site = needMeat ? eco.BestSite(Species.Caribou) ?? eco.BestSite(Species.Goose) : null;
         if (site == null && furHunt) site = eco.BestSite(Species.Beaver);
         if (site == null && GD.Randf() < 0.3f) site = eco.BestSite(Species.Caribou);
@@ -204,6 +207,7 @@ public static class Delegation
         for (int i = 0; i < men.Count; i++)
         {
             var m = men[i];
+            m.AssignedTaskIsHunt = false;
             if (threats > 0 && i < Mathf.Min(men.Count, threats + 1))
             {
                 if (!m.Inventory.Has(ItemId.Musket) && fort.Stores.Remove(ItemId.Musket)) m.Inventory.Add(ItemId.Musket);
@@ -220,7 +224,7 @@ public static class Delegation
                 if (site != null)
                 {
                     if (!m.Inventory.Has(ItemId.Musket) && fort.Stores.Remove(ItemId.Musket)) m.Inventory.Add(ItemId.Musket);
-                    m.AssignedTask = _ => new HuntSiteGoal(site, 6f); m.AssignedTaskName = $"hunt at {site.Name}";
+                    m.AssignedTask = _ => new HuntSiteGoal(site, 6f); m.AssignedTaskName = $"hunt at {site.Name}"; m.AssignedTaskIsHunt = true;
                 }
                 else { m.AssignedTask = null; m.AssignedTaskName = "cut wood"; }
             }

@@ -18,6 +18,10 @@ public partial class Hearth : Node2D
 
     public Vector2I Cell;
 
+    // A hearth in a building, or the camp's lodge fires: its heat isn't
+    // lost to the wind the way an open fire's is.
+    public bool Enclosed = true;
+
     public bool IsBurning => FuelHours > 0f;
 
     // 0..1 - how much of the fire's warmth reaches this point.
