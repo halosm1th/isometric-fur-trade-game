@@ -42,6 +42,11 @@ public partial class PlayerController : Agent
 		Faction = Faction.HBC;
 		Sim.Player = this;
 		CallDeferred(nameof(FindDialogue));
+		GetTree().CreateTimer(1.5).Timeout += () =>
+		{
+			if (!IsInstanceValid(this)) return;
+			EmitSignal(SignalName.Notice, "York Factory, Hudson's Bay. You are the Company's new hand. E talks, 1-9 uses, left click strikes, F1 opens the test console.");
+		};
 		_sprite.AnimationFinished += () => { string a = _sprite.Animation; if (a == "eat" || a == "drink") _busy = false; };
 
 		// What a new hand stepping off the ship would carry.

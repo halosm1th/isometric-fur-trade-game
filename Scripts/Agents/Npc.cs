@@ -280,8 +280,9 @@ public partial class Npc : Agent
             return;
         }
 
-        // Time is skipping (sleeping, waiting): resolve the walk lazily.
-        if (skipping)
+        // Time is skipping (sleeping, waiting) or running so fast that
+        // physics would tunnel: resolve the walk lazily.
+        if (skipping || motion > 8f)
         {
             GlobalPosition = IsoGrid.ToWorld(_path[^1]);
             _path.Clear(); Arrived = true; Velocity = Vector2.Zero;

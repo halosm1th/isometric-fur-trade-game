@@ -198,10 +198,21 @@ public partial class DialogueMenu : Control
     private string AskForWork(Npc factor)
     {
         var ship = Sim.Ship;
-        if (ship != null && ship.IsDocked) return "\"Work? The ship is in, man. Get down to the landing and carry.\"";
         var threats = 0;
         foreach (var a in Sim.Animals) if (!a.IsDead && a.IsDangerous) threats++;
-        if (threats > 0) return "\"There are beasts about the post. Take a musket from the stores and see them off.\"";
+        // Asking gets you today's order on the spot if you haven't one.
+        if (_player.Task.Kind == TaskKind.None || _player.Task.IsComplete)
+        {
+            if (threats > 0) _player.AssignTask(TaskKind.DriveOffAnimals, 1);
+            else if (ship != null && ship.IsDocked && ship.Cargo.SlotCount > 0) _player.AssignTask(TaskKind.CarryCargo, 8);
+            else _player.AssignTask(TaskKind.Firewood, 4);
+        }
+        if (ship != null && ship.IsDocked) return "\"Work? The ship is in, man. Get down to the landing and carry.\"";
+        if (threats > 0)
+        {
+            if (!_player.Inventory.Has(ItemId.Musket) && Sim.Fort != null && Sim.Fort.Stores.Remove(ItemId.Musket)) { _player.Inventory.Add(ItemId.Musket); return "\"There are beasts about the post.\" He hands you a musket from the stores. \"See them off.\""; }
+            return "\"There are beasts about the post. See them off.\"";
+        }
         return "\"Keep the fires up and the woodpile high. When the ship comes you'll have work enough.\"";
     }
 

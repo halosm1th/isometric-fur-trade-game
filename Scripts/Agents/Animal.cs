@@ -75,7 +75,7 @@ public partial class Animal : Agent
         if (Site != null && Site.Scarcity) Hungry = true;
         Needs.Thirst = 100f;
 
-        float motion = cal.MotionScale;
+        float motion = Mathf.Min(cal.MotionScale, 8f);
         _modeTimer -= dt * motion;
         Think(dt);
         Act(dt, motion);
