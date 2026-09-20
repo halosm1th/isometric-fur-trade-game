@@ -12,6 +12,7 @@ namespace IsometricFurTradeGame.Scripts.UI;
 // it was - which may be nowhere near where it is now.
 public partial class MapPanel : Control
 {
+    public static bool IsOpen { get; private set; }
     private const float Scale = 1f / 32f;   // world px -> map px (10240 -> 320)
     private PanelContainer _panel;
     private MapCanvas _canvas;
@@ -51,6 +52,7 @@ public partial class MapPanel : Control
 
     public override void _Process(double delta)
     {
+        IsOpen = _panel.Visible;
         if (_panel.Visible) _canvas.QueueRedraw();
     }
 }

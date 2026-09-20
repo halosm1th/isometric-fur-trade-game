@@ -4,14 +4,18 @@ using IsometricFurTradeGame.Scripts.Core;
 
 namespace IsometricFurTradeGame.Scripts.UI;
 
-// The world's running commentary, top-left under the calendar: orders
-// given, trades made, deaths, the ship. Fades line by line.
+// The world's running commentary. Only the newest line or two show on
+// screen, briefly, under the calendar; the whole history lives in the
+// Log tab of your book (J / L).
 public partial class NoticeLog : Control
 {
+    public static readonly List<(string when, string text)> History = new();
+    private const int HistoryMax = 400;
+
     private readonly List<(Label label, float age)> _lines = new();
     private VBoxContainer _box;
-    private const int MaxLines = 7;
-    private const float LifeSeconds = 28f;
+    private const int MaxLines = 2;
+    private const float LifeSeconds = 9f;
 
     public override void _Ready()
     {
@@ -26,6 +30,10 @@ public partial class NoticeLog : Control
 
     private void Add(string text)
     {
+        var cal = GameCalendar.Instance;
+        History.Add((cal != null ? $"{cal.Day} {cal.DateString.Split(' ')[1].Substring(0, 3)} {cal.TimeString}" : "", text));
+        if (History.Count > HistoryMax) History.RemoveAt(0);
+
         var l = new Label { Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(460, 0) };
         l.AddThemeFontSizeOverride("font_size", 12);
         l.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.85f));
@@ -41,7 +49,7 @@ public partial class NoticeLog : Control
             var (l, age) = _lines[i];
             age += (float)delta;
             if (age > LifeSeconds) { l.QueueFree(); _lines.RemoveAt(i); continue; }
-            l.Modulate = new Color(1, 1, 1, Mathf.Clamp((LifeSeconds - age) / 6f, 0f, 1f));
+            l.Modulate = new Color(1, 1, 1, Mathf.Clamp((LifeSeconds - age) / 3f, 0f, 1f));
             _lines[i] = (l, age);
         }
     }

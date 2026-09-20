@@ -33,7 +33,8 @@ Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--nam
 | Z | wait an hour; at night, sleep until 07:00 |
 | T | hold for fast-forward (×40) |
 | Tab | chat |
-| J | journal: what you have witnessed, dated |
+| J / L / I | your book: **Journal** (what you witnessed, dated) · **Log** (everything the world announced, timestamped - the old scrolling top-left log now lives here; only the newest line or two flash on screen) · **Pack** (every item with weight, worth and what it does) |
+| Esc | pause menu: resume, key bindings (read from the InputMap), save, main menu, exit. Alone, time stops; hosting or joined, the world goes on |
 | M | map: coast, river, posts, the camp where it stands, the sites you know (a herd where you last heard of it), other players, the ship |
 | H | help: controls and the gist |
 | F1 | test console (host only) |
@@ -144,6 +145,8 @@ Rum and ale carry intoxication (35 / 12), which wears off at 8 an hour. Drunk: s
 When the ship docks there's a one-in-three chance a sailor has fever. It spreads between people standing together (more so indoors), lasts 6-11 days, costs ~8 health a day and appetite, weakens the arm. Survivors are immune for the year. Talk to someone feverish and you're told to keep your distance.
 
 ## Fire (design doc 18.4)
+
+**Shot pelts**: an animal killed with a musket yields a *shot-through pelt* (0.35 MB) or a *holed hide* (0.2) instead of the prime skin; traps, bow, knife and tomahawk leave it whole. NPC fur hunters carrying a bow sling the musket for the lodge. **Small game**: `ForageGoal` - men snare hares along the edge of the bush (no site drawn down, thin fare, counts as fresh meat); the Factor sets men to it when there's no caribou or goose to be had, and a beaver lodge is only shot for food when it's thick.
 
 **Flint** (hotbar): beside a cold hearth it lights it (uses a firewood); in the open with firewood in your pack it builds a **campfire** on the next clear cell - a hearth like any other (feed it, warm at it, melt snow at it), saved and replicated; **crouched (Ctrl) against wood** it is arson.
 

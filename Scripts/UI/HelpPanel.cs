@@ -5,7 +5,9 @@ namespace IsometricFurTradeGame.Scripts.UI;
 // H: the controls, for whoever just joined and hasn't read the doc.
 public partial class HelpPanel : Control
 {
+    public static bool IsOpen { get; private set; }
     private PanelContainer _panel;
+    public override void _Process(double delta) => IsOpen = _panel != null && _panel.Visible;
 
     private const string Text =
         "W A S D  walk      Shift  run      Ctrl  crouch (sneak; also: set a fire deliberately)\n" +

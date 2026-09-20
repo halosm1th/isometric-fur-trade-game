@@ -93,6 +93,16 @@ public partial class Net : Node
         if (IsServer && Current != Mode.Dedicated) SpawnPlayer(1, _names.GetValueOrDefault(1, LocalName));
     }
 
+    // Back to the menu: drop the connection (or the hosted game) and forget the world.
+    public void Leave()
+    {
+        try { Multiplayer.MultiplayerPeer?.Close(); } catch { }
+        Multiplayer.MultiplayerPeer = new OfflineMultiplayerPeer();
+        Current = Mode.Offline;
+        _names.Clear();
+        ResetWorld();
+    }
+
     // The world scene is (re)loading: forget every agent.
     public void ResetWorld()
     {

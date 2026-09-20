@@ -211,6 +211,7 @@ public partial class PlayerController : Agent
 		}
 		if (_dialogue != null && _dialogue.IsOpen) return;
 		if (UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping) return;
+		if (UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen) return;
 		// Quick save / load: the host's privilege.
 		if (@event is InputEventKey { Pressed: true, Echo: false } key && NetHub.IsServer)
 		{

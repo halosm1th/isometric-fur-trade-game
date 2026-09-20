@@ -24,6 +24,8 @@ public partial class DebugMenu : Control
     private readonly List<(Label, Func<string>)> _readouts = new();
 
     public bool IsOpen => _panel != null && _panel.Visible;
+    public static bool IsOpenStatic;
+    public override void _Process(double delta) { IsOpenStatic = IsOpen; ProcessPanel(delta); }
 
     public override void _Ready()
     {
@@ -164,7 +166,7 @@ public partial class DebugMenu : Control
         foreach (var r in _refreshers) r();
     }
 
-    public override void _Process(double delta)
+    private void ProcessPanel(double delta)
     {
         if (!_panel.Visible) return;
         var cal = GameCalendar.Instance;

@@ -27,6 +27,7 @@
 [ext_resource type="Script" path="res://Scripts/UI/JournalPanel.cs" id="22_journal"]
 [ext_resource type="Script" path="res://Scripts/UI/MapPanel.cs" id="23_map"]
 [ext_resource type="Script" path="res://Scripts/UI/HelpPanel.cs" id="24_help"]
+[ext_resource type="Script" path="res://Scripts/UI/PauseMenu.cs" id="25_pause"]
 
 [node name="YorkFactoryExterior" type="Node2D" unique_id=1419352490]
 script = ExtResource("12_root")
@@ -173,3 +174,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 script = ExtResource("24_help")
+
+[node name="Pause" type="Control" parent="HUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("25_pause")
