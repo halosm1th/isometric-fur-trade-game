@@ -1,0 +1,91 @@
+using Godot;
+using IsometricFurTradeGame.Scripts.Core;
+
+namespace IsometricFurTradeGame.Scripts.World;
+
+// A fire is a simulated object, not a tile flag (design doc 18.4): it holds
+// fuel that burns down in game-hours and radiates heat that falls off with
+// distance. StructurePainter spawns one of these on every hearth tile.
+public partial class Hearth : Node2D
+{
+    // Game-hours of fuel left. A fresh hearth is lit but needs tending.
+    [Export] public float FuelHours = 6f;
+    [Export] public float MaxFuelHours = 18f;
+
+    // Heat is full within InnerRadius, gone at OuterRadius (pixels).
+    [Export] public float InnerRadius = 90f;
+    [Export] public float OuterRadius = 330f;
+
+    public bool IsBurning => FuelHours > 0f;
+
+    // 0..1 - how much of the fire's warmth reaches this point.
+    public float Intensity => IsBurning ? Mathf.Clamp(0.4f + FuelHours / MaxFuelHours, 0.4f, 1f) : 0f;
+
+    private PointLight2D _light;
+    private float _flicker;
+
+    public override void _Ready()
+    {
+        // Additive lights use the texture's colour, so the edge must go to
+        // black, not just transparent, or the whole square lights up.
+        var grad = new Gradient();
+        grad.SetColor(0, new Color(1f, 0.72f, 0.38f, 1f));
+        grad.SetColor(1, new Color(0f, 0f, 0f, 0f));
+        grad.AddPoint(0.35f, new Color(0.7f, 0.4f, 0.15f, 1f));
+        var tex = new GradientTexture2D
+        {
+            Gradient = grad,
+            Fill = GradientTexture2D.FillEnum.Radial,
+            FillFrom = new Vector2(0.5f, 0.5f),
+            FillTo = new Vector2(0.5f, 0f),
+            Width = 256, Height = 256,
+        };
+        _light = new PointLight2D
+        {
+            Texture = tex,
+            TextureScale = OuterRadius / 128f,
+            Color = new Color(1f, 0.78f, 0.5f),
+            Position = new Vector2(0, -28),
+            BlendMode = Light2D.BlendModeEnum.Add,
+        };
+        AddChild(_light);
+
+        // The light only brightens what's already lit, so at night it reads
+        // faintly; this additive glow puts firelight on the floor regardless.
+        _glow = new Sprite2D
+        {
+            Texture = tex,
+            Position = new Vector2(0, -6),
+            Scale = Vector2.One * (OuterRadius * 0.55f / 128f),
+            Material = new CanvasItemMaterial { BlendMode = CanvasItemMaterial.BlendModeEnum.Add },
+        };
+        AddChild(_glow);
+    }
+    private Sprite2D _glow;
+
+    public override void _Process(double delta)
+    {
+        var cal = GameCalendar.Instance;
+        if (cal != null)
+        {
+            FuelHours = Mathf.Max(0f, FuelHours - cal.DeltaGameHours);
+        }
+
+        _flicker += (float)delta * 9f;
+        float pulse = 1f + 0.12f * Mathf.Sin(_flicker) * Mathf.Sin(_flicker * 0.37f);
+        _light.Energy = Intensity * 2.2f * pulse;
+        _light.Visible = IsBurning;
+        _glow.Visible = IsBurning;
+        _glow.Modulate = new Color(1f, 0.6f, 0.3f, 0.28f * Intensity * pulse);
+    }
+
+    public float HeatAt(Vector2 worldPos)
+    {
+        if (!IsBurning) return 0f;
+        float d = GlobalPosition.DistanceTo(worldPos);
+        float falloff = 1f - Mathf.Clamp((d - InnerRadius) / (OuterRadius - InnerRadius), 0f, 1f);
+        return falloff * Intensity;
+    }
+
+    public void Feed(float hours) => FuelHours = Mathf.Min(MaxFuelHours, FuelHours + hours);
+}

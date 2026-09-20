@@ -1,0 +1,98 @@
+[gd_resource type="SpriteFrames" load_steps="18" format="3"]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/player/idle_front.png" id="tex_1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_front_0.png" id="tex_2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_front_1.png" id="tex_3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_front_2.png" id="tex_4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_front_3.png" id="tex_5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_back_0.png" id="tex_6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_back_1.png" id="tex_7"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_back_2.png" id="tex_8"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_back_3.png" id="tex_9"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/eat_0.png" id="tex_10"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/eat_1.png" id="tex_11"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/eat_2.png" id="tex_12"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/eat_3.png" id="tex_13"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/drink_0.png" id="tex_14"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/drink_1.png" id="tex_15"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/drink_2.png" id="tex_16"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/drink_3.png" id="tex_17"]
+
+[resource]
+animations = [{
+"name": &"idle",
+"speed": 5.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("tex_1")
+}]
+}, {
+"name": &"walk",
+"speed": 8.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("tex_2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_5")
+}]
+}, {
+"name": &"walk_back",
+"speed": 8.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("tex_6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_9")
+}]
+}, {
+"name": &"eat",
+"speed": 5.0,
+"loop": false,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("tex_10")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_11")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_12")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_13")
+}]
+}, {
+"name": &"drink",
+"speed": 5.0,
+"loop": false,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("tex_14")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_15")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_16")
+}, {
+"duration": 1.0,
+"texture": ExtResource("tex_17")
+}]
+}]
