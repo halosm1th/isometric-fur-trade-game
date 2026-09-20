@@ -25,4 +25,16 @@ public static class SpeciesInfo
         { Species.Wolf,    new("Wolf",    Diet.Predator, 230f, 50f, 16f, 40f, 0.6f, 0.4f, 0.2f, "res://Scenes/Animals/WolfFrames.tres") },
     };
     public static SpeciesDef Of(Species s) => Defs[s];
+
+    // What a kill puts in the hunter's pack.
+    public static void Yield(Species s, IsometricFurTradeGame.Scripts.Items.Inventory into)
+    {
+        switch (s)
+        {
+            case Species.Caribou: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 3); into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.CaribouHide, 1); break;
+            case Species.Goose: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Goose, 1); break;
+            case Species.Beaver: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.BeaverPelt, 1); into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 1); break;
+            case Species.Wolf: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.WolfPelt, 1); break;
+        }
+    }
 }

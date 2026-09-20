@@ -1,5 +1,6 @@
 using Godot;
 using System.Collections.Generic;
+using IsometricFurTradeGame.Scripts.Core;
 
 namespace IsometricFurTradeGame.Scripts.World;
 
@@ -76,6 +77,8 @@ public partial class StructurePainter : TileMapLayer
         if (!Engine.IsEditorHint())
         {
             AddToGroup("structures");
+            Sim.Structures = this;
+            if (Sim.Terrain != null) Sim.Paths = new Pathfinder(Sim.Terrain, this);
             SpawnHearths();
         }
     }
@@ -347,15 +350,20 @@ public partial class StructurePainter : TileMapLayer
 
     // ---- walkability (for pathfinding) --------------------------------------
 
-    // Does anything on the structure layers fill this cell?
+    // Does anything on the structure layers fill this cell? Trees don't
+    // count: they only have a trunk's worth of collision and you can push
+    // through the bush (slowly - the pathfinder charges for it).
     public bool IsCellSolid(Vector2I cell)
     {
         foreach (var layer in Layers())
         {
-            if (SolidProps.Contains(layer.GetCellSourceId(cell))) return true;
+            int s = layer.GetCellSourceId(cell);
+            if (SolidProps.Contains(s) && !IsTreeSource(s)) return true;
         }
         return false;
     }
+
+    public static bool IsTreeSource(int s) => s >= SourceSpruce0 && s <= SourceSpruce0 + 2;
 
     // Is there a wall/fence/closed door on the edge between two edge-adjacent
     // cells? Closed doors count as passable-with-effort: the caller opens them.
@@ -443,10 +451,9 @@ public partial class StructurePainter : TileMapLayer
     {
         if (OpenDoors.Contains(source)) yield break;
 
-        if (source >= SourceSpruce0 && source <= SourceSpruce0 + 2)
+        if (IsTreeSource(source))
         {
-            // Trunks are thin; you can brush past a tree.
-            yield return SmallDiamond;
+            // Bush is passable (slowly, for the pathfinder); no collision.
             yield break;
         }
         if (SolidProps.Contains(source))

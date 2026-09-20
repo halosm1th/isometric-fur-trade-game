@@ -1,0 +1,26 @@
+[gd_resource type="SpriteFrames" load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/animals/beaver_0.png" id="t1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/animals/beaver_1.png" id="t2"]
+
+[resource]
+animations = [{
+"name": &"idle",
+"speed": 4.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t1")
+}]
+}, {
+"name": &"walk",
+"speed": 6.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("t2")
+}]
+}]

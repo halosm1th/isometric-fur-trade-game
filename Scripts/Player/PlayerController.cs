@@ -15,10 +15,17 @@ public partial class PlayerController : Agent
 
 	private AnimatedSprite2D _sprite;
 	private bool _busy;   // eating or drinking: no walking until the animation ends
+	private UI.DialogueMenu _dialogue;
+
+	public Npc Spouse;
 
 	public override void _Ready()
 	{
 		_sprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
+		DisplayName = "Thomas Ross";
+		Faction = Faction.HBC;
+		Sim.Player = this;
+		CallDeferred(nameof(FindDialogue));
 		_sprite.AnimationFinished += () => { string a = _sprite.Animation; if (a == "eat" || a == "drink") _busy = false; };
 
 		// What a new hand stepping off the ship would carry.
@@ -26,7 +33,11 @@ public partial class PlayerController : Agent
 		Inventory.Add(ItemId.DriedGoose, 2);
 		Inventory.Add(ItemId.Firewood, 4);
 		Inventory.Add(ItemId.Capote, 1);
+		Inventory.Add(ItemId.Knife, 1);
+		Inventory.Add(ItemId.TradeGoods, 6);
 	}
+
+	private void FindDialogue() => _dialogue = GetTree().GetFirstNodeInGroup("dialogue") as UI.DialogueMenu;
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
@@ -40,6 +51,27 @@ public partial class PlayerController : Agent
 			return;
 		}
 		if (_busy) return;
+		if (_dialogue != null && _dialogue.IsOpen) return;
+
+		// Left click: strike whoever is under the cursor with what you carry.
+		if (@event is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left })
+		{
+			var target = AgentUnderCursor();
+			if (target != null) TryAttack(target);
+			return;
+		}
+		if (@event.IsActionPressed("attack_nearest"))
+		{
+			Agent best = null; float bestD = 400f;
+			foreach (var a in Sim.AgentsWithin(GlobalPosition, 400f))
+			{
+				if (a == this || !IsHostileTo(a)) continue;
+				float d = GlobalPosition.DistanceTo(a.GlobalPosition);
+				if (d < bestD) { bestD = d; best = a; }
+			}
+			if (best != null) TryAttack(best); else EmitSignal(SignalName.Notice, "Nothing hostile within reach.");
+			return;
+		}
 
 		if (@event.IsActionPressed("interact"))
 		{
@@ -51,9 +83,59 @@ public partial class PlayerController : Agent
 		}
 	}
 
-	// E: pick up what's at your feet, else work a door, else tend a fire.
+	private Agent AgentUnderCursor()
+	{
+		var mouse = GetGlobalMousePosition();
+		Agent best = null; float bestD = 70f;
+		foreach (var a in Sim.AgentsWithin(mouse, 120f))
+		{
+			if (a == this) continue;
+			// Sprites stand above their feet; test against the body's middle.
+			float d = (a.GlobalPosition + new Vector2(0, -40)).DistanceTo(mouse);
+			if (d < bestD) { bestD = d; best = a; }
+		}
+		return best;
+	}
+
+	private void TryAttack(Agent target)
+	{
+		var (dmg, range, _) = AttackProfile();
+		float dist = GlobalPosition.DistanceTo(target.GlobalPosition);
+		if (dist > range + 20f) { EmitSignal(SignalName.Notice, $"Too far for the {(Weapon != null ? Items.Items.Of(Weapon.Value).Name.ToLower() : "fist")}."); return; }
+		if (!CanAttack) return;
+		_sprite.FlipH = target.GlobalPosition.X < GlobalPosition.X;
+		bool hit = Attack(target);
+		string what = Weapon != null ? Items.Items.Of(Weapon.Value).Name : "fists";
+		if (hit) EmitSignal(SignalName.Notice, target.IsDead ? $"{target.Describe()} is dead." : $"You strike {target.Describe()} with your {what.ToLower()}.");
+		else EmitSignal(SignalName.Notice, "Missed.");
+	}
+
+	// E: talk to whoever is close, else pick up, loot a body, work a door, look at a fire.
 	private void Interact()
 	{
+		var npc = NearestNpc(110f);
+		if (npc != null && !npc.IsDead && _dialogue != null)
+		{
+			npc.FaceToward(GlobalPosition);
+			_dialogue.Open(npc);
+			return;
+		}
+		var body = NearestCorpse(110f);
+		if (body != null)
+		{
+			if (body is Animal animal)
+			{
+				EmitSignal(SignalName.Notice, animal.Butcher(Inventory) ? $"You butcher the {animal.Describe().ToLower()}." : "Nothing more to take.");
+			}
+			else
+			{
+				int moved = 0;
+				foreach (var (id, n) in new System.Collections.Generic.List<(ItemId, int)>(body.Inventory.All())) { body.Inventory.Remove(id, n); Inventory.Add(id, n); moved += n; }
+				EmitSignal(SignalName.Notice, moved > 0 ? $"You take what {body.Describe()} carried." : "Nothing left on the body.");
+			}
+			return;
+		}
+
 		var pickup = NearestPickup();
 		if (pickup != null)
 		{
@@ -63,7 +145,7 @@ public partial class PlayerController : Agent
 			return;
 		}
 
-		var structures = GetTree().GetFirstNodeInGroup("structures") as StructurePainter;
+		var structures = Sim.Structures;
 		if (structures == null) return;
 		if (structures.TryToggleDoorNear(Position)) return;
 
@@ -74,6 +156,30 @@ public partial class PlayerController : Agent
 				? $"You put a log on the fire. ({hearth.FuelHours:0.#} h of fuel)"
 				: (Inventory.Has(ItemId.Firewood) ? "" : "No firewood to burn."));
 		}
+	}
+
+	private Npc NearestNpc(float reach)
+	{
+		Npc best = null; float bestD = reach;
+		foreach (var a in Sim.AgentsWithin(GlobalPosition, reach))
+		{
+			if (a is not Npc n || n.IsDead) continue;
+			float d = GlobalPosition.DistanceTo(a.GlobalPosition);
+			if (d < bestD) { bestD = d; best = n; }
+		}
+		return best;
+	}
+
+	private Agent NearestCorpse(float reach)
+	{
+		Agent best = null; float bestD = reach;
+		foreach (var node in GetTree().GetNodesInGroup("corpses"))
+		{
+			if (node is not Agent a || !IsInstanceValid(a)) continue;
+			float d = GlobalPosition.DistanceTo(a.GlobalPosition);
+			if (d < bestD) { bestD = d; best = a; }
+		}
+		return best;
 	}
 
 	private WorldItem NearestPickup()
@@ -113,7 +219,7 @@ public partial class PlayerController : Agent
 				return $"You drink the {def.Name.ToLower()}.";
 
 			case ItemKind.Fuel:
-				var structures = GetTree().GetFirstNodeInGroup("structures") as StructurePainter;
+				var structures = Sim.Structures;
 				var hearth = structures?.HearthNear(GlobalPosition);
 				if (hearth == null) return "No fire near enough to feed.";
 				FeedFire(id);

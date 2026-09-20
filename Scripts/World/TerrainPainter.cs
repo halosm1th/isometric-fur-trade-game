@@ -43,6 +43,7 @@ public partial class TerrainPainter : TileMapLayer
         if (!Engine.IsEditorHint())
         {
             AddToGroup("terrain");
+            Sim.Terrain = this;
             PlacePlayer();
             var cal = GameCalendar.Instance;
             if (cal != null)

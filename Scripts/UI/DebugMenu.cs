@@ -54,6 +54,70 @@ public partial class DebugMenu : Control
 
         BuildCalendarSection();
         BuildPlayerSection();
+        CallDeferred(nameof(BuildWorldSections));
+    }
+
+    private void BuildWorldSections()
+    {
+        var fort = Sim.Fort;
+        if (fort != null)
+        {
+            const string S = "London & the post";
+            AddSlider(S, "Pelt price now", 0.2f, 3f, 0.1f, () => fort.PeltPrice, v => fort.PeltPrice = v);
+            AddSlider(S, "Next ship's price", 0.2f, 3f, 0.1f, () => fort.LondonIncentiveNext, v => fort.LondonIncentiveNext = v);
+            AddSlider(S, "Quota (MB)", 10f, 300f, 5f, () => fort.QuotaMb, v => { fort.QuotaMb = v; fort.QuotaNextMb = v; }, "0");
+            AddReadout(S, () =>
+            {
+                int mouths = 0; foreach (var n in Sim.Npcs) if (n.Faction == Agents.Faction.HBC && !n.IsDead) mouths++;
+                return $"Stores: {fort.Stores.Summary()}\nFurs in store {fort.FursInStoreMb:0} MB; food for {fort.FoodDays(mouths + 1):0} days ({mouths} men)";
+            });
+            AddButtonRow(S,
+                ("+50 trade goods", () => fort.Stores.Add(ItemId.TradeGoods, 50)),
+                ("+50 food", () => fort.Stores.Add(ItemId.DriedGoose, 50)),
+                ("Empty food", () => { foreach (var id in new[] { ItemId.Pemmican, ItemId.DriedGoose, ItemId.Bread, ItemId.Venison, ItemId.Goose }) fort.Stores.TakeUpTo(id, 9999); }));
+        }
+        var band = Sim.Band;
+        if (band != null)
+        {
+            AddReadout("Cree band", () =>
+            {
+                int mouths = 0; foreach (var n in Sim.Npcs) if (n.Faction == Agents.Faction.Cree && !n.IsDead) mouths++;
+                return $"Cache: {band.Stores.Summary()}\nFood for {band.FoodDays(mouths):0} days ({mouths} people)";
+            });
+            AddButtonRow("Cree band", ("Empty their food", () => { foreach (var id in new[] { ItemId.Venison, ItemId.Goose, ItemId.DriedGoose, ItemId.Pemmican }) band.Stores.TakeUpTo(id, 9999); }));
+        }
+        var eco = Sim.Ecology;
+        if (eco != null)
+        {
+            const string S = "Wildlife";
+            AddReadout(S, () => eco.Report() + $"\nLive animals: {Sim.Animals.Count}");
+            AddButtonRow(S,
+                ("Sites x2", () => { foreach (var s in eco.Sites) s.Count = Mathf.Min(s.Capacity * 1.5f, s.Count * 2f); }),
+                ("Sites /2", () => { foreach (var s in eco.Sites) s.Count *= 0.5f; }),
+                ("Force scarcity", () => { foreach (var s in eco.Sites) { s.FoodStock = 0.1f; s.Count = s.Capacity * 1.2f; s.Scarcity = true; } }));
+            AddButton(S, "Wolf pack at the gate", () => eco.SpawnPackNear(Ecology.Species.Wolf, World.IsoGrid.ToWorld(World.WorldLayout.GateOutside) + new Vector2(300, 200), 4, true));
+            AddButton(S, "Starving caribou at the gate", () => eco.SpawnPackNear(Ecology.Species.Caribou, World.IsoGrid.ToWorld(World.WorldLayout.GateOutside) + new Vector2(-300, 250), 5, true));
+        }
+        var ship = Sim.Ship;
+        if (ship != null)
+        {
+            AddReadout("Ship", () => $"Ship: {ship.Status()}; crew {ship.Crew.Count}");
+            AddButtonRow("Ship", ("Summon ship now", ship.Summon), ("Order departure", ship.Depart));
+        }
+        AddReadout("People", () =>
+        {
+            var sb = new System.Text.StringBuilder();
+            foreach (var n in Sim.Npcs)
+            {
+                if (n.IsDead) continue;
+                sb.Append($"{n.DisplayName}: {n.GoalDescription} (H{n.Needs.Hunger:0} W{n.Needs.Warmth:0} T{n.Needs.Thirst:0} HP{n.Needs.Health:0})\n");
+            }
+            return sb.ToString();
+        });
+        AddButton("People", "Teleport me to the camp", () => _player.GlobalPosition = World.IsoGrid.ToWorld(World.IsoGrid.Cell(World.WorldLayout.CampCentre, 2, 1)));
+        AddButton("People", "Teleport me to the wharf", () => _player.GlobalPosition = World.IsoGrid.ToWorld(World.WorldLayout.WharfRoot));
+        AddButton("People", "Teleport me to the trading room", () => _player.GlobalPosition = World.IsoGrid.ToWorld(World.WorldLayout.Depot.Centre));
+        Refresh();
     }
 
     public override void _UnhandledInput(InputEvent @event)

@@ -1,0 +1,285 @@
+using System;
+using System.Collections.Generic;
+using Godot;
+using IsometricFurTradeGame.Scripts.Agents;
+using IsometricFurTradeGame.Scripts.Core;
+using IsometricFurTradeGame.Scripts.Items;
+using IsometricFurTradeGame.Scripts.Player;
+
+namespace IsometricFurTradeGame.Scripts.UI;
+
+// "Talk" (design doc 3.6): a topic menu built from what this particular
+// person is, wants, and thinks of you. Not a hand-authored tree.
+public partial class DialogueMenu : Control
+{
+    [Export] public NodePath PlayerPath;
+
+    private PlayerController _player;
+    private Npc _npc;
+    private PanelContainer _panel;
+    private VBoxContainer _box;
+    private Label _title, _body;
+    private VBoxContainer _options;
+    private readonly List<Button> _buttons = new();
+
+    public bool IsOpen => _panel.Visible;
+
+    public override void _Ready()
+    {
+        _player = GetNodeOrNull<PlayerController>(PlayerPath);
+        _panel = new PanelContainer { Visible = false };
+        _panel.SetAnchorsPreset(LayoutPreset.CenterBottom);
+        _panel.GrowHorizontal = GrowDirection.Both; _panel.GrowVertical = GrowDirection.Begin;
+        _panel.Position = new Vector2(0, -110);
+        var style = new StyleBoxFlat { BgColor = new Color(0.08f, 0.07f, 0.06f, 0.94f), BorderColor = new Color(0.7f, 0.58f, 0.35f) };
+        style.SetBorderWidthAll(2); style.SetCornerRadiusAll(4); style.SetContentMarginAll(12);
+        _panel.AddThemeStyleboxOverride("panel", style);
+        AddChild(_panel);
+
+        _box = new VBoxContainer { CustomMinimumSize = new Vector2(520, 0) };
+        _box.AddThemeConstantOverride("separation", 6);
+        _panel.AddChild(_box);
+        _title = new Label(); _title.AddThemeFontSizeOverride("font_size", 17); _box.AddChild(_title);
+        _body = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(500, 0) };
+        _body.AddThemeFontSizeOverride("font_size", 13);
+        _body.Modulate = new Color(0.9f, 0.88f, 0.8f);
+        _box.AddChild(_body);
+        _options = new VBoxContainer(); _options.AddThemeConstantOverride("separation", 2); _box.AddChild(_options);
+    }
+
+    public void Open(Npc npc)
+    {
+        _npc = npc;
+        _panel.Visible = true;
+        ShowTopics(Greeting(npc));
+    }
+
+    public void Close()
+    {
+        _panel.Visible = false;
+        _npc = null;
+    }
+
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (!IsOpen) return;
+        if (@event.IsActionPressed("ui_cancel") || @event.IsActionPressed("interact")) { Close(); GetViewport().SetInputAsHandled(); return; }
+        for (int i = 0; i < _buttons.Count && i < 9; i++)
+        {
+            if (@event.IsActionPressed($"hotbar_{i + 1}")) { _buttons[i].EmitSignal(BaseButton.SignalName.Pressed); GetViewport().SetInputAsHandled(); return; }
+        }
+    }
+
+    private string Greeting(Npc npc)
+    {
+        float r = npc.RapportWith(_player);
+        string mood = r > 40 ? "warmly" : r > 10 ? "civilly" : r < -20 ? "coldly" : "";
+        string role = npc.Role switch
+        {
+            Role.Factor => "the Factor, master of this post",
+            Role.Clerk => "a clerk of the Company",
+            Role.Labourer => "a Company labourer",
+            Role.Woman => "a woman of the post",
+            Role.CreeChief => "leading man of the band camped by the river",
+            Role.CreeHunter => "a hunter of the band",
+            Role.CreeWoman => "a woman of the band",
+            Role.CreeDaughter => npc.Father != null ? $"{npc.Father.DisplayName}'s daughter" : "a young woman of the band",
+            Role.Sailor => "one of the ship's people",
+            Role.Wife => "your wife",
+            _ => "",
+        };
+        string busy = npc.Brain.Top != null ? $" They seem occupied - {npc.Brain.Top.Label}." : "";
+        return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{busy}";
+    }
+
+    private void ShowTopics(string text)
+    {
+        _title.Text = _npc.DisplayName;
+        _body.Text = text;
+        ClearOptions();
+        var npc = _npc;
+
+        AddOption("Ask how things stand", () => ShowTopics(AskNews(npc)));
+        if (npc.Faction == Faction.Cree && npc.Role is Role.CreeChief or Role.CreeHunter)
+            AddOption("Ask about the hunting", () => ShowTopics(AskHunting(npc)));
+        if (npc.Role == Role.Factor) AddOption("Ask for work", () => ShowTopics(AskForWork(npc)));
+        if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief)
+            AddOption("Trade", () => ShowTrade(npc));
+        AddOption("Give a gift", () => ShowGive(npc));
+        if (npc.Role == Role.CreeChief || (npc.Role == Role.CreeHunter && npc.Children.Count > 0))
+        {
+            foreach (var d in npc.Children)
+                if (d.Role == Role.CreeDaughter && d.Spouse == null && !d.IsDead)
+                    AddOption($"Ask for {d.DisplayName}'s hand", () => ShowTopics(Propose(npc, d)));
+        }
+        AddOption("Leave", Close);
+    }
+
+    private void ClearOptions()
+    {
+        foreach (var b in _buttons) b.QueueFree();
+        _buttons.Clear();
+    }
+
+    private void AddOption(string label, Action action)
+    {
+        var b = new Button { Text = $"{_buttons.Count + 1}. {label}", Alignment = HorizontalAlignment.Left };
+        b.Pressed += action;
+        _options.AddChild(b);
+        _buttons.Add(b);
+    }
+
+    // ---- topics ---------------------------------------------------------
+
+    private string AskNews(Npc npc)
+    {
+        var cal = GameCalendar.Instance; var fort = Sim.Fort; var band = Sim.Band;
+        string s = "";
+        int mouths = 0;
+        if (npc.Faction == Faction.HBC || npc.Faction == Faction.ShipsCrew)
+        {
+            foreach (var n in Sim.Npcs) if (n.Faction == Faction.HBC && !n.IsDead) mouths++;
+            float days = fort?.FoodDays(mouths + 1) ?? 0f;
+            s += days < 20 ? "\"The stores are thin. We'll be on short rations before the geese come.\" " : "\"We're provisioned well enough.\" ";
+            if (Sim.Ship != null && Sim.Ship.IsDocked) s += "\"The ship's in - every man to the landing.\" ";
+            else if (cal.Month >= 6 && cal.Month <= 8) s += "\"We look for the ship any day now.\" ";
+            if (fort != null) s += $"\"We hold {fort.FursInStoreMb:0} Made Beaver in furs against London's {fort.QuotaMb:0}.\" ";
+            if (npc.Role == Role.Labourer && npc.AssignedTaskName != "") s += $"\"Mr. Auld has me set to {npc.AssignedTaskName}.\" ";
+        }
+        else if (npc.Faction == Faction.Cree)
+        {
+            foreach (var n in Sim.Npcs) if (n.Faction == Faction.Cree && !n.IsDead) mouths++;
+            float days = band?.FoodDays(mouths) ?? 0f;
+            s += days < 5 ? "\"The camp is hungry. The hunters go out every day and come back light.\" " : "\"There is meat in the camp.\" ";
+            if (fort != null) s += fort.PeltPrice >= 1.3f ? "\"The Company pays well for beaver this year. Everyone is on the trapline.\" "
+                : fort.PeltPrice <= 0.7f ? "\"The Company's price is poor. It is hardly worth the walk to the post.\" " : "\"The Company's price is fair.\" ";
+        }
+        if (npc.Personality.Talkative > 0.6f)
+        {
+            foreach (var other in Sim.Npcs)
+            {
+                if (other.IsDead) { s += $"\"You heard {other.DisplayName} is dead?\" "; break; }
+            }
+        }
+        npc.ChangeRapport(_player, 1f);
+        return s == "" ? "\"Nothing to tell.\"" : s;
+    }
+
+    private string AskHunting(Npc npc)
+    {
+        var eco = Sim.Ecology;
+        if (eco == null) return "\"...\"";
+        string s = "";
+        foreach (var site in eco.Sites)
+        {
+            if (site.IsDead) s += $"\"{site.Name} is finished - hunted out. Nothing comes back there.\" ";
+            else if (site.Scarcity) s += $"\"{site.Name} is crowded and hungry; the animals are wandering toward your post.\" ";
+            else if (site.Count < site.Capacity * 0.4f) s += $"\"{site.Name} is getting thin.\" ";
+        }
+        // Knowledge is currency (design doc 10): the sites are told, not shown.
+        npc.ChangeRapport(_player, 1f);
+        return s == "" ? "\"The country is in good heart. Game everywhere it should be.\"" : s;
+    }
+
+    private string AskForWork(Npc factor)
+    {
+        var ship = Sim.Ship;
+        if (ship != null && ship.IsDocked) return "\"Work? The ship is in, man. Get down to the landing and carry.\"";
+        var threats = 0;
+        foreach (var a in Sim.Animals) if (!a.IsDead && a.IsDangerous) threats++;
+        if (threats > 0) return "\"There are beasts about the post. Take a musket from the stores and see them off.\"";
+        return "\"Keep the fires up and the woodpile high. When the ship comes you'll have work enough.\"";
+    }
+
+    private void ShowTrade(Npc npc)
+    {
+        var fort = Sim.Fort; var band = Sim.Band;
+        Inventory counter = npc.Faction == Faction.Cree ? band?.Stores : fort?.Stores;
+        if (counter == null) { ShowTopics("\"Nothing to trade.\""); return; }
+        _body.Text = npc.Faction == Faction.Cree
+            ? "The band will trade meat and hides for goods, one for one by worth."
+            : $"The Company sells from the stores at cost and buys furs at {fort.PeltPrice:0.00} MB in goods per MB.";
+        ClearOptions();
+
+        // Sell furs / buy with trade goods.
+        foreach (var (id, n) in new List<(ItemId, int)>(_player.Inventory.All()))
+        {
+            var def = Items.Items.Of(id);
+            if (npc.Faction != Faction.Cree && def.Kind == ItemKind.Fur)
+            {
+                int pay = Mathf.Max(1, Mathf.RoundToInt(def.ValueMb * fort.PeltPrice));
+                if (counter.Count(ItemId.TradeGoods) >= pay)
+                    AddOption($"Sell {def.Name} for {pay} trade goods", () =>
+                    {
+                        _player.Inventory.Remove(id); counter.Add(id); counter.Remove(ItemId.TradeGoods, pay); _player.Inventory.Add(ItemId.TradeGoods, pay);
+                        fort.FursTakenMb += def.ValueMb; fort.GoodsPaidMb += pay;
+                        ShowTrade(npc);
+                    });
+            }
+            if (_buttons.Count >= 4) break;
+        }
+        // Buy from the counter with trade goods (or furs at the camp).
+        int shown = 0;
+        foreach (var (id, n) in new List<(ItemId, int)>(counter.All()))
+        {
+            var def = Items.Items.Of(id);
+            if (def.Kind == ItemKind.Fur && npc.Faction != Faction.Cree) continue;
+            if (id == ItemId.TradeGoods) continue;
+            int cost = Mathf.Max(1, Mathf.CeilToInt(def.ValueMb * (def.Kind == ItemKind.Food ? fort.FoodPriceMultiplier : 1f)));
+            ItemId currency = ItemId.TradeGoods;
+            if (_player.Inventory.Count(currency) >= cost)
+            {
+                AddOption($"Buy {def.Name} ({n} in store) for {cost} trade goods", () =>
+                {
+                    counter.Remove(id); _player.Inventory.Add(id); _player.Inventory.Remove(currency, cost); counter.Add(currency, cost);
+                    ShowTrade(npc);
+                });
+                if (++shown >= 4) break;
+            }
+        }
+        if (_buttons.Count == 0) _body.Text += "\n\nYou have nothing they want, or they nothing you can pay for. Trade goods are the coin here.";
+        AddOption("Back", () => ShowTopics(Greeting(npc)));
+    }
+
+    private void ShowGive(Npc npc)
+    {
+        _body.Text = "A gift, freely given, is remembered.";
+        ClearOptions();
+        int shown = 0;
+        foreach (var (id, n) in new List<(ItemId, int)>(_player.Inventory.All()))
+        {
+            var def = Items.Items.Of(id);
+            AddOption($"Give {def.Name} (worth {def.ValueMb:0.#} MB)", () =>
+            {
+                _player.Inventory.Remove(id); npc.Inventory.Add(id);
+                float gain = 4f + def.ValueMb * 6f;
+                npc.ChangeRapport(_player, gain);
+                ShowTopics($"{npc.DisplayName} accepts the {def.Name.ToLower()}. (rapport {npc.RapportWith(_player):0})");
+            });
+            if (++shown >= 7) break;
+        }
+        AddOption("Back", () => ShowTopics(Greeting(npc)));
+    }
+
+    // Marriage (design doc 8): standing with the father, a bride-price in
+    // goods already given, and the HBC rule of one wife.
+    private string Propose(Npc father, Npc daughter)
+    {
+        if (_player.Spouse != null) return "\"You have a wife already. The Company allows a man one.\"";
+        float rapport = father.RapportWith(_player);
+        float gifts = father.Inventory.TotalValueMb;
+        if (rapport < 30f) return $"{father.DisplayName} hears you out and says nothing. You are a stranger to him yet. (rapport {rapport:0}, needs 30)";
+        if (gifts < 8f) return $"\"A daughter is not given for nothing.\" He looks at what you have brought him. (gifts worth {gifts:0.#} MB, wants 8)";
+        daughter.Spouse = _player;
+        _player.Spouse = daughter;
+        daughter.Role = Role.Wife;
+        daughter.HomeStores = Sim.Fort;
+        daughter.BedCell = World.IsoGrid.Cell(World.WorldLayout.Depot.Top, 4, 3);
+        daughter.WorkCell = World.WorldLayout.Depot.Centre;
+        daughter.Brain.Clear(daughter);
+        daughter.ResetBehaviour();
+        foreach (var n in Sim.Npcs) if (n.Faction == Faction.Cree) n.ChangeRapport(_player, 10f);
+        Sim.Notice($"{daughter.DisplayName} has married {_player.DisplayName} in the custom of the country and moves into the post.");
+        return $"\"So be it.\" {daughter.DisplayName} will come to live at the post. Her family is now your family.";
+    }
+}
