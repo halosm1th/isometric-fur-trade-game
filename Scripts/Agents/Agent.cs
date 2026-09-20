@@ -22,6 +22,7 @@ public partial class Agent : CharacterBody2D
     public bool IsSprinting { get; protected set; }
 
     public bool IsDead => Needs.IsDead;
+    public bool Invulnerable { get => Needs.Invulnerable; set => Needs.Invulnerable = value; }
     public bool IsSheltered { get; private set; }
 
     // 0..1 warmth reaching this agent from the nearest fire.

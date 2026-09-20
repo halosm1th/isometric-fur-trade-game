@@ -29,7 +29,7 @@ public partial class GameCalendar : Node
     [Export] public int Day = 1;
     [Export] public float Hour = 9f;
 
-    [Export] public float SecondsPerGameHour = 20f;
+    [Export] public float SecondsPerGameHour = 10f;
     [Export] public float FastForwardMultiplier = 40f;
     [Export] public bool Paused = false;
 
@@ -37,6 +37,45 @@ public partial class GameCalendar : Node
 
     // Game hours that elapsed during the last frame; agents tick off this.
     public float DeltaGameHours { get; private set; }
+
+    // Hours still to burn through at skip speed (sleeping, waiting).
+    public float SkipRemaining { get; private set; }
+    public bool IsSkipping => SkipRemaining > 0f;
+    private const float SkipSpeed = 400f;
+    // Simulation stays sane if no frame ever covers more than this.
+    private const float MaxDeltaHours = 0.25f;
+
+    // Fractional day-of-year, useful for anything seasonal.
+    public float DayOfYear
+    {
+        get { float d = Day; for (int m = 0; m < Month - 1; m++) d += DaysInMonth[m]; return d + Hour / 24f; }
+    }
+
+    // Skip forward. Used by the wait key and the debug menu.
+    public void SkipHours(float hours) => SkipRemaining += Mathf.Max(0f, hours);
+
+    public void SkipUntilHour(float hour)
+    {
+        float diff = hour - Hour;
+        if (diff <= 0.01f) diff += 24f;
+        SkipHours(diff);
+    }
+
+    // Debug: jump straight to a date. Fires SeasonChanged if needed but not
+    // the events in between - it's a teleport, not a simulation.
+    public void SetDate(int year, int month, int day, float hour)
+    {
+        Year = year; Month = Mathf.Clamp(month, 1, 12);
+        Day = Mathf.Clamp(day, 1, DaysInMonth[Month - 1]); Hour = Mathf.Clamp(hour, 0f, 23.99f);
+        _lastHour = Mathf.FloorToInt(Hour);
+        var season = SeasonFor(Month);
+        if (season != CurrentSeason)
+        {
+            CurrentSeason = season;
+            EmitSignal(SignalName.SeasonChanged, (int)season);
+        }
+        EmitSignal(SignalName.DayPassed, Year, Month, Day);
+    }
 
     private int _startYear, _startMonth, _startDay;
     private float _startHour;
@@ -97,7 +136,13 @@ public partial class GameCalendar : Node
         if (Paused) { DeltaGameHours = 0f; return; }
 
         float speed = Input.IsActionPressed("time_fast") ? FastForwardMultiplier : 1f;
-        DeltaGameHours = (float)delta / SecondsPerGameHour * speed;
+        if (SkipRemaining > 0f) speed = SkipSpeed;
+        DeltaGameHours = Mathf.Min(MaxDeltaHours, (float)delta / SecondsPerGameHour * speed);
+        if (SkipRemaining > 0f)
+        {
+            DeltaGameHours = Mathf.Min(DeltaGameHours, SkipRemaining);
+            SkipRemaining -= DeltaGameHours;
+        }
         Hour += DeltaGameHours;
 
         int h = Mathf.FloorToInt(Hour);

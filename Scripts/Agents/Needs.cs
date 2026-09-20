@@ -30,6 +30,8 @@ public class Needs
 
     public bool IsDead => Health <= 0f;
 
+    public bool Invulnerable;
+
     public void Tick(float gameHours, float activity, bool sheltered, float heat, float clothingWarmth, Season season, float daylight)
     {
         if (gameHours <= 0f || IsDead) return;
@@ -49,7 +51,7 @@ public class Needs
         if (Warmth <= 0f) damage += 6f;
         if (Thirst <= 0f) damage += 5f;
         if (Hunger <= 0f) damage += 3f;
-        Health = Mathf.Clamp(Health - damage * gameHours, 0f, 100f);
+        if (!Invulnerable) Health = Mathf.Clamp(Health - damage * gameHours, 0f, 100f);
     }
 
     // 1.0 at full capability, falling toward 0.5 as any need runs low.

@@ -87,5 +87,14 @@ public partial class Hearth : Node2D
         return falloff * Intensity;
     }
 
+    // What you see when you look at the fire.
+    public string Describe()
+    {
+        if (!IsBurning) return "The fire is out. Cold ash.";
+        if (FuelHours < 1.5f) return $"The fire is down to embers - {FuelHours:0.#} h left. It wants wood.";
+        if (FuelHours < 5f) return $"The fire is burning low - about {FuelHours:0.#} h of fuel.";
+        return $"The fire is burning well - about {FuelHours:0.#} h of fuel.";
+    }
+
     public void Feed(float hours) => FuelHours = Mathf.Min(MaxFuelHours, FuelHours + hours);
 }
