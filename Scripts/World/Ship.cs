@@ -93,6 +93,14 @@ public partial class Ship : Node2D
         Current = State.Departing;
         float mb = Hold.TotalValueMb;
         Sim.Notice($"The ship has sailed for London with {mb:0} MB of furs aboard" + (Sim.Fort != null ? $" (quota was {Sim.Fort.QuotaMb:0})." : "."));
+        foreach (var pc in Sim.Players())
+        {
+            if (pc.Faction != Faction.HBC) continue;
+            string was = pc.Rank;
+            pc.Rank = pc.Standing >= 60f ? "postmaster" : pc.Standing >= 35f ? "clerk" : pc.Standing >= 15f ? "labourer" : "on notice";
+            if (pc.Rank != was) pc.Say(pc.Standing >= 35f ? $"The Factor writes well of you in the accounts that sail today. You are rated {pc.Rank}." : $"The Factor's report on you is cool. You are rated {pc.Rank}.");
+            if (pc.Rank == "clerk" || pc.Rank == "postmaster") pc.Inventory.Add(Items.ItemId.TradeGoods, pc.Rank == "postmaster" ? 12 : 6);
+        }
         if (Sim.Fort != null)
         {
             Economy.LondonCommittee.ReviewReturns(Sim.Fort, mb);

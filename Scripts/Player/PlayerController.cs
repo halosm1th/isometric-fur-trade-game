@@ -44,6 +44,8 @@ public partial class PlayerController : Agent
 	public readonly HashSet<string> KnownSites = new();
 	// Things you've seen happen (keys into the Chronicle).
 	public readonly HashSet<string> Known = new();
+	public readonly List<string> Journal = new();
+	public string Rank = "labourer";
 	// Time-skip agreement: how many hours this player wants to skip (0 = none).
 	public float WantsSkipHours;
 	// Server-side conversation state with whoever you're talking to.
@@ -327,7 +329,8 @@ public partial class PlayerController : Agent
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "",
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
-			["drunk"] = Intoxication, ["sick"] = SickDaysLeft,
+			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank,
+			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
 		};
 		_oneShotAnim = ""; _teleported = false;
 		return d;
@@ -349,7 +352,8 @@ public partial class PlayerController : Agent
 		if ((bool)d["tele"]) GlobalPosition = new Vector2((float)d["px"], (float)d["py"]);
 		Faction = (Faction)(int)d["faction"];
 		_afloatMirror = (bool)d["afloat"];
-		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"];
+		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"]; Rank = (string)d["rank"];
+		Journal.Clear(); foreach (var e in (Godot.Collections.Array)d["journal"]) Journal.Add((string)e);
 		bool dead = (bool)d["dead"];
 		if (dead && !wasDead) EmitSignal(SignalName.Died);
 		if (!dead && wasDead) EmitSignal(SignalName.Revived);

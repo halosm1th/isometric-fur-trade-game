@@ -239,6 +239,8 @@ public partial class Npc : Agent
         // Being attacked: fight back if there's a chance, else run.
         if (LastAttackedAgo < 2f && LastAttacker != null && IsInstanceValid(LastAttacker) && !LastAttacker.IsDead)
         {
+            // A quarrel among your own people stays a quarrel: fists, not muskets.
+            if (LastAttacker is Npc kin && kin.Faction == Faction) { Brain.Push(this, new BrawlGoal(kin)); return; }
             bool armed = Weapon != null;
             bool brave = Personality.Courage > 0.35f || armed;
             if (brave && Needs.Health > 30f) Brain.Push(this, new AttackGoal(LastAttacker));
@@ -456,6 +458,7 @@ public partial class Npc : Agent
     {
         base.TakeDamage(amount, from);
         if (from == null || from == this || IsDead) return;
+        if (from is Npc same && same.Faction == Faction) return;   // a brawl, not an attack on the house
         if (from is not Animal) Chronicle.Event($"{from.Describe()} struck {DisplayName}.", GlobalPosition, from, DisplayName, 1f);
         foreach (var a in Sim.AgentsWithin(GlobalPosition, 500f))
         {

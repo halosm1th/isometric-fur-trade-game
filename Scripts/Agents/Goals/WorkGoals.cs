@@ -89,7 +89,7 @@ public class HuntSiteGoal : Goal
     {
         var store = npc.HomeStores;
         if (store == null) return;
-        foreach (var id in new[] { ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.BeaverPelt, ItemId.CaribouHide, ItemId.WolfPelt })
+        foreach (var id in new[] { ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.CaribouHide, ItemId.WolfPelt })
         {
             int n = npc.Inventory.Count(id);
             int keep = Items.Items.Of(id).Kind == ItemKind.Food ? 1 : 0;
@@ -176,7 +176,7 @@ public class CheckTraplineGoal : Goal
                 var store = npc.HomeStores;
                 if (store != null)
                 {
-                    foreach (var id in new[] { ItemId.BeaverPelt, ItemId.Venison })
+                    foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.Venison })
                     {
                         int n = npc.Inventory.Count(id); int keep = id == ItemId.Venison ? 1 : 0;
                         if (n > keep) { npc.Inventory.Remove(id, n - keep); store.Stores.Add(id, n - keep); }
@@ -210,7 +210,7 @@ public class TradeTripGoal : Goal
             case 1:
                 if (!ChildFinished(out var r)) return GoalStatus.Running;
                 if (r != GoalStatus.Done) return GoalStatus.Failed;
-                foreach (var id in new[] { ItemId.BeaverPelt, ItemId.CaribouHide, ItemId.WolfPelt })
+                foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.CaribouHide, ItemId.WolfPelt })
                     npc.Inventory.Add(id, band.Stores.TakeUpTo(id, 30));
                 npc.Inventory.Add(ItemId.TradeGoods, band.Stores.TakeUpTo(ItemId.TradeGoods, _buyFood ? 10 : 0));
                 if (npc.Inventory.CountOfKind(ItemKind.Fur) == 0 && !npc.Inventory.Has(ItemId.TradeGoods)) return GoalStatus.Failed;
@@ -287,7 +287,7 @@ public class CarryCargoGoal : Goal
                 }
                 else
                 {
-                    foreach (var id in new[] { ItemId.BeaverPelt, ItemId.CaribouHide, ItemId.WolfPelt })
+                    foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.CaribouHide, ItemId.WolfPelt })
                     {
                         int take = fort.Stores.TakeUpTo(id, 6 - carried);
                         npc.Inventory.Add(id, take); carried += take;

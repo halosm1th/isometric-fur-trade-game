@@ -97,7 +97,7 @@ public partial class NeedsHud : Control
             string t = pc.IsServerCopy ? (pc.Task.Kind != Player.TaskKind.None ? pc.Task.Describe() + (pc.Task.IsComplete ? " - done" : "") : "") : pc.TaskText;
             string skip = pc.IsServerCopy ? (Net.Net.I?.SkipStatus() ?? "") : pc.SkipStatus;
             string company = pc.Faction == Agents.Faction.NWC ? "the North West Company" : "the Company";
-            task = (t != "" ? $"\n{t}" : "") + $"\nStanding with {company}: {pc.Standing:0}" + (skip != "" ? $"\n{skip}" : "");
+            task = (t != "" ? $"\n{t}" : "") + $"\nStanding with {company}: {pc.Standing:0} ({pc.Rank})" + (skip != "" ? $"\n{skip}" : "");
         }
         string weapon = _player.Weapon != null ? Items.Items.Of(_player.Weapon.Value).Name : "bare hands";
         if (_player.IsDrunk) weapon += "  |  drunk";

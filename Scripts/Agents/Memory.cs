@@ -43,6 +43,6 @@ public static class Chronicle
             if (a is Npc n && !n.IsDead) n.Remember(entry);
         }
         // Players always know what happens in front of them.
-        foreach (var pc in Sim.Players()) if (pc.GlobalPosition.DistanceTo(where) < WitnessRadius) pc.Known.Add(entry.Key);
+        foreach (var pc in Sim.Players()) if (pc.GlobalPosition.DistanceTo(where) < WitnessRadius) { pc.Known.Add(entry.Key); pc.Journal.Add($"{cal?.DateString}: {text}"); if (pc.Journal.Count > 40) pc.Journal.RemoveAt(0); }
     }
 }

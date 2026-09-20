@@ -24,6 +24,7 @@ public enum ItemId
     HideCoat,
     // Furs and trade
     BeaverPelt,
+    ThinPelt,
     CaribouHide,
     WolfPelt,
     TradeGoods,
@@ -69,6 +70,7 @@ public static class Items
         { ItemId.PointBlanket, new("Point blanket",  ItemKind.Clothing, 5.0f, IconDir + "blanket_pelt.png", Warmth: 4f, ValueMb: 4f) },
         { ItemId.HideCoat,     new("Hide coat",      ItemKind.Clothing, 5.0f, IconDir + "hide_coat.png",    Warmth: 6f, ValueMb: 2f) },
         { ItemId.BeaverPelt,   new("Beaver pelt",    ItemKind.Fur,      1.5f, IconDir + "beaver_pelt.png",  ValueMb: 1f) },
+        { ItemId.ThinPelt,     new("Summer pelt",    ItemKind.Fur,      1.2f, IconDir + "beaver_pelt.png",  ValueMb: 0.45f) },
         { ItemId.CaribouHide,  new("Caribou hide",   ItemKind.Fur,      6.0f, IconDir + "caribou_hide.png", ValueMb: 0.5f) },
         { ItemId.WolfPelt,     new("Wolf pelt",      ItemKind.Fur,      3.0f, IconDir + "wolf_pelt.png",    ValueMb: 0.6f) },
         { ItemId.TradeGoods,   new("Trade goods",    ItemKind.Goods,    3.0f, IconDir + "trade_goods.png",  ValueMb: 1f) },

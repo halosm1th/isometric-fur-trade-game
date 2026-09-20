@@ -33,7 +33,14 @@ public static class SpeciesInfo
         {
             case Species.Caribou: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 3); into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.CaribouHide, 1); break;
             case Species.Goose: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Goose, 1); break;
-            case Species.Beaver: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.BeaverPelt, 1); into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 1); break;
+            case Species.Beaver:
+            {
+                // Prime in winter, thin and worth half from June to September (design doc 14.4).
+                int m = IsometricFurTradeGame.Scripts.Core.GameCalendar.Instance?.Month ?? 1;
+                into.Add(m >= 6 && m <= 9 ? IsometricFurTradeGame.Scripts.Items.ItemId.ThinPelt : IsometricFurTradeGame.Scripts.Items.ItemId.BeaverPelt, 1);
+                into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 1);
+                break;
+            }
             case Species.Wolf: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.WolfPelt, 1); break;
         }
     }

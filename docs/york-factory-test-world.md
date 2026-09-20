@@ -33,6 +33,7 @@ Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--nam
 | Z | wait an hour; at night, sleep until 07:00 |
 | T | hold for fast-forward (×40) |
 | Tab | chat |
+| J | journal: what you have witnessed, dated |
 | F1 | test console (host only) |
 | R | restart after death |
 | Esc | close a menu |
@@ -144,6 +145,10 @@ Fire is an object on a wooden cell. It spreads to wooden neighbours each second 
 ## Fishing (design doc 14.4)
 
 A fishing line is in your kit: use it at the water's edge in open water (45% for 1-2 fish, a 3 s cooldown). Women fish for the pot when food runs short. Fish spoils like fresh meat.
+
+## Pelt quality and rank
+
+Beaver trapped from June to September come out as **summer pelts** worth 0.45 MB; winter pelts are prime at 1 MB (design doc 14.4). When the ship sails, the Factor's report rates each Company player from their standing: on notice (< 15), labourer, clerk (≥ 35, +6 goods), postmaster (≥ 60, +12). Shown after your standing on the HUD.
 
 ## Age (design doc 9.4)
 
