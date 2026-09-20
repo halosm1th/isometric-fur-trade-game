@@ -2,6 +2,21 @@
 
 *Written after the overnight build session (Sept 2026). Everything here is placeholder art and first-pass numbers; the point is that the loops run end to end so they can be watched and tuned.*
 
+## Playing together
+
+The main menu offers **Play alone**, **Host a game** (port 7777, up to 8), **Join a game** (ip or ip:port) and **Run a dedicated server**. Solo is just a host with nobody else connected - one code path.
+
+- The **host/server runs the whole simulation**: every NPC and animal brain, the ledgers, the ecology, the clock, the weather, the ship. Clients render what the server tells them and send requests.
+- A client **owns its own player's movement**; everything that touches the world (E, hotbar, attacks, trade, talk) is a request the server carries out, with the result sent back as a notice. Needs, inventory, standing and task are mirrored to the owner a few times a second.
+- **Time skips are agreed**: sleeping in a bed or pressing Z marks you as turning in; the clock jumps only when everyone alive has. The HUD shows "Turning in: 1/3". Moving cancels yours.
+- **Tab** opens chat; Enter sends; Esc cancels.
+- The F1 console belongs to the host.
+- Late joiners get the world state on arrival (agents, open doors, felled trees, clock, weather).
+- Death: R asks the server to respawn you at the gate as a new hand (−5 standing, fresh kit).
+- Windows will ask once to allow Godot through the firewall when you host; friends on the internet need port 7777 UDP forwarded or a VPN like Tailscale/Hamachi.
+
+Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--name=Name`. On a client `--spawn=depot` asks the server to move you there (debug builds), `--talk` opens a conversation after 4 s, `--provoke` picks a fight.
+
 ## Controls
 
 | Key | Action |
@@ -17,7 +32,8 @@
 | Q | drink (from water, or melt snow at a fire in winter) |
 | Z | wait an hour; at night, sleep until 07:00 |
 | T | hold for fast-forward (×40) |
-| F1 | test console |
+| Tab | chat |
+| F1 | test console (host only) |
 | R | restart after death |
 | Esc | close a menu |
 
