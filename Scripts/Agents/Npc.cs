@@ -602,6 +602,9 @@ public partial class Npc : Agent
 
     // ---- death ------------------------------------------------------------
 
+    // A body restored from a save: dead where it lay, no alarm.
+    public void DieQuietly() { Needs.Health = 0f; OnDeath(); }
+
     protected override void OnDeath()
     {
         base.OnDeath();

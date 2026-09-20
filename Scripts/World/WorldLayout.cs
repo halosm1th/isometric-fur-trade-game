@@ -84,7 +84,14 @@ public static class WorldLayout
     public static Vector2 ShipOffscreen => new(MapWidth * IsoGrid.TileW + 600, 700);
 
     // ---- the Cree camp ----------------------------------------------------
-    public static readonly Vector2I CampCentre = new(14, 140);
+    // The band follows the seasons (design doc 6, 14.1): the winter camp
+    // in the bush, and a summer camp on the trail beside the post for the
+    // trading season. CampCentre is wherever they are now.
+    public static readonly Vector2I WinterCamp = new(14, 140);
+    public static readonly Vector2I SummerCamp = new(23, 100);
+    public static Vector2I CampCentre { get; private set; } = WinterCamp;
+    public static void SetCamp(Vector2I centre) => CampCentre = centre;
+    public static bool IsSummerCamp => CampCentre == SummerCamp;
     public const float CampClearingPx = 460f;
     public static Vector2I CampFire => CampCentre;
     public static IEnumerable<Vector2I> TipiCells()
@@ -150,7 +157,8 @@ public static class WorldLayout
         if (c.Y < WaterRows + 8) return 0f;
         if (IsRiver(c) || IsRiverBank(c)) return 0f;
         if (TrailDistance(p) < 130f) return 0f;
-        if (p.DistanceTo(IsoGrid.ToWorld(CampCentre)) < CampClearingPx) return 0f;
+        if (p.DistanceTo(IsoGrid.ToWorld(WinterCamp)) < CampClearingPx) return 0f;
+        if (p.DistanceTo(IsoGrid.ToWorld(SummerCamp)) < CampClearingPx) return 0f;
         // Keep the fort's surroundings open.
         var fortCentre = IsoGrid.ToWorld(IsoGrid.Cell(FortTop, FortWidth / 2, FortDepth / 2));
         float fortDist = p.DistanceTo(fortCentre);

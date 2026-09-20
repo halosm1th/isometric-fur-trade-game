@@ -63,5 +63,6 @@ public partial class NwcLedger : FortLedger
         // mean a sharper price next winter (design doc 10.1.4).
         PeltPrice = Mathf.Clamp(shipped < QuotaMb * 0.7f ? PeltPrice * 1.2f : PeltPrice * 0.95f, 0.5f, 3f);
         Sim.Notice($"The brigade from Fort William has come and gone: {shipped:0} MB of furs off to Montreal, the outfit landed. The Nor'Westers will pay {PeltPrice:0.00} for beaver.");
+        (GetTree().GetFirstNodeInGroup("population") as Population)?.LandVoyageurs(3);
     }
 }

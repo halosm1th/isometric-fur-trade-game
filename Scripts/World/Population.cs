@@ -42,6 +42,7 @@ public partial class Population : Node2D
 
     private void SpawnAll()
     {
+        if (SaveGame.HasPending) { SaveGame.Restore(this); return; }
         var fort = Sim.Fort; var band = Sim.Band;
         var depot = WorldLayout.Depot; var mens = WorldLayout.MensHouse;
 
@@ -185,6 +186,53 @@ public partial class Population : Node2D
         npc.Name = $"npc_{npc.NetId}";
         Net.Net.I?.Announce(npc);
         return npc;
+    }
+
+    // The Company recruited in Orkney every year (design doc 5.5): the ship
+    // lands enough new hands to bring the post back to strength.
+    public int LandRecruits(int wanted)
+    {
+        var fort = Sim.Fort; var mens = WorldLayout.MensHouse;
+        if (fort == null) return 0;
+        int alive = 0;
+        var taken = new HashSet<string>();
+        foreach (var n in Sim.Npcs) { if (!n.IsDead) taken.Add(n.DisplayName); if (n.Faction == Faction.HBC && n.Role == Role.Labourer && !n.IsDead) alive++; }
+        int landed = 0;
+        for (int i = 0; alive + landed < wanted && i < OrkneyMen.Length; i++)
+        {
+            if (taken.Contains(OrkneyMen[i])) continue;
+            int slot = alive + landed;
+            var bed = slot < 5 ? IsoGrid.Cell(mens.Top, 1 + slot, 2) : IsoGrid.Cell(mens.Top, 1 + slot % 5, 3);
+            var m = Spawn(OrkneyMen[i], Role.Labourer, Faction.HBC, bed, IsoGrid.Cell(WorldLayout.FortTop, 8 + slot, 8), fort, _labourerFrames, Colors.White);
+            m.Inventory.Add(ItemId.Capote); m.Inventory.Add(ItemId.Knife); m.Inventory.Add(ItemId.Bread, 2);
+            m.Age = GD.RandRange(17, 24);
+            m.GlobalPosition = IsoGrid.ToWorld(WorldLayout.WharfEnd) + new Vector2(GD.RandRange(-40, 40), 30 + i * 10);
+            landed++;
+        }
+        if (landed > 0) Sim.Notice($"{landed} new hands off the ship from Stromness: {(landed == 1 ? "a green lad" : "green lads")} with a five-year contract.");
+        return landed;
+    }
+
+    // Fort William sends men north with the brigade the same way.
+    public int LandVoyageurs(int wanted)
+    {
+        var nwc = Sim.Nwc; var house = WorldLayout.NwcHouse;
+        if (nwc == null) return 0;
+        string[] names = { "Baptiste Lagimodiere", "Pierre Falcon", "Antoine Desjarlais", "Joseph Cadotte", "Louis Nolin", "Francois Deschamps", "Jean-Baptiste Lajimoniere" };
+        int alive = 0;
+        var taken = new HashSet<string>();
+        foreach (var n in Sim.Npcs) { if (!n.IsDead) taken.Add(n.DisplayName); if (n.Faction == Faction.NWC && n.Role == Role.Voyageur && !n.IsDead) alive++; }
+        int landed = 0;
+        for (int i = 0; alive + landed < wanted && i < names.Length; i++)
+        {
+            if (taken.Contains(names[i])) continue;
+            int slot = alive + landed;
+            var v = Spawn(names[i], Role.Voyageur, Faction.NWC, IsoGrid.Cell(house.Top, 2 + slot % 3, 3), IsoGrid.Cell(WorldLayout.NwcTop, 6, 5), nwc, _factorFrames, new Color(0.85f, 0.75f, 0.75f));
+            v.Inventory.Add(ItemId.Capote); v.Inventory.Add(ItemId.Knife); v.Inventory.Add(ItemId.Pemmican, 2);
+            landed++;
+        }
+        if (landed > 0) Sim.Notice($"{landed} voyageurs came north with the brigade to fill the Nor'Westers' ranks.");
+        return landed;
     }
 
     // A ship's crew, spawned on the wharf when she ties up.

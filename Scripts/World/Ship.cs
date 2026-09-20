@@ -27,6 +27,18 @@ public partial class Ship : Node2D
     private Population _population;
     private float _dockedHours;
     private bool _ordersRead;
+    public float DockedHours => _dockedHours;
+    public bool OrdersRead => _ordersRead;
+
+    // Put her back where a save left her.
+    public void Restore(State state, Vector2 pos, Inventory cargo, Inventory hold, float dockedHours, bool ordersRead)
+    {
+        Current = state; Position = pos; Visible = state != State.Away;
+        Cargo.Clear(); foreach (var (id, n) in cargo.All()) Cargo.Add(id, n);
+        Hold.Clear(); foreach (var (id, n) in hold.All()) Hold.Add(id, n);
+        _dockedHours = dockedHours; _ordersRead = ordersRead;
+        Crew.Clear();
+    }
 
     public override void _Ready()
     {
@@ -142,6 +154,7 @@ public partial class Ship : Node2D
 
     private void Dock()
     {
+        _population?.LandRecruits(6);
         Current = State.Docked;
         _dockedHours = 0f;
         Sim.Notice("The ship is alongside the wharf. All hands to the landing.");

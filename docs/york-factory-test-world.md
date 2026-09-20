@@ -35,6 +35,7 @@ Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--nam
 | Tab | chat |
 | J | journal: what you have witnessed, dated |
 | F1 | test console (host only) |
+| F5 / F9 | quick save / quick load (host only; clients are reloaded and re-seated) |
 | R | restart after death |
 | Esc | close a menu |
 
@@ -170,17 +171,43 @@ A band in good standing (> 40) that comes to the post hungry without goods is ad
 
 One task the Factor may hand you: carry his letter to the chief. It takes effect when the chief reads it — the band is invited to trade (they come with what furs they have), standing +6.
 
+## The rivalry (design doc 4.1, 7.1, 15.1)
+
+`Economy/Rivalry.cs` holds one number, **Tension** (0–100), between the Company and the Nor'Westers. It rises when the band's furs go to the other counter (¼ of the MB paid), when a servant of one company strikes one of the other (6), on a raid (12), and when a party turns back at a guarded door (3); it falls 1.2 a day and 35 on a truce. At **70 it is open hostility**: each leader, at morning orders, may send two or three armed men to *seize the other post's stores* if his own are short (or Tension ≥ 90, or he was robbed himself) - `RaidGoal`: walk to the rival's storeroom, take six lots (pemmican, dried goose, rum, goods, furs, muskets), walk home, deposit. One party out at a time, at most every five days per post. The robbed house sounds the alarm: the **armed fighting men** (labourers, voyageurs, hunters - not the Factor, partner, clerks or women) turn out **only if they have the numbers**; outgunned, they stand aside and remember. Raiders who arrive to find muskets and the odds against them turn back unless brave. A robbed post posts a **guard** at its storeroom door for the next days (`GuardGoal`), and a guard who sees a raider with the odds on his side shoots. Men badly hurt fighting other men break off and run; a beaten man running is let go. Every raid is a Chronicle event; the Factor complains of lots lost.
+
+You: E inside the other company's storehouse **plunders** four lots (any time - without open hostility it costs standing too) and raises the alarm; leaving with them counts toward the *Raid* task. Talk to your own leader: *Propose seizing the … stores* (needs Tension ≥ 40; he weighs ambition, courage, your standing, whether he was robbed) - he sends men with you and sets you the task. Talk to the other side's leader: *Propose a truce* (Tension ≥ 35; rapport, his ambition, whether he was just robbed). Readout, slider and "raid now" buttons in F1 under *The rivalry*; `--tension=N` sets it at start.
+
+## Carrying (design doc 12.4, 12.5)
+
+Everyone has a **carry capacity**: 50 lb, 65 for labourers and hunters, 110 for a voyageur, 45 for women. Over it you slow (down to 35% speed at +160 lb) and burn more while walking. Packs add to it: **tumpline** +40 lb (you start with one; the stores hold a few), **pack basket** +30. The HUD shows load/capacity and "(overloaded)".
+
+## The herd (design doc 16.5)
+
+The caribou site is now a **herd**: each month it makes for that month's ground on a seasonal route (wintering in the bush south of the camp, north to the open ground west of the fort for summer, back in autumn), moving about 40% of the way each week, with a little drift so it is never a timetable. Fixed sites (lodges, marsh, den) don't move. Knowledge of where it is goes stale: each household (and you) holds a **believed cell** per site; hunters walk to where they believe the herd is, and if the ground is empty they **search** for up to four hours - those who know the country (the band, the Nor'Westers) cast toward this month's ground, the Company's men guess along the season - then go home and the household writes the herd off for the day. Anyone passing within the herd's radius updates their household's belief; the Cree chief's "where the game is" tells you the current place; telling the Factor passes your belief on. Only witnesses know the herd moved (a Chronicle event, not a notice). F1: *March the herd toward this month's ground*; `--herdmoved` starts it on this month's ground with everyone still believing the winter one.
+
+## The band's seasons (design doc 6)
+
+At **Breakup** (5 June) the band strikes camp and pitches the tipis on the trail beside the post (`WorldLayout.SummerCamp`, 23,100) for the trading season; at **Freeze-up** (10 November) they go back to the winter camp in the bush (14,140). The cells, the campfire hearth, the cache, the woodpile, everyone's bed and work cell move; clients and late joiners get the repaint. `WorldLayout.CampCentre` is wherever they are now.
+
+## Recruits (design doc 5.5)
+
+When the ship docks she lands enough Orkneymen to bring the post back to six labourers (green lads, 17–24); the July brigade does the same for the Nor'Westers' three voyageurs. Dead men's beds get filled.
+
+## Save and load
+
+`Core/SaveGame.cs`. **F5** writes `user://saves/quicksave.json` (`%APPDATA%\Godotpp_userdata\IsometricFurTradeGame\saves\`); **F9** reloads the world from it. The map regenerates from `WorldLayout`; the save restores what has drifted: the date and weather, tension, the camp's position, every ledger and household (stores, prices, quota, debts, standing, known sites and beliefs, raid dates), every site (count, breeding, browse, position, traplines), hearth fuel, open doors and felled/burnt cells, picked-up items, canoes, the ship (state, position, cargo, hold), every NPC (position, needs, kit, age, fever, personality, appearance, spouse/father/children, rapport, memories, assigned task, dead where they lay) and every player by name (needs, kit, standing, rank, task, known sites, journal, spouse). A player who joins later gets their character back when their name matches. Clients are told to reload and re-seat themselves. Main menu: *Continue alone* / *Continue and host* when a quicksave exists. Dev: `--load`, `--autosave=SECONDS`, `--autoload=SECONDS`.
+
 ## Food chain
 
 Fresh meat spoils (~12% a day in the cache, half that in winter). Women at the fire dry it: 3 fresh → 2 dried, which keeps. Rations come out of the plainest food first.
 
 ## F1 test console
 
-Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player (needs, invulnerable, give items), London & the post (pelt price now / next ship, quota, stores, +goods/+food/empty food), Cree band, Wildlife (site report, ×2, ÷2, force scarcity, wolf pack at the gate, starving caribou at the gate), Ship (summon, depart), People (everyone's goal and needs, teleports).
+Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player (needs, invulnerable, give items), London & the post (pelt price now / next ship, quota, stores, +goods/+food/empty food), The rivalry (tension, raid now), Save (F5/F9), Cree band, Wildlife (site report, ×2, ÷2, force scarcity, wolf pack at the gate, starving caribou at the gate), Ship (summon, depart), People (everyone's goal and needs, teleports).
 
 ## Command-line dev args (after `--`)
 
-`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity`
+`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze`
 
 ## Known gaps / next
 

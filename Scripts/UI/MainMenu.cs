@@ -22,6 +22,7 @@ public partial class MainMenu : Control
             else if (arg == "--server") server = true;
             else if (arg.StartsWith("--join=")) join = arg.Substring(7);
             else if (arg.StartsWith("--name=")) autoName = arg.Substring(7);
+            else if (arg == "--load") { Core.SaveGame.Pending = Core.SaveGame.Read(Core.SaveGame.QuickPath); solo = solo || (!host && !server && join == null); }
             else if (arg.StartsWith("--spawn=") || arg.StartsWith("--hour=") || arg.StartsWith("--date=")) solo = solo || (!host && !server && join == null);
         }
         if (autoName != null) net.LocalName = autoName;
@@ -60,6 +61,17 @@ public partial class MainMenu : Control
         var solo = new Button { Text = "Play alone" };
         solo.Pressed += () => { Apply(); NetHub.I.StartSolo(); Go(); };
         box.AddChild(solo);
+
+        if (Core.SaveGame.Exists())
+        {
+            string summary = Core.SaveGame.Summary();
+            var cont = new Button { Text = $"Continue alone ({summary})" };
+            cont.Pressed += () => { Apply(); NetHub.I.StartSolo(); Core.SaveGame.Pending = Core.SaveGame.Read(Core.SaveGame.QuickPath); Go(); };
+            box.AddChild(cont);
+            var contHost = new Button { Text = "Continue and host" };
+            contHost.Pressed += () => { Apply(); var e = NetHub.I.StartHost(); if (e == Error.Ok) { Core.SaveGame.Pending = Core.SaveGame.Read(Core.SaveGame.QuickPath); Go(); } else _status.Text = $"Could not host: {e}"; };
+            box.AddChild(contHost);
+        }
 
         var host = new Button { Text = "Host a game (friends join you, port 7777)" };
         host.Pressed += () => { Apply(); var e = NetHub.I.StartHost(); if (e == Error.Ok) Go(); else _status.Text = $"Could not host: {e}"; };

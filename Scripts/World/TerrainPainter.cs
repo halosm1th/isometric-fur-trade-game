@@ -103,7 +103,8 @@ public partial class TerrainPainter : TileMapLayer
         var yard = new HashSet<Vector2I>(WorldLayout.YardCells());
         foreach (var c in WorldLayout.NwcYardCells()) yard.Add(c);
         var wharf = new HashSet<Vector2I>(WorldLayout.WharfCells());
-        var camp = IsoGrid.ToWorld(WorldLayout.CampCentre);
+        var camp = IsoGrid.ToWorld(WorldLayout.WinterCamp);
+        var summerCamp = IsoGrid.ToWorld(WorldLayout.SummerCamp);
 
         for (int x = 0; x < WorldLayout.MapWidth; x++)
         {
@@ -120,7 +121,7 @@ public partial class TerrainPainter : TileMapLayer
                 else if (WorldLayout.IsRiver(cell)) source = SourceWater;
                 else if (y < shore + WorldLayout.BeachRows || WorldLayout.IsRiverBank(cell)) source = SourceSand;
                 else if (yard.Contains(cell)) source = SourceDirt;
-                else if (p.DistanceTo(camp) < 300f) source = SourceDirt;
+                else if (p.DistanceTo(camp) < 300f || p.DistanceTo(summerCamp) < 300f) source = SourceDirt;
                 else if (WorldLayout.TrailDistance(p) < 70f) source = SourceDirt;
 
                 SetCell(cell, source, Vector2I.Zero);

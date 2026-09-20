@@ -10,6 +10,9 @@ namespace IsometricFurTradeGame.Scripts.World;
 // little and get opened by whoever walks through.
 public class Pathfinder
 {
+    // The map changed under us (a camp moved): nothing cached here yet, but callers say so.
+    public void Invalidate() { }
+
     private const int MaxExpansions = 15000;
     private const float BushCost = 60f;
 

@@ -99,6 +99,30 @@ public partial class Net : Node
         Agents.Clear(); Players.Clear(); _nextNetId = 1; LocalPlayer = null; _spawnParent = null;
     }
 
+    // The host is loading a save: every client drops its world and comes
+    // back in as if it had just connected.
+    public void AnnounceReload()
+    {
+        if (IsServer && Current != Mode.Offline) Rpc(nameof(ReloadWorld));
+    }
+
+    private bool _rehello;
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void ReloadWorld()
+    {
+        _rehello = true;
+        Sim.Notice("The host is loading a saved world.");
+        GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, "res://Scenes/World/YorkFactoryExterior.tscn");
+    }
+
+    // A client's world is up again after the host reloaded: ask to be re-seated.
+    public void ClientWorldReady()
+    {
+        if (IsServer || !_rehello) return;
+        _rehello = false;
+        GetTree().CreateTimer(1.5).Timeout += () => RpcId(1, nameof(Hello), LocalName);
+    }
+
     public int PlayerCount => Players.Count;
 
     // ---- peers ------------------------------------------------------------
@@ -126,6 +150,12 @@ public partial class Net : Node
     {
         if (!IsServer) return;
         int peer = Multiplayer.GetRemoteSenderId();
+        if (_spawnParent == null) { GetTree().CreateTimer(1.0).Timeout += () => { if (_spawnParent != null && !Players.ContainsKey(peer)) Hello_Seat(peer, name); }; return; }
+        Hello_Seat(peer, name);
+    }
+
+    private void Hello_Seat(int peer, string name)
+    {
         _names[peer] = name;
         // Bring the newcomer up to date: everything that exists, then their player.
         RpcId(peer, nameof(WorldSync), GameCalendar.Instance.Year, GameCalendar.Instance.Month, GameCalendar.Instance.Day, GameCalendar.Instance.Hour, (int)GameCalendar.Instance.Weather.Current);
@@ -257,6 +287,7 @@ public partial class Net : Node
         p.Name = $"player_{p.NetId}";
         _spawnParent.AddChild(p);
         Players[peer] = p;
+        SaveGame.ApplyPlayer(p);
         if (peer == LocalPeerId) SetLocal(p);
         if (Current != Mode.Offline)
         {

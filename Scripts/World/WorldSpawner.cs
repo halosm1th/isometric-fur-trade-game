@@ -52,6 +52,18 @@ public partial class WorldSpawner : Node2D
         PlaceItem(ItemId.Bread, 1, mens + new Vector2(0, 6), 46f);
     }
 
+    // Which of the placed items have been picked up (for a save).
+    public Godot.Collections.Array GoneItems()
+    {
+        var a = new Godot.Collections.Array();
+        for (int i = 0; i < _items.Count; i++) if (_items[i] == null) a.Add(i);
+        return a;
+    }
+    public void RestoreGone(Godot.Collections.Array gone)
+    {
+        foreach (var v in gone) RemoveItem(v.AsInt32());
+    }
+
     public readonly System.Collections.Generic.List<Canoe> Canoes = new();
     private void PlaceCanoe(int index, Vector2 pos)
     {

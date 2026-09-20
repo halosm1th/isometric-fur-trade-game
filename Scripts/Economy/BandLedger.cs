@@ -74,5 +74,37 @@ public partial class BandLedger : Household
         Stores.Add(ItemId.Water, 12);
         foreach (var s in WorldLayout.Sites) KnownSites.Add(s.Name);   // it's their country
         KnowsTheCountry = true;
+        var cal = GameCalendar.Instance;
+        if (cal != null) cal.CalendarEvent += OnEvent;
+    }
+
+    private void OnEvent(string name)
+    {
+        if (!Net.Net.IsServer) return;
+        if (name == "Breakup") MoveCamp(WorldLayout.SummerCamp, "The band has struck camp and pitched their tipis on the trail beside the post for the trading season.");
+        if (name == "FreezeUp") MoveCamp(WorldLayout.WinterCamp, "The band has gone back into the bush to their winter camp.");
+    }
+
+    // Strike camp (design doc 6): move the cache, the fire and everyone's
+    // bed, repaint the tipis, and send the people walking.
+    public void MoveCamp(Vector2I centre, string notice = null)
+    {
+        if (WorldLayout.CampCentre == centre) return;
+        WorldLayout.SetCamp(centre);
+        AccessCell = IsoGrid.Cell(centre, 1, 1);
+        WoodpileCell = IsoGrid.Cell(centre, 2, -2);
+        HearthCells.Clear(); HearthCells.Add(centre);
+        Sim.Structures?.MoveCamp(centre);
+        var tipis = new System.Collections.Generic.List<Vector2I>(WorldLayout.TipiCells());
+        int i = 0;
+        foreach (var n in Sim.Npcs)
+        {
+            if (n.Faction != Agents.Faction.Cree || n.IsDead) continue;
+            n.BedCell = tipis[i++ % tipis.Count];
+            n.WorkCell = IsoGrid.Cell(centre, (i % 3) - 1, 1 + i % 2);
+            n.Brain.Clear(n);
+            n.Brain.Push(n, new Agents.Goals.GoToGoal(n.WorkCell, 120f));
+        }
+        if (notice != null) { Sim.Notice(notice); Agents.Chronicle.Event("the band moved camp.", IsoGrid.ToWorld(centre), subject: "the band", weight: 0.8f); }
     }
 }

@@ -150,6 +150,7 @@ public partial class PlayerController : Agent
 		Inventory.Add(ItemId.Kettle, 1);
 		Inventory.Add(ItemId.Water, 2);
 		Inventory.Add(ItemId.Flint, 1);
+		Inventory.Add(ItemId.Tumpline, 1);   // a labourer's pack strap: 40 lb more before you slow
 		Inventory.Add(ItemId.FishingLine, 1);
 	}
 
@@ -171,6 +172,8 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
 			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
+			if (arg.StartsWith("--autoload=") && double.TryParse(arg.Substring(11), out double lsecs) && NetHub.IsServer) GetTree().CreateTimer(lsecs).Timeout += () => { if (!SaveGame.BeginLoad(GetTree())) GD.Print("[load] " + SaveGame.LastMessage); };
+			if (arg.StartsWith("--autosave=") && double.TryParse(arg.Substring(11), out double secs)) GetTree().CreateTimer(secs).Timeout += () => { SaveGame.Save(); GD.Print("[save] " + SaveGame.LastMessage); };
 			if (arg == "--leave") GetTree().CreateTimer(6.0).Timeout += () => { var d = UI.DialogueMenu.Instance; if (d != null && d.IsOpen) NetHub.I?.DialogueRequest(d.CurrentNpc, d.OptionCount - 1); };
 		}
 	}
@@ -202,6 +205,12 @@ public partial class PlayerController : Agent
 		}
 		if (_dialogue != null && _dialogue.IsOpen) return;
 		if (UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping) return;
+		// Quick save / load: the host's privilege.
+		if (@event is InputEventKey { Pressed: true, Echo: false } key && NetHub.IsServer)
+		{
+			if (key.Keycode == Key.F5) { SaveGame.Save(); Say(SaveGame.LastMessage); return; }
+			if (key.Keycode == Key.F9) { if (!SaveGame.BeginLoad(GetTree())) Say(SaveGame.LastMessage); return; }
+		}
 
 		if (@event is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left })
 		{

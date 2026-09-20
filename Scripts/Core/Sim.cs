@@ -54,6 +54,10 @@ public static class Sim
         Terrain = null; Structures = null; Spawner = null; Paths = null;
         Fort = null; Band = null; Ecology = null; Ship = null; Player = null;
         Agents.Clear(); Npcs.Clear(); Animals.Clear();
+        // The old scene's HUD and painters hung handlers here; they're gone
+        // with it, and the new scene subscribes afresh in its _Ready.
+        LocalPlayerChanged = null;
+        Nwc = null;
     }
 
     // Log line to the console and, if a HUD listener exists, the screen.

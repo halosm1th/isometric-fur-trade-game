@@ -12,11 +12,13 @@ public partial class WorldRoot : Node2D
     {
         Sim.Reset();
         Net.Net.I?.ResetWorld();
+        WorldLayout.SetCamp(WorldLayout.WinterCamp);
     }
 
     public override void _Ready()
     {
         var ysort = GetNodeOrNull<Node2D>("YSort");
         if (ysort != null) Net.Net.I?.CallDeferred(nameof(Net.Net.WorldReady), ysort);
+        Net.Net.I?.ClientWorldReady();
     }
 }

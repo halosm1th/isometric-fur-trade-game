@@ -336,10 +336,59 @@ public partial class StructurePainter : TileMapLayer
 
     private void PaintCamp()
     {
-        SetBack(WorldLayout.CampFire, SourceCampfire);
-        foreach (var c in WorldLayout.TipiCells()) SetBack(c, SourceTipi);
-        SetBack(IsoGrid.Cell(WorldLayout.CampCentre, 2, -2), SourceWoodpile);
+        // The map always generates the winter camp; if the band is at the
+        // summer ground, MoveCamp shifts it once the systems are up.
+        PaintCampAt(WorldLayout.WinterCamp);
     }
+
+    private static IEnumerable<(Vector2I cell, int source)> CampCells(Vector2I centre)
+    {
+        yield return (centre, SourceCampfire);
+        var c = centre;
+        yield return (IsoGrid.Cell(c, 3, 0), SourceTipi);
+        yield return (IsoGrid.Cell(c, 0, 3), SourceTipi);
+        yield return (IsoGrid.Cell(c, -3, 0), SourceTipi);
+        yield return (IsoGrid.Cell(c, 0, -3), SourceTipi);
+        yield return (IsoGrid.Cell(c, 3, 3), SourceTipi);
+        yield return (IsoGrid.Cell(c, 2, -2), SourceWoodpile);
+    }
+
+    private void PaintCampAt(Vector2I centre)
+    {
+        foreach (var (cell, source) in CampCells(centre)) SetBack(cell, source);
+    }
+
+    private Vector2I _paintedCamp = WorldLayout.WinterCamp;
+
+    // Strike the tipis and pitch them elsewhere (design doc 6): the cells,
+    // the campfire's hearth, the walkability, and every client's copy.
+    public void MoveCamp(Vector2I to)
+    {
+        if (_paintedCamp == to) return;
+        var net = Net.Net.I;
+        foreach (var (cell, _) in CampCells(_paintedCamp))
+        {
+            EraseCell(cell);
+            net?.BroadcastCell(0, cell, -1);
+            if (_hearthByCell.TryGetValue(cell, out var old)) { _hearths.Remove(old); _hearthByCell.Remove(cell); old.QueueFree(); }
+        }
+        foreach (var (cell, source) in CampCells(to))
+        {
+            SetBack(cell, source);
+            net?.BroadcastCell(0, cell, source);
+            if (source == SourceCampfire)
+            {
+                var hearth = new Hearth { Position = MapToLocal(cell), Name = $"Hearth_{cell.X}_{cell.Y}", Cell = cell, FuelHours = 4f, Enclosed = false };
+                AddChild(hearth);
+                _hearths.Add(hearth);
+                _hearthByCell[cell] = hearth;
+            }
+        }
+        _paintedCamp = to;
+        RebuildCollision();
+        Sim.Paths?.Invalidate();
+    }
+
 
     private void PaintForest()
     {
@@ -469,6 +518,11 @@ public partial class StructurePainter : TileMapLayer
                 if (OpenDoors.Contains(s)) net.RpcId(peer, nameof(Net.Net.SetCell), idx, cell.X, cell.Y, s);
             }
         }
+        if (_paintedCamp != WorldLayout.WinterCamp)
+        {
+            foreach (var (cell, _) in CampCells(WorldLayout.WinterCamp)) net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, -1);
+            foreach (var (cell, source) in CampCells(_paintedCamp)) net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, source);
+        }
         foreach (var cell in _felled)
         {
             net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, -1);
@@ -476,6 +530,44 @@ public partial class StructurePainter : TileMapLayer
         }
     }
     private readonly List<Vector2I> _felled = new();
+
+    // Everything that differs from the generated map, for a save: open
+    // doors and cells cleared by axe or fire.
+    public Godot.Collections.Array ChangedCells()
+    {
+        var a = new Godot.Collections.Array();
+        foreach (var layer in Layers())
+        {
+            int idx = layer == this ? 0 : 1;
+            foreach (var cell in layer.GetUsedCells())
+            {
+                int s = layer.GetCellSourceId(cell);
+                if (OpenDoors.Contains(s)) a.Add(new Godot.Collections.Array { idx, cell.X, cell.Y, s });
+            }
+        }
+        foreach (var cell in _felled)
+        {
+            a.Add(new Godot.Collections.Array { 0, cell.X, cell.Y, -1 });
+            if ((_floor ?? this).GetCellSourceId(cell) < 0)
+            {
+                a.Add(new Godot.Collections.Array { 1, cell.X, cell.Y, -1 });
+                a.Add(new Godot.Collections.Array { 2, cell.X, cell.Y, -1 });
+                a.Add(new Godot.Collections.Array { 3, cell.X, cell.Y, -1 });
+            }
+        }
+        return a;
+    }
+
+    public void RestoreCells(Godot.Collections.Array cells)
+    {
+        foreach (var v in cells)
+        {
+            var c = v.AsGodotArray();
+            int layer = c[0].AsInt32(); var cell = new Vector2I(c[1].AsInt32(), c[2].AsInt32()); int source = c[3].AsInt32();
+            ApplyRemoteCell(layer, cell, source);
+            if (layer == 0 && source < 0 && !_felled.Contains(cell)) _felled.Add(cell);
+        }
+    }
 
     public void SetHearthFuel(Vector2I cell, float fuel)
     {
