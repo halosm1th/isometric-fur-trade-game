@@ -220,6 +220,7 @@ public partial class EcologyManager : Node2D
             _hoursToWeek += 24f * 7f;
             float pressure = PreyPressure;
             foreach (var s in Sites) s.WeeklyTick(pressure);
+            Migration(cal.Month);
         }
 
         _promoteTimer -= (float)delta;
@@ -298,6 +299,22 @@ public partial class EcologyManager : Node2D
             a.Name = $"animal_{a.NetId}";
             Net.Net.I?.Announce(a);
             if (site != null) { site.Live.Add(a); site.Count += 1; }
+        }
+    }
+
+    // Geese are only here from breakup to freeze-up (design doc 14.4): the
+    // marsh empties in November and fills again in late April.
+    private bool _geeseAway;
+    private void Migration(int month)
+    {
+        bool away = month >= 11 || month <= 3;
+        if (away == _geeseAway) return;
+        _geeseAway = away;
+        foreach (var s in Sites)
+        {
+            if (s.Species != Species.Goose || s.IsDead) continue;
+            if (away) { s.Count = 0f; Sim.Notice($"The geese have gone south. {s.Name} is empty till spring."); }
+            else { s.Count = s.Capacity * 0.7f; Sim.Notice($"The geese are back on {s.Name}. The spring hunt is on."); }
         }
     }
 

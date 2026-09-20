@@ -18,6 +18,7 @@ public partial class CalendarHud : Label
                 _lastEvent = name switch
                 {
                     "ShipArrives" => "The ship is in from England",
+                    "Brigade" => "The Nor'Westers' brigade is in from Fort William",
                     "ShipDeparts" => "The ship has sailed",
                     "FreezeUp" => "The bay has frozen",
                     "Breakup" => "The ice is going out",

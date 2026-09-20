@@ -13,6 +13,10 @@ public partial class BandLedger : Household
     // How the band feels about the Company: fed and fairly paid, it trades;
     // starved or shot at, it stops coming (design doc 3.6, 10.5).
     public float StandingWithCompany = 50f;
+    // ...and with the Nor'Westers across the river.
+    public float StandingWithNwc = 50f;
+    public float DebtNwcMb;
+    public bool WillTradeWith(FortLedger post) => post is NwcLedger ? StandingWithNwc > 20f : WillTrade;
     // What the band owes the post for goods advanced against next season's furs.
     public float DebtMb;
     // A letter from the Factor invites them in to trade.

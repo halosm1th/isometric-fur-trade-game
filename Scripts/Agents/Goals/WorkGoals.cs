@@ -37,7 +37,7 @@ public class HuntSiteGoal : Goal
                 _tryTimer -= hours;
                 // Weather closing in or the light going: head home with what you have.
                 var sky = GameCalendar.Instance.Weather.Current;
-                if (sky == SkyState.Blizzard || sky == SkyState.Storm || GameCalendar.Instance.Hour >= 16f)
+                if (sky == SkyState.Blizzard || sky == SkyState.Storm || GameCalendar.Instance.Hour >= 16f || npc.Needs.Thirst < 40f || npc.Needs.Hunger < 30f)
                 {
                     _phase = 3;
                     if (npc.HomeStores == null) return GoalStatus.Done;
@@ -193,12 +193,13 @@ public class TradeTripGoal : Goal
 {
     private int _phase;
     private readonly bool _buyFood;
-    public TradeTripGoal(bool buyFood) { _buyFood = buyFood; }
-    public override string Label => _buyFood ? "trade for provisions" : "trade furs at the post";
+    private readonly Economy.FortLedger _post;
+    public TradeTripGoal(bool buyFood, Economy.FortLedger post = null) { _buyFood = buyFood; _post = post; }
+    public override string Label => (_buyFood ? "trade for provisions at " : "trade furs at ") + (_post?.Title ?? "the post");
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {
-        var band = Sim.Band; var fort = Sim.Fort;
+        var band = Sim.Band; var fort = _post ?? Sim.Fort;
         if (band == null || fort == null) return GoalStatus.Failed;
         switch (_phase)
         {
@@ -226,8 +227,9 @@ public class TradeTripGoal : Goal
                 float paid = fort.BuyFurs(npc.Inventory, npc.Inventory);
                 int bought = 0;
                 if (_buyFood) bought = fort.SellFood(npc.Inventory, npc.Inventory.Count(ItemId.TradeGoods));
-                Sim.Notice($"{npc.DisplayName} traded at the post: {paid:0} MB in goods{(bought > 0 ? $", bought {bought} of food" : "")}{(band.DebtMb > 0 ? $" (owes {band.DebtMb:0.#} MB)" : "")}.");
-                Chronicle.Event($"{npc.DisplayName} traded furs at the post.", npc.GlobalPosition, npc, weight: 0.4f);
+                Sim.Notice($"{npc.DisplayName} traded at {fort.Title}: {paid:0} MB in goods{(bought > 0 ? $", bought {bought} of food" : "")}{(fort.BandDebt > 0 ? $" (owes {fort.BandDebt:0.#} MB)" : "")}.");
+                Chronicle.Event($"{npc.DisplayName} traded furs at {fort.Title}.", npc.GlobalPosition, npc, weight: 0.4f);
+                if (fort is Economy.NwcLedger && Sim.Fort != null) Sim.Fort.LostToRivalMb += paid;
                 band.InvitedToTrade = false;
                 // A clerk who dealt fairly earns a little standing with the band.
                 _phase = 4;

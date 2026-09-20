@@ -14,7 +14,8 @@ public abstract class RoleBehaviour
 {
     public static RoleBehaviour For(Role role) => role switch
     {
-        Role.Factor => new FactorBehaviour(),
+        Role.Factor or Role.NwcPartner => new FactorBehaviour(),
+        Role.Voyageur => new LabourerBehaviour(),
         Role.Clerk => new ClerkBehaviour(),
         Role.Labourer => new LabourerBehaviour(),
         Role.Woman or Role.Wife => new HouseholdBehaviour(),
@@ -93,7 +94,7 @@ public class FactorBehaviour : RoleBehaviour
             Delegation.AssignDailyTasks(npc);
             return new WaitGoal(0.3f);
         }
-        return new WanderGoal(WorldLayout.Depot.Centre, 1, 1.5f);
+        return new WanderGoal(npc.WorkCell, 1, 1.5f);
     }
 }
 
@@ -111,12 +112,12 @@ public class LabourerBehaviour : RoleBehaviour
 {
     protected override Goal Work(Npc npc)
     {
-        if (!IsWorkHours) return new WanderGoal(WorldLayout.MensHouse.Centre, 2, 1f);
+        if (!IsWorkHours) return new WanderGoal(npc.BedCell, 2, 1f);
         var fire = FireDuty(npc, 3f);
         if (fire != null) return fire;
         // Nothing assigned: keep the woodpile up.
         if (npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Firewood) < 30) return new ChopWoodGoal();
-        return new WanderGoal(IsoGrid.Cell(WorldLayout.FortTop, 10, 8), 3, 1f);
+        return new WanderGoal(npc.WorkCell, 3, 1f);
     }
 }
 
@@ -147,8 +148,20 @@ public class CreeChiefBehaviour : RoleBehaviour
         bool hungry = band.FoodDays(mouths) < 4f;
         float fursMb = 0f;
         foreach (var (id, n) in band.Stores.All()) if (Items.Items.Of(id).Kind == ItemKind.Fur) fursMb += Items.Items.Of(id).ValueMb * n;
-        if (band.WillTrade && IsWorkHours && (fursMb >= 8f || band.InvitedToTrade && fursMb > 0f || (hungry && (fursMb > 0f || band.Stores.Has(ItemId.TradeGoods) || band.StandingWithCompany > 40f))))
-            return new TradeTripGoal(hungry);
+        // Two counters bid for the furs (design doc 7.1): price, how the band
+        // feels about each company, and the walk. The Nor'Westers are across
+        // the river - only the ford or the ice gets you there.
+        Economy.FortLedger best = null; float bestScore = 0f;
+        foreach (var post in Sim.Posts())
+        {
+            if (!band.WillTradeWith(post) || post.Stores.Count(ItemId.TradeGoods) < 5) continue;
+            float walk = IsoGrid.ToWorld(post.AccessCell).DistanceTo(IsoGrid.ToWorld(band.AccessCell));
+            float score = post.PeltPrice * (0.5f + post.BandStanding / 100f) / (1f + walk / 4000f);
+            if (post.BandDebt > 0f) score *= 1.15f;   // you go back where you owe
+            if (score > bestScore) { bestScore = score; best = post; }
+        }
+        if (best != null && IsWorkHours && (fursMb >= 8f || band.InvitedToTrade && fursMb > 0f || (hungry && (fursMb > 0f || band.Stores.Has(ItemId.TradeGoods) || best.BandStanding > 40f))))
+            return new TradeTripGoal(hungry, best);
         return new WanderGoal(WorldLayout.CampCentre, 3, 1.5f);
     }
 }
@@ -217,20 +230,22 @@ public static class Delegation
 {
     public static void AssignDailyTasks(Npc factor)
     {
-        var fort = Sim.Fort; var ship = Sim.Ship;
+        var fort = factor.HomeStores as Economy.FortLedger; var ship = Sim.Ship;
         if (fort == null) return;
+        bool hbc = fort.Company == Faction.HBC;
+        if (!hbc) ship = null;   // the Nor'Westers get a brigade, not a ship
         var men = new System.Collections.Generic.List<Npc>();
-        foreach (var n in Sim.Npcs) if (n.Faction == Faction.HBC && n.Role == Role.Labourer && !n.IsDead) men.Add(n);
+        foreach (var n in Sim.Npcs) if (n.Faction == fort.Company && (n.Role == Role.Labourer || n.Role == Role.Voyageur) && !n.IsDead) men.Add(n);
         if (men.Count == 0) return;
 
-        var fortCentre = IsoGrid.ToWorld(IsoGrid.Cell(WorldLayout.FortTop, WorldLayout.FortWidth / 2, WorldLayout.FortDepth / 2));
+        var fortCentre = IsoGrid.ToWorld(fort.AccessCell);
         int threats = 0;
         foreach (var a in Sim.Animals) if (!a.IsDead && a.IsDangerous && a.GlobalPosition.DistanceTo(fortCentre) < 1800f) threats++;
 
         bool shipIn = ship != null && ship.IsDocked;
         bool gooseSeason = (Cal().Month == 9 || Cal().Month == 10 || Cal().Month == 5) && Sim.Ecology?.BestSite(Species.Goose, fort) != null;
         int mouths = 0;
-        foreach (var n in Sim.Npcs) if (n.Faction == Faction.HBC && !n.IsDead) mouths++;
+        foreach (var n in Sim.Npcs) if (n.Faction == fort.Company && !n.IsDead) mouths++;
         bool foodShort = fort.FoodDays(mouths + 1) < 30f;
 
         string summary = "";
@@ -271,12 +286,13 @@ public static class Delegation
             summary += $"{m.DisplayName}: {m.AssignedTaskName}; ";
         }
         Sim.Notice($"{factor.DisplayName} gives the morning's orders. {summary}");
+        if (fort.LostToRivalMb > 0f && hbc) { Sim.Notice($"{factor.DisplayName}: \"{fort.LostToRivalMb:0} Made Beaver walked past us to the Nor'Westers this season. London will want to know why.\""); }
 
         // The new hand gets his orders like everyone else - if he's at the
         // post to hear them (design doc 10: nothing travels by telepathy).
         foreach (var pc in Sim.Players())
         {
-            if (pc.IsDead) continue;
+            if (pc.IsDead || pc.Faction != fort.Company) continue;
             if (pc.GlobalPosition.DistanceTo(factor.GlobalPosition) > 900f)
             {
                 pc.Standing -= 1f;

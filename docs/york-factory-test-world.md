@@ -111,6 +111,20 @@ E on a person stops them and opens topics: how things stand, about them (role, t
 
 Left click / F. A reload bar shows over your head while your weapon cools down; anyone hit shows a health bar for a few seconds. Hitting someone makes their armed friends within earshot come at you, and costs standing if they're Company men. Sneaking (Ctrl) up on a grazing animal and knifing it is the cheap way to a caribou.
 
+## The Nor'Westers (design doc 5.2, 7.1)
+
+A North West Company wintering post stands across the river (a palisade and a house; partner Duncan Cameron and three voyageurs, red coats). No ship: a **brigade from Fort William** restocks it on 12 July and carries its furs off; the partner sharpens his price if his returns were poor. The Cree chief **chooses where to sell** each trip: price × how the band feels about that company ÷ the walk. Furs that go to the Nor'Westers show up in the Factor's morning grumble and in London's next orders. The only ways across the river: the **ford** south of the camp, the **ice** in winter, or a **canoe**.
+
+Talk to Cameron: "Ask about signing on" then "Sign on" and you are a Nor'Wester — the Company's counter refuses you, its people drop 25 rapport, your standing resets, and the Factor's tasks stop. The Factor will take you back once he thinks something of you again.
+
+## Canoes
+
+Two birchbark canoes: one at the shore by the wharf, one at the Nor'Westers' landing. E next to one pushes off; paddle on water (1.5× walking); step onto any bank and it stays there. Frozen in from freeze-up to breakup.
+
+## Geese
+
+The marsh empties in November and fills again in April — no goose hunt in winter.
+
 ## Trapping (design doc 16.1, 16.3)
 
 Beaver are trapped, not hunted. Steel traps are items (the post has 10, the band 8, the ship brings 12). Use a trap from the hotbar while standing at a beaver lodge to set your line (up to 6 at once); traps catch overnight against how thick the lodge is; E at the lodge lifts the catch (pelt + meat per beaver) and leaves the traps. Cree hunters and, in winter, the Factor's men run their own lines. Anyone checking a lodge with other parties' traps may rob them (the less loyal, the likelier); the owner finds the traps robbed, and witnesses remember who did it.

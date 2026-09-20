@@ -315,7 +315,7 @@ public partial class Net : Node
         foreach (var a in Agents.Values)
         {
             if (!IsInstanceValid(a)) continue;
-            arr.Add(new Godot.Collections.Array { a.NetId, a.GlobalPosition.X, a.GlobalPosition.Y, a.CurrentAnimation, a.FlipH });
+            arr.Add(new Godot.Collections.Array { a.NetId, a.GlobalPosition.X, a.GlobalPosition.Y, a.CurrentAnimation, a.FlipH, a is PlayerController pl && pl.Aboard != null });
             if (arr.Count >= 12) { Rpc(nameof(Snapshot), arr); arr = new Godot.Collections.Array(); }
         }
         if (arr.Count > 0) Rpc(nameof(Snapshot), arr);
@@ -331,6 +331,7 @@ public partial class Net : Node
             if (!Agents.TryGetValue(id, out var a) || !IsInstanceValid(a)) continue;
             if (a == LocalPlayer) continue;   // we own our own movement
             a.ApplySnapshot(new Vector2((float)row[1], (float)row[2]), (string)row[3], (bool)row[4]);
+            if (a is PlayerController pp && row.Count > 5) pp.SetAfloatMirror((bool)row[5]);
         }
     }
 
@@ -370,7 +371,9 @@ public partial class Net : Node
         var hearths = new Godot.Collections.Array();
         if (Sim.Structures != null) foreach (var h in Sim.Structures.AllHearths) hearths.Add(new Godot.Collections.Array { h.Cell.X, h.Cell.Y, h.FuelHours });
         var ship = Sim.Ship;
-        Rpc(nameof(SlowState), hearths, ship != null ? ship.GlobalPosition : Vector2.Zero, ship != null ? (int)ship.Current : 0, SkipStatus());
+        var canoes = new Godot.Collections.Array();
+        if (Sim.Spawner != null) foreach (var c in Sim.Spawner.Canoes) canoes.Add(new Godot.Collections.Array { c.Index, c.GlobalPosition.X, c.GlobalPosition.Y, c.RiderNetId });
+        Rpc(nameof(SlowState), hearths, ship != null ? ship.GlobalPosition : Vector2.Zero, ship != null ? (int)ship.Current : 0, SkipStatus(), canoes);
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -380,8 +383,16 @@ public partial class Net : Node
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void SlowState(Godot.Collections.Array hearths, Vector2 shipPos, int shipState, string skipStatus)
+    private void SlowState(Godot.Collections.Array hearths, Vector2 shipPos, int shipState, string skipStatus, Godot.Collections.Array canoes)
     {
+        if (Sim.Spawner != null)
+        {
+            foreach (var e in canoes)
+            {
+                var row = (Godot.Collections.Array)e; int idx = (int)row[0];
+                if (idx < Sim.Spawner.Canoes.Count) Sim.Spawner.Canoes[idx].SetState(new Vector2((float)row[1], (float)row[2]), (int)row[3]);
+            }
+        }
         if (Sim.Structures != null)
         {
             foreach (var e in hearths)

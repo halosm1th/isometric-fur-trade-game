@@ -10,6 +10,7 @@ size = Vector2(22, 16)
 radius = 34
 
 [node name="Player" type="CharacterBody2D"]
+collision_mask = 5
 script = ExtResource("1_script")
 motion_mode = 1
 

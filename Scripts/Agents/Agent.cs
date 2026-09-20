@@ -5,7 +5,7 @@ using IsometricFurTradeGame.Scripts.World;
 
 namespace IsometricFurTradeGame.Scripts.Agents;
 
-public enum Faction { HBC, Cree, ShipsCrew, Wild }
+public enum Faction { HBC, Cree, ShipsCrew, Wild, NWC }
 
 // Every person (and animal) in the world is one of these - the player
 // included (design doc 11.1). Needs, inventory, health and the shared action

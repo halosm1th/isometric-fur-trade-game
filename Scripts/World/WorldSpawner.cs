@@ -43,9 +43,28 @@ public partial class WorldSpawner : Node2D
         PlaceItem(ItemId.Bread, 1, table + new Vector2(-26, 6), 52f);
         PlaceItem(ItemId.Ale, 1, table + new Vector2(22, 8), 52f);
 
+        // Canoes drawn up on the shore: one by the wharf, one at the Nor'Westers' landing.
+        PlaceCanoe(0, IsoGrid.ToWorld(IsoGrid.DownLeft(IsoGrid.DownLeft(WorldLayout.WharfRoot))) + new Vector2(-90, 10));
+        PlaceCanoe(1, IsoGrid.ToWorld(new Vector2I(60, 168)));
+
         // The men's house table has a bite too.
         var mens = IsoGrid.ToWorld(IsoGrid.Cell(WorldLayout.MensHouse.Top, 3, 1));
         PlaceItem(ItemId.Bread, 1, mens + new Vector2(0, 6), 46f);
+    }
+
+    public readonly System.Collections.Generic.List<Canoe> Canoes = new();
+    private void PlaceCanoe(int index, Vector2 pos)
+    {
+        var c = new Canoe { Index = index, Position = pos, Name = $"Canoe_{index}" };
+        AddChild(c);
+        Canoes.Add(c);
+    }
+
+    public Canoe NearestFreeCanoe(Vector2 pos, float reach)
+    {
+        Canoe best = null; float bestD = reach;
+        foreach (var c in Canoes) { if (!c.IsFree) continue; float d = c.GlobalPosition.DistanceTo(pos); if (d < bestD) { bestD = d; best = c; } }
+        return best;
     }
 
     public WorldItem PlaceItem(ItemId id, int count, Vector2 worldPos, float lift = 0f, float scale = 0.5f)

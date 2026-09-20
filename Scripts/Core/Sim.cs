@@ -17,6 +17,13 @@ public static class Sim
     public static WorldSpawner Spawner;
     public static Pathfinder Paths;
     public static FortLedger Fort;
+    public static NwcLedger Nwc;
+
+    public static IEnumerable<FortLedger> Posts()
+    {
+        if (Fort != null) yield return Fort;
+        if (Nwc != null) yield return Nwc;
+    }
     public static BandLedger Band;
     public static EcologyManager Ecology;
     public static Ship Ship;

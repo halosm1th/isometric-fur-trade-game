@@ -4,7 +4,7 @@ using IsometricFurTradeGame.Scripts.Ecology;
 
 namespace IsometricFurTradeGame.Scripts.World;
 
-public enum BuildingKind { Depot, Warehouse, MensHouse }
+public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse }
 
 public readonly record struct BuildingDef(BuildingKind Kind, string Name, Vector2I Top, int Width, int Depth, int DoorOffset)
 {
@@ -47,7 +47,19 @@ public static class WorldLayout
     public static readonly BuildingDef Depot = new(BuildingKind.Depot, "Trading room", IsoGrid.Cell(FortTop, 3, 2), 7, 5, 3);
     public static readonly BuildingDef Warehouse = new(BuildingKind.Warehouse, "Warehouse", IsoGrid.Cell(FortTop, 12, 2), 8, 6, 3);
     public static readonly BuildingDef MensHouse = new(BuildingKind.MensHouse, "Men's house", IsoGrid.Cell(FortTop, 3, 10), 7, 5, 3);
-    public static readonly BuildingDef[] Buildings = { Depot, Warehouse, MensHouse };
+
+    // ---- the Nor'Westers' post, across the river (design doc 5.2, 7.1) ------------
+    public static readonly Vector2I NwcTop = new(66, 150);
+    public const int NwcWidth = 12, NwcDepth = 10, NwcGateOffset = 5;
+    public static Vector2I NwcGateCell => IsoGrid.Cell(NwcTop, NwcGateOffset, NwcDepth - 1);
+    public static readonly BuildingDef NwcHouse = new(BuildingKind.NwcHouse, "Nor'Westers' house", IsoGrid.Cell(NwcTop, 2, 2), 7, 5, 3);
+    public static IEnumerable<Vector2I> NwcYardCells() => IsoGrid.Rhombus(NwcTop, NwcWidth, NwcDepth);
+    public static Vector2I NwcWoodpileCell => IsoGrid.Cell(NwcTop, 9, 7);
+
+    // A shallow crossing: the only way over the river on foot in summer.
+    public static bool IsFord(Vector2I c) => c.Y >= 158 && c.Y <= 162 && IsRiver(c);
+
+    public static readonly BuildingDef[] Buildings = { Depot, Warehouse, MensHouse, NwcHouse };
 
     // Yard props.
     public static Vector2I WoodpileCell => IsoGrid.Cell(FortTop, 13, 11);
@@ -133,6 +145,8 @@ public static class WorldLayout
         var fortCentre = IsoGrid.ToWorld(IsoGrid.Cell(FortTop, FortWidth / 2, FortDepth / 2));
         float fortDist = p.DistanceTo(fortCentre);
         if (fortDist < 1500f) return 0f;
+        var nwcCentre = IsoGrid.ToWorld(IsoGrid.Cell(NwcTop, NwcWidth / 2, NwcDepth / 2));
+        if (p.DistanceTo(nwcCentre) < 1100f) return 0f;
         float density = 0.12f;
         if (p.X < 3000f) density += 0.28f * Mathf.Clamp((3000f - p.X) / 1600f, 0f, 1f);
         if (p.Y > 4200f) density += 0.28f * Mathf.Clamp((p.Y - 4200f) / 1800f, 0f, 1f);

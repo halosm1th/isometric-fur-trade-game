@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://Scripts/World/WorldRoot.cs" id="12_root"]
 [ext_resource type="Script" path="res://Scripts/Economy/FortLedger.cs" id="13_fort"]
 [ext_resource type="Script" path="res://Scripts/Economy/BandLedger.cs" id="13_band"]
+[ext_resource type="Script" path="res://Scripts/Economy/NwcLedger.cs" id="13_nwc"]
 [ext_resource type="Script" path="res://Scripts/Ecology/EcologyManager.cs" id="14_ecology"]
 [ext_resource type="Script" path="res://Scripts/World/Population.cs" id="15_population"]
 [ext_resource type="Script" path="res://Scripts/World/Ship.cs" id="16_ship"]
@@ -39,6 +40,7 @@ WaterCollisionPath = NodePath("../WaterBody")
 StructurePainterPath = NodePath("../YSort/Structures")
 
 [node name="WaterBody" type="StaticBody2D" parent="." unique_id=1776528193]
+collision_layer = 4
 
 [node name="StructureBody" type="StaticBody2D" parent="." unique_id=726841687]
 
@@ -51,6 +53,9 @@ script = ExtResource("13_fort")
 
 [node name="BandLedger" type="Node" parent="."]
 script = ExtResource("13_band")
+
+[node name="NwcLedger" type="Node" parent="."]
+script = ExtResource("13_nwc")
 
 [node name="YSort" type="Node2D" parent="." unique_id=1222014157]
 y_sort_enabled = true

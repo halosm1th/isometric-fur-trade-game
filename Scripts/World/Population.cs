@@ -92,6 +92,21 @@ public partial class Population : Node2D
         var d2 = Spawn(CreeDaughters[1], Role.CreeDaughter, Faction.Cree, tipis[1], IsoGrid.Cell(WorldLayout.CampCentre, -1, 2), band, _creeWomanFrames, new Color(1f, 0.96f, 0.9f), 0.74f, true);
         d2.Father = hunters[0]; hunters[0].Children.Add(d2); d2.Inventory.Add(ItemId.HideCoat);
 
+        // The Nor'Westers across the river: a wintering partner and his men.
+        var nwc = Sim.Nwc; var house = WorldLayout.NwcHouse;
+        if (nwc != null)
+        {
+            var partner = Spawn("Mr. Duncan Cameron (NWC)", Role.NwcPartner, Faction.NWC, IsoGrid.Cell(house.Top, 3, 1), IsoGrid.Cell(house.Top, 3, 2), nwc, _factorFrames, new Color(1f, 0.9f, 0.9f));
+            partner.Inventory.Add(ItemId.Musket); partner.Inventory.Add(ItemId.Capote); partner.Inventory.Add(ItemId.Pemmican, 2);
+            string[] voyageurs = { "Baptiste Lagimodiere", "Pierre Falcon", "Antoine Desjarlais" };
+            for (int i = 0; i < 3; i++)
+            {
+                var v = Spawn(voyageurs[i], Role.Voyageur, Faction.NWC, IsoGrid.Cell(house.Top, 2 + i, 3), IsoGrid.Cell(WorldLayout.NwcTop, 6, 5), nwc, _factorFrames, new Color(0.85f, 0.75f, 0.75f));
+                v.Inventory.Add(ItemId.Capote); v.Inventory.Add(ItemId.Knife); v.Inventory.Add(ItemId.Pemmican, 2);
+                if (i == 0) v.Inventory.Add(ItemId.Musket);
+            }
+        }
+
         Sim.Notice($"York Factory: {Sim.Npcs.Count} souls in the world.");
     }
 

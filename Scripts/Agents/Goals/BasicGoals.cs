@@ -148,7 +148,7 @@ public class DrinkGoal : Goal
                 var h = npc.PreferredHearth();
                 if (h != null && h.IsBurning) { _phase = 2; return Delegate(new GoToGoal(npc.StandCellNear(h.Cell), 110f)); }
             }
-            var cell = npc.NearestWaterCell(2600f);
+            var cell = npc.NearestWaterCell(9000f);
             if (cell == null) return GoalStatus.Failed;
             _phase = 1;
             return Delegate(new GoToGoal(cell.Value, 30f));
@@ -159,7 +159,7 @@ public class DrinkGoal : Goal
         if (_phase == 2)
         {
             // The fire was out when we got there: fall back to the water.
-            var cell = npc.NearestWaterCell(2600f);
+            var cell = npc.NearestWaterCell(9000f);
             if (cell == null) return GoalStatus.Failed;
             _phase = 1;
             return Delegate(new GoToGoal(cell.Value, 30f));

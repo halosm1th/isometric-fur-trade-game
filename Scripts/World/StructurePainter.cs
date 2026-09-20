@@ -194,6 +194,7 @@ public partial class StructurePainter : TileMapLayer
         floor.Clear();
 
         PaintPalisade();
+        PaintNwcPalisade();
         foreach (var b in WorldLayout.Buildings) PaintBuilding(b, floor);
         PaintYard();
         PaintCamp();
@@ -225,6 +226,29 @@ public partial class StructurePainter : TileMapLayer
         // layer, so they take a composite corner tile.
         SetBack(top, SourceFenceCornerBack);
         SetFront(IsoGrid.Cell(top, w - 1, d - 1), SourceFenceCornerFront);
+    }
+
+    private void PaintNwcPalisade()
+    {
+        var top = WorldLayout.NwcTop;
+        int w = WorldLayout.NwcWidth, d = WorldLayout.NwcDepth;
+        var gate = WorldLayout.NwcGateCell;
+        var gateNext = IsoGrid.Cell(top, WorldLayout.NwcGateOffset + 1, d - 1);
+        for (int i = 0; i < w; i++)
+        {
+            SetBack(IsoGrid.Cell(top, i, 0), SourceFenceS);
+            var front = IsoGrid.Cell(top, i, d - 1);
+            if (front != gate && front != gateNext) SetFront(front, SourceFenceN);
+        }
+        for (int j = 0; j < d; j++)
+        {
+            SetBack(IsoGrid.Cell(top, 0, j), SourceFenceE);
+            SetFront(IsoGrid.Cell(top, w - 1, j), SourceFenceW);
+        }
+        SetBack(top, SourceFenceCornerBack);
+        SetFront(IsoGrid.Cell(top, w - 1, d - 1), SourceFenceCornerFront);
+        SetBack(WorldLayout.NwcWoodpileCell, SourceWoodpile);
+        SetBack(IsoGrid.Cell(top, 9, 3), SourceCrate);
     }
 
     private void PaintBuilding(BuildingDef b, TileMapLayer floor)
@@ -277,6 +301,17 @@ public partial class StructurePainter : TileMapLayer
                 for (int j = 1; j <= 4; j++) SetBack(IsoGrid.Cell(top, 6, j), SourceCrate);
                 SetBack(IsoGrid.Cell(top, 5, 1), SourceCrate);
                 SetBack(IsoGrid.Cell(top, 5, 2), SourceHayBales);
+                break;
+            case BuildingKind.NwcHouse:
+                // The wintering partner's house: hearth, counter, rum, bunks.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                SetBack(IsoGrid.Cell(top, 1, 2), SourceShelf);
+                SetBack(IsoGrid.Cell(top, 2, 1), SourceShelfTall);
+                SetBack(IsoGrid.Cell(top, 5, 1), SourceCrate);
+                SetBack(IsoGrid.Cell(top, 4, 2), SourceTable);
+                SetBack(IsoGrid.Cell(top, 5, 3), SourceCandleStand);
+                for (int i = 2; i <= 5; i++) SetBack(IsoGrid.Cell(top, i, 3), SourceBed);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceBed);
                 break;
             case BuildingKind.MensHouse:
                 // Where the labourers sleep: a big hearth, benches, a table.

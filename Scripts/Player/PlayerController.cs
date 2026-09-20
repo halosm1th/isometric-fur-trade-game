@@ -49,6 +49,66 @@ public partial class PlayerController : Agent
 	// Server-side conversation state with whoever you're talking to.
 	public UI.Conversation Conversation;
 
+	// Which company's post you belong to.
+	public Economy.FortLedger HomePost => Faction == Faction.NWC ? Sim.Nwc : Sim.Fort;
+	public bool WantsToDefect;
+
+	// Afloat: which canoe carries you (server), mirrored as a flag.
+	public Canoe Aboard;
+	public bool IsAfloat => Aboard != null || _afloatMirror;
+	private bool _afloatMirror;
+	public void SetAfloatMirror(bool v) => _afloatMirror = v;
+	private Sprite2D _canoeSprite;
+
+	private void UpdateCanoeVisual()
+	{
+		bool afloat = IsAfloat;
+		if (_canoeSprite == null)
+		{
+			_canoeSprite = new Sprite2D { Texture = GD.Load<Texture2D>("res://assets/sprites/canoe.png"), Offset = new Vector2(0, -8), ZIndex = -1, Visible = false };
+			AddChild(_canoeSprite);
+		}
+		_canoeSprite.Visible = afloat && !IsDead;
+		CollisionMask = afloat ? 1u : 5u;
+	}
+
+	// Paddling: you can be over water or ice; the moment you're on a land
+	// cell you've stepped out and the canoe stays at the water's edge.
+	private void ServerCanoeTick()
+	{
+		if (Aboard == null) return;
+		var t = Sim.Terrain;
+		if (t == null) return;
+		var cell = Cell;
+		if (!t.IsWaterOrIce(cell) && Sim.Paths != null && Sim.Paths.IsWalkable(cell))
+		{
+			// Landed. Leave the canoe on the nearest water cell behind us.
+			Vector2I water = cell;
+			foreach (var n in IsoGrid.EdgeNeighbours(cell)) if (t.IsWaterOrIce(n)) { water = n; break; }
+			Aboard.SetState(IsoGrid.ToWorld(water), 0);
+			Aboard = null;
+			Say("You step ashore and draw the canoe up.");
+		}
+		else Aboard.Position = GlobalPosition;
+	}
+
+	// Change companies (design doc 1). The people you leave remember it.
+	public void ChangeSides(Faction to, Npc witness)
+	{
+		var from = Faction;
+		Faction = to;
+		WantsToDefect = false;
+		Standing = 10f;
+		Task.Kind = TaskKind.None;
+		foreach (var n in Sim.Npcs)
+		{
+			if (n.Faction == from && (from == Faction.HBC || from == Faction.NWC)) n.ChangeRapport(this, -25f);
+			if (n.Faction == to) n.ChangeRapport(this, 5f);
+		}
+		Chronicle.Event($"{DisplayName} left the {(from == Faction.HBC ? "Hudson's Bay Company" : "North West Company")} for the {(to == Faction.HBC ? "Hudson's Bay Company" : "North West Company")}.", GlobalPosition, this, weight: 2f);
+		Sim.Notice($"{DisplayName} has gone over to the {(to == Faction.HBC ? "Hudson's Bay Company" : "Nor'Westers")}.");
+	}
+
 	// Mirrored from the server for the owner's HUD.
 	public string TaskText = "";
 	public string SkipStatus = "";
@@ -170,6 +230,8 @@ public partial class PlayerController : Agent
 	{
 		base._PhysicsProcess(delta);
 		float dt = (float)delta;
+		if (IsServerCopy) ServerCanoeTick();
+		UpdateCanoeVisual();
 
 		if (IsLocal)
 		{
@@ -204,8 +266,10 @@ public partial class PlayerController : Agent
 		IsSprinting = !typing && Input.IsActionPressed("sprint");
 		Vector2 input = typing ? Vector2.Zero : Input.GetVector("move_left", "move_right", "move_up", "move_down");
 		if (input != Vector2.Zero && WantsSkipHours > 0f) NetHub.I?.Act("cancel_wait");
-		Velocity = input * EffectiveSpeed;
+		Velocity = input * EffectiveSpeed * (IsAfloat ? 1.5f : 1f);
 		if (input.X != 0) _sprite.FlipH = input.X < 0;
+		// Afloat you can't climb the bank except where it's low: any land cell
+		// counts as landing, so just don't let the canoe grind onto a wall.
 
 		string target;
 		if (IsSneaking)
@@ -258,7 +322,7 @@ public partial class PlayerController : Agent
 			["inv"] = inv, ["standing"] = Standing, ["task"] = Task.Kind == TaskKind.None ? "" : Task.Describe() + (Task.IsComplete ? " - done" : ""),
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "",
-			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported,
+			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
 		};
 		_oneShotAnim = ""; _teleported = false;
 		return d;
@@ -278,6 +342,8 @@ public partial class PlayerController : Agent
 		int w = (int)d["weapon"]; PreferredWeapon = w >= 0 ? (ItemId)w : null;
 		SkipStatus = (string)d["skip"];
 		if ((bool)d["tele"]) GlobalPosition = new Vector2((float)d["px"], (float)d["py"]);
+		Faction = (Faction)(int)d["faction"];
+		_afloatMirror = (bool)d["afloat"];
 		bool dead = (bool)d["dead"];
 		if (dead && !wasDead) EmitSignal(SignalName.Died);
 		if (!dead && wasDead) EmitSignal(SignalName.Revived);
@@ -321,6 +387,16 @@ public partial class PlayerController : Agent
 				return RequestSkip(hours, night ? "You settle down for the night." : "You wait.");
 			}
 			case "cancel_wait": WantsSkipHours = 0f; return "";
+			case "canoe":
+			{
+				if (Aboard != null) return "Paddle to a bank to step out.";
+				if (GameCalendar.Instance.IsFrozen) return "The canoes are frozen in till breakup. Walk on the ice.";
+				var canoe = Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 130f);
+				if (canoe == null) return "No canoe here.";
+				canoe.SetState(GlobalPosition, NetId);
+				Aboard = canoe;
+				return "You push off. Paddle onto the water; step onto any bank to land.";
+			}
 			case "dev_teleport":
 				if (!OS.IsDebugBuild()) return "";
 				GlobalPosition = IsoGrid.ToWorld(TerrainPainter.NamedSpot((string)args[0]));
@@ -468,6 +544,8 @@ public partial class PlayerController : Agent
 			}
 		}
 
+		if (Aboard == null && Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 130f) != null) return ServerAction("canoe", new Godot.Collections.Array());
+
 		var bed = Sim.Structures?.NearestBed(GlobalPosition, 90f);
 		if (bed != null)
 		{
@@ -478,7 +556,7 @@ public partial class PlayerController : Agent
 			return RequestSkip(hours, night ? "You turn in." : "You lie down for an hour.");
 		}
 
-		var fort = Sim.Fort;
+		var fort = HomePost;
 		if (fort != null)
 		{
 			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.WoodpileCell)) < 120f)
@@ -488,7 +566,8 @@ public partial class PlayerController : Agent
 				int take = fort.Stores.TakeUpTo(ItemId.Firewood, 2); Inventory.Add(ItemId.Firewood, take);
 				return take > 0 ? $"You take {take} firewood from the pile." : "The woodpile is bare.";
 			}
-			if (WorldLayout.Warehouse.Contains(Cell))
+			bool inStore = Faction == Faction.NWC ? WorldLayout.NwcHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell);
+			if (inStore)
 			{
 				int moved = 0;
 				foreach (var (id, n) in new List<(ItemId, int)>(Inventory.All()))
@@ -506,7 +585,7 @@ public partial class PlayerController : Agent
 				if (fort.TakeRation(this, 2)) return "You draw a ration from the stores.";
 			}
 			var ship = Sim.Ship;
-			if (ship != null && ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 160f && ship.Cargo.SlotCount > 0)
+			if (Faction == Faction.HBC && ship != null && ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 160f && ship.Cargo.SlotCount > 0)
 			{
 				int carried = 0;
 				foreach (var (id, n) in new List<(ItemId, int)>(ship.Cargo.All()))

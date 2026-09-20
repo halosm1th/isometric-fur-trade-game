@@ -25,8 +25,23 @@ public partial class FortLedger : Household
 
     // Running totals for the year (for the Factor's report and the HUD).
     public float FursTakenMb;
+    // Furs the band carried to the other company instead (the Factor hears of it).
+    public float LostToRivalMb;
     public float GoodsPaidMb;
     public int Year;
+
+    // Which company this counter belongs to, for standing and debt.
+    public virtual Agents.Faction Company => Agents.Faction.HBC;
+    public virtual float BandStanding
+    {
+        get => Sim.Band?.StandingWithCompany ?? 50f;
+        set { if (Sim.Band != null) Sim.Band.StandingWithCompany = value; }
+    }
+    public virtual float BandDebt
+    {
+        get => Sim.Band?.DebtMb ?? 0f;
+        set { if (Sim.Band != null) Sim.Band.DebtMb = value; }
+    }
 
     public float FursInStoreMb
     {
@@ -73,23 +88,23 @@ public partial class FortLedger : Household
     {
         float paidMb = 0f;
         var band = Sim.Band;
-        if (band != null && band.DebtMb > 0f)
+        if (band != null && BandDebt > 0f)
         {
             float settled = 0f;
             foreach (var (id, n) in new List<(ItemId, int)>(seller.All()))
             {
                 if (Items.Items.Of(id).Kind != ItemKind.Fur) continue;
-                while (band.DebtMb > 0f && seller.Remove(id))
+                while (BandDebt > 0f && seller.Remove(id))
                 {
                     float v = Items.Items.Of(id).ValueMb * PeltPrice;
                     Stores.Add(id); FursTakenMb += Items.Items.Of(id).ValueMb;
-                    band.DebtMb = Mathf.Max(0f, band.DebtMb - v); settled += v;
+                    BandDebt = Mathf.Max(0f, BandDebt - v); settled += v;
                 }
             }
-            if (settled > 0f) Sim.Notice($"The band's debt is worked down by {settled:0.#} MB of furs; {band.DebtMb:0.#} MB still owing.");
+            if (settled > 0f) Sim.Notice($"The band's debt at {Title} is worked down by {settled:0.#} MB of furs; {BandDebt:0.#} MB still owing.");
         }
         // A fair deal is remembered too.
-        if (Sim.Band != null) Sim.Band.StandingWithCompany = Mathf.Min(100f, Sim.Band.StandingWithCompany + (PeltPrice >= 1f ? 2f : 0.5f));
+        if (Sim.Band != null) BandStanding = Mathf.Min(100f, BandStanding + (PeltPrice >= 1f ? 2f : 0.5f));
         var furs = new List<(ItemId, int)>();
         foreach (var (id, n) in seller.All()) if (Items.Items.Of(id).Kind == ItemKind.Fur) furs.Add((id, n));
         foreach (var (id, n) in furs)
@@ -118,12 +133,12 @@ public partial class FortLedger : Household
     {
         int sold = 0;
         var band = Sim.Band;
-        bool credit = band != null && band.StandingWithCompany > 40f && band.DebtMb < 15f;
+        bool credit = band != null && BandStanding > 40f && BandDebt < 15f;
         int creditUnits = credit ? 5 : 0;
         while ((goodsToSpend > 0 && buyer.Has(ItemId.TradeGoods)) || creditUnits > 0)
         {
             bool onCredit = !(goodsToSpend > 0 && buyer.Has(ItemId.TradeGoods));
-            if (onCredit) { creditUnits--; band.DebtMb += 1f; }
+            if (onCredit) { creditUnits--; BandDebt += 1f; }
             ItemId? food = null;
             foreach (var id in new[] { ItemId.DriedGoose, ItemId.DriedMeat, ItemId.Pemmican, ItemId.Bread })
                 if (Stores.Count(id) > 20) { food = id; break; }   // keeps a reserve for its own men

@@ -77,6 +77,8 @@ public class Conversation
             Role.CreeWoman => "a woman of the band",
             Role.CreeDaughter => npc.Father != null ? $"{npc.Father.DisplayName}'s daughter" : "a young woman of the band",
             Role.Sailor => "one of the ship's people",
+            Role.NwcPartner => "wintering partner of the North West Company, master of the post across the river",
+            Role.Voyageur => "a voyageur of the North West Company",
             Role.Wife => "your wife",
             _ => "",
         };
@@ -111,8 +113,14 @@ public class Conversation
             foreach (var sname in _player.KnownSites) if (!Sim.Fort.Knows(sname)) news++;
             if (news > 0) AddOption($"Tell him where the game is ({news} places)", () => ShowTopics(TellSites(npc)));
         }
-        if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief)
+        if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief || npc.Role == Role.NwcPartner)
             AddOption("Trade", () => ShowTrade(npc));
+        if (npc.Role == Role.NwcPartner && _player.Faction != Faction.NWC)
+            AddOption("Ask about signing on with the North West Company", () => ShowTopics(OfferNwc(npc)));
+        if (npc.Role == Role.NwcPartner && _player.Faction != Faction.NWC && _player.WantsToDefect)
+            AddOption("Sign on. Leave the Company's service.", () => ShowTopics(Defect(npc)));
+        if (npc.Role == Role.Factor && _player.Faction == Faction.NWC)
+            AddOption("Ask to be taken back into the Company's service", () => ShowTopics(Return(npc)));
         AddOption("Give a gift", () => ShowGive(npc));
         if (npc.Role == Role.CreeChief || (npc.Role == Role.CreeHunter && npc.Children.Count > 0))
         {
@@ -177,6 +185,27 @@ public class Conversation
         return band.WillTrade
             ? "\"He wants our beaver. Tell him we will come when the furs are ready, and that his price had better be good.\" He gives you a string of beads for the Factor."
             : "\"Tell your Factor we remember how his people have dealt with us. We will see.\"";
+    }
+
+    // Changing sides (design doc 1, 5): the partner will take a Company man
+    // who knows the Bay; the Company will remember it.
+    private string OfferNwc(Npc partner)
+    {
+        _player.WantsToDefect = true;
+        return "\"A man who knows the Bay post and its people is worth something to us. Winter with us: better pay, a share of the trade if you earn it, and nobody in London reading your letters. Your Factor will call it desertion. That is his word for it.\" Choose \"Sign on\" if you mean it.";
+    }
+
+    private string Defect(Npc partner)
+    {
+        _player.ChangeSides(Faction.NWC, partner);
+        return "\"Good. Baptiste will show you the bunks.\" You are a Nor'Wester now. The Company's men will not forget it.";
+    }
+
+    private string Return(Npc factor)
+    {
+        if (factor.RapportWith(_player) < 20f) return "\"You went over to the Nor'Westers and now you want your place back? Bring me something worth having first.\" (rapport " + factor.RapportWith(_player).ToString("0") + ", needs 20)";
+        _player.ChangeSides(Faction.HBC, factor);
+        return "\"Very well. You start at the bottom, and I will be watching.\"";
     }
 
     private string AskAboutThem(Npc npc)
@@ -329,6 +358,13 @@ public class Conversation
     private void ShowTrade(Npc npc)
     {
         var fort = Sim.Fort; var band = Sim.Band;
+        var post = npc.Faction == Faction.NWC ? (Economy.FortLedger)Sim.Nwc : Sim.Fort;
+        if (npc.Faction != Faction.Cree)
+        {
+            fort = post;
+            if (fort == null) { ShowTopics("\"Nothing to trade.\""); return; }
+            if (fort.Company != _player.Faction) { ShowTopics(_player.Faction == Faction.NWC ? "\"We do not serve Nor'Westers at this counter. Go back across the river.\"" : "\"The Company's servant wants to trade with us? Sign on first, or take your furs to your own Factor.\""); return; }
+        }
         Inventory counter = npc.Faction == Faction.Cree ? band?.Stores : fort?.Stores;
         if (counter == null) { ShowTopics("\"Nothing to trade.\""); return; }
         _text = npc.Faction == Faction.Cree

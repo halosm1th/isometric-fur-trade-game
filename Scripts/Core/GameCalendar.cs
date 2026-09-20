@@ -93,6 +93,7 @@ public partial class GameCalendar : Node
     {
         (6, 5, "Breakup"),
         (6, 15, "SummerBisonHunt"),
+        (7, 12, "Brigade"),
         (8, 20, "ShipArrives"),
         (9, 15, "ShipDeparts"),
         (10, 15, "FallBisonHunt"),

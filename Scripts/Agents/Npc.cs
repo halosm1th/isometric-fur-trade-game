@@ -13,6 +13,7 @@ public enum Role
     Factor, Clerk, Labourer, Woman,
     CreeChief, CreeHunter, CreeWoman, CreeDaughter,
     Sailor, Wife,
+    NwcPartner, Voyageur,
 }
 
 // Four traits that decide what an agent does with what it knows and wants
