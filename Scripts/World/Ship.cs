@@ -49,6 +49,7 @@ public partial class Ship : Node2D
 
     private void OnCalendarEvent(string name)
     {
+        if (!Net.Net.IsServer) return;
         if (name == "ShipArrives") Summon();
         if (name == "ShipDeparts") Depart();
     }
@@ -97,10 +98,18 @@ public partial class Ship : Node2D
         }
     }
 
+    public void ClientSync(Vector2 pos, State state)
+    {
+        if (Net.Net.IsServer) return;
+        Current = state;
+        Position = pos;
+        Visible = state != State.Away;
+    }
+
     public override void _Process(double delta)
     {
         var cal = GameCalendar.Instance;
-        if (cal == null) return;
+        if (cal == null || !Net.Net.IsServer) return;
         // Sailing speed follows game time so a skip still brings her in.
         float step = SailSpeed * cal.DeltaGameHours * cal.SecondsPerGameHour;
 

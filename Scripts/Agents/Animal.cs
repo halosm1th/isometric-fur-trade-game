@@ -58,12 +58,35 @@ public partial class Animal : Agent
         _target = GlobalPosition;
     }
 
+    public override string CurrentAnimation => _sprite?.Animation ?? "";
+    public override bool FlipH => _sprite?.FlipH ?? false;
+    private Vector2 _netTarget; private bool _netHasTarget;
+    public override void ApplySnapshot(Vector2 pos, string anim, bool flip)
+    {
+        _netTarget = pos; _netHasTarget = true;
+        if (_sprite != null && _sprite.SpriteFrames != null && _sprite.SpriteFrames.HasAnimation(anim) && _sprite.Animation != anim) _sprite.Play(anim);
+        if (_sprite != null) _sprite.FlipH = flip;
+    }
+    public override void PuppetDie()
+    {
+        Needs.Health = 0f;
+        if (_sprite != null) { string death = Anim("death", _lastDir); if (death.StartsWith("death")) _sprite.Play(death); else { _sprite.Rotation = Mathf.Pi / 2f; _sprite.Modulate = new Color(0.7f, 0.7f, 0.7f); } }
+        if (_label != null) _label.Text = $"{Def.Name} (dead)";
+        CollisionLayer = 0; CollisionMask = 0;
+        AddToGroup("corpses");
+    }
+
     public override void _PhysicsProcess(double delta)
     {
         base._PhysicsProcess(delta);
         var cal = GameCalendar.Instance;
         if (cal == null) return;
         float dt = (float)delta;
+        if (!Net.Net.IsServer)
+        {
+            if (_netHasTarget) GlobalPosition = GlobalPosition.Lerp(_netTarget, Mathf.Clamp(dt * 12f, 0f, 1f));
+            return;
+        }
         _hurtFlash = Mathf.Max(0f, _hurtFlash - dt);
         if (_sprite != null) _sprite.Modulate = _hurtFlash > 0f ? new Color(1f, 0.5f, 0.5f) : Colors.White;
         if (IsDead) { Velocity = Vector2.Zero; return; }

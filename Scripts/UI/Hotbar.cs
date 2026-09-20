@@ -1,4 +1,5 @@
 using Godot;
+using IsometricFurTradeGame.Scripts.Core;
 using IsometricFurTradeGame.Scripts.Items;
 using IsometricFurTradeGame.Scripts.Player;
 
@@ -34,8 +35,10 @@ public partial class Hotbar : Control
 
     public override void _Ready()
     {
-        _player = GetNodeOrNull<PlayerController>(PlayerPath);
-        if (_player != null) _player.Notice += Notice;
+        _player = Sim.Player as PlayerController;
+        Sim.LocalPlayerChanged += p => { _player = p; OnPlayerBound(); };
+        if (_player != null) CallDeferred(nameof(OnPlayerBound));
+
 
         var column = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         column.SetAnchorsPreset(LayoutPreset.CenterBottom);
@@ -123,10 +126,11 @@ public partial class Hotbar : Control
 
     private void Select(int i) => _selected = (i + Slots) % Slots;
 
-    private void Use(int i)
+    private void Use(int i) => _player.UseSlot(i);
+
+    private void OnPlayerBound()
     {
-        string result = _player.UseSlot(i);
-        if (!string.IsNullOrEmpty(result)) Notice(result);
+        if (_player != null) _player.Notice += Notice;
     }
 
     public void Notice(string text)

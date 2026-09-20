@@ -132,11 +132,11 @@ The layer between a Tier 2 directive (Section 3.1) and the shared action vocabul
 **Example.** An inland post reads its orders late in the fall: 40 packs by ship. The factor has 12 men and two clerks. He sends the clerk he trusts, with six men, to a far outpost he has heard has lodges, and keeps the ambitious clerk close on a provisioning hunt. In January the outpost report is overdue, and he can't tell whether the clerk is dead, snowed in, or sitting on a site. He pulls two men off provisioning to check, and the post's food margin thins. Nothing scripted that crisis.
 
 ### 3.10 Skills
-Every agent — player and NPC alike — carries a skill value per action-relevant competency: shooting, hunting, trapping, berry-picking/foraging, talking, stealth, horse riding, sprinting, medicine (Section 17.5), and others as new action chains need them. Skills determine how well an action in Section 3.3's shared vocabulary resolves — a shooting check, a stealth roll, how much a foraging trip yields — rather than gating whether the action can be attempted at all.
+Every agent — player and NPC alike — carries a skill value per action-relevant competency: shooting, hunting, trapping, berry-picking/foraging, talking, stealth, horse riding, sprinting, medicine (Section 17.5), strength (Section 12.4), and others as new action chains need them. Skills determine how well an action in Section 3.3's shared vocabulary resolves — a shooting check, a stealth roll, how much a foraging trip yields — rather than gating whether the action can be attempted at all.
 
-- **Base value from personality.** Each character's starting skill baseline is seeded by their personality profile (Section 11.4) and background, not rolled independently — an ambitious clerk starts with a talking edge, a hunter raised in a band starts high on hunting/trapping/stealth, a voyageur starts high on sprinting and canoeing endurance. Personality does double duty: it already filters behavior (Section 11.4), and now it also explains *why* two agents in the same role differ in raw competence.
+- **Base value from personality.** Each character's starting skill baseline is seeded by their personality profile (Section 11.4 — loyalty, discretion, suspicion, ambition, sociability) and background, not rolled independently — an ambitious clerk starts with a talking edge, a hunter raised in a band starts high on hunting/trapping/stealth, a voyageur starts high on sprinting and canoeing endurance. Personality does double duty: it already filters behavior (Section 11.4), and now it also explains *why* two agents in the same role differ in raw competence.
 - **Improves through use**, not a separate XP pool — repeatedly running a chain (Section 3.2) that depends on a skill nudges that skill up, so a clerk who spends a season actually hunting gets measurably better at it, and one who never leaves the trading room doesn't, with no experience-point abstraction sitting on top of the thing already being simulated.
-- **Already has obvious hooks into what's built**: shooting and stealth feed combat (Section 15.3) and ambush/interception (Section 15.1); hunting, trapping, and foraging feed the ecology and food systems (Section 16, Section 17.1); talking feeds dialogue, negotiation, and the council mechanic (Sections 3.6, 3.8); horse riding feeds Section 12.3; sprinting affects travel speed and pursuit/de-escalation outcomes (Section 15.2); medicine feeds wound treatment (Section 17.5).
+- **Already has obvious hooks into what's built**: shooting and stealth feed combat (Section 15.3) and ambush/interception (Section 15.1); hunting, trapping, and foraging feed the ecology and food systems (Section 16, Section 17.1); talking feeds dialogue, negotiation, and the council mechanic (Sections 3.6, 3.8); horse riding feeds Section 12.3; sprinting affects travel speed and pursuit/de-escalation outcomes (Section 15.2); medicine feeds wound treatment (Section 17.5); strength sets personal carry capacity (Section 12.4).
 
 ---
 
@@ -210,6 +210,27 @@ Each path should have a genuinely different early-game problem to solve, not jus
 - Communal buffalo hunts were organized almost like military campaigns (hunt captains, scouts, formation discipline) — see Section 16.1.
 - Freemen (independent traders no longer tied to a company) sit outside the formal hierarchy entirely — highest personal freedom, least institutional backing.
 - Structurally, the Métis sit between two differently-shaped organizations — HBC's one-way monologue and NWC's negotiated partnership (Section 10.1) — which is a concrete reason they're the natural interpreters and couriers between them, not just a geographic coincidence.
+
+### 5.4 Character Creation
+Not a separate minigame — the moment a player supplies the seed values a personality roll would otherwise generate for a new NPC (Section 11.1), so the player is a parameterization of the same agent model rather than a special case.
+
+- **Path** (Sections 5.1–5.3): HBC, NWC, or Métis/freeman. Sets starting location, company affiliation (if any) and its Tier 2 authority structure (Section 3.1), and which marriage track is available by default (Section 8.1).
+- **Personality**: the same trait set every NPC carries (Section 11.4 — loyalty, discretion/talkativeness, suspicion, ambition, sociability), set on the same scale rather than a player-only system. This is the concrete, player-facing instance of Section 20's open "skill baseline authoring" question: whatever formula or table ends up mapping personality to starting skills applies identically here.
+- **Skill points**: a modest, freely-allocated pool layered on top of the personality-seeded baseline (Section 3.10), representing background rather than replacing the shared mechanism — "grew up trapping," "apprenticed as a clerk," and so on nudge specific skills further without giving the player a second stat system nobody else in the world uses.
+- **Name**: every agent is named (Section 11.1); the player is no exception.
+
+### 5.5 Arrival & First Orders
+The first order a new arrival ever receives isn't a scripted intro — it's Section 3.9's delegation loop and Section 10.1.1's message object running for the first time on a brand-new agent. Because of that, the same mechanism also handles every ordinary replacement recruit (Section 13.2) arriving in later years, not only the player's own start.
+
+**HBC — the fully worked case.** The character arrives aboard the annual ship (Section 10.1.2) carrying an order: report to the Chief Factor. That order exists as a message the instant they're physically at the post, but per Section 3.9's own subordinate-decision step — "the assignment competes with his own Tier 0 and Tier 1 goals... compliance comes out of loyalty, ambition, fear, and pay, not a flag" — it doesn't fire automatically. It competes with whatever the arrival's personality (Section 11.4) currently makes most urgent:
+- High loyalty/ambition → reports promptly.
+- Low discretion, or an existing taste for drink (Section 13.4) → finds the rum ration first.
+- An existing relationship already at the post — a lover, a spouse (Section 8) → seeks them out first.
+- High sociability, no relationship at the post yet (Section 11.4) → drifts toward the men's house or common area to meet people before reporting.
+
+Whenever the report actually happens, the Chief Factor's response draws from the same task-assignment machinery already built (Section 3.9 steps 2–4) rather than a fixed "here's your job": a real assignment, an order to idle at the post if nothing's currently needed, or a reassignment/order to leave for another posting.
+
+**NWC and Métis/freeman** *(proposed, not yet detailed to the same depth)*. NWC arrival is likely at the Fort William rendezvous or by direct recruitment from a wintering partner (Section 5.2) — reporting to a partner/bourgeois rather than a Chief Factor, with the company's kin-network hiring pattern (Section 5.2) making "an existing family connection at the post" a more central case than it is for HBC. Métis/freeman arrival has no company hierarchy to report to at all — more likely an introduction to family or a hunt captain (Section 16.1) than an order in the HBC sense. Both need the same worked-out detail as the HBC case above.
 
 ---
 
@@ -460,11 +481,12 @@ A few concrete moments, not a fully simulated social graph:
 - Two traveling parties crossing paths on the trail.
 
 ### 11.4 Personality Filters Behavior, Not Just Memory
-A small trait set (loyalty, discretion/talkativeness, suspicion, ambition) decides what an NPC *does* with what they know:
+A small trait set (loyalty, discretion/talkativeness, suspicion, ambition, sociability) decides what an NPC *does* with what they know:
 - Loyal companion → may warn the player privately first.
 - Talkative NPC → spreads it regardless of sensitivity.
 - Ambitious/resentful NPC → may sit on it as leverage/blackmail rather than report it (see Section 10.4's decay/refresh rule for how these secrets age).
 - Suspicious factor → interprets ambiguous sightings in the worst light by default.
+- Sociable NPC → seeks out casual talk and company on its own initiative, generating more propagation opportunities (Section 11.3) simply by being present, independent of whether it then shares something sensitive once there — that's discretion's job, not sociability's. A low-sociability agent is the inverse: rarely initiates contact, and gravitates toward solitary work (a trapline, Section 16.1's stalking hunts) over communal settings when given the choice.
 
 ### 11.5 Player Agency — Getting Ahead of the Story
 If the player (or their superior) briefs people *before* they'd otherwise witness something ambiguous, or supplies a plausible explanation that reaches them before the raw sighting does, the memory files as **known/authorized** instead of **unexplained/suspicious**. Cover isn't just "don't get seen," it's "control the narrative."
@@ -495,6 +517,12 @@ Real historical figures, useful as literal game balance numbers:
 
 ### 12.3 Horses — Plains Mobility & Raiding
 The plains' equivalent of the canoe: a horse herd is both transport and wealth, and losing it mid-journey is a real stranding risk parallel to a wrecked canoe or a York boat stuck at a portage. Historically, horse raiding between Blackfoot, Cree, and Assiniboine was itself a major form of the intertribal conflict already established (Section 7.2) — a raid whose entire goal is the herd, not a fight over trade goods or territory. This slots directly into the existing party-collision combat model (Section 15.1): a horse-raiding party is doing exactly what it says, and running into one is a different flavor of encounter than a war party or an ambush, with a different resolution (chase it off, defend the herd, cut losses and let it go). Herd health and grazing become their own resource-management concern on long plains journeys, mirroring the fuel/food concerns of a canoe brigade (Section 17).
+
+### 12.4 Personal Carry Capacity
+The same weight/capacity logic that governs a canoe (this section) and a horse (Section 12.3), scaled down to one body rather than a new mechanic:
+- **Base capacity** comes from the strength skill (Section 3.10) — seeded by personality like any other skill, and improved through use: hauling cargo and portaging is what raises it, not a separate training system.
+- **Bags and packs add capacity on top of the base** as equippable items — a tumpline, a pack basket, a possibles bag — each with its own stated bonus. *(This presumes the general item/container model from the inventory discussion; it isn't written into this document yet.)*
+- **Overloading degrades rather than blocks**, matching the existing pattern for vessels and horses: slower travel, worse combat and stealth resolution, higher caloric burn (Section 17.1) — never a hard cap on what can be picked up.
 
 ---
 
@@ -763,6 +791,11 @@ Fire is a real object that sits on a tile and does things over time, not a boole
 - **Consensus-skip UX** — how the "does everyone want to skip" check in Section 21.3 is actually surfaced to players (a prompt, a lobby-style ready check, a timeout default) is undesigned.
 - **Multiplayer session/party formation** — whether players commit to a single shared start (e.g., all as one brigade) or start independently and simply share the same persistent world from different points, and how faction choice interacts with that, is open.
 
+**New — from the character creation and arrival discussion:**
+- **NWC and Métis/freeman arrival** (Section 5.5) — worked out for HBC; needs the same depth for the other two paths.
+- **Character-creation skill-point budget** (Section 5.4) — how many discretionary points, and how they compose with the personality-seeded baseline, folds into the skill-baseline-authoring question above rather than replacing it.
+- **Bag/pack capacity and the strength formula** (Section 12.4) — placeholder until the item/inventory model itself is written up in this document.
+
 ---
 
 ## 21. Multiplayer
@@ -810,4 +843,6 @@ This revision folds the follow-up planning discussion into the document. Where t
 - **Treating wounds** (Section 17.5): new subsection distinguishing Indigenous herbal medicine from European bleeding/amputation, gated by a new medicine skill.
 - **Exploration & the map** (Section 10.8): new subsection — geography as knowledge, revealed by walking it or by acquiring a physical, tradeable/stealable map item.
 - **Multiplayer** (Section 21, Section 1): new section — 4–6 concurrent players as more agent-slots under the existing model, multiple live-tier anchors, consensus-based fast-forward with automatic per-player auto-pilot as the fallback, disconnection handled by the existing goal planner, and one change to the permadeath branches for a shared world.
+- **Character creation and arrival** (Sections 3.10, 5.4, 5.5, 12.4): new subsections — creation as seeding the same personality/skill model every NPC uses rather than a separate system, an arrival sequence built on the existing delegation/message system so personality (not a script) decides whether a new arrival reports for duty promptly, gets sidetracked, or worse, and a strength-skill-based personal carry capacity extending the existing vessel/horse capacity logic down to one body.
+- **Fifth personality trait** (Section 11.4, and every place the trait list was cross-referenced: 3.10, 5.4, 20): resolved — added **sociability**, orthogonal to discretion. Discretion governs what an agent says once talking; sociability governs how readily it starts talking at all. Low sociability also explains a preference for solitary work (trapping, stalking hunts) over communal settings.
 - **Open questions** (Section 20): updated and extended.

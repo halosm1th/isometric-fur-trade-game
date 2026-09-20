@@ -24,7 +24,7 @@ public partial class BandLedger : Household
     {
         base._Process(delta);
         var cal = GameCalendar.Instance;
-        if (cal == null || cal.Day == _lastDay) return;
+        if (cal == null || cal.Day == _lastDay || !Net.Net.IsServer) return;
         _lastDay = cal.Day;
         int mouths = 0;
         foreach (var n in Sim.Npcs) if (n.Faction == Agents.Faction.Cree && !n.IsDead) mouths++;

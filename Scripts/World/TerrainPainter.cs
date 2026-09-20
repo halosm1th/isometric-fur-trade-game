@@ -44,7 +44,7 @@ public partial class TerrainPainter : TileMapLayer
         {
             AddToGroup("terrain");
             Sim.Terrain = this;
-            PlacePlayer();
+            Sim.LocalPlayerChanged += PlacePlayer;
             var cal = GameCalendar.Instance;
             if (cal != null)
             {
@@ -176,15 +176,11 @@ public partial class TerrainPainter : TileMapLayer
         return false;
     }
 
-    private void PlacePlayer()
+    private void PlacePlayer(Node2D player)
     {
-        if (PlayerSpawnPath == null || PlayerSpawnPath.IsEmpty) return;
-        var player = GetNodeOrNull<Node2D>(PlayerSpawnPath);
-        if (player == null) return;
-
-        player.Position = MapToLocal(DefaultSpawnCell());
-
-        // Dev aid: `godot -- --spawn=21,32` drops the player on a cell.
+        if (player == null || !Net.Net.IsServer) return;
+        if (SpawnOverride.X >= 0 && SpawnOverride.Y >= 0) player.Position = MapToLocal(SpawnOverride);
+        // Dev aid: `godot -- --spawn=21,32` or `--spawn=depot` drops the host's player on a cell.
         foreach (string arg in OS.GetCmdlineUserArgs())
         {
             if (!arg.StartsWith("--spawn=")) continue;

@@ -195,7 +195,7 @@ public partial class EcologyManager : Node2D
     public override void _Process(double delta)
     {
         var cal = GameCalendar.Instance;
-        if (cal == null) return;
+        if (cal == null || !Net.Net.IsServer) return;
         if (!_scenarioDone)
         {
             _scenarioDone = true;
@@ -231,16 +231,22 @@ public partial class EcologyManager : Node2D
         }
     }
 
+    private static float DistanceToNearestPlayer(Vector2 p)
+    {
+        float best = float.MaxValue;
+        foreach (var pl in Sim.Players()) if (!pl.IsDead) best = Mathf.Min(best, pl.GlobalPosition.DistanceTo(p));
+        return best;
+    }
+
     private void Promote()
     {
-        var player = Sim.Player;
-        if (player == null || AnimalScene == null) return;
+        if (AnimalScene == null) return;
         var fortCentre = IsoGrid.ToWorld(IsoGrid.Cell(WorldLayout.FortTop, WorldLayout.FortWidth / 2, WorldLayout.FortDepth / 2));
 
         foreach (var site in Sites)
         {
             int live = site.LiveCount;
-            float dPlayer = site.WorldPos.DistanceTo(player.GlobalPosition);
+            float dPlayer = DistanceToNearestPlayer(site.WorldPos);
             bool near = dPlayer < PromoteRadius;
             int want = near || site.Scarcity ? Mathf.Min(MaxLive(site), Mathf.FloorToInt(site.Count)) : 0;
 
@@ -255,6 +261,8 @@ public partial class EcologyManager : Node2D
                 a.Position = origin + new Vector2((float)GD.RandRange(-1.0, 1.0), (float)GD.RandRange(-0.5, 0.5)) * site.RadiusPx * 0.6f;
                 a.Hungry = site.Scarcity;
                 AddChild(a);
+                a.Name = $"animal_{a.NetId}";
+                Net.Net.I?.Announce(a);
                 site.Live.Add(a);
             }
             else if (live > 0 && !near && !site.Scarcity && dPlayer > DemoteRadius)
@@ -263,9 +271,10 @@ public partial class EcologyManager : Node2D
                 foreach (var a in new List<Animal>(site.Live))
                 {
                     if (a == null || !IsInstanceValid(a) || a.IsDead) continue;
-                    if (a.GlobalPosition.DistanceTo(player.GlobalPosition) > DemoteRadius)
+                    if (DistanceToNearestPlayer(a.GlobalPosition) > DemoteRadius)
                     {
                         site.Live.Remove(a);
+                        Net.Net.I?.AnnounceDespawn(a);
                         a.QueueFree();
                     }
                 }
@@ -286,6 +295,8 @@ public partial class EcologyManager : Node2D
             a.Species = species; a.Site = site; a.Hungry = hungry;
             a.Position = pos + new Vector2((float)GD.RandRange(-120, 120), (float)GD.RandRange(-60, 60));
             AddChild(a);
+            a.Name = $"animal_{a.NetId}";
+            Net.Net.I?.Announce(a);
             if (site != null) { site.Live.Add(a); site.Count += 1; }
         }
     }

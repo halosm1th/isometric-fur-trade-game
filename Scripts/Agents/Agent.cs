@@ -20,6 +20,16 @@ public partial class Agent : CharacterBody2D
     public readonly Inventory Inventory = new();
 
     [Export] public string DisplayName = "";
+
+    // Networking: identity across peers, and whether this copy is a puppet
+    // (rendered from the server's snapshots, no simulation of its own).
+    public int NetId;
+    public bool IsPuppet;
+
+    public virtual string CurrentAnimation => "";
+    public virtual bool FlipH => false;
+    public virtual void ApplySnapshot(Vector2 pos, string anim, bool flip) { GlobalPosition = pos; }
+    public virtual void PuppetDie() { }
     [Export] public Faction Faction = Faction.HBC;
     [Export] public float MoveSpeed = 140f;
 
@@ -59,6 +69,9 @@ public partial class Agent : CharacterBody2D
 
     public override void _ExitTree()
     {
+        // Leaving the server's world (a body cleared away, an animal
+        // demoted) means leaving every client's too.
+        if (Net.Net.IsServer && NetId != 0 && !(GetTree()?.CurrentScene == null)) Net.Net.I?.AnnounceDespawn(this);
         Sim.Unregister(this);
     }
 
@@ -66,6 +79,7 @@ public partial class Agent : CharacterBody2D
     {
         var cal = GameCalendar.Instance;
         if (cal == null) return;
+        if (!Net.Net.IsServer) return;   // puppets and remote copies don't simulate needs
         float scaled = (float)delta * cal.MotionScale;
         HurtFlash = Mathf.Max(0f, HurtFlash - (float)delta);
         _attackCooldown = Mathf.Max(0f, _attackCooldown - scaled);
@@ -98,6 +112,17 @@ public partial class Agent : CharacterBody2D
         _deathAnnounced = true;
         Velocity = Vector2.Zero;
         EmitSignal(SignalName.Died);
+        Net.Net.I?.AnnounceDeath(this);
+    }
+
+    // Back from the dead (a player respawning).
+    public virtual void Revive()
+    {
+        _deathAnnounced = false;
+        Needs.Health = 100f; Needs.Hunger = Needs.Thirst = Needs.Warmth = 100f;
+        LastAttacker = null; LastAttackedAgo = 999f;
+        CollisionLayer = 1; CollisionMask = 1;
+        RemoveFromGroup("corpses");
     }
 
     // A voyageur carried two 90-lb pieces on a portage; anyone else slows

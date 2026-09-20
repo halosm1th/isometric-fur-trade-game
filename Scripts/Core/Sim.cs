@@ -28,6 +28,7 @@ public static class Sim
 
     public static void Register(Agent a)
     {
+        Net.Net.I?.Register(a);
         if (!Agents.Contains(a)) Agents.Add(a);
         if (a is Npc n && !Npcs.Contains(n)) Npcs.Add(n);
         if (a is Animal an && !Animals.Contains(an)) Animals.Add(an);
@@ -35,6 +36,7 @@ public static class Sim
 
     public static void Unregister(Agent a)
     {
+        Net.Net.I?.Unregister(a);
         Agents.Remove(a);
         if (a is Npc n) Npcs.Remove(n);
         if (a is Animal an) Animals.Remove(an);
@@ -49,10 +51,24 @@ public static class Sim
 
     // Log line to the console and, if a HUD listener exists, the screen.
     public static event System.Action<string> OnNotice;
+    public static System.Action<Player.PlayerController> LocalPlayerChanged;
+
+    // World-wide notice: shown here and, from the server, on every client.
     public static void Notice(string text)
     {
+        if (string.IsNullOrEmpty(text)) return;
         GD.Print($"[world] {text}");
         OnNotice?.Invoke(text);
+        Net.Net.I?.BroadcastNotice(text);
+    }
+
+    // A notice that arrived from the server (don't re-broadcast).
+    public static void NoticeLocal(string text) => OnNotice?.Invoke(text);
+
+    public static IEnumerable<Player.PlayerController> Players()
+    {
+        if (Net.Net.I == null) { if (Player is Player.PlayerController p) yield return p; yield break; }
+        foreach (var p in Net.Net.I.Players.Values) if (p != null && GodotObject.IsInstanceValid(p)) yield return p;
     }
 
     public static IEnumerable<Agent> AgentsWithin(Vector2 pos, float radius)

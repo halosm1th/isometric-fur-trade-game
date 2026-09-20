@@ -150,9 +150,34 @@ public partial class GameCalendar : Node
         _lastHour = Mathf.FloorToInt(Hour);
     }
 
+    // A client takes the server's clock and only free-runs between syncs.
+    private bool _clientMode;
+    public void ClientSync(int year, int month, int day, float hour, SkyState sky)
+    {
+        _clientMode = true;
+        bool dayChanged = day != Day || month != Month || year != Year;
+        Year = year; Month = month; Day = day;
+        // Ease onto the server's hour unless we're far off.
+        Hour = Mathf.Abs(hour - Hour) > 0.5f ? hour : Mathf.Lerp(Hour, hour, 0.5f);
+        var season = SeasonFor(Month);
+        if (season != CurrentSeason) { CurrentSeason = season; EmitSignal(SignalName.SeasonChanged, (int)season); }
+        if (dayChanged) EmitSignal(SignalName.DayPassed, Year, Month, Day);
+        if (Weather.Current != sky) Weather.Force(sky, 6f);
+        SkipRemaining = 0f;
+    }
+
     public override void _Process(double delta)
     {
         if (Paused) { DeltaGameHours = 0f; MotionScale = 1f; return; }
+        if (_clientMode)
+        {
+            // Free-run the hour hand between syncs; no events fire here.
+            DeltaGameHours = (float)delta / SecondsPerGameHour;
+            Hour += DeltaGameHours;
+            if (Hour >= 24f) Hour -= 24f;
+            MotionScale = 1f;
+            return;
+        }
 
         float speed = Input.IsActionPressed("time_fast") ? FastForwardMultiplier : 1f;
         if (SkipRemaining > 0f) speed = SkipSpeed;

@@ -28,7 +28,9 @@ public partial class DebugMenu : Control
     public override void _Ready()
     {
         Instance = this;
-        _player = GetNodeOrNull<PlayerController>(PlayerPath);
+        _player = Sim.Player as PlayerController;
+        Sim.LocalPlayerChanged += p => { _player = p; OnPlayerBound(); };
+        if (_player != null) CallDeferred(nameof(OnPlayerBound));
 
         _panel = new PanelContainer { Visible = false };
         _panel.SetAnchorsPreset(LayoutPreset.TopRight);
@@ -52,9 +54,22 @@ public partial class DebugMenu : Control
         _status.AddThemeFontSizeOverride("font_size", 12);
         _body.AddChild(_status);
 
+        if (!Net.Net.IsServer)
+        {
+            var l = new Label { Text = "The host runs the world; the test console is theirs." };
+            _body.AddChild(l);
+            return;
+        }
         BuildCalendarSection();
-        BuildPlayerSection();
         CallDeferred(nameof(BuildWorldSections));
+    }
+
+    private bool _playerSectionBuilt;
+    private void OnPlayerBound()
+    {
+        if (_playerSectionBuilt || _player == null || !Net.Net.IsServer) return;
+        _playerSectionBuilt = true;
+        BuildPlayerSection();
     }
 
     private void BuildWorldSections()

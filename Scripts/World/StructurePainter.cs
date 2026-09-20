@@ -75,6 +75,7 @@ public partial class StructurePainter : TileMapLayer
         _floor = GetNodeOrNull<TileMapLayer>(FloorLayerPath);
         _body = GetNodeOrNull<StaticBody2D>(CollisionBodyPath);
         _player = GetNodeOrNull<Node2D>(PlayerPath);
+        Sim.LocalPlayerChanged += p => _player = p;
 
         if (AutoGenerate)
         {
@@ -89,6 +90,7 @@ public partial class StructurePainter : TileMapLayer
             if (Sim.Terrain != null) Sim.Paths = new Pathfinder(Sim.Terrain, this);
             SpawnHearths();
             CallDeferred(nameof(BuildRoofs));
+            if (Sim.Player is Node2D lp) _player = lp;
         }
     }
 
@@ -325,7 +327,9 @@ public partial class StructurePainter : TileMapLayer
         int s = GetCellSourceId(cell);
         if (s < SourceSpruce0 || s > SourceSpruce0 + 2) return false;
         EraseCell(cell);
+        _felled.Add(cell);
         RebuildCollision();
+        Net.Net.I?.BroadcastCell(0, cell, -1);
         return true;
     }
 
@@ -396,8 +400,42 @@ public partial class StructurePainter : TileMapLayer
         int src = layer.GetCellSourceId(cell);
         bool isOpen = OpenDoors.Contains(src);
         int dir = src - (isOpen ? SourceDoorOpenN : SourceDoorN);
-        layer.SetCell(cell, (isOpen ? SourceDoorN : SourceDoorOpenN) + dir, Vector2I.Zero);
+        int now = (isOpen ? SourceDoorN : SourceDoorOpenN) + dir;
+        layer.SetCell(cell, now, Vector2I.Zero);
         RebuildCollision();
+        Net.Net.I?.BroadcastCell(layer == this ? 0 : 1, cell, now);
+    }
+
+    // A cell change that arrived from the server.
+    public void ApplyRemoteCell(int layer, Vector2I cell, int source)
+    {
+        var l = layer == 0 ? this : (_front ?? this);
+        if (source < 0) l.EraseCell(cell); else l.SetCell(cell, source, Vector2I.Zero);
+        RebuildCollision();
+    }
+
+    // A late joiner needs every cell that differs from the generated map:
+    // open doors and felled trees.
+    public void SendCellStateTo(int peer)
+    {
+        var net = Net.Net.I;
+        if (net == null) return;
+        foreach (var layer in Layers())
+        {
+            int idx = layer == this ? 0 : 1;
+            foreach (var cell in layer.GetUsedCells())
+            {
+                int s = layer.GetCellSourceId(cell);
+                if (OpenDoors.Contains(s)) net.RpcId(peer, nameof(Net.Net.SetCell), idx, cell.X, cell.Y, s);
+            }
+        }
+        foreach (var cell in _felled) net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, -1);
+    }
+    private readonly List<Vector2I> _felled = new();
+
+    public void SetHearthFuel(Vector2I cell, float fuel)
+    {
+        if (_hearthByCell.TryGetValue(cell, out var h)) h.FuelHours = fuel;
     }
 
     // Make sure the door on this cell is open (NPCs use this on their way in).

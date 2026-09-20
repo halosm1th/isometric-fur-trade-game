@@ -72,7 +72,7 @@ public partial class Hearth : Node2D
     public override void _Process(double delta)
     {
         var cal = GameCalendar.Instance;
-        if (cal != null)
+        if (cal != null && Net.Net.IsServer)
         {
             FuelHours = Mathf.Max(0f, FuelHours - cal.DeltaGameHours);
         }

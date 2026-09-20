@@ -24,7 +24,9 @@ public partial class NeedsHud : Control
 
     public override void _Ready()
     {
-        _player = GetNodeOrNull<Agent>(PlayerPath);
+        _player = Sim.Player;
+        Sim.LocalPlayerChanged += p => { _player = p; OnPlayerBound(); };
+        if (_player != null) CallDeferred(nameof(OnPlayerBound));
 
         var box = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         box.Position = new Vector2(16, -16);
@@ -72,10 +74,13 @@ public partial class NeedsHud : Control
         _death.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.8f));
         AddChild(_death);
 
-        if (_player != null)
-        {
-            _player.Died += OnDied;
-        }
+    }
+
+    private void OnPlayerBound()
+    {
+        if (_player == null) return;
+        _player.Died += OnDied;
+        if (_player is Player.PlayerController pc) pc.Revived += () => _death.Visible = false;
     }
 
     public override void _Process(double delta)
@@ -86,7 +91,13 @@ public partial class NeedsHud : Control
         _bars[1].Value = n.Warmth;
         _bars[2].Value = n.Hunger;
         _bars[3].Value = n.Thirst;
-        string task = _player is Player.PlayerController pc && pc.Task.Kind != Player.TaskKind.None ? $"\n{pc.Task.Describe()}{(pc.Task.IsComplete ? " - done" : "")}\nStanding with the Company: {pc.Standing:0}" : "";
+        string task = "";
+        if (_player is Player.PlayerController pc)
+        {
+            string t = pc.IsServerCopy ? (pc.Task.Kind != Player.TaskKind.None ? pc.Task.Describe() + (pc.Task.IsComplete ? " - done" : "") : "") : pc.TaskText;
+            string skip = pc.IsServerCopy ? (Net.Net.I?.SkipStatus() ?? "") : pc.SkipStatus;
+            task = (t != "" ? $"\n{t}" : "") + $"\nStanding with the Company: {pc.Standing:0}" + (skip != "" ? $"\n{skip}" : "");
+        }
         string weapon = _player.Weapon != null ? Items.Items.Of(_player.Weapon.Value).Name : "bare hands";
         _shelter.Text = $"{(_player.IsSheltered ? "Indoors  " : "")}Load {_player.Inventory.TotalWeightLbs:0} lb  |  {weapon}" + task;
     }

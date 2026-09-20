@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/Animals/Animal.tscn" id="18_animal"]
 [ext_resource type="Script" path="res://Scripts/UI/DialogueMenu.cs" id="19_dialogue"]
 [ext_resource type="Script" path="res://Scripts/UI/NoticeLog.cs" id="20_log"]
+[ext_resource type="Script" path="res://Scripts/UI/ChatBox.cs" id="21_chat"]
 
 [node name="YorkFactoryExterior" type="Node2D" unique_id=1419352490]
 script = ExtResource("12_root")
@@ -35,7 +36,6 @@ tile_set = ExtResource("1_tileset")
 script = ExtResource("2_painter")
 AutoGenerate = true
 WaterCollisionPath = NodePath("../WaterBody")
-PlayerSpawnPath = NodePath("../YSort/Player")
 StructurePainterPath = NodePath("../YSort/Structures")
 
 [node name="WaterBody" type="StaticBody2D" parent="." unique_id=1776528193]
@@ -63,13 +63,10 @@ AutoGenerate = true
 CollisionBodyPath = NodePath("../../StructureBody")
 FloorLayerPath = NodePath("../../StructureFloor")
 FrontLayerPath = NodePath("../StructuresFront")
-PlayerPath = NodePath("../Player")
 
 [node name="StructuresFront" type="TileMapLayer" parent="YSort" unique_id=451515872]
 y_sort_enabled = true
 tile_set = ExtResource("1_tileset")
-
-[node name="Player" parent="YSort" unique_id=1383783840 instance=ExtResource("3_player")]
 
 [node name="WorldSpawner" type="Node2D" parent="YSort"]
 script = ExtResource("11_spawner")
@@ -107,7 +104,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 script = ExtResource("7_needs")
-PlayerPath = NodePath("../../YSort/Player")
 
 [node name="Hotbar" type="Control" parent="HUD" unique_id=282912131]
 layout_mode = 3
@@ -116,7 +112,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 script = ExtResource("9_hotbar")
-PlayerPath = NodePath("../../YSort/Player")
 
 [node name="DebugMenu" type="Control" parent="HUD"]
 anchors_preset = 15
@@ -124,7 +119,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 script = ExtResource("10_debug")
-PlayerPath = NodePath("../../YSort/Player")
 
 [node name="Dialogue" type="Control" parent="HUD" groups=["dialogue"]]
 anchors_preset = 15
@@ -132,7 +126,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 script = ExtResource("19_dialogue")
-PlayerPath = NodePath("../../YSort/Player")
 
 [node name="NoticeLog" type="Control" parent="HUD"]
 anchors_preset = 15
@@ -140,3 +133,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 script = ExtResource("20_log")
+
+[node name="Chat" type="Control" parent="HUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("21_chat")

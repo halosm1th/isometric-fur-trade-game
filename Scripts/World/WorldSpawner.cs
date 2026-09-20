@@ -1,4 +1,5 @@
 using Godot;
+using IsometricFurTradeGame.Scripts.Core;
 using IsometricFurTradeGame.Scripts.Items;
 
 namespace IsometricFurTradeGame.Scripts.World;
@@ -10,10 +11,29 @@ public partial class WorldSpawner : Node2D
 {
     [Export] public PackedScene WorldItemScene;
 
+    private readonly System.Collections.Generic.List<WorldItem> _items = new();
+
     public override void _Ready()
     {
         if (Engine.IsEditorHint()) return;
+        Sim.Spawner = this;
         CallDeferred(nameof(Spawn));
+    }
+
+    // Server: an item was taken; tell everyone to drop the same one.
+    public void Consume(WorldItem item)
+    {
+        int idx = _items.IndexOf(item);
+        Net.Net.I?.BroadcastItemGone(idx);
+        RemoveItem(idx);
+    }
+
+    public void RemoveItem(int idx)
+    {
+        if (idx < 0 || idx >= _items.Count) return;
+        var it = _items[idx];
+        if (it != null && IsInstanceValid(it)) it.QueueFree();
+        _items[idx] = null;
     }
 
     private void Spawn()
@@ -38,6 +58,7 @@ public partial class WorldSpawner : Node2D
         item.LiftPixels = lift;
         AddChild(item);
         item.Item = id;
+        _items.Add(item);
         return item;
     }
 }

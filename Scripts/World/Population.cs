@@ -37,7 +37,7 @@ public partial class Population : Node2D
         _labourerFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/LabourerFrames.tres");
         _creeWomanFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/CreeWomanFrames.tres");
         foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--trace") _trace = true;
-        CallDeferred(nameof(SpawnAll));
+        if (Net.Net.IsServer) CallDeferred(nameof(SpawnAll));
     }
 
     private void SpawnAll()
@@ -126,6 +126,8 @@ public partial class Population : Node2D
         npc.Position = IsoGrid.ToWorld(Sim.Paths?.NearestWalkable(bed) ?? bed);
         AddChild(npc);
         npc.SetAppearance(frames, tint, scale);
+        npc.Name = $"npc_{npc.NetId}";
+        Net.Net.I?.Announce(npc);
         return npc;
     }
 

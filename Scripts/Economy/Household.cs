@@ -49,7 +49,7 @@ public partial class Household : Node
     public override void _Process(double delta)
     {
         var cal = GameCalendar.Instance;
-        if (cal == null || cal.Day == _spoilDay) return;
+        if (cal == null || cal.Day == _spoilDay || !Net.Net.IsServer) return;
         _spoilDay = cal.Day;
         int fresh = Stores.Count(ItemId.Venison) + Stores.Count(ItemId.Goose);
         if (fresh == 0) return;

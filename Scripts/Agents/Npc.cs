@@ -121,15 +121,51 @@ public partial class Npc : Agent
     public void ResetBehaviour() => _behaviour = RoleBehaviour.For(Role);
 
     private Color _tint = Colors.White;
+    public string FramesPath = "res://Scenes/Player/PlayerFrames.tres";
+    public Color Tint = Colors.White;
+    public float SpriteScale = 0.8f;
 
     public void SetAppearance(SpriteFrames frames, Color tint, float scale)
     {
+        FramesPath = frames.ResourcePath; Tint = tint; SpriteScale = scale;
+        ApplyAppearance();
+    }
+
+    // Puppets rebuild their look from the replicated description.
+    public void ApplyAppearance()
+    {
         if (_sprite == null) return;
-        _tint = tint;
-        _sprite.SpriteFrames = frames;
-        _sprite.Modulate = tint;
-        _sprite.Scale = Vector2.One * scale;
+        _tint = Tint;
+        _sprite.SpriteFrames = GD.Load<SpriteFrames>(FramesPath);
+        _sprite.Modulate = Tint;
+        _sprite.Scale = Vector2.One * SpriteScale;
         _sprite.Play("idle");
+        if (_label != null) _label.Text = DisplayName;
+    }
+
+    public override string CurrentAnimation => _sprite?.Animation ?? "idle";
+    public override bool FlipH => _sprite?.FlipH ?? false;
+
+    private Vector2 _netTarget; private bool _netHasTarget;
+    public override void ApplySnapshot(Vector2 pos, string anim, bool flip)
+    {
+        _netTarget = pos; _netHasTarget = true;
+        if (_sprite != null && _sprite.SpriteFrames != null && _sprite.SpriteFrames.HasAnimation(anim) && _sprite.Animation != anim) _sprite.Play(anim);
+        if (_sprite != null) _sprite.FlipH = flip;
+    }
+
+    public override void PuppetDie()
+    {
+        if (_sprite != null)
+        {
+            if (_sprite.SpriteFrames.HasAnimation("death")) _sprite.Play("death");
+            else { _sprite.Rotation = Mathf.Pi / 2f; _sprite.Position += new Vector2(30, -10); }
+            _sprite.Modulate = new Color(0.7f, 0.7f, 0.72f, 0.95f);
+        }
+        if (_label != null) _label.Text = $"{DisplayName} (dead)";
+        Needs.Health = 0f;
+        CollisionLayer = 0; CollisionMask = 0;
+        AddToGroup("corpses");
     }
 
     public override void _PhysicsProcess(double delta)
@@ -138,6 +174,13 @@ public partial class Npc : Agent
         float dt = (float)delta;
         var cal = GameCalendar.Instance;
         if (cal == null) return;
+
+        // A client's copy just glides toward the last snapshot.
+        if (!Net.Net.IsServer)
+        {
+            if (_netHasTarget) GlobalPosition = GlobalPosition.Lerp(_netTarget, Mathf.Clamp(dt * 12f, 0f, 1f));
+            return;
+        }
 
         if (IsDead)
         {
@@ -407,7 +450,7 @@ public partial class Npc : Agent
             if (ally.Weapon != null && ally.Personality.Courage > 0.25f) ally.Brain.Push(ally, new AttackGoal(from));
             else if (ally.Personality.Courage < 0.3f) ally.Brain.Push(ally, new FleeGoal(from, 6f));
         }
-        if (from is Player.PlayerController && Faction == Faction.HBC && Sim.Player is Player.PlayerController pc) pc.Standing -= 5f;
+        if (from is Player.PlayerController attacker && Faction == Faction.HBC) attacker.Standing -= 5f;
     }
 
     // ---- helpers for goals ---------------------------------------------------

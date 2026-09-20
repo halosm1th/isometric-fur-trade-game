@@ -274,13 +274,14 @@ public static class Delegation
 
         // The new hand gets his orders like everyone else - if he's at the
         // post to hear them (design doc 10: nothing travels by telepathy).
-        if (Sim.Player is Player.PlayerController pc && !pc.IsDead)
+        foreach (var pc in Sim.Players())
         {
+            if (pc.IsDead) continue;
             if (pc.GlobalPosition.DistanceTo(factor.GlobalPosition) > 900f)
             {
                 pc.Standing -= 1f;
-                Sim.Notice("You were not at the post when the morning's orders were given. Mr. Auld noticed.");
-                return;
+                pc.Say("You were not at the post when the morning's orders were given. Mr. Auld noticed.");
+                continue;
             }
             var band = Sim.Band;
             if (threats > 0) pc.AssignTask(Player.TaskKind.DriveOffAnimals, 1);
