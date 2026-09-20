@@ -62,6 +62,8 @@ public abstract class RoleBehaviour
         }
         if (ripe != null) return new CheckTraplineGoal(ripe);
         if (!wantFurs) return null;
+        int month = Cal.Month;
+        if (month >= 6 && month <= 9) return null;   // summer pelts: not worth the traps (design doc 14.4)
         if (!npc.Inventory.Has(ItemId.SteelTrap))
         {
             int n = home.Stores.TakeUpTo(ItemId.SteelTrap, 4);
@@ -223,7 +225,10 @@ public class CreeHunterBehaviour : RoleBehaviour
         var trapWork = TraplineWork(npc, band, eco, furHunt);
         if (trapWork != null) return trapWork;
         SpawnSite site = needMeat ? eco.BestSite(Species.Caribou, band) ?? eco.BestSite(Species.Goose, band) : null;
-        if (site == null && GD.Randf() < 0.3f) site = eco.BestSite(Species.Caribou, band);
+        // Laying in stock for the cache when it's under three weeks; otherwise the day goes on other things.
+        if (site == null && band.FoodDays(mouths) < 21f && GD.Randf() < 0.3f) site = eco.BestSite(Species.Caribou, band);
+        if (site == null && Cal.CurrentSeason != Season.Winter && GD.Randf() < 0.3f) return new FishGoal();
+        if (site == null && GD.Randf() < 0.35f) return new ForageGoal(4f);
         if (site != null) return new HuntSiteGoal(site, 5f);
         return new WanderGoal(WorldLayout.CampCentre, 3, 1f);
     }
@@ -327,13 +332,15 @@ public static class Delegation
             }
             else if ((gooseSeason || foodShort) && i % 2 == 0)
             {
-                var site = Sim.Ecology?.BestSite(gooseSeason ? Species.Goose : Species.Caribou, fort) ?? Sim.Ecology?.BestSite(Species.Beaver, fort);
+                var site = Sim.Ecology?.BestSite(gooseSeason ? Species.Goose : Species.Caribou, fort);
+                // A beaver lodge is furs, not a larder: only when it's thick, and only one man.
+                if (site == null) { var lodge = Sim.Ecology?.BestSite(Species.Beaver, fort); if (lodge != null && lodge.Count > lodge.Capacity * 0.6f && i == 0) site = lodge; }
                 if (site != null)
                 {
                     if (!m.Inventory.Has(ItemId.Musket) && fort.Stores.Remove(ItemId.Musket)) m.Inventory.Add(ItemId.Musket);
                     m.AssignedTask = _ => new HuntSiteGoal(site, 6f); m.AssignedTaskName = $"hunt at {site.Name}"; m.AssignedTaskIsHunt = true;
                 }
-                else { m.AssignedTask = null; m.AssignedTaskName = "cut wood"; }
+                else { m.AssignedTask = _ => new ForageGoal(5f); m.AssignedTaskName = "snare small game"; m.AssignedTaskIsHunt = true; }
             }
             else
             {

@@ -232,10 +232,14 @@ public partial class Animal : Agent
         if (target.IsDead) Feed(target);
     }
 
+    // Whether the killing blow was a musket ball (ruins the pelt).
+    public bool ShotDead { get; private set; }
     public override void TakeDamage(float amount, Agent from)
     {
+        bool wasAlive = !IsDead;
         base.TakeDamage(amount, from);
         _hurtFlash = 0.15f;
+        if (wasAlive && IsDead && from != null && from.Weapon == Items.ItemId.Musket) ShotDead = true;
     }
 
     private string Anim(string kind, Vector2 dir)
@@ -288,8 +292,8 @@ public partial class Animal : Agent
     {
         if (!IsDead || _butchered) return false;
         _butchered = true;
-        SpeciesInfo.Yield(Species, into);
-        if (_label != null) _label.Text = $"{Def.Name} (butchered)";
+        SpeciesInfo.Yield(Species, into, ShotDead);
+        if (_label != null) _label.Text = $"{Def.Name} ({(ShotDead ? "shot, butchered" : "butchered")})";
         return true;
     }
 }

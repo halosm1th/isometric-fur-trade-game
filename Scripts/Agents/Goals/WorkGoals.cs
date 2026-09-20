@@ -24,6 +24,15 @@ public class HuntSiteGoal : Goal
 
     private bool HerdHere(Npc npc) => _site.WorldPos.DistanceTo(npc.GlobalPosition) < _site.RadiusPx * 1.3f;
 
+    // A hunter after furs leaves the musket slung: a ball ruins the pelt.
+    private ItemId? _weaponBefore;
+    public override void OnEnter(Npc npc)
+    {
+        _weaponBefore = npc.PreferredWeapon;
+        if ((_site.Species == Species.Beaver || _site.Species == Species.Wolf) && npc.Inventory.Has(ItemId.Bow)) npc.PreferredWeapon = ItemId.Bow;
+    }
+    public override void OnExit(Npc npc) { npc.PreferredWeapon = _weaponBefore; npc.StopMoving(); }
+
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {
         switch (_phase)
@@ -111,7 +120,7 @@ public class HuntSiteGoal : Goal
                     if (GD.Randf() < chance && _site.Count > 0)
                     {
                         _site.Take(1);
-                        SpeciesInfo.Yield(_site.Species, npc.Inventory);
+                        SpeciesInfo.Yield(_site.Species, npc.Inventory, npc.Weapon == ItemId.Musket);
                         _kills++;
                     }
                     else
@@ -148,7 +157,7 @@ public class HuntSiteGoal : Goal
     {
         var store = npc.HomeStores;
         if (store == null) return;
-        foreach (var id in new[] { ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.CaribouHide, ItemId.WolfPelt })
+        foreach (var id in new[] { ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.Hare, ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.ShotPelt, ItemId.ShotHide, ItemId.CaribouHide, ItemId.WolfPelt })
         {
             int n = npc.Inventory.Count(id);
             int keep = Items.Items.Of(id).Kind == ItemKind.Food ? 1 : 0;
@@ -353,7 +362,7 @@ public class TradeTripGoal : Goal
             case 1:
                 if (!ChildFinished(out var r)) return GoalStatus.Running;
                 if (r != GoalStatus.Done) return GoalStatus.Failed;
-                foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.CaribouHide, ItemId.WolfPelt })
+                foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.ShotPelt, ItemId.ShotHide, ItemId.CaribouHide, ItemId.WolfPelt })
                     npc.Inventory.Add(id, band.Stores.TakeUpTo(id, 30));
                 npc.Inventory.Add(ItemId.TradeGoods, band.Stores.TakeUpTo(ItemId.TradeGoods, _buyFood ? 10 : 0));
                 if (npc.Inventory.CountOfKind(ItemKind.Fur) == 0 && !npc.Inventory.Has(ItemId.TradeGoods)) return GoalStatus.Failed;
@@ -430,7 +439,7 @@ public class CarryCargoGoal : Goal
                 }
                 else
                 {
-                    foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.CaribouHide, ItemId.WolfPelt })
+                    foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.ShotPelt, ItemId.ShotHide, ItemId.CaribouHide, ItemId.WolfPelt })
                     {
                         int take = fort.Stores.TakeUpTo(id, 6 - carried);
                         npc.Inventory.Add(id, take); carried += take;
@@ -454,6 +463,67 @@ public class CarryCargoGoal : Goal
                 }
                 return GoalStatus.Done;
             }
+        }
+    }
+}
+
+// Small game in the bush (design doc 14.4): snaring hares and knocking
+// over ptarmigan along the edge of the woods. Abstract abundance - it
+// doesn't draw a site down - but it's thin fare and a long walk.
+public class ForageGoal : Goal
+{
+    private readonly float _workHours;
+    private float _worked, _tryTimer;
+    private int _phase;
+    private int _got;
+    public ForageGoal(float workHours = 4f) { _workHours = workHours; }
+    public override string Label => "hunt small game";
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        switch (_phase)
+        {
+            case 0:
+            {
+                _phase = 1;
+                // Walk to the nearest edge of the bush.
+                var tree = Sim.Structures?.NearestTree(npc.GlobalPosition, 3500f);
+                if (tree == null) return GoalStatus.Failed;
+                return Delegate(new GoToGoal(tree.Value, 160f));
+            }
+            case 1:
+                if (!ChildFinished(out var r)) return GoalStatus.Running;
+                if (r != GoalStatus.Done) return GoalStatus.Failed;
+                _phase = 2;
+                return GoalStatus.Running;
+            case 2:
+            {
+                _worked += hours; _tryTimer -= hours;
+                var sky = GameCalendar.Instance.Weather.Current;
+                if (_worked >= _workHours || _got >= 4 || sky == SkyState.Blizzard || sky == SkyState.Storm || GameCalendar.Instance.Hour >= 16f || npc.Needs.Thirst < 40f || npc.Needs.Warmth < 35f)
+                {
+                    _phase = 3;
+                    if (npc.HomeStores == null) return GoalStatus.Done;
+                    return Delegate(new GoToGoal(npc.HomeStores.AccessCell, 100f));
+                }
+                if (_tryTimer <= 0f)
+                {
+                    _tryTimer = 0.75f;
+                    float chance = GameCalendar.Instance.CurrentSeason == Season.Winter ? 0.3f : 0.4f;
+                    if (GD.Randf() < chance) { npc.Inventory.Add(ItemId.Hare); _got++; }
+                    var c = npc.Cell;
+                    npc.SetDestination(new Vector2I(c.X + GD.RandRange(-3, 3), c.Y + GD.RandRange(-6, 6)));
+                }
+                return GoalStatus.Running;
+            }
+            default:
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                if (npc.HomeStores != null)
+                {
+                    int n = npc.Inventory.Count(ItemId.Hare);
+                    if (n > 1) { npc.Inventory.Remove(ItemId.Hare, n - 1); npc.HomeStores.Stores.Add(ItemId.Hare, n - 1); }
+                }
+                return GoalStatus.Done;
         }
     }
 }

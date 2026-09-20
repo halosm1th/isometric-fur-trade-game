@@ -16,6 +16,7 @@ public enum ItemId
     Goose,
     DriedMeat,
     Fish,
+    Hare,
     // Fuel
     Firewood,
     // Clothing
@@ -25,6 +26,8 @@ public enum ItemId
     // Furs and trade
     BeaverPelt,
     ThinPelt,
+    ShotPelt,
+    ShotHide,
     CaribouHide,
     WolfPelt,
     TradeGoods,
@@ -73,6 +76,9 @@ public static class Items
         { ItemId.HideCoat,     new("Hide coat",      ItemKind.Clothing, 5.0f, IconDir + "hide_coat.png",    Warmth: 6f, ValueMb: 2f) },
         { ItemId.BeaverPelt,   new("Beaver pelt",    ItemKind.Fur,      1.5f, IconDir + "beaver_pelt.png",  ValueMb: 1f) },
         { ItemId.ThinPelt,     new("Summer pelt",    ItemKind.Fur,      1.2f, IconDir + "beaver_pelt.png",  ValueMb: 0.45f) },
+        // A ball tears a pelt; the graders in London pay a fraction (design doc 13.6, 14.4).
+        { ItemId.ShotPelt,     new("Shot-through pelt", ItemKind.Fur,   1.5f, IconDir + "shot_pelt.png",    ValueMb: 0.35f) },
+        { ItemId.ShotHide,     new("Holed hide",     ItemKind.Fur,      6.0f, IconDir + "shot_hide.png",    ValueMb: 0.2f) },
         { ItemId.CaribouHide,  new("Caribou hide",   ItemKind.Fur,      6.0f, IconDir + "caribou_hide.png", ValueMb: 0.5f) },
         { ItemId.WolfPelt,     new("Wolf pelt",      ItemKind.Fur,      3.0f, IconDir + "wolf_pelt.png",    ValueMb: 0.6f) },
         { ItemId.TradeGoods,   new("Trade goods",    ItemKind.Goods,    3.0f, IconDir + "trade_goods.png",  ValueMb: 1f) },
@@ -83,6 +89,7 @@ public static class Items
         // Packs add to what a body can carry before it slows (design doc 12.4, 12.5).
         { ItemId.Tumpline,     new("Tumpline",       ItemKind.Tool,     1.0f, IconDir + "tumpline.png",     ValueMb: 0.5f, Capacity: 40f) },
         { ItemId.PackBasket,   new("Pack basket",    ItemKind.Tool,     3.0f, IconDir + "pack_basket.png",  ValueMb: 0.8f, Capacity: 30f) },
+        { ItemId.Hare,         new("Hare",           ItemKind.Food,     0.8f, IconDir + "hare.png",         Nutrition: 16f, ValueMb: 0.05f) },
         { ItemId.Fish,         new("Fish",           ItemKind.Food,     1.0f, IconDir + "fish.png",         Nutrition: 22f, ValueMb: 0.1f) },
         { ItemId.Musket,       new("Trade musket",   ItemKind.Weapon,   9.0f, IconDir + "musket.png",       ValueMb: 12f, Damage: 55f, Range: 340f, Cooldown: 4f) },
         { ItemId.Bow,          new("Bow",            ItemKind.Weapon,   2.0f, IconDir + "bow.png",          ValueMb: 2f,  Damage: 30f, Range: 260f, Cooldown: 1.6f) },

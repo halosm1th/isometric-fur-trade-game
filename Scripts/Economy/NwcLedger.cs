@@ -58,7 +58,7 @@ public partial class NwcLedger : FortLedger
         // The brigade lands the year's outfit and carries the furs off.
         Stores.Add(ItemId.TradeGoods, 90); Stores.Add(ItemId.Pemmican, 30); Stores.Add(ItemId.Rum, 50); Stores.Add(ItemId.Musket, 4); Stores.Add(ItemId.SteelTrap, 8);
         float shipped = FursInStoreMb;
-        foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.CaribouHide, ItemId.WolfPelt }) Stores.TakeUpTo(id, 9999);
+        foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.ShotPelt, ItemId.ShotHide, ItemId.CaribouHide, ItemId.WolfPelt }) Stores.TakeUpTo(id, 9999);
         // The partner answers to his peers at the rendezvous: poor returns
         // mean a sharper price next winter (design doc 10.1.4).
         PeltPrice = Mathf.Clamp(shipped < QuotaMb * 0.7f ? PeltPrice * 1.2f : PeltPrice * 0.95f, 0.5f, 3f);

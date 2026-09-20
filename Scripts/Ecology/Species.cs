@@ -26,22 +26,28 @@ public static class SpeciesInfo
     };
     public static SpeciesDef Of(Species s) => Defs[s];
 
-    // What a kill puts in the hunter's pack.
-    public static void Yield(Species s, IsometricFurTradeGame.Scripts.Items.Inventory into)
+    // What a kill puts in the hunter's pack. `shot` = killed with a musket:
+    // a ball tears the skin and the pelt grades as damaged; traps, arrows
+    // and the knife leave it whole (design doc 13.6).
+    public static void Yield(Species s, IsometricFurTradeGame.Scripts.Items.Inventory into, bool shot = false)
     {
         switch (s)
         {
-            case Species.Caribou: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 3); into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.CaribouHide, 1); break;
+            case Species.Caribou:
+                into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 8);   // ~100 lb of meat on a barren-ground caribou
+                into.Add(shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotHide : IsometricFurTradeGame.Scripts.Items.ItemId.CaribouHide, 1);
+                break;
             case Species.Goose: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Goose, 1); break;
             case Species.Beaver:
             {
                 // Prime in winter, thin and worth half from June to September (design doc 14.4).
                 int m = IsometricFurTradeGame.Scripts.Core.GameCalendar.Instance?.Month ?? 1;
-                into.Add(m >= 6 && m <= 9 ? IsometricFurTradeGame.Scripts.Items.ItemId.ThinPelt : IsometricFurTradeGame.Scripts.Items.ItemId.BeaverPelt, 1);
+                var pelt = shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotPelt : m >= 6 && m <= 9 ? IsometricFurTradeGame.Scripts.Items.ItemId.ThinPelt : IsometricFurTradeGame.Scripts.Items.ItemId.BeaverPelt;
+                into.Add(pelt, 1);
                 into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 1);
                 break;
             }
-            case Species.Wolf: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.WolfPelt, 1); break;
+            case Species.Wolf: into.Add(shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotPelt : IsometricFurTradeGame.Scripts.Items.ItemId.WolfPelt, 1); break;
         }
     }
 }

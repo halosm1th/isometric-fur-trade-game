@@ -57,7 +57,7 @@ public partial class Household : Node
     public bool TakeRation(Agent agent, int n)
     {
         int taken = 0;
-        foreach (var id in new[] { ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Bread, ItemId.Pemmican })
+        foreach (var id in new[] { ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Bread, ItemId.Pemmican })
         {
             while (taken < n && Stores.Remove(id)) { agent.Inventory.Add(id); taken++; }
             if (taken >= n) break;
@@ -73,13 +73,14 @@ public partial class Household : Node
         var cal = GameCalendar.Instance;
         if (cal == null || cal.Day == _spoilDay || !Net.Net.IsServer) return;
         _spoilDay = cal.Day;
-        int fresh = Stores.Count(ItemId.Venison) + Stores.Count(ItemId.Goose) + Stores.Count(ItemId.Fish);
+        int fresh = Stores.Count(ItemId.Venison) + Stores.Count(ItemId.Goose) + Stores.Count(ItemId.Fish) + Stores.Count(ItemId.Hare);
         if (fresh == 0) return;
         float rate = cal.IsFrozen ? 0.05f : 0.12f;
         int lost = Mathf.FloorToInt(fresh * rate + (GD.Randf() < (fresh * rate) % 1f ? 1 : 0));
         int v = Stores.TakeUpTo(ItemId.Venison, lost);
         if (v < lost) v += Stores.TakeUpTo(ItemId.Goose, lost - v);
-        if (v < lost) Stores.TakeUpTo(ItemId.Fish, lost - v);
+        if (v < lost) v += Stores.TakeUpTo(ItemId.Fish, lost - v);
+        if (v < lost) Stores.TakeUpTo(ItemId.Hare, lost - v);
         if (lost > 0) Sim.Notice($"{Title}: {lost} pieces of fresh meat have gone bad.");
     }
 

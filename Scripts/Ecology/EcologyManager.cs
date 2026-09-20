@@ -32,6 +32,7 @@ public class SpawnSite
     public float Migrate(int month)
     {
         if (!IsMobile || IsDead) return 0f;
+        if (_scattered && month == 5) { _scattered = false; Count = Mathf.Max(Count, Capacity * 0.4f); Sim.Notice($"{Name}: the caribou have come back into the country with the spring."); }
         if (month != _driftMonth) { _driftMonth = month; _drift = new Vector2I(GD.RandRange(-3, 3), GD.RandRange(-6, 6)); }
         var target = Route[Mathf.Clamp(month - 1, 0, Route.Length - 1)] + _drift;
         var d = target - Cell;
@@ -91,8 +92,15 @@ public class SpawnSite
         CheckCollapse();
     }
 
+    private bool _scattered;
     private void CheckCollapse()
     {
+        if (IsMobile)
+        {
+            // A herd hunted hard leaves the country; it comes back thin next spring.
+            if (!_scattered && Count < Capacity * Def.SustainFloor) { _scattered = true; Sim.Notice($"{Name}: the caribou have been hunted so hard they have left this country. Few will be seen before spring."); }
+            return;
+        }
         if (!IsDead && Count < Capacity * Def.SustainFloor)
         {
             BreedingCapacity = 0f;
@@ -174,13 +182,23 @@ public partial class EcologyManager : Node2D
 
     public SpawnSite BestSite(Species s, Economy.Household knownBy = null)
     {
-        SpawnSite best = null;
+        SpawnSite best = null; float bestScore = 0f;
         foreach (var site in Sites)
         {
             if (site.Species != s || site.IsDead || site.Count < 1f) continue;
             if (knownBy != null && !knownBy.Knows(site.Name)) continue;
             if (knownBy != null && site.IsMobile && knownBy.LostToday(site.Name, GameCalendar.Instance?.Day ?? 0)) continue;
-            if (best == null || site.Count > best.Count) best = site;
+            // Thick game first; a lodge other parties are already working is
+            // worth less to you (design doc 16.3) - and a thin one is left to recover.
+            float score = site.Count;
+            if (knownBy != null)
+            {
+                int others = 0;
+                foreach (var l in site.Traplines) if (l.Owner != knownBy.Title && l.Traps > 0) others++;
+                score /= 1f + 0.8f * others;
+                if (site.Count < site.Capacity * 0.45f) score *= 0.4f;
+            }
+            if (best == null || score > bestScore) { best = site; bestScore = score; }
         }
         return best;
     }

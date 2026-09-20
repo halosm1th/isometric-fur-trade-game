@@ -296,6 +296,7 @@ public class Conversation
         ClearOptions();
         var fort = _player.HomePost; var eco = Sim.Ecology;
         AddOption("\"Cut wood.\"", () => ShowTopics(Order(man, "cut wood", _ => new Agents.Goals.ChopWoodGoal())));
+        AddOption("\"Snare small game.\"", () => ShowTopics(Order(man, "snare small game", _ => new Agents.Goals.ForageGoal(5f), hunt: true)));
         if (eco != null && fort != null)
         {
             var site = eco.BestSite(Ecology.Species.Goose, fort) ?? eco.BestSite(Ecology.Species.Caribou, fort) ?? eco.BestSite(Ecology.Species.Beaver, fort);
