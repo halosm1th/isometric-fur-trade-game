@@ -33,6 +33,13 @@ public partial class FortLedger : Household
     public float GoodsPaidMb;
     public int Year;
 
+    // The rivalry's ledger (design doc 7.1): when this post was last robbed,
+    // when it last sent men across, and what the raids have cost it.
+    public int LastRaidedDay = -999;
+    public int LastRaidDay = -999;
+    public int LotsLostToRaids;
+    public bool RaidedRecently(int today) => today - LastRaidedDay >= 0 && today - LastRaidedDay < 6;
+
     // Which company this counter belongs to, for standing and debt.
     public virtual Agents.Faction Company => Agents.Faction.HBC;
     public virtual float BandStanding
@@ -80,6 +87,8 @@ public partial class FortLedger : Household
         Stores.Add(ItemId.PointBlanket, 12);
         Stores.Add(ItemId.BeaverPelt, 22);
         Stores.Add(ItemId.CaribouHide, 4);
+        Stores.Add(ItemId.Tumpline, 4);
+        Stores.Add(ItemId.PackBasket, 2);
         Year = GameCalendar.Instance?.Year ?? 1811;
 
         // The post knows its goose grounds and the lodge nearest the fort;

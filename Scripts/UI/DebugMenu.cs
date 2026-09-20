@@ -92,6 +92,15 @@ public partial class DebugMenu : Control
                 ("+50 food", () => fort.Stores.Add(ItemId.DriedGoose, 50)),
                 ("Empty food", () => { foreach (var id in new[] { ItemId.Pemmican, ItemId.DriedGoose, ItemId.Bread, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat }) fort.Stores.TakeUpTo(id, 9999); }));
         }
+        if (Sim.Nwc != null)
+        {
+            const string R = "The rivalry";
+            AddReadout(R, () => $"Tension {Economy.Rivalry.Tension:0} ({Economy.Rivalry.Describe()}); lots lost to raids: Company {Sim.Fort?.LotsLostToRaids ?? 0}, Nor'Westers {Sim.Nwc.LotsLostToRaids}");
+            AddSlider(R, "Tension", 0f, 100f, 1f, () => Economy.Rivalry.Tension, v => Economy.Rivalry.Tension = v, "0");
+            AddButtonRow(R,
+                ("Nor'Westers raid the fort", () => { Agents.Npc p = null; foreach (var n in Sim.Npcs) if (n.Role == Agents.Role.NwcPartner && !n.IsDead) p = n; if (p != null) Economy.Rivalry.OrderRaid(p, Sim.Nwc, Sim.Fort, 3); }),
+                ("Company raids the Nor'Westers", () => { Agents.Npc f = null; foreach (var n in Sim.Npcs) if (n.Role == Agents.Role.Factor && !n.IsDead) f = n; if (f != null) Economy.Rivalry.OrderRaid(f, Sim.Fort, Sim.Nwc, 3); }));
+        }
         var band = Sim.Band;
         if (band != null)
         {
@@ -112,6 +121,7 @@ public partial class DebugMenu : Control
                 ("Sites x2", () => { foreach (var s in eco.Sites) s.Count = Mathf.Min(s.Capacity * 1.5f, s.Count * 2f); }),
                 ("Sites /2", () => { foreach (var s in eco.Sites) s.Count *= 0.5f; }),
                 ("Force scarcity", () => { foreach (var s in eco.Sites) { s.FoodStock = 0.1f; s.Count = s.Capacity * 1.2f; s.Scarcity = true; } }));
+            AddButton(S, "March the herd toward this month's ground", () => { foreach (var s in eco.Sites) s.Migrate(GameCalendar.Instance.Month); });
             AddButton(S, "Wolf pack at the gate", () => eco.SpawnPackNear(Ecology.Species.Wolf, World.IsoGrid.ToWorld(World.WorldLayout.GateOutside) + new Vector2(300, 200), 4, true));
             AddButton(S, "Starving caribou at the gate", () => eco.SpawnPackNear(Ecology.Species.Caribou, World.IsoGrid.ToWorld(World.WorldLayout.GateOutside) + new Vector2(-300, 250), 5, true));
         }

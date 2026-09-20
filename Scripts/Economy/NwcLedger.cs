@@ -45,7 +45,9 @@ public partial class NwcLedger : FortLedger
         Stores.Add(ItemId.Rum, 40);
         Stores.Add(ItemId.Kettle, 2);
         Stores.Add(ItemId.Water, 16);
+        Stores.Add(ItemId.Tumpline, 6);
         foreach (var s in WorldLayout.Sites) KnownSites.Add(s.Name);   // they winter inland; they know the country
+        KnowsTheCountry = true;
         var cal = GameCalendar.Instance;
         if (cal != null) cal.CalendarEvent += OnEvent;
     }

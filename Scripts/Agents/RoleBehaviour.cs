@@ -281,12 +281,33 @@ public static class Delegation
         foreach (var n in Sim.Npcs) if (n.Faction == fort.Company && !n.IsDead) mouths++;
         bool foodShort = fort.FoodDays(mouths + 1) < 30f;
 
+        // The rivalry (design doc 7.1): with tempers past the mark and the
+        // other post's stores worth having, a leader with any ambition sends
+        // men across. A post that was robbed puts a guard on the door.
+        var rival = Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(fort.Company));
+        int today = Cal().Day;
+        int raidersSent = 0;
+        if (rival != null && Economy.Rivalry.OpenHostility && men.Count >= 2 && today - fort.LastRaidDay > 4 && !shipIn)
+        {
+            bool worthIt = foodShort || fort.Stores.Count(ItemId.TradeGoods) < 15 || Economy.Rivalry.Tension >= 90f || fort.RaidedRecently(today);
+            if (worthIt && GD.Randf() < 0.35f + factor.Personality.Ambition * 0.4f)
+                raidersSent = Economy.Rivalry.OrderRaid(factor, fort, rival, Mathf.Min(3, men.Count - 1)).Count;
+        }
+        bool wantGuard = rival != null && (fort.RaidedRecently(today) || Economy.Rivalry.Tension >= 60f);
+        var storeDoor = fort.Company == Faction.HBC ? WorldLayout.Warehouse.DoorCell : WorldLayout.NwcHouse.DoorCell;
+
         string summary = "";
         for (int i = 0; i < men.Count; i++)
         {
             var m = men[i];
+            if (m.AssignedTaskName.StartsWith("seize ") && raidersSent > 0) { summary += $"{m.DisplayName}: {m.AssignedTaskName}; "; continue; }
             m.AssignedTaskIsHunt = false;
-            if (threats > 0 && i < Mathf.Min(men.Count, threats + 1))
+            if (wantGuard && i == men.Count - 1 && men.Count > 1)
+            {
+                if (!m.Inventory.Has(ItemId.Musket) && fort.Stores.Remove(ItemId.Musket)) m.Inventory.Add(ItemId.Musket);
+                m.AssignedTask = _ => new GuardGoal(storeDoor, 4f); m.AssignedTaskName = "stand guard at the stores";
+            }
+            else if (threats > 0 && i < Mathf.Min(men.Count, threats + 1))
             {
                 if (!m.Inventory.Has(ItemId.Musket) && fort.Stores.Remove(ItemId.Musket)) m.Inventory.Add(ItemId.Musket);
                 m.AssignedTask = _ => new HuntThreatGoal(); m.AssignedTaskName = "drive off the animals";
@@ -320,6 +341,7 @@ public static class Delegation
         }
         Sim.Notice($"{factor.DisplayName} gives the morning's orders. {summary}");
         if (fort.LostToRivalMb > 0f && hbc) { Sim.Notice($"{factor.DisplayName}: \"{fort.LostToRivalMb:0} Made Beaver walked past us to the Nor'Westers this season. London will want to know why.\""); }
+        if (fort.LotsLostToRaids > 0 && fort.RaidedRecently(today)) Sim.Notice($"{factor.DisplayName}: \"{fort.LotsLostToRaids} lots gone out of our stores to the other side. That will be answered.\"");
 
         // The new hand gets his orders like everyone else - if he's at the
         // post to hear them (design doc 10: nothing travels by telepathy).
@@ -333,7 +355,8 @@ public static class Delegation
                 continue;
             }
             var band = Sim.Band;
-            if (threats > 0) pc.AssignTask(Player.TaskKind.DriveOffAnimals, 1);
+            if (raidersSent > 0) pc.AssignTask(Player.TaskKind.Raid, 4);
+            else if (threats > 0) pc.AssignTask(Player.TaskKind.DriveOffAnimals, 1);
             else if (shipIn && ship.Cargo.SlotCount > 0) pc.AssignTask(Player.TaskKind.CarryCargo, 8);
             else if (band != null && !band.InvitedToTrade && band.WillTrade && fort.FursInStoreMb < fort.QuotaMb && GD.Randf() < 0.4f) pc.AssignTask(Player.TaskKind.DeliverLetter, 1);
             else pc.AssignTask(Player.TaskKind.Firewood, 4);

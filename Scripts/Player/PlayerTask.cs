@@ -2,7 +2,7 @@ using IsometricFurTradeGame.Scripts.Core;
 
 namespace IsometricFurTradeGame.Scripts.Player;
 
-public enum TaskKind { Firewood, CarryCargo, DriveOffAnimals, DeliverLetter, None }
+public enum TaskKind { Firewood, CarryCargo, DriveOffAnimals, DeliverLetter, Raid, None }
 
 // An assignment the Factor hands the player (design doc 3.9, seen from the
 // subordinate's side): intent and a count, not steps. Doing it earns
@@ -22,6 +22,7 @@ public class PlayerTask
         TaskKind.CarryCargo => $"Mr. Auld: carry {Need} lots from the ship to the warehouse ({Done}/{Need})",
         TaskKind.DriveOffAnimals => $"Mr. Auld: drive off the animals about the post ({Done}/{Need})",
         TaskKind.DeliverLetter => "Mr. Auld: carry his letter to the chief at the camp and bring back his answer",
+        TaskKind.Raid => $"Go with the men and seize what you can from the other company's stores ({Done}/{Need} lots)",
         _ => "",
     };
 

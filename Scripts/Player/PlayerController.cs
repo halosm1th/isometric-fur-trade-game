@@ -42,6 +42,7 @@ public partial class PlayerController : Agent
 	public float Standing = 10f;
 	public readonly PlayerTask Task = new();
 	public readonly HashSet<string> KnownSites = new();
+	public readonly Dictionary<string, Vector2I> SiteBelief = new();
 	// Things you've seen happen (keys into the Chronicle).
 	public readonly HashSet<string> Known = new();
 	public readonly List<string> Journal = new();
@@ -616,6 +617,17 @@ public partial class PlayerController : Agent
 			bool night = cal.Hour >= 18f || cal.Hour < 6f;
 			float hours = night ? ((7f - cal.Hour + 24f) % 24f) : 1f;
 			return RequestSkip(hours, night ? "You turn in." : "You lie down for an hour.");
+		}
+
+		// Inside the other company's storehouse: help yourself, and take what
+		// follows (design doc 7.1, 15.1).
+		var rivalPost = Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(Faction));
+		if (rivalPost != null && (rivalPost.Company == Faction.NWC ? WorldLayout.NwcHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell)))
+		{
+			int took = Economy.Rivalry.Plunder(this, rivalPost, 4);
+			Task.Progress(TaskKind.Raid, took);
+			if (!Economy.Rivalry.OpenHostility) Standing -= 3f;
+			return took > 0 ? $"You shoulder {took} lots of the {(rivalPost.Company == Faction.NWC ? "Nor'Westers'" : "Company's")} goods. Now get them home." : "Nothing left worth carrying.";
 		}
 
 		var fort = HomePost;

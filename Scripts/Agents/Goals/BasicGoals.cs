@@ -360,6 +360,8 @@ public class AttackGoal : Goal
         _giveUp -= dt;
         float dist = npc.GlobalPosition.DistanceTo(Target.GlobalPosition);
         if (_giveUp <= 0f || dist > 1400f) { npc.StopMoving(); return GoalStatus.Failed; }
+        // A man who's had enough and is running is let go; you've driven him off.
+        if (Target is Npc beaten && beaten.Needs.Health < 50f && dist > 220f && beaten.Brain.Tier0Goal() is FleeGoal) { npc.StopMoving(); return GoalStatus.Done; }
 
         if (npc.InAttackRange(Target))
         {

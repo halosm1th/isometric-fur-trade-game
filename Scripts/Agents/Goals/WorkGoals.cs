@@ -17,8 +17,12 @@ public class HuntSiteGoal : Goal
     private float _worked;
     private float _tryTimer;
     private int _kills;
+    private float _searched;
+    private Vector2I _believed;
     public HuntSiteGoal(SpawnSite site, float workHours = 5f) { _site = site; _workHours = workHours; }
-    public override string Label => $"hunt at {_site.Name}";
+    public override string Label => _phase == 5 ? $"look for {_site.Name}" : $"hunt at {_site.Name}";
+
+    private bool HerdHere(Npc npc) => _site.WorldPos.DistanceTo(npc.GlobalPosition) < _site.RadiusPx * 1.3f;
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {
@@ -26,12 +30,61 @@ public class HuntSiteGoal : Goal
         {
             case 0:
                 _phase = 1;
-                return Delegate(new GoToGoal(_site.Cell, _site.RadiusPx * 0.35f));
+                // You walk to where you believe the animals are (design doc 16.5).
+                _believed = npc.HomeStores?.BelievedCell(_site) ?? _site.Cell;
+                return Delegate(new GoToGoal(_believed, _site.RadiusPx * 0.35f));
             case 1:
                 if (!ChildFinished(out var r)) return GoalStatus.Running;
                 if (r != GoalStatus.Done) return GoalStatus.Failed;
+                if (_site.IsMobile && !HerdHere(npc))
+                {
+                    // Nothing here but tracks. Cast about for the rest of the morning.
+                    Chronicle.Event($"{npc.DisplayName} found the ground at {_site.Name}'s old place empty; the herd had moved on.", npc.GlobalPosition, npc, _site.Name, 0.6f);
+                    _phase = 5;
+                    return GoalStatus.Running;
+                }
                 _phase = 2;
                 return GoalStatus.Running;
+            case 5:
+            {
+                _searched += hours;
+                if (HerdHere(npc))
+                {
+                    npc.HomeStores?.Believe(_site.Name, _site.Cell);
+                    Chronicle.Event($"{npc.DisplayName} found the caribou again, {Direction(_believed, _site.Cell)} of the old ground.", npc.GlobalPosition, npc, _site.Name, 1f);
+                    _phase = 2;
+                    return GoalStatus.Running;
+                }
+                if (_searched > 4f || GameCalendar.Instance.Hour >= 15f || npc.Needs.Thirst < 40f || npc.Needs.Hunger < 30f)
+                {
+                    _phase = 3;
+                    if (npc.HomeStores != null) npc.HomeStores.SiteLostDay[_site.Name] = GameCalendar.Instance.Day;
+                    Sim.Notice($"{npc.DisplayName} comes home empty-handed: {_site.Name} has moved and nobody knows where.");
+                    if (npc.HomeStores == null) return GoalStatus.Done;
+                    return Delegate(new GoToGoal(npc.HomeStores.AccessCell, 100f));
+                }
+                if (npc.Arrived || npc.MoveFailed)
+                {
+                    // Herds follow the seasons; a hunter guesses along the same lines.
+                    int month = GameCalendar.Instance.Month;
+                    var c = npc.Cell;
+                    Vector2I guess;
+                    if (npc.HomeStores != null && npc.HomeStores.KnowsTheCountry && _site.Route != null)
+                    {
+                        // Those who know the country know where the caribou go
+                        // in this month; they head that way, casting about.
+                        var ground = _site.Route[Mathf.Clamp(month - 1, 0, _site.Route.Length - 1)];
+                        guess = new Vector2I((c.X + ground.X) / 2 + GD.RandRange(-4, 4), (c.Y + ground.Y) / 2 + GD.RandRange(-6, 6));
+                    }
+                    else
+                    {
+                        int bias = month >= 4 && month <= 8 ? -1 : 1;
+                        guess = new Vector2I(c.X + GD.RandRange(-5, 5), c.Y + GD.RandRange(0, 14) * bias + GD.RandRange(-4, 4));
+                    }
+                    npc.SetDestination(new Vector2I(Mathf.Clamp(guess.X, 2, WorldLayout.MapWidth - 3), Mathf.Clamp(guess.Y, 50, WorldLayout.MapHeight - 4)));
+                }
+                return GoalStatus.Running;
+            }
             case 2:
                 _worked += hours;
                 _tryTimer -= hours;
@@ -85,6 +138,12 @@ public class HuntSiteGoal : Goal
         }
     }
 
+    private static string Direction(Vector2I from, Vector2I to)
+    {
+        var d = IsoGrid.ToWorld(to) - IsoGrid.ToWorld(from);
+        return Mathf.Abs(d.Y) > Mathf.Abs(d.X) ? (d.Y < 0 ? "north" : "south") : (d.X < 0 ? "west" : "east");
+    }
+
     private static void DepositTake(Npc npc)
     {
         var store = npc.HomeStores;
@@ -96,6 +155,90 @@ public class HuntSiteGoal : Goal
             if (n > keep) { npc.Inventory.Remove(id, n - keep); store.Stores.Add(id, n - keep); }
         }
     }
+}
+
+// Cross to the other company's post and carry off its stores (design doc
+// 7.1, 15.1). Whoever meets you at the door decides whether it's a theft or
+// a fight; the party fights only the armed men of the house.
+public class RaidGoal : Goal
+{
+    private readonly Economy.FortLedger _target;
+    private int _phase;
+    public RaidGoal(Economy.FortLedger target) { _target = target; }
+    public override string Label => $"seize {_target?.Title}";
+
+    public override void OnEnter(Npc npc) { npc.Raiding = true; npc.RaidTarget = _target.Company; npc.RaidTimer = 0f; }
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        switch (_phase)
+        {
+            case 0:
+                _phase = 1;
+                return Delegate(new GoToGoal(_target.AccessCell, 130f));
+            case 1:
+                if (!ChildFinished(out var r)) return GoalStatus.Running;
+                if (r != GoalStatus.Done) return GoalStatus.Failed;
+                // Muskets at the door and the odds against you: most men think
+                // better of it. That is what a guard is for.
+                if (Economy.Rivalry.HouseHasOdds(_target.Company, npc.GlobalPosition) && npc.Personality.Courage < 0.65f)
+                {
+                    Sim.Notice($"{npc.DisplayName} turned back at the door of {_target.Title}: too many muskets about.");
+                    Chronicle.Event($"{npc.DisplayName} came for {_target.Title} and turned back at the sight of the guard.", npc.GlobalPosition, npc, weight: 1f);
+                    Economy.Rivalry.Raise(3f, "a party turned back at the door");
+                    npc.Raiding = false;   // going home empty-handed; not a target any more
+                    _phase = 2;
+                    return Delegate(new GoToGoal(npc.HomeStores?.AccessCell ?? npc.BedCell, 110f));
+                }
+                Economy.Rivalry.Plunder(npc, _target, 6);
+                npc.RaidTimer = 0f;   // the goal keeps the flag; the timer is for players
+                _phase = 2;
+                return Delegate(new GoToGoal(npc.HomeStores?.AccessCell ?? npc.BedCell, 110f));
+            default:
+                if (!ChildFinished(out var r2)) return GoalStatus.Running;
+                if (npc.HomeStores != null)
+                {
+                    int lots = 0;
+                    foreach (var (id, n) in new System.Collections.Generic.List<(ItemId, int)>(npc.Inventory.All()))
+                    {
+                        var kind = Items.Items.Of(id).Kind;
+                        if (kind == ItemKind.Weapon || kind == ItemKind.Clothing || kind == ItemKind.Tool) continue;
+                        if (kind == ItemKind.Food && n <= 1) continue;
+                        int give = kind == ItemKind.Food ? n - 1 : n;
+                        npc.Inventory.Remove(id, give); npc.HomeStores.Stores.Add(id, give); lots += give;
+                    }
+                    if (lots > 0) Sim.Notice($"{npc.DisplayName} is back with {lots} lots of the {(_target.Company == Faction.NWC ? "Nor'Westers'" : "Company's")} goods.");
+                }
+                return GoalStatus.Done;
+        }
+    }
+
+    public override void OnExit(Npc npc) { npc.Raiding = false; npc.RaidTimer = 0f; npc.StopMoving(); if (npc.AssignedTaskName.StartsWith("seize ")) npc.AssignedTaskName = "back from the other post"; }
+}
+
+// Stand by the stores with a musket after a robbery (design doc 15.1). The
+// interrupt logic does the rest when a raider shows up.
+public class GuardGoal : Goal
+{
+    private readonly Vector2I _post;
+    private float _left;
+    private float _shift;
+    public GuardGoal(Vector2I post, float hours) { _post = post; _left = hours; }
+    public override string Label => "stand guard";
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        _left -= hours; _shift -= hours;
+        if (_left <= 0f) return GoalStatus.Done;
+        if (npc.Needs.Thirst < 35f || npc.Needs.Hunger < 30f || npc.Needs.Warmth < 30f) return GoalStatus.Done;
+        if (_shift <= 0f)
+        {
+            _shift = 0.5f;
+            npc.SetDestination(new Vector2I(_post.X + GD.RandRange(-1, 1), _post.Y + GD.RandRange(-2, 2)));
+        }
+        return GoalStatus.Running;
+    }
+    public override void OnExit(Npc npc) => npc.StopMoving();
 }
 
 // Walk out to a lodge and set the traps you carry (design doc 16.1).
@@ -229,7 +372,7 @@ public class TradeTripGoal : Goal
                 if (_buyFood) bought = fort.SellFood(npc.Inventory, npc.Inventory.Count(ItemId.TradeGoods));
                 Sim.Notice($"{npc.DisplayName} traded at {fort.Title}: {paid:0} MB in goods{(bought > 0 ? $", bought {bought} of food" : "")}{(fort.BandDebt > 0 ? $" (owes {fort.BandDebt:0.#} MB)" : "")}.");
                 Chronicle.Event($"{npc.DisplayName} traded furs at {fort.Title}.", npc.GlobalPosition, npc, weight: 0.4f);
-                if (fort is Economy.NwcLedger && Sim.Fort != null) Sim.Fort.LostToRivalMb += paid;
+                if (fort is Economy.NwcLedger && Sim.Fort != null) { Sim.Fort.LostToRivalMb += paid; Economy.Rivalry.Raise(paid * 0.25f, "furs going to the Nor'Westers"); }
                 band.InvitedToTrade = false;
                 // A clerk who dealt fairly earns a little standing with the band.
                 _phase = 4;

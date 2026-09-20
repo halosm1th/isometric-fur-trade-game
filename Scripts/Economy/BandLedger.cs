@@ -73,5 +73,6 @@ public partial class BandLedger : Household
         Stores.Add(ItemId.Kettle, 2);
         Stores.Add(ItemId.Water, 12);
         foreach (var s in WorldLayout.Sites) KnownSites.Add(s.Name);   // it's their country
+        KnowsTheCountry = true;
     }
 }

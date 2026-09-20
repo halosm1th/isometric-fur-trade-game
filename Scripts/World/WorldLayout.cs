@@ -25,7 +25,9 @@ public readonly record struct BuildingDef(BuildingKind Kind, string Name, Vector
     }
 }
 
-public readonly record struct SiteDef(string Name, Species Species, Vector2I Cell, int Count, int Capacity, float RadiusPx);
+// Route: where the site sits each month (12 entries), or null for a fixed
+// site like a lodge or a den (design doc 16.5).
+public readonly record struct SiteDef(string Name, Species Species, Vector2I Cell, int Count, int Capacity, float RadiusPx, Vector2I[] Route = null);
 
 // The York Factory test world, in cells. One place to look up where
 // everything is; both painters and the population spawner read from here.
@@ -104,7 +106,15 @@ public static class WorldLayout
     // ---- wildlife sites (design doc 16.4) -------------------------------------
     public static readonly SiteDef[] Sites =
     {
-        new("Caribou yard", Species.Caribou, new Vector2I(12, 200), 90, 140, 900f),
+        // The herd winters in the bush south of the camp and summers on the
+        // open ground toward the coast, west of the fort; the route drifts.
+        new("Caribou herd", Species.Caribou, new Vector2I(12, 200), 90, 140, 900f, new[]
+        {
+            new Vector2I(12, 200), new Vector2I(12, 206), new Vector2I(10, 196),   // Jan-Mar: wintering
+            new Vector2I(6, 166), new Vector2I(8, 124), new Vector2I(8, 100),      // Apr-Jun: moving north
+            new Vector2I(12, 94), new Vector2I(8, 104), new Vector2I(6, 130),      // Jul-Sep: summer range
+            new Vector2I(6, 166), new Vector2I(10, 190), new Vector2I(12, 200),    // Oct-Dec: back south
+        }),
         new("Goose marsh", Species.Goose, new Vector2I(66, 46), 180, 300, 700f),
         new("Beaver lodge (upper)", Species.Beaver, new Vector2I(62, 118), 40, 60, 350f),
         new("Beaver lodge (bend)", Species.Beaver, new Vector2I(55, 182), 45, 60, 350f),

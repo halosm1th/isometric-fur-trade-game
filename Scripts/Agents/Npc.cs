@@ -232,6 +232,14 @@ public partial class Npc : Agent
     {
         Opportunities();
         var current = Brain.Tier0Goal();
+        // A man badly hurt in a fight with other men breaks off, unless
+        // he's the reckless sort. Animals you can't outrun.
+        if (current is AttackGoal ag && ag.Target is not Animal && Needs.Health < 50f && Personality.Courage < 0.75f && LastAttacker != null && IsInstanceValid(LastAttacker))
+        {
+            Brain.PopTier0(this);
+            Brain.Push(this, new FleeGoal(LastAttacker, 10f));
+            return;
+        }
         if (current is AttackGoal || current is FleeGoal) return;
         var top = Brain.Top;
         if (top is FleePointGoal || top is FightFireGoal || top is BrawlGoal) return;
@@ -469,7 +477,24 @@ public partial class Npc : Agent
             else if (ally.Personality.Courage < 0.3f) ally.Brain.Push(ally, new FleeGoal(from, 6f));
         }
         if (from is Player.PlayerController attacker && Faction == Faction.HBC) attacker.Standing -= 5f;
+        // Blood between the companies' servants is what the rivalry feeds on.
+        if (Economy.Rivalry.AreRivals(from.Faction, Faction)) Economy.Rivalry.Raise(from.Raiding ? 2f : 6f, $"{from.Describe()} struck {DisplayName}");
     }
+
+    // The men who carry muskets for the house; leaders, clerks and women don't turn out.
+    public bool IsFighter => !IsFemale && Weapon != null && (Role == Role.Labourer || Role == Role.Voyageur || Role == Role.CreeHunter || Role == Role.Sailor);
+
+    // Someone robbing our house is an enemy while they're at it - to the
+    // armed men, and only if the house has the numbers (design doc 15.1).
+    public override bool IsHostileTo(Agent other)
+    {
+        if (base.IsHostileTo(other)) return true;
+        if (other.Raiding && other.RaidTarget == Faction && IsFighter) return Economy.Rivalry.HouseHasOdds(Faction, other.GlobalPosition);
+        return false;
+    }
+
+    // A voyageur carried two ninety-pound pieces over a portage.
+    public override float BaseCarryLbs => Role == Role.Voyageur ? 110f : Role == Role.Labourer || Role == Role.CreeHunter ? 65f : IsFemale ? 45f : 50f;
 
     // ---- helpers for goals ---------------------------------------------------
 

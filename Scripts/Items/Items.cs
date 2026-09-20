@@ -32,6 +32,8 @@ public enum ItemId
     Kettle,
     Flint,
     FishingLine,
+    Tumpline,
+    PackBasket,
     // Weapons
     Musket,
     Bow,
@@ -48,7 +50,7 @@ public enum ItemKind { Food, Drink, Fuel, Clothing, Fur, Goods, Weapon, Tool }
 public readonly record struct ItemDef(
     string Name, ItemKind Kind, float WeightLbs, string Icon,
     float Nutrition = 0f, float Thirst = 0f, float Warmth = 0f, float FuelHours = 0f, float ValueMb = 0f,
-    float Damage = 0f, float Range = 0f, float Cooldown = 1f, float Intoxication = 0f);
+    float Damage = 0f, float Range = 0f, float Cooldown = 1f, float Intoxication = 0f, float Capacity = 0f);
 
 public static class Items
 {
@@ -78,6 +80,9 @@ public static class Items
         { ItemId.Kettle,       new("Copper kettle",  ItemKind.Tool,     3.0f, IconDir + "kettle.png",       ValueMb: 2f) },
         { ItemId.Flint,        new("Flint and steel",ItemKind.Tool,     0.3f, IconDir + "flint.png",        ValueMb: 0.5f) },
         { ItemId.FishingLine,  new("Fishing line",   ItemKind.Tool,     0.5f, IconDir + "fishing_line.png", ValueMb: 0.5f) },
+        // Packs add to what a body can carry before it slows (design doc 12.4, 12.5).
+        { ItemId.Tumpline,     new("Tumpline",       ItemKind.Tool,     1.0f, IconDir + "tumpline.png",     ValueMb: 0.5f, Capacity: 40f) },
+        { ItemId.PackBasket,   new("Pack basket",    ItemKind.Tool,     3.0f, IconDir + "pack_basket.png",  ValueMb: 0.8f, Capacity: 30f) },
         { ItemId.Fish,         new("Fish",           ItemKind.Food,     1.0f, IconDir + "fish.png",         Nutrition: 22f, ValueMb: 0.1f) },
         { ItemId.Musket,       new("Trade musket",   ItemKind.Weapon,   9.0f, IconDir + "musket.png",       ValueMb: 12f, Damage: 55f, Range: 340f, Cooldown: 4f) },
         { ItemId.Bow,          new("Bow",            ItemKind.Weapon,   2.0f, IconDir + "bow.png",          ValueMb: 2f,  Damage: 30f, Range: 260f, Cooldown: 1.6f) },
@@ -143,6 +148,12 @@ public class Inventory
     public float ClothingWarmth =>
         _stacks.Where(kv => Items.Of(kv.Key).Kind == ItemKind.Clothing)
                .Sum(kv => Items.Of(kv.Key).Warmth * kv.Value);
+
+    // Extra carrying capacity from packs worn (only one of each counts).
+    public float CarryBonusLbs
+    {
+        get { float b = 0f; foreach (var id in _order) b += Items.Of(id).Capacity; return b; }
+    }
 
     public ItemId? FirstOfKind(ItemKind kind)
     {

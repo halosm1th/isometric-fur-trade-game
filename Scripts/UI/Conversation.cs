@@ -115,6 +115,13 @@ public class Conversation
         }
         if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief || npc.Role == Role.NwcPartner)
             AddOption("Trade", () => ShowTrade(npc));
+        // The rivalry (design doc 7.1): your own leader can be talked into a
+        // raid; the other side's can be talked into a truce.
+        bool leader = npc.Role == Role.Factor || npc.Role == Role.NwcPartner;
+        if (leader && npc.Faction == _player.Faction && Economy.Rivalry.Tension >= 40f && Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(npc.Faction)) != null)
+            AddOption(npc.Faction == Faction.HBC ? "Propose seizing the Nor'Westers' stores" : "Propose seizing the Company's stores", () => ShowTopics(ProposeRaid(npc)));
+        if (leader && Economy.Rivalry.AreRivals(npc.Faction, _player.Faction) && Economy.Rivalry.Tension >= 35f)
+            AddOption("Propose a truce between the companies", () => ShowTopics(ProposeTruce(npc)));
         if (npc.Role == Role.NwcPartner && _player.Faction != Faction.NWC)
             AddOption("Ask about signing on with the North West Company", () => ShowTopics(OfferNwc(npc)));
         if (npc.Role == Role.NwcPartner && _player.Faction != Faction.NWC && _player.WantsToDefect)
@@ -151,6 +158,18 @@ public class Conversation
             else if (cal.Month >= 6 && cal.Month <= 8) s += "\"We look for the ship any day now.\" ";
             if (fort != null) s += $"\"We hold {fort.FursInStoreMb:0} Made Beaver in furs against London's {fort.QuotaMb:0}.\" ";
             if (npc.Role == Role.Labourer && npc.AssignedTaskName != "") s += $"\"Mr. Auld has me set to {npc.AssignedTaskName}.\" ";
+        }
+        else if (npc.Faction == Faction.NWC)
+        {
+            foreach (var n in Sim.Npcs) if (n.Faction == Faction.NWC && !n.IsDead) mouths++;
+            float days = Sim.Nwc?.FoodDays(mouths + 1) ?? 0f;
+            s += days < 20 ? "\"Provisions are short till the brigade comes.\" " : "\"We eat well enough.\" ";
+        }
+        if (npc.Faction == Faction.HBC || npc.Faction == Faction.NWC)
+        {
+            string r = Economy.Rivalry.Describe();
+            s += Economy.Rivalry.OpenHostility ? $"\"Between us and the other side it is {r}. Keep your musket by you.\" "
+                : Economy.Rivalry.Tension >= 40f ? $"\"There is {r} with the other company. It will come to blows if it goes on.\" " : "";
         }
         else if (npc.Faction == Faction.Cree)
         {
@@ -261,6 +280,45 @@ public class Conversation
         return string.Join(" ", picked) + (npc.Personality.Talkative < 0.3f ? " They say no more." : "");
     }
 
+    private string ProposeRaid(Npc leader)
+    {
+        var from = Economy.Rivalry.PostOf(leader.Faction); var target = Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(leader.Faction));
+        if (from == null || target == null) return "\"There is nobody to seize anything from.\"";
+        int today = GameCalendar.Instance.Day;
+        if (today - from.LastRaidDay <= 2) return "\"The men have only just come back. Let them eat first.\"";
+        float will = leader.Personality.Ambition * 0.6f + leader.Personality.Courage * 0.3f + Economy.Rivalry.Tension / 200f + (_player.Standing > 30f ? 0.15f : 0f) - leader.Personality.Loyalty * 0.2f;
+        if (from.RaidedRecently(today)) will += 0.3f;
+        if (will < 0.55f)
+        {
+            leader.ChangeRapport(_player, -3f);
+            return leader.Faction == Faction.HBC
+                ? "\"And have London read that its Factor turned bandit? No. We hold the counter and we hold our tempers. If they come to us, that is another matter.\""
+                : "\"The partners at Fort William want furs, not a war on the Bay with our name on it. Not yet.\"";
+        }
+        var sent = Economy.Rivalry.OrderRaid(leader, from, target, 3);
+        if (sent.Count == 0) return "\"I have no men to spare for it today.\"";
+        _player.AssignTask(TaskKind.Raid, 4);
+        leader.ChangeRapport(_player, 4f);
+        return $"\"Very well. {string.Join(", ", sent.ConvertAll(n => n.DisplayName))} go with you - muskets, and no shooting unless they shoot first. Bring back what you can carry.\"";
+    }
+
+    private string ProposeTruce(Npc leader)
+    {
+        float t = Economy.Rivalry.Tension;
+        float will = (1f - leader.Personality.Ambition) * 0.4f + leader.RapportWith(_player) / 100f + (leader.Needs.Health < 60f ? 0.2f : 0f) + (leader.Personality.Suspicion < 0.4f ? 0.15f : 0f);
+        var own = Economy.Rivalry.PostOf(leader.Faction);
+        if (own != null && own.RaidedRecently(GameCalendar.Instance.Day)) will -= 0.3f;
+        if (will < 0.45f)
+        {
+            leader.ChangeRapport(_player, -4f);
+            return "\"A truce? After what your people have done? Go back and tell your master we remember.\"";
+        }
+        Economy.Rivalry.Raise(-35f, "a truce agreed");
+        leader.ChangeRapport(_player, 10f);
+        Chronicle.Event($"{_player.DisplayName} and {leader.DisplayName} agreed a truce between the companies.", leader.GlobalPosition, _player, weight: 1.5f);
+        return $"\"Neither of us profits from this. Tell your master the {(leader.Faction == Faction.NWC ? "North West Company" : "Company")} will keep to its own side of the river if he keeps to his.\" The rivalry stands at {Economy.Rivalry.Describe()} now ({t:0} to {Economy.Rivalry.Tension:0}).";
+    }
+
     private string AskMarriage(Npc npc)
     {
         var daughters = new List<Npc>();
@@ -318,7 +376,7 @@ public class Conversation
         if (npc.RapportWith(_player) >= 15f)
         {
             int learned = 0;
-            foreach (var site in eco.Sites) if (_player.KnownSites.Add(site.Name)) learned++;
+            foreach (var site in eco.Sites) { if (_player.KnownSites.Add(site.Name)) learned++; _player.SiteBelief[site.Name] = site.Cell; }
             if (learned > 0) s += $" He describes where the game is: {learned} places you did not know. The Factor would want to hear it.";
         }
         else s += " He says nothing of where the game is. You are not yet a friend.";
@@ -349,12 +407,13 @@ public class Conversation
     private string TellSites(Npc factor)
     {
         int told = 0;
-        foreach (var sname in _player.KnownSites) if (Sim.Fort.Learn(sname)) told++;
+        foreach (var sname in _player.KnownSites) if (Sim.Fort.Learn(sname, _player.SiteBelief.TryGetValue(sname, out var at) ? at : null)) told++;
         _player.Standing += 3f * told;
         factor.ChangeRapport(_player, 4f * told);
         return told > 0 ? $"\"Good man. That is worth knowing.\" He notes it in the journal. (standing +{3 * told})" : "\"You have told me nothing new.\"";
     }
 
+    private int _tradePage;
     private void ShowTrade(Npc npc)
     {
         var fort = Sim.Fort; var band = Sim.Band;
@@ -390,12 +449,14 @@ public class Conversation
             if (_options.Count >= 4) break;
         }
         // Buy from the counter with trade goods (or furs at the camp).
-        int shown = 0;
+        int shown = 0, skipped = 0; bool more = false;
         foreach (var (id, n) in new List<(ItemId, int)>(counter.All()))
         {
             var def = Items.Items.Of(id);
             if (def.Kind == ItemKind.Fur && npc.Faction != Faction.Cree) continue;
             if (id == ItemId.TradeGoods) continue;
+            if (shown >= 4) { more = true; break; }
+            if (skipped < _tradePage * 4) { skipped++; continue; }
             int cost = Mathf.Max(1, Mathf.CeilToInt(def.ValueMb * (def.Kind == ItemKind.Food ? fort.FoodPriceMultiplier : 1f)));
             ItemId currency = ItemId.TradeGoods;
             if (_player.Inventory.Count(currency) >= cost)
@@ -405,11 +466,13 @@ public class Conversation
                     counter.Remove(id); _player.Inventory.Add(id); _player.Inventory.Remove(currency, cost); counter.Add(currency, cost);
                     ShowTrade(npc);
                 });
-                if (++shown >= 4) break;
+                shown++;
             }
         }
-        if (_options.Count == 0) _text += "\n\nYou have nothing they want, or they nothing you can pay for. Trade goods are the coin here.";
-        AddOption("Back", () => ShowTopics(Greeting(npc)));
+        if (_options.Count == 0 && _tradePage == 0) _text += "\n\nYou have nothing they want, or they nothing you can pay for. Trade goods are the coin here.";
+        if (more) AddOption("More of the stores...", () => { _tradePage++; ShowTrade(npc); });
+        else if (_tradePage > 0) AddOption("Back to the first shelf", () => { _tradePage = 0; ShowTrade(npc); });
+        AddOption("Back", () => { _tradePage = 0; ShowTopics(Greeting(npc)); });
     }
 
     private void ShowGive(Npc npc)

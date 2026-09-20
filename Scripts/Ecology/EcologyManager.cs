@@ -20,6 +20,31 @@ public class SpawnSite
     public bool Scarcity;                  // over capacity: hungry animals range out
     public float FoodStock = 1f;          // local browse, 0..1
 
+    // A herd is a site that moves (design doc 16.5): each month it makes for
+    // the route's next ground, with some drift so it isn't a timetable.
+    public Vector2I[] Route;
+    public bool IsMobile => Route != null;
+    private Vector2I _drift;
+    private int _driftMonth = -1;
+    public Vector2I HomeCell;   // where it started; the name's "place"
+
+    // One week's travel toward this month's ground. Returns how far it moved.
+    public float Migrate(int month)
+    {
+        if (!IsMobile || IsDead) return 0f;
+        if (month != _driftMonth) { _driftMonth = month; _drift = new Vector2I(GD.RandRange(-3, 3), GD.RandRange(-6, 6)); }
+        var target = Route[Mathf.Clamp(month - 1, 0, Route.Length - 1)] + _drift;
+        var d = target - Cell;
+        if (d == Vector2I.Zero) return 0f;
+        // A herd covers about a third of the way in a week.
+        var step = new Vector2I(Mathf.RoundToInt(d.X * 0.4f), Mathf.RoundToInt(d.Y * 0.4f));
+        if (step.X == 0 && d.X != 0) step.X = System.Math.Sign(d.X);
+        if (step.Y == 0 && d.Y != 0) step.Y = System.Math.Sign(d.Y);
+        var before = WorldPos;
+        Cell += step;
+        return before.DistanceTo(WorldPos);
+    }
+
     public readonly List<Animal> Live = new();
     public readonly List<Trapline> Traplines = new();
 
@@ -121,7 +146,8 @@ public class SpawnSite
         string state = IsDead ? "DEAD" : Scarcity ? "scarcity" : "ok";
         string traps = "";
         foreach (var l in Traplines) traps += $" [{l.Owner}: {l.Traps} traps, {l.Caught} caught]";
-        return $"{Name}: {Count:0}/{Capacity} ({LiveCount} live) browse {FoodStock:0.00} [{state}]{traps}";
+        string where = IsMobile ? $" at ({Cell.X},{Cell.Y})" : "";
+        return $"{Name}{where}: {Count:0}/{Capacity} ({LiveCount} live) browse {FoodStock:0.00} [{state}]{traps}";
     }
 }
 
@@ -142,7 +168,7 @@ public partial class EcologyManager : Node2D
         Sim.Ecology = this;
         foreach (var d in WorldLayout.Sites)
         {
-            Sites.Add(new SpawnSite { Name = d.Name, Species = d.Species, Cell = d.Cell, Count = d.Count, Capacity = d.Capacity, RadiusPx = d.RadiusPx });
+            Sites.Add(new SpawnSite { Name = d.Name, Species = d.Species, Cell = d.Cell, HomeCell = d.Cell, Count = d.Count, Capacity = d.Capacity, RadiusPx = d.RadiusPx, Route = d.Route });
         }
     }
 
@@ -153,6 +179,7 @@ public partial class EcologyManager : Node2D
         {
             if (site.Species != s || site.IsDead || site.Count < 1f) continue;
             if (knownBy != null && !knownBy.Knows(site.Name)) continue;
+            if (knownBy != null && site.IsMobile && knownBy.LostToday(site.Name, GameCalendar.Instance?.Day ?? 0)) continue;
             if (best == null || site.Count > best.Count) best = site;
         }
         return best;
@@ -164,8 +191,23 @@ public partial class EcologyManager : Node2D
         if (npc.HomeStores == null) return;
         foreach (var site in Sites)
         {
-            if (npc.HomeStores.Knows(site.Name)) continue;
-            if (site.WorldPos.DistanceTo(npc.GlobalPosition) < site.RadiusPx * 0.6f) npc.HomeStores.Learn(site.Name);
+            if (site.WorldPos.DistanceTo(npc.GlobalPosition) >= site.RadiusPx * 0.6f) continue;
+            if (!npc.HomeStores.Knows(site.Name)) npc.HomeStores.Learn(site.Name, site.Cell);
+            else npc.HomeStores.Believe(site.Name, site.Cell);
+        }
+    }
+
+    // Players learn the ground by walking it too.
+    public void ScoutPlayer(Player.PlayerController pc)
+    {
+        foreach (var site in Sites)
+        {
+            if (site.WorldPos.DistanceTo(pc.GlobalPosition) >= site.RadiusPx * 0.7f) continue;
+            bool isNew = pc.KnownSites.Add(site.Name);
+            bool moved = !pc.SiteBelief.TryGetValue(site.Name, out var b) || (b - site.Cell).Length() > 6f;
+            pc.SiteBelief[site.Name] = site.Cell;
+            if (isNew) pc.Say($"You have found {site.Name}. The Factor would want to know.");
+            else if (moved && site.IsMobile) pc.Say($"So this is where {site.Name} has got to.");
         }
     }
 
@@ -204,9 +246,12 @@ public partial class EcologyManager : Node2D
             {
                 if (arg == "--wolves") SpawnPackNear(Species.Wolf, IsoGrid.ToWorld(WorldLayout.GateOutside) + new Vector2(350, 250), 4, true);
                 if (arg == "--scarcity") foreach (var s in Sites) { s.FoodStock = 0.1f; s.Count = s.Capacity * 1.2f; s.Scarcity = true; }
+                if (arg.StartsWith("--tension=") && float.TryParse(arg.Substring(10), out float t)) Economy.Rivalry.Tension = t;
+                if (arg == "--herdmoved") foreach (var s in Sites) if (s.IsMobile) s.Cell = s.Route[Mathf.Clamp(cal.Month - 1, 0, 11)];
             }
         }
         foreach (var s in Sites) s.TickTraplines(cal.DeltaGameHours);
+        Economy.Rivalry.DailyTick(cal.Day);
         // Traps work at night.
         int day = cal.Day;
         if (day != _lastTrapDay && cal.Hour >= 5f)
@@ -221,6 +266,12 @@ public partial class EcologyManager : Node2D
             float pressure = PreyPressure;
             foreach (var s in Sites) s.WeeklyTick(pressure);
             Migration(cal.Month);
+            foreach (var s in Sites)
+            {
+                float moved = s.Migrate(cal.Month);
+                // Only those who can see the herd know it's moving (design doc 16.5).
+                if (moved > 200f) Chronicle.Event($"the caribou were on the move, heading {Heading(s)}.", s.WorldPos, subject: s.Name, weight: 0.8f);
+            }
         }
 
         _promoteTimer -= (float)delta;
@@ -229,6 +280,7 @@ public partial class EcologyManager : Node2D
             _promoteTimer = 1.5f;
             Promote();
             foreach (var n in Sim.Npcs) if (!n.IsDead) Scout(n);
+            foreach (var pc in Sim.Players()) if (!pc.IsDead) ScoutPlayer(pc);
         }
     }
 
@@ -316,6 +368,13 @@ public partial class EcologyManager : Node2D
             if (away) { s.Count = 0f; Sim.Notice($"The geese have gone south. {s.Name} is empty till spring."); }
             else { s.Count = s.Capacity * 0.7f; Sim.Notice($"The geese are back on {s.Name}. The spring hunt is on."); }
         }
+    }
+
+    private static string Heading(SpawnSite s)
+    {
+        var month = GameCalendar.Instance?.Month ?? 1;
+        var target = s.Route[Mathf.Clamp(month - 1, 0, s.Route.Length - 1)];
+        return target.Y < s.Cell.Y ? "north toward the coast" : "south into the bush";
     }
 
     private static int MaxLive(SpawnSite s) => s.Species switch

@@ -22,13 +22,35 @@ public partial class Household : Node
     // sites are learned, not given). Names match WorldLayout.Sites.
     public readonly System.Collections.Generic.HashSet<string> KnownSites = new();
 
+    // Where the household thinks each site is. For a lodge that's the
+    // truth forever; for a herd it goes stale as the animals move (design
+    // doc 16.5), and hunters go where the herd was last seen.
+    public readonly Dictionary<string, Vector2I> SiteBelief = new();
+    // Knows the seasonal round of the herds (the band; the wintering
+    // partners), so a search heads for the right ground.
+    public bool KnowsTheCountry;
+    // The day a hunter came back saying the herd wasn't where we thought.
+    public readonly Dictionary<string, int> SiteLostDay = new();
+    public bool LostToday(string siteName, int day) => SiteLostDay.TryGetValue(siteName, out int d) && d == day;
+
     public bool Knows(string siteName) => KnownSites.Contains(siteName);
 
-    public bool Learn(string siteName)
+    public bool Learn(string siteName, Vector2I? at = null)
     {
+        if (at != null) SiteBelief[siteName] = at.Value;
         if (!KnownSites.Add(siteName)) return false;
         Sim.Notice($"{Title}: the location of {siteName} is now known.");
         return true;
+    }
+
+    public void Believe(string siteName, Vector2I at) => SiteBelief[siteName] = at;
+
+    // Where to walk to work a site: the remembered ground for a herd, the
+    // real place for anything that doesn't move.
+    public Vector2I BelievedCell(Ecology.SpawnSite site)
+    {
+        if (!site.IsMobile) return site.Cell;
+        return SiteBelief.TryGetValue(site.Name, out var c) ? c : site.HomeCell;
     }
 
     // Takes up to n pieces of the plainest food available into the agent's pack.

@@ -65,6 +65,12 @@ public partial class Agent : CharacterBody2D
     // Fixed clothing not carried as items (animals' hides, sailors' slops).
     public float InnateWarmth = 0f;
 
+    // Set while breaking into the other company's stores: the house treats
+    // you as an enemy for as long as it lasts (design doc 15.1).
+    public bool Raiding;
+    public Faction RaidTarget;
+    public float RaidTimer;
+
     // Who hurt us last; drives fear and retaliation.
     public Agent LastAttacker { get; private set; }
     public float LastAttackedAgo { get; private set; } = 999f;
@@ -96,6 +102,7 @@ public partial class Agent : CharacterBody2D
         HurtFlash = Mathf.Max(0f, HurtFlash - (float)delta);
         _attackCooldown = Mathf.Max(0f, _attackCooldown - scaled);
         LastAttackedAgo += scaled;
+        if (RaidTimer > 0f) { RaidTimer -= scaled; if (RaidTimer <= 0f) Raiding = false; }
         if (IsDead) return;
 
         var structures = Sim.Structures;
@@ -115,7 +122,7 @@ public partial class Agent : CharacterBody2D
         }
         Needs.Tick(
             cal.DeltaGameHours,
-            activity: !moving ? 1f : (IsSprinting ? 2.4f : 1.5f),
+            activity: !moving ? 1f : (IsSprinting ? 2.4f : IsOverloaded ? 2.0f : 1.5f),
             sheltered: IsSheltered,
             heat: HeatNear,
             clothingWarmth: Inventory.ClothingWarmth + InnateWarmth,
@@ -147,7 +154,10 @@ public partial class Agent : CharacterBody2D
 
     // A voyageur carried two 90-lb pieces on a portage; anyone else slows
     // down well before that (design doc 12).
-    public float LoadFactor => Mathf.Clamp(1f - (Inventory.TotalWeightLbs - 50f) / 160f, 0.35f, 1f);
+    public virtual float BaseCarryLbs => 50f;
+    public float CarryCapacityLbs => BaseCarryLbs + Inventory.CarryBonusLbs;
+    public bool IsOverloaded => Inventory.TotalWeightLbs > CarryCapacityLbs;
+    public float LoadFactor => Mathf.Clamp(1f - (Inventory.TotalWeightLbs - CarryCapacityLbs) / 160f, 0.35f, 1f);
     public float DrunkFactor => Intoxication > 40f ? Mathf.Lerp(1f, 0.6f, (Intoxication - 40f) / 60f) : 1f;
     public float SickFactor => IsSick ? 0.7f : 1f;
     public float EffectiveSpeed => MoveSpeed * Needs.CapabilityFactor * LoadFactor * DrunkFactor * SickFactor * (IsSprinting ? SprintMultiplier : IsSneaking ? 0.45f : 1f);
@@ -317,7 +327,7 @@ public partial class Agent : CharacterBody2D
         if (IsDead) OnDeath();
     }
 
-    public bool IsHostileTo(Agent other)
+    public virtual bool IsHostileTo(Agent other)
     {
         if (other == null || other == this) return false;
         if (Faction == Faction.Wild || other.Faction == Faction.Wild) return true;
