@@ -37,7 +37,7 @@ public partial class Hotbar : Control
         _player = GetNodeOrNull<PlayerController>(PlayerPath);
         if (_player != null) _player.Notice += Notice;
 
-        var column = new VBoxContainer();
+        var column = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         column.SetAnchorsPreset(LayoutPreset.CenterBottom);
         column.GrowHorizontal = GrowDirection.Both;
         column.GrowVertical = GrowDirection.Begin;
@@ -56,7 +56,7 @@ public partial class Hotbar : Control
         _name.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.8f));
         column.AddChild(_name);
 
-        var row = new HBoxContainer { SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
+        var row = new HBoxContainer { SizeFlagsHorizontal = SizeFlags.ShrinkCenter, MouseFilter = MouseFilterEnum.Ignore };
         row.AddThemeConstantOverride("separation", 4);
         column.AddChild(row);
 

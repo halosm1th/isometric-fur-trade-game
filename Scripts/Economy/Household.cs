@@ -35,12 +35,29 @@ public partial class Household : Node
     public bool TakeRation(Agent agent, int n)
     {
         int taken = 0;
-        foreach (var id in new[] { ItemId.Venison, ItemId.Goose, ItemId.DriedGoose, ItemId.Bread, ItemId.Pemmican })
+        foreach (var id in new[] { ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Bread, ItemId.Pemmican })
         {
             while (taken < n && Stores.Remove(id)) { agent.Inventory.Add(id); taken++; }
             if (taken >= n) break;
         }
         return taken > 0;
+    }
+
+    // Fresh meat doesn't keep. A tenth of it goes bad each day in the cache
+    // (winter halves that) - the reason drying and pemmican exist.
+    private int _spoilDay = -1;
+    public override void _Process(double delta)
+    {
+        var cal = GameCalendar.Instance;
+        if (cal == null || cal.Day == _spoilDay) return;
+        _spoilDay = cal.Day;
+        int fresh = Stores.Count(ItemId.Venison) + Stores.Count(ItemId.Goose);
+        if (fresh == 0) return;
+        float rate = cal.IsFrozen ? 0.05f : 0.12f;
+        int lost = Mathf.FloorToInt(fresh * rate + (GD.Randf() < (fresh * rate) % 1f ? 1 : 0));
+        int v = Stores.TakeUpTo(ItemId.Venison, lost);
+        if (v < lost) Stores.TakeUpTo(ItemId.Goose, lost - v);
+        if (lost > 0) Sim.Notice($"{Title}: {lost} pieces of fresh meat have gone bad.");
     }
 
     public float FoodDays(int mouths) => mouths <= 0 ? 999f : Stores.FoodNutritionTotal / (mouths * 1.4f * 24f);

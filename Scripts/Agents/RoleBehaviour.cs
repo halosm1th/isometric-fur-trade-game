@@ -102,6 +102,7 @@ public class HouseholdBehaviour : RoleBehaviour
     {
         var fire = FireDuty(npc, 5f);
         if (fire != null) return fire;
+        if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Venison) >= 3) return new DryMeatGoal();
         if (npc.Needs.Thirst < 60f) return new DrinkGoal();
         return new WanderGoal(npc.WorkCell, 2, 1.2f);
     }
@@ -164,6 +165,7 @@ public class CreeWomanBehaviour : RoleBehaviour
     {
         var fire = FireDuty(npc, 5f);
         if (fire != null) return fire;
+        if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Venison) >= 3) return new DryMeatGoal();
         if (npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Firewood) < 12 && IsWorkHours) return new ChopWoodGoal();
         return new WanderGoal(WorldLayout.CampCentre, 3, 1.2f);
     }
@@ -237,9 +239,16 @@ public static class Delegation
         }
         Sim.Notice($"{factor.DisplayName} gives the morning's orders. {summary}");
 
-        // The new hand gets his orders like everyone else.
+        // The new hand gets his orders like everyone else - if he's at the
+        // post to hear them (design doc 10: nothing travels by telepathy).
         if (Sim.Player is Player.PlayerController pc && !pc.IsDead)
         {
+            if (pc.GlobalPosition.DistanceTo(factor.GlobalPosition) > 900f)
+            {
+                pc.Standing -= 1f;
+                Sim.Notice("You were not at the post when the morning's orders were given. Mr. Auld noticed.");
+                return;
+            }
             if (threats > 0) pc.AssignTask(Player.TaskKind.DriveOffAnimals, 1);
             else if (shipIn && ship.Cargo.SlotCount > 0) pc.AssignTask(Player.TaskKind.CarryCargo, 8);
             else pc.AssignTask(Player.TaskKind.Firewood, 4);

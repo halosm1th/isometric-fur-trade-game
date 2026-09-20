@@ -75,7 +75,7 @@ public partial class DebugMenu : Control
             AddButtonRow(S,
                 ("+50 trade goods", () => fort.Stores.Add(ItemId.TradeGoods, 50)),
                 ("+50 food", () => fort.Stores.Add(ItemId.DriedGoose, 50)),
-                ("Empty food", () => { foreach (var id in new[] { ItemId.Pemmican, ItemId.DriedGoose, ItemId.Bread, ItemId.Venison, ItemId.Goose }) fort.Stores.TakeUpTo(id, 9999); }));
+                ("Empty food", () => { foreach (var id in new[] { ItemId.Pemmican, ItemId.DriedGoose, ItemId.Bread, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat }) fort.Stores.TakeUpTo(id, 9999); }));
         }
         var band = Sim.Band;
         if (band != null)
@@ -86,7 +86,7 @@ public partial class DebugMenu : Control
                 return $"Cache: {band.Stores.Summary()}\nFood for {band.FoodDays(mouths):0} days ({mouths} people)";
             });
             AddSlider("Cree band", "Standing w/ Company", 0f, 100f, 1f, () => band.StandingWithCompany, v => band.StandingWithCompany = v, "0");
-            AddButtonRow("Cree band", ("Empty their food", () => { foreach (var id in new[] { ItemId.Venison, ItemId.Goose, ItemId.DriedGoose, ItemId.Pemmican }) band.Stores.TakeUpTo(id, 9999); }));
+            AddButtonRow("Cree band", ("Empty their food", () => { foreach (var id in new[] { ItemId.Venison, ItemId.Goose, ItemId.DriedGoose, ItemId.Pemmican, ItemId.DriedMeat }) band.Stores.TakeUpTo(id, 9999); }));
         }
         var eco = Sim.Ecology;
         if (eco != null)

@@ -12,6 +12,8 @@ An isometric, open-world RPG following **one protagonist** across the fur trade 
 
 The player is mechanically an equal agent among NPCs (Section 11.1) rather than a superpowered protagonist — same needs, same goal structure, same action vocabulary (Section 3). A small number of distinct player-specific abilities are expected on top of that baseline; the first is defined in Section 3.5.
 
+The single-protagonist framing above is the base case. Because the player is architecturally just another agent, the same model extends to 4–6 concurrent human players sharing one world without a separate multiplayer simulation — see Section 21.
+
 The game's arc runs toward a single historical inevitability: the **1821 forced merger** of the Hudson's Bay Company and the North West Company, and the rise of **George Simpson** as the man who reshapes the surviving company. Whatever path the player has taken, the ending is the moment their world gets absorbed into — or transformed by — the new order.
 
 ---
@@ -128,6 +130,13 @@ The layer between a Tier 2 directive (Section 3.1) and the shared action vocabul
 **Cost and legibility.** The loop is event-driven, so it is cheap. A post in the live bubble runs its deliberation on a visible daily beat — the morning assignments — which gives the player something to watch. Background posts run the whole loop in the weekly batch (Section 18.2). As a clerk, the player gets assignments as dialogue with intent and a deadline but not the leader's reasoning, so priorities have to be inferred (Section 3.5); he can accept, counter, decline at a standing cost, or volunteer. As a factor later, he runs the same loop with the same verbs and no special UI.
 
 **Example.** An inland post reads its orders late in the fall: 40 packs by ship. The factor has 12 men and two clerks. He sends the clerk he trusts, with six men, to a far outpost he has heard has lodges, and keeps the ambitious clerk close on a provisioning hunt. In January the outpost report is overdue, and he can't tell whether the clerk is dead, snowed in, or sitting on a site. He pulls two men off provisioning to check, and the post's food margin thins. Nothing scripted that crisis.
+
+### 3.10 Skills
+Every agent — player and NPC alike — carries a skill value per action-relevant competency: shooting, hunting, trapping, berry-picking/foraging, talking, stealth, horse riding, sprinting, medicine (Section 17.5), and others as new action chains need them. Skills determine how well an action in Section 3.3's shared vocabulary resolves — a shooting check, a stealth roll, how much a foraging trip yields — rather than gating whether the action can be attempted at all.
+
+- **Base value from personality.** Each character's starting skill baseline is seeded by their personality profile (Section 11.4) and background, not rolled independently — an ambitious clerk starts with a talking edge, a hunter raised in a band starts high on hunting/trapping/stealth, a voyageur starts high on sprinting and canoeing endurance. Personality does double duty: it already filters behavior (Section 11.4), and now it also explains *why* two agents in the same role differ in raw competence.
+- **Improves through use**, not a separate XP pool — repeatedly running a chain (Section 3.2) that depends on a skill nudges that skill up, so a clerk who spends a season actually hunting gets measurably better at it, and one who never leaves the trading room doesn't, with no experience-point abstraction sitting on top of the thing already being simulated.
+- **Already has obvious hooks into what's built**: shooting and stealth feed combat (Section 15.3) and ambush/interception (Section 15.1); hunting, trapping, and foraging feed the ecology and food systems (Section 16, Section 17.1); talking feeds dialogue, negotiation, and the council mechanic (Sections 3.6, 3.8); horse riding feeds Section 12.3; sprinting affects travel speed and pursuit/de-escalation outcomes (Section 15.2); medicine feeds wound treatment (Section 17.5).
 
 ---
 
@@ -248,6 +257,13 @@ Doesn't need to be a playable path to matter, and resolves into two differently-
 - **Unaffected by the blockade** — outside the British blockade situation entirely, a real if background trade advantage during the years it hurts HBC and NWC (Section 13.6).
 - As background AI: poaches trap lines, competes for the same Indigenous trade partners, occasional friction/violence, especially around the Columbia and upper Missouri.
 - **Kept thin by design** (Section 10.7): no council, no ship cycle, just enough to drive the friction above. The map's St. Paul (1841) is two decades past the game window and drops out; Fort Snelling (under construction from 1819) sits closer to period if a third node is ever wanted. Open in Section 20.
+
+### 7.4 Vendetta & Informal Justice
+Section 4.1 already notes that interior violence happens "far from any court's reach" — none of the factions have real judicial infrastructure out there, and disputes have to resolve some other way. This reuses the grudge/memory system already built (Section 10.4) rather than inventing new state: an unresolved wrong doesn't just sit as a reputation penalty, it can escalate into an actual Tier 1 goal (Section 3.1) — get justice for X — that the aggrieved agent or their kin actively pursues.
+
+**Indigenous kinship-based justice is the sharpest case.** Real historical practice among Plains and Subarctic nations centered on restitution owed to the aggrieved family rather than punishment by a distant authority: compensation (goods, horses, sometimes a marriage) to make a killing right with the victim's kin, a blood debt that could pass down through a family if left unanswered, and — in some traditions — the offender or a substitute being adopted into the aggrieved family to literally replace what was lost. This dovetails directly with the marriage/kinship system (Section 8): a killing between bands can be resolved, worsened, or complicated by exactly the same kin ties that govern the player's own married-in obligations, so a player embedded in a band (the Nor'West track, Section 8.1) can find themselves personally responsible for settling, or personally targeted by, a debt they didn't create.
+
+**Company justice is thinner, not absent.** HBC and NWC both have some internal authority over their own men (a Factor's standing, Section 3.6; a partner's exposure to peers at the rendezvous, Section 10.1.4), but neither has any real reach over a killing involving an outside party — which is exactly why so much of the "dirty war" years (Section 4.1) go unpunished by any formal process and instead pile up as exactly this kind of unresolved, kinship-adjacent debt.
 
 ---
 
@@ -403,6 +419,13 @@ The one place this design admits deliberate abstraction, kept deliberately small
 - **Refill rate** depends on wages and each company's finances (Section 13.7), plus a lagged reputation effect: bad news of frontier deaths has to actually reach home through the ordinary propagation system (Section 10) before it can slow recruitment, rather than a separate abstract morale number.
 
 **Cost and player contact.** On the order of 30–40 named background-tier-only agents (Section 18.2) across the whole metropole, acting on annual or seasonal beats. The player touches it only through messages, goods, and people: intercepting a ship or brigade, or writing to London directly. A clerk's letter reaches the Committee at a read event a year later and can make or break a factor's standing (Section 3.7).
+
+### 10.8 Exploration & the Map
+Geography is knowledge like anything else in this section — no agent, including the player, has ambient awareness of terrain they haven't personally seen or been shown. Most of the map starts unrevealed per-agent, filled in by two means that combine rather than compete:
+- **Walking it** — the ordinary way, revealing whatever an agent has actually traveled through, tied to the same live/local/background fidelity an agent is being resolved at (Section 18.2).
+- **A map as a physical item** — a chart covering some region, which instantly reveals that region's geography to whoever holds it, regardless of whether they personally explored it. A map is knowledge exactly like an intercepted message (Section 10.3): it can be found, bought, given, stolen, or sold, its value varies by buyer (a chart of unmapped Blackfoot territory is worth far more to a company than to a band that already knows the country), and losing one to a raid hands the finder real, permanent knowledge, not just an item.
+
+A found or purchased map doesn't need to cover the whole world at once — a partial regional chart growing into a fuller one as more pieces are acquired or explored fits the same "grows as it's explored" idea, without requiring a single map object to somehow represent the entire game world from the start.
 
 ---
 
@@ -631,6 +654,12 @@ The meatiest of the three, and where clothing stops being cosmetic and becomes a
 - **Food storage** (Section 13.1): fresh-killed meat solves hunger short-term but spoils; pemmican/dried stores are the hedge against a bad hunt or a storm — the same strategic tension the game already models at the post level, mirrored at the individual/party scale.
 - **Combat wounds** (Section 15.3): an untreated wound compounds badly with cold and hunger — a wounded character traveling in the cold without proper care is at meaningfully higher risk than either condition alone, which is what makes a fight's aftermath dangerous, not just the fight itself.
 
+### 17.5 Treating Wounds
+A wound (Section 15.3) isn't just a stat until it's addressed — treatment is its own action with real, historically distinct approaches rather than one generic "heal" button:
+- **Indigenous herbal medicine** — poultices and plant knowledge tied to a particular band or family, often more effective and lower-risk than the European alternative for the period, with access running through the same relationship/kinship channels as everything else (Section 8, Section 10) — a band has to be willing to treat you.
+- **European treatment** — bleeding and amputation, the standard company-post response: genuinely riskier by comparison, but available without needing outside kinship standing.
+- A **medicine** skill (Section 3.10) governs how well either approach is applied, whether by an NPC treating the player or the player treating someone else — feeding directly into whether a wound heals clean, leaves lasting impairment, or turns fatal through infection.
+
 ---
 
 ## 18. World Architecture — Open World, Simulation Fidelity & Travel Mode
@@ -728,6 +757,38 @@ Fire is a real object that sits on a tile and does things over time, not a boole
 - **Metropole agent counts** — the ~7–12 London Committee agents and ~30–40 total metropole agents (Section 10.7) are planning estimates, not confirmed counts.
 - **Selkirk's recruiting stream** — how literally the 200-men-a-year obligation (Section 10.7) should translate into HBC's recruit pool refill rate (Section 13.2) is unset.
 
+**New — from the skills, justice, exploration, and multiplayer discussion:**
+- **Skill baseline authoring** — how exactly a personality profile (Section 11.4) maps to starting skill values (Section 3.10) — a formula, an authored table per role/background, or something else — is undecided.
+- **Multiplayer live-tier scaling** — Section 21.2 generalizes the live tier to one anchor per player; the actual per-anchor and total-live-agent caps for a 4–6 player session need profiling, distinct from the single-anchor numbers tuned elsewhere in this section.
+- **Consensus-skip UX** — how the "does everyone want to skip" check in Section 21.3 is actually surfaced to players (a prompt, a lobby-style ready check, a timeout default) is undesigned.
+- **Multiplayer session/party formation** — whether players commit to a single shared start (e.g., all as one brigade) or start independently and simply share the same persistent world from different points, and how faction choice interacts with that, is open.
+
+---
+
+## 21. Multiplayer
+
+### 21.1 The Player Is Already Just an Agent
+Section 1 already commits to the player being a mechanically equal agent among NPCs — same needs, same goal structure (Section 3), same action vocabulary. Support for 4–6 concurrent players follows from that commitment rather than requiring a new simulation architecture: it's a matter of letting more than one agent-slot be driven by a human client instead of the goal planner, with the rest of the simulation running exactly as designed for one.
+
+### 21.2 Multiple Live-Tier Anchors
+Section 18.2's three-tier fidelity model assumed one live bubble around a single observer. With up to six players scattered across the map, the live tier gets an anchor per player (merging into one bubble when players are near each other), each still resolving at full tick-rate, with local and background tiers filling the space between them. This is a direct generalization of the existing model, not a new one — but the tuning targets in Section 20 (the ~100-agent live-tier estimate) were sized for a single anchor and need revisiting for up to six simultaneous ones.
+
+### 21.3 Tiered Fast-Forward
+Single-player time compression can't be unilateral once a second human is in the world. The rule: **if every currently-connected player wants to skip, the shared clock actually skips** — a direct generalization of the ordinary wait/sleep-to-morning mechanic to a full-consensus vote. **If even one player doesn't**, nobody's clock is forced to move faster than real time; instead, whichever players wanted to skip are automatically pulled out into personal auto-pilot — their own character keeps acting sensibly at normal shared speed (auto-traveling, auto-camping, resolving routine chains on its own, per Section 3.2) while everyone else retains full manual control. Nobody's real-time crisis is ever sped through because someone else wanted to fast-forward, and nobody who wants to skip dead time is forced to sit through it manually just because one other player is busy.
+
+### 21.4 Disconnection Hands Off to the Goal Planner
+A disconnected player's character doesn't freeze — it falls back to being driven by the same goal planner that already runs every NPC (Section 3), continuing on the character's last known goals and personality (Section 11.4) until the player reconnects and reclaims it. This costs nothing new to build: it's the same planner already driving every Factor, clerk, and hunter, just permitted to claim a slot that isn't currently held by a live connection. It also means the world stays genuinely persistent if every player logs off at once — background-tier simulation (Section 18.2) just keeps running, the same way it already does for anything far from a player.
+
+### 21.5 What Falls Out for Free
+Because every system in this document was built to not care whether the agent behind a decision is an AI or a human, most of what multiplayer needs is already covered elsewhere:
+- **Mixed-faction and rival play** — players on different companies, or on the same company competing for the same promotion (Section 3.7), get combat, interception, and betrayal for free from Sections 15 and 10.3; those systems never distinguished AI-controlled parties from human ones.
+- **Humans in a chain of command** — Section 3.9's delegation loop (a leader assigns, a subordinate decides against his own goals, reports flow through the propagation system) already models leader/subordinate generically; a human factor and a human clerk just run the identical loop. A group could play one company's whole chain of command, split across rival companies, or one side an Indigenous family against a trading post.
+- **Shared vs. separate economies** — ledgers (Section 13) belong to institutions, not to "the player," so humans at the same post naturally share one and humans in different institutions naturally don't.
+- **Group framing matches the number** — 4–6 players maps directly onto a canot du nord crew (Section 12's table: 4–6, up to 8) — "you and your crew are the brigade" is a strong default session framing alongside "scattered rivals across the map."
+
+### 21.6 Where Permadeath Changes
+Section 9.3's three death branches don't all survive a shared world intact. "New character, new world" doesn't make sense once several people share one persistent world — that branch drops out in multiplayer, leaving **succession via kinship** or **a new character in the same shared world** as the two real options for a player who dies.
+
 ---
 
 ## Appendix — Revision Notes
@@ -744,4 +805,9 @@ This revision folds the follow-up planning discussion into the document. Where t
 - **Historical determinism** (Sections 2, 4.1, 4.2, 4.4, 19, 20): new policy distinguishing fixed anchors (the Continental Blockade, the Red River Colony's founding) from causally-emergent-but-expected outcomes (the 1821 merger) from fully open history (the colony's survival, Seven Oaks, the interior war); the 1817 Selkirk-marches-on-Fort-William beat reframed as a conditional trigger rather than a scheduled date.
 - **Fur market and company solvency** (Sections 13.6, 13.7, 7.3, 20): new mechanics for pelt quality and market clearing, the blockade's asymmetric impact by company, market-flooding as a double-edged weapon tied to spawn-site overharvest (Section 16.4), and a shared solvency ledger as the mechanical source of the 1821 merger.
 - **The Metropole** (Sections 10.1.5, 10.7, 13.2, 7.3, 20): new section covering London's Committee and Selkirk's causal path to the 1811 grant, Montreal's agent firm and physical yearly routine, the split of the American node into Astor/New York and St. Louis plus the 1816 exclusion law, and company-specific recruit pools with a rumor-lagged refill rate.
+- **Skills** (Section 3.10): new system — shooting, hunting, trapping, foraging, talking, stealth, riding, sprinting, medicine, and others, seeded by personality (Section 11.4) and improved through use rather than a separate XP pool.
+- **Vendetta & informal justice** (Section 7.4): new subsection reusing the grudge/memory system (Section 10.4) for disputes with no court to resolve them, with Indigenous kinship-based restitution as the sharpest case.
+- **Treating wounds** (Section 17.5): new subsection distinguishing Indigenous herbal medicine from European bleeding/amputation, gated by a new medicine skill.
+- **Exploration & the map** (Section 10.8): new subsection — geography as knowledge, revealed by walking it or by acquiring a physical, tradeable/stealable map item.
+- **Multiplayer** (Section 21, Section 1): new section — 4–6 concurrent players as more agent-slots under the existing model, multiple live-tier anchors, consensus-based fast-forward with automatic per-player auto-pilot as the fallback, disconnection handled by the existing goal planner, and one change to the permadeath branches for a shared world.
 - **Open questions** (Section 20): updated and extended.

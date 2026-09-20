@@ -77,6 +77,7 @@ public partial class Animal : Agent
 
         float motion = Mathf.Min(cal.MotionScale, 8f);
         _modeTimer -= dt * motion;
+        Unaware = _mode == Mode.Graze;
         Think(dt);
         Act(dt, motion);
         Animate();
@@ -151,7 +152,8 @@ public partial class Animal : Agent
         foreach (var a in Sim.AgentsWithin(GlobalPosition, radius))
         {
             if (a is Animal || a.IsDead) continue;
-            float d = GlobalPosition.DistanceTo(a.GlobalPosition);
+            // A crouching hunter reads as much farther away.
+            float d = GlobalPosition.DistanceTo(a.GlobalPosition) / a.StealthFactor;
             if (d < bestD) { bestD = d; best = a; }
         }
         return best;

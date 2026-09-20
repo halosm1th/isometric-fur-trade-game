@@ -35,6 +35,7 @@ public partial class StructurePainter : TileMapLayer
     public const int SourceHearthLeft = 49, SourceHearthRight = 50;
     public const int SourceSpruce0 = 52, SourceTipi = 55, SourceCampfire = 56, SourceWoodpile = 57, SourceFurBale = 58;
     public const int SourceRoof = 59;
+    public const int SourceBed = 60;
     private const float RoofLift = 118f;
 
     // Source id ranges whose tiles sit on a cell edge, laid out N,E,S,W.
@@ -120,7 +121,7 @@ public partial class StructurePainter : TileMapLayer
             var roof = new TileMapLayer { TileSet = TileSet, ZIndex = 5, ZAsRelative = false, Name = $"Roof_{b.Kind}", Position = new Vector2(0, -RoofLift) };
             // Two extra courses toward the viewer so the lifted roof still
             // covers the front of the room from above.
-            foreach (var cell in IsoGrid.Rhombus(b.Top, b.Width + 2, b.Depth + 2)) roof.SetCell(cell, SourceRoof, Vector2I.Zero);
+            foreach (var cell in IsoGrid.Rhombus(b.Top, b.Width, b.Depth)) roof.SetCell(cell, SourceRoof, Vector2I.Zero);
             host.AddChild(roof);
             _roofs.Add((b, roof));
         }
@@ -261,6 +262,11 @@ public partial class StructurePainter : TileMapLayer
                 SetBack(IsoGrid.Cell(top, 3, 2), SourceRug);
                 SetBack(IsoGrid.Cell(top, 4, 2), SourceTableChairs);
                 SetBack(IsoGrid.Cell(top, 5, 3), SourceCandleStand);
+                // The Factor's and clerks' beds, and one for the new hand.
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceBed);
+                SetBack(IsoGrid.Cell(top, 4, 1), SourceBed);
+                SetBack(IsoGrid.Cell(top, 2, 3), SourceBed);
+                SetBack(IsoGrid.Cell(top, 4, 3), SourceBed);
                 break;
             case BuildingKind.Warehouse:
                 // Bales of furs one side, cargo the other, an aisle between.
@@ -276,8 +282,10 @@ public partial class StructurePainter : TileMapLayer
                 SetBack(IsoGrid.Cell(top, 3, 1), SourceTable);
                 SetBack(IsoGrid.Cell(top, 4, 1), SourceChair);
                 SetBack(IsoGrid.Cell(top, 5, 1), SourceCrate);
-                SetBack(IsoGrid.Cell(top, 1, 3), SourceRug);
                 SetBack(IsoGrid.Cell(top, 5, 3), SourceCandleStand);
+                // Bunks: a row along the middle, more along the front.
+                for (int i = 1; i <= 5; i++) SetBack(IsoGrid.Cell(top, i, 2), SourceBed);
+                for (int i = 1; i <= 4; i++) SetBack(IsoGrid.Cell(top, i, 3), SourceBed);
                 break;
         }
     }
@@ -319,6 +327,23 @@ public partial class StructurePainter : TileMapLayer
         EraseCell(cell);
         RebuildCollision();
         return true;
+    }
+
+    public bool IsBed(Vector2I cell) => GetCellSourceId(cell) == SourceBed;
+
+    public Vector2I? NearestBed(Vector2 worldPos, float maxDist)
+    {
+        Vector2I? best = null; float bestD = maxDist;
+        var c = LocalToMap(worldPos);
+        for (int dx = -3; dx <= 3; dx++)
+            for (int dy = -6; dy <= 6; dy++)
+            {
+                var n = new Vector2I(c.X + dx, c.Y + dy);
+                if (!IsBed(n)) continue;
+                float d = MapToLocal(n).DistanceTo(worldPos);
+                if (d < bestD) { bestD = d; best = n; }
+            }
+        return best;
     }
 
     public bool IsTree(Vector2I cell)

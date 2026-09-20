@@ -39,6 +39,8 @@ public partial class Npc : Agent
     public Vector2I WorkCell;
     public Household HomeStores;
     public bool Sleeping;
+    // Stopped to talk to the player; movement pauses.
+    public bool Conversing;
     public bool IsFemale;
 
     // Kinship for the marriage system (design doc 8).
@@ -48,6 +50,8 @@ public partial class Npc : Agent
 
     // Fast-moving individual rapport with other agents (design doc 3.6).
     public readonly Dictionary<Agent, float> Rapport = new();
+    // Worth of everything the player has given this person (bride-price etc.).
+    public float GiftsFromPlayerMb;
 
     // A standing order from a superior (design doc 3.9): the current task
     // chain to run when nothing more urgent is going on.
@@ -113,6 +117,7 @@ public partial class Npc : Agent
         _sinceEatAnim += dt;
 
         Sleeping = false;   // SleepGoal re-asserts this every tick it's lying down
+        Unaware = Brain.Tier0Goal() == null;   // busy with the day's work, not on guard
         ConsiderInterrupts();
         if (Brain.IsEmpty)
         {
@@ -261,7 +266,7 @@ public partial class Npc : Agent
     private void Move(float dt, bool skipping)
     {
         IsSprinting = false;
-        if (Sleeping) { Velocity = Vector2.Zero; return; }
+        if (Sleeping || Conversing) { Velocity = Vector2.Zero; return; }
         float motion = GameCalendar.Instance?.MotionScale ?? 1f;
 
         if (_steer != Vector2.Zero)
@@ -352,6 +357,23 @@ public partial class Npc : Agent
         if (_sprite == null || !_sprite.SpriteFrames.HasAnimation(anim)) return;
         _sprite.Play(anim);
         _sinceEatAnim = 0f;
+    }
+
+    // Getting hit raises the alarm: armed friends nearby come running,
+    // and everyone of your people thinks less of the attacker.
+    public override void TakeDamage(float amount, Agent from)
+    {
+        base.TakeDamage(amount, from);
+        if (from == null || from == this || IsDead) return;
+        foreach (var a in Sim.AgentsWithin(GlobalPosition, 500f))
+        {
+            if (a is not Npc ally || ally == this || ally.IsDead || ally.Faction != Faction || ally == from) continue;
+            ally.ChangeRapport(from, -10f);
+            if (ally.Brain.Tier0Goal() is AttackGoal || ally.Brain.Tier0Goal() is FleeGoal) continue;
+            if (ally.Weapon != null && ally.Personality.Courage > 0.25f) ally.Brain.Push(ally, new AttackGoal(from));
+            else if (ally.Personality.Courage < 0.3f) ally.Brain.Push(ally, new FleeGoal(from, 6f));
+        }
+        if (from is Player.PlayerController && Faction == Faction.HBC && Sim.Player is Player.PlayerController pc) pc.Standing -= 5f;
     }
 
     // ---- helpers for goals ---------------------------------------------------

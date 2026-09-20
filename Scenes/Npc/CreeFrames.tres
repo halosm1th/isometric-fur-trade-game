@@ -1,16 +1,18 @@
-[gd_resource type="SpriteFrames" load_steps="12" format="3"]
+[gd_resource type="SpriteFrames" load_steps=14 format=3]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/cree/idle_front.png" id="tex_1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_front_0.png" id="tex_2"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_front_1.png" id="tex_3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_front_2.png" id="tex_4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_front_3.png" id="tex_5"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_back_0.png" id="tex_6"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_back_1.png" id="tex_7"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_back_2.png" id="tex_8"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_back_3.png" id="tex_9"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_side_0.png" id="tex_10"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_side_1.png" id="tex_11"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/idle_front.png" id="t1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_front_0.png" id="t2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_front_1.png" id="t3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_front_2.png" id="t4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_front_3.png" id="t5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_back_0.png" id="t6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_back_1.png" id="t7"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_back_2.png" id="t8"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_back_3.png" id="t9"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_side_0.png" id="t10"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/walk_side_1.png" id="t11"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/shoot_0.png" id="t12"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree/shoot_1.png" id="t13"]
 
 [resource]
 animations = [{
@@ -19,7 +21,7 @@ animations = [{
 "loop": true,
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("tex_1")
+"texture": ExtResource("t1")
 }]
 }, {
 "name": &"walk",
@@ -27,16 +29,16 @@ animations = [{
 "loop": true,
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("tex_2")
+"texture": ExtResource("t2")
 }, {
 "duration": 1.0,
-"texture": ExtResource("tex_3")
+"texture": ExtResource("t3")
 }, {
 "duration": 1.0,
-"texture": ExtResource("tex_4")
+"texture": ExtResource("t4")
 }, {
 "duration": 1.0,
-"texture": ExtResource("tex_5")
+"texture": ExtResource("t5")
 }]
 }, {
 "name": &"walk_back",
@@ -44,16 +46,16 @@ animations = [{
 "loop": true,
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("tex_6")
+"texture": ExtResource("t6")
 }, {
 "duration": 1.0,
-"texture": ExtResource("tex_7")
+"texture": ExtResource("t7")
 }, {
 "duration": 1.0,
-"texture": ExtResource("tex_8")
+"texture": ExtResource("t8")
 }, {
 "duration": 1.0,
-"texture": ExtResource("tex_9")
+"texture": ExtResource("t9")
 }]
 }, {
 "name": &"walk_side",
@@ -61,9 +63,20 @@ animations = [{
 "loop": true,
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("tex_10")
+"texture": ExtResource("t10")
 }, {
 "duration": 1.0,
-"texture": ExtResource("tex_11")
+"texture": ExtResource("t11")
+}]
+}, {
+"name": &"attack",
+"speed": 4.0,
+"loop": false,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t12")
+}, {
+"duration": 1.0,
+"texture": ExtResource("t13")
 }]
 }]

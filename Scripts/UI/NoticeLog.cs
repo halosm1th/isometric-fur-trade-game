@@ -15,7 +15,7 @@ public partial class NoticeLog : Control
 
     public override void _Ready()
     {
-        _box = new VBoxContainer();
+        _box = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         _box.Position = new Vector2(16, 96);
         _box.AddThemeConstantOverride("separation", 1);
         AddChild(_box);

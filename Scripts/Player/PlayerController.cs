@@ -42,6 +42,11 @@ public partial class PlayerController : Agent
 		Faction = Faction.HBC;
 		Sim.Player = this;
 		CallDeferred(nameof(FindDialogue));
+		// Dev aid: `-- --provoke` has you knife the nearest person after 3 s.
+		foreach (string arg in OS.GetCmdlineUserArgs())
+		{
+			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) { GD.Print($"[provoke] attacking {n.DisplayName}"); TryAttack(n); } };
+		}
 		GetTree().CreateTimer(1.5).Timeout += () =>
 		{
 			if (!IsInstanceValid(this)) return;
@@ -59,6 +64,16 @@ public partial class PlayerController : Agent
 	}
 
 	private void FindDialogue() => _dialogue = GetTree().GetFirstNodeInGroup("dialogue") as UI.DialogueMenu;
+
+	// Reload/recovery bar over your head while a weapon is cooling down.
+	private ReadyBar _readyBar;
+	private void UpdateReadyBar()
+	{
+		if (_readyBar == null) { _readyBar = new ReadyBar { Position = new Vector2(0, -122), ZIndex = 25, ZAsRelative = false }; AddChild(_readyBar); }
+		_readyBar.Fraction = CooldownFraction;
+		_readyBar.Visible = CooldownFraction > 0f && !IsDead;
+		_readyBar.QueueRedraw();
+	}
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
@@ -165,6 +180,19 @@ public partial class PlayerController : Agent
 			Inventory.Add(pickup.Item, pickup.Count);
 			EmitSignal(SignalName.Notice, $"Picked up {pickup.Label}.");
 			pickup.QueueFree();
+			return;
+		}
+
+		// A bed: sleep till morning, or rest an hour by day.
+		var bed = Sim.Structures?.NearestBed(GlobalPosition, 90f);
+		if (bed != null)
+		{
+			var cal = GameCalendar.Instance;
+			if (cal.IsSkipping) return;
+			bool night = cal.Hour >= 18f || cal.Hour < 6f;
+			GlobalPosition = IsoGrid.ToWorld(bed.Value);
+			if (night) { cal.SkipUntilHour(7f); EmitSignal(SignalName.Notice, "You turn in. Morning comes."); }
+			else { cal.SkipHours(1f); EmitSignal(SignalName.Notice, "You lie down for an hour."); }
 			return;
 		}
 
@@ -307,8 +335,10 @@ public partial class PlayerController : Agent
 
 	public override void _PhysicsProcess(double delta)
 	{
+		IsSneaking = Input.IsActionPressed("sneak") && !Input.IsActionPressed("sprint");
 		IsSprinting = Input.IsActionPressed("sprint");
 		base._PhysicsProcess(delta);
+		UpdateReadyBar();
 
 		if (IsDead)
 		{
@@ -330,8 +360,14 @@ public partial class PlayerController : Agent
 			_sprite.FlipH = input.X < 0;
 		}
 
-		// Walking away from the camera uses the back-view cycle.
-		string target = input == Vector2.Zero ? "idle" : (input.Y < -0.3f ? "walk_back" : "walk");
+		// Walking away from the camera uses the back-view cycle; crouching has its own set.
+		string target;
+		if (IsSneaking)
+		{
+			bool side = Mathf.Abs(input.X) > Mathf.Abs(input.Y) * 1.2f;
+			target = input == Vector2.Zero ? "sneak_idle" : side ? "sneak_side" : (input.Y < -0.3f ? "sneak_back" : "sneak");
+		}
+		else target = input == Vector2.Zero ? "idle" : (input.Y < -0.3f ? "walk_back" : "walk");
 		if (_sprite.Animation != target)
 		{
 			_sprite.Play(target);

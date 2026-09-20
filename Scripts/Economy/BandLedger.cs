@@ -18,6 +18,7 @@ public partial class BandLedger : Household
 
     public override void _Process(double delta)
     {
+        base._Process(delta);
         var cal = GameCalendar.Instance;
         if (cal == null || cal.Day == _lastDay) return;
         _lastDay = cal.Day;
@@ -32,6 +33,8 @@ public partial class BandLedger : Household
         if (was && !WillTrade) Sim.Notice("The band has had enough of the Company. They will not bring their furs to the post.");
         if (!was && WillTrade) Sim.Notice("The band is willing to trade with the post again.");
     }
+
+    public void OnInsult() { StandingWithCompany = Mathf.Max(0f, StandingWithCompany - 4f); }
 
     public void OnMemberKilledBy(Agents.Agent killer)
     {

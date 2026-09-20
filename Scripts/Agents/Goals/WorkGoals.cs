@@ -69,7 +69,7 @@ public class HuntSiteGoal : Goal
                     }
                 }
                 // One caribou is a load; small game you keep working.
-                int enough = _site.Species == Species.Caribou ? 1 : _site.Species == Species.Beaver ? 3 : 4;
+                int enough = _site.Species == Species.Caribou ? 1 : _site.Species == Species.Beaver ? 2 : 4;
                 bool loaded = npc.Inventory.TotalWeightLbs > 90f || _kills >= enough;
                 if (_worked >= _workHours || loaded || _site.Count <= 0)
                 {
@@ -89,7 +89,7 @@ public class HuntSiteGoal : Goal
     {
         var store = npc.HomeStores;
         if (store == null) return;
-        foreach (var id in new[] { ItemId.Venison, ItemId.Goose, ItemId.BeaverPelt, ItemId.CaribouHide, ItemId.WolfPelt })
+        foreach (var id in new[] { ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.BeaverPelt, ItemId.CaribouHide, ItemId.WolfPelt })
         {
             int n = npc.Inventory.Count(id);
             int keep = Items.Items.Of(id).Kind == ItemKind.Food ? 1 : 0;
@@ -218,6 +218,49 @@ public class CarryCargoGoal : Goal
                 }
                 return GoalStatus.Done;
             }
+        }
+    }
+}
+
+// Dry fresh meat at the household's fire (design doc 3.6's pemmican chain,
+// first step): 3 fresh -> 2 dried, an hour's work, and it keeps.
+public class DryMeatGoal : Goal
+{
+    private int _phase;
+    public override string Label => "dry meat";
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        var stores = npc.HomeStores;
+        if (stores == null) return GoalStatus.Failed;
+        switch (_phase)
+        {
+            case 0:
+                if (stores.Stores.Count(ItemId.Venison) < 3) return GoalStatus.Failed;
+                _phase = 1;
+                return Delegate(new GoToGoal(stores.AccessCell, 100f));
+            case 1:
+                if (!ChildFinished(out var r)) return GoalStatus.Running;
+                if (r != GoalStatus.Done) return GoalStatus.Failed;
+                if (stores.Stores.TakeUpTo(ItemId.Venison, 6) is int took && took >= 3) npc.Inventory.Add(ItemId.Venison, took);
+                else return GoalStatus.Failed;
+                var hearth = stores.LowestHearth(999f) ?? Sim.Structures?.NearestHearth(npc.GlobalPosition);
+                if (hearth == null) return GoalStatus.Failed;
+                _phase = 2;
+                return Delegate(new GoToGoal(npc.StandCellNear(hearth.Cell), 110f));
+            case 2:
+                if (!ChildFinished(out var r2)) return GoalStatus.Running;
+                _phase = 3;
+                return Delegate(new WaitGoal(1.2f));
+            default:
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                int fresh = npc.Inventory.Count(ItemId.Venison);
+                int dried = fresh * 2 / 3;
+                npc.Inventory.Remove(ItemId.Venison, fresh);
+                npc.Inventory.Add(ItemId.DriedMeat, dried);
+                // Back to the cache.
+                stores.Stores.Add(ItemId.DriedMeat, npc.Inventory.TakeUpTo(ItemId.DriedMeat, dried));
+                return GoalStatus.Done;
         }
     }
 }

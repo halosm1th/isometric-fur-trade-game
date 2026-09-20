@@ -8,7 +8,8 @@
 |---|---|
 | W A S D / arrows | walk |
 | Shift | sprint (1.7× speed, ~2.4× hunger) |
-| E | context action: talk to a person · pick up · loot a body / butcher a carcass · woodpile (stack or take firewood) · warehouse (stow goods/furs) · stores counter (draw a ration when short) · ship (shoulder cargo) · open/close door · look at a fire |
+| Ctrl | sneak: half speed, animals notice you at less than half the distance, a first stroke on an unaware target does 2.5× |
+| E | context action: talk to a person · **bed** (sleep till 07:00 at night, rest an hour by day) · pick up · loot a body / butcher a carcass · woodpile (stack or take firewood) · warehouse (stow goods/furs) · stores counter (draw a ration when short) · ship (shoulder cargo) · open/close door · look at a fire |
 | 1–9 | use hotbar slot (eat / drink / feed a fire / ready a weapon / read clothing) |
 | Mouse wheel + Enter | select and use hotbar slot |
 | Left click | attack whoever is under the cursor with your best weapon (knife, tomahawk, bow, musket) |
@@ -84,7 +85,19 @@ Each building has a roof layer drawn above everything that fades out while you a
 
 ## Marriage (design doc 8)
 
-Talk to a father (E): "Ask for X's hand". Needs rapport ≥ 30 (gifts, talking) and ≥ 8 MB of gifts given to him. HBC rule: one wife. She moves into the trading room and keeps house.
+Talk to the chief or a hunter with a daughter: "Ask about marriage in the custom of the country" explains it and shows your progress. You need rapport ≥ 30 with the father (talk, feed him when hungry, give gifts) and ≥ 8 MB worth of gifts given to *him* (a point blanket is 4, a musket 12). Then "Ask for X's hand". HBC rule: one wife. She moves into the trading room and keeps house.
+
+## Talking
+
+E on a person stops them and opens topics: how things stand, about them (role, temper, family), the others (gossip, scaled by how talkative they are), the hunting (Cree), marriage (Cree men), work (Factor), tell him where the game is (Factor), trade (clerks, Factor, chief), a gift, offer food to someone hungry (big rapport), threaten (they may hand something over, or fight). They walk off if you do.
+
+## Combat
+
+Left click / F. A reload bar shows over your head while your weapon cools down; anyone hit shows a health bar for a few seconds. Hitting someone makes their armed friends within earshot come at you, and costs standing if they're Company men. Sneaking (Ctrl) up on a grazing animal and knifing it is the cheap way to a caribou.
+
+## Food chain
+
+Fresh meat spoils (~12% a day in the cache, half that in winter). Women at the fire dry it: 3 fresh → 2 dried, which keeps. Rations come out of the plainest food first.
 
 ## F1 test console
 

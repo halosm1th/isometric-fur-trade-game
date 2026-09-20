@@ -50,14 +50,24 @@ public partial class DialogueMenu : Control
     public void Open(Npc npc)
     {
         _npc = npc;
+        npc.Conversing = true;
+        npc.StopMoving();
+        npc.FaceToward(_player.GlobalPosition);
         _panel.Visible = true;
         ShowTopics(Greeting(npc));
     }
 
     public void Close()
     {
+        if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
         _panel.Visible = false;
         _npc = null;
+    }
+
+    public override void _Process(double delta)
+    {
+        // They walk off if you do.
+        if (IsOpen && _npc != null && (!GodotObject.IsInstanceValid(_npc) || _npc.IsDead || _npc.GlobalPosition.DistanceTo(_player.GlobalPosition) > 220f)) Close();
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -88,8 +98,9 @@ public partial class DialogueMenu : Control
             Role.Wife => "your wife",
             _ => "",
         };
-        string busy = npc.Brain.Top != null ? $" They seem occupied - {npc.Brain.Top.Label}." : "";
-        return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{busy}";
+        string busy = npc.Brain.Top != null ? $" They were {npc.Brain.Top.Label}." : "";
+        string state = npc.Needs.Hunger < 35 ? " They look hungry." : npc.Needs.Warmth < 35 ? " They are shivering." : npc.Needs.Health < 50 ? " They are hurt." : "";
+        return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{busy}{state}";
     }
 
     private void ShowTopics(string text)
@@ -100,6 +111,14 @@ public partial class DialogueMenu : Control
         var npc = _npc;
 
         AddOption("Ask how things stand", () => ShowTopics(AskNews(npc)));
+        AddOption("Ask about them", () => ShowTopics(AskAboutThem(npc)));
+        AddOption("Ask about the others", () => ShowTopics(AskGossip(npc)));
+        if (npc.Faction == Faction.Cree && (npc.Role == Role.CreeChief || npc.Role == Role.CreeHunter))
+            AddOption("Ask about marriage in the custom of the country", () => ShowTopics(AskMarriage(npc)));
+        if (npc.Needs.Hunger < 45f && _player.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
+            AddOption($"Offer them something to eat ({Items.Items.Of(food).Name})", () => ShowTopics(OfferFood(npc, food)));
+        if (npc.Faction != Faction.HBC || npc.Role == Role.Labourer)
+            AddOption("Threaten them", () => ShowTopics(Threaten(npc)));
         if (npc.Faction == Faction.Cree && npc.Role is Role.CreeChief or Role.CreeHunter)
             AddOption("Ask about the hunting", () => ShowTopics(AskHunting(npc)));
         if (npc.Role == Role.Factor) AddOption("Ask for work", () => ShowTopics(AskForWork(npc)));
@@ -169,6 +188,95 @@ public partial class DialogueMenu : Control
         }
         npc.ChangeRapport(_player, 1f);
         return s == "" ? "\"Nothing to tell.\"" : s;
+    }
+
+    private string AskAboutThem(Npc npc)
+    {
+        var p = npc.Personality;
+        string temper = p.Courage > 0.7f ? "a bold" : p.Courage < 0.3f ? "a cautious" : "a steady";
+        string tongue = p.Talkative > 0.6f ? "talkative" : p.Talkative < 0.3f ? "close-mouthed" : "civil";
+        string want = p.Ambition > 0.65f ? "means to rise" : p.Loyalty > 0.65f ? "is loyal to their own" : "wants a quiet life";
+        string s = npc.Role switch
+        {
+            Role.Factor => "\"Thirty years in the Company's service, and this post is my charge. London wants furs; I want the men fed and the returns respectable.\"",
+            Role.Clerk => "\"I keep the books and the counter. A clerk who does well may have a post of his own one day.\"",
+            Role.Labourer => "\"Orkneyman, five-year contract. Cut wood, haul cargo, shoot geese, freeze. The pay goes home to my mother.\"",
+            Role.Woman => "\"My man is one of the servants here. I keep the house and the fires; without us the post would go cold.\"",
+            Role.CreeChief => "\"This is our country. The Company sits on the shore; we bring what it wants and take what we need.\"",
+            Role.CreeHunter => "\"I hunt for the camp. Beaver for the trade, caribou for the pot.\"",
+            Role.CreeWoman => "\"I dress the hides and keep the lodge. The pemmican is women's work, and so is most of the rest.\"",
+            Role.CreeDaughter => "\"My father decides whom I marry. But he listens to me.\"",
+            Role.Sailor => "\"Out of Gravesend in June, home by November if the ice lets us. I do not envy you the winter.\"",
+            Role.Wife => "\"I have a foot in both worlds now. Do not forget my family.\"",
+            _ => "",
+        };
+        string family = "";
+        if (npc.Spouse is Npc sp) family += $" Married to {sp.DisplayName}.";
+        if (npc.Children.Count > 0) family += $" Children: {string.Join(", ", npc.Children.ConvertAll(c => c.DisplayName))}.";
+        if (npc.Father != null) family += $" {npc.Father.DisplayName}'s child.";
+        npc.ChangeRapport(_player, 1.5f);
+        return $"{s} You judge them {temper}, {tongue} sort who {want}.{family} (rapport {npc.RapportWith(_player):0})";
+    }
+
+    private string AskGossip(Npc npc)
+    {
+        var lines = new List<string>();
+        foreach (var other in Sim.Npcs)
+        {
+            if (other == npc || other.IsDead || other.Faction != npc.Faction) continue;
+            if (other.Needs.Health < 60) lines.Add($"\"{other.DisplayName} is hurt.\"");
+            else if (other.Needs.Hunger < 35) lines.Add($"\"{other.DisplayName} has not eaten properly in days.\"");
+            else if (other.Role == Role.Labourer && other.AssignedTaskName != "") lines.Add($"\"{other.DisplayName} is set to {other.AssignedTaskName}.\"");
+            else if (other.Spouse == null && !other.IsFemale && other.Role != Role.Factor && other.Role != Role.Sailor) lines.Add($"\"{other.DisplayName} wants a wife, if you ask me.\"");
+        }
+        foreach (var d in GetTree().GetNodesInGroup("corpses"))
+            if (d is Npc dead) lines.Add($"\"{dead.DisplayName} is dead. You heard?\"");
+        if (lines.Count == 0) return "\"Nothing worth telling.\"";
+        int n = npc.Personality.Talkative > 0.6f ? 4 : npc.Personality.Talkative > 0.3f ? 2 : 1;
+        var picked = new List<string>();
+        for (int i = 0; i < n && lines.Count > 0; i++) { int k = (int)(GD.Randi() % (uint)lines.Count); picked.Add(lines[k]); lines.RemoveAt(k); }
+        npc.ChangeRapport(_player, 0.5f);
+        return string.Join(" ", picked) + (npc.Personality.Talkative < 0.3f ? " They say no more." : "");
+    }
+
+    private string AskMarriage(Npc npc)
+    {
+        var daughters = new List<Npc>();
+        foreach (var c in npc.Children) if (c.Role == Role.CreeDaughter && c.Spouse == null && !c.IsDead) daughters.Add(c);
+        string s = "\"A man who wants a wife from us shows two things: that he is a friend, and that he can provide. He brings gifts to her father - blankets, a gun, cloth, kettles - and he comes back more than once. Then he asks. Your Company allows a man one wife; we do not hold you to that, but your Factor will.\"";
+        s += $" Your standing with {npc.DisplayName}: rapport {npc.RapportWith(_player):0} (needs 30), gifts {npc.GiftsFromPlayerMb:0.#} MB (needs 8).";
+        if (daughters.Count > 0) s += $" Unmarried daughters: {string.Join(", ", daughters.ConvertAll(d => d.DisplayName))}. Ask for her hand from this menu when you are ready.";
+        else s += " They have no unmarried daughter.";
+        return s;
+    }
+
+    private string OfferFood(Npc npc, ItemId food)
+    {
+        if (!_player.Inventory.Remove(food)) return "You have nothing to give.";
+        npc.Inventory.Add(food);
+        npc.Consume(food);
+        npc.ChangeRapport(_player, 8f);
+        return $"{npc.DisplayName} eats the {Items.Items.Of(food).Name.ToLower()} on the spot and thanks you. A hungry person remembers who fed them. (rapport {npc.RapportWith(_player):0})";
+    }
+
+    private string Threaten(Npc npc)
+    {
+        bool armed = _player.Weapon != null;
+        float fear = (armed ? 0.5f : 0.2f) - npc.Personality.Courage * 0.5f + (npc.Weapon == null ? 0.2f : 0f);
+        npc.ChangeRapport(_player, -15f);
+        if (npc.Faction == Faction.Cree) Sim.Band?.OnInsult();
+        if (fear > 0.25f)
+        {
+            // Cowed: hands over something small and remembers it.
+            var slot = npc.Inventory.Slot(0);
+            if (slot is var (id, _) && slot != null && Items.Items.Of(id).Kind != ItemKind.Weapon) { npc.Inventory.Remove(id); _player.Inventory.Add(id); Close(); Sim.Notice($"{npc.DisplayName} hands over a {Items.Items.Of(id).Name.ToLower()} and backs away."); return ""; }
+            Close();
+            return "";
+        }
+        Close();
+        npc.Brain.Push(npc, new Agents.Goals.AttackGoal(_player));
+        Sim.Notice($"{npc.DisplayName} is not having it. Fists up.");
+        return "";
     }
 
     private string AskHunting(Npc npc)
@@ -286,6 +394,7 @@ public partial class DialogueMenu : Control
             AddOption($"Give {def.Name} (worth {def.ValueMb:0.#} MB)", () =>
             {
                 _player.Inventory.Remove(id); npc.Inventory.Add(id);
+                npc.GiftsFromPlayerMb += def.ValueMb;
                 float gain = 4f + def.ValueMb * 6f;
                 npc.ChangeRapport(_player, gain);
                 ShowTopics($"{npc.DisplayName} accepts the {def.Name.ToLower()}. (rapport {npc.RapportWith(_player):0})");
@@ -301,7 +410,7 @@ public partial class DialogueMenu : Control
     {
         if (_player.Spouse != null) return "\"You have a wife already. The Company allows a man one.\"";
         float rapport = father.RapportWith(_player);
-        float gifts = father.Inventory.TotalValueMb;
+        float gifts = father.GiftsFromPlayerMb;
         if (rapport < 30f) return $"{father.DisplayName} hears you out and says nothing. You are a stranger to him yet. (rapport {rapport:0}, needs 30)";
         if (gifts < 8f) return $"\"A daughter is not given for nothing.\" He looks at what you have brought him. (gifts worth {gifts:0.#} MB, wants 8)";
         daughter.Spouse = _player;

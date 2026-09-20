@@ -26,7 +26,7 @@ public partial class NeedsHud : Control
     {
         _player = GetNodeOrNull<Agent>(PlayerPath);
 
-        var box = new VBoxContainer();
+        var box = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         box.Position = new Vector2(16, -16);
         box.SetAnchorsPreset(LayoutPreset.BottomLeft);
         box.GrowVertical = GrowDirection.Begin;
@@ -42,6 +42,7 @@ public partial class NeedsHud : Control
             {
                 CustomMinimumSize = new Vector2(180, 14),
                 MaxValue = 100, ShowPercentage = false,
+                MouseFilter = MouseFilterEnum.Ignore,
             };
             var fill = new StyleBoxFlat { BgColor = Rows[i].color };
             fill.SetCornerRadiusAll(2);

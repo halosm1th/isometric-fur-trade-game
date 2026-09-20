@@ -101,7 +101,7 @@ public partial class FortLedger : Household
         while (goodsToSpend > 0 && buyer.Has(ItemId.TradeGoods))
         {
             ItemId? food = null;
-            foreach (var id in new[] { ItemId.DriedGoose, ItemId.Pemmican, ItemId.Bread })
+            foreach (var id in new[] { ItemId.DriedGoose, ItemId.DriedMeat, ItemId.Pemmican, ItemId.Bread })
                 if (Stores.Count(id) > 20) { food = id; break; }   // keeps a reserve for its own men
             if (food == null) break;
             // One unit of goods buys a few days of food at the post's mark-up.

@@ -26,6 +26,11 @@ public partial class Agent : CharacterBody2D
     // Running is the voyageur's pace: much faster, and it eats you alive.
     [Export] public float SprintMultiplier = 1.7f;
     public bool IsSprinting { get; protected set; }
+    // Crouched and quiet: slower, harder for animals to notice, and a
+    // first stroke on something unaware hits hard.
+    public bool IsSneaking { get; protected set; }
+    public float StealthFactor => IsSneaking ? 0.4f : 1f;
+    public bool Unaware = false;   // set by animals while grazing
 
     public bool IsDead => Needs.IsDead;
     public bool Invulnerable { get => Needs.Invulnerable; set => Needs.Invulnerable = value; }
@@ -98,7 +103,7 @@ public partial class Agent : CharacterBody2D
     // A voyageur carried two 90-lb pieces on a portage; anyone else slows
     // down well before that (design doc 12).
     public float LoadFactor => Mathf.Clamp(1f - (Inventory.TotalWeightLbs - 50f) / 160f, 0.35f, 1f);
-    public float EffectiveSpeed => MoveSpeed * Needs.CapabilityFactor * LoadFactor * (IsSprinting ? SprintMultiplier : 1f);
+    public float EffectiveSpeed => MoveSpeed * Needs.CapabilityFactor * LoadFactor * (IsSprinting ? SprintMultiplier : IsSneaking ? 0.45f : 1f);
 
     // ---- shared action vocabulary (design doc 3.3) ----
 
@@ -188,6 +193,20 @@ public partial class Agent : CharacterBody2D
     }
 
     public bool CanAttack => _attackCooldown <= 0f && !IsDead;
+    // 0 = ready, 1 = just fired.
+    public float CooldownFraction => _lastCooldown <= 0f ? 0f : Mathf.Clamp(_attackCooldown / _lastCooldown, 0f, 1f);
+    private float _lastCooldown;
+
+    private HealthBar _healthBar;
+    protected void ShowHealthBar()
+    {
+        if (_healthBar == null || !IsInstanceValid(_healthBar))
+        {
+            _healthBar = new HealthBar { Position = new Vector2(0, -130), ZIndex = 25, ZAsRelative = false };
+            AddChild(_healthBar);
+        }
+        _healthBar.Show(this);
+    }
 
     public bool InAttackRange(Agent target)
     {
@@ -201,9 +220,11 @@ public partial class Agent : CharacterBody2D
         if (target == null || !IsInstanceValid(target) || target.IsDead || !CanAttack) return false;
         var (damage, range, cooldown) = AttackProfile();
         if (GlobalPosition.DistanceTo(target.GlobalPosition) > range + 20f) return false;
-        _attackCooldown = cooldown;
-        // Weak agents hit softer; ranged shots can miss.
+        _attackCooldown = cooldown; _lastCooldown = cooldown;
+        // Weak agents hit softer; ranged shots can miss. A sneak attack on
+        // something that hasn't noticed you lands like a butcher's stroke.
         float mult = Needs.CapabilityFactor;
+        if (IsSneaking && target.Unaware) mult *= 2.5f;
         if (range > 100f) CombatFx.Shot(this, target.GlobalPosition + new Vector2(0, -40), Weapon == ItemId.Musket);
         if (range > 100f && GD.Randf() > 0.7f) { OnAttackMissed(target); return false; }
         target.TakeDamage(damage * mult, this);
@@ -219,6 +240,7 @@ public partial class Agent : CharacterBody2D
         if (IsDead || Invulnerable) return;
         Needs.Health = Mathf.Max(0f, Needs.Health - amount);
         HurtFlash = 0.18f;
+        ShowHealthBar();
         LastAttacker = from;
         LastAttackedAgo = 0f;
         EmitSignal(SignalName.Damaged, amount);

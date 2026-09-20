@@ -26,7 +26,7 @@ public partial class Population : Node2D
     private static readonly string[] CreeDaughters = { "Kimiwan", "Wawatew" };
     private static readonly string[] Sailors = { "Bos'n Hurst", "Ned Carrow", "Tom Ellery", "Will Pascoe", "Sam Rudd", "Jack Tremayne", "Davy Roskilly", "Harry Penrose" };
 
-    private SpriteFrames _hbcFrames, _factorFrames, _creeFrames;
+        private SpriteFrames _hbcFrames, _factorFrames, _creeFrames, _labourerFrames, _creeWomanFrames;
 
     public override void _Ready()
     {
@@ -34,6 +34,8 @@ public partial class Population : Node2D
         _hbcFrames = GD.Load<SpriteFrames>("res://Scenes/Player/PlayerFrames.tres");
         _factorFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/RivalFrames.tres");
         _creeFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/CreeFrames.tres");
+        _labourerFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/LabourerFrames.tres");
+        _creeWomanFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/CreeWomanFrames.tres");
         foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--trace") _trace = true;
         CallDeferred(nameof(SpawnAll));
     }
@@ -44,17 +46,17 @@ public partial class Population : Node2D
         var depot = WorldLayout.Depot; var mens = WorldLayout.MensHouse;
 
         // The Factor and his clerks live in the trading house.
-        var factor = Spawn("Mr. William Auld", Role.Factor, Faction.HBC, IsoGrid.Cell(depot.Top, 5, 1), IsoGrid.Cell(depot.Top, 2, 2), fort, _factorFrames, Colors.White);
+        var factor = Spawn("Mr. William Auld", Role.Factor, Faction.HBC, IsoGrid.Cell(depot.Top, 3, 1), IsoGrid.Cell(depot.Top, 2, 2), fort, _factorFrames, Colors.White);
         factor.Inventory.Add(ItemId.Musket); factor.Inventory.Add(ItemId.Capote); factor.Inventory.Add(ItemId.Pemmican, 2);
         var clerkA = Spawn("John Fidler (clerk)", Role.Clerk, Faction.HBC, IsoGrid.Cell(depot.Top, 4, 1), IsoGrid.Cell(depot.Top, 3, 3), fort, _hbcFrames, new Color(0.9f, 0.9f, 1f));
-        var clerkB = Spawn("Alex Kennedy (clerk)", Role.Clerk, Faction.HBC, IsoGrid.Cell(depot.Top, 3, 1), IsoGrid.Cell(depot.Top, 5, 2), fort, _hbcFrames, new Color(0.85f, 0.95f, 0.9f));
+        var clerkB = Spawn("Alex Kennedy (clerk)", Role.Clerk, Faction.HBC, IsoGrid.Cell(depot.Top, 2, 3), IsoGrid.Cell(depot.Top, 5, 2), fort, _hbcFrames, new Color(0.85f, 0.95f, 0.9f));
         foreach (var c in new[] { clerkA, clerkB }) { c.Inventory.Add(ItemId.Capote); c.Inventory.Add(ItemId.Knife); c.Inventory.Add(ItemId.Bread); }
 
         // Labourers in the men's house.
         for (int i = 0; i < 6; i++)
         {
-            var bed = IsoGrid.Cell(mens.Top, 1 + i, 2);
-            var m = Spawn(OrkneyMen[i], Role.Labourer, Faction.HBC, bed, IsoGrid.Cell(WorldLayout.FortTop, 8 + i, 8), fort, _hbcFrames, new Color(0.8f, 0.78f, 0.75f));
+            var bed = i < 5 ? IsoGrid.Cell(mens.Top, 1 + i, 2) : IsoGrid.Cell(mens.Top, 1, 3);
+            var m = Spawn(OrkneyMen[i], Role.Labourer, Faction.HBC, bed, IsoGrid.Cell(WorldLayout.FortTop, 8 + i, 8), fort, _labourerFrames, Colors.White);
             m.Inventory.Add(ItemId.Capote); m.Inventory.Add(ItemId.Knife); m.Inventory.Add(ItemId.DriedGoose, 2);
             if (i < 2) m.Inventory.Add(ItemId.Musket);
         }
@@ -79,15 +81,15 @@ public partial class Population : Node2D
         }
         for (int i = 0; i < 4; i++)
         {
-            var w = Spawn(CreeWomenNames[i], Role.CreeWoman, Faction.Cree, tipis[i % tipis.Count], IsoGrid.Cell(WorldLayout.CampCentre, 0, 1), band, _creeFrames, new Color(1f, 0.85f, 0.8f), 0.74f, true);
+            var w = Spawn(CreeWomenNames[i], Role.CreeWoman, Faction.Cree, tipis[i % tipis.Count], IsoGrid.Cell(WorldLayout.CampCentre, 0, 1), band, _creeWomanFrames, Colors.White, 0.78f, true);
             w.Inventory.Add(ItemId.HideCoat); w.Inventory.Add(ItemId.Knife);
             if (i == 0) { w.Spouse = chief; chief.Spouse = w; }
             else { w.Spouse = hunters[i - 1]; hunters[i - 1].Spouse = w; }
         }
         // Two unmarried daughters - the chief's and a hunter's (design doc 8).
-        var d1 = Spawn(CreeDaughters[0], Role.CreeDaughter, Faction.Cree, tipis[0], IsoGrid.Cell(WorldLayout.CampCentre, 1, 2), band, _creeFrames, new Color(1f, 0.9f, 0.85f), 0.7f, true);
+        var d1 = Spawn(CreeDaughters[0], Role.CreeDaughter, Faction.Cree, tipis[0], IsoGrid.Cell(WorldLayout.CampCentre, 1, 2), band, _creeWomanFrames, new Color(1f, 0.96f, 0.9f), 0.74f, true);
         d1.Father = chief; chief.Children.Add(d1); d1.Inventory.Add(ItemId.HideCoat);
-        var d2 = Spawn(CreeDaughters[1], Role.CreeDaughter, Faction.Cree, tipis[1], IsoGrid.Cell(WorldLayout.CampCentre, -1, 2), band, _creeFrames, new Color(1f, 0.9f, 0.85f), 0.7f, true);
+        var d2 = Spawn(CreeDaughters[1], Role.CreeDaughter, Faction.Cree, tipis[1], IsoGrid.Cell(WorldLayout.CampCentre, -1, 2), band, _creeWomanFrames, new Color(1f, 0.96f, 0.9f), 0.74f, true);
         d2.Father = hunters[0]; hunters[0].Children.Add(d2); d2.Inventory.Add(ItemId.HideCoat);
 
         Sim.Notice($"York Factory: {Sim.Npcs.Count} souls in the world.");
