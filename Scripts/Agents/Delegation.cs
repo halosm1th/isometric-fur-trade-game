@@ -26,6 +26,7 @@ public class PostTask
     public Player.TaskKind PlayerKind = Player.TaskKind.None;
     public int PlayerNeed = 1;
     public string Intent;           // what the leader says the point is
+    public bool OneShot;            // a journey, not a day's standing work: done once, then back to the roster
 }
 
 // A man's standing order as the leader remembers giving it, for the
@@ -122,13 +123,14 @@ public static class Delegation
             var opRef = op;
             tasks.Add(new PostTask
             {
-                Name = "carry the furs and the report down to York Factory", Men = 1, Urgency = 58f, KeyTask = true, Hunt = true, Intent = "the Factor must hear how we do",
+                Name = "carry the furs and the report down to York Factory", Men = 1, Urgency = 58f, KeyTask = true, Hunt = true, OneShot = true, Intent = "the Factor must hear how we do",
                 Make = n =>
                 {
                     opRef.LastReportSentDay = Cal.Day;
                     int fit = 0; foreach (var x in Sim.Npcs) if (x.HomeStores == opRef && !x.IsDead && !x.IsSick) fit++;
                     int mouths2 = 0; foreach (var x in Sim.Npcs) if (x.HomeStores == opRef && !x.IsDead) mouths2++;
                     string news = opRef.LostToRivalMb > 0f ? $"{opRef.LostToRivalMb:0} MB went to the Canadians for want of goods." : "The inland bands are trading.";
+                    if (opRef.Leader == null || opRef.Leader.IsDead) news = "The post has no master.";
                     return new CourierGoal(opRef, Sim.Fort, Letters.OutpostReport(leader.DisplayName, opRef.FursInStoreMb, opRef.FoodDays(mouths2), fit, news), opRef.FursInStoreMb > 0f);
                 },
             });
@@ -136,13 +138,17 @@ public static class Delegation
         // The Bay post: an inland report overdue is itself news (design doc 3.9 step 6).
         if (fort == Sim.Fort && Sim.Outpost != null)
         {
+            // Word has come that Oxford House has no master: the clerk with the
+            // best name goes up to take it (design doc 3.7 - the posting is the prize).
+            bool masterless = Sim.Outpost.Leader == null || !GodotObject.IsInstanceValid(Sim.Outpost.Leader) || Sim.Outpost.Leader.IsDead;
+            if (masterless && fort.KnowsOutpostMasterless && today - fort.LastPostingDay > 20) PostAClerk(leader, fort);
             if (fort.LastOutpostReportDay < -100) fort.LastOutpostReportDay = today;   // as of the start, they've just heard
             int silence = today - fort.LastOutpostReportDay;
             if (silence > 45 && men.Count >= 3)
             {
                 var pmaster = Sim.Outpost.Leader;
                 var where = Sim.Outpost.AccessCell;
-                tasks.Add(new PostTask { Name = "go up to Oxford House and see how they do", Men = 2, Urgency = 62f, KeyTask = true, Hunt = true, NeedsMusket = true, Intent = $"no word from inland in {silence} days", Make = _ => new LookForGoal(pmaster, where) });
+                tasks.Add(new PostTask { Name = "go up to Oxford House and see how they do", Men = 2, Urgency = 62f, KeyTask = true, Hunt = true, NeedsMusket = true, OneShot = true, Intent = $"no word from inland in {silence} days", Make = _ => new LookForGoal(pmaster, where) });
                 fort.LastOutpostReportDay = today - 20;   // one party at a time; try again in a few weeks if nothing
             }
         }
@@ -153,13 +159,46 @@ public static class Delegation
         {
             var spot = IsoGrid.FromWorld(WorldLayout.RiverRoad[4]);
             var nf = nwcFort;
-            tasks.Add(new PostTask { Name = "lie up by the river road for the Company's packet", Men = 2, Urgency = 57f, KeyTask = true, Hunt = true, NeedsMusket = true, Intent = "what the Bay sends inland is worth having", Make = _ => { nf.LastAmbushDay = Cal.Day; return new AmbushGoal(spot, 30f); } });
+            tasks.Add(new PostTask { Name = "lie up by the river road for the Company's packet", Men = 2, Urgency = 57f, KeyTask = true, Hunt = true, NeedsMusket = true, OneShot = true, Intent = "what the Bay sends inland is worth having", Make = _ => { nf.LastAmbushDay = Cal.Day; return new AmbushGoal(spot, 30f); } });
         }
 
         // Wood: the post burns through it.
         int wood = fort.Stores.Count(ItemId.Firewood);
         tasks.Add(new PostTask { Name = "cut wood", Make = _ => new ChopWoodGoal(), Men = wood < 15 ? 3 : wood < 40 ? 2 : 1, Urgency = wood < 15 ? 65f : 20f, PlayerKind = Player.TaskKind.Firewood, PlayerNeed = 4, Intent = wood < 15 ? "the woodpile is bare" : "the woodpile" });
         return tasks;
+    }
+
+    // The posting (design doc 3.7): the clerks compete for it on standing;
+    // the loser stays at the Bay and remembers.
+    public static void PostAClerk(Npc factor, FortLedger fort)
+    {
+        var op = Sim.Outpost; if (op == null) return;
+        Npc best = null, runnerUp = null;
+        foreach (var n in Sim.Npcs)
+        {
+            if (n.Role != Role.Clerk || n.HomeStores != fort || n.IsDead || n.IsSick) continue;
+            float score = n.Standing + Trust(factor, n) * 20f + n.Personality.Ambition * 5f;
+            if (best == null || score > best.Standing + Trust(factor, best) * 20f + best.Personality.Ambition * 5f) { runnerUp = best; best = n; } else if (runnerUp == null) runnerUp = n;
+        }
+        if (best == null) { Sim.Notice($"{factor.DisplayName} has no clerk to send to Oxford House."); fort.LastPostingDay = Cal.Day; return; }
+        fort.LastPostingDay = Cal.Day;
+        best.Role = Role.Postmaster;
+        best.DisplayName = "Mr. " + best.DisplayName.Replace(" (clerk)", "") + " (postmaster)";
+        best.HomeStores = op; op.Leader = best;
+        best.BedCell = IsoGrid.Cell(WorldLayout.OutpostHouse.Top, 3, 1); best.WorkCell = IsoGrid.Cell(WorldLayout.OutpostHouse.Top, 2, 2);
+        best.ResetBehaviour(); best.Brain.Clear(best);
+        if (!best.Inventory.Has(ItemId.Musket) && fort.Stores.Remove(ItemId.Musket)) best.Inventory.Add(ItemId.Musket);
+        best.Inventory.Add(ItemId.Pemmican, fort.Stores.TakeUpTo(ItemId.Pemmican, 3));
+        var orders = new Message { Kind = "orders", From = factor.DisplayName, To = "the postmaster at Oxford House", Company = Faction.HBC, Subject = "the charge of Oxford House", Text = $"{best.DisplayName} is to take charge of Oxford House, hold the post, and send the furs down before the ship. Pay {fort.PeltPrice:0.00}." };
+        orders.OnRead = r => { op.PeltPrice = fort.PeltPrice; op.DirectiveText = orders.Text; op.DirectiveReadDay = Cal.Day; };
+        best.Mail.Add(orders);
+        best.Brain.Push(best, new RoadGoal(op.AccessCell));
+        fort.KnowsOutpostMasterless = false;
+        Sim.Notice($"{factor.DisplayName} names {best.DisplayName} to the charge of Oxford House and sends him up the river road.");
+        Chronicle.Event($"{factor.DisplayName} gave {best.DisplayName} the charge of Oxford House.", factor.GlobalPosition, factor, best.DisplayName, 1.5f);
+        if (runnerUp != null) { runnerUp.ChangeRapport(best, -15f); runnerUp.ChangeRapport(factor, -5f); Chronicle.Event($"{runnerUp.DisplayName} was passed over for Oxford House.", runnerUp.GlobalPosition, runnerUp, weight: 0.8f); }
+        // The players in the running hear how they placed.
+        foreach (var pc in Sim.Players()) if (pc.HomePost == fort && !pc.IsDead) pc.Say(pc.Standing > best.Standing ? $"{best.DisplayName} has Oxford House. Your standing was higher; the Factor wanted a clerk who can keep books." : $"{best.DisplayName} has been given Oxford House. Standing {pc.Standing:0} against his {best.Standing:0}.");
     }
 
     private static bool FoulWeather() => Cal.Weather.Current == SkyState.Blizzard || Cal.Weather.Current == SkyState.Storm;
@@ -243,7 +282,7 @@ public static class Delegation
         var fort = leader.HomeStores as FortLedger;
         if (fort == null) return;
         var men = new List<Npc>();
-        foreach (var n in Sim.Npcs) if (n.HomeStores == fort && (n.Role == Role.Labourer || n.Role == Role.Voyageur) && !n.IsDead) men.Add(n);
+        foreach (var n in Sim.Npcs) if (n.HomeStores == fort && (n.Role == Role.Labourer || n.Role == Role.Voyageur) && !n.IsDead && n != leader) men.Add(n);
         if (men.Count == 0) return;
         int today = Cal.Day;
 
@@ -315,6 +354,7 @@ public static class Delegation
             m.AssignedTask = null; m.AssignedTaskName = ""; m.AssignedTaskIsHunt = false;
             leader.ChangeRapport(m, -8f);
             m.ChangeRapport(leader, -3f);
+            m.Standing = Mathf.Max(0f, m.Standing - 3f);
             refused.Add($"{m.DisplayName} says he'll not {t.Name} today{(m.Personality.Ambition > 0.6f ? " - it's beneath him" : m.Needs.Hunger < 40f ? " - not on an empty belly" : "")}. {leader.DisplayName} marks it.");
             Chronicle.Event($"{m.DisplayName} refused {leader.DisplayName}'s order to {t.Name}.", m.GlobalPosition, m, weight: 0.8f);
             summary.Append($"{m.DisplayName}: refuses; ");
@@ -322,6 +362,7 @@ public static class Delegation
         }
         if (t.NeedsMusket && !m.Inventory.Has(ItemId.Musket) && fort.Stores.Remove(ItemId.Musket)) m.Inventory.Add(ItemId.Musket);
         var make = t.Make;
+        if (t.OneShot) { var once = make; make = n => { n.AssignedTask = null; n.AssignedTaskName = ""; return once(n); }; }
         var siteFor = t.Site;
         m.AssignedTaskIsHunt = t.Hunt;
         m.AssignedTaskName = t.Name;
@@ -367,6 +408,7 @@ public static class Delegation
 
     public static void Receive(Npc leader, Npc man, string report, string site, Vector2I? siteCell)
     {
+        man.Standing = Mathf.Min(100f, man.Standing + (report.StartsWith("took") || report.StartsWith("snared") || report.StartsWith("back from") ? 1.5f : 0.5f));
         leader.Remember(new MemoryEntry { Text = $"{man.DisplayName} reported: {report}.", Subject = man.DisplayName, Actor = man, Day = Cal.DayOfYear, Directness = 2, Weight = 0.6f, Key = $"rep{Cal.Day}{man.NetId}" });
         var fort = leader.HomeStores as FortLedger;
         if (fort != null)

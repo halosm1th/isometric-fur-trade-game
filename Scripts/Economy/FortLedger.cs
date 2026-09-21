@@ -53,6 +53,8 @@ public partial class FortLedger : Household
     public string OutpostReportText = "";
     public float OutpostBelievedFursMb, OutpostBelievedFoodDays;
     public int LastSupplyDay = -999;
+    public bool KnowsOutpostMasterless;
+    public int LastPostingDay = -999;
     public bool RaidedRecently(int today) => today - LastRaidedDay >= 0 && today - LastRaidedDay < 6;
 
     // Which company this counter belongs to, for standing and debt.

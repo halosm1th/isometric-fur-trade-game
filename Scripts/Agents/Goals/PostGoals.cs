@@ -302,6 +302,7 @@ public class LookForGoal : Goal
                 if (valid && npc.GlobalPosition.DistanceTo(_missing.GlobalPosition) < 600f)
                 {
                     string news = _missing.IsDead ? $"found {_missing.DisplayName} dead" : $"found {_missing.DisplayName} alive and well";
+                    if (_missing.IsDead && _missing.Role == Role.Postmaster && Sim.Fort != null) Sim.Fort.KnowsOutpostMasterless = true;
                     Chronicle.Event($"{npc.DisplayName} {news} out by {_where}.", npc.GlobalPosition, npc, _missing.DisplayName, 1.5f);
                     _phase = 2;
                     return Delegate(new ReportGoal(news, null, null));

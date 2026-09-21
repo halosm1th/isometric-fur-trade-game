@@ -132,8 +132,30 @@ public class FactorBehaviour : RoleBehaviour
 
 public class ClerkBehaviour : RoleBehaviour
 {
+    private int _lastWhisperDay = -1;
     protected override Goal Work(Npc npc)
     {
+        // Career competition (design doc 3.7): an ambitious clerk who has heard
+        // something against a rising new hand makes sure the Factor hears it too.
+        if (npc.Personality.Ambition > 0.6f && _lastWhisperDay != Cal.Day && Cal.Hour >= 9f && Cal.Hour < 10f)
+        {
+            _lastWhisperDay = Cal.Day;
+            var leader = Delegation.LeaderOf(npc);
+            if (leader != null && leader != npc && GD.Randf() < 0.25f)
+            {
+                foreach (var pc in Sim.Players())
+                {
+                    if (pc.IsDead || pc.HomePost != npc.HomeStores || pc.Standing < npc.Standing) continue;
+                    MemoryEntry worst = null;
+                    foreach (var m in npc.Memories) if (m.Subject == pc.DisplayName && m.Weight >= 0.8f && (worst == null || m.Weight > worst.Weight)) worst = m;
+                    if (worst == null) continue;
+                    leader.Remember(worst.Retell(npc));
+                    pc.Standing -= 2f;
+                    Chronicle.Event($"{npc.DisplayName} had a quiet word with {leader.DisplayName} about {pc.DisplayName}.", npc.GlobalPosition, npc, pc.DisplayName, 0.7f);
+                    break;
+                }
+            }
+        }
         var fire = FireDuty(npc, 3f);
         if (fire != null) return fire;
         return new WanderGoal(WorldLayout.Depot.Centre, 1, 1.5f);
@@ -142,8 +164,16 @@ public class ClerkBehaviour : RoleBehaviour
 
 public class LabourerBehaviour : RoleBehaviour
 {
+    private int _actingDay = -1;
     protected override Goal Work(Npc npc)
     {
+        // A post with no master (design doc 3.9): the steadiest man gives the orders till one comes.
+        if (npc.HomeStores is Economy.FortLedger f && (f.Leader == null || !GodotObject.IsInstanceValid(f.Leader) || f.Leader.IsDead) && Cal.Hour >= 7f && _actingDay != Cal.Day)
+        {
+            Npc steadiest = null;
+            foreach (var n in Sim.Npcs) if (n.HomeStores == f && n.Role == Role.Labourer && !n.IsDead && (steadiest == null || n.Standing > steadiest.Standing)) steadiest = n;
+            if (steadiest == npc) { _actingDay = Cal.Day; Delegation.AssignDailyTasks(npc); return new WaitGoal(0.3f); }
+        }
         if (!IsWorkHours) return new WanderGoal(npc.BedCell, 2, 1f);
         var fire = FireDuty(npc, 3f);
         if (fire != null) return fire;
@@ -198,9 +228,9 @@ public class CreeChiefBehaviour : RoleBehaviour
             if (score > bestScore) { bestScore = score; best = post; }
         }
         // The Assiniboine also come in when they have pemmican to sell (design doc 13.1).
-        bool provisions = !band.IsCree && !hungry && band.Stores.Count(ItemId.Pemmican) >= 24;
+        bool provisions = !band.IsCree && !hungry && band.Stores.Count(ItemId.Pemmican) >= mouths * 6 + 12;
         if (best != null && IsWorkHours && (fursMb >= 8f || provisions || band.InvitedToTrade && fursMb > 0f || (hungry && (fursMb > 0f || band.Stores.Has(ItemId.TradeGoods) || best.StandingOf(band) > 40f))))
-            return new TradeTripGoal(hungry, best);
+            return new TradeTripGoal(hungry, best, provisions);
         return new WanderGoal(band.Camp, 3, 1.5f);
     }
 }
@@ -250,6 +280,7 @@ public class CreeWomanBehaviour : RoleBehaviour
         if (water != null) return water;
         if (IsWorkHours && !Cal.IsFrozen && npc.HomeStores != null && npc.HomeStores.FoodDays(11) < 8f && GD.Randf() < 0.5f) return new FishGoal();
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Venison) >= 3) return new DryMeatGoal();
+        if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.DriedMeat) >= 8 && GD.Randf() < 0.5f) return new MakePemmicanGoal();
         if (npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Firewood) < 12 && IsWorkHours) return new ChopWoodGoal();
         return new WanderGoal((npc.HomeStores as Economy.BandLedger)?.Camp ?? WorldLayout.CampCentre, 3, 1.2f);
     }

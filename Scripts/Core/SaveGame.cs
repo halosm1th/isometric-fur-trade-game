@@ -114,7 +114,7 @@ public static class SaveGame
         d["fursTaken"] = f.FursTakenMb; d["lostToRival"] = f.LostToRivalMb; d["goodsPaid"] = f.GoodsPaidMb; d["year"] = f.Year;
         d["lastRaided"] = f.LastRaidedDay; d["lastRaid"] = f.LastRaidDay; d["lotsLost"] = f.LotsLostToRaids;
         d["directive"] = f.DirectiveText; d["directiveDay"] = f.DirectiveReadDay; d["directiveYear"] = f.DirectiveYear; d["skimmed"] = f.SkimmedMb;
-        d["outpostReportDay"] = f.LastOutpostReportDay; d["outpostReport"] = f.OutpostReportText; d["supplyDay"] = f.LastSupplyDay;
+        d["outpostReportDay"] = f.LastOutpostReportDay; d["outpostReport"] = f.OutpostReportText; d["supplyDay"] = f.LastSupplyDay; d["masterless"] = f.KnowsOutpostMasterless; d["postingDay"] = f.LastPostingDay;
         if (f is OutpostLedger ol) d["reportSent"] = ol.LastReportSentDay;
         return d;
     }
@@ -249,7 +249,7 @@ public static class SaveGame
             d["spouse"] = n.Spouse?.DisplayName ?? ""; d["father"] = n.Father?.DisplayName ?? "";
             var kids = new GArr(); foreach (var c in n.Children) kids.Add(c.DisplayName);
             d["children"] = kids;
-            d["gifts"] = n.GiftsFromPlayerMb;
+            d["gifts"] = n.GiftsFromPlayerMb; d["npcStanding"] = n.Standing;
             var rapport = new GDict(); foreach (var kv in n.Rapport) if (kv.Key != null && GodotObject.IsInstanceValid(kv.Key)) rapport[kv.Key.DisplayName] = kv.Value;
             d["rapport"] = rapport;
             var mem = new GArr();
@@ -337,7 +337,7 @@ public static class SaveGame
         f.FursTakenMb = F(d, "fursTaken"); f.LostToRivalMb = F(d, "lostToRival"); f.GoodsPaidMb = F(d, "goodsPaid"); f.Year = I(d, "year", 1811);
         f.LastRaidedDay = I(d, "lastRaided", -999); f.LastRaidDay = I(d, "lastRaid", -999); f.LotsLostToRaids = I(d, "lotsLost");
         if (d.ContainsKey("directive")) { f.DirectiveText = S(d, "directive"); f.DirectiveReadDay = I(d, "directiveDay", -999); f.DirectiveYear = I(d, "directiveYear"); f.SkimmedMb = F(d, "skimmed"); }
-        if (d.ContainsKey("outpostReportDay")) { f.LastOutpostReportDay = I(d, "outpostReportDay", -999); f.OutpostReportText = S(d, "outpostReport"); f.LastSupplyDay = I(d, "supplyDay", -999); }
+        if (d.ContainsKey("outpostReportDay")) { f.LastOutpostReportDay = I(d, "outpostReportDay", -999); f.OutpostReportText = S(d, "outpostReport"); f.LastSupplyDay = I(d, "supplyDay", -999); f.KnowsOutpostMasterless = B(d, "masterless"); f.LastPostingDay = I(d, "postingDay", -999); }
         if (f is OutpostLedger ol2 && d.ContainsKey("reportSent")) ol2.LastReportSentDay = I(d, "reportSent", -999);
     }
 
@@ -436,7 +436,7 @@ public static class SaveGame
                 LoadAgentCommon(npc, nd);
                 var p = nd["personality"].AsGodotArray();
                 npc.Personality = new Personality { Loyalty = p[0].AsSingle(), Talkative = p[1].AsSingle(), Suspicion = p[2].AsSingle(), Ambition = p[3].AsSingle(), Courage = p[4].AsSingle() };
-                npc.GiftsFromPlayerMb = F(nd, "gifts");
+                npc.GiftsFromPlayerMb = F(nd, "gifts"); npc.Standing = F(nd, "npcStanding", 20f);
                 npc.AssignedTaskName = S(nd, "task");
                 foreach (var mv in nd["memories"].AsGodotArray())
                 {

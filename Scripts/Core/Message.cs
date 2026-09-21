@@ -202,6 +202,7 @@ public static class Letters
             var fort = Sim.Fort; if (fort == null) return;
             fort.OutpostReportText = m.Text; fort.LastOutpostReportDay = GameCalendar.Instance?.Day ?? 0;
             fort.OutpostBelievedFursMb = furs; fort.OutpostBelievedFoodDays = food;
+            if (news.Contains("no master")) fort.KnowsOutpostMasterless = true;
             Sim.Notice($"{reader?.Describe() ?? "The Factor"} reads the report from Oxford House: {m.Text}");
         };
         m.OnIntercepted = reader =>

@@ -108,6 +108,9 @@ public partial class Npc : Agent
     public System.Func<Npc, Goal> AssignedTask;
     public string AssignedTaskName = "";
     public bool AssignedTaskIsHunt;
+    // A company man's standing with his master (design doc 3.6): what the
+    // year-end report says of him. Rises with work done, falls with refusals.
+    public float Standing = 20f;
     // Something to tell the leader when next at the post (design doc 3.9 step 6).
     public string PendingReport; public string PendingReportSite; public Vector2I? PendingReportCell;
 
@@ -615,22 +618,33 @@ public partial class Npc : Agent
         if (Role == Role.Factor)
         {
             Npc heir = null;
-            foreach (var n in Sim.Npcs) if (n.Role == Role.Clerk && !n.IsDead && (heir == null || n.Personality.Ambition > heir.Personality.Ambition)) heir = n;
-            if (heir == null) foreach (var n in Sim.Npcs) if (n.Role == Role.Labourer && !n.IsDead) { heir = n; break; }
+            foreach (var n in Sim.Npcs) if (n.Role == Role.Clerk && n.HomeStores == HomeStores && !n.IsDead && (heir == null || n.Standing + n.Personality.Ambition * 10f > heir.Standing + heir.Personality.Ambition * 10f)) heir = n;
+            if (heir == null) foreach (var n in Sim.Npcs) if (n.Role == Role.Labourer && n.HomeStores == HomeStores && !n.IsDead) { heir = n; break; }
             if (heir == null) { Sim.Notice("There is no one left to take charge of the post."); return; }
             heir.Role = Role.Factor;
             heir.DisplayName = "Mr. " + heir.DisplayName.Replace(" (clerk)", "") + " (acting Factor)";
             heir.ResetBehaviour(); heir.Brain.Clear(heir);
             heir.BedCell = BedCell; heir.WorkCell = WorkCell;
+            if (HomeStores != null) HomeStores.Leader = heir;
             if (heir._label != null) heir._label.Text = heir.DisplayName;
             Sim.Notice($"{heir.DisplayName} takes charge of the post.");
+        }
+        else if (Role == Role.Postmaster)
+        {
+            // Oxford House has lost its master: the men carry on under the
+            // steadiest of them till the Bay sends someone (Delegation posts a clerk).
+            Npc heir = null;
+            foreach (var n in Sim.Npcs) if (n.Role == Role.Labourer && n.HomeStores == HomeStores && !n.IsDead && (heir == null || n.Standing > heir.Standing)) heir = n;
+            if (HomeStores != null) HomeStores.Leader = null;
+            Sim.Notice($"{DisplayName} is dead. Oxford House is without a master{(heir != null ? $"; {heir.DisplayName} keeps the men together" : "")}.");
         }
         else if (Role == Role.CreeChief)
         {
             Npc heir = null;
-            foreach (var n in Sim.Npcs) if (n.Role == Role.CreeHunter && !n.IsDead && (heir == null || n.Personality.Ambition > heir.Personality.Ambition)) heir = n;
+            foreach (var n in Sim.Npcs) if (n.Role == Role.CreeHunter && n.HomeStores == HomeStores && !n.IsDead && (heir == null || n.Personality.Ambition > heir.Personality.Ambition)) heir = n;
             if (heir == null) return;
             heir.Role = Role.CreeChief;
+            if (HomeStores != null) HomeStores.Leader = heir;
             heir.DisplayName += " (chief)";
             heir.ResetBehaviour(); heir.Brain.Clear(heir);
             foreach (var child in Children) { child.Father = heir; heir.Children.Add(child); }

@@ -364,7 +364,8 @@ public class TradeTripGoal : Goal
     private int _phase;
     private readonly bool _buyFood;
     private readonly Economy.FortLedger _post;
-    public TradeTripGoal(bool buyFood, Economy.FortLedger post = null) { _buyFood = buyFood; _post = post; }
+    private readonly bool _sellProvisions;
+    public TradeTripGoal(bool buyFood, Economy.FortLedger post = null, bool sellProvisions = false) { _buyFood = buyFood; _post = post; _sellProvisions = sellProvisions; }
     public override string Label => (_buyFood ? "trade for provisions at " : "trade furs at ") + (_post?.Title ?? "the post");
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
@@ -383,7 +384,7 @@ public class TradeTripGoal : Goal
                 foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.ShotPelt, ItemId.ShotHide, ItemId.CaribouHide, ItemId.WolfPelt })
                     npc.Inventory.Add(id, band.Stores.TakeUpTo(id, 30));
                 npc.Inventory.Add(ItemId.TradeGoods, band.Stores.TakeUpTo(ItemId.TradeGoods, _buyFood ? 10 : 0));
-                if (!band.IsCree && !_buyFood) npc.Inventory.Add(ItemId.Pemmican, band.Stores.TakeUpTo(ItemId.Pemmican, System.Math.Max(0, band.Stores.Count(ItemId.Pemmican) - 12)));   // the plains trade, keeping the camp's own
+                if (_sellProvisions) npc.Inventory.Add(ItemId.Pemmican, band.Stores.TakeUpTo(ItemId.Pemmican, System.Math.Max(0, band.Stores.Count(ItemId.Pemmican) - (band.Mouths * 6 + 6))));   // the plains trade, keeping the camp's own
                 if (npc.Inventory.CountOfKind(ItemKind.Fur) == 0 && !npc.Inventory.Has(ItemId.TradeGoods) && npc.Inventory.Count(ItemId.Pemmican) < 4) return GoalStatus.Failed;
                 _phase = 2;
                 return Delegate(new GoToGoal(fort.AccessCell, 120f));
@@ -398,7 +399,7 @@ public class TradeTripGoal : Goal
                 float paid = fort.BuyFurs(npc.Inventory, npc.Inventory, band);
                 int bought = 0, soldFood = 0;
                 if (_buyFood) bought = fort.SellFood(npc.Inventory, npc.Inventory.Count(ItemId.TradeGoods), band);
-                if (npc.Inventory.Count(ItemId.Pemmican) >= 4) { int m = 0; foreach (var x in Sim.Npcs) if (x.HomeStores == fort && !x.IsDead) m++; soldFood = fort.BuyProvisions(npc.Inventory, npc.Inventory, m); }
+                if (_sellProvisions && npc.Inventory.Count(ItemId.Pemmican) >= 4) { int m = 0; foreach (var x in Sim.Npcs) if (x.HomeStores == fort && !x.IsDead) m++; soldFood = fort.BuyProvisions(npc.Inventory, npc.Inventory, m); }
                 Sim.Notice($"{npc.DisplayName} traded at {fort.Title}: {paid:0} MB in goods{(bought > 0 ? $", bought {bought} of food" : "")}{(soldFood > 0 ? $", sold {soldFood} pemmican" : "")}{(fort.DebtOf(band) > 0 ? $" (owes {fort.DebtOf(band):0.#} MB)" : "")}.");
                 Chronicle.Event($"{npc.DisplayName} traded furs at {fort.Title}.", npc.GlobalPosition, npc, weight: 0.4f);
                 if (fort is Economy.NwcLedger && Sim.Fort != null) { Sim.Fort.LostToRivalMb += paid; Economy.Rivalry.Raise(paid * 0.25f, "furs going to the Nor'Westers"); }
@@ -545,6 +546,53 @@ public class ForageGoal : Goal
                 }
                 npc.PendingReport = _got > 0 ? $"snared {_got} hares" : "the snares were empty";
                 return GoalStatus.Done;
+        }
+    }
+}
+
+// Pound dried meat with fat into pemmican (design doc 13.1): four dried
+// meat and a hide's worth of fat make three that keep for years.
+public class MakePemmicanGoal : Goal
+{
+    private int _phase;
+    public override string Label => "make pemmican";
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        var stores = npc.HomeStores;
+        if (stores == null) return GoalStatus.Failed;
+        switch (_phase)
+        {
+            case 0:
+                if (stores.Stores.Count(ItemId.DriedMeat) < 4) return GoalStatus.Failed;
+                _phase = 1;
+                return Delegate(new GoToGoal(stores.AccessCell, 100f));
+            case 1:
+            {
+                if (!ChildFinished(out var r)) return GoalStatus.Running;
+                if (r != GoalStatus.Done) return GoalStatus.Failed;
+                int took = stores.Stores.TakeUpTo(ItemId.DriedMeat, 8);
+                if (took < 4) { stores.Stores.Add(ItemId.DriedMeat, took); return GoalStatus.Failed; }
+                npc.Inventory.Add(ItemId.DriedMeat, took);
+                var hearth = stores.LowestHearth(999f) ?? Sim.Structures?.NearestHearth(npc.GlobalPosition);
+                if (hearth == null) return GoalStatus.Failed;
+                _phase = 2;
+                return Delegate(new GoToGoal(npc.StandCellNear(hearth.Cell), 110f));
+            }
+            case 2:
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                _phase = 3;
+                return Delegate(new WaitGoal(1.5f));
+            default:
+            {
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                int dried = npc.Inventory.Count(ItemId.DriedMeat);
+                int made = dried * 3 / 4;
+                npc.Inventory.Remove(ItemId.DriedMeat, dried);
+                stores.Stores.Add(ItemId.Pemmican, made);
+                Chronicle.Event($"{npc.DisplayName} made {made} pemmican.", npc.GlobalPosition, npc, weight: 0.2f);
+                return GoalStatus.Done;
+            }
         }
     }
 }

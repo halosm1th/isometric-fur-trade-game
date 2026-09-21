@@ -225,6 +225,8 @@ A second band (`BandLedger` is generic now: nation, name, camp, its own standing
 
 **The Nor'Westers on the river road** (design doc 10.3, 12.2): with tension ≥ 55 (or the council's sanction) Cameron sends two men to lie up a day's march out for the Company's inland packet (`AmbushGoal`, 30 hours): they fall on any Company man carrying papers or four furs, strip the body, and the partner reads what he shouldn't. Guards and couriers with muskets shoot back.
 
+**Careers (design doc 3.6, 3.7)**: every company man has a **standing** with his master (+1.5 for a hunt reported, +0.5 for other work, -3 for a refusal). When Oxford House loses its master (the men carry on under the steadiest labourer, who gives the morning orders till one comes), the Factor - once a report or a search party tells him - **names the best clerk** (standing + trust + ambition) to the charge and sends him up the road; the runner-up remembers, and players in the running hear how they placed. An **ambitious clerk** who outranks you in nothing but envy has a quiet word with the Factor about the worst thing he's heard of you (a retold memory; -2 standing each time). Gossip tells you where the clerks stand. Women at the fire now **make pemmican** (8 dried meat → 6, when the cache holds 8+). Journeys (courier, search, ambush) are one-shot orders.
+
 **Woodpiles** are a menu now (stack / take; not yours = a gift or a theft). Musket shots play the new firing frames (player, labourers, Assiniboine). The river road is drawn with **footprint tiles** (`SourceRoad`, pace 1.1).
 
 ## Ground, gear and noise (design doc 12, 16.1, 17.3)

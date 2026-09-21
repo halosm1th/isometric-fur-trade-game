@@ -572,6 +572,7 @@ public class Conversation
             if (other.Needs.Health < 60) lines.Add($"\"{other.DisplayName} is hurt.\"");
             else if (other.Needs.Hunger < 35) lines.Add($"\"{other.DisplayName} has not eaten properly in days.\"");
             else if (other.Role == Role.Labourer && other.AssignedTaskName != "") lines.Add($"\"{other.DisplayName} is set to {other.AssignedTaskName}.\"");
+            else if (other.Role == Role.Clerk) lines.Add(other.Standing > _player.Standing ? $"\"{other.DisplayName} stands well with the Factor - better than you, if you want it plain.\"" : $"\"{other.DisplayName} has not made much of himself this year.\"");
             else if (other.Spouse == null && !other.IsFemale && other.Role != Role.Factor && other.Role != Role.Sailor) lines.Add($"\"{other.DisplayName} wants a wife, if you ask me.\"");
         }
         // What they actually know, secondhand or not (design doc 10.2).
