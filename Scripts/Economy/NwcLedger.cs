@@ -18,6 +18,7 @@ public partial class NwcLedger : FortLedger
     public int OutfitPieces = 90;
     public bool PriceAtDiscretion;
     public bool RaidsSanctioned;
+    public int LastAmbushDay = -999;
     public string DirectiveSummary() => $"price {PeltPrice:0.00}{(PriceAtDiscretion ? " at his discretion" : "")}, {OutfitPieces} pieces, rum {(RumShareSetting > 0.3f ? "free" : "sparing")}{(RaidsSanctioned ? ", the Bay to be pressed" : "")}";
     public override float BandStanding
     {

@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=15 format=3]
+[gd_resource type="SpriteFrames" load_steps=19 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/labourer/idle_front.png" id="t1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/labourer/walk_front_0.png" id="t2"]
@@ -14,6 +14,10 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/player/death_1.png" id="t12"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/death_2.png" id="t13"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/death_3.png" id="t14"]
+[ext_resource type="Texture2D" path="res://assets/sprites/labourer/shoot_0.png" id="t15"]
+[ext_resource type="Texture2D" path="res://assets/sprites/labourer/shoot_1.png" id="t16"]
+[ext_resource type="Texture2D" path="res://assets/sprites/labourer/shoot_2.png" id="t17"]
+[ext_resource type="Texture2D" path="res://assets/sprites/labourer/shoot_3.png" id="t18"]
 
 [resource]
 animations = [{
@@ -82,5 +86,22 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": ExtResource("t14")
+}]
+}, {
+"name": &"shoot",
+"speed": 6.0,
+"loop": false,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t15")
+}, {
+"duration": 1.0,
+"texture": ExtResource("t16")
+}, {
+"duration": 1.0,
+"texture": ExtResource("t17")
+}, {
+"duration": 1.0,
+"texture": ExtResource("t18")
 }]
 }]

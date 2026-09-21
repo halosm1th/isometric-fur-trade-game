@@ -45,6 +45,7 @@
 [ext_resource type="Texture2D" uid="uid://b46k2hkla685d" path="res://assets/tiles/buildings/wall_door_open_W.png" id="tex_43"]
 [ext_resource type="Texture2D" uid="uid://7bli6ndefac5" path="res://assets/tiles/landscape/snow.png" id="tex_44"]
 [ext_resource type="Texture2D" uid="uid://685ndvlifavo" path="res://assets/tiles/landscape/ice.png" id="tex_45"]
+[ext_resource type="Texture2D" path="res://assets/tiles/landscape/road.png" id="tex_road"]
 [ext_resource type="Texture2D" uid="uid://cg4oe0bblpht5" path="res://assets/tiles/buildings/wall_corner_back.png" id="tex_46"]
 [ext_resource type="Texture2D" uid="uid://dli0g3nf4w55h" path="res://assets/tiles/buildings/wall_corner_front.png" id="tex_47"]
 [ext_resource type="Texture2D" uid="uid://cscmj8nw8hrqm" path="res://assets/tiles/buildings/fence_corner_back.png" id="tex_48"]
@@ -299,6 +300,12 @@ texture_region_size = Vector2i(132, 99)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, -16)
 
+[sub_resource type="TileSetAtlasSource" id="Atlas_road"]
+texture = ExtResource("tex_road")
+texture_region_size = Vector2i(132, 99)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, -16)
+
 [sub_resource type="TileSetAtlasSource" id="Atlas_ice"]
 texture = ExtResource("tex_45")
 texture_region_size = Vector2i(132, 83)
@@ -495,3 +502,4 @@ sources/57 = SubResource("Atlas_woodpile")
 sources/58 = SubResource("Atlas_fur_bale")
 sources/59 = SubResource("Atlas_roof")
 sources/60 = SubResource("Atlas_bed")
+sources/61 = SubResource("Atlas_road")

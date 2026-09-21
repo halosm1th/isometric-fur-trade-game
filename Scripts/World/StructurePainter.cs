@@ -373,9 +373,12 @@ public partial class StructurePainter : TileMapLayer
 
     private void PaintCamp()
     {
-        // The map always generates the winter camp; if the band is at the
-        // summer ground, MoveCamp shifts it once the systems are up.
+        // The map always generates each band's winter camp; MoveCamp shifts
+        // them once the systems are up.
         PaintCampAt(WorldLayout.WinterCamp);
+        PaintCampAt(WorldLayout.AssiniboineWinterCamp);
+        _camps["the band"] = WorldLayout.WinterCamp;
+        _camps["the Assiniboine"] = WorldLayout.AssiniboineWinterCamp;
     }
 
     private static IEnumerable<(Vector2I cell, int source)> CampCells(Vector2I centre)
@@ -395,15 +398,18 @@ public partial class StructurePainter : TileMapLayer
         foreach (var (cell, source) in CampCells(centre)) SetBack(cell, source);
     }
 
-    private Vector2I _paintedCamp = WorldLayout.WinterCamp;
+    // Where each band's tipis stand now, by band name; the generated map has them at the winter grounds.
+    private readonly Dictionary<string, Vector2I> _camps = new();
+    private static readonly Dictionary<string, Vector2I> GeneratedCamps = new() { ["the band"] = WorldLayout.WinterCamp, ["the Assiniboine"] = WorldLayout.AssiniboineWinterCamp };
 
     // Strike the tipis and pitch them elsewhere (design doc 6): the cells,
     // the campfire's hearth, the walkability, and every client's copy.
-    public void MoveCamp(Vector2I to)
+    public void MoveCamp(string band, Vector2I to)
     {
-        if (_paintedCamp == to) return;
+        if (!_camps.TryGetValue(band, out var from)) from = GeneratedCamps.GetValueOrDefault(band, WorldLayout.WinterCamp);
+        if (from == to) return;
         var net = Net.Net.I;
-        foreach (var (cell, _) in CampCells(_paintedCamp))
+        foreach (var (cell, _) in CampCells(from))
         {
             EraseCell(cell);
             net?.BroadcastCell(0, cell, -1);
@@ -421,7 +427,7 @@ public partial class StructurePainter : TileMapLayer
                 _hearthByCell[cell] = hearth;
             }
         }
-        _paintedCamp = to;
+        _camps[band] = to;
         RebuildCollision();
         Sim.Paths?.Invalidate();
     }
@@ -592,10 +598,11 @@ public partial class StructurePainter : TileMapLayer
                 if (OpenDoors.Contains(s)) net.RpcId(peer, nameof(Net.Net.SetCell), idx, cell.X, cell.Y, s);
             }
         }
-        if (_paintedCamp != WorldLayout.WinterCamp)
+        foreach (var (band, gen) in GeneratedCamps)
         {
-            foreach (var (cell, _) in CampCells(WorldLayout.WinterCamp)) net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, -1);
-            foreach (var (cell, source) in CampCells(_paintedCamp)) net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, source);
+            if (!_camps.TryGetValue(band, out var now) || now == gen) continue;
+            foreach (var (cell, _) in CampCells(gen)) net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, -1);
+            foreach (var (cell, source) in CampCells(now)) net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, source);
         }
         foreach (var cell in _campfires) net.RpcId(peer, nameof(Net.Net.SetCell), 0, cell.X, cell.Y, SourceCampfire);
         foreach (var cell in _felled)

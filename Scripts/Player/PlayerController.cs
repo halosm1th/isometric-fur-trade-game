@@ -50,6 +50,17 @@ public partial class PlayerController : Agent
 	public string Rank = "labourer";
 	// The country's tongue (design doc 10.6): 0 = none, 1 = fluent. Grows with talk and marriage.
 	public float CreeFluency = 0.1f;
+	public float AssiniboineFluency = 0.05f;
+	public float FluencyWith(Agent who) => who != null && who.Faction == Faction.Assiniboine ? (HasInterpreterFor(who) ? 1f : AssiniboineFluency) : EffectiveFluency;
+	public void Learn(Agent who, float amount) { if (who != null && who.Faction == Faction.Assiniboine) AssiniboineFluency = Mathf.Min(1f, AssiniboineFluency + amount); else CreeFluency = Mathf.Min(1f, CreeFluency + amount); }
+	// A woman of the country speaks for you with her own people; a Cree wife knows enough Nakoda for trade.
+	public bool HasInterpreterFor(Agent who)
+	{
+		if (who == null || who.Faction != Faction.Assiniboine) return HasInterpreter;
+		if (Spouse != null && IsInstanceValid(Spouse) && !Spouse.IsDead && GlobalPosition.DistanceTo(Spouse.GlobalPosition) < 300f) return true;
+		foreach (var a in Sim.AgentsWithin(GlobalPosition, 300f)) if (a is Npc n && n.Faction == Faction.Assiniboine && n.Role == Role.Wife) return true;
+		return false;
+	}
 	// You told the Factor you'd be across the river (design doc 11.5): sightings till then file as authorized.
 	public int AuthorizedAcrossUntilDay = -1;
 	private int _lastSeenAcrossDay = -1;
@@ -465,7 +476,7 @@ public partial class PlayerController : Agent
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "",
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
-			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["unworn"] = UnwornList(),
+			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["unworn"] = UnwornList(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
 		};
 		_oneShotAnim = ""; _teleported = false;
@@ -490,6 +501,7 @@ public partial class PlayerController : Agent
 		_afloatMirror = (bool)d["afloat"];
 		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"]; Rank = (string)d["rank"]; if (d.ContainsKey("fresh")) DaysSinceFresh = (float)d["fresh"];
 		if (d.ContainsKey("tongue")) CreeFluency = (float)d["tongue"];
+		if (d.ContainsKey("tongue2")) AssiniboineFluency = (float)d["tongue2"];
 		if (d.ContainsKey("unworn")) { Inventory.Unworn.Clear(); foreach (int u in (int[])d["unworn"]) Inventory.Unworn.Add((ItemId)u); }
 		if (d.ContainsKey("mail") && !NetHub.IsServer) { Mail.Clear(); foreach (string line in (string[])d["mail"]) { var parts = line.Split('|'); Mail.Add(new Message { Kind = parts[0], From = parts[1], To = parts[2], Subject = parts[3], Read = parts[4] == "1", Text = parts.Length > 5 ? parts[5] : "" }); } }
 		Journal.Clear(); foreach (var e in (Godot.Collections.Array)d["journal"]) Journal.Add((string)e);
@@ -606,7 +618,9 @@ public partial class PlayerController : Agent
 		if (dist > range + 20f) return $"Too far for the {(Weapon != null ? Items.Items.Of(Weapon.Value).Name.ToLower() : "fist")}.";
 		if (!CanAttack) return "";
 		if (_sprite != null) _sprite.FlipH = target.GlobalPosition.X < GlobalPosition.X;
+		var before = Weapon;
 		bool hit = Attack(target);
+		if (before == ItemId.Musket) _oneShotAnim = "shoot";
 		if (hit && target.IsDead && target is Animal dead && dead.IsDangerous) Task.Progress(TaskKind.DriveOffAnimals, 1);
 		string what = Weapon != null ? Items.Items.Of(Weapon.Value).Name : "fists";
 		if (hit) return target.IsDead ? $"{target.Describe()} is dead." : $"You strike {target.Describe()} with your {what.ToLower()}.";
@@ -870,14 +884,8 @@ public partial class PlayerController : Agent
 		foreach (var other in OtherHouseholds())
 		{
 			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(other.WoodpileCell)) >= 120f) continue;
-			int take = other.Stores.TakeUpTo(ItemId.Firewood, 2);
-			if (take == 0) return $"{other.Title}: the pile is bare.";
-			Inventory.Add(ItemId.Firewood, take);
-			Chronicle.Event($"{DisplayName} took wood from {other.Title}'s pile.", GlobalPosition, this, weight: 0.8f);
-			var faction = other == Sim.Band ? Faction.Cree : other == Sim.Nwc ? Faction.NWC : Faction.HBC;
-			foreach (var a in Sim.AgentsWithin(GlobalPosition, 650f)) if (a is Npc w && w.Faction == faction) w.ChangeRapport(this, -6f);
-			if (other == Sim.Band && Sim.Band != null) Sim.Band.StandingWithCompany = Mathf.Max(0f, Sim.Band.StandingWithCompany - 1f);
-			return $"You take {take} firewood from {other.Title}'s pile. Not yours; anyone who saw will remember.";
+			NetHub.I?.PushDialogue(this, Conversation.StartWoodpile(other));
+			return "";
 		}
 
 		var fort = HomePost;
@@ -885,10 +893,8 @@ public partial class PlayerController : Agent
 		{
 			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.WoodpileCell)) < 120f)
 			{
-				int n = Inventory.Count(ItemId.Firewood);
-				if (n > 0) { Inventory.Remove(ItemId.Firewood, n); fort.Stores.Add(ItemId.Firewood, n); Task.Progress(TaskKind.Firewood, n); return $"You stack {n} firewood on the pile ({fort.Stores.Count(ItemId.Firewood)} there now)."; }
-				int take = fort.Stores.TakeUpTo(ItemId.Firewood, 2); Inventory.Add(ItemId.Firewood, take);
-				return take > 0 ? $"You take {take} firewood from the pile." : "The woodpile is bare.";
+				NetHub.I?.PushDialogue(this, Conversation.StartWoodpile(fort));
+				return "";
 			}
 			bool inStore = fort == Sim.Nwc ? WorldLayout.NwcHouse.Contains(Cell) : fort == Sim.Outpost ? WorldLayout.OutpostHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell);
 			if (inStore)
@@ -940,11 +946,11 @@ public partial class PlayerController : Agent
 		if (lodge != null) { var line = lodge.LineOf(TrapOwner); return line != null && line.Traps > 0 ? $"E  Check your traps ({lodge.Name})" : Inventory.Has(ItemId.SteelTrap) ? $"Use a steel trap here to set a line ({lodge.Name})" : $"{lodge.Name}"; }
 		if (Aboard == null && Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 130f) != null) return "E  Take the canoe";
 		if (Sim.Structures?.NearestBed(GlobalPosition, 90f) != null) return (GameCalendar.Instance?.Hour ?? 12f) is >= 17f or < 6f ? "E  Sleep till morning" : "E  Rest an hour";
-		foreach (var h in OtherHouseholds()) if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(h.WoodpileCell)) < 120f) return $"E  Take wood from {h.Title}'s pile (theft)";
+		foreach (var h in OtherHouseholds()) if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(h.WoodpileCell)) < 120f) return $"E  {h.Title}'s woodpile";
 		var fort = HomePost;
 		if (fort != null)
 		{
-			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.WoodpileCell)) < 120f) return Inventory.Has(ItemId.Firewood) ? "E  Stack your firewood" : "E  Take firewood";
+			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.WoodpileCell)) < 120f) return "E  The woodpile";
 			if (fort == Sim.Nwc ? WorldLayout.NwcHouse.Contains(Cell) : fort == Sim.Outpost ? WorldLayout.OutpostHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell)) return "E  The storeroom chest";
 			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.AccessCell)) < 110f && Inventory.CountOfKind(ItemKind.Food) < 3) return "E  Draw a ration";
 			if (Faction == Faction.HBC && Sim.Ship != null && Sim.Ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 160f && Sim.Ship.Cargo.SlotCount > 0) return "E  Shoulder cargo from the ship";

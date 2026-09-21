@@ -27,6 +27,8 @@ public static class Sim
         if (Outpost != null) yield return Outpost;
     }
     public static BandLedger Band;
+    public static BandLedger Assiniboine;
+    public static readonly System.Collections.Generic.List<BandLedger> Bands = new();
     public static EcologyManager Ecology;
     public static Ship Ship;
     public static Agent Player;
@@ -59,7 +61,7 @@ public static class Sim
         // The old scene's HUD and painters hung handlers here; they're gone
         // with it, and the new scene subscribes afresh in its _Ready.
         LocalPlayerChanged = null;
-        Nwc = null; Outpost = null;
+        Nwc = null; Outpost = null; Assiniboine = null; Bands.Clear();
         IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear();
     }
 

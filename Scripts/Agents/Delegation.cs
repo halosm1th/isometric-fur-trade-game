@@ -50,7 +50,7 @@ public static class Delegation
             if (l.IsDead || l.Faction != n.Faction) continue;
             if (n.Faction == Faction.HBC && l.Role == Role.Factor) return l;
             if (n.Faction == Faction.NWC && l.Role == Role.NwcPartner) return l;
-            if (n.Faction == Faction.Cree && l.Role == Role.CreeChief) return l;
+            if (n.IsBandPerson && l.Role == Role.CreeChief && l.HomeStores == n.HomeStores) return l;
         }
         return null;
     }
@@ -145,6 +145,15 @@ public static class Delegation
                 tasks.Add(new PostTask { Name = "go up to Oxford House and see how they do", Men = 2, Urgency = 62f, KeyTask = true, Hunt = true, NeedsMusket = true, Intent = $"no word from inland in {silence} days", Make = _ => new LookForGoal(pmaster, where) });
                 fort.LastOutpostReportDay = today - 20;   // one party at a time; try again in a few weeks if nothing
             }
+        }
+
+        // The Nor'Westers on the river road (design doc 10.3): with tempers up,
+        // two men lie in wait a day's march out for the Company's inland packet.
+        if (fort is NwcLedger nwcFort && Sim.Outpost != null && (Rivalry.Tension >= 55f || nwcFort.RaidsSanctioned) && men.Count >= 3 && today - nwcFort.LastAmbushDay > 12 && GD.Randf() < 0.3f + leader.Personality.Ambition * 0.3f)
+        {
+            var spot = IsoGrid.FromWorld(WorldLayout.RiverRoad[4]);
+            var nf = nwcFort;
+            tasks.Add(new PostTask { Name = "lie up by the river road for the Company's packet", Men = 2, Urgency = 57f, KeyTask = true, Hunt = true, NeedsMusket = true, Intent = "what the Bay sends inland is worth having", Make = _ => { nf.LastAmbushDay = Cal.Day; return new AmbushGoal(spot, 30f); } });
         }
 
         // Wood: the post burns through it.

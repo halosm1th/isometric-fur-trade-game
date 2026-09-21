@@ -126,6 +126,18 @@ public static class WorldLayout
     public static readonly Vector2I SummerCamp = new(23, 100);
     public static Vector2I CampCentre { get; private set; } = WinterCamp;
     public static void SetCamp(Vector2I centre) => CampCentre = centre;
+    // The Assiniboine (design doc 7.2): a plains people wintering upland
+    // near Oxford House, coming down to the Bay in high summer to trade.
+    public static readonly Vector2I AssiniboineWinterCamp = new(16, 424);
+    public static readonly Vector2I AssiniboineSummerCamp = new(22, 118);
+    public static IEnumerable<Vector2I> TipiCellsAt(Vector2I c)
+    {
+        yield return IsoGrid.Cell(c, 3, 0);
+        yield return IsoGrid.Cell(c, 0, 3);
+        yield return IsoGrid.Cell(c, -3, 0);
+        yield return IsoGrid.Cell(c, 0, -3);
+        yield return IsoGrid.Cell(c, 3, 3);
+    }
     public static bool IsSummerCamp => CampCentre == SummerCamp;
     public const float CampClearingPx = 460f;
     public static Vector2I CampFire => CampCentre;
@@ -200,6 +212,8 @@ public static class WorldLayout
         if (p.DistanceTo(outpostCentre) < 1000f) return 0f;
         if (p.DistanceTo(IsoGrid.ToWorld(WinterCamp)) < CampClearingPx) return 0f;
         if (p.DistanceTo(IsoGrid.ToWorld(SummerCamp)) < CampClearingPx) return 0f;
+        if (p.DistanceTo(IsoGrid.ToWorld(AssiniboineWinterCamp)) < CampClearingPx) return 0f;
+        if (p.DistanceTo(IsoGrid.ToWorld(AssiniboineSummerCamp)) < CampClearingPx) return 0f;
         // Keep the fort's surroundings open.
         var fortCentre = IsoGrid.ToWorld(IsoGrid.Cell(FortTop, FortWidth / 2, FortDepth / 2));
         float fortDist = p.DistanceTo(fortCentre);

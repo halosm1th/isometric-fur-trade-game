@@ -166,9 +166,12 @@ public partial class MapCanvas : Control
         var nwcC = M(IsoGrid.Cell(WorldLayout.NwcTop, WorldLayout.NwcWidth / 2, WorldLayout.NwcDepth / 2));
         DrawRect(new Rect2(nwcC - new Vector2(3, 3), new Vector2(6, 6)), new Color(0.6f, 0.15f, 0.1f));
         DrawString(font, nwcC + new Vector2(8, 4), "Nor'Westers", HorizontalAlignment.Left, -1, 12, ink);
-        var camp = M(WorldLayout.CampCentre);
-        DrawColoredPolygon(new[] { camp + new Vector2(0, -7), camp + new Vector2(6, 4), camp + new Vector2(-6, 4) }, new Color(0.75f, 0.55f, 0.3f));
-        DrawString(font, camp + new Vector2(9, 4), WorldLayout.IsSummerCamp ? "the band (summer camp)" : "the band (winter camp)", HorizontalAlignment.Left, -1, 12, ink);
+        foreach (var band in Sim.Bands)
+        {
+            var camp = M(band.Camp);
+            DrawColoredPolygon(new[] { camp + new Vector2(0, -7), camp + new Vector2(6, 4), camp + new Vector2(-6, 4) }, band.IsCree ? new Color(0.75f, 0.55f, 0.3f) : new Color(0.65f, 0.45f, 0.5f));
+            DrawString(font, camp + new Vector2(9, 4), $"{band.Name} ({(band.Camp == band.WinterGround ? "winter camp" : "summer camp")})", HorizontalAlignment.Left, -1, 12, ink);
+        }
         DrawLine(M(WorldLayout.WharfRoot), M(WorldLayout.WharfEnd), new Color(0.3f, 0.2f, 0.1f), 2f);
         // The river road and the inland post.
         for (int i = 0; i + 1 < WorldLayout.RiverRoad.Length; i++) DrawDashedLine(M(WorldLayout.RiverRoad[i]), M(WorldLayout.RiverRoad[i + 1]), new Color(0.35f, 0.25f, 0.12f), 1.5f, 6f);

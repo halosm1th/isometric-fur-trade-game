@@ -367,7 +367,7 @@ public class AttackGoal : Goal
         {
             npc.StopMoving();
             npc.FaceToward(Target.GlobalPosition);
-            if (npc.Attack(Target)) npc.PlayAnimation("attack");
+            { var w = npc.Weapon; if (npc.Attack(Target)) npc.PlayAnimation(w == ItemId.Musket ? "shoot" : "attack"); }
             return GoalStatus.Running;
         }
         npc.ChaseToward(Target.GlobalPosition, dt);

@@ -36,14 +36,14 @@ public static class Grudges
     {
         if (victim == null || killer == null || killer == victim) return;
         if (killer is Animal) return;
-        if (victim.Faction != Faction.Cree) return;
+        if (!victim.IsBandPerson) return;
         float debt = victim.Role == Role.CreeChief ? 24f : victim.IsFemale ? 14f : 16f;
         var kin = new List<Npc>();
         if (victim.Spouse is Npc sp && !sp.IsDead) kin.Add(sp);
         if (victim.Father != null && !victim.Father.IsDead) kin.Add(victim.Father);
         foreach (var c in victim.Children) if (!c.IsDead) kin.Add(c);
         // The band is one family for this: the leading man and the hunters all carry it.
-        foreach (var n in Sim.Npcs) if ((n.Role == Role.CreeChief || n.Role == Role.CreeHunter) && !n.IsDead && !kin.Contains(n) && n != victim) kin.Add(n);
+        foreach (var n in Sim.Npcs) if ((n.Role == Role.CreeChief || n.Role == Role.CreeHunter) && n.HomeStores == victim.HomeStores && !n.IsDead && !kin.Contains(n) && n != victim) kin.Add(n);
         int day = GameCalendar.Instance?.Day ?? 0;
         foreach (var k in kin)
         {
@@ -65,7 +65,7 @@ public static class Grudges
         {
             if (g.Holder != holder.DisplayName || g.Settled) continue;
             Npc heir = null;
-            foreach (var n in Sim.Npcs) if (!n.IsDead && n.Faction == holder.Faction && n != holder && (n.Role == Role.CreeChief || n.Role == Role.CreeHunter)) { heir = n; break; }
+            foreach (var n in Sim.Npcs) if (!n.IsDead && n.HomeStores == holder.HomeStores && n != holder && (n.Role == Role.CreeChief || n.Role == Role.CreeHunter)) { heir = n; break; }
             if (heir == null) { g.Settled = true; continue; }
             g.Holder = heir.DisplayName;
             Sim.Notice($"The debt for {g.Victim} passes to {heir.DisplayName}.");

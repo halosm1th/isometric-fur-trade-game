@@ -530,6 +530,8 @@ public partial class Npc : Agent
     {
         if (base.IsHostileTo(other)) return true;
         if (other.Raiding && other.RaidTarget == Faction && IsFighter) return Economy.Rivalry.HouseHasOdds(Faction, other.GlobalPosition);
+        // Two nations at odds (design doc 7.2): the hunters of one see the other's as enemies in the bush.
+        if (IsBandPerson && other.IsBandPerson && other.Faction != Faction && IsFighter && HomeStores is BandLedger mine && mine.AtOddsWithOtherBand && other is Npc on && on.IsFighter) return true;
         return false;
     }
 
@@ -671,7 +673,7 @@ public partial class Npc : Agent
         Sim.Notice($"{DisplayName} has died.");
         string how = LastAttacker != null && LastAttackedAgo < 30f ? $"{DisplayName} was killed by {LastAttacker.Describe()}." : $"{DisplayName} died of want.";
         Chronicle.Event(how, GlobalPosition, LastAttacker != null && LastAttackedAgo < 30f ? LastAttacker : null, DisplayName, 2f);
-        if (Faction == Faction.Cree && LastAttacker != null && LastAttackedAgo < 30f) Sim.Band?.OnMemberKilledBy(LastAttacker);
+        if (IsBandPerson && LastAttacker != null && LastAttackedAgo < 30f) (HomeStores as BandLedger)?.OnMemberKilledBy(LastAttacker);
         // Blood debts (design doc 7.4): a killing makes one, a killer's death pays one, a holder's death passes one on.
         if (LastAttacker != null && LastAttackedAgo < 30f) Grudges.OnKilled(this, LastAttacker);
         foreach (var g in new List<Grudge>(Grudges.All)) if (!g.Settled && g.Against == DisplayName) { Grudges.Settle(g, true); Sim.Notice($"{DisplayName} is dead; the debt for {g.Victim} is paid in blood."); }

@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=32 format=3]
+[gd_resource type="SpriteFrames" load_steps=36 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/player/idle_front.png" id="t1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/walk_front_0.png" id="t2"]
@@ -31,6 +31,10 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/player/sneak_side_1.png" id="t29"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/sneak_side_2.png" id="t30"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/sneak_side_3.png" id="t31"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/shoot_0.png" id="t32"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/shoot_1.png" id="t33"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/shoot_2.png" id="t34"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/shoot_3.png" id="t35"]
 
 [resource]
 animations = [{
@@ -178,5 +182,22 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("t21")
+}]
+}, {
+"name": &"shoot",
+"speed": 6.0,
+"loop": false,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t32")
+}, {
+"duration": 1.0,
+"texture": ExtResource("t33")
+}, {
+"duration": 1.0,
+"texture": ExtResource("t34")
+}, {
+"duration": 1.0,
+"texture": ExtResource("t35")
 }]
 }]

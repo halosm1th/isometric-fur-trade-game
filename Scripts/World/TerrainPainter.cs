@@ -18,6 +18,7 @@ public partial class TerrainPainter : TileMapLayer
     public const int SourceWater = 5;
     public const int SourceWaterIce = 38;
     public const int SourceSnow = 43;
+    public const int SourceRoad = 61;   // trodden dirt with footprints: the river road
     public const int SourceIce = 44;
     public const int SourceWharf = 51;
 
@@ -122,8 +123,9 @@ public partial class TerrainPainter : TileMapLayer
                 else if (WorldLayout.IsRiver(cell)) source = SourceWater;
                 else if (y < shore + WorldLayout.BeachRows || WorldLayout.IsRiverBank(cell)) source = SourceSand;
                 else if (yard.Contains(cell)) source = SourceDirt;
-                else if (p.DistanceTo(camp) < 300f || p.DistanceTo(summerCamp) < 300f) source = SourceDirt;
-                else if (WorldLayout.TrailDistance(p) < 70f || WorldLayout.RoadDistance(p) < 60f) source = SourceDirt;
+                else if (p.DistanceTo(camp) < 300f || p.DistanceTo(summerCamp) < 300f || p.DistanceTo(IsoGrid.ToWorld(WorldLayout.AssiniboineWinterCamp)) < 300f || p.DistanceTo(IsoGrid.ToWorld(WorldLayout.AssiniboineSummerCamp)) < 300f) source = SourceDirt;
+                else if (WorldLayout.RoadDistance(p) < 60f) source = SourceRoad;
+                else if (WorldLayout.TrailDistance(p) < 70f) source = SourceDirt;
 
                 SetCell(cell, source, Vector2I.Zero);
             }
@@ -159,6 +161,7 @@ public partial class TerrainPainter : TileMapLayer
         if (src == SourceIce || src == SourceWaterIce) { slippery = true; return 0.95f; }
         if (src == SourceSnow) return snowshoes ? 1.0f : 0.7f;
         if (src == SourceDirt) return 1.05f;
+        if (src == SourceRoad) return 1.1f;
         if (src == SourceSand) return 0.9f;
         // The goose marsh is a swamp in summer.
         foreach (var s in WorldLayout.Sites)
@@ -226,6 +229,7 @@ public partial class TerrainPainter : TileMapLayer
         "wharf" => WorldLayout.WharfRoot,
         "nwc" => WorldLayout.NwcHouse.Centre,
         "outpost" => WorldLayout.OutpostHouse.Centre,
+        "assiniboine" => IsoGrid.Cell(WorldLayout.AssiniboineWinterCamp, 1, 1),
         "road" => WorldLayout.RoadHeadYork,
         "ford" => new Vector2I(58, 160),
         "berth" => IsoGrid.Cell(WorldLayout.WharfEnd, -2, 0),

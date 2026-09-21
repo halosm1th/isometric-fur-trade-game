@@ -101,6 +101,76 @@ public class CourierGoal : Goal
     }
 }
 
+// Lie up beside the river road and take what the Company sends along it
+// (design doc 10.3, 12.2's chokepoints): the packet, the furs, the man if
+// he fights. Then home with it, and the partner reads what he shouldn't.
+public class AmbushGoal : Goal
+{
+    private readonly Vector2I _where;
+    private float _hoursLeft;
+    private int _phase;
+    private Npc _mark;
+    private bool _took;
+    public AmbushGoal(Vector2I where, float hours) { _where = where; _hoursLeft = hours; }
+    public override string Label => _phase == 0 ? "go to the river road" : _phase == 1 ? "lie up by the river road" : "home with the take";
+
+    public override void OnEnter(Npc npc) { npc.Raiding = true; npc.RaidTarget = Faction.HBC; npc.RaidTimer = 0f; }
+    public override void OnExit(Npc npc) { npc.Raiding = false; npc.StopMoving(); }
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        switch (_phase)
+        {
+            case 0:
+                _phase = 1;
+                return Delegate(new RoadGoal(_where));
+            case 1:
+            {
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                _hoursLeft -= hours;
+                if (_mark != null && GodotObject.IsInstanceValid(_mark) && _mark.IsDead && npc.GlobalPosition.DistanceTo(_mark.GlobalPosition) < 200f)
+                {
+                    // Strip the body: papers and furs.
+                    npc.Mail.AddRange(_mark.Mail); _mark.Mail.Clear();
+                    foreach (var (id, n) in new System.Collections.Generic.List<(ItemId, int)>(_mark.Inventory.All()))
+                        if (Items.Items.Of(id).Kind == ItemKind.Fur || Items.Items.Of(id).Kind == ItemKind.Goods) { _mark.Inventory.Remove(id, n); npc.Inventory.Add(id, n); }
+                    _took = true;
+                    Chronicle.Event($"{npc.DisplayName} stripped {_mark.DisplayName}'s body on the river road.", npc.GlobalPosition, npc, weight: 2.5f);
+                    _phase = 2;
+                    return Delegate(new RoadGoal(npc.HomeStores?.AccessCell ?? npc.BedCell));
+                }
+                if (_hoursLeft <= 0f || npc.Needs.Warmth < 30f || npc.Needs.Hunger < 25f) { _phase = 2; return Delegate(new RoadGoal(npc.HomeStores?.AccessCell ?? npc.BedCell)); }
+                // Anyone of the Company on the road with papers or furs.
+                foreach (var a in Sim.AgentsWithin(npc.GlobalPosition, 520f))
+                {
+                    if (a is Npc o && o.Faction == Faction.HBC && !o.IsDead && (o.Mail.Count > 0 || o.Inventory.CountOfKind(ItemKind.Fur) >= 4))
+                    {
+                        _mark = o;
+                        Chronicle.Event($"{npc.DisplayName} fell on {o.DisplayName} on the river road.", npc.GlobalPosition, npc, o.DisplayName, 2f);
+                        return Delegate(new AttackGoal(o));
+                    }
+                }
+                if (npc.Arrived || npc.MoveFailed) npc.SetDestination(new Vector2I(_where.X + GD.RandRange(-2, 2), _where.Y + GD.RandRange(-3, 3)));
+                return GoalStatus.Running;
+            }
+            default:
+            {
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                if (npc.HomeStores != null)
+                {
+                    foreach (var (id, n) in new System.Collections.Generic.List<(ItemId, int)>(npc.Inventory.All()))
+                        if (Items.Items.Of(id).Kind == ItemKind.Fur || Items.Items.Of(id).Kind == ItemKind.Goods) { npc.Inventory.Remove(id, n); npc.HomeStores.Stores.Add(id, n); }
+                    var master = npc.HomeStores.Leader;
+                    foreach (var m in new System.Collections.Generic.List<Message>(npc.Mail)) { npc.Mail.Remove(m); if (master != null && !master.IsDead) { master.Mail.Add(m); Mail.Open(m, master); } }
+                }
+                if (_took) { Economy.Rivalry.Raise(10f, "the Company's packet taken on the road"); Sim.Notice($"{npc.DisplayName} is back across the river with what he took on the road."); }
+                npc.PendingReport = _took ? "took the Company's packet on the road" : "saw nothing on the road";
+                return GoalStatus.Done;
+            }
+        }
+    }
+}
+
 // Sit down at your desk and open what's addressed to you (design doc
 // 10.1.1: the read event). Half an hour with the packet.
 public class ReadMailGoal : Goal

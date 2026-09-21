@@ -84,6 +84,8 @@ public static class SaveGame
             ["nwc"] = Ledger(Sim.Nwc),
             ["outpost"] = Ledger(Sim.Outpost),
             ["band"] = Band(Sim.Band),
+            ["assiniboine"] = Band(Sim.Assiniboine),
+            ["assinCamp"] = Sim.Assiniboine != null ? new GArr { Sim.Assiniboine.Camp.X, Sim.Assiniboine.Camp.Y } : new GArr(),
             ["sites"] = Sites(),
             ["hearths"] = Hearths(),
             ["cells"] = Sim.Structures?.ChangedCells() ?? new GArr(),
@@ -240,7 +242,7 @@ public static class SaveGame
             var d = AgentCommon(n);
             d["role"] = (int)n.Role; d["female"] = n.IsFemale;
             d["bed"] = new GArr { n.BedCell.X, n.BedCell.Y }; d["work"] = new GArr { n.WorkCell.X, n.WorkCell.Y };
-            d["home"] = n.HomeStores == Sim.Fort ? "fort" : n.HomeStores == Sim.Nwc ? "nwc" : n.HomeStores == Sim.Band ? "band" : n.HomeStores == Sim.Outpost ? "outpost" : "";
+            d["home"] = n.HomeStores == Sim.Fort ? "fort" : n.HomeStores == Sim.Nwc ? "nwc" : n.HomeStores == Sim.Band ? "band" : n.HomeStores == Sim.Outpost ? "outpost" : n.HomeStores == Sim.Assiniboine ? "assiniboine" : "";
             d["frames"] = n.FramesPath; d["tint"] = n.Tint.ToHtml(); d["scale"] = n.SpriteScale;
             var p = n.Personality;
             d["personality"] = new GArr { p.Loyalty, p.Talkative, p.Suspicion, p.Ambition, p.Courage };
@@ -265,7 +267,7 @@ public static class SaveGame
         foreach (var p in Sim.Players())
         {
             var d = AgentCommon(p);
-            d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["authorized"] = p.AuthorizedAcrossUntilDay; d["inland"] = p.PostedInland;
+            d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["tongue2"] = p.AssiniboineFluency; d["authorized"] = p.AuthorizedAcrossUntilDay; d["inland"] = p.PostedInland;
             d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline;
             var known = new GArr(); foreach (var s in p.KnownSites) known.Add(s);
             d["knownSites"] = known;
@@ -376,13 +378,16 @@ public static class SaveGame
             LoadLedger(Sim.Fort, d["fort"].AsGodotDictionary());
             LoadLedger(Sim.Nwc, d["nwc"].AsGodotDictionary());
             if (d.ContainsKey("outpost")) LoadLedger(Sim.Outpost, d["outpost"].AsGodotDictionary());
-            var bd = d["band"].AsGodotDictionary();
-            if (Sim.Band != null && bd.Count > 0)
+            void LoadBand(BandLedger b, GDict bd)
             {
-                LoadHousehold(Sim.Band, bd);
-                Sim.Band.StandingWithCompany = F(bd, "standing", 50f); Sim.Band.StandingWithNwc = F(bd, "standingNwc", 50f);
-                Sim.Band.DebtMb = F(bd, "debt"); Sim.Band.DebtNwcMb = F(bd, "debtNwc"); Sim.Band.RumTaste = F(bd, "rumTaste"); Sim.Band.InvitedToTrade = B(bd, "invited");
+                if (b == null || bd.Count == 0) return;
+                LoadHousehold(b, bd);
+                b.StandingWithCompany = F(bd, "standing", 50f); b.StandingWithNwc = F(bd, "standingNwc", 50f);
+                b.DebtMb = F(bd, "debt"); b.DebtNwcMb = F(bd, "debtNwc"); b.RumTaste = F(bd, "rumTaste"); b.InvitedToTrade = B(bd, "invited");
             }
+            LoadBand(Sim.Band, d["band"].AsGodotDictionary());
+            if (d.ContainsKey("assiniboine")) LoadBand(Sim.Assiniboine, d["assiniboine"].AsGodotDictionary());
+            if (d.ContainsKey("assinCamp") && d["assinCamp"].AsGodotArray().Count == 2) Sim.Assiniboine?.MoveCamp(CellOf(d["assinCamp"].AsGodotArray()));
 
             if (Sim.Ecology != null)
             {
@@ -425,7 +430,7 @@ public static class SaveGame
             foreach (var nv in d["npcs"].AsGodotArray())
             {
                 var nd = nv.AsGodotDictionary();
-                Household home = S(nd, "home") switch { "fort" => Sim.Fort, "nwc" => Sim.Nwc, "band" => Sim.Band, "outpost" => Sim.Outpost, _ => null };
+                Household home = S(nd, "home") switch { "fort" => Sim.Fort, "nwc" => Sim.Nwc, "band" => Sim.Band, "outpost" => Sim.Outpost, "assiniboine" => Sim.Assiniboine, _ => null };
                 var frames = GD.Load<SpriteFrames>(S(nd, "frames", "res://Scenes/Player/PlayerFrames.tres"));
                 var npc = pop.Spawn(S(nd, "name"), (Role)I(nd, "role"), (Faction)I(nd, "faction"), CellOf(nd["bed"].AsGodotArray()), CellOf(nd["work"].AsGodotArray()), home, frames, Color.FromHtml(S(nd, "tint", "ffffff")), F(nd, "scale", 0.8f), B(nd, "female"));
                 LoadAgentCommon(npc, nd);
@@ -488,7 +493,7 @@ public static class SaveGame
     {
         if (p == null || !_savedPlayers.TryGetValue(p.DisplayName, out var d)) return;
         LoadAgentCommon(p, d);
-        p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer"); p.CreeFluency = F(d, "tongue", 0.1f); p.AuthorizedAcrossUntilDay = I(d, "authorized", -1); p.PostedInland = B(d, "inland");
+        p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer"); p.CreeFluency = F(d, "tongue", 0.1f); p.AssiniboineFluency = F(d, "tongue2", 0.05f); p.AuthorizedAcrossUntilDay = I(d, "authorized", -1); p.PostedInland = B(d, "inland");
         var t = d["task"].AsGodotArray();
         p.Task.Kind = (TaskKind)t[0].AsInt32(); p.Task.Need = t[1].AsInt32(); p.Task.Done = t[2].AsInt32(); p.Task.DayAssigned = t[3].AsInt32();
         p.Task.Intent = S(d, "taskIntent"); p.Task.Deadline = I(d, "taskDeadline");

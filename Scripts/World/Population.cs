@@ -26,7 +26,9 @@ public partial class Population : Node2D
     private static readonly string[] CreeDaughters = { "Kimiwan", "Wawatew" };
     private static readonly string[] Sailors = { "Bos'n Hurst", "Ned Carrow", "Tom Ellery", "Will Pascoe", "Sam Rudd", "Jack Tremayne", "Davy Roskilly", "Harry Penrose" };
 
-        private SpriteFrames _hbcFrames, _factorFrames, _creeFrames, _labourerFrames, _creeWomanFrames;
+        private SpriteFrames _hbcFrames, _factorFrames, _creeFrames, _labourerFrames, _creeWomanFrames, _assiniboineFrames;
+    private static readonly string[] AssinMen = { "Tchatka", "Mato", "Wanbdi", "Cetan" };
+    private static readonly string[] AssinWomen = { "Wiyaka", "Ptesan", "Wakanda" };
 
     public override void _Ready()
     {
@@ -36,6 +38,7 @@ public partial class Population : Node2D
         _creeFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/CreeFrames.tres");
         _labourerFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/LabourerFrames.tres");
         _creeWomanFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/CreeWomanFrames.tres");
+        _assiniboineFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/AssiniboineFrames.tres");
         foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--trace") _trace = true;
         if (Net.Net.IsServer) CallDeferred(nameof(SpawnAll));
     }
@@ -109,6 +112,32 @@ public partial class Population : Node2D
                 v.Inventory.Add(ItemId.Capote); v.Inventory.Add(ItemId.Knife); v.Inventory.Add(ItemId.Pemmican, 2);
                 if (i == 0) v.Inventory.Add(ItemId.Musket);
             }
+        }
+
+        // The Assiniboine (design doc 7.2): a plains band wintering upland
+        // near Oxford House with pemmican to sell, down to the Bay in summer.
+        var assin = Sim.Assiniboine;
+        if (assin != null)
+        {
+            var at = new List<Vector2I>(assin.Tipis());
+            var achief = Spawn(AssinMen[0] + " (chief)", Role.CreeChief, Faction.Assiniboine, at[0], IsoGrid.Cell(assin.Camp, 1, 0), assin, _assiniboineFrames, Colors.White);
+            achief.Inventory.Add(ItemId.Musket); achief.Inventory.Add(ItemId.HideCoat); achief.Inventory.Add(ItemId.Pemmican, 3);
+            assin.Leader = achief;
+            var ahunters = new List<Npc>();
+            for (int i = 0; i < 3; i++)
+            {
+                var h = Spawn(AssinMen[1 + i], Role.CreeHunter, Faction.Assiniboine, at[1 + i], IsoGrid.Cell(assin.Camp, -1, 1), assin, _assiniboineFrames, new Color(0.96f, 0.93f, 0.9f));
+                h.Inventory.Add(i == 0 ? ItemId.Musket : ItemId.Bow); h.Inventory.Add(ItemId.Knife); h.Inventory.Add(ItemId.HideCoat); h.Inventory.Add(ItemId.Pemmican, 3); h.Inventory.Add(ItemId.Snowshoes);
+                ahunters.Add(h);
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                var w = Spawn(AssinWomen[i], Role.CreeWoman, Faction.Assiniboine, at[i % at.Count], IsoGrid.Cell(assin.Camp, 0, 1), assin, _creeWomanFrames, new Color(0.9f, 0.78f, 0.62f), 0.78f, true);
+                w.Inventory.Add(ItemId.HideCoat); w.Inventory.Add(ItemId.Knife);
+                if (i == 0) { w.Spouse = achief; achief.Spouse = w; } else { w.Spouse = ahunters[i - 1]; ahunters[i - 1].Spouse = w; }
+            }
+            var ad = Spawn("Winona", Role.CreeDaughter, Faction.Assiniboine, at[0], IsoGrid.Cell(assin.Camp, 1, 2), assin, _creeWomanFrames, new Color(0.95f, 0.85f, 0.7f), 0.74f, true);
+            ad.Father = achief; achief.Children.Add(ad); ad.Inventory.Add(ItemId.HideCoat);
         }
 
         // Oxford House, up the river road: a postmaster, three men, a wife.

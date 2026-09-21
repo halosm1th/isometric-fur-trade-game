@@ -174,14 +174,13 @@ public class CreeChiefBehaviour : RoleBehaviour
 {
     protected override Goal Work(Npc npc)
     {
-        var band = Sim.Band;
+        var band = npc.HomeStores as Economy.BandLedger;
         if (band == null) return null;
         var fire = FireDuty(npc, 3f);
         if (fire != null) return fire;
         // The chief carries the furs to the post himself when there's a
         // worthwhile load, or when the camp is running out of food.
-        int mouths = 0;
-        foreach (var n in Sim.Npcs) if (n.Faction == Faction.Cree && !n.IsDead) mouths++;
+        int mouths = band.Mouths;
         bool hungry = band.FoodDays(mouths) < 4f;
         float fursMb = 0f;
         foreach (var (id, n) in band.Stores.All()) if (Items.Items.Of(id).Kind == ItemKind.Fur) fursMb += Items.Items.Of(id).ValueMb * n;
@@ -193,14 +192,16 @@ public class CreeChiefBehaviour : RoleBehaviour
         {
             if (!band.WillTradeWith(post) || post.Stores.Count(ItemId.TradeGoods) < 5) continue;
             float walk = IsoGrid.ToWorld(post.AccessCell).DistanceTo(IsoGrid.ToWorld(band.AccessCell));
-            float score = post.PeltPrice * (0.5f + post.BandStanding / 100f) / (1f + walk / 4000f);
+            float score = post.PeltPrice * (0.5f + post.StandingOf(band) / 100f) / (1f + walk / 4000f);
             if (post.Stores.Has(ItemId.Rum)) score *= 1f + band.RumTaste / 200f;
-            if (post.BandDebt > 0f) score *= 1.15f;   // you go back where you owe
+            if (post.DebtOf(band) > 0f) score *= 1.15f;   // you go back where you owe
             if (score > bestScore) { bestScore = score; best = post; }
         }
-        if (best != null && IsWorkHours && (fursMb >= 8f || band.InvitedToTrade && fursMb > 0f || (hungry && (fursMb > 0f || band.Stores.Has(ItemId.TradeGoods) || best.BandStanding > 40f))))
+        // The Assiniboine also come in when they have pemmican to sell (design doc 13.1).
+        bool provisions = !band.IsCree && !hungry && band.Stores.Count(ItemId.Pemmican) >= 24;
+        if (best != null && IsWorkHours && (fursMb >= 8f || provisions || band.InvitedToTrade && fursMb > 0f || (hungry && (fursMb > 0f || band.Stores.Has(ItemId.TradeGoods) || best.StandingOf(band) > 40f))))
             return new TradeTripGoal(hungry, best);
-        return new WanderGoal(WorldLayout.CampCentre, 3, 1.5f);
+        return new WanderGoal(band.Camp, 3, 1.5f);
     }
 }
 
@@ -208,14 +209,13 @@ public class CreeHunterBehaviour : RoleBehaviour
 {
     protected override Goal Work(Npc npc)
     {
-        var band = Sim.Band; var eco = Sim.Ecology; var fort = Sim.Fort;
+        var band = npc.HomeStores as Economy.BandLedger; var eco = Sim.Ecology; var fort = Sim.Fort;
         if (band == null || eco == null) return null;
-        if (!IsWorkHours) return new WanderGoal(WorldLayout.CampCentre, 3, 1f);
+        if (!IsWorkHours) return new WanderGoal(band.Camp, 3, 1f);
         var fire = FireDuty(npc, 3f);
         if (fire != null) return fire;
 
-        int mouths = 0;
-        foreach (var n in Sim.Npcs) if (n.Faction == Faction.Cree && !n.IsDead) mouths++;
+        int mouths = band.Mouths;
         bool needMeat = band.FoodDays(mouths) < 6f;
 
         // How hard the band hunts for trade follows the price the post pays
@@ -225,7 +225,7 @@ public class CreeHunterBehaviour : RoleBehaviour
 
         // Hunts start in the morning; a long walk out in the afternoon means
         // a night in the open.
-        if (Cal.Hour >= 12f) return new WanderGoal(WorldLayout.CampCentre, 3, 1f);
+        if (Cal.Hour >= 12f) return new WanderGoal(band.Camp, 3, 1f);
         // The trapline comes first: check any line that's had a night, or set
         // one if there are traps in the cache and the price makes it worth it.
         var trapWork = TraplineWork(npc, band, eco, furHunt);
@@ -236,7 +236,7 @@ public class CreeHunterBehaviour : RoleBehaviour
         if (site == null && Cal.CurrentSeason != Season.Winter && GD.Randf() < 0.3f) return new FishGoal();
         if (site == null && GD.Randf() < 0.35f) return new ForageGoal(4f);
         if (site != null) return new HuntSiteGoal(site, 5f);
-        return new WanderGoal(WorldLayout.CampCentre, 3, 1f);
+        return new WanderGoal(band.Camp, 3, 1f);
     }
 }
 
@@ -251,7 +251,7 @@ public class CreeWomanBehaviour : RoleBehaviour
         if (IsWorkHours && !Cal.IsFrozen && npc.HomeStores != null && npc.HomeStores.FoodDays(11) < 8f && GD.Randf() < 0.5f) return new FishGoal();
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Venison) >= 3) return new DryMeatGoal();
         if (npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Firewood) < 12 && IsWorkHours) return new ChopWoodGoal();
-        return new WanderGoal(WorldLayout.CampCentre, 3, 1.2f);
+        return new WanderGoal((npc.HomeStores as Economy.BandLedger)?.Camp ?? WorldLayout.CampCentre, 3, 1.2f);
     }
 }
 

@@ -105,6 +105,22 @@ public class HuntSiteGoal : Goal
                     if (npc.HomeStores == null) return GoalStatus.Done;
                     return Delegate(new GoToGoal(npc.HomeStores.AccessCell, 100f));
                 }
+                // Another nation's hunters on the same ground (design doc 7.2, 16.5): words, and the standing between the bands slips.
+                if (npc.IsBandPerson && npc.HomeStores is Economy.BandLedger myBand && _tryTimer <= 0f)
+                {
+                    foreach (var a in Sim.AgentsWithin(npc.GlobalPosition, 500f))
+                    {
+                        if (a is not Npc o || !o.IsBandPerson || o.Faction == npc.Faction || o.IsDead) continue;
+                        if (GD.Randf() < 0.04f)
+                        {
+                            myBand.StandingWithOtherBand = Mathf.Max(0f, myBand.StandingWithOtherBand - 2f);
+                            if (myBand.OtherBand != null) myBand.OtherBand.StandingWithOtherBand = Mathf.Max(0f, myBand.OtherBand.StandingWithOtherBand - 2f);
+                            Chronicle.Event($"there were hard words between {npc.DisplayName} and {o.DisplayName} over the game at {_site.Name}.", npc.GlobalPosition, npc, o.DisplayName, 1f);
+                            if (myBand.AtOddsWithOtherBand) Sim.Notice($"The Cree and the Assiniboine are at odds over {_site.Name}. Their hunters will not pass each other quietly now.");
+                        }
+                        break;
+                    }
+                }
                 // A live animal within reach is fair game.
                 var prey = _site.NearestLiveAnimal(npc.GlobalPosition, 500f);
                 if (prey != null && !prey.IsDead && npc.Weapon != null)
@@ -353,7 +369,7 @@ public class TradeTripGoal : Goal
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {
-        var band = Sim.Band; var fort = _post ?? Sim.Fort;
+        var band = npc.HomeStores as Economy.BandLedger ?? Sim.Band; var fort = _post ?? Sim.Fort;
         if (band == null || fort == null) return GoalStatus.Failed;
         switch (_phase)
         {
@@ -367,7 +383,8 @@ public class TradeTripGoal : Goal
                 foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.ShotPelt, ItemId.ShotHide, ItemId.CaribouHide, ItemId.WolfPelt })
                     npc.Inventory.Add(id, band.Stores.TakeUpTo(id, 30));
                 npc.Inventory.Add(ItemId.TradeGoods, band.Stores.TakeUpTo(ItemId.TradeGoods, _buyFood ? 10 : 0));
-                if (npc.Inventory.CountOfKind(ItemKind.Fur) == 0 && !npc.Inventory.Has(ItemId.TradeGoods)) return GoalStatus.Failed;
+                if (!band.IsCree && !_buyFood) npc.Inventory.Add(ItemId.Pemmican, band.Stores.TakeUpTo(ItemId.Pemmican, System.Math.Max(0, band.Stores.Count(ItemId.Pemmican) - 12)));   // the plains trade, keeping the camp's own
+                if (npc.Inventory.CountOfKind(ItemKind.Fur) == 0 && !npc.Inventory.Has(ItemId.TradeGoods) && npc.Inventory.Count(ItemId.Pemmican) < 4) return GoalStatus.Failed;
                 _phase = 2;
                 return Delegate(new GoToGoal(fort.AccessCell, 120f));
             case 2:
@@ -378,10 +395,11 @@ public class TradeTripGoal : Goal
             case 3:
             {
                 if (!ChildFinished(out _)) return GoalStatus.Running;
-                float paid = fort.BuyFurs(npc.Inventory, npc.Inventory);
-                int bought = 0;
-                if (_buyFood) bought = fort.SellFood(npc.Inventory, npc.Inventory.Count(ItemId.TradeGoods));
-                Sim.Notice($"{npc.DisplayName} traded at {fort.Title}: {paid:0} MB in goods{(bought > 0 ? $", bought {bought} of food" : "")}{(fort.BandDebt > 0 ? $" (owes {fort.BandDebt:0.#} MB)" : "")}.");
+                float paid = fort.BuyFurs(npc.Inventory, npc.Inventory, band);
+                int bought = 0, soldFood = 0;
+                if (_buyFood) bought = fort.SellFood(npc.Inventory, npc.Inventory.Count(ItemId.TradeGoods), band);
+                if (npc.Inventory.Count(ItemId.Pemmican) >= 4) { int m = 0; foreach (var x in Sim.Npcs) if (x.HomeStores == fort && !x.IsDead) m++; soldFood = fort.BuyProvisions(npc.Inventory, npc.Inventory, m); }
+                Sim.Notice($"{npc.DisplayName} traded at {fort.Title}: {paid:0} MB in goods{(bought > 0 ? $", bought {bought} of food" : "")}{(soldFood > 0 ? $", sold {soldFood} pemmican" : "")}{(fort.DebtOf(band) > 0 ? $" (owes {fort.DebtOf(band):0.#} MB)" : "")}.");
                 Chronicle.Event($"{npc.DisplayName} traded furs at {fort.Title}.", npc.GlobalPosition, npc, weight: 0.4f);
                 if (fort is Economy.NwcLedger && Sim.Fort != null) { Sim.Fort.LostToRivalMb += paid; Economy.Rivalry.Raise(paid * 0.25f, "furs going to the Nor'Westers"); }
                 band.InvitedToTrade = false;

@@ -21,7 +21,7 @@ public class Conversation
 
     public Conversation(PlayerController player) { _player = player; }
 
-    public bool IsOpen => !_closed && (_stores != null || _npc != null && GodotObject.IsInstanceValid(_npc));
+    public bool IsOpen => !_closed && (_stores != null || _pile != null || _npc != null && GodotObject.IsInstanceValid(_npc));
 
     // The storeroom chest as a counterpart with no face (design doc 12.5).
     private Economy.FortLedger _stores;
@@ -32,6 +32,46 @@ public class Conversation
         _npc = null; _stores = fort; _closed = false;
         ShowStores();
         return State();
+    }
+
+    // A woodpile: yours or somebody else's (design doc 16.3 in firewood).
+    private Economy.Household _pile;
+    public const int PileId = -4;
+    public Godot.Collections.Dictionary StartWoodpile(Economy.Household pile)
+    {
+        if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
+        _npc = null; _stores = null; _pile = pile; _closed = false;
+        ShowWoodpile();
+        return State();
+    }
+
+    private void ShowWoodpile()
+    {
+        var pile = _pile; bool mine = pile == _player.HomePost;
+        _text = $"{pile.Title}'s woodpile: {pile.Stores.Count(ItemId.Firewood)} firewood.{(mine ? "" : " Not yours. Anyone who sees you take from it will remember.")}";
+        ClearOptions();
+        int have = _player.Inventory.Count(ItemId.Firewood);
+        if (have > 0) AddOption(mine ? $"Stack your {have} firewood" : $"Stack your {have} firewood on their pile (a gift)", () =>
+        {
+            _player.Inventory.Remove(ItemId.Firewood, have); pile.Stores.Add(ItemId.Firewood, have);
+            if (mine) _player.Task.Progress(TaskKind.Firewood, have);
+            else { foreach (var a in Sim.AgentsWithin(_player.GlobalPosition, 650f)) if (a is Npc w && w.HomeStores == pile) w.ChangeRapport(_player, 3f); Chronicle.Event($"{_player.DisplayName} brought wood to {pile.Title}'s pile.", _player.GlobalPosition, _player, weight: 0.5f); }
+            _text = $"You stack {have} firewood ({pile.Stores.Count(ItemId.Firewood)} there now)."; ShowWoodpile();
+        });
+        AddOption(mine ? "Take 2 firewood" : "Take 2 firewood (theft)", () =>
+        {
+            int take = pile.Stores.TakeUpTo(ItemId.Firewood, 2);
+            if (take == 0) { _text = "The pile is bare."; ShowWoodpile(); return; }
+            _player.Inventory.Add(ItemId.Firewood, take);
+            if (!mine)
+            {
+                Chronicle.Event($"{_player.DisplayName} took wood from {pile.Title}'s pile.", _player.GlobalPosition, _player, weight: 0.8f);
+                foreach (var a in Sim.AgentsWithin(_player.GlobalPosition, 650f)) if (a is Npc w && w.HomeStores == pile) w.ChangeRapport(_player, -6f);
+                if (pile is Economy.BandLedger b) b.StandingWithCompany = Mathf.Max(0f, b.StandingWithCompany - 1f);
+            }
+            _text = $"You take {take} firewood."; ShowWoodpile();
+        });
+        AddOption("Leave the pile", Close);
     }
 
     private void ShowStores()
@@ -64,7 +104,7 @@ public class Conversation
     public Godot.Collections.Dictionary Start(Npc npc)
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc) && _npc != npc) _npc.Conversing = false;
-        _npc = npc; _stores = null;
+        _npc = npc; _stores = null; _pile = null;
         _closed = false;
         npc.Conversing = true;
         npc.StopMoving();
@@ -82,6 +122,12 @@ public class Conversation
     // The player picked option i (or -1 to walk away).
     public Godot.Collections.Dictionary Step(int npcId, int option)
     {
+        if (_pile != null && npcId == PileId && !_closed)
+        {
+            if (option < 0 || option >= _options.Count) { Close(); return State(); }
+            _options[option].action();
+            return State();
+        }
         if (_stores != null && npcId == StoresId && !_closed)
         {
             if (option < 0 || option >= _options.Count) { Close(); return State(); }
@@ -98,7 +144,7 @@ public class Conversation
     private void Close()
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
-        _stores = null;
+        _stores = null; _pile = null;
         _closed = true;
     }
 
@@ -108,8 +154,8 @@ public class Conversation
         foreach (var (label, _) in _options) opts.Add(label);
         return new Godot.Collections.Dictionary
         {
-            ["closed"] = _closed, ["npc"] = _stores != null ? StoresId : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.NetId : -1,
-            ["title"] = _stores != null ? _stores.Title : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.DisplayName : "", ["text"] = _text, ["options"] = opts,
+            ["closed"] = _closed, ["npc"] = _pile != null ? PileId : _stores != null ? StoresId : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.NetId : -1,
+            ["title"] = _pile != null ? "The woodpile" : _stores != null ? _stores.Title : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.DisplayName : "", ["text"] = _text, ["options"] = opts,
         };
     }
 
@@ -137,11 +183,11 @@ public class Conversation
         string busy = npc.Brain.Top != null ? $" They were {npc.Brain.Top.Label}." : "";
         string debt = "";
         foreach (var g in Grudges.HeldBy(npc.DisplayName)) if (g.Against == _player.DisplayName) { debt = $" There is blood between you: {g.Victim}. {(npc.IsFighter ? "Their hand is on their knife." : "They will hear what you offer for it, or nothing.")}"; break; }
-        if (debt == "" && _player.Spouse is Npc wife && npc.Faction == Faction.Cree)
+        if (debt == "" && _player.Spouse is Npc wife && npc.IsBandPerson)
             foreach (var g in Grudges.HeldBy(npc.DisplayName)) { debt = $" Your wife's people have a debt unanswered: {g.Against} killed {g.Victim}. As kin, it is yours to help settle."; break; }
-        string tongue = npc.Faction == Faction.Cree && _player.EffectiveFluency < 0.4f ? (_player.HasInterpreter ? "" : " You have little of their tongue; you get by with signs and a few words.") : "";
+        string tongue = npc.IsBandPerson && _player.FluencyWith(npc) < 0.4f ? (_player.HasInterpreterFor(npc) ? "" : " You have little of their tongue; you get by with signs and a few words.") : "";
         string state = npc.IsSick ? " They are grey with fever - keep your distance." : npc.HasScurvy ? " Their gums are black with scurvy." : npc.IsDrunk ? " They are drunk." : npc.Needs.Hunger < 35 ? " They look hungry." : npc.Needs.Warmth < 35 ? " They are shivering." : npc.Needs.Health < 50 ? " They are hurt." : "";
-        if (npc.Faction == Faction.Cree && !_player.HasInterpreter) _player.CreeFluency = Mathf.Min(1f, _player.CreeFluency + 0.02f);   // every talk teaches a little
+        if (npc.IsBandPerson && !_player.HasInterpreterFor(npc)) _player.Learn(npc, 0.02f);   // every talk teaches a little
         return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{busy}{state}{debt}{tongue}";
     }
 
@@ -167,7 +213,7 @@ public class Conversation
         foreach (var g in new List<Grudge>(Grudges.HeldBy(npc.DisplayName)))
         {
             bool mine = g.Against == _player.DisplayName;
-            bool kin = _player.Spouse is Npc && npc.Faction == Faction.Cree;
+            bool kin = _player.Spouse is Npc && npc.IsBandPerson;
             if (mine || kin) AddOption($"Offer restitution for {g.Victim} ({g.DebtMb:0} trade goods{(mine ? "" : $", on {g.Against}'s behalf")})", () => ShowTopics(Restitution(npc, g)));
         }
 
@@ -178,7 +224,7 @@ public class Conversation
         AddOption("Give a gift", () => ShowGive(npc));
         if (npc.Needs.Hunger < 45f && _player.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
             AddOption($"Offer them something to eat ({Items.Items.Of(food).Name})", () => ShowTopics(OfferFood(npc, food)));
-        if (npc.Faction == Faction.Cree && (npc.Role == Role.CreeChief || npc.Role == Role.CreeHunter)) AddOption("Family and marriage...", () => ShowFamily(npc));
+        if (npc.IsBandPerson && (npc.Role == Role.CreeChief || npc.Role == Role.CreeHunter)) AddOption("Family and marriage...", () => ShowFamily(npc));
         if (leader && (Economy.Rivalry.AreRivals(npc.Faction, _player.Faction) || ownLeader && Sim.Nwc != null)) AddOption("The companies...", () => ShowCompanies(npc));
         if (npc.Faction != Faction.HBC || npc.Role == Role.Labourer)
             AddOption("Threaten them", () => ShowTopics(Threaten(npc)));
@@ -187,91 +233,93 @@ public class Conversation
 
     private bool CanAskAlong(Npc npc) => !npc.IsFemale && npc.Role != Role.Factor && npc.Role != Role.NwcPartner && npc.Role != Role.Clerk && npc.Role != Role.Sailor;
 
-    private void ShowTalk(Npc npc)
+    private void ShowTalk(Npc npc, string said = null)
     {
-        _text = $"{npc.DisplayName} waits to hear what you want to know.{Bored(npc)}";
+        _text = said ?? $"{npc.DisplayName} waits to hear what you want to know.{Bored(npc)}";
         ClearOptions();
-        bool canTalk = npc.Faction != Faction.Cree || _player.EffectiveFluency >= 0.3f;   // design doc 10.6
-        AddOption("How do things stand?", () => { _text = AskNews(npc); ShowTalk(npc); });
-        AddOption("Tell me about yourself", () => { _text = AskAboutThem(npc); ShowTalk(npc); });
-        AddOption("What's the talk? (rumours)", () => { _text = AskGossip(npc); ShowTalk(npc); });
-        if ((npc.Faction == Faction.Cree && npc.Role is Role.CreeChief or Role.CreeHunter) || npc.Role is Role.Labourer or Role.Voyageur or Role.NwcPartner)
-            AddOption("Where is the game?", () => { _text = AskHunting(npc); ShowTalk(npc); });
+        bool canTalk = !npc.IsBandPerson || _player.FluencyWith(npc) >= 0.3f;   // design doc 10.6
+        AddOption("How do things stand?", () => ShowTalk(npc, AskNews(npc)));
+        AddOption("Tell me about yourself", () => ShowTalk(npc, AskAboutThem(npc)));
+        AddOption("What's the talk? (rumours)", () => ShowTalk(npc, AskGossip(npc)));
+        if ((npc.IsBandPerson && npc.Role is Role.CreeChief or Role.CreeHunter) || npc.Role is Role.Labourer or Role.Voyageur or Role.NwcPartner)
+            AddOption("Where is the game?", () => ShowTalk(npc, AskHunting(npc)));
         if (npc.Role == Role.Factor && Sim.Fort != null)
         {
             int news = 0;
             foreach (var sname in _player.KnownSites) if (!Sim.Fort.Knows(sname)) news++;
-            if (news > 0) AddOption($"Tell him where the game is ({news} places)", () => { _text = TellSites(npc); ShowTalk(npc); });
+            if (news > 0) AddOption($"Tell him where the game is ({news} places)", () => ShowTalk(npc, TellSites(npc)));
         }
         if ((npc.Role == Role.Factor || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster) && npc.Faction == _player.Faction)
-            AddOption(npc.Role == Role.Factor ? "What does London want of us?" : "What do the partners want of us?", () => { _text = AskDirective(npc); ShowTalk(npc); });
+            AddOption(npc.Role == Role.Factor ? "What does London want of us?" : "What do the partners want of us?", () => ShowTalk(npc, AskDirective(npc)));
+        if (npc.Role == Role.CreeChief && npc.HomeStores is Economy.BandLedger cb && cb.OtherBand != null && cb.StandingWithOtherBand < 60f && canTalk)
+            AddOption($"Speak for peace with {cb.OtherBand.Name}", () => ShowTalk(npc, BrokerPeace(npc, cb)));
         if (npc.Role == Role.NwcPartner && Sim.Nwc != null && Sim.Nwc.DirectiveReadDay > -100 && npc.Faction == _player.Faction)
-            AddOption("What did the council decide?", () => { _text = $"\"{Sim.Nwc.DirectiveText}\""; ShowTalk(npc); });
-        if (npc.Faction == Faction.Cree && !canTalk) _text += " (You have only signs and a few words with them.)";
+            AddOption("What did the council decide?", () => ShowTalk(npc, $"\"{Sim.Nwc.DirectiveText}\""));
+        if (npc.IsBandPerson && !canTalk) _text += " (You have only signs and a few words with them.)";
         AddOption("Back", () => ShowTopics(Greeting(npc)));
     }
 
-    private void ShowWork(Npc npc)
+    private void ShowWork(Npc npc, string said = null)
     {
-        _text = npc.Role == Role.Factor || npc.Role == Role.NwcPartner ? "\"Yes?\"" : $"{npc.DisplayName} straightens up.";
+        _text = said ?? (npc.Role == Role.Factor || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster ? "\"Yes?\"" : $"{npc.DisplayName} straightens up.");
         ClearOptions();
         bool leader = npc.Role == Role.Factor || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster;
         bool ownLeader = leader && npc.Faction == _player.Faction;
         bool ownMan = npc.Faction == _player.Faction && (npc.Role == Role.Labourer || npc.Role == Role.Voyageur);
         bool canCommand = _player.Rank == "clerk" || _player.Rank == "postmaster" || _player.Standing >= 35f;
-        if (npc.Role == Role.Factor) AddOption("Ask for work", () => { _text = AskForWork(npc); ShowWork(npc); });
-        if (npc.Role == Role.Postmaster && _player.PostedInland) AddOption("Ask to be sent back down to the Bay", () => { _player.PostedInland = false; _text = "\"Go, then. Tell Mr. Auld we want more goods and fewer letters.\""; ShowWork(npc); });
-        if (npc.Role == Role.Postmaster && !_player.PostedInland && _player.Faction == Faction.HBC) AddOption("Ask to serve here at Oxford House", () => { _player.PostedInland = true; _text = "\"A man who can walk the road is worth having. You're on my books.\""; ShowWork(npc); });
+        if (npc.Role == Role.Factor) AddOption("Ask for work", () => ShowWork(npc, AskForWork(npc)));
+        if (npc.Role == Role.Postmaster && _player.PostedInland) AddOption("Ask to be sent back down to the Bay", () => { _player.PostedInland = false; ShowWork(npc, "\"Go, then. Tell Mr. Auld we want more goods and fewer letters.\""); });
+        if (npc.Role == Role.Postmaster && !_player.PostedInland && _player.Faction == Faction.HBC) AddOption("Ask to serve here at Oxford House", () => { _player.PostedInland = true; ShowWork(npc, "\"A man who can walk the road is worth having. You're on my books.\""); });
         if (ownLeader)
         {
             if (_player.Task.Kind != TaskKind.None && !_player.Task.IsComplete && _player.Task.Kind != TaskKind.Report)
             {
-                AddOption("Decline today's task", () => { _text = DeclineTask(npc); ShowWork(npc); });
-                AddOption("Ask for a different task", () => { _text = CounterTask(npc); ShowWork(npc); });
+                AddOption("Decline today's task", () => ShowWork(npc, DeclineTask(npc)));
+                AddOption("Ask for a different task", () => ShowWork(npc, CounterTask(npc)));
             }
             AddOption("Volunteer for something...", () => ShowVolunteer(npc));
-            if (npc.Role == Role.Factor && Sim.Nwc != null) AddOption("\"I'll be across the river a few days.\"", () => { _text = Authorize(npc); ShowWork(npc); });
+            if (npc.Role == Role.Factor && Sim.Nwc != null) AddOption("\"I'll be across the river a few days.\"", () => ShowWork(npc, Authorize(npc)));
         }
         if (ownMan && canCommand) AddOption("Give orders...", () => ShowOrders(npc));
-        if (npc.Following == _player) AddOption("\"That will do - carry on.\"", () => { npc.Following = null; _text = $"{npc.DisplayName} nods and goes back to their own business."; ShowWork(npc); });
-        else if (CanAskAlong(npc) && !(ownMan && canCommand)) AddOption("Ask them to come with you", () => { _text = AskAlong(npc); ShowWork(npc); });
+        if (npc.Following == _player) AddOption("\"That will do - carry on.\"", () => { npc.Following = null; ShowWork(npc, $"{npc.DisplayName} nods and goes back to their own business."); });
+        else if (CanAskAlong(npc) && !(ownMan && canCommand)) AddOption("Ask them to come with you", () => ShowWork(npc, AskAlong(npc)));
         AddOption("Back", () => ShowTopics(Greeting(npc)));
     }
 
-    private void ShowFamily(Npc npc)
+    private void ShowFamily(Npc npc, string said = null)
     {
-        bool canTalk = _player.EffectiveFluency >= 0.3f;
-        _text = canTalk ? $"{npc.DisplayName} listens." : NoWords(npc);
+        bool canTalk = _player.FluencyWith(npc) >= 0.3f;
+        _text = said ?? (canTalk ? $"{npc.DisplayName} listens." : NoWords(npc));
         ClearOptions();
         if (canTalk)
         {
-            AddOption("Ask about marriage in the custom of the country", () => { _text = AskMarriage(npc); ShowFamily(npc); });
+            AddOption("Ask about marriage in the custom of the country", () => ShowFamily(npc, AskMarriage(npc)));
             foreach (var d in npc.Children)
                 if (d.Role == Role.CreeDaughter && d.Spouse == null && !d.IsDead)
-                    AddOption($"Ask for {d.DisplayName}'s hand", () => { _text = Propose(npc, d); ShowFamily(npc); });
+                    AddOption($"Ask for {d.DisplayName}'s hand", () => ShowFamily(npc, Propose(npc, d)));
         }
         AddOption("Back", () => ShowTopics(Greeting(npc)));
     }
 
-    private void ShowCompanies(Npc npc)
+    private void ShowCompanies(Npc npc, string said = null)
     {
-        _text = Economy.Rivalry.OpenHostility ? "\"Between the companies it is open hostility. Speak carefully.\"" : $"\"The companies: {Economy.Rivalry.Describe()}.\"";
+        _text = said ?? (Economy.Rivalry.OpenHostility ? "\"Between the companies it is open hostility. Speak carefully.\"" : $"\"The companies: {Economy.Rivalry.Describe()}.\"");
         ClearOptions();
         bool ownLeader = npc.Faction == _player.Faction;
         // Papers for sale (design doc 10.3).
         foreach (var m in new List<Message>(_player.Mail))
             if (!m.Read && Economy.Rivalry.AreRivals(m.Company, npc.Faction))
-                AddOption($"Sell them the {m.Kind} from {m.From} ({PacketPrice(m)} trade goods)", () => { _text = SellPacket(npc, m); ShowCompanies(npc); });
+                AddOption($"Sell them the {m.Kind} from {m.From} ({PacketPrice(m)} trade goods)", () => ShowCompanies(npc, SellPacket(npc, m)));
         if (ownLeader && Economy.Rivalry.Tension >= 40f && Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(npc.Faction)) != null)
-            AddOption(npc.Faction == Faction.HBC ? "Propose seizing the Nor'Westers' stores" : "Propose seizing the Company's stores", () => { _text = ProposeRaid(npc); ShowCompanies(npc); });
+            AddOption(npc.Faction == Faction.HBC ? "Propose seizing the Nor'Westers' stores" : "Propose seizing the Company's stores", () => ShowCompanies(npc, ProposeRaid(npc)));
         if (!ownLeader && Economy.Rivalry.Tension >= 35f)
-            AddOption("Propose a truce between the companies", () => { _text = ProposeTruce(npc); ShowCompanies(npc); });
+            AddOption("Propose a truce between the companies", () => ShowCompanies(npc, ProposeTruce(npc)));
         if (npc.Role == Role.NwcPartner && _player.Faction != Faction.NWC)
-            AddOption("Ask about signing on with the North West Company", () => { _text = OfferNwc(npc); ShowCompanies(npc); });
+            AddOption("Ask about signing on with the North West Company", () => ShowCompanies(npc, OfferNwc(npc)));
         if (npc.Role == Role.NwcPartner && _player.Faction != Faction.NWC && _player.WantsToDefect)
-            AddOption("Sign on. Leave the Company's service.", () => { _text = Defect(npc); ShowCompanies(npc); });
+            AddOption("Sign on. Leave the Company's service.", () => ShowCompanies(npc, Defect(npc)));
         if (npc.Role == Role.Factor && _player.Faction == Faction.NWC)
-            AddOption("Ask to be taken back into the Company's service", () => { _text = Return(npc); ShowCompanies(npc); });
+            AddOption("Ask to be taken back into the Company's service", () => ShowCompanies(npc, Return(npc)));
         if (npc.Role == Role.NwcPartner && _player.Faction == Faction.NWC && GameCalendar.Instance.Month < 7 && _player.Standing >= 20f)
             AddOption("Write to the partners at Fort William...", () => ShowCouncilLetter(npc));
         AddOption("Back", () => ShowTopics(Greeting(npc)));
@@ -310,9 +358,10 @@ public class Conversation
             s += Economy.Rivalry.OpenHostility ? $"\"Between us and the other side it is {r}. Keep your musket by you.\" "
                 : Economy.Rivalry.Tension >= 40f ? $"\"There is {r} with the other company. It will come to blows if it goes on.\" " : "";
         }
-        else if (npc.Faction == Faction.Cree)
+        else if (npc.IsBandPerson)
         {
-            foreach (var n in Sim.Npcs) if (n.Faction == Faction.Cree && !n.IsDead) mouths++;
+            band = npc.HomeStores as Economy.BandLedger ?? band;
+            mouths = band?.Mouths ?? 0;
             float days = band?.FoodDays(mouths) ?? 0f;
             s += days < 5 ? "\"The camp is hungry. The hunters go out every day and come back light.\" " : "\"There is meat in the camp.\" ";
             if (fort != null) s += fort.PeltPrice >= 1.3f ? "\"The Company pays well for beaver this year. Everyone is on the trapline.\" "
@@ -526,7 +575,7 @@ public class Conversation
             else if (other.Spouse == null && !other.IsFemale && other.Role != Role.Factor && other.Role != Role.Sailor) lines.Add($"\"{other.DisplayName} wants a wife, if you ask me.\"");
         }
         // What they actually know, secondhand or not (design doc 10.2).
-        bool garbled = npc.Faction == Faction.Cree && _player.EffectiveFluency < 0.5f;
+        bool garbled = npc.IsBandPerson && _player.FluencyWith(npc) < 0.5f;
         foreach (var m in npc.Memories)
         {
             string hedge = m.Directness == 1 ? "\"I saw it myself: " : m.Directness == 2 ? "\"I was told " : "\"They say ";
@@ -606,6 +655,21 @@ public class Conversation
 
     private static string Bored(Npc npc) => npc.TalkedToday.GetValueOrDefault(Sim.Player as Agent) >= 4 ? $" {npc.DisplayName} has had enough of your questions for one day." : "";
 
+    // A go-between with standing in both camps (design doc 7.2, 10.1.5's Metis niche).
+    private string BrokerPeace(Npc chief, Economy.BandLedger band)
+    {
+        float r = chief.RapportWith(_player);
+        var other = band.OtherBand;
+        if (r < 15f) return $"\"Who are you to speak for {other.Name}?\" (rapport {r:0}, needs 15)";
+        if (_player.Inventory.Count(ItemId.TradeGoods) < 3) return "\"Words are wind. A pipe and tobacco between the camps would be something.\" (3 trade goods)";
+        _player.Inventory.Remove(ItemId.TradeGoods, 3); other.Stores.Add(ItemId.TradeGoods, 3);
+        band.StandingWithOtherBand = Mathf.Min(100f, band.StandingWithOtherBand + 15f);
+        other.StandingWithOtherBand = Mathf.Min(100f, other.StandingWithOtherBand + 15f);
+        chief.ChangeRapport(_player, 5f); _player.Standing += 2f;
+        Chronicle.Event($"{_player.DisplayName} carried tobacco between {band.Name} and {other.Name}.", chief.GlobalPosition, _player, weight: 1.2f);
+        return $"\"Take this to their fire, then, and say it comes from us.\" The standing between the bands eases ({band.StandingWithOtherBand:0}).";
+    }
+
     private string NoWords(Npc npc) => $"You have not the words for it, and {npc.DisplayName} has not yours. Signs will buy meat; they will not carry this. Learn more of the tongue, or bring someone who has it - your wife, or a woman of the post.";
 
     private string Restitution(Npc holder, Grudge g)
@@ -616,7 +680,7 @@ public class Conversation
         holder.HomeStores?.Stores.Add(ItemId.TradeGoods, cost);
         Grudges.Settle(g, false);
         holder.ChangeRapport(_player, 25f);
-        if (Sim.Band != null) Sim.Band.StandingWithCompany = Mathf.Min(100f, Sim.Band.StandingWithCompany + 12f);
+        if (holder.HomeStores is Economy.BandLedger hb) hb.StandingWithCompany = Mathf.Min(100f, hb.StandingWithCompany + 12f);
         Chronicle.Event($"{_player.DisplayName} paid {cost} pieces to {holder.DisplayName}'s people for {g.Victim}.", holder.GlobalPosition, _player, weight: 1.5f);
         return $"{holder.DisplayName} takes the goods and says the name of {g.Victim} once more. \"It is covered. There is no more between us for this.\"";
     }
@@ -708,7 +772,7 @@ public class Conversation
         bool armed = _player.Weapon != null;
         float fear = (armed ? 0.5f : 0.2f) - npc.Personality.Courage * 0.5f + (npc.Weapon == null ? 0.2f : 0f);
         npc.ChangeRapport(_player, -15f);
-        if (npc.Faction == Faction.Cree) Sim.Band?.OnInsult();
+        if (npc.IsBandPerson) (npc.HomeStores as Economy.BandLedger)?.OnInsult();
         if (fear > 0.25f)
         {
             // Cowed: hands over something small and remembers it.
@@ -790,18 +854,18 @@ public class Conversation
     private int _tradePage;
     private void ShowTrade(Npc npc)
     {
-        var fort = Sim.Fort; var band = Sim.Band;
+        var fort = Sim.Fort; var band = npc.HomeStores as Economy.BandLedger ?? Sim.Band;
         var post = npc.Faction == Faction.NWC ? (Economy.FortLedger)Sim.Nwc : npc.HomeStores as Economy.FortLedger ?? Sim.Fort;
-        if (npc.Faction != Faction.Cree)
+        if (!npc.IsBandPerson)
         {
             fort = post;
             if (fort == null) { ShowTopics("\"Nothing to trade.\""); return; }
             if (fort.Company != _player.Faction) { ShowTopics(_player.Faction == Faction.NWC ? "\"We do not serve Nor'Westers at this counter. Go back across the river.\"" : "\"The Company's servant wants to trade with us? Sign on first, or take your furs to your own Factor.\""); return; }
         }
-        Inventory counter = npc.Faction == Faction.Cree ? band?.Stores : fort?.Stores;
+        Inventory counter = npc.IsBandPerson ? band?.Stores : fort?.Stores;
         if (counter == null) { ShowTopics("\"Nothing to trade.\""); return; }
-        bool crude = npc.Faction == Faction.Cree && _player.EffectiveFluency < 0.5f;   // design doc 10.6: signs and fingers
-        _text = npc.Faction == Faction.Cree
+        bool crude = npc.IsBandPerson && _player.FluencyWith(npc) < 0.5f;   // design doc 10.6: signs and fingers
+        _text = npc.IsBandPerson
             ? (crude ? "Without the words, it is fingers and pointing: the band trades meat and hides for goods, and you pay a piece more for the misunderstanding." : "The band will trade meat and hides for goods, one for one by worth.")
             : $"The Company sells from the stores at cost and buys furs at {fort.PeltPrice:0.00} MB in goods per MB.";
         ClearOptions();
@@ -810,7 +874,7 @@ public class Conversation
         foreach (var (id, n) in new List<(ItemId, int)>(_player.Inventory.All()))
         {
             var def = Items.Items.Of(id);
-            if (npc.Faction != Faction.Cree && def.Kind == ItemKind.Fur)
+            if (!npc.IsBandPerson && def.Kind == ItemKind.Fur)
             {
                 int pay = Mathf.Max(1, Mathf.RoundToInt(def.ValueMb * fort.PeltPrice));
                 if (counter.Count(ItemId.TradeGoods) >= pay)
@@ -828,7 +892,7 @@ public class Conversation
         foreach (var (id, n) in new List<(ItemId, int)>(counter.All()))
         {
             var def = Items.Items.Of(id);
-            if (def.Kind == ItemKind.Fur && npc.Faction != Faction.Cree) continue;
+            if (def.Kind == ItemKind.Fur && !npc.IsBandPerson) continue;
             if (id == ItemId.TradeGoods) continue;
             if (shown >= 4) { more = true; break; }
             if (skipped < _tradePage * 4) { skipped++; continue; }
@@ -864,7 +928,7 @@ public class Conversation
                 npc.GiftsFromPlayerMb += def.ValueMb;
                 float gain = 4f + def.ValueMb * 6f;
                 // Drink is the quick way to a man's good opinion, and he drinks it now.
-                if (id == ItemId.Rum || id == ItemId.Ale) { gain *= 2f; npc.Inventory.Remove(id); npc.Consume(id); npc.PlayAnimation("drink"); if (npc.Faction == Faction.Cree) Sim.Band?.OnRum(1); }
+                if (id == ItemId.Rum || id == ItemId.Ale) { gain *= 2f; npc.Inventory.Remove(id); npc.Consume(id); npc.PlayAnimation("drink"); if (npc.IsBandPerson) (npc.HomeStores as Economy.BandLedger)?.OnRum(1); }
                 npc.ChangeRapport(_player, gain);
                 ShowTopics($"{npc.DisplayName} accepts the {def.Name.ToLower()}. (rapport {npc.RapportWith(_player):0})");
             });
@@ -884,14 +948,14 @@ public class Conversation
         if (gifts < 8f) return $"\"A daughter is not given for nothing.\" He looks at what you have brought him. (gifts worth {gifts:0.#} MB, wants 8)";
         daughter.Spouse = _player;
         _player.Spouse = daughter;
-        _player.CreeFluency = Mathf.Min(1f, _player.CreeFluency + 0.3f);
+        _player.Learn(daughter, 0.3f);
         daughter.Role = Role.Wife;
         daughter.HomeStores = Sim.Fort;
         daughter.BedCell = World.IsoGrid.Cell(World.WorldLayout.Depot.Top, 4, 3);
         daughter.WorkCell = World.WorldLayout.Depot.Centre;
         daughter.Brain.Clear(daughter);
         daughter.ResetBehaviour();
-        foreach (var n in Sim.Npcs) if (n.Faction == Faction.Cree) n.ChangeRapport(_player, 10f);
+        foreach (var n in Sim.Npcs) if (n.HomeStores == father.HomeStores) n.ChangeRapport(_player, 10f);
         Sim.Notice($"{daughter.DisplayName} has married {_player.DisplayName} in the custom of the country and moves into the post.");
         return $"\"So be it.\" {daughter.DisplayName} will come to live at the post. Her family is now your family.";
     }
