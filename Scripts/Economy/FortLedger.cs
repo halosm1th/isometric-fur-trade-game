@@ -98,6 +98,8 @@ public partial class FortLedger : Household
         Stores.Add(ItemId.BeaverPelt, 22);
         Stores.Add(ItemId.CaribouHide, 4);
         Stores.Add(ItemId.Tumpline, 4);
+        Stores.Add(ItemId.Snowshoes, 4);
+        Stores.Add(ItemId.Axe, 4);
         Stores.Add(ItemId.PackBasket, 2);
         Year = GameCalendar.Instance?.Year ?? 1811;
 

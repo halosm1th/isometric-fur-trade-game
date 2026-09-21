@@ -27,7 +27,9 @@ Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--nam
 | E | context action: talk to a person · **bed** (sleep till 07:00 at night, rest an hour by day) · pick up · loot a body / butcher a carcass · woodpile (stack or take firewood) · warehouse (stow goods/furs) · stores counter (draw a ration when short) · ship (shoulder cargo) · open/close door · look at a fire |
 | 1–9 | use hotbar slot (eat / drink / feed a fire / ready a weapon / read clothing) |
 | Mouse wheel + Enter | select and use hotbar slot |
-| Left click | attack whoever is under the cursor with your best weapon (knife, tomahawk, bow, musket) |
+| Left click | with a **weapon** selected on the hotbar (or nothing): strike whoever is under the cursor · with an **item** selected: use it on the spot - firewood lays a fire ring (or feeds a hearth), flint lights a ring/hearth or, on wood you don't own (own post: crouch first), sets it alight; food/drink/tools are used · otherwise it interacts |
+| I | your pack: **Wear / Take off** clothing and snowshoes, **◄ ►** reorder (slots 1-9 are the hotbar) |
+| F11 | full screen (also in the main and pause menus; the UI is laid out at 1280x720 and scales, so 1920x1080 is ×1.5) |
 | F | attack the nearest hostile |
 | Q | drink (from water, or melt snow at a fire in winter) |
 | Z | wait an hour; at night, sleep until 07:00 |
@@ -208,6 +210,16 @@ One task the Factor may hand you: carry his letter to the chief. It takes effect
 `Economy/Rivalry.cs` holds one number, **Tension** (0–100), between the Company and the Nor'Westers. It rises when the band's furs go to the other counter (¼ of the MB paid), when a servant of one company strikes one of the other (6), on a raid (12), and when a party turns back at a guarded door (3); it falls 1.2 a day and 35 on a truce. At **70 it is open hostility**: each leader, at morning orders, may send two or three armed men to *seize the other post's stores* if his own are short (or Tension ≥ 90, or he was robbed himself) - `RaidGoal`: walk to the rival's storeroom, take six lots (pemmican, dried goose, rum, goods, furs, muskets), walk home, deposit. One party out at a time, at most every five days per post. The robbed house sounds the alarm: the **armed fighting men** (labourers, voyageurs, hunters - not the Factor, partner, clerks or women) turn out **only if they have the numbers**; outgunned, they stand aside and remember. Raiders who arrive to find muskets and the odds against them turn back unless brave. A robbed post posts a **guard** at its storeroom door for the next days (`GuardGoal`), and a guard who sees a raider with the odds on his side shoots. Men badly hurt fighting other men break off and run; a beaten man running is let go. Every raid is a Chronicle event; the Factor complains of lots lost.
 
 You: E inside the other company's storehouse **plunders** four lots (any time - without open hostility it costs standing too) and raises the alarm; leaving with them counts toward the *Raid* task. Talk to your own leader: *Propose seizing the … stores* (needs Tension ≥ 40; he weighs ambition, courage, your standing, whether he was robbed) - he sends men with you and sets you the task. Talk to the other side's leader: *Propose a truce* (Tension ≥ 35; rapport, his ambition, whether he was just robbed). Readout, slider and "raid now" buttons in F1 under *The rivalry*; `--tension=N` sets it at start.
+
+## Ground, gear and noise (design doc 12, 16.1, 17.3)
+
+The ground sets your pace (`TerrainPainter.SpeedFactorAt`): a beaten trail 1.05, sand 0.9, **snow 0.7** (1.0 on **snowshoes** - the Cree wear them; four in the stores), the **goose marsh 0.6** in summer, **ice** no slower but slippery (velocity carries). Clothing counts only when **worn**; take a capote off and it's just weight. **Sound** carries and shows as a ring: a musket shot 1500 px (prey bolts, predators think twice), a bow 200, running 420, walking 190, crouching 45 - animals hear you coming at 60% of that. An **axe** (you start with one; stores hold them) fells the nearest spruce for 4 firewood; there's no other way to cut wood.
+
+**Day length** now comes from the latitude (York Factory, 57 N) and the date, then a thumb on the scale: the day is kept a little longer than the night (≥ 12.6 h) except in December–January that far north (≥ 9.5 h). A bed from 17:00 takes you to 07:00.
+
+**The storeroom chest** (E inside your own warehouse / the Nor'Westers' house): stow goods and furs; **stow provisions** (geese, meat, fish - you keep two meals; standing for it); draw a musket (standing 15, one), traps, an axe, snowshoes, a blanket (standing 10), a kettle, a tumpline, four trade goods (clerk), a ration. **Other people's woodpiles** give wood too, and anyone who sees you remembers it.
+
+**Talk** is in submenus now: *Talk…* (how things stand, about them, **rumours**, where the game is, London/the council), *Work and orders…*, *Trade*, *Give a gift*, *Family and marriage…*, *The companies…*; pressing matters (a letter to hand over, a debt) sit on top. Rapport from talk wears thin: the first question of the day warms, the fifth does nothing. The chief's **answer** to the Factor's letter is a paper in your pack: hand it to Auld to finish the task.
 
 ## Carrying (design doc 12.4, 12.5)
 

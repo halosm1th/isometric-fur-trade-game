@@ -107,6 +107,7 @@ public static class Letters
             "mandate" => Mandate((float)payload["shipped"], (float)payload["quota"]),
             "letter" => LetterToChief((string)payload["from"]),
             "rumour" => Rumour((string)payload["about"], (string)payload["text"], (float)payload["standing"]),
+            "reply" => Reply((string)payload["from"], (string)payload["answer"]),
             _ => new Message { Kind = kind },
         };
     }
@@ -183,6 +184,20 @@ public static class Letters
         m.OnIntercepted = reader =>
         {
             if (Sim.Nwc != null && reader != null && reader.Faction == Faction.NWC) { Sim.Nwc.PeltPrice = Mathf.Max(Sim.Nwc.PeltPrice, (Sim.Fort?.PeltPrice ?? 1f) * 1.1f); Sim.Notice($"The Nor'Westers, having read the Factor's letter, raise their price to {Sim.Nwc.PeltPrice:0.00}."); }
+        };
+        return m;
+    }
+
+    // The chief's answer to the Factor, carried back by whoever brought the letter.
+    public static Message Reply(string from, string answer)
+    {
+        var m = new Message { Kind = "reply", From = from, To = "the Factor at York Factory", Company = Faction.HBC, Subject = "the band's answer, with a string of beads", Text = $"{from} sends a string of beads and says {answer}." };
+        m.Payload["from"] = from; m.Payload["answer"] = answer;
+        m.OnRead = reader =>
+        {
+            if (Sim.Band != null) Sim.Band.StandingWithCompany = Mathf.Min(100f, Sim.Band.StandingWithCompany + 2f);
+            foreach (var pc in Sim.Players()) if (pc.Task.Kind == Player.TaskKind.DeliverLetter && !pc.Task.IsComplete) { pc.Task.Progress(Player.TaskKind.DeliverLetter, 1); pc.Standing += 3f; }
+            Sim.Notice($"The Factor reads the chief's answer: {answer}.");
         };
         return m;
     }

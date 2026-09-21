@@ -70,7 +70,7 @@ public partial class Animal : Agent
     public override void PuppetDie()
     {
         Needs.Health = 0f;
-        if (_sprite != null) { string death = Anim("death", _lastDir); if (death.StartsWith("death")) _sprite.Play(death); else { _sprite.Rotation = Mathf.Pi / 2f; _sprite.Modulate = new Color(0.7f, 0.7f, 0.7f); } }
+        if (_sprite != null) { string death = Anim("death", _lastDir); if (death.StartsWith("death")) _sprite.Play(death); else { _sprite.Stop(); _sprite.Frame = 0; _sprite.Rotation = Mathf.Pi / 2f; _sprite.Modulate = new Color(0.7f, 0.7f, 0.7f); } }
         if (_label != null) _label.Text = $"{Def.Name} (dead)";
         CollisionLayer = 0; CollisionMask = 0;
         AddToGroup("corpses");
@@ -152,6 +152,22 @@ public partial class Animal : Agent
         }
     }
 
+    // Something made a sound within earshot. Prey bolts away from it; a
+    // predator thinks twice about a gun.
+    public void Hear(Vector2 from, float radius, string kind)
+    {
+        if (IsDead) return;
+        float d = GlobalPosition.DistanceTo(from);
+        if (kind == "step" && d > radius * 0.6f) return;   // the edge of hearing
+        if (!IsPredator || kind == "shot" && GD.Randf() < 0.6f)
+        {
+            _mode = Mode.Flee; _fleeFrom = from; _quarry = null;
+            _modeTimer = kind == "shot" ? 8f : 3f;
+            Unaware = false;
+        }
+    }
+    private Vector2? _fleeFrom;
+
     private Agent FindQuarry()
     {
         Agent best = null; float bestD = IsPredator ? 900f : 700f;
@@ -187,9 +203,11 @@ public partial class Animal : Agent
         switch (_mode)
         {
             case Mode.Flee:
-                if (_quarry == null || !IsInstanceValid(_quarry)) { _mode = Mode.Graze; break; }
+                if ((_quarry == null || !IsInstanceValid(_quarry)) && _fleeFrom == null) { _mode = Mode.Graze; break; }
                 IsSprinting = true;
-                Velocity = (GlobalPosition - _quarry.GlobalPosition).Normalized() * EffectiveSpeed * motion;
+                var away = _quarry != null && IsInstanceValid(_quarry) ? _quarry.GlobalPosition : _fleeFrom.Value;
+                if (_modeTimer <= 0f) _fleeFrom = null;
+                Velocity = (GlobalPosition - away).Normalized() * EffectiveSpeed * motion;
                 MoveAndSlide();
                 if (_modeTimer <= 0f) { _mode = Mode.Graze; _modeTimer = 0f; }
                 return;
@@ -265,7 +283,7 @@ public partial class Animal : Agent
             _sprite.FlipH = _lastDir.X < 0f;
         }
         if (_sprite.Animation != name) _sprite.Play(name);
-        _sprite.SpeedScale = IsSprinting ? 1.5f : 1f;
+        _sprite.SpeedScale = IsSprinting ? 1.5f : moving ? 1f : 0.4f;
     }
     private Vector2 _lastDir = Vector2.Down;
 
@@ -278,7 +296,7 @@ public partial class Animal : Agent
         {
             string death = Anim("death", _lastDir);
             if (death.StartsWith("death")) _sprite.Play(death);
-            else { _sprite.Rotation = Mathf.Pi / 2f; _sprite.Modulate = new Color(0.7f, 0.7f, 0.7f); }
+            else { _sprite.Stop(); _sprite.Frame = 0; _sprite.Rotation = Mathf.Pi / 2f; _sprite.Modulate = new Color(0.7f, 0.7f, 0.7f); }
         }
         if (_label != null) _label.Text = $"{Def.Name} (dead)";
         CollisionLayer = 0; CollisionMask = 0;

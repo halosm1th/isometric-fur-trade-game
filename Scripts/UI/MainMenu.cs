@@ -84,6 +84,10 @@ public partial class MainMenu : Control
         join.Pressed += () => { Apply(); Join(_address.Text); };
         box.AddChild(join);
 
+        var full = new Button { Text = Core.Settings.Label };
+        full.Pressed += () => { Core.Settings.Toggle(); full.Text = Core.Settings.Label; };
+        box.AddChild(full);
+
         var dedicated = new Button { Text = "Run a dedicated server (no player, this window stays open)" };
         dedicated.Pressed += () => { Apply(); var e = NetHub.I.StartHost(NetHub.DefaultPort, true); if (e == Error.Ok) Go(); else _status.Text = $"Could not host: {e}"; };
         box.AddChild(dedicated);
@@ -95,6 +99,11 @@ public partial class MainMenu : Control
         help.AddThemeFontSizeOverride("font_size", 11);
         help.Modulate = new Color(0.6f, 0.6f, 0.6f);
         box.AddChild(help);
+    }
+
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F11 }) Core.Settings.Toggle();
     }
 
     private void Apply()

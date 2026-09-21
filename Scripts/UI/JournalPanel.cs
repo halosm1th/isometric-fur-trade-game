@@ -17,6 +17,8 @@ public partial class JournalPanel : Control
     private PanelContainer _panel;
     private TabContainer _tabs;
     private RichTextLabel _journal, _log, _pack;
+    private VBoxContainer _packRows;
+    private string _packKey = "";
     private PlayerController _player;
 
     public override void _Ready()
@@ -37,6 +39,18 @@ public partial class JournalPanel : Control
         _journal = MakeTab("Journal (J)");
         _log = MakeTab("Log (L)");
         _pack = MakeTab("Pack (I)");
+        _packRows = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        _packRows.AddThemeConstantOverride("separation", 2);
+        _pack.GetParent().AddChild(_packRows);
+        // The pack tab is two stacked parts: the summary text, then the rows.
+        var packScroll = _pack.GetParent() as ScrollContainer;
+        if (packScroll != null)
+        {
+            var col = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+            packScroll.RemoveChild(_pack); packScroll.RemoveChild(_packRows);
+            col.AddChild(_pack); col.AddChild(_packRows);
+            packScroll.AddChild(col);
+        }
         foreach (string arg in OS.GetCmdlineUserArgs()) if (arg.StartsWith("--book=") && int.TryParse(arg.Substring(7), out int t)) GetTree().CreateTimer(4.0).Timeout += () => Toggle(t);
     }
 
@@ -113,27 +127,45 @@ public partial class JournalPanel : Control
             foreach (var m in _player.Mail) sb.AppendLine($"   {m.Summary}{(m.Read ? $"\n      [color=#998]{m.Text}[/color]" : "")}");
         }
         sb.AppendLine();
-        foreach (ItemKind kind in System.Enum.GetValues(typeof(ItemKind)))
-        {
-            bool any = false;
-            foreach (var (id, n) in _player.Inventory.All())
-            {
-                var d = Items.Items.Of(id);
-                if (d.Kind != kind) continue;
-                if (!any) { sb.AppendLine($"[color=#dcb][b]{kind}[/b][/color]"); any = true; }
-                string extra = kind switch
-                {
-                    ItemKind.Food => $"feeds {d.Nutrition:0}",
-                    ItemKind.Drink => $"quenches {d.Thirst:0}" + (d.Intoxication > 0 ? $", {d.Intoxication:0} proof" : ""),
-                    ItemKind.Clothing => $"warmth {d.Warmth:0}",
-                    ItemKind.Fuel => $"{d.FuelHours:0} h on the fire",
-                    ItemKind.Weapon => $"{d.Damage:0} dmg, reach {d.Range:0}, {d.Cooldown:0.#} s",
-                    ItemKind.Tool => d.Capacity > 0 ? $"+{d.Capacity:0} lb carry" : "use from the hotbar",
-                    _ => "",
-                };
-                sb.AppendLine($"   {d.Name} x{n}   {d.WeightLbs * n:0.#} lb   {d.ValueMb * n:0.#} MB   [color=#998]{extra}[/color]");
-            }
-        }
+        sb.AppendLine("[color=#998]Slots 1-9 are the hotbar. ◄ ► move an item; Wear / Take off changes what's on your body.[/color]");
         _pack.Text = sb.ToString();
+
+        // Rows only rebuild when the pack changes, so the buttons stay clickable.
+        var key = new System.Text.StringBuilder();
+        foreach (var (id, n) in _player.Inventory.All()) key.Append(id).Append(n).Append(_player.Inventory.IsWorn(id) ? 'w' : '-');
+        if (key.ToString() == _packKey) return;
+        _packKey = key.ToString();
+        foreach (var c in _packRows.GetChildren()) c.QueueFree();
+        int slot = 0;
+        foreach (var (id, n) in _player.Inventory.All())
+        {
+            var d = Items.Items.Of(id);
+            int idx = slot++;
+            var row = new HBoxContainer(); row.AddThemeConstantOverride("separation", 6);
+            var num = new Label { Text = idx < 9 ? $"{idx + 1}" : "-", CustomMinimumSize = new Vector2(18, 0) }; num.AddThemeFontSizeOverride("font_size", 12); num.Modulate = idx < 9 ? new Color(0.95f, 0.8f, 0.45f) : new Color(0.6f, 0.6f, 0.6f); row.AddChild(num);
+            var icon = new TextureRect { Texture = GD.Load<Texture2D>(d.Icon), CustomMinimumSize = new Vector2(22, 22), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered }; row.AddChild(icon);
+            string extra = d.Kind switch
+            {
+                ItemKind.Food => $"feeds {d.Nutrition:0}",
+                ItemKind.Drink => $"quenches {d.Thirst:0}" + (d.Intoxication > 0 ? $", {d.Intoxication:0} proof" : ""),
+                ItemKind.Clothing => $"warmth {d.Warmth:0}",
+                ItemKind.Fuel => $"{d.FuelHours:0} h on the fire",
+                ItemKind.Weapon => $"{d.Damage:0} dmg, reach {d.Range:0}",
+                ItemKind.Tool => d.Capacity > 0 ? $"+{d.Capacity:0} lb carry" : id == ItemId.Snowshoes ? "snow at full pace" : "use it (click / hotbar)",
+                _ => "",
+            };
+            var name = new Label { Text = $"{d.Name} x{n}   {d.WeightLbs * n:0.#} lb   {d.ValueMb * n:0.#} MB   {extra}", SizeFlagsHorizontal = SizeFlags.ExpandFill }; name.AddThemeFontSizeOverride("font_size", 12); row.AddChild(name);
+            if (_player.Inventory.Wearable(id))
+            {
+                bool worn = _player.Inventory.IsWorn(id);
+                var wear = new Button { Text = worn ? "Take off" : "Wear" }; wear.AddThemeFontSizeOverride("font_size", 11);
+                int s = idx; wear.Pressed += () => Net.Net.I?.Act("wear", new Godot.Collections.Array { s });
+                row.AddChild(wear);
+                if (worn) name.Modulate = new Color(0.8f, 1f, 0.8f);
+            }
+            var left = new Button { Text = "◄" }; left.AddThemeFontSizeOverride("font_size", 11); { int s = idx; left.Pressed += () => Net.Net.I?.Act("move_slot", new Godot.Collections.Array { s, s - 1 }); } left.Disabled = idx == 0; row.AddChild(left);
+            var right = new Button { Text = "►" }; right.AddThemeFontSizeOverride("font_size", 11); { int s = idx; right.Pressed += () => Net.Net.I?.Act("move_slot", new Godot.Collections.Array { s, s + 1 }); } right.Disabled = idx >= _player.Inventory.SlotCount - 1; row.AddChild(right);
+            _packRows.AddChild(row);
+        }
     }
 }

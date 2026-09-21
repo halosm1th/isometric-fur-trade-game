@@ -22,7 +22,9 @@ public partial class Hearth : Node2D
     // lost to the wind the way an open fire's is.
     public bool Enclosed = true;
 
-    public bool IsBurning => FuelHours > 0f;
+    // Wood laid but no spark yet: a fire someone has to light.
+    public bool Lit = true;
+    public bool IsBurning => Lit && FuelHours > 0f;
 
     // 0..1 - how much of the fire's warmth reaches this point.
     public float Intensity => IsBurning ? Mathf.Clamp(0.4f + FuelHours / MaxFuelHours, 0.4f, 1f) : 0f;
@@ -74,7 +76,7 @@ public partial class Hearth : Node2D
         var cal = GameCalendar.Instance;
         if (cal != null && Net.Net.IsServer)
         {
-            FuelHours = Mathf.Max(0f, FuelHours - cal.DeltaGameHours);
+            if (Lit) FuelHours = Mathf.Max(0f, FuelHours - cal.DeltaGameHours);
             // Stuffed past sense, a hearth throws sparks into the room (design doc 18.4).
             if (FuelHours > 15f && Fire.I != null && GD.Randf() < cal.DeltaGameHours * 0.02f)
             {
@@ -112,4 +114,5 @@ public partial class Hearth : Node2D
     }
 
     public void Feed(float hours) => FuelHours = Mathf.Min(MaxFuelHours, FuelHours + hours);
+    public void Light() { Lit = true; }
 }

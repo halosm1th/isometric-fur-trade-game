@@ -37,6 +37,7 @@ public partial class PauseMenu : Control
         Button("Resume", Close);
         Button("Key bindings", () => { _main.Visible = false; _keys.Visible = true; });
         if (NetHub.IsServer) Button("Save (F5)", () => { SaveGame.Save(); _status.Text = SaveGame.LastMessage; });
+        Button(Settings.Label, () => { Settings.Toggle(); RefreshLabels(); });
         Button("Main menu", ToMainMenu);
         Button("Exit the game", () => GetTree().Quit());
 
@@ -62,6 +63,11 @@ public partial class PauseMenu : Control
         var b = new Button { Text = text };
         b.Pressed += act;
         _main.AddChild(b);
+    }
+
+    private void RefreshLabels()
+    {
+        foreach (var c in _main.GetChildren()) if (c is Button b && b.Text.StartsWith("Full screen")) b.Text = Settings.Label;
     }
 
     // Read straight from the InputMap so it can't go stale.
@@ -101,6 +107,7 @@ public partial class PauseMenu : Control
 
     public override void _UnhandledInput(InputEvent @event)
     {
+        if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F11 }) { Settings.Toggle(); RefreshLabels(); GetViewport().SetInputAsHandled(); return; }
         if (!@event.IsActionPressed("ui_cancel")) return;
         if (_panel.Visible) { if (_keys.Visible) { _keys.Visible = false; _main.Visible = true; } else Close(); GetViewport().SetInputAsHandled(); return; }
         if (AnotherMenuOpen) return;   // Esc closes that first

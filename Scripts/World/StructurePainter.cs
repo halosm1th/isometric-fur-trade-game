@@ -171,6 +171,8 @@ public partial class StructurePainter : TileMapLayer
         return best;
     }
 
+    public Hearth HearthAt(Vector2I cell) => _hearthByCell.TryGetValue(cell, out var h) ? h : null;
+
     public Hearth HearthNear(Vector2 worldPos, float reach = 140f)
     {
         Hearth best = null;
@@ -483,6 +485,14 @@ public partial class StructurePainter : TileMapLayer
 
     // ---- doors ----------------------------------------------------------
 
+    public bool HasDoorNear(Vector2 localPos, float reach = 110f)
+    {
+        foreach (var layer in Layers())
+            foreach (var cell in layer.GetUsedCells())
+                if (IsDoor(layer.GetCellSourceId(cell)) && localPos.DistanceTo(MapToLocal(cell)) < reach) return true;
+        return false;
+    }
+
     public bool TryToggleDoorNear(Vector2 localPos, float reach = 110f)
     {
         TileMapLayer bestLayer = null;
@@ -602,7 +612,7 @@ public partial class StructurePainter : TileMapLayer
 
     public void SetHearthFuel(Vector2I cell, float fuel)
     {
-        if (_hearthByCell.TryGetValue(cell, out var h)) h.FuelHours = fuel;
+        if (_hearthByCell.TryGetValue(cell, out var h)) { h.Lit = fuel >= 0f; h.FuelHours = Mathf.Abs(fuel); }
     }
 
     // Make sure the door on this cell is open (NPCs use this on their way in).

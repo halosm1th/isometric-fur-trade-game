@@ -13,6 +13,7 @@ public partial class DialogueMenu : Control
     private PanelContainer _panel;
     private Label _title, _body;
     private VBoxContainer _options;
+    private ScrollContainer _scroll;
     private readonly List<Button> _buttons = new();
     private int _npcId = -1;
 
@@ -32,15 +33,20 @@ public partial class DialogueMenu : Control
         _panel.AddThemeStyleboxOverride("panel", style);
         AddChild(_panel);
 
-        var box = new VBoxContainer { CustomMinimumSize = new Vector2(520, 0) };
+        var box = new VBoxContainer { CustomMinimumSize = new Vector2(620, 0) };
         box.AddThemeConstantOverride("separation", 6);
         _panel.AddChild(box);
-        _title = new Label(); _title.AddThemeFontSizeOverride("font_size", 17); box.AddChild(_title);
-        _body = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(500, 0) };
+        _title = new Label(); _title.AddThemeFontSizeOverride("font_size", 18); _title.AddThemeColorOverride("font_color", new Color(0.95f, 0.85f, 0.6f)); box.AddChild(_title);
+        _body = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(600, 0) };
         _body.AddThemeFontSizeOverride("font_size", 13);
         _body.Modulate = new Color(0.9f, 0.88f, 0.8f);
         box.AddChild(_body);
-        _options = new VBoxContainer(); _options.AddThemeConstantOverride("separation", 2); box.AddChild(_options);
+        box.AddChild(new HSeparator());
+        var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(600, 0), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        scroll.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+        box.AddChild(scroll);
+        _options = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _options.AddThemeConstantOverride("separation", 2); scroll.AddChild(_options);
+        _scroll = scroll;
     }
 
     public void ShowState(Godot.Collections.Dictionary state)
@@ -51,16 +57,27 @@ public partial class DialogueMenu : Control
         _title.Text = (string)state["title"];
         _body.Text = (string)state["text"];
         foreach (var b in _buttons) b.QueueFree();
+        foreach (var c in _options.GetChildren()) if (c is HSeparator) c.QueueFree();
         _buttons.Clear();
+        var opts = (Godot.Collections.Array)state["options"];
         int i = 0;
-        foreach (var o in (Godot.Collections.Array)state["options"])
+        foreach (var o in opts)
         {
             int idx = i++;
-            var b = new Button { Text = $"{idx + 1}. {(string)o}", Alignment = HorizontalAlignment.Left };
+            string label = (string)o;
+            bool exit = label == "Leave" || label == "Back" || label == "Close the chest";
+            bool submenu = label.EndsWith("...");
+            if (exit && idx > 0) _options.AddChild(new HSeparator());
+            var b = new Button { Text = $"{(idx < 9 ? (idx + 1).ToString() : "0")}.  {label}", Alignment = HorizontalAlignment.Left };
+            b.AddThemeFontSizeOverride("font_size", 13);
+            if (exit) b.Modulate = new Color(0.8f, 0.75f, 0.65f);
+            if (submenu) b.AddThemeColorOverride("font_color", new Color(0.95f, 0.88f, 0.7f));
             b.Pressed += () => Pick(idx);
             _options.AddChild(b);
             _buttons.Add(b);
         }
+        // Long menus scroll instead of climbing off the screen.
+        _scroll.CustomMinimumSize = new Vector2(600, Mathf.Min(34f * opts.Count + 12f, 380f));
     }
 
     private void Pick(int idx) => NetHub.I?.DialogueRequest(_npcId, idx);
@@ -89,5 +106,6 @@ public partial class DialogueMenu : Control
         {
             if (@event.IsActionPressed($"hotbar_{i + 1}")) { Pick(i); GetViewport().SetInputAsHandled(); return; }
         }
+        if (_buttons.Count >= 10 && @event is InputEventKey { Pressed: true, Keycode: Key.Key0 }) { Pick(9); GetViewport().SetInputAsHandled(); }
     }
 }

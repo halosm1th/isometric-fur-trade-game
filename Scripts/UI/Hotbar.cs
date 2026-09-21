@@ -19,8 +19,11 @@ public partial class Hotbar : Control
     private readonly Label[] _counts = new Label[Slots];
     private Label _name;
     private Label _notice;
+    private Label _hint;
+    private float _hintTimer;
     private float _noticeTimer;
     private int _selected;
+    public static int SelectedSlot { get; private set; }
 
     private static readonly StyleBoxFlat SlotStyle = Make(new Color(0.08f, 0.07f, 0.06f, 0.7f), new Color(0.45f, 0.38f, 0.28f));
     private static readonly StyleBoxFlat SelectedStyle = Make(new Color(0.16f, 0.13f, 0.08f, 0.85f), new Color(0.95f, 0.8f, 0.45f));
@@ -49,6 +52,11 @@ public partial class Hotbar : Control
         column.AddThemeConstantOverride("separation", 4);
         AddChild(column);
 
+        _hint = new Label { HorizontalAlignment = HorizontalAlignment.Center, SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
+        _hint.AddThemeFontSizeOverride("font_size", 13);
+        _hint.AddThemeColorOverride("font_color", new Color(1f, 0.92f, 0.7f));
+        _hint.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.85f));
+        column.AddChild(_hint);
         _notice = new Label { HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(500, 0), SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
         _notice.AddThemeFontSizeOverride("font_size", 15);
         _notice.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.8f));
@@ -124,7 +132,7 @@ public partial class Hotbar : Control
         }
     }
 
-    private void Select(int i) => _selected = (i + Slots) % Slots;
+    private void Select(int i) { _selected = (i + Slots) % Slots; SelectedSlot = _selected; }
 
     private void Use(int i) => _player.UseSlot(i);
 
@@ -141,6 +149,8 @@ public partial class Hotbar : Control
 
     public override void _Process(double delta)
     {
+        _hintTimer -= (float)delta;
+        if (_hintTimer <= 0f && _hint != null && _player != null) { _hintTimer = 0.2f; _hint.Text = _player.IsLocal ? _player.InteractHint() : ""; }
         if (_player == null) return;
         var inv = _player.Inventory;
 

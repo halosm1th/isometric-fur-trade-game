@@ -248,11 +248,33 @@ public partial class GameCalendar : Node
     public bool IsFrozen => CurrentSeason == Season.Winter;
 
     // 0 = full night, 1 = full day, with ~1.5h of twilight either side.
+    // Where on the earth we are (design doc 14.3): York Factory sits at 57 N.
+    // Day length comes from latitude and the date; then a gameplay thumb on
+    // the scale keeps the day a little longer than the night except in the
+    // dead of a northern winter.
+    [Export] public float LatitudeDeg = 57f;
+    public float DayLengthHours
+    {
+        get
+        {
+            float doy = DayOfYear;
+            float decl = 23.44f * Mathf.Sin(Mathf.Tau * (doy - 81f) / 365f);
+            float lat = Mathf.DegToRad(LatitudeDeg), d = Mathf.DegToRad(decl);
+            float x = Mathf.Clamp(-Mathf.Tan(lat) * Mathf.Tan(d), -1f, 1f);
+            float astro = 2f * Mathf.RadToDeg(Mathf.Acos(x)) / 15f;
+            float biased = Mathf.Lerp(astro, 13f, 0.4f);
+            bool deadOfWinter = LatitudeDeg > 55f && (Month == 12 || Month == 1);
+            return Mathf.Clamp(biased, deadOfWinter ? 9.5f : 12.6f, 20f);
+        }
+    }
+    public float Sunrise => 12.3f - DayLengthHours / 2f;
+    public float Sunset => 12.3f + DayLengthHours / 2f;
+
     public float DaylightFactor
     {
         get
         {
-            var (rise, set) = Daylight[Month - 1];
+            float rise = Sunrise, set = Sunset;
             const float twilight = 1.5f;
             if (Hour < rise - twilight || Hour > set + twilight) return 0f;
             if (Hour < rise) return (Hour - (rise - twilight)) / twilight;

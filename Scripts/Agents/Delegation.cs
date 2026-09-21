@@ -279,7 +279,7 @@ public static class Delegation
         {
             if (t.PlayerKind == Player.TaskKind.None) continue;
             if (t.PlayerKind == Player.TaskKind.Firewood && band != null && !band.InvitedToTrade && band.WillTrade && fort.FursInStoreMb < fort.QuotaMb && fort.Company == Faction.HBC && GD.Randf() < 0.4f)
-            { pc.AssignTask(Player.TaskKind.DeliverLetter, 1, "the band's furs"); WriteLetterToChief(leader, pc); return; }
+            { pc.AssignTask(Player.TaskKind.DeliverLetter, 2, "the band's furs"); WriteLetterToChief(leader, pc); return; }
             pc.AssignTask(t.PlayerKind, t.PlayerNeed, t.Intent);
             return;
         }

@@ -77,7 +77,7 @@ public partial class Population : Node2D
         for (int i = 0; i < 4; i++)
         {
             var h = Spawn(CreeMen[1 + i], Role.CreeHunter, Faction.Cree, tipis[1 + i % 4], IsoGrid.Cell(WorldLayout.CampCentre, -1, 1), band, _creeFrames, new Color(0.95f, 0.92f, 0.9f));
-            h.Inventory.Add(i % 2 == 0 ? ItemId.Bow : ItemId.Musket); h.Inventory.Add(ItemId.Knife); h.Inventory.Add(ItemId.HideCoat); h.Inventory.Add(ItemId.Venison, 2);
+            h.Inventory.Add(i % 2 == 0 ? ItemId.Bow : ItemId.Musket); h.Inventory.Add(ItemId.Knife); h.Inventory.Add(ItemId.HideCoat); h.Inventory.Add(ItemId.Venison, 2); h.Inventory.Add(ItemId.Snowshoes);
             hunters.Add(h);
         }
         for (int i = 0; i < 4; i++)

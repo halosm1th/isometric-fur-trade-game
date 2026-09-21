@@ -147,6 +147,24 @@ public partial class TerrainPainter : TileMapLayer
         return (h & 0x7fffffff) % 11 == 0;
     }
 
+    // How the ground underfoot takes a walker (design doc 12, 17.3): snow
+    // drags unless you have snowshoes, ice gives no grip, a beaten trail is
+    // quick, the marsh is heavy going till it freezes.
+    public float SpeedFactorAt(Vector2 worldPos, bool snowshoes, out bool slippery)
+    {
+        slippery = false;
+        var cell = IsoGrid.FromWorld(worldPos);
+        int src = GetCellSourceId(cell);
+        if (src == SourceIce || src == SourceWaterIce) { slippery = true; return 0.95f; }
+        if (src == SourceSnow) return snowshoes ? 1.0f : 0.7f;
+        if (src == SourceDirt) return 1.05f;
+        if (src == SourceSand) return 0.9f;
+        // The goose marsh is a swamp in summer.
+        foreach (var s in WorldLayout.Sites)
+            if (s.Species == Ecology.Species.Goose && worldPos.DistanceTo(IsoGrid.ToWorld(s.Cell)) < s.RadiusPx * 0.8f && !_frozen) return 0.6f;
+        return 1f;
+    }
+
     public bool IsWater(Vector2I cell)
     {
         int src = GetCellSourceId(cell);

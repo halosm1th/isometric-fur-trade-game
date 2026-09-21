@@ -88,6 +88,20 @@ public partial class Npc : Agent
     public readonly Dictionary<Agent, float> Rapport = new();
     // Worth of everything the player has given this person (bride-price etc.).
     public float GiftsFromPlayerMb;
+    // How many times each person has bent our ear today: the first talk
+    // warms, the fifth is a bore (design doc 3.6).
+    public readonly Dictionary<Agent, int> TalkedToday = new();
+    private int _talkDay = -1;
+    public float Warm(Agent who, float amount)
+    {
+        int day = GameCalendar.Instance?.Day ?? 0;
+        if (day != _talkDay) { _talkDay = day; TalkedToday.Clear(); }
+        int n = TalkedToday.GetValueOrDefault(who);
+        TalkedToday[who] = n + 1;
+        float gain = n >= 4 ? 0f : amount / (1f + n);
+        if (gain != 0f) ChangeRapport(who, gain);
+        return gain;
+    }
 
     // A standing order from a superior (design doc 3.9): the current task
     // chain to run when nothing more urgent is going on.
@@ -217,6 +231,7 @@ public partial class Npc : Agent
         Brain.Tick(this, dt, hours);
 
         Move(dt, cal.IsSkipping);
+        ZIndex = Sleeping ? 1 : 0;   // a sleeper lies on the bunk, not under it
         Animate();
         Gossip(dt);
     }
@@ -398,7 +413,7 @@ public partial class Npc : Agent
         if (_steer != Vector2.Zero)
         {
             IsSprinting = _steerRun;
-            Velocity = _steer * EffectiveSpeed * motion;
+            Velocity = _steer * EffectiveSpeed * motion * (Sim.Terrain?.SpeedFactorAt(GlobalPosition, Inventory.IsWorn(ItemId.Snowshoes), out _) ?? 1f);
             MoveAndSlide();
             _steer = Vector2.Zero;
             return;

@@ -37,6 +37,8 @@ public enum ItemId
     FishingLine,
     Tumpline,
     PackBasket,
+    Snowshoes,
+    Axe,
     // Weapons
     Musket,
     Bow,
@@ -88,6 +90,8 @@ public static class Items
         { ItemId.FishingLine,  new("Fishing line",   ItemKind.Tool,     0.5f, IconDir + "fishing_line.png", ValueMb: 0.5f) },
         // Packs add to what a body can carry before it slows (design doc 12.4, 12.5).
         { ItemId.Tumpline,     new("Tumpline",       ItemKind.Tool,     1.0f, IconDir + "tumpline.png",     ValueMb: 0.5f, Capacity: 40f) },
+        { ItemId.Snowshoes,    new("Snowshoes",      ItemKind.Tool,     3.0f, IconDir + "snowshoes.png",    ValueMb: 1.0f) },
+        { ItemId.Axe,          new("Axe",            ItemKind.Tool,     4.0f, IconDir + "axe.png",          ValueMb: 1.5f) },
         { ItemId.PackBasket,   new("Pack basket",    ItemKind.Tool,     3.0f, IconDir + "pack_basket.png",  ValueMb: 0.8f, Capacity: 30f) },
         { ItemId.Hare,         new("Hare",           ItemKind.Food,     0.8f, IconDir + "hare.png",         Nutrition: 16f, ValueMb: 0.05f) },
         { ItemId.Fish,         new("Fish",           ItemKind.Food,     1.0f, IconDir + "fish.png",         Nutrition: 22f, ValueMb: 0.1f) },
@@ -151,10 +155,24 @@ public class Inventory
     public float TotalValueMb =>
         _stacks.Sum(kv => Items.Of(kv.Key).ValueMb * kv.Value);
 
+    // Kit carried in the pack rather than on the body (design doc 12.5's
+    // worn / carried states). Clothing and snowshoes are worn unless taken off.
+    public readonly HashSet<ItemId> Unworn = new();
+    public bool IsWorn(ItemId id) => Has(id) && !Unworn.Contains(id) && (Items.Of(id).Kind == ItemKind.Clothing || id == ItemId.Snowshoes);
+    public bool Wearable(ItemId id) => Items.Of(id).Kind == ItemKind.Clothing || id == ItemId.Snowshoes;
+    public void ToggleWorn(ItemId id) { if (!Unworn.Remove(id)) Unworn.Add(id); }
+
     // Sum of everything worn. Layers stack, which is how the real kit worked.
     public float ClothingWarmth =>
-        _stacks.Where(kv => Items.Of(kv.Key).Kind == ItemKind.Clothing)
+        _stacks.Where(kv => Items.Of(kv.Key).Kind == ItemKind.Clothing && !Unworn.Contains(kv.Key))
                .Sum(kv => Items.Of(kv.Key).Warmth * kv.Value);
+
+    // Put the slot at `from` where `to` is: the hotbar is the first nine.
+    public void MoveSlot(int from, int to)
+    {
+        if (from < 0 || from >= _order.Count || to < 0 || to >= _order.Count || from == to) return;
+        var id = _order[from]; _order.RemoveAt(from); _order.Insert(to, id);
+    }
 
     // Extra carrying capacity from packs worn (only one of each counts).
     public float CarryBonusLbs

@@ -85,6 +85,7 @@ public partial class Agent : CharacterBody2D
     public float LastAttackedAgo { get; private set; } = 999f;
 
     private bool _deathAnnounced;
+    private float _stepTimer;
     private float _attackCooldown;
 
     public Vector2I Cell => IsoGrid.FromWorld(GlobalPosition);
@@ -112,6 +113,17 @@ public partial class Agent : CharacterBody2D
         _attackCooldown = Mathf.Max(0f, _attackCooldown - scaled);
         LastAttackedAgo += scaled;
         if (RaidTimer > 0f) { RaidTimer -= scaled; if (RaidTimer <= 0f) Raiding = false; }
+        // Footfalls carry (design doc 16.1): running far, walking some, crouching hardly at all.
+        if (this is not Animal && Velocity.LengthSquared() > 4f)
+        {
+            _stepTimer -= (float)delta;
+            if (_stepTimer <= 0f)
+            {
+                _stepTimer = IsSprinting ? 0.35f : 0.55f;
+                float r = IsSprinting ? 420f : IsSneaking ? 45f : 190f;
+                Sim.Noise(GlobalPosition, r, this, "step");
+            }
+        }
         if (IsDead) return;
 
         var structures = Sim.Structures;
@@ -319,6 +331,8 @@ public partial class Agent : CharacterBody2D
         float mult = Needs.CapabilityFactor;
         if (IsSneaking && target.Unaware) mult *= 2.5f;
         if (range > 100f) CombatFx.Shot(this, target.GlobalPosition + new Vector2(0, -40), Weapon == ItemId.Musket);
+        if (Weapon == ItemId.Musket) Sim.Noise(GlobalPosition, 1500f, this, "shot");
+        else if (range > 100f) Sim.Noise(GlobalPosition, 200f, this, "step");
         // Drink spoils the aim; fever weakens the arm.
         float missChance = (range > 100f ? 0.3f : 0f) + Intoxication / 250f;
         if (IsSick) mult *= 0.6f;

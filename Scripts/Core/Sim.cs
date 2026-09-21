@@ -61,6 +61,28 @@ public static class Sim
         IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear();
     }
 
+    // A sound in the world (design doc 15, 16): animals in range react, and
+    // everyone sees the ring. Radius is how far it carries in px.
+    public static void Noise(Vector2 pos, float radius, Agent source, string kind)
+    {
+        if (!Net.Net.IsServer) return;
+        foreach (var a in AgentsWithin(pos, radius))
+        {
+            if (a is Animal an && an != source) an.Hear(pos, radius, kind);
+        }
+        Net.Net.I?.BroadcastNoise(pos, radius, kind);
+    }
+
+    public static void ShowNoise(Vector2 pos, float radius, string kind)
+    {
+        var parent = Player?.GetParent() as Node2D;
+        if (parent == null) return;
+        var ring = new World.NoiseRing { Position = pos, Radius = radius, ZIndex = 5 };
+        if (kind == "shot") { ring.Tint = new Color(1f, 0.85f, 0.5f, 0.7f); ring.Life = 1.1f; }
+        else if (kind == "step") ring.Tint = new Color(1f, 1f, 1f, 0.16f);
+        parent.AddChild(ring);
+    }
+
     // Log line to the console and, if a HUD listener exists, the screen.
     public static event System.Action<string> OnNotice;
     public static System.Action<Player.PlayerController> LocalPlayerChanged;

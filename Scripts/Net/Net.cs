@@ -46,6 +46,7 @@ public partial class Net : Node
     public override void _Ready()
     {
         I = this;
+        Settings.Load();
         _playerScene = GD.Load<PackedScene>("res://Scenes/Player/Player.tscn");
         _npcScene = GD.Load<PackedScene>("res://Scenes/Npc/Npc.tscn");
         _animalScene = GD.Load<PackedScene>("res://Scenes/Animals/Animal.tscn");
@@ -92,6 +93,14 @@ public partial class Net : Node
         _spawnParent = spawnParent;
         if (IsServer && Current != Mode.Dedicated) SpawnPlayer(1, _names.GetValueOrDefault(1, LocalName));
     }
+
+    public void BroadcastNoise(Vector2 pos, float radius, string kind)
+    {
+        Sim.ShowNoise(pos, radius, kind);
+        if (Current != Mode.Offline) Rpc(nameof(NoiseRpc), pos, radius, kind);
+    }
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+    private void NoiseRpc(Vector2 pos, float radius, string kind) => Sim.ShowNoise(pos, radius, kind);
 
     // The host's hand on the clock (design doc 21.3): pause, or a slower or
     // faster hour. Everyone's clock follows; only the host may touch it.
@@ -443,7 +452,7 @@ public partial class Net : Node
         var cal = GameCalendar.Instance;
         Rpc(nameof(WorldSync), cal.Year, cal.Month, cal.Day, cal.Hour, (int)cal.Weather.Current);
         var hearths = new Godot.Collections.Array();
-        if (Sim.Structures != null) foreach (var h in Sim.Structures.AllHearths) hearths.Add(new Godot.Collections.Array { h.Cell.X, h.Cell.Y, h.FuelHours });
+        if (Sim.Structures != null) foreach (var h in Sim.Structures.AllHearths) hearths.Add(new Godot.Collections.Array { h.Cell.X, h.Cell.Y, h.Lit ? h.FuelHours : -h.FuelHours - 0.001f });
         var ship = Sim.Ship;
         var canoes = new Godot.Collections.Array();
         if (Sim.Spawner != null) foreach (var c in Sim.Spawner.Canoes) canoes.Add(new Godot.Collections.Array { c.Index, c.GlobalPosition.X, c.GlobalPosition.Y, c.RiderNetId });

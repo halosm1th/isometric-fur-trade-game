@@ -167,10 +167,12 @@ public partial class PlayerController : Agent
 		Inventory.Add(ItemId.Water, 2);
 		Inventory.Add(ItemId.Flint, 1);
 		Inventory.Add(ItemId.Tumpline, 1);   // a labourer's pack strap: 40 lb more before you slow
+		Inventory.Add(ItemId.Axe, 1);
 		Inventory.Add(ItemId.FishingLine, 1);
 	}
 
 	private bool _becameLocal;
+	private static bool _devClick;
 	public void BecomeLocal()
 	{
 		if (_becameLocal) return;
@@ -192,6 +194,7 @@ public partial class PlayerController : Agent
 			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
 			if (arg.StartsWith("--use=") && int.TryParse(arg.Substring(6), out int slot)) GetTree().CreateTimer(3.0).Timeout += () => NetHub.I?.Act("use", new Godot.Collections.Array { slot });
+			if (arg.StartsWith("--click=")) { _devClick = true; double when = 3.0; foreach (var part in arg.Substring(8).Split(',')) { if (!int.TryParse(part, out int cslot)) continue; GetTree().CreateTimer(when).Timeout += () => { var p = GlobalPosition + new Vector2(90, 40); NetHub.I?.Act("click", new Godot.Collections.Array { cslot, p.X, p.Y }); }; when += 3.0; } }
 			if (arg == "--kill" && NetHub.IsServer) GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(500f); if (n != null) { n.TakeDamage(999f, this); GD.Print($"[dev] killed {n.DisplayName}"); } };
 			if (arg == "--follow" && NetHub.IsServer) GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(600f); if (n != null) { n.Brain.Clear(n); n.Brain.Push(n, new Agents.Goals.FollowGoal(this, 10f)); GD.Print($"[dev] {n.DisplayName} follows"); GetTree().CreateTimer(8.0).Timeout += () => { GlobalPosition = IsoGrid.ToWorld(WorldLayout.GateOutside) + new Vector2(0, 600); GD.Print("[dev] player moved outside the gate"); }; } };
 			if (arg == "--scurvy" && NetHub.IsServer) GetTree().CreateTimer(2.0).Timeout += () => { foreach (var n in Sim.Npcs) if (n.Faction == Faction.HBC) n.DaysSinceFresh = 41.5f; DaysSinceFresh = 41.5f; };
@@ -215,6 +218,8 @@ public partial class PlayerController : Agent
 
 	// A line for this player's owner, wherever they are.
 	public void Say(string text) => NetHub.I?.NoticeTo(this, text);
+
+	private int[] UnwornList() { var a = new int[Inventory.Unworn.Count]; int i = 0; foreach (var id in Inventory.Unworn) a[i++] = (int)id; return a; }
 
 	private string[] MailSummary()
 	{
@@ -249,8 +254,16 @@ public partial class PlayerController : Agent
 
 		if (@event is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left })
 		{
+			// Left click (design doc 3.3): strike with a readied weapon, use the
+			// item in hand on the ground, or just interact.
 			var target = AgentUnderCursor();
-			if (target != null) NetHub.I?.Act("attack", new Godot.Collections.Array { target.NetId });
+			int slot = UI.Hotbar.SelectedSlot;
+			var held = Inventory.Slot(slot);
+			bool weapon = held != null && Items.Items.Of(held.Value.id).Kind == ItemKind.Weapon;
+			if (target != null && (weapon || held == null || target is Animal && Items.Items.Of(held.Value.id).Kind != ItemKind.Food)) { NetHub.I?.Act("attack", new Godot.Collections.Array { target.NetId }); return; }
+			if (target != null && target is Npc) { NetHub.I?.Act("interact"); return; }
+			var mouse = GetGlobalMousePosition();
+			NetHub.I?.Act("click", new Godot.Collections.Array { slot, mouse.X, mouse.Y });
 			return;
 		}
 		if (@event.IsActionPressed("attack_nearest")) { NetHub.I?.Act("attack_nearest"); return; }
@@ -333,7 +346,12 @@ public partial class PlayerController : Agent
 		IsSprinting = !typing && Input.IsActionPressed("sprint");
 		Vector2 input = typing ? Vector2.Zero : Input.GetVector("move_left", "move_right", "move_up", "move_down");
 		if (input != Vector2.Zero && WantsSkipHours > 0f) NetHub.I?.Act("cancel_wait");
-		Velocity = input * EffectiveSpeed * (IsAfloat ? 1.5f : 1f);
+		bool slippery = false;
+		float ground = Sim.Terrain != null ? Sim.Terrain.SpeedFactorAt(GlobalPosition, Inventory.IsWorn(ItemId.Snowshoes), out slippery) : 1f;
+		if (IsAfloat) { ground = 1.5f; slippery = false; }
+		var want = input * EffectiveSpeed * ground;
+		// Ice: no grip. You keep going the way you were going.
+		Velocity = slippery ? Velocity.Lerp(want, 0.06f) : want;
 		if (input.X != 0) _sprite.FlipH = input.X < 0;
 		// Afloat you can't climb the bank except where it's low: any land cell
 		// counts as landing, so just don't let the canoe grind onto a wall.
@@ -390,7 +408,7 @@ public partial class PlayerController : Agent
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "",
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
-			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency,
+			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["unworn"] = UnwornList(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
 		};
 		_oneShotAnim = ""; _teleported = false;
@@ -415,6 +433,7 @@ public partial class PlayerController : Agent
 		_afloatMirror = (bool)d["afloat"];
 		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"]; Rank = (string)d["rank"]; if (d.ContainsKey("fresh")) DaysSinceFresh = (float)d["fresh"];
 		if (d.ContainsKey("tongue")) CreeFluency = (float)d["tongue"];
+		if (d.ContainsKey("unworn")) { Inventory.Unworn.Clear(); foreach (int u in (int[])d["unworn"]) Inventory.Unworn.Add((ItemId)u); }
 		if (d.ContainsKey("mail") && !NetHub.IsServer) { Mail.Clear(); foreach (string line in (string[])d["mail"]) { var parts = line.Split('|'); Mail.Add(new Message { Kind = parts[0], From = parts[1], To = parts[2], Subject = parts[3], Read = parts[4] == "1", Text = parts.Length > 5 ? parts[5] : "" }); } }
 		Journal.Clear(); foreach (var e in (Godot.Collections.Array)d["journal"]) Journal.Add((string)e);
 		bool dead = (bool)d["dead"];
@@ -432,6 +451,9 @@ public partial class PlayerController : Agent
 		{
 			case "interact": return Interact();
 			case "use": return UseSlotServer((int)args[0]);
+			case "click": { var r = ClickAt((int)args[0], new Vector2((float)args[1], (float)args[2])); if (_devClick) GD.Print("[click] " + r); return r; }
+			case "wear": { var s = Inventory.Slot((int)args[0]); if (s == null || !Inventory.Wearable(s.Value.id)) return ""; Inventory.ToggleWorn(s.Value.id); return ""; }
+			case "move_slot": Inventory.MoveSlot((int)args[0], (int)args[1]); return "";
 			case "attack":
 			{
 				int id = (int)args[0];
@@ -533,6 +555,61 @@ public partial class PlayerController : Agent
 		return "Missed.";
 	}
 
+	// Use what's in hand on a spot in the world: lay wood for a fire, put a
+	// spark to it, set a building alight - or, with nothing to use, interact.
+	private string ClickAt(int slot, Vector2 where)
+	{
+		var held = Inventory.Slot(slot);
+		if (held == null) return Interact();
+		var id = held.Value.id; var def = Items.Items.Of(id);
+		if (where.DistanceTo(GlobalPosition) > 220f) return "Too far. Step closer.";
+		var cell = IsoGrid.FromWorld(where);
+		var structures = Sim.Structures; var fire = World.Fire.I;
+		switch (id)
+		{
+			case ItemId.Firewood:
+			{
+				var h = structures?.HearthAt(cell) ?? structures?.HearthNear(where, 120f);
+				if (h != null) { Inventory.Remove(id); h.Feed(def.FuelHours); return h.Lit ? "You feed the fire." : "You lay more wood. It wants a spark yet."; }
+				if (IsSheltered || (structures?.IsShelteredCell(cell) ?? false)) return "Not indoors. Feed the hearth instead.";
+				if (Sim.Terrain?.IsWaterOrIce(cell) ?? true) return "Not on the water.";
+				var built = structures?.BuildCampfire(cell);
+				if (built == null) return "The ground here won't take a fire.";
+				built.Lit = false; Inventory.Remove(id); built.Feed(def.FuelHours);
+				return "You lay a fire ring and wood. Strike a spark to it with flint and steel.";
+			}
+			case ItemId.Flint:
+			{
+				var h = structures?.HearthAt(cell) ?? structures?.HearthNear(where, 140f);
+				if (h != null)
+				{
+					if (h.IsBurning) return "It's burning already.";
+					if (h.FuelHours <= 0f) { if (!Inventory.Has(ItemId.Firewood)) return "No wood on it and none in your pack."; Inventory.Remove(ItemId.Firewood); h.Feed(Items.Items.Of(ItemId.Firewood).FuelHours); }
+					h.Light();
+					return "The spark takes. The fire catches.";
+				}
+				if (structures != null && fire != null && structures.IsFlammable(cell))
+				{
+					// Your own post's timbers only burn on purpose: crouch to mean it.
+					bool ours = HomePost != null && (Faction == Faction.NWC ? WorldLayout.NwcYardCells().Contains(cell) : WorldLayout.YardCells().Contains(cell));
+					if (ours && !IsSneaking) return "That's the Company's own timber. Crouch (Ctrl) if you truly mean to burn it.";
+					if (!fire.Ignite(cell)) return "It won't catch.";
+					Chronicle.Event($"{DisplayName} set fire to the buildings.", GlobalPosition, this, weight: 3f);
+					foreach (var a in Sim.AgentsWithin(GlobalPosition, 650f))
+					{
+						if (a is not Npc n || n.IsDead || n.HomeStores == null) continue;
+						if (n.HomeStores.HearthCells.Count > 0 && IsoGrid.ToWorld(n.HomeStores.HearthCells[0]).DistanceTo(where) < 900f) { n.ChangeRapport(this, -50f); if (n.Weapon != null) n.Brain.Push(n, new Agents.Goals.AttackGoal(this)); }
+					}
+					return "You put the spark to the wood. It catches.";
+				}
+				return "Nothing there will take a spark: click a fire ring, a hearth, or wood.";
+			}
+			default:
+				if (def.Kind == ItemKind.Food || def.Kind == ItemKind.Drink || def.Kind == ItemKind.Tool) return UseSlotServer(slot);
+				return Interact();
+		}
+	}
+
 	private string UseSlotServer(int i)
 	{
 		var slot = Inventory.Slot(i);
@@ -565,7 +642,18 @@ public partial class PlayerController : Agent
 				return $"You put a log on the fire. ({hearth.FuelHours:0.#} h of fuel)";
 			}
 			case ItemKind.Clothing:
-				return $"You're wearing the {def.Name.ToLower()}. (+{def.Warmth:0} warmth)";
+				Inventory.ToggleWorn(id);
+				return Inventory.IsWorn(id) ? $"You put the {def.Name.ToLower()} on. (+{def.Warmth:0} warmth)" : $"You take the {def.Name.ToLower()} off and stow it.";
+			case ItemKind.Tool when id == ItemId.Axe:
+			{
+				var tree = Sim.Structures?.NearestTree(GlobalPosition, 150f);
+				if (tree == null) return "No tree within reach of the axe. The bush starts west and south of the post.";
+				if (Sim.Structures.FellTreeAt(tree.Value)) { Inventory.Add(ItemId.Firewood, 4); _busyUntil = 1.2f; Chronicle.Event($"{DisplayName} felled a tree.", GlobalPosition, this, weight: 0.1f); return "You fell the spruce and split it: 4 firewood."; }
+				return "The axe glances off.";
+			}
+			case ItemKind.Tool when id == ItemId.Snowshoes:
+				Inventory.ToggleWorn(id);
+				return Inventory.IsWorn(id) ? "You lace on the snowshoes. Snow is no trouble now." : "You take the snowshoes off.";
 			case ItemKind.Tool when id == ItemId.Kettle:
 				return ServerAction("drink", new Godot.Collections.Array());
 			case ItemKind.Tool when id == ItemId.FishingLine:
@@ -704,9 +792,9 @@ public partial class PlayerController : Agent
 		{
 			var cal = GameCalendar.Instance;
 			if (cal.IsSkipping) return "";
-			bool night = cal.Hour >= 18f || cal.Hour < 6f;
+			bool night = cal.Hour >= 17f || cal.Hour < 6f;
 			float hours = night ? ((7f - cal.Hour + 24f) % 24f) : 1f;
-			return RequestSkip(hours, night ? "You turn in." : "You lie down for an hour.");
+			return RequestSkip(hours, night ? "You turn in till morning." : "You lie down for an hour. (From 17:00 a bed takes you through to 07:00.)");
 		}
 
 		// Inside the other company's storehouse: help yourself, and take what
@@ -718,6 +806,20 @@ public partial class PlayerController : Agent
 			Task.Progress(TaskKind.Raid, took);
 			if (!Economy.Rivalry.OpenHostility) Standing -= 3f;
 			return took > 0 ? $"You shoulder {took} lots of the {(rivalPost.Company == Faction.NWC ? "Nor'Westers'" : "Company's")} goods. Now get them home." : "Nothing left worth carrying.";
+		}
+
+		// Somebody else's woodpile (design doc 16.3's zero-sum, in firewood): you can take, and be seen taking.
+		foreach (var other in OtherHouseholds())
+		{
+			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(other.WoodpileCell)) >= 120f) continue;
+			int take = other.Stores.TakeUpTo(ItemId.Firewood, 2);
+			if (take == 0) return $"{other.Title}: the pile is bare.";
+			Inventory.Add(ItemId.Firewood, take);
+			Chronicle.Event($"{DisplayName} took wood from {other.Title}'s pile.", GlobalPosition, this, weight: 0.8f);
+			var faction = other == Sim.Band ? Faction.Cree : other == Sim.Nwc ? Faction.NWC : Faction.HBC;
+			foreach (var a in Sim.AgentsWithin(GlobalPosition, 650f)) if (a is Npc w && w.Faction == faction) w.ChangeRapport(this, -6f);
+			if (other == Sim.Band && Sim.Band != null) Sim.Band.StandingWithCompany = Mathf.Max(0f, Sim.Band.StandingWithCompany - 1f);
+			return $"You take {take} firewood from {other.Title}'s pile. Not yours; anyone who saw will remember.";
 		}
 
 		var fort = HomePost;
@@ -733,16 +835,10 @@ public partial class PlayerController : Agent
 			bool inStore = Faction == Faction.NWC ? WorldLayout.NwcHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell);
 			if (inStore)
 			{
-				int moved = 0;
-				foreach (var (id, n) in new List<(ItemId, int)>(Inventory.All()))
-				{
-					var kind = Items.Items.Of(id).Kind;
-					if (kind == ItemKind.Weapon || kind == ItemKind.Clothing || kind == ItemKind.Fuel || kind == ItemKind.Tool) continue;
-					if (kind == ItemKind.Food || kind == ItemKind.Drink) continue;
-					Inventory.Remove(id, n); fort.Stores.Add(id, n); moved += n;
-					if (kind == ItemKind.Goods) Task.Progress(TaskKind.CarryCargo, n);
-				}
-				return moved > 0 ? $"You stow {moved} lots in the warehouse." : "Nothing to stow. (Goods and furs go in here; keep your food and kit.)";
+				// The storeroom chest: stow, or draw kit (design doc 12.5's stow/withdraw boundary).
+				var state = Conversation.StartStores(fort);
+				NetHub.I?.PushDialogue(this, state);
+				return "";
 			}
 			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.AccessCell)) < 110f && Inventory.CountOfKind(ItemKind.Food) < 3)
 			{
@@ -767,6 +863,65 @@ public partial class PlayerController : Agent
 
 		var hearth = structures.HearthNear(GlobalPosition);
 		return hearth != null ? hearth.Describe() : "";
+	}
+
+	// What E would do right now, for the prompt above the hotbar. Runs on
+	// the owning client from what it can see; mirrors Interact()'s order.
+	public string InteractHint()
+	{
+		if (IsDead) return "";
+		var npc = NearestNpc(110f);
+		if (npc != null) return $"E  Talk to {npc.DisplayName}";
+		var body = NearestCorpse(110f);
+		if (body != null) return body is Animal ? $"E  Butcher the {body.Describe().ToLower()}" : $"E  Search {body.Describe()}";
+		var pickup = NearestPickup();
+		if (pickup != null) return $"E  Pick up {pickup.Label}";
+		var lodge = Sim.Ecology?.SiteNear(GlobalPosition, Ecology.Species.Beaver);
+		if (lodge != null) { var line = lodge.LineOf(TrapOwner); return line != null && line.Traps > 0 ? $"E  Check your traps ({lodge.Name})" : Inventory.Has(ItemId.SteelTrap) ? $"Use a steel trap here to set a line ({lodge.Name})" : $"{lodge.Name}"; }
+		if (Aboard == null && Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 130f) != null) return "E  Take the canoe";
+		if (Sim.Structures?.NearestBed(GlobalPosition, 90f) != null) return (GameCalendar.Instance?.Hour ?? 12f) is >= 17f or < 6f ? "E  Sleep till morning" : "E  Rest an hour";
+		foreach (var h in OtherHouseholds()) if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(h.WoodpileCell)) < 120f) return $"E  Take wood from {h.Title}'s pile (theft)";
+		var fort = HomePost;
+		if (fort != null)
+		{
+			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.WoodpileCell)) < 120f) return Inventory.Has(ItemId.Firewood) ? "E  Stack your firewood" : "E  Take firewood";
+			if (Faction == Faction.NWC ? WorldLayout.NwcHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell)) return "E  The storeroom chest";
+			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.AccessCell)) < 110f && Inventory.CountOfKind(ItemKind.Food) < 3) return "E  Draw a ration";
+			if (Faction == Faction.HBC && Sim.Ship != null && Sim.Ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 160f && Sim.Ship.Cargo.SlotCount > 0) return "E  Shoulder cargo from the ship";
+		}
+		var rival = Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(Faction));
+		if (rival != null && (rival.Company == Faction.NWC ? WorldLayout.NwcHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell))) return "E  Plunder their stores";
+		if (Sim.Structures != null && Sim.Structures.HasDoorNear(Position)) return "E  Open / close the door";
+		var hearth = Sim.Structures?.HearthNear(GlobalPosition);
+		if (hearth != null) return hearth.IsBurning ? "E  Look at the fire" : hearth.FuelHours > 0f ? "Flint on it to light it" : "E  Cold hearth (feed it wood)";
+		return "";
+	}
+
+	private IEnumerable<Economy.Household> OtherHouseholds()
+	{
+		if (Sim.Fort != null && Sim.Fort != HomePost) yield return Sim.Fort;
+		if (Sim.Nwc != null && Sim.Nwc != HomePost) yield return Sim.Nwc;
+		if (Sim.Band != null) yield return Sim.Band;
+	}
+
+	// Stow what the warehouse takes (design doc 12.5): goods, furs, and -
+	// if asked - provisions for the mess. Kit and personal food stay with you.
+	public int StowInto(Economy.FortLedger fort, bool provisions)
+	{
+		int moved = 0;
+		foreach (var (id, n) in new List<(ItemId, int)>(Inventory.All()))
+		{
+			var kind = Items.Items.Of(id).Kind;
+			bool goods = kind == ItemKind.Goods || kind == ItemKind.Fur;
+			bool food = kind == ItemKind.Food && (id == ItemId.Goose || id == ItemId.Venison || id == ItemId.Fish || id == ItemId.Hare || id == ItemId.DriedMeat || id == ItemId.DriedGoose || id == ItemId.Pemmican);
+			if (!(provisions ? food : goods)) continue;
+			int take = provisions && n <= 2 ? 0 : provisions ? n - 2 : n;   // keep a couple of meals
+			if (take <= 0) continue;
+			Inventory.Remove(id, take); fort.Stores.Add(id, take); moved += take;
+			if (kind == ItemKind.Goods) Task.Progress(TaskKind.CarryCargo, take);
+		}
+		if (provisions && moved > 0) { Standing += Mathf.Min(4f, moved * 0.5f); Chronicle.Event($"{DisplayName} brought {moved} of meat to the stores.", GlobalPosition, this, weight: 0.5f); }
+		return moved;
 	}
 
 	private Npc NearestNpc(float reach)

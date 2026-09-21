@@ -23,7 +23,7 @@ public class PlayerTask
         TaskKind.Firewood => $"Mr. Auld: bring {Need} firewood to the woodpile ({Done}/{Need})",
         TaskKind.CarryCargo => $"Mr. Auld: carry {Need} lots from the ship to the warehouse ({Done}/{Need})",
         TaskKind.DriveOffAnimals => $"Mr. Auld: drive off the animals about the post ({Done}/{Need})",
-        TaskKind.DeliverLetter => "Mr. Auld: carry his letter to the chief at the camp and bring back his answer",
+        TaskKind.DeliverLetter => Done == 0 ? "Mr. Auld: carry his letter to the chief at the camp" : "Mr. Auld: bring the chief's answer back to him",
         TaskKind.Raid => $"Go with the men and seize what you can from the other company's stores ({Done}/{Need} lots)",
         TaskKind.Report => "Report to the Factor: find Mr. Auld and speak to him",
         _ => "",
