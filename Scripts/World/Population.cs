@@ -49,6 +49,7 @@ public partial class Population : Node2D
         // The Factor and his clerks live in the trading house.
         var factor = Spawn("Mr. William Auld", Role.Factor, Faction.HBC, IsoGrid.Cell(depot.Top, 3, 1), IsoGrid.Cell(depot.Top, 2, 2), fort, _factorFrames, Colors.White);
         factor.Inventory.Add(ItemId.Musket); factor.Inventory.Add(ItemId.Capote); factor.Inventory.Add(ItemId.Pemmican, 2);
+        if (fort != null) fort.Leader = factor;
         var clerkA = Spawn("John Fidler (clerk)", Role.Clerk, Faction.HBC, IsoGrid.Cell(depot.Top, 4, 1), IsoGrid.Cell(depot.Top, 3, 3), fort, _hbcFrames, new Color(0.9f, 0.9f, 1f));
         var clerkB = Spawn("Alex Kennedy (clerk)", Role.Clerk, Faction.HBC, IsoGrid.Cell(depot.Top, 2, 3), IsoGrid.Cell(depot.Top, 5, 2), fort, _hbcFrames, new Color(0.85f, 0.95f, 0.9f));
         foreach (var c in new[] { clerkA, clerkB }) { c.Inventory.Add(ItemId.Capote); c.Inventory.Add(ItemId.Knife); c.Inventory.Add(ItemId.Bread); }
@@ -73,6 +74,7 @@ public partial class Population : Node2D
         var tipis = new List<Vector2I>(WorldLayout.TipiCells());
         var chief = Spawn(CreeMen[0] + " (chief)", Role.CreeChief, Faction.Cree, tipis[0], IsoGrid.Cell(WorldLayout.CampCentre, 1, 0), band, _creeFrames, Colors.White);
         chief.Inventory.Add(ItemId.Musket); chief.Inventory.Add(ItemId.HideCoat); chief.Inventory.Add(ItemId.Venison, 2);
+        if (band != null) band.Leader = chief;
         var hunters = new List<Npc>();
         for (int i = 0; i < 4; i++)
         {
@@ -99,6 +101,7 @@ public partial class Population : Node2D
         {
             var partner = Spawn("Mr. Duncan Cameron (NWC)", Role.NwcPartner, Faction.NWC, IsoGrid.Cell(house.Top, 3, 1), IsoGrid.Cell(house.Top, 3, 2), nwc, _factorFrames, new Color(1f, 0.9f, 0.9f));
             partner.Inventory.Add(ItemId.Musket); partner.Inventory.Add(ItemId.Capote); partner.Inventory.Add(ItemId.Pemmican, 2);
+            nwc.Leader = partner;
             string[] voyageurs = { "Baptiste Lagimodiere", "Pierre Falcon", "Antoine Desjarlais" };
             for (int i = 0; i < 3; i++)
             {
@@ -106,6 +109,23 @@ public partial class Population : Node2D
                 v.Inventory.Add(ItemId.Capote); v.Inventory.Add(ItemId.Knife); v.Inventory.Add(ItemId.Pemmican, 2);
                 if (i == 0) v.Inventory.Add(ItemId.Musket);
             }
+        }
+
+        // Oxford House, up the river road: a postmaster, three men, a wife.
+        var outpost = Sim.Outpost; var oh = WorldLayout.OutpostHouse;
+        if (outpost != null)
+        {
+            var pm = Spawn("Mr. James Sutherland (postmaster)", Role.Postmaster, Faction.HBC, IsoGrid.Cell(oh.Top, 3, 1), IsoGrid.Cell(oh.Top, 2, 2), outpost, _factorFrames, new Color(0.95f, 0.95f, 1f));
+            pm.Inventory.Add(ItemId.Musket); pm.Inventory.Add(ItemId.Capote); pm.Inventory.Add(ItemId.Pemmican, 2);
+            outpost.Leader = pm;
+            for (int i = 0; i < 3; i++)
+            {
+                var m = Spawn(OrkneyMen[6 + i], Role.Labourer, Faction.HBC, IsoGrid.Cell(oh.Top, 2 + i, 3), IsoGrid.Cell(WorldLayout.OutpostTop, 5 + i, 5), outpost, _labourerFrames, Colors.White);
+                m.Inventory.Add(ItemId.Capote); m.Inventory.Add(ItemId.Knife); m.Inventory.Add(ItemId.Pemmican, 2); m.Inventory.Add(ItemId.Snowshoes);
+                if (i == 0) m.Inventory.Add(ItemId.Musket);
+            }
+            var ow = Spawn(Women[3], Role.Woman, Faction.HBC, IsoGrid.Cell(oh.Top, 5, 3), IsoGrid.Cell(oh.Top, 4, 2), outpost, _hbcFrames, new Color(1f, 0.8f, 0.85f), 0.72f, true);
+            ow.Inventory.Add(ItemId.PointBlanket); ow.Inventory.Add(ItemId.Knife);
         }
 
         Sim.Notice($"York Factory: {Sim.Npcs.Count} souls in the world.");
@@ -196,7 +216,7 @@ public partial class Population : Node2D
         if (fort == null) return 0;
         int alive = 0;
         var taken = new HashSet<string>();
-        foreach (var n in Sim.Npcs) { if (!n.IsDead) taken.Add(n.DisplayName); if (n.Faction == Faction.HBC && n.Role == Role.Labourer && !n.IsDead) alive++; }
+        foreach (var n in Sim.Npcs) { if (!n.IsDead) taken.Add(n.DisplayName); if (n.HomeStores == fort && n.Role == Role.Labourer && !n.IsDead) alive++; }
         int landed = 0;
         for (int i = 0; alive + landed < wanted && i < OrkneyMen.Length; i++)
         {

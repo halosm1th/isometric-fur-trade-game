@@ -4,7 +4,7 @@ using IsometricFurTradeGame.Scripts.Ecology;
 
 namespace IsometricFurTradeGame.Scripts.World;
 
-public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse }
+public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse }
 
 public readonly record struct BuildingDef(BuildingKind Kind, string Name, Vector2I Top, int Width, int Depth, int DoorOffset)
 {
@@ -35,7 +35,7 @@ public readonly record struct SiteDef(string Name, Species Species, Vector2I Cel
 public static class WorldLayout
 {
     public const int MapWidth = 80;
-    public const int MapHeight = 320;
+    public const int MapHeight = 460;   // grown south to make room for the inland post
     public const int WaterRows = 40;
     public const int BeachRows = 3;
 
@@ -61,7 +61,42 @@ public static class WorldLayout
     // A shallow crossing: the only way over the river on foot in summer.
     public static bool IsFord(Vector2I c) => c.Y >= 158 && c.Y <= 162 && IsRiver(c);
 
-    public static readonly BuildingDef[] Buildings = { Depot, Warehouse, MensHouse, NwcHouse };
+    // ---- the inland post (design doc 3.9's far outpost, 10.1.2's second leg) --
+    // Oxford House, a day's hard walk up the river road. A postmaster, a
+    // few men, a woman, its own books, and the inland bands' furs.
+    public static readonly Vector2I OutpostTop = new(36, 396);
+    public const int OutpostWidth = 12, OutpostDepth = 9, OutpostGateOffset = 5;
+    public static Vector2I OutpostGateCell => IsoGrid.Cell(OutpostTop, OutpostGateOffset, OutpostDepth - 1);
+    public static Vector2I OutpostGateOutside => IsoGrid.DownLeft(IsoGrid.DownLeft(OutpostGateCell));
+    public static readonly BuildingDef OutpostHouse = new(BuildingKind.OutpostHouse, "Oxford House", IsoGrid.Cell(OutpostTop, 2, 2), 7, 5, 3);
+    public static IEnumerable<Vector2I> OutpostYardCells() => IsoGrid.Rhombus(OutpostTop, OutpostWidth, OutpostDepth);
+    public static Vector2I OutpostWoodpileCell => IsoGrid.Cell(OutpostTop, 9, 6);
+
+    public static readonly BuildingDef[] Buildings = { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse };
+
+    // ---- the river road: York Factory to Oxford House along the west bank -----
+    public static readonly Vector2[] RiverRoad =
+    {
+        IsoGrid.ToWorld(GateOutside),
+        new Vector2(3000, 3400),
+        new Vector2(3400, 4600),
+        new Vector2(4600, 6200),
+        new Vector2(5200, 7800),
+        new Vector2(5400, 9400),
+        new Vector2(5200, 11000),
+        new Vector2(4200, 12300),
+        new Vector2(3400, 13000),
+        IsoGrid.ToWorld(OutpostGateOutside),
+    };
+    // Where you stand to take the road: on the bank below each gate.
+    public static Vector2I RoadHeadYork => IsoGrid.FromWorld(new Vector2(3050, 3350));
+    public static Vector2I RoadHeadOutpost => IsoGrid.FromWorld(new Vector2(3450, 12950));
+    public static float RoadDistance(Vector2 p)
+    {
+        float best = float.MaxValue;
+        for (int i = 0; i + 1 < RiverRoad.Length; i++) best = Mathf.Min(best, Geometry2D.GetClosestPointToSegment(p, RiverRoad[i], RiverRoad[i + 1]).DistanceTo(p));
+        return best;
+    }
 
     // Yard props.
     public static Vector2I WoodpileCell => IsoGrid.Cell(FortTop, 13, 11);
@@ -126,7 +161,10 @@ public static class WorldLayout
         new("Beaver lodge (upper)", Species.Beaver, new Vector2I(62, 118), 40, 60, 350f),
         new("Beaver lodge (bend)", Species.Beaver, new Vector2I(55, 182), 45, 60, 350f),
         new("Beaver lodge (lower)", Species.Beaver, new Vector2I(60, 246), 36, 60, 350f),
-        new("Wolf den", Species.Wolf, new Vector2I(6, 280), 6, 10, 800f),
+        new("Wolf den", Species.Wolf, new Vector2I(8, 330), 6, 10, 800f),
+        // The inland lodges: richer, and the reason a post is there at all.
+        new("Beaver lodge (Knee Lake)", Species.Beaver, new Vector2I(24, 372), 50, 70, 350f),
+        new("Beaver lodge (Oxford)", Species.Beaver, new Vector2I(30, 428), 55, 75, 380f),
     };
 
     // ---- the trail from the gate to the camp ----------------------------------
@@ -157,6 +195,9 @@ public static class WorldLayout
         if (c.Y < WaterRows + 8) return 0f;
         if (IsRiver(c) || IsRiverBank(c)) return 0f;
         if (TrailDistance(p) < 130f) return 0f;
+        if (RoadDistance(p) < 150f) return 0f;
+        var outpostCentre = IsoGrid.ToWorld(IsoGrid.Cell(OutpostTop, OutpostWidth / 2, OutpostDepth / 2));
+        if (p.DistanceTo(outpostCentre) < 1000f) return 0f;
         if (p.DistanceTo(IsoGrid.ToWorld(WinterCamp)) < CampClearingPx) return 0f;
         if (p.DistanceTo(IsoGrid.ToWorld(SummerCamp)) < CampClearingPx) return 0f;
         // Keep the fort's surroundings open.

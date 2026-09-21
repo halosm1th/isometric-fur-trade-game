@@ -14,7 +14,7 @@ public abstract class RoleBehaviour
 {
     public static RoleBehaviour For(Role role) => role switch
     {
-        Role.Factor or Role.NwcPartner => new FactorBehaviour(),
+        Role.Factor or Role.NwcPartner or Role.Postmaster => new FactorBehaviour(),
         Role.Voyageur => new LabourerBehaviour(),
         Role.Clerk => new ClerkBehaviour(),
         Role.Labourer => new LabourerBehaviour(),

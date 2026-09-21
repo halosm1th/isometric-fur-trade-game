@@ -44,6 +44,7 @@ public static class Delegation
 
     public static Npc LeaderOf(Npc n)
     {
+        if (n.HomeStores?.Leader != null && GodotObject.IsInstanceValid(n.HomeStores.Leader) && !n.HomeStores.Leader.IsDead) return n.HomeStores.Leader;
         foreach (var l in Sim.Npcs)
         {
             if (l.IsDead || l.Faction != n.Faction) continue;
@@ -59,7 +60,7 @@ public static class Delegation
     private static List<PostTask> Objectives(Npc leader, FortLedger fort, List<Npc> men)
     {
         var tasks = new List<PostTask>();
-        var ship = fort.Company == Faction.HBC ? Sim.Ship : null;
+        var ship = fort == Sim.Fort ? Sim.Ship : null;   // only the Bay post has a ship
         var eco = Sim.Ecology;
         var fortCentre = IsoGrid.ToWorld(fort.AccessCell);
         int today = Cal.Day;
@@ -78,7 +79,7 @@ public static class Delegation
         }
 
         // The rivalry: a guard after a robbery or with tempers high.
-        var rival = Rivalry.PostOf(Rivalry.RivalOf(fort.Company));
+        var rival = fort is OutpostLedger ? null : Rivalry.PostOf(Rivalry.RivalOf(fort.Company));
         if (rival != null && (fort.RaidedRecently(today) || Rivalry.Tension >= 60f))
         {
             var door = fort.Company == Faction.HBC ? WorldLayout.Warehouse.DoorCell : WorldLayout.NwcHouse.DoorCell;
@@ -87,7 +88,7 @@ public static class Delegation
 
         // Provisions (design doc 13.1): days of food, and the scurvy count.
         int mouths = 0, scorbutic = 0;
-        foreach (var n in Sim.Npcs) if (n.Faction == fort.Company && !n.IsDead) { mouths++; if (n.DaysSinceFresh > 28f) scorbutic++; }
+        foreach (var n in Sim.Npcs) if (n.HomeStores == fort && !n.IsDead) { mouths++; if (n.DaysSinceFresh > 28f) scorbutic++; }
         float foodDays = fort.FoodDays(mouths + 1);
         bool gooseSeason = (Cal.Month == 9 || Cal.Month == 10 || Cal.Month == 5) && eco?.BestSite(Species.Goose, fort) != null;
         bool foodShort = foodDays < 30f || scorbutic >= 3;
@@ -114,10 +115,69 @@ public static class Delegation
             if (want > 0) tasks.Add(new PostTask { Name = "work the trapline", Make = n => RoleBehaviour.TraplineWork(n, fort, eco, true) ?? new ChopWoodGoal(), Men = want, Urgency = 40f + Mathf.Min(30f, needPerDay * 30f), KeyTask = true, Hunt = true, Intent = $"{behind:0} MB short of London's {fort.QuotaMb:0}" });
         }
 
+        // The inland post's duties (design doc 10.1.2's second leg): once a
+        // month a man carries the furs and a report down to the Bay.
+        if (fort is OutpostLedger op && Sim.Fort != null && today - op.LastReportSentDay >= 30 && Cal.Hour < 10f && !FoulWeather())
+        {
+            var opRef = op;
+            tasks.Add(new PostTask
+            {
+                Name = "carry the furs and the report down to York Factory", Men = 1, Urgency = 58f, KeyTask = true, Hunt = true, Intent = "the Factor must hear how we do",
+                Make = n =>
+                {
+                    opRef.LastReportSentDay = Cal.Day;
+                    int fit = 0; foreach (var x in Sim.Npcs) if (x.HomeStores == opRef && !x.IsDead && !x.IsSick) fit++;
+                    int mouths2 = 0; foreach (var x in Sim.Npcs) if (x.HomeStores == opRef && !x.IsDead) mouths2++;
+                    string news = opRef.LostToRivalMb > 0f ? $"{opRef.LostToRivalMb:0} MB went to the Canadians for want of goods." : "The inland bands are trading.";
+                    return new CourierGoal(opRef, Sim.Fort, Letters.OutpostReport(leader.DisplayName, opRef.FursInStoreMb, opRef.FoodDays(mouths2), fit, news), opRef.FursInStoreMb > 0f);
+                },
+            });
+        }
+        // The Bay post: an inland report overdue is itself news (design doc 3.9 step 6).
+        if (fort == Sim.Fort && Sim.Outpost != null)
+        {
+            if (fort.LastOutpostReportDay < -100) fort.LastOutpostReportDay = today;   // as of the start, they've just heard
+            int silence = today - fort.LastOutpostReportDay;
+            if (silence > 45 && men.Count >= 3)
+            {
+                var pmaster = Sim.Outpost.Leader;
+                var where = Sim.Outpost.AccessCell;
+                tasks.Add(new PostTask { Name = "go up to Oxford House and see how they do", Men = 2, Urgency = 62f, KeyTask = true, Hunt = true, NeedsMusket = true, Intent = $"no word from inland in {silence} days", Make = _ => new LookForGoal(pmaster, where) });
+                fort.LastOutpostReportDay = today - 20;   // one party at a time; try again in a few weeks if nothing
+            }
+        }
+
         // Wood: the post burns through it.
         int wood = fort.Stores.Count(ItemId.Firewood);
         tasks.Add(new PostTask { Name = "cut wood", Make = _ => new ChopWoodGoal(), Men = wood < 15 ? 3 : wood < 40 ? 2 : 1, Urgency = wood < 15 ? 65f : 20f, PlayerKind = Player.TaskKind.Firewood, PlayerNeed = 4, Intent = wood < 15 ? "the woodpile is bare" : "the woodpile" });
         return tasks;
+    }
+
+    private static bool FoulWeather() => Cal.Weather.Current == SkyState.Blizzard || Cal.Weather.Current == SkyState.Storm;
+
+    // After the ship: the fall outfit goes inland with two men (design doc 3.9 step 2).
+    public static void OrderSupply(Npc factor)
+    {
+        var fort = factor?.HomeStores as FortLedger; var op = Sim.Outpost;
+        if (fort == null || op == null || fort != Sim.Fort) return;
+        var men = new List<Npc>();
+        foreach (var n in Sim.Npcs) if (n.HomeStores == fort && n.Role == Role.Labourer && !n.IsDead && !n.IsSick) men.Add(n);
+        if (men.Count < 3) { Sim.Notice($"{factor.DisplayName} has not the men to send the outfit inland this year."); return; }
+        men.Sort((a, b) => Trust(factor, b).CompareTo(Trust(factor, a)));
+        var cargo = new List<(ItemId, int)> { (ItemId.TradeGoods, 20), (ItemId.Pemmican, 10), (ItemId.Rum, 3), (ItemId.SteelTrap, 4) };
+        var cargo2 = new List<(ItemId, int)> { (ItemId.TradeGoods, 15), (ItemId.DriedGoose, 12), (ItemId.Musket, 1), (ItemId.PointBlanket, 4) };
+        var letter = new Message { Kind = "orders", From = factor.DisplayName, To = "the postmaster at Oxford House", Company = Faction.HBC, Subject = "the winter's orders", Text = $"Hold the post; pay {fort.PeltPrice:0.00}; send the furs down before the ice goes out. London wants {fort.QuotaMb:0} MB from this district." };
+        letter.OnRead = r => { op.PeltPrice = fort.PeltPrice; op.DirectiveText = letter.Text; op.DirectiveReadDay = Cal.Day; Sim.Notice($"{r?.Describe() ?? "The postmaster"} reads the Factor's orders: pay {op.PeltPrice:0.00} inland."); };
+        for (int i = 0; i < 2; i++)
+        {
+            var m = men[i];
+            m.AssignedTask = null; m.AssignedTaskName = "carry the outfit up to Oxford House"; m.AssignedTaskIsHunt = false;
+            m.Brain.Clear(m);
+            m.Brain.Push(m, new CourierGoal(fort, op, i == 0 ? letter : null, false, i == 0 ? cargo : cargo2));
+        }
+        fort.LastSupplyDay = Cal.Day;
+        Sim.Notice($"{factor.DisplayName}: \"{men[0].DisplayName}, {men[1].DisplayName} - the outfit for Oxford House. Take the river road and mind the packet.\"");
+        Chronicle.Event($"{factor.DisplayName} sent the fall outfit inland with {men[0].DisplayName} and {men[1].DisplayName}.", factor.GlobalPosition, factor, weight: 0.8f);
     }
 
     private static int DaysUntilShip()
@@ -174,20 +234,20 @@ public static class Delegation
         var fort = leader.HomeStores as FortLedger;
         if (fort == null) return;
         var men = new List<Npc>();
-        foreach (var n in Sim.Npcs) if (n.Faction == fort.Company && (n.Role == Role.Labourer || n.Role == Role.Voyageur) && !n.IsDead) men.Add(n);
+        foreach (var n in Sim.Npcs) if (n.HomeStores == fort && (n.Role == Role.Labourer || n.Role == Role.Voyageur) && !n.IsDead) men.Add(n);
         if (men.Count == 0) return;
         int today = Cal.Day;
 
         CheckOverdue(leader, fort, men);
 
         // Raids are decided here too (design doc 7.1); the men sent are spoken for.
-        var rival = Rivalry.PostOf(Rivalry.RivalOf(fort.Company));
-        bool shipIn = fort.Company == Faction.HBC && Sim.Ship != null && Sim.Ship.IsDocked;
+        var rival = fort is OutpostLedger ? null : Rivalry.PostOf(Rivalry.RivalOf(fort.Company));
+        bool shipIn = fort == Sim.Fort && Sim.Ship != null && Sim.Ship.IsDocked;
         int raidersSent = 0;
         bool sanctioned = fort is NwcLedger nl && nl.RaidsSanctioned && Rivalry.Tension >= 45f;
         if (rival != null && (Rivalry.OpenHostility || sanctioned) && men.Count >= 2 && today - fort.LastRaidDay > 4 && !shipIn)
         {
-            int mouths = 0; foreach (var n in Sim.Npcs) if (n.Faction == fort.Company && !n.IsDead) mouths++;
+            int mouths = 0; foreach (var n in Sim.Npcs) if (n.HomeStores == fort && !n.IsDead) mouths++;
             bool worthIt = fort.FoodDays(mouths + 1) < 30f || fort.Stores.Count(ItemId.TradeGoods) < 15 || Rivalry.Tension >= 90f || fort.RaidedRecently(today);
             if (worthIt && GD.Randf() < 0.35f + leader.Personality.Ambition * 0.4f)
                 raidersSent = Rivalry.OrderRaid(leader, fort, rival, Math.Min(3, men.Count - 1)).Count;
@@ -226,7 +286,7 @@ public static class Delegation
         // The players get theirs the same way - if they're here to hear it.
         foreach (var pc in Sim.Players())
         {
-            if (pc.IsDead || pc.Faction != fort.Company) continue;
+            if (pc.IsDead || pc.HomePost != fort) continue;
             if (pc.GlobalPosition.DistanceTo(leader.GlobalPosition) > 900f)
             {
                 pc.Standing -= 1f;

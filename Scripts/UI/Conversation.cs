@@ -121,6 +121,7 @@ public class Conversation
         {
             Role.Factor => "the Factor, master of this post",
             Role.Clerk => "a clerk of the Company",
+            Role.Postmaster => "postmaster of Oxford House, the Company's inland post",
             Role.Labourer => "a Company labourer",
             Role.Woman => "a woman of the post",
             Role.CreeChief => "leading man of the band camped by the river",
@@ -149,7 +150,7 @@ public class Conversation
         _text = text;
         ClearOptions();
         var npc = _npc;
-        bool leader = npc.Role == Role.Factor || npc.Role == Role.NwcPartner;
+        bool leader = npc.Role == Role.Factor || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster;
         bool ownLeader = leader && npc.Faction == _player.Faction;
         bool ownMan = npc.Faction == _player.Faction && (npc.Role == Role.Labourer || npc.Role == Role.Voyageur);
         bool canCommand = _player.Rank == "clerk" || _player.Rank == "postmaster" || _player.Standing >= 35f;
@@ -172,7 +173,7 @@ public class Conversation
 
         AddOption("Talk...", () => ShowTalk(npc));
         if (ownLeader || (ownMan && canCommand) || npc.Following == _player || CanAskAlong(npc)) AddOption("Work and orders...", () => ShowWork(npc));
-        if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief || npc.Role == Role.NwcPartner)
+        if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster)
             AddOption("Trade", () => ShowTrade(npc));
         AddOption("Give a gift", () => ShowGive(npc));
         if (npc.Needs.Hunger < 45f && _player.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
@@ -202,7 +203,7 @@ public class Conversation
             foreach (var sname in _player.KnownSites) if (!Sim.Fort.Knows(sname)) news++;
             if (news > 0) AddOption($"Tell him where the game is ({news} places)", () => { _text = TellSites(npc); ShowTalk(npc); });
         }
-        if ((npc.Role == Role.Factor || npc.Role == Role.NwcPartner) && npc.Faction == _player.Faction)
+        if ((npc.Role == Role.Factor || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster) && npc.Faction == _player.Faction)
             AddOption(npc.Role == Role.Factor ? "What does London want of us?" : "What do the partners want of us?", () => { _text = AskDirective(npc); ShowTalk(npc); });
         if (npc.Role == Role.NwcPartner && Sim.Nwc != null && Sim.Nwc.DirectiveReadDay > -100 && npc.Faction == _player.Faction)
             AddOption("What did the council decide?", () => { _text = $"\"{Sim.Nwc.DirectiveText}\""; ShowTalk(npc); });
@@ -214,11 +215,13 @@ public class Conversation
     {
         _text = npc.Role == Role.Factor || npc.Role == Role.NwcPartner ? "\"Yes?\"" : $"{npc.DisplayName} straightens up.";
         ClearOptions();
-        bool leader = npc.Role == Role.Factor || npc.Role == Role.NwcPartner;
+        bool leader = npc.Role == Role.Factor || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster;
         bool ownLeader = leader && npc.Faction == _player.Faction;
         bool ownMan = npc.Faction == _player.Faction && (npc.Role == Role.Labourer || npc.Role == Role.Voyageur);
         bool canCommand = _player.Rank == "clerk" || _player.Rank == "postmaster" || _player.Standing >= 35f;
         if (npc.Role == Role.Factor) AddOption("Ask for work", () => { _text = AskForWork(npc); ShowWork(npc); });
+        if (npc.Role == Role.Postmaster && _player.PostedInland) AddOption("Ask to be sent back down to the Bay", () => { _player.PostedInland = false; _text = "\"Go, then. Tell Mr. Auld we want more goods and fewer letters.\""; ShowWork(npc); });
+        if (npc.Role == Role.Postmaster && !_player.PostedInland && _player.Faction == Faction.HBC) AddOption("Ask to serve here at Oxford House", () => { _player.PostedInland = true; _text = "\"A man who can walk the road is worth having. You're on my books.\""; ShowWork(npc); });
         if (ownLeader)
         {
             if (_player.Task.Kind != TaskKind.None && !_player.Task.IsComplete && _player.Task.Kind != TaskKind.Report)
@@ -421,6 +424,21 @@ public class Conversation
         {
             var site = eco.BestSite(Ecology.Species.Caribou, fort) ?? eco.BestSite(Ecology.Species.Goose, fort);
             if (site != null) AddOption($"\"Let me hunt at {site.Name}.\"", () => { _player.AssignTask(TaskKind.Firewood, 0, $"hunt at {site.Name} - bring meat to the stores"); _player.Standing += 1f; ShowTopics($"\"Bring back meat and I'll remember it.\" {(fort.Stores.Remove(ItemId.Musket) ? "He hands you a musket from the stores." : "")}"); if (!_player.Inventory.Has(ItemId.Musket) && _player.Task.Intent.StartsWith("hunt")) _player.Inventory.Add(ItemId.Musket); });
+        }
+        if (leader.Role == Role.Factor && Sim.Outpost != null && !_player.PostedInland)
+        {
+            AddOption("\"Send me up to Oxford House with the outfit.\"", () =>
+            {
+                if (_player.Standing < 12f) { ShowTopics("\"Inland? A man I've known a fortnight? Prove yourself here first.\" (standing 12)"); return; }
+                int goods = fort.Stores.TakeUpTo(ItemId.TradeGoods, 10); _player.Inventory.Add(ItemId.TradeGoods, goods);
+                int food = fort.Stores.TakeUpTo(ItemId.Pemmican, 4); _player.Inventory.Add(ItemId.Pemmican, food);
+                _player.AssignTask(TaskKind.Courier, goods, "the inland outfit");
+                _player.PostedInland = true; _player.Standing += 2f;
+                var orders = new Message { Kind = "orders", From = leader.DisplayName, To = "the postmaster at Oxford House", Company = Faction.HBC, Subject = "a new hand and the outfit", Text = $"{leader.DisplayName} sends {_player.DisplayName} to serve at Oxford House with {goods} pieces of the outfit. Pay {fort.PeltPrice:0.00}." };
+                orders.OnRead = r => { if (Sim.Outpost != null) { Sim.Outpost.PeltPrice = fort.PeltPrice; } Sim.Notice($"{r?.Describe() ?? "The postmaster"} reads the Factor's line: {_player.DisplayName} is his now."); };
+                _player.Mail.Add(orders);
+                ShowTopics($"\"Very well. {goods} pieces and a letter for Mr. Sutherland. The road head is below the gate, on the bank - a day's march. You are posted to Oxford House till I say otherwise; he gives your orders now.\"");
+            });
         }
         if (Economy.Rivalry.Tension >= 40f && Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(leader.Faction)) != null)
             AddOption("\"Let me stand guard at the stores.\"", () => { _player.AssignTask(TaskKind.Firewood, 0, "guard the storeroom"); _player.Standing += 1f; ShowTopics("\"Keep your eyes open, then.\""); });
@@ -773,7 +791,7 @@ public class Conversation
     private void ShowTrade(Npc npc)
     {
         var fort = Sim.Fort; var band = Sim.Band;
-        var post = npc.Faction == Faction.NWC ? (Economy.FortLedger)Sim.Nwc : Sim.Fort;
+        var post = npc.Faction == Faction.NWC ? (Economy.FortLedger)Sim.Nwc : npc.HomeStores as Economy.FortLedger ?? Sim.Fort;
         if (npc.Faction != Faction.Cree)
         {
             fort = post;

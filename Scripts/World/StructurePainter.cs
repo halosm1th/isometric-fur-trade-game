@@ -197,6 +197,10 @@ public partial class StructurePainter : TileMapLayer
 
         PaintPalisade();
         PaintNwcPalisade();
+        PaintPalisadeAt(WorldLayout.OutpostTop, WorldLayout.OutpostWidth, WorldLayout.OutpostDepth, WorldLayout.OutpostGateOffset);
+        SetBack(WorldLayout.OutpostWoodpileCell, SourceWoodpile);
+        SetBack(IsoGrid.Cell(WorldLayout.OutpostTop, 10, 3), SourceCrate);
+        SetBack(IsoGrid.Cell(WorldLayout.OutpostTop, 1, 7), SourceFurBale);
         foreach (var b in WorldLayout.Buildings) PaintBuilding(b, floor);
         PaintYard();
         PaintCamp();
@@ -226,6 +230,26 @@ public partial class StructurePainter : TileMapLayer
         }
         // Top and bottom corners need two walls that both belong on the same
         // layer, so they take a composite corner tile.
+        SetBack(top, SourceFenceCornerBack);
+        SetFront(IsoGrid.Cell(top, w - 1, d - 1), SourceFenceCornerFront);
+    }
+
+    // Any square palisade with a two-cell gate in the front wall.
+    private void PaintPalisadeAt(Vector2I top, int w, int d, int gateOffset)
+    {
+        var gate = IsoGrid.Cell(top, gateOffset, d - 1);
+        var gateNext = IsoGrid.Cell(top, gateOffset + 1, d - 1);
+        for (int i = 0; i < w; i++)
+        {
+            SetBack(IsoGrid.Cell(top, i, 0), SourceFenceS);
+            var front = IsoGrid.Cell(top, i, d - 1);
+            if (front != gate && front != gateNext) SetFront(front, SourceFenceN);
+        }
+        for (int j = 0; j < d; j++)
+        {
+            SetBack(IsoGrid.Cell(top, 0, j), SourceFenceE);
+            SetFront(IsoGrid.Cell(top, w - 1, j), SourceFenceW);
+        }
         SetBack(top, SourceFenceCornerBack);
         SetFront(IsoGrid.Cell(top, w - 1, d - 1), SourceFenceCornerFront);
     }
@@ -310,6 +334,17 @@ public partial class StructurePainter : TileMapLayer
                 SetBack(IsoGrid.Cell(top, 1, 2), SourceShelf);
                 SetBack(IsoGrid.Cell(top, 2, 1), SourceShelfTall);
                 SetBack(IsoGrid.Cell(top, 5, 1), SourceCrate);
+                SetBack(IsoGrid.Cell(top, 4, 2), SourceTable);
+                SetBack(IsoGrid.Cell(top, 5, 3), SourceCandleStand);
+                for (int i = 2; i <= 5; i++) SetBack(IsoGrid.Cell(top, i, 3), SourceBed);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceBed);
+                break;
+            case BuildingKind.OutpostHouse:
+                // One room does for everything inland: hearth, counter, bunks, the bales.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                SetBack(IsoGrid.Cell(top, 1, 2), SourceShelf);
+                SetBack(IsoGrid.Cell(top, 2, 1), SourceShelfTall);
+                SetBack(IsoGrid.Cell(top, 5, 1), SourceFurBale);
                 SetBack(IsoGrid.Cell(top, 4, 2), SourceTable);
                 SetBack(IsoGrid.Cell(top, 5, 3), SourceCandleStand);
                 for (int i = 2; i <= 5; i++) SetBack(IsoGrid.Cell(top, i, 3), SourceBed);

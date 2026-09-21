@@ -10,7 +10,7 @@ namespace IsometricFurTradeGame.Scripts.Agents;
 
 public enum Role
 {
-    Factor, Clerk, Labourer, Woman,
+    Factor, Clerk, Labourer, Woman, Postmaster,
     CreeChief, CreeHunter, CreeWoman, CreeDaughter,
     Sailor, Wife,
     NwcPartner, Voyageur,

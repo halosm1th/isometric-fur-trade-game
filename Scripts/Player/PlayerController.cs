@@ -69,7 +69,10 @@ public partial class PlayerController : Agent
 	public UI.Conversation Conversation;
 
 	// Which company's post you belong to.
-	public Economy.FortLedger HomePost => Faction == Faction.NWC ? Sim.Nwc : Sim.Fort;
+	// Where you're posted (design doc 3.9 step 4): the Bay unless the Factor sends you inland.
+	public bool PostedInland;
+	public bool TravellingServer;   // the owner is on the road: the clock marches
+	public Economy.FortLedger HomePost => Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;
 	public bool WantsToDefect;
 
 	// Afloat: which canoe carries you (server), mirrored as a flag.
@@ -171,6 +174,38 @@ public partial class PlayerController : Agent
 		Inventory.Add(ItemId.FishingLine, 1);
 	}
 
+	// Travel mode (design doc 18.3): on the river road the world goes by at
+	// a march, the clock with it. Any step of your own ends it.
+	private List<Vector2> _travel;
+	private int _travelLeg;
+	public bool Travelling => _travel != null;
+	private float _travelSkipTimer;
+
+	private bool NearRoadHead(out bool atYork)
+	{
+		atYork = GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.RoadHeadYork)) < 200f;
+		bool atOutpost = GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.RoadHeadOutpost)) < 200f;
+		return atYork || atOutpost;
+	}
+
+	private void StartTravel(bool south)
+	{
+		var road = WorldLayout.RiverRoad;
+		_travel = new List<Vector2>();
+		if (south) for (int i = 1; i < road.Length; i++) _travel.Add(road[i]); else for (int i = road.Length - 2; i >= 0; i--) _travel.Add(road[i]);
+		_travelLeg = 0;
+		NetHub.I?.Act("travel", new Godot.Collections.Array { true });
+		EmitSignal(SignalName.Notice, south ? "You take the river road inland. A long day's march; any step of your own stops it." : "You take the river road down to the Bay.");
+	}
+
+	private void StopTravel(string why)
+	{
+		if (_travel == null) return;
+		_travel = null;
+		NetHub.I?.Act("travel", new Godot.Collections.Array { false });
+		if (why != "") EmitSignal(SignalName.Notice, why);
+	}
+
 	private bool _becameLocal;
 	private static bool _devClick;
 	public void BecomeLocal()
@@ -195,6 +230,7 @@ public partial class PlayerController : Agent
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
 			if (arg.StartsWith("--use=") && int.TryParse(arg.Substring(6), out int slot)) GetTree().CreateTimer(3.0).Timeout += () => NetHub.I?.Act("use", new Godot.Collections.Array { slot });
 			if (arg.StartsWith("--click=")) { _devClick = true; double when = 3.0; foreach (var part in arg.Substring(8).Split(',')) { if (!int.TryParse(part, out int cslot)) continue; GetTree().CreateTimer(when).Timeout += () => { var p = GlobalPosition + new Vector2(90, 40); NetHub.I?.Act("click", new Godot.Collections.Array { cslot, p.X, p.Y }); }; when += 3.0; } }
+			if (arg == "--travel") GetTree().CreateTimer(3.0).Timeout += () => StartTravel(true);
 			if (arg == "--kill" && NetHub.IsServer) GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(500f); if (n != null) { n.TakeDamage(999f, this); GD.Print($"[dev] killed {n.DisplayName}"); } };
 			if (arg == "--follow" && NetHub.IsServer) GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(600f); if (n != null) { n.Brain.Clear(n); n.Brain.Push(n, new Agents.Goals.FollowGoal(this, 10f)); GD.Print($"[dev] {n.DisplayName} follows"); GetTree().CreateTimer(8.0).Timeout += () => { GlobalPosition = IsoGrid.ToWorld(WorldLayout.GateOutside) + new Vector2(0, 600); GD.Print("[dev] player moved outside the gate"); }; } };
 			if (arg == "--scurvy" && NetHub.IsServer) GetTree().CreateTimer(2.0).Timeout += () => { foreach (var n in Sim.Npcs) if (n.Faction == Faction.HBC) n.DaysSinceFresh = 41.5f; DaysSinceFresh = 41.5f; };
@@ -267,7 +303,12 @@ public partial class PlayerController : Agent
 			return;
 		}
 		if (@event.IsActionPressed("attack_nearest")) { NetHub.I?.Act("attack_nearest"); return; }
-		if (@event.IsActionPressed("interact")) { NetHub.I?.Act("interact"); return; }
+		if (@event.IsActionPressed("interact"))
+		{
+			if (_travel != null) { StopTravel("You stop."); return; }
+			if (NearRoadHead(out bool atYork) && NearestNpc(110f) == null) { StartTravel(atYork); return; }
+			NetHub.I?.Act("interact"); return;
+		}
 		if (@event.IsActionPressed("drink")) { NetHub.I?.Act("drink"); return; }
 		if (@event.IsActionPressed("wait")) { NetHub.I?.Act("wait"); return; }
 	}
@@ -346,10 +387,26 @@ public partial class PlayerController : Agent
 		IsSprinting = !typing && Input.IsActionPressed("sprint");
 		Vector2 input = typing ? Vector2.Zero : Input.GetVector("move_left", "move_right", "move_up", "move_down");
 		if (input != Vector2.Zero && WantsSkipHours > 0f) NetHub.I?.Act("cancel_wait");
+		if (_travel != null)
+		{
+			if (input != Vector2.Zero) StopTravel("You leave the road.");
+			else
+			{
+				var to = _travel[_travelLeg];
+				if (GlobalPosition.DistanceTo(to) < 90f) { _travelLeg++; if (_travelLeg >= _travel.Count) { StopTravel(_travel[^1].DistanceTo(IsoGrid.ToWorld(WorldLayout.OutpostGateOutside)) < 200f ? "Oxford House. The gate is ahead." : "York Factory. The gate is ahead."); } }
+				if (_travel != null)
+				{
+					input = (to - GlobalPosition).Normalized();
+					IsSprinting = false; IsSneaking = false;
+				}
+			}
+		}
 		bool slippery = false;
 		float ground = Sim.Terrain != null ? Sim.Terrain.SpeedFactorAt(GlobalPosition, Inventory.IsWorn(ItemId.Snowshoes), out slippery) : 1f;
 		if (IsAfloat) { ground = 1.5f; slippery = false; }
-		var want = input * EffectiveSpeed * ground;
+		// On the road the march is compressed with the clock (design doc 18.3).
+		float travelBoost = _travel != null ? Mathf.Clamp(NetHub.IsServer ? GameCalendar.Instance.MotionScale : GameCalendar.TravelBoost, 1f, 8f) : 1f;
+		var want = input * EffectiveSpeed * ground * travelBoost;
 		// Ice: no grip. You keep going the way you were going.
 		Velocity = slippery ? Velocity.Lerp(want, 0.06f) : want;
 		if (input.X != 0) _sprite.FlipH = input.X < 0;
@@ -451,6 +508,7 @@ public partial class PlayerController : Agent
 		{
 			case "interact": return Interact();
 			case "use": return UseSlotServer((int)args[0]);
+			case "travel": TravellingServer = (bool)args[0]; return "";
 			case "click": { var r = ClickAt((int)args[0], new Vector2((float)args[1], (float)args[2])); if (_devClick) GD.Print("[click] " + r); return r; }
 			case "wear": { var s = Inventory.Slot((int)args[0]); if (s == null || !Inventory.Wearable(s.Value.id)) return ""; Inventory.ToggleWorn(s.Value.id); return ""; }
 			case "move_slot": Inventory.MoveSlot((int)args[0], (int)args[1]); return "";
@@ -832,7 +890,7 @@ public partial class PlayerController : Agent
 				int take = fort.Stores.TakeUpTo(ItemId.Firewood, 2); Inventory.Add(ItemId.Firewood, take);
 				return take > 0 ? $"You take {take} firewood from the pile." : "The woodpile is bare.";
 			}
-			bool inStore = Faction == Faction.NWC ? WorldLayout.NwcHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell);
+			bool inStore = fort == Sim.Nwc ? WorldLayout.NwcHouse.Contains(Cell) : fort == Sim.Outpost ? WorldLayout.OutpostHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell);
 			if (inStore)
 			{
 				// The storeroom chest: stow, or draw kit (design doc 12.5's stow/withdraw boundary).
@@ -870,6 +928,8 @@ public partial class PlayerController : Agent
 	public string InteractHint()
 	{
 		if (IsDead) return "";
+		if (_travel != null) return "On the river road - E or any step stops";
+		if (NearRoadHead(out bool atYork) && NearestNpc(110f) == null) return atYork ? "E  Take the river road inland to Oxford House (a day's march)" : "E  Take the river road down to York Factory";
 		var npc = NearestNpc(110f);
 		if (npc != null) return $"E  Talk to {npc.DisplayName}";
 		var body = NearestCorpse(110f);
@@ -885,7 +945,7 @@ public partial class PlayerController : Agent
 		if (fort != null)
 		{
 			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.WoodpileCell)) < 120f) return Inventory.Has(ItemId.Firewood) ? "E  Stack your firewood" : "E  Take firewood";
-			if (Faction == Faction.NWC ? WorldLayout.NwcHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell)) return "E  The storeroom chest";
+			if (fort == Sim.Nwc ? WorldLayout.NwcHouse.Contains(Cell) : fort == Sim.Outpost ? WorldLayout.OutpostHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell)) return "E  The storeroom chest";
 			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.AccessCell)) < 110f && Inventory.CountOfKind(ItemKind.Food) < 3) return "E  Draw a ration";
 			if (Faction == Faction.HBC && Sim.Ship != null && Sim.Ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 160f && Sim.Ship.Cargo.SlotCount > 0) return "E  Shoulder cargo from the ship";
 		}
@@ -918,7 +978,7 @@ public partial class PlayerController : Agent
 			int take = provisions && n <= 2 ? 0 : provisions ? n - 2 : n;   // keep a couple of meals
 			if (take <= 0) continue;
 			Inventory.Remove(id, take); fort.Stores.Add(id, take); moved += take;
-			if (kind == ItemKind.Goods) Task.Progress(TaskKind.CarryCargo, take);
+			if (kind == ItemKind.Goods) { Task.Progress(TaskKind.CarryCargo, take); if (fort == Sim.Outpost) Task.Progress(TaskKind.Courier, take); }
 		}
 		if (provisions && moved > 0) { Standing += Mathf.Min(4f, moved * 0.5f); Chronicle.Event($"{DisplayName} brought {moved} of meat to the stores.", GlobalPosition, this, weight: 0.5f); }
 		return moved;

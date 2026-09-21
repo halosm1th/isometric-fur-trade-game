@@ -82,6 +82,7 @@ public static class SaveGame
             ["grudges"] = GrudgeState(),
             ["fort"] = Ledger(Sim.Fort),
             ["nwc"] = Ledger(Sim.Nwc),
+            ["outpost"] = Ledger(Sim.Outpost),
             ["band"] = Band(Sim.Band),
             ["sites"] = Sites(),
             ["hearths"] = Hearths(),
@@ -111,6 +112,8 @@ public static class SaveGame
         d["fursTaken"] = f.FursTakenMb; d["lostToRival"] = f.LostToRivalMb; d["goodsPaid"] = f.GoodsPaidMb; d["year"] = f.Year;
         d["lastRaided"] = f.LastRaidedDay; d["lastRaid"] = f.LastRaidDay; d["lotsLost"] = f.LotsLostToRaids;
         d["directive"] = f.DirectiveText; d["directiveDay"] = f.DirectiveReadDay; d["directiveYear"] = f.DirectiveYear; d["skimmed"] = f.SkimmedMb;
+        d["outpostReportDay"] = f.LastOutpostReportDay; d["outpostReport"] = f.OutpostReportText; d["supplyDay"] = f.LastSupplyDay;
+        if (f is OutpostLedger ol) d["reportSent"] = ol.LastReportSentDay;
         return d;
     }
 
@@ -237,7 +240,7 @@ public static class SaveGame
             var d = AgentCommon(n);
             d["role"] = (int)n.Role; d["female"] = n.IsFemale;
             d["bed"] = new GArr { n.BedCell.X, n.BedCell.Y }; d["work"] = new GArr { n.WorkCell.X, n.WorkCell.Y };
-            d["home"] = n.HomeStores == Sim.Fort ? "fort" : n.HomeStores == Sim.Nwc ? "nwc" : n.HomeStores == Sim.Band ? "band" : "";
+            d["home"] = n.HomeStores == Sim.Fort ? "fort" : n.HomeStores == Sim.Nwc ? "nwc" : n.HomeStores == Sim.Band ? "band" : n.HomeStores == Sim.Outpost ? "outpost" : "";
             d["frames"] = n.FramesPath; d["tint"] = n.Tint.ToHtml(); d["scale"] = n.SpriteScale;
             var p = n.Personality;
             d["personality"] = new GArr { p.Loyalty, p.Talkative, p.Suspicion, p.Ambition, p.Courage };
@@ -262,7 +265,7 @@ public static class SaveGame
         foreach (var p in Sim.Players())
         {
             var d = AgentCommon(p);
-            d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["authorized"] = p.AuthorizedAcrossUntilDay;
+            d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["authorized"] = p.AuthorizedAcrossUntilDay; d["inland"] = p.PostedInland;
             d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline;
             var known = new GArr(); foreach (var s in p.KnownSites) known.Add(s);
             d["knownSites"] = known;
@@ -332,6 +335,8 @@ public static class SaveGame
         f.FursTakenMb = F(d, "fursTaken"); f.LostToRivalMb = F(d, "lostToRival"); f.GoodsPaidMb = F(d, "goodsPaid"); f.Year = I(d, "year", 1811);
         f.LastRaidedDay = I(d, "lastRaided", -999); f.LastRaidDay = I(d, "lastRaid", -999); f.LotsLostToRaids = I(d, "lotsLost");
         if (d.ContainsKey("directive")) { f.DirectiveText = S(d, "directive"); f.DirectiveReadDay = I(d, "directiveDay", -999); f.DirectiveYear = I(d, "directiveYear"); f.SkimmedMb = F(d, "skimmed"); }
+        if (d.ContainsKey("outpostReportDay")) { f.LastOutpostReportDay = I(d, "outpostReportDay", -999); f.OutpostReportText = S(d, "outpostReport"); f.LastSupplyDay = I(d, "supplyDay", -999); }
+        if (f is OutpostLedger ol2 && d.ContainsKey("reportSent")) ol2.LastReportSentDay = I(d, "reportSent", -999);
     }
 
     private static void LoadAgentCommon(Agent a, GDict d)
@@ -370,6 +375,7 @@ public static class SaveGame
 
             LoadLedger(Sim.Fort, d["fort"].AsGodotDictionary());
             LoadLedger(Sim.Nwc, d["nwc"].AsGodotDictionary());
+            if (d.ContainsKey("outpost")) LoadLedger(Sim.Outpost, d["outpost"].AsGodotDictionary());
             var bd = d["band"].AsGodotDictionary();
             if (Sim.Band != null && bd.Count > 0)
             {
@@ -419,7 +425,7 @@ public static class SaveGame
             foreach (var nv in d["npcs"].AsGodotArray())
             {
                 var nd = nv.AsGodotDictionary();
-                Household home = S(nd, "home") switch { "fort" => Sim.Fort, "nwc" => Sim.Nwc, "band" => Sim.Band, _ => null };
+                Household home = S(nd, "home") switch { "fort" => Sim.Fort, "nwc" => Sim.Nwc, "band" => Sim.Band, "outpost" => Sim.Outpost, _ => null };
                 var frames = GD.Load<SpriteFrames>(S(nd, "frames", "res://Scenes/Player/PlayerFrames.tres"));
                 var npc = pop.Spawn(S(nd, "name"), (Role)I(nd, "role"), (Faction)I(nd, "faction"), CellOf(nd["bed"].AsGodotArray()), CellOf(nd["work"].AsGodotArray()), home, frames, Color.FromHtml(S(nd, "tint", "ffffff")), F(nd, "scale", 0.8f), B(nd, "female"));
                 LoadAgentCommon(npc, nd);
@@ -433,6 +439,7 @@ public static class SaveGame
                     npc.Memories.Add(new MemoryEntry { Text = S(md, "text"), Subject = S(md, "subject"), Day = F(md, "day"), Directness = I(md, "directness", 1), Weight = F(md, "weight", 1f), Key = S(md, "key") });
                 }
                 if (B(nd, "dead")) npc.DieQuietly();
+                if (!npc.IsDead && home != null && (npc.Role == Role.Factor || npc.Role == Role.NwcPartner || npc.Role == Role.CreeChief || npc.Role == Role.Postmaster)) home.Leader = npc;
                 byName[npc.DisplayName] = npc;
                 pending.Add((npc, nd));
             }
@@ -481,7 +488,7 @@ public static class SaveGame
     {
         if (p == null || !_savedPlayers.TryGetValue(p.DisplayName, out var d)) return;
         LoadAgentCommon(p, d);
-        p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer"); p.CreeFluency = F(d, "tongue", 0.1f); p.AuthorizedAcrossUntilDay = I(d, "authorized", -1);
+        p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer"); p.CreeFluency = F(d, "tongue", 0.1f); p.AuthorizedAcrossUntilDay = I(d, "authorized", -1); p.PostedInland = B(d, "inland");
         var t = d["task"].AsGodotArray();
         p.Task.Kind = (TaskKind)t[0].AsInt32(); p.Task.Need = t[1].AsInt32(); p.Task.Done = t[2].AsInt32(); p.Task.DayAssigned = t[3].AsInt32();
         p.Task.Intent = S(d, "taskIntent"); p.Task.Deadline = I(d, "taskDeadline");

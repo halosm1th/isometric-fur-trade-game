@@ -113,6 +113,15 @@ public partial class DebugMenu : Control
                 ("Nor'Westers raid the fort", () => { Agents.Npc p = null; foreach (var n in Sim.Npcs) if (n.Role == Agents.Role.NwcPartner && !n.IsDead) p = n; if (p != null) Economy.Rivalry.OrderRaid(p, Sim.Nwc, Sim.Fort, 3); }),
                 ("Company raids the Nor'Westers", () => { Agents.Npc f = null; foreach (var n in Sim.Npcs) if (n.Role == Agents.Role.Factor && !n.IsDead) f = n; if (f != null) Economy.Rivalry.OrderRaid(f, Sim.Fort, Sim.Nwc, 3); }));
         }
+        if (Sim.Outpost != null)
+        {
+            const string O = "Oxford House";
+            AddReadout(O, () => { int m = 0; foreach (var n in Sim.Npcs) if (n.HomeStores == Sim.Outpost && !n.IsDead) m++; return $"Stores: {Sim.Outpost.Stores.Summary()}\nFurs {Sim.Outpost.FursInStoreMb:0} MB; food {Sim.Outpost.FoodDays(m + 1):0} days ({m} souls); price {Sim.Outpost.PeltPrice:0.00}\nLast report sent day {Sim.Outpost.LastReportSentDay}; York last heard day {Sim.Fort?.LastOutpostReportDay}: {Sim.Fort?.OutpostReportText}"; });
+            AddButtonRow(O,
+                ("Send the fall outfit now", () => { Agents.Npc f = null; foreach (var n in Sim.Npcs) if (n.Role == Agents.Role.Factor && !n.IsDead) f = n; if (f != null) Agents.Delegation.OrderSupply(f); }),
+                ("Teleport me to Oxford House", () => _player.GlobalPosition = World.IsoGrid.ToWorld(World.WorldLayout.OutpostHouse.Centre)),
+                ("Teleport me to the road head", () => _player.GlobalPosition = World.IsoGrid.ToWorld(World.WorldLayout.RoadHeadYork)));
+        }
         var band = Sim.Band;
         if (band != null)
         {

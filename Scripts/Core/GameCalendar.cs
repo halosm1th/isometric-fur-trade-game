@@ -43,6 +43,7 @@ public partial class GameCalendar : Node
     public float SkipRemaining { get; private set; }
     public bool IsSkipping => SkipRemaining > 0f;
     private const float SkipSpeed = 400f;
+    public const float TravelBoost = 6f;
     // Simulation stays sane if no frame ever covers more than this.
     private const float MaxDeltaHours = 0.25f;
 
@@ -181,6 +182,10 @@ public partial class GameCalendar : Node
         }
 
         float speed = Input.IsActionPressed("time_fast") ? FastForwardMultiplier : 1f;
+        // Someone on the river road: the day goes by at a march for everyone (design doc 18.3, 21.3).
+        bool travelling = false;
+        foreach (var p in Sim.Players()) if (p.TravellingServer && !p.IsDead) travelling = true;
+        if (travelling) speed = Mathf.Max(speed, TravelBoost);
         if (SkipRemaining > 0f) speed = SkipSpeed;
         DeltaGameHours = Mathf.Min(MaxDeltaHours, (float)delta / SecondsPerGameHour * speed);
         if (SkipRemaining > 0f)

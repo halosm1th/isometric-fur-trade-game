@@ -82,6 +82,7 @@ public static class Mail
     public static string RoleName(Npc n) => n.Role switch
     {
         Role.Factor => "the Factor at York Factory",
+        Role.Postmaster => "the postmaster at Oxford House",
         Role.NwcPartner => "the wintering partner",
         Role.CreeChief => "the chief of the band",
         _ => n.DisplayName,
@@ -108,6 +109,7 @@ public static class Letters
             "letter" => LetterToChief((string)payload["from"]),
             "rumour" => Rumour((string)payload["about"], (string)payload["text"], (float)payload["standing"]),
             "reply" => Reply((string)payload["from"], (string)payload["answer"]),
+            "report" => OutpostReport((string)payload["from"], (float)payload["furs"], (float)payload["food"], (int)payload["men"], (string)payload["news"]),
             _ => new Message { Kind = kind },
         };
     }
@@ -184,6 +186,27 @@ public static class Letters
         m.OnIntercepted = reader =>
         {
             if (Sim.Nwc != null && reader != null && reader.Faction == Faction.NWC) { Sim.Nwc.PeltPrice = Mathf.Max(Sim.Nwc.PeltPrice, (Sim.Fort?.PeltPrice ?? 1f) * 1.1f); Sim.Notice($"The Nor'Westers, having read the Factor's letter, raise their price to {Sim.Nwc.PeltPrice:0.00}."); }
+        };
+        return m;
+    }
+
+    // The inland post's account of itself, carried down the river road
+    // (design doc 3.9 step 6): the Factor's picture of Oxford House is the
+    // last one of these plus the days since.
+    public static Message OutpostReport(string from, float furs, float food, int men, string news)
+    {
+        var m = new Message { Kind = "report", From = from, To = "the Factor at York Factory", Company = Faction.HBC, Subject = "the state of Oxford House", Text = $"Oxford House holds {furs:0} MB in furs and {food:0} days of provisions; {men} men fit. {news}" };
+        m.Payload["from"] = from; m.Payload["furs"] = furs; m.Payload["food"] = food; m.Payload["men"] = men; m.Payload["news"] = news;
+        m.OnRead = reader =>
+        {
+            var fort = Sim.Fort; if (fort == null) return;
+            fort.OutpostReportText = m.Text; fort.LastOutpostReportDay = GameCalendar.Instance?.Day ?? 0;
+            fort.OutpostBelievedFursMb = furs; fort.OutpostBelievedFoodDays = food;
+            Sim.Notice($"{reader?.Describe() ?? "The Factor"} reads the report from Oxford House: {m.Text}");
+        };
+        m.OnIntercepted = reader =>
+        {
+            if (reader != null && reader.Faction == Faction.NWC) { Sim.Notice($"{reader.Describe()} reads the Company's inland report: {furs:0} MB sitting at Oxford House, {men} men to guard it."); Economy.Rivalry.Raise(4f, "the inland report read across the river"); }
         };
         return m;
     }

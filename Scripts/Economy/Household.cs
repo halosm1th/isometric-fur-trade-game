@@ -17,6 +17,10 @@ public partial class Household : Node
     public Vector2I WoodpileCell;
     public readonly List<Vector2I> HearthCells = new();
     public string Title = "stores";
+    // Whoever gives the orders here (design doc 3.9); null means nobody left.
+    public Agents.Npc Leader;
+    // Letters waiting for whoever next holds the office here.
+    public readonly List<Message> Mailbox = new();
 
     // Which wildlife sites this household knows about (design doc 16.4:
     // sites are learned, not given). Names match WorldLayout.Sites.

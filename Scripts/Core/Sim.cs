@@ -18,11 +18,13 @@ public static class Sim
     public static Pathfinder Paths;
     public static FortLedger Fort;
     public static NwcLedger Nwc;
+    public static OutpostLedger Outpost;
 
     public static IEnumerable<FortLedger> Posts()
     {
         if (Fort != null) yield return Fort;
         if (Nwc != null) yield return Nwc;
+        if (Outpost != null) yield return Outpost;
     }
     public static BandLedger Band;
     public static EcologyManager Ecology;
@@ -57,7 +59,7 @@ public static class Sim
         // The old scene's HUD and painters hung handlers here; they're gone
         // with it, and the new scene subscribes afresh in its _Ready.
         LocalPlayerChanged = null;
-        Nwc = null;
+        Nwc = null; Outpost = null;
         IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear();
     }
 

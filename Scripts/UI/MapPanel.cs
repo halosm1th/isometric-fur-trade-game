@@ -35,9 +35,9 @@ public partial class MapPanel : Control
         title.AddThemeFontSizeOverride("font_size", 15);
         title.AddThemeColorOverride("font_color", new Color(0.2f, 0.12f, 0.05f));
         box.AddChild(title);
-        _canvas = new MapCanvas { CustomMinimumSize = new Vector2(WorldLayout.MapWidth * IsoGrid.TileW * Scale * 2f, WorldLayout.MapHeight * IsoGrid.TileH / 2f * Scale * 2f), Player = _player };
+        _canvas = new MapCanvas { Player = _player };
         box.AddChild(_canvas);
-        var legend = new Label { Text = "you ●   others ●   posts ■   camp ▲   sites ○ (where you last knew them)   ship ◆", HorizontalAlignment = HorizontalAlignment.Center };
+        var legend = new Label { Text = "you ●   others ●   posts ■   camp ▲   sites ○ (where you last knew them)   ship ◆      drag to pan, wheel to zoom", HorizontalAlignment = HorizontalAlignment.Center };
         legend.AddThemeFontSizeOverride("font_size", 11);
         legend.AddThemeColorOverride("font_color", new Color(0.25f, 0.17f, 0.08f));
         box.AddChild(legend);
@@ -46,7 +46,7 @@ public partial class MapPanel : Control
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (@event.IsActionPressed("map")) { _panel.Visible = !_panel.Visible; GetViewport().SetInputAsHandled(); }
+        if (@event.IsActionPressed("map")) { _panel.Visible = !_panel.Visible; if (_panel.Visible && _player != null) _canvas.CallDeferred(nameof(MapCanvas.CentreOn), _player.GlobalPosition); GetViewport().SetInputAsHandled(); }
         else if (_panel.Visible && @event.IsActionPressed("ui_cancel")) { _panel.Visible = false; GetViewport().SetInputAsHandled(); }
     }
 
@@ -62,12 +62,64 @@ public partial class MapCanvas : Control
 {
     public PlayerController Player;
     private ImageTexture _base;
-    private const float Zoom = 2f;   // 320 -> 640 px on screen
+    // Pan by dragging, zoom with the wheel about the cursor.
+    private float Zoom = 1.3f;
+    private Vector2 Pan = Vector2.Zero;
+    private bool _dragging;
     private const float S = 1f / 32f;
 
     public override void _Ready()
     {
         BuildBase();
+        ClipContents = true;
+        MouseFilter = MouseFilterEnum.Stop;
+        CustomMinimumSize = new Vector2(760, 560);
+        Pan = new Vector2(0, 0);
+    }
+
+    // Drag to pan, wheel to zoom about the cursor (design doc 10.8: the map is a thing you pore over).
+    public override void _GuiInput(InputEvent @event)
+    {
+        if (@event is InputEventMouseButton mb)
+        {
+            if (mb.ButtonIndex == MouseButton.Left) { _dragging = mb.Pressed; AcceptEvent(); }
+            else if (mb.Pressed && (mb.ButtonIndex == MouseButton.WheelUp || mb.ButtonIndex == MouseButton.WheelDown))
+            {
+                float factor = mb.ButtonIndex == MouseButton.WheelUp ? 1.25f : 0.8f;
+                float newZoom = Mathf.Clamp(Zoom * factor, 0.6f, 8f);
+                factor = newZoom / Zoom;
+                // Keep the point under the cursor where it is.
+                Pan = mb.Position - (mb.Position - Pan) * factor;
+                Zoom = newZoom;
+                ClampPan();
+                QueueRedraw();
+                AcceptEvent();
+            }
+        }
+        else if (@event is InputEventMouseMotion mm && _dragging)
+        {
+            Pan += mm.Relative;
+            ClampPan();
+            QueueRedraw();
+            AcceptEvent();
+        }
+    }
+
+    private void ClampPan()
+    {
+        if (_base == null) return;
+        var mapSize = _base.GetSize() * Zoom;
+        var view = Size;
+        // Never let the map drift entirely off the window.
+        Pan.X = Mathf.Clamp(Pan.X, Mathf.Min(0f, view.X - mapSize.X), Mathf.Max(0f, view.X - mapSize.X));
+        Pan.Y = Mathf.Clamp(Pan.Y, Mathf.Min(0f, view.Y - mapSize.Y), Mathf.Max(0f, view.Y - mapSize.Y));
+    }
+
+    // Centre the view on a world point (the player, when the map opens).
+    public void CentreOn(Vector2 world)
+    {
+        Pan = Size / 2f - world * S * Zoom;
+        ClampPan();
     }
 
     private void BuildBase()
@@ -76,7 +128,7 @@ public partial class MapCanvas : Control
         var img = Image.CreateEmpty(w, h, false, Image.Format.Rgba8);
         var water = new Color(0.36f, 0.5f, 0.66f); var sand = new Color(0.78f, 0.7f, 0.5f); var grass = new Color(0.6f, 0.64f, 0.42f);
         var bush = new Color(0.36f, 0.45f, 0.3f); var yard = new Color(0.55f, 0.42f, 0.28f);
-        var fortCells = new HashSet<Vector2I>(WorldLayout.YardCells()); foreach (var c in WorldLayout.NwcYardCells()) fortCells.Add(c);
+        var fortCells = new HashSet<Vector2I>(WorldLayout.YardCells()); foreach (var c in WorldLayout.NwcYardCells()) fortCells.Add(c); foreach (var c in WorldLayout.OutpostYardCells()) fortCells.Add(c);
         for (int x = 0; x < WorldLayout.MapWidth; x++)
         {
             int shore = TerrainPainter.ShorelineRow(x);
@@ -97,13 +149,13 @@ public partial class MapCanvas : Control
         _base = ImageTexture.CreateFromImage(img);
     }
 
-    private Vector2 M(Vector2 world) => world * S * Zoom;
+    private Vector2 M(Vector2 world) => world * S * Zoom + Pan;
     private Vector2 M(Vector2I cell) => M(IsoGrid.ToWorld(cell));
 
     public override void _Draw()
     {
         if (_base == null) return;
-        DrawTextureRect(_base, new Rect2(Vector2.Zero, _base.GetSize() * Zoom), false);
+        DrawTextureRect(_base, new Rect2(Pan, _base.GetSize() * Zoom), false);
         var ink = new Color(0.15f, 0.1f, 0.05f);
         var font = ThemeDB.FallbackFont;
 
@@ -118,6 +170,11 @@ public partial class MapCanvas : Control
         DrawColoredPolygon(new[] { camp + new Vector2(0, -7), camp + new Vector2(6, 4), camp + new Vector2(-6, 4) }, new Color(0.75f, 0.55f, 0.3f));
         DrawString(font, camp + new Vector2(9, 4), WorldLayout.IsSummerCamp ? "the band (summer camp)" : "the band (winter camp)", HorizontalAlignment.Left, -1, 12, ink);
         DrawLine(M(WorldLayout.WharfRoot), M(WorldLayout.WharfEnd), new Color(0.3f, 0.2f, 0.1f), 2f);
+        // The river road and the inland post.
+        for (int i = 0; i + 1 < WorldLayout.RiverRoad.Length; i++) DrawDashedLine(M(WorldLayout.RiverRoad[i]), M(WorldLayout.RiverRoad[i + 1]), new Color(0.35f, 0.25f, 0.12f), 1.5f, 6f);
+        var outC = M(IsoGrid.Cell(WorldLayout.OutpostTop, WorldLayout.OutpostWidth / 2, WorldLayout.OutpostDepth / 2));
+        DrawRect(new Rect2(outC - new Vector2(3, 3), new Vector2(6, 6)), new Color(0.5f, 0.25f, 0.1f));
+        DrawString(font, outC + new Vector2(8, 4), "Oxford House", HorizontalAlignment.Left, -1, 12, ink);
         var ford = M(new Vector2I(58, 160));
         DrawString(font, ford + new Vector2(6, 4), "ford", HorizontalAlignment.Left, -1, 11, ink);
 

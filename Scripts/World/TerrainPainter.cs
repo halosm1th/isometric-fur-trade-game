@@ -102,6 +102,7 @@ public partial class TerrainPainter : TileMapLayer
 
         var yard = new HashSet<Vector2I>(WorldLayout.YardCells());
         foreach (var c in WorldLayout.NwcYardCells()) yard.Add(c);
+        foreach (var c in WorldLayout.OutpostYardCells()) yard.Add(c);
         var wharf = new HashSet<Vector2I>(WorldLayout.WharfCells());
         var camp = IsoGrid.ToWorld(WorldLayout.WinterCamp);
         var summerCamp = IsoGrid.ToWorld(WorldLayout.SummerCamp);
@@ -122,7 +123,7 @@ public partial class TerrainPainter : TileMapLayer
                 else if (y < shore + WorldLayout.BeachRows || WorldLayout.IsRiverBank(cell)) source = SourceSand;
                 else if (yard.Contains(cell)) source = SourceDirt;
                 else if (p.DistanceTo(camp) < 300f || p.DistanceTo(summerCamp) < 300f) source = SourceDirt;
-                else if (WorldLayout.TrailDistance(p) < 70f) source = SourceDirt;
+                else if (WorldLayout.TrailDistance(p) < 70f || WorldLayout.RoadDistance(p) < 60f) source = SourceDirt;
 
                 SetCell(cell, source, Vector2I.Zero);
             }
@@ -224,6 +225,8 @@ public partial class TerrainPainter : TileMapLayer
         "menshouse" => WorldLayout.MensHouse.Centre,
         "wharf" => WorldLayout.WharfRoot,
         "nwc" => WorldLayout.NwcHouse.Centre,
+        "outpost" => WorldLayout.OutpostHouse.Centre,
+        "road" => WorldLayout.RoadHeadYork,
         "ford" => new Vector2I(58, 160),
         "berth" => IsoGrid.Cell(WorldLayout.WharfEnd, -2, 0),
         "camp" => IsoGrid.Cell(WorldLayout.CampCentre, 1, 1),

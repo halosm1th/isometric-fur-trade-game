@@ -143,6 +143,7 @@ public partial class Ship : Node2D
             if (pc.Rank != was) pc.Say(pc.Standing >= 35f ? $"The Factor writes well of you in the accounts that sail today. You are rated {pc.Rank}." : $"The Factor's report on you is cool. You are rated {pc.Rank}.");
             if (pc.Rank == "clerk" || pc.Rank == "postmaster") pc.Inventory.Add(Items.ItemId.TradeGoods, pc.Rank == "postmaster" ? 12 : 6);
         }
+        if (factor != null) Agents.Delegation.OrderSupply(factor);
         if (Sim.Fort != null)
         {
             // The books go home with her; London reads them in the autumn (design doc 10.1.2).

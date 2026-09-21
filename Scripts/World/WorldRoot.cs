@@ -17,6 +17,8 @@ public partial class WorldRoot : Node2D
 
     public override void _Ready()
     {
+        // The inland post's books live here rather than in the baked scene.
+        AddChild(new Economy.OutpostLedger { Name = "OutpostLedger" });
         var ysort = GetNodeOrNull<Node2D>("YSort");
         if (ysort != null) Net.Net.I?.CallDeferred(nameof(Net.Net.WorldReady), ysort);
         Net.Net.I?.ClientWorldReady();

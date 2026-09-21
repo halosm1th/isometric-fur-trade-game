@@ -197,6 +197,9 @@ public partial class EcologyManager : Node2D
                 foreach (var l in site.Traplines) if (l.Owner != knownBy.Title && l.Traps > 0) others++;
                 score /= 1f + 0.8f * others;
                 if (site.Count < site.Capacity * 0.45f) score *= 0.4f;
+                // A lodge a day's walk away is worth a fraction of one at the door.
+                float walk = IsoGrid.ToWorld(knownBy.AccessCell).DistanceTo(site.WorldPos);
+                score /= 1f + walk / 2500f;
             }
             if (best == null || score > bestScore) { best = site; bestScore = score; }
         }

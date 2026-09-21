@@ -1,9 +1,105 @@
 using Godot;
+using IsometricFurTradeGame.Scripts.Items;
 using IsometricFurTradeGame.Scripts.Core;
 using IsometricFurTradeGame.Scripts.Ecology;
 using IsometricFurTradeGame.Scripts.World;
 
 namespace IsometricFurTradeGame.Scripts.Agents.Goals;
+
+// Walk the river road (design doc 18.3 in its simplest form): waypoint to
+// waypoint, in whichever direction the destination lies, then to the door.
+public class RoadGoal : Goal
+{
+    private readonly Vector2I _dest;
+    private System.Collections.Generic.List<Vector2I> _legs;
+    private int _leg = -1;
+    public RoadGoal(Vector2I dest) { _dest = dest; }
+    public override string Label => $"take the road to {_dest}";
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        if (_legs == null)
+        {
+            var road = WorldLayout.RiverRoad;
+            var destW = IsoGrid.ToWorld(_dest);
+            bool south = destW.DistanceTo(road[^1]) < destW.DistanceTo(road[0]);
+            // Start from the nearest waypoint ahead of us.
+            int nearest = 0; float best = float.MaxValue;
+            for (int i = 0; i < road.Length; i++) { float d = npc.GlobalPosition.DistanceTo(road[i]); if (d < best) { best = d; nearest = i; } }
+            _legs = new System.Collections.Generic.List<Vector2I>();
+            if (south) for (int i = nearest; i < road.Length; i++) _legs.Add(IsoGrid.FromWorld(road[i]));
+            else for (int i = nearest; i >= 0; i--) _legs.Add(IsoGrid.FromWorld(road[i]));
+            _legs.Add(_dest);
+            _leg = 0;
+            return Delegate(new GoToGoal(_legs[0], 220f));
+        }
+        if (!ChildFinished(out var r)) return GoalStatus.Running;
+        if (r != GoalStatus.Done && _leg < _legs.Count - 1) { /* a leg failed: press on to the next */ }
+        _leg++;
+        if (_leg >= _legs.Count) return GoalStatus.Done;
+        return Delegate(new GoToGoal(_legs[_leg], _leg == _legs.Count - 1 ? 110f : 220f));
+    }
+}
+
+// Carry the post's furs and its report down to the Bay (or the outfit up),
+// hand over, report, and walk back (design doc 3.9 step 6, 10.1.2's
+// second leg). Everything is on the man: kill him on the road and it's his.
+public class CourierGoal : Goal
+{
+    private readonly Economy.FortLedger _from, _to;
+    private readonly Message _packet;
+    private readonly bool _carryFurs;
+    private readonly System.Collections.Generic.List<(ItemId id, int n)> _cargo;
+    private int _phase;
+    public CourierGoal(Economy.FortLedger from, Economy.FortLedger to, Message packet, bool carryFurs, System.Collections.Generic.List<(ItemId, int)> cargo = null)
+    { _from = from; _to = to; _packet = packet; _carryFurs = carryFurs; _cargo = cargo; }
+    public override string Label => _phase < 3 ? $"carry the post to {_to.Title}" : "walk home";
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        switch (_phase)
+        {
+            case 0:
+                if (_packet != null) npc.Mail.Add(_packet);
+                if (_carryFurs) foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.ShotPelt, ItemId.CaribouHide, ItemId.WolfPelt, ItemId.ShotHide }) npc.Inventory.Add(id, _from.Stores.TakeUpTo(id, 30 - npc.Inventory.CountOfKind(ItemKind.Fur)));
+                if (_cargo != null) foreach (var (id, n) in _cargo) npc.Inventory.Add(id, _from.Stores.TakeUpTo(id, n));
+                if (!npc.Inventory.Has(ItemId.Musket) && _from.Stores.Remove(ItemId.Musket)) npc.Inventory.Add(ItemId.Musket);
+                npc.Inventory.Add(ItemId.Pemmican, _from.Stores.TakeUpTo(ItemId.Pemmican, 3));
+                _phase = 1;
+                Sim.Notice($"{npc.DisplayName} sets out on the river road for {_to.Title}{(_carryFurs ? " with the furs" : "")}{(_packet != null ? " and the post" : "")}.");
+                return Delegate(new RoadGoal(_to.AccessCell));
+            case 1:
+            {
+                if (!ChildFinished(out var r)) return GoalStatus.Running;
+                if (npc.GlobalPosition.DistanceTo(IsoGrid.ToWorld(_to.AccessCell)) > 400f) { _phase = 3; return Delegate(new RoadGoal(_from.AccessCell)); }
+                // Deliver: furs and goods into the stores, the packet to whoever is master here.
+                int lots = 0;
+                foreach (var (id, n) in new System.Collections.Generic.List<(ItemId, int)>(npc.Inventory.All()))
+                {
+                    var kind = Items.Items.Of(id).Kind;
+                    if (kind != ItemKind.Fur && kind != ItemKind.Goods && !(kind == ItemKind.Food && n > 1 && _cargo != null)) continue;
+                    int give = kind == ItemKind.Food ? n - 1 : n;
+                    npc.Inventory.Remove(id, give); _to.Stores.Add(id, give); lots += give;
+                }
+                var master = _to.Leader != null && GodotObject.IsInstanceValid(_to.Leader) && !_to.Leader.IsDead ? _to.Leader : Delegation.LeaderOf(npc);
+                foreach (var m in new System.Collections.Generic.List<Message>(npc.Mail)) { if (m.Read) continue; npc.Mail.Remove(m); if (master != null) Mail.Give(m, master); else _to.Mailbox.Add(m); }
+                Sim.Notice($"{npc.DisplayName} comes in to {_to.Title} with {lots} lots{(master != null ? $" and hands the packet to {master.DisplayName}" : "")}.");
+                Chronicle.Event($"{npc.DisplayName} came down the river road from {_from.Title}.", npc.GlobalPosition, npc, weight: 0.6f);
+                _phase = 2;
+                return Delegate(new WaitGoal(1.5f));
+            }
+            case 2:
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                _phase = 3;
+                // A night's rest then home; the way back is the same road.
+                return Delegate(new RoadGoal(_from.AccessCell));
+            default:
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                npc.PendingReport = $"back from {_to.Title}";
+                return GoalStatus.Done;
+        }
+    }
+}
 
 // Sit down at your desk and open what's addressed to you (design doc
 // 10.1.1: the read event). Half an hour with the packet.
@@ -14,6 +110,7 @@ public class ReadMailGoal : Goal
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {
+        if (npc.HomeStores != null && npc.HomeStores.Mailbox.Count > 0 && npc.HomeStores.Leader == npc) { npc.Mail.AddRange(npc.HomeStores.Mailbox); npc.HomeStores.Mailbox.Clear(); }
         bool any = false;
         foreach (var m in npc.Mail) if (!m.Read && (m.To == npc.DisplayName || m.To == Mail.RoleName(npc))) any = true;
         if (!any) return GoalStatus.Done;
@@ -84,7 +181,7 @@ public class ReportGoal : Goal
     private readonly string _site;
     private readonly Vector2I? _siteCell;
     private int _phase;
-    private float _patience = 2f;
+    private float _patience = 6f;
     public ReportGoal(string report, string site = null, Vector2I? siteCell = null) { _report = report; _site = site; _siteCell = siteCell; }
     public override string Label => "report to the leader";
 
@@ -125,6 +222,7 @@ public class LookForGoal : Goal
         {
             case 0:
                 _phase = 1;
+                if (npc.GlobalPosition.DistanceTo(IsoGrid.ToWorld(_where)) > 3500f) return Delegate(new RoadGoal(_where));
                 return Delegate(new GoToGoal(_where, 300f));
             case 1:
             {
