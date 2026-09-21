@@ -18,6 +18,8 @@ public partial class Agent : CharacterBody2D
 
     public readonly Needs Needs = new();
     public readonly Inventory Inventory = new();
+    // What a body has learned to do (design doc 3.10): seeded, improved by doing.
+    public readonly Skills Skills = new();
     // Letters and packets carried (design doc 10.1.1). Not items: each is one particular paper.
     public readonly System.Collections.Generic.List<Message> Mail = new();
 
@@ -334,7 +336,8 @@ public partial class Agent : CharacterBody2D
         if (Weapon == ItemId.Musket) Sim.Noise(GlobalPosition, 1500f, this, "shot");
         else if (range > 100f) Sim.Noise(GlobalPosition, 200f, this, "step");
         // Drink spoils the aim; fever weakens the arm.
-        float missChance = (range > 100f ? 0.3f : 0f) + Intoxication / 250f;
+        float missChance = (range > 100f ? 0.3f * (1f - Skills.Hunting * 0.7f) : 0f) + Intoxication / 250f;
+        if (range > 100f) Skills.Learn(ref Skills.Hunting, 0.01f);
         if (IsSick) mult *= 0.6f;
         if (GD.Randf() < missChance) { OnAttackMissed(target); return false; }
         target.TakeDamage(damage * mult, this);

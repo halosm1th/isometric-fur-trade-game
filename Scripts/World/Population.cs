@@ -225,6 +225,11 @@ public partial class Population : Node2D
             _ => GD.RandRange(20, 38),
         };
         npc.Faction = faction;
+        npc.Skills.Seed(
+            role is Role.CreeHunter or Role.CreeChief ? (float)GD.RandRange(0.5, 0.8) : role is Role.Labourer or Role.Voyageur ? (float)GD.RandRange(0.15, 0.4) : 0.1f,
+            role is Role.CreeHunter or Role.CreeChief ? (float)GD.RandRange(0.5, 0.85) : role == Role.Voyageur ? 0.35f : (float)GD.RandRange(0.1, 0.35),
+            role is Role.Factor or Role.Clerk or Role.NwcPartner or Role.Postmaster or Role.CreeChief ? (float)GD.RandRange(0.5, 0.8) : 0.15f,
+            role is Role.Labourer or Role.Voyageur or Role.CreeHunter or Role.CreeWoman or Role.Woman ? (float)GD.RandRange(0.3, 0.6) : 0.15f);
         npc.BedCell = bed;
         npc.WorkCell = work;
         npc.HomeStores = home;

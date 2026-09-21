@@ -132,7 +132,8 @@ public class HuntSiteGoal : Goal
                 {
                     _tryTimer = 0.75f;
                     // Chance per attempt scales with how thick the game is.
-                    float chance = Mathf.Clamp(_site.Count / (float)_site.Capacity, 0.05f, 1f) * 0.35f;
+                    float chance = Mathf.Clamp(_site.Count / (float)_site.Capacity, 0.05f, 1f) * 0.35f * (0.6f + npc.Skills.Hunting * 0.8f);
+                    npc.Skills.Learn(ref npc.Skills.Hunting, 0.004f);
                     if (GD.Randf() < chance && _site.Count > 0)
                     {
                         _site.Take(1);
@@ -293,7 +294,8 @@ public class SetTraplineGoal : Goal
                 if (!ChildFinished(out _)) return GoalStatus.Running;
                 int n = npc.Inventory.TakeUpTo(ItemId.SteelTrap, 6);
                 if (n == 0) return GoalStatus.Failed;
-                _site.SetTraps(npc.HomeStores?.Title ?? npc.DisplayName, n);
+                _site.SetTraps(npc.HomeStores?.Title ?? npc.DisplayName, n, npc.Skills.Trapping);
+                npc.Skills.Learn(ref npc.Skills.Trapping, 0.01f);
                 Chronicle.Event($"{npc.DisplayName} set a trapline at {_site.Name}.", npc.GlobalPosition, npc, weight: 0.5f);
                 return GoalStatus.Done;
         }

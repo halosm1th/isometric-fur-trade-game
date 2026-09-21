@@ -877,12 +877,12 @@ public class Conversation
             var def = Items.Items.Of(id);
             if (!npc.IsBandPerson && def.Kind == ItemKind.Fur)
             {
-                int pay = Mathf.Max(1, Mathf.RoundToInt(def.ValueMb * fort.PeltPrice));
+                int pay = Mathf.Max(1, Mathf.RoundToInt(def.ValueMb * fort.PeltPrice * (_player.Skills.Trade >= 0.5f ? 1.15f : 1f)));
                 if (counter.Count(ItemId.TradeGoods) >= pay)
                     AddOption($"Sell {def.Name} for {pay} trade goods", () =>
                     {
                         _player.Inventory.Remove(id); counter.Add(id); counter.Remove(ItemId.TradeGoods, pay); _player.Inventory.Add(ItemId.TradeGoods, pay);
-                        fort.FursTakenMb += def.ValueMb; fort.GoodsPaidMb += pay;
+                        fort.FursTakenMb += def.ValueMb; fort.GoodsPaidMb += pay; _player.Skills.Learn(ref _player.Skills.Trade, 0.01f);
                         ShowTrade(npc);
                     });
             }
@@ -897,13 +897,13 @@ public class Conversation
             if (id == ItemId.TradeGoods) continue;
             if (shown >= 4) { more = true; break; }
             if (skipped < _tradePage * 4) { skipped++; continue; }
-            int cost = Mathf.Max(1, Mathf.CeilToInt(def.ValueMb * (def.Kind == ItemKind.Food ? fort.FoodPriceMultiplier : 1f))) + (crude ? 1 : 0);
+            int cost = Mathf.Max(1, Mathf.CeilToInt(def.ValueMb * (def.Kind == ItemKind.Food ? fort.FoodPriceMultiplier : 1f) * (_player.Skills.Trade >= 0.5f ? 0.85f : 1f))) + (crude ? 1 : 0);
             ItemId currency = ItemId.TradeGoods;
             if (_player.Inventory.Count(currency) >= cost)
             {
                 AddOption($"Buy {def.Name} ({n} in store) for {cost} trade goods", () =>
                 {
-                    counter.Remove(id); _player.Inventory.Add(id); _player.Inventory.Remove(currency, cost); counter.Add(currency, cost);
+                    counter.Remove(id); _player.Inventory.Add(id); _player.Inventory.Remove(currency, cost); counter.Add(currency, cost); _player.Skills.Learn(ref _player.Skills.Trade, 0.01f);
                     ShowTrade(npc);
                 });
                 shown++;

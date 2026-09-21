@@ -281,7 +281,7 @@ public class ChopWoodGoal : Goal
                 return Delegate(new WaitGoal(0.6f));
             case 2:
                 if (!ChildFinished(out var r2)) return GoalStatus.Running;
-                if (Sim.Structures.FellTreeAt(_tree)) npc.Inventory.Add(ItemId.Firewood, 4);
+                if (Sim.Structures.FellTreeAt(_tree)) { npc.Inventory.Add(ItemId.Firewood, npc.Skills.Woodcraft >= 0.5f ? 6 : 4); npc.Skills.Learn(ref npc.Skills.Woodcraft, 0.01f); }
                 else return GoalStatus.Failed;
                 if (npc.HomeStores == null) return GoalStatus.Done;
                 _phase = 3;

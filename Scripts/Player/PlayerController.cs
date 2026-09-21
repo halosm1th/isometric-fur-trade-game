@@ -82,6 +82,10 @@ public partial class PlayerController : Agent
 	// Which company's post you belong to.
 	// Where you're posted (design doc 3.9 step 4): the Bay unless the Factor sends you inland.
 	public bool PostedInland;
+	// The marriage's obligations (design doc 8.4): her father expects to be
+	// remembered each spring, and a wife left too long goes home.
+	public int LastSawWifeDay = -1;
+	public int LastGiftToKinYear = 0;
 	public bool TravellingServer;   // the owner is on the road: the clock marches
 	public Economy.FortLedger HomePost => Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;
 	public bool WantsToDefect;
@@ -342,6 +346,36 @@ public partial class PlayerController : Agent
 
 	// ---- movement ------------------------------------------------------------------
 
+	private int _marriageDay = -1;
+	private void MarriageTick()
+	{
+		var cal = GameCalendar.Instance;
+		if (cal == null || cal.Day == _marriageDay || Spouse is not Npc wife) return;
+		_marriageDay = cal.Day;
+		if (!IsInstanceValid(wife) || wife.IsDead) { Spouse = null; return; }
+		if (GlobalPosition.DistanceTo(wife.GlobalPosition) < 900f) LastSawWifeDay = cal.Day;
+		int apart = LastSawWifeDay < 0 ? 0 : cal.Day - LastSawWifeDay;
+		if (apart == 25) Say($"{wife.DisplayName} has not seen you in {apart} days. Her people are asking where her husband is.");
+		if (apart >= 45)
+		{
+			// Left behind (design doc 8.4): she goes back to her people, and they remember it.
+			var band = wife.Father?.HomeStores as Economy.BandLedger ?? Sim.Band;
+			wife.Spouse = null; Spouse = null;
+			wife.Role = Role.CreeDaughter; wife.HomeStores = band; wife.ResetBehaviour(); wife.Brain.Clear(wife);
+			if (band != null) { wife.BedCell = new List<Vector2I>(band.Tipis())[0]; wife.WorkCell = IsoGrid.Cell(band.Camp, 1, 2); band.StandingWithCompany = Mathf.Max(0f, band.StandingWithCompany - 15f); }
+			foreach (var n in Sim.Npcs) if (n.HomeStores == band) n.ChangeRapport(this, -20f);
+			Say($"{wife.DisplayName} has gone back to her people. A husband who is never there is no husband; her family will not forget it.");
+			Chronicle.Event($"{wife.DisplayName} left {DisplayName} and went home to her people.", wife.GlobalPosition, wife, DisplayName, 2f);
+		}
+		// Spring: her father looks for his due.
+		if (cal.Month == 6 && cal.Day == 6 && LastGiftToKinYear < cal.Year && wife.Father != null && !wife.Father.IsDead)
+		{
+			LastGiftToKinYear = cal.Year;
+			if (wife.Father.GiftsFromPlayerMb >= 3f * (cal.Year - 1810)) { wife.Father.ChangeRapport(this, 5f); Say($"{wife.Father.DisplayName} speaks well of his son-in-law this spring."); }
+			else { wife.Father.ChangeRapport(this, -12f); (wife.Father.HomeStores as Economy.BandLedger)?.OnInsult(); Say($"{wife.Father.DisplayName} says his son-in-law forgets what is owed a wife's family. A gift of a few pieces each spring is expected."); }
+		}
+	}
+
 	// Being seen where you shouldn't be (design doc 11.5): a Company man
 	// inside the Nor'Westers' palisade is a story, unless he said he'd go.
 	private void SeenAcross()
@@ -359,7 +393,7 @@ public partial class PlayerController : Agent
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (NetHub.IsServer) SeenAcross();
+		if (NetHub.IsServer) { SeenAcross(); MarriageTick(); }
 		base._PhysicsProcess(delta);
 		float dt = (float)delta;
 		if (IsServerCopy) ServerCanoeTick();
@@ -476,7 +510,7 @@ public partial class PlayerController : Agent
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "",
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
-			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["unworn"] = UnwornList(),
+			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["skills"] = new float[] { Skills.Hunting, Skills.Trapping, Skills.Trade, Skills.Woodcraft }, ["unworn"] = UnwornList(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
 		};
 		_oneShotAnim = ""; _teleported = false;
@@ -502,6 +536,7 @@ public partial class PlayerController : Agent
 		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"]; Rank = (string)d["rank"]; if (d.ContainsKey("fresh")) DaysSinceFresh = (float)d["fresh"];
 		if (d.ContainsKey("tongue")) CreeFluency = (float)d["tongue"];
 		if (d.ContainsKey("tongue2")) AssiniboineFluency = (float)d["tongue2"];
+		if (d.ContainsKey("skills")) { var sk = (float[])d["skills"]; if (sk.Length == 4) { Skills.Hunting = sk[0]; Skills.Trapping = sk[1]; Skills.Trade = sk[2]; Skills.Woodcraft = sk[3]; } }
 		if (d.ContainsKey("unworn")) { Inventory.Unworn.Clear(); foreach (int u in (int[])d["unworn"]) Inventory.Unworn.Add((ItemId)u); }
 		if (d.ContainsKey("mail") && !NetHub.IsServer) { Mail.Clear(); foreach (string line in (string[])d["mail"]) { var parts = line.Split('|'); Mail.Add(new Message { Kind = parts[0], From = parts[1], To = parts[2], Subject = parts[3], Read = parts[4] == "1", Text = parts.Length > 5 ? parts[5] : "" }); } }
 		Journal.Clear(); foreach (var e in (Godot.Collections.Array)d["journal"]) Journal.Add((string)e);
@@ -720,7 +755,7 @@ public partial class PlayerController : Agent
 			{
 				var tree = Sim.Structures?.NearestTree(GlobalPosition, 150f);
 				if (tree == null) return "No tree within reach of the axe. The bush starts west and south of the post.";
-				if (Sim.Structures.FellTreeAt(tree.Value)) { Inventory.Add(ItemId.Firewood, 4); _busyUntil = 1.2f; Chronicle.Event($"{DisplayName} felled a tree.", GlobalPosition, this, weight: 0.1f); return "You fell the spruce and split it: 4 firewood."; }
+				if (Sim.Structures.FellTreeAt(tree.Value)) { Inventory.Add(ItemId.Firewood, Skills.Woodcraft >= 0.5f ? 6 : 4); Skills.Learn(ref Skills.Woodcraft, 0.02f); _busyUntil = Skills.Woodcraft >= 0.5f ? 0.8f : 1.2f; Chronicle.Event($"{DisplayName} felled a tree.", GlobalPosition, this, weight: 0.1f); return "You fell the spruce and split it: 4 firewood."; }
 				return "The axe glances off.";
 			}
 			case ItemKind.Tool when id == ItemId.Snowshoes:
@@ -788,7 +823,8 @@ public partial class PlayerController : Agent
 				if (site == null) return "No beaver lodge here. Traps go where the beaver are - along the river.";
 				if (site.IsDead) return "This lodge is dead. Nothing will come to a trap here.";
 				int n = Inventory.TakeUpTo(ItemId.SteelTrap, 6);
-				var line = site.SetTraps(TrapOwner, n);
+				var line = site.SetTraps(TrapOwner, n, Skills.Trapping);
+				Skills.Learn(ref Skills.Trapping, 0.02f);
 				Chronicle.Event($"{DisplayName} set traps at {site.Name}.", GlobalPosition, this, weight: 0.5f);
 				return $"You set {n} traps at {site.Name} ({line.Traps} on your line). Come back tomorrow.";
 			}

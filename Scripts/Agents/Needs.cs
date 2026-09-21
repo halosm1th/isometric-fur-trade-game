@@ -6,6 +6,16 @@ namespace IsometricFurTradeGame.Scripts.Agents;
 // Tier 0 subsistence (design doc 3.1 / 17): hunger, thirst, warmth, all
 // 0..100 where 100 is fully satisfied. These drain in game-hours, so the
 // same code runs an NPC ticked once a day as the player ticked every frame.
+// Four skills, 0..1 (design doc 3.10). Nobody trains; you get better by
+// doing the thing, a hair at a time.
+public class Skills
+{
+    public float Hunting = 0.15f, Trapping = 0.15f, Trade = 0.15f, Woodcraft = 0.15f;
+    public void Learn(ref float skill, float amount) => skill = Mathf.Min(1f, skill + amount);
+    public string Describe(float s) => s >= 0.75f ? "master" : s >= 0.5f ? "practised" : s >= 0.3f ? "passable" : "green";
+    public void Seed(float hunting, float trapping, float trade, float woodcraft) { Hunting = hunting; Trapping = trapping; Trade = trade; Woodcraft = woodcraft; }
+}
+
 public class Needs
 {
     public float Hunger = 100f;

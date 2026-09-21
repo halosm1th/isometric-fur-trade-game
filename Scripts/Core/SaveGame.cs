@@ -145,7 +145,7 @@ public static class SaveGame
         foreach (var s in Sim.Ecology.Sites)
         {
             var lines = new GArr();
-            foreach (var l in s.Traplines) lines.Add(new GDict { ["owner"] = l.Owner, ["traps"] = l.Traps, ["caught"] = l.Caught, ["check"] = l.HoursSinceCheck, ["set"] = l.HoursSinceSet, ["robbed"] = l.Robbed });
+            foreach (var l in s.Traplines) lines.Add(new GDict { ["owner"] = l.Owner, ["traps"] = l.Traps, ["caught"] = l.Caught, ["check"] = l.HoursSinceCheck, ["set"] = l.HoursSinceSet, ["robbed"] = l.Robbed, ["skill"] = l.Skill });
             a.Add(new GDict
             {
                 ["name"] = s.Name, ["count"] = s.Count, ["breeding"] = s.BreedingCapacity, ["scarcity"] = s.Scarcity, ["food"] = s.FoodStock,
@@ -186,6 +186,7 @@ public static class SaveGame
             ["hunger"] = a.Needs.Hunger, ["thirst"] = a.Needs.Thirst, ["warmth"] = a.Needs.Warmth, ["health"] = a.Needs.Health,
             ["inv"] = Inv(a.Inventory), ["age"] = a.Age, ["sick"] = a.SickDaysLeft, ["immune"] = a.Immune, ["drunk"] = a.Intoxication,
             ["weapon"] = a.PreferredWeapon?.ToString() ?? "", ["dead"] = a.IsDead, ["fresh"] = a.DaysSinceFresh, ["mail"] = MailOf(a.Mail),
+            ["skills"] = new GArr { a.Skills.Hunting, a.Skills.Trapping, a.Skills.Trade, a.Skills.Woodcraft },
         };
     }
 
@@ -352,6 +353,7 @@ public static class SaveGame
         a.PreferredWeapon = w != "" && Enum.TryParse(w, out ItemId wid) ? wid : null;
         a.Mail.Clear();
         if (d.ContainsKey("mail")) foreach (var mv in d["mail"].AsGodotArray()) a.Mail.Add(MailFrom(mv.AsGodotDictionary()));
+        if (d.ContainsKey("skills")) { var sk = d["skills"].AsGodotArray(); if (sk.Count == 4) { a.Skills.Hunting = sk[0].AsSingle(); a.Skills.Trapping = sk[1].AsSingle(); a.Skills.Trade = sk[2].AsSingle(); a.Skills.Woodcraft = sk[3].AsSingle(); } }
     }
 
     // Called by Population.SpawnAll instead of the default cast. Spawns the
@@ -402,7 +404,7 @@ public static class SaveGame
                     foreach (var lv in sd["lines"].AsGodotArray())
                     {
                         var ld = lv.AsGodotDictionary();
-                        site.Traplines.Add(new Trapline { Owner = S(ld, "owner"), Traps = I(ld, "traps"), Caught = I(ld, "caught"), HoursSinceCheck = F(ld, "check"), HoursSinceSet = F(ld, "set"), Robbed = I(ld, "robbed") });
+                        site.Traplines.Add(new Trapline { Owner = S(ld, "owner"), Traps = I(ld, "traps"), Caught = I(ld, "caught"), HoursSinceCheck = F(ld, "check"), HoursSinceSet = F(ld, "set"), Robbed = I(ld, "robbed"), Skill = F(ld, "skill", 0.15f) });
                     }
                 }
             }

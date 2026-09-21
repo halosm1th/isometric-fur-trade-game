@@ -16,6 +16,7 @@ public class Trapline
     public float HoursSinceCheck;
     public float HoursSinceSet;
     public int Robbed;            // catch taken by others since last check
+    public float Skill = 0.15f;   // the setter's hand (design doc 3.10)
 
     public bool ReadyToCheck => HoursSinceCheck >= 18f;
 }
@@ -33,7 +34,7 @@ public static class TraplineRules
         {
             for (int i = 0; i < line.Traps && site.Count > 0.5f; i++)
             {
-                if (GD.Randf() < CatchChanceAtCapacity * density)
+                if (GD.Randf() < CatchChanceAtCapacity * density * (0.6f + line.Skill * 0.8f))
                 {
                     line.Caught++;
                     site.Take(1);

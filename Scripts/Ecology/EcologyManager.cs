@@ -55,11 +55,11 @@ public class SpawnSite
         return null;
     }
 
-    public Trapline SetTraps(string owner, int n)
+    public Trapline SetTraps(string owner, int n, float skill = 0.15f)
     {
         var line = LineOf(owner);
         if (line == null) { line = new Trapline { Owner = owner }; Traplines.Add(line); }
-        line.Traps += n; line.HoursSinceSet = 0f;
+        line.Traps += n; line.HoursSinceSet = 0f; line.Skill = Mathf.Max(line.Skill, skill);
         return line;
     }
 
