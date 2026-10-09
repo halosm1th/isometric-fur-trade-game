@@ -171,6 +171,43 @@ public class AmbushGoal : Goal
     }
 }
 
+// Marched back to the other company's post and kept there a few days
+// (design doc 9.1). Nobody troubles a prisoner; then they let him walk.
+public class HeldPrisonerGoal : Goal
+{
+    public override int Tier => 0;
+    private readonly Economy.FortLedger _post;
+    private int _phase;
+    public HeldPrisonerGoal(Economy.FortLedger post) { _post = post; }
+    public override string Label => $"held at {_post.Title}";
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        if (npc.HeldBy == null) return GoalStatus.Done;
+        var cal = GameCalendar.Instance;
+        if (cal != null && cal.Day >= npc.HeldUntilDay)
+        {
+            var held = npc.HeldBy;
+            npc.HeldBy = null;
+            npc.Inventory.Add(ItemId.Pemmican, 2);
+            Sim.Notice($"{npc.DisplayName} has been let go by the {(held.Company == Faction.NWC ? "Nor'Westers" : "Company")} and is walking home.");
+            Chronicle.Event($"{npc.DisplayName} was released and walked home.", npc.GlobalPosition, npc, weight: 0.8f);
+            return GoalStatus.Done;
+        }
+        switch (_phase)
+        {
+            case 0:
+                _phase = 1;
+                return Delegate(new GoToGoal(_post.AccessCell, 150f));
+            default:
+                if (!ChildFinished(out _)) { return GoalStatus.Running; }
+                // Sit out the days by their fire.
+                if (npc.Arrived || npc.MoveFailed) npc.SetDestination(new Vector2I(_post.AccessCell.X + GD.RandRange(-1, 1), _post.AccessCell.Y + GD.RandRange(-2, 2)));
+                return GoalStatus.Running;
+        }
+    }
+}
+
 // Sit down at your desk and open what's addressed to you (design doc
 // 10.1.1: the read event). Half an hour with the packet.
 public class ReadMailGoal : Goal

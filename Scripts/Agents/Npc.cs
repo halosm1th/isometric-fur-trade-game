@@ -44,6 +44,10 @@ public partial class Npc : Agent
     public bool Conversing;
     // Whom we're walking with, if anyone (FollowGoal).
     public Agent Following;
+    // Held by the other company (design doc 9.1): walked home, kept a few
+    // days, then turned loose. Their goods stay behind.
+    public Economy.FortLedger HeldBy;
+    public int HeldUntilDay = -1;
     private float _grudgeTimer;
     public bool IsFemale;
 
@@ -507,6 +511,30 @@ public partial class Npc : Agent
     // and everyone of your people thinks less of the attacker.
     public override void TakeDamage(float amount, Agent from)
     {
+        // A beaten rival is taken, not killed, when his own side isn't there to help.
+        if (!IsDead && !Invulnerable && from is Npc captor && Economy.Rivalry.AreRivals(captor.Faction, Faction) && Needs.Health - amount <= 0f && HeldBy == null && !IsFemale)
+        {
+            var post = Economy.Rivalry.PostOf(captor.Faction);
+            if (post != null && GD.Randf() < 0.85f)
+            {
+                Needs.Health = 10f;
+                HeldBy = post; HeldUntilDay = (GameCalendar.Instance?.Day ?? 0) + 3;
+                foreach (var (id, n) in new System.Collections.Generic.List<(ItemId, int)>(Inventory.All()))
+                {
+                    var k = Items.Items.Of(id).Kind;
+                    if (k == ItemKind.Clothing || k == ItemKind.Food && n <= 1) continue;
+                    Inventory.Remove(id, n); post.Stores.Add(id, n);
+                }
+                foreach (var m in new System.Collections.Generic.List<Message>(Mail)) { Mail.Remove(m); if (post.Leader != null && !post.Leader.IsDead) { post.Leader.Mail.Add(m); Core.Mail.Open(m, post.Leader); } }
+                Brain.Clear(this);
+                Brain.Push(this, new Goals.HeldPrisonerGoal(post));
+                ForgetAttacker();
+                Economy.Rivalry.Raise(6f, $"{DisplayName} taken prisoner");
+                Sim.Notice($"{captor.DisplayName} has taken {DisplayName} prisoner.");
+                Chronicle.Event($"{captor.DisplayName} took {DisplayName} prisoner.", GlobalPosition, captor, DisplayName, 2f);
+                return;
+            }
+        }
         base.TakeDamage(amount, from);
         if (from == null || from == this || IsDead) return;
         if (from is Npc same && same.Faction == Faction) return;   // a brawl, not an attack on the house
@@ -531,6 +559,8 @@ public partial class Npc : Agent
     // armed men, and only if the house has the numbers (design doc 15.1).
     public override bool IsHostileTo(Agent other)
     {
+        if (other is Player.PlayerController cap && cap.CaptiveOf != null) return false;   // a prisoner is nobody's quarry
+        if (other is Npc heldMan && heldMan.HeldBy != null) return false;
         if (base.IsHostileTo(other)) return true;
         if (other.Raiding && other.RaidTarget == Faction && IsFighter) return Economy.Rivalry.HouseHasOdds(Faction, other.GlobalPosition);
         // Two nations at odds (design doc 7.2): the hunters of one see the other's as enemies in the bush.

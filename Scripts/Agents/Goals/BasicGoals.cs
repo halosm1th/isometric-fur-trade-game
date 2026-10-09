@@ -357,6 +357,8 @@ public class AttackGoal : Goal
             if (Target is Animal kill && GodotObject.IsInstanceValid(kill) && kill.IsDead && npc.GlobalPosition.DistanceTo(kill.GlobalPosition) < 160f) kill.Butcher(npc.Inventory);
             return GoalStatus.Done;
         }
+        if (Target is Player.PlayerController pcap && pcap.CaptiveOf != null) { npc.StopMoving(); return GoalStatus.Done; }
+        if (Target is Npc heldTarget && heldTarget.HeldBy != null) { npc.StopMoving(); return GoalStatus.Done; }
         _giveUp -= dt;
         float dist = npc.GlobalPosition.DistanceTo(Target.GlobalPosition);
         if (_giveUp <= 0f || dist > 1400f) { npc.StopMoving(); return GoalStatus.Failed; }

@@ -82,6 +82,16 @@ public partial class PlayerController : Agent
 	// Which company's post you belong to.
 	// Where you're posted (design doc 3.9 step 4): the Bay unless the Factor sends you inland.
 	public bool PostedInland;
+	// Captivity (design doc 9.1): the other company's men take a beaten
+	// man rather than kill him - his goods, and a few days of his time.
+	public Economy.FortLedger CaptiveOf;
+	public int CaptiveUntilDay = -1;
+	// A word given to the other company (design doc 9.1): no arms against
+	// them till it runs out. Breaking it is witnessed and remembered.
+	public int ParoleUntilDay = -1;
+	public Faction ParoleTo;
+	public bool ParoleConfessed;
+	public bool OnParoleAgainst(Agent other) => other != null && ParoleUntilDay > (GameCalendar.Instance?.Day ?? 0) && other.Faction == ParoleTo;
 	// The marriage's obligations (design doc 8.4): her father expects to be
 	// remembered each spring, and a wife left too long goes home.
 	public int LastSawWifeDay = -1;
@@ -268,6 +278,68 @@ public partial class PlayerController : Agent
 	}
 
 	// A line for this player's owner, wherever they are.
+	public override void TakeDamage(float amount, Agent from)
+	{
+		// A company man's blow that would kill you takes you prisoner instead (design doc 9.1).
+		if (!IsDead && !Invulnerable && from is Npc captor && Economy.Rivalry.AreRivals(captor.Faction, Faction) && Needs.Health - amount <= 0f && CaptiveOf == null)
+		{
+			Needs.Health = 8f;
+			Capture(Economy.Rivalry.PostOf(captor.Faction), captor);
+			return;
+		}
+		base.TakeDamage(amount, from);
+	}
+
+	private void Capture(Economy.FortLedger post, Npc captor)
+	{
+		if (post == null) { Needs.Health = 0f; OnDeath(); return; }
+		CaptiveOf = post; CaptiveUntilDay = GameCalendar.Instance.Day + 3;
+		// Everything worth having goes into their stores; they leave you your coat and your knife.
+		int taken = 0;
+		foreach (var (id, n) in new List<(ItemId, int)>(Inventory.All()))
+		{
+			var k = Items.Items.Of(id).Kind;
+			if (k == ItemKind.Clothing || id == ItemId.Knife || k == ItemKind.Food && n <= 2) continue;
+			Inventory.Remove(id, n); post.Stores.Add(id, n); taken += n;
+		}
+		foreach (var m in new List<Message>(Mail)) { Mail.Remove(m); if (post.Leader != null && !post.Leader.IsDead) { post.Leader.Mail.Add(m); Core.Mail.Open(m, post.Leader); } }
+		StopTravel(""); Raiding = false; RaidTimer = 0f;
+		GlobalPosition = IsoGrid.ToWorld(post.AccessCell) + new Vector2(0, 60);
+		ForgetAttacker();
+		Economy.Rivalry.Raise(5f, $"{DisplayName} taken prisoner");
+		Say($"You come to on the floor of {post.Title}, {captor.DisplayName} standing over you. They have taken {taken} lots off you. You are held three days - walk out of their yard and you're an escaped man; wait, and they'll turn you loose.");
+		Chronicle.Event($"{captor.DisplayName} took {DisplayName} prisoner.", GlobalPosition, captor, DisplayName, 2f);
+		Sim.Notice($"{DisplayName} has been taken by the {(post.Company == Faction.NWC ? "Nor'Westers" : "Company")}.");
+	}
+
+	private int _captiveDay = -1;
+	private void CaptiveTick()
+	{
+		if (CaptiveOf == null) return;
+		var cal = GameCalendar.Instance; if (cal == null) return;
+		bool inYard = CaptiveOf.Company == Faction.NWC ? WorldLayout.NwcYardCells().Contains(Cell) : WorldLayout.YardCells().Contains(Cell);
+		if (!inYard && GlobalPosition.DistanceTo(IsoGrid.ToWorld(CaptiveOf.AccessCell)) > 700f)
+		{
+			// Escaped (design doc 9.1): the story travels, and they remember.
+			CaptiveOf = null; Standing += 2f;
+			Economy.Rivalry.Raise(4f, $"{DisplayName} escaped");
+			Chronicle.Event($"{DisplayName} escaped from the other company's post.", GlobalPosition, this, weight: 1.5f);
+			Say("You are out of their yard and away. An escaped prisoner; they will not forget it.");
+			return;
+		}
+		if (cal.Day != _captiveDay)
+		{
+			_captiveDay = cal.Day;
+			if (cal.Day >= CaptiveUntilDay)
+			{
+				var post = CaptiveOf; CaptiveOf = null;
+				Inventory.Add(ItemId.Pemmican, 2);
+				Say($"They turn you loose with two days' pemmican and a warning. \"Go home. Tell your Factor what it costs to cross us.\"");
+				Chronicle.Event($"{DisplayName} was let go by the {(post.Company == Faction.NWC ? "Nor'Westers" : "Company")}.", GlobalPosition, this, weight: 1f);
+			}
+		}
+	}
+
 	public void Say(string text) => NetHub.I?.NoticeTo(this, text);
 
 	private int[] UnwornList() { var a = new int[Inventory.Unworn.Count]; int i = 0; foreach (var id in Inventory.Unworn) a[i++] = (int)id; return a; }
@@ -393,7 +465,7 @@ public partial class PlayerController : Agent
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (NetHub.IsServer) { SeenAcross(); MarriageTick(); }
+		if (NetHub.IsServer) { SeenAcross(); MarriageTick(); CaptiveTick(); }
 		base._PhysicsProcess(delta);
 		float dt = (float)delta;
 		if (IsServerCopy) ServerCanoeTick();
@@ -435,6 +507,7 @@ public partial class PlayerController : Agent
 		if (_travel != null)
 		{
 			if (input != Vector2.Zero) StopTravel("You leave the road.");
+			else if (GameCalendar.Instance.Weather.Current is SkyState.Blizzard or SkyState.Storm) StopTravel("The weather closes in. Nobody walks the road in this - find shelter or make a fire.");
 			else
 			{
 				var to = _travel[_travelLeg];
@@ -653,6 +726,14 @@ public partial class PlayerController : Agent
 		if (dist > range + 20f) return $"Too far for the {(Weapon != null ? Items.Items.Of(Weapon.Value).Name.ToLower() : "fist")}.";
 		if (!CanAttack) return "";
 		if (_sprite != null) _sprite.FlipH = target.GlobalPosition.X < GlobalPosition.X;
+		if (OnParoleAgainst(target))
+		{
+			ParoleUntilDay = -1;
+			Standing -= 10f;
+			Economy.Rivalry.Raise(8f, $"{DisplayName} broke his parole");
+			Chronicle.Event($"{DisplayName} broke the parole he gave the other company.", GlobalPosition, this, DisplayName, 2.5f);
+			Say("You raise your hand against men you gave your word to. Whoever saw it will tell it.");
+		}
 		var before = Weapon;
 		bool hit = Attack(target);
 		if (before == ItemId.Musket) _oneShotAnim = "shoot";

@@ -27,7 +27,7 @@ public partial class Ship : Node2D
     private Population _population;
     private float _dockedHours;
     private bool _ordersRead;
-    // London's packet, aboard till the bos'n carries it up (design doc 10.1.2).
+	// London's packet, aboard till the bos'n carries it up (design doc 10.1.2).
     public Message Packet;
     public float DockedHours => _dockedHours;
     public bool OrdersRead => _ordersRead;
@@ -117,10 +117,10 @@ public partial class Ship : Node2D
                 int n = Hold.Count(id); int take = Mathf.FloorToInt(n * 0.1f);
                 if (take > 0) { Hold.Remove(id, take); skim += Items.Items.Of(id).ValueMb * take; }
             }
-            if (skim > 0f) { Sim.Fort.SkimmedMb += skim; Chronicle.Event($"{factor.DisplayName} kept back furs of his own from the ship's hold.", factor.GlobalPosition, factor, weight: 2f); }
+			if (skim > 0f) { Sim.Fort.SkimmedMb += skim; Chronicle.Event($"{factor.DisplayName} kept back furs of his own from the ship's hold.", factor.GlobalPosition, factor, weight: 2f); }
         }
         float mb = Hold.TotalValueMb;
-        Sim.Notice($"The ship has sailed for London with {mb:0} MB of furs aboard" + (Sim.Fort != null ? $" (quota was {Sim.Fort.QuotaMb:0})." : "."));
+		Sim.Notice($"The ship has sailed for London with {mb:0} MB of furs aboard" + (Sim.Fort != null ? $" (quota was {Sim.Fort.QuotaMb:0})." : "."));
         foreach (var pc in Sim.Players())
         {
             if (pc.Faction != Faction.HBC) continue;
@@ -129,18 +129,24 @@ public partial class Ship : Node2D
             if (factor != null)
             {
                 float pile = 0f; int seen = 0;
-                foreach (var m in factor.Memories) if (m.Subject == pc.DisplayName && m.Text.Contains("was seen at")) { pile += m.Weight; seen++; }
+				foreach (var m in factor.Memories) if (m.Subject == pc.DisplayName && m.Text.Contains("was seen at")) { pile += m.Weight; seen++; }
                 if (seen > 0)
                 {
                     float hit = Mathf.Min(25f, pile * 4f);
                     pc.Standing -= hit;
-                    pc.Say($"The Factor has had you seen across the river {seen} time{(seen == 1 ? "" : "s")} this year with no account of it. It goes into his report. (standing -{hit:0})");
-                    factor.Memories.RemoveAll(m => m.Subject == pc.DisplayName && m.Text.Contains("was seen at"));
+					pc.Say($"The Factor has had you seen across the river {seen} time{(seen == 1 ? "" : "s")} this year with no account of it. It goes into his report. (standing -{hit:0})");
+					factor.Memories.RemoveAll(m => m.Subject == pc.DisplayName && m.Text.Contains("was seen at"));
                 }
             }
+            if (pc.ParoleUntilDay > 0 && !pc.ParoleConfessed && factor != null)
+            {
+                pc.ParoleConfessed = true;
+                pc.Standing -= 12f;
+                pc.Say("The Factor has learned you gave the Canadians your parole and said nothing of it. It goes into his report. (standing -12)");
+            }
             string was = pc.Rank;
-            pc.Rank = pc.Standing >= 60f ? "postmaster" : pc.Standing >= 35f ? "clerk" : pc.Standing >= 15f ? "labourer" : "on notice";
-            if (pc.Rank != was) pc.Say(pc.Standing >= 35f ? $"The Factor writes well of you in the accounts that sail today. You are rated {pc.Rank}." : $"The Factor's report on you is cool. You are rated {pc.Rank}.");
+			pc.Rank = pc.Standing >= 60f ? "postmaster" : pc.Standing >= 35f ? "clerk" : pc.Standing >= 15f ? "labourer" : "on notice";
+			if (pc.Rank != was) pc.Say(pc.Standing >= 35f ? $"The Factor writes well of you in the accounts that sail today. You are rated {pc.Rank}." : $"The Factor's report on you is cool. You are rated {pc.Rank}.");
             if (pc.Rank == "clerk" || pc.Rank == "postmaster") pc.Inventory.Add(Items.ItemId.TradeGoods, pc.Rank == "postmaster" ? 12 : 6);
         }
         if (factor != null) Agents.Delegation.OrderSupply(factor);
@@ -202,29 +208,29 @@ public partial class Ship : Node2D
                 Sim.Notice("There is fever aboard, the mate says. Keep the men off her if you can.");
             }
         }
-        // The bos'n carries the Committee's packet up to the Factor; it is
-        // inert until he opens it (design doc 10.1.1). Kill the bos'n on the
-        // way and the packet is on his body.
-        if (Packet != null && Crew.Count > 0)
-        {
-            var bosun = Crew[0];
-            bosun.Mail.Add(Packet);
-            bosun.Brain.Clear(bosun);
-            bosun.Brain.Push(bosun, new Agents.Goals.DeliverMailGoal());
-            Sim.Notice($"{bosun.DisplayName} comes ashore with the Committee's packet under his arm.");
-            Packet = null;
-        }
-        // An event the Factor replans on (design doc 3.9 step 7).
-        foreach (var n in Sim.Npcs) if (n.Role == Role.Factor && !n.IsDead) { Agents.Delegation.AssignDailyTasks(n); break; }
-    }
+		// The bos'n carries the Committee's packet up to the Factor; it is
+		// inert until he opens it (design doc 10.1.1). Kill the bos'n on the
+		// way and the packet is on his body.
+		if (Packet != null && Crew.Count > 0)
+		{
+			var bosun = Crew[0];
+			bosun.Mail.Add(Packet);
+			bosun.Brain.Clear(bosun);
+			bosun.Brain.Push(bosun, new Agents.Goals.DeliverMailGoal());
+			Sim.Notice($"{bosun.DisplayName} comes ashore with the Committee's packet under his arm.");
+			Packet = null;
+		}
+		// An event the Factor replans on (design doc 3.9 step 7).
+		foreach (var n in Sim.Npcs) if (n.Role == Role.Factor && !n.IsDead) { Agents.Delegation.AssignDailyTasks(n); break; }
+	}
 
-    public string Status() => Current switch
-    {
-        State.Away => "at sea",
-        State.Arriving => "standing in",
-        State.Docked => $"alongside: {Cargo.CountOfKind(ItemKind.Goods) + Cargo.SlotCount} lots to land, {Hold.TotalValueMb:0} MB aboard",
-        State.Departing => "outward bound",
-        State.Stranded => "stranded at the wharf",
-        _ => "?",
-    };
+	public string Status() => Current switch
+	{
+		State.Away => "at sea",
+		State.Arriving => "standing in",
+		State.Docked => $"alongside: {Cargo.CountOfKind(ItemKind.Goods) + Cargo.SlotCount} lots to land, {Hold.TotalValueMb:0} MB aboard",
+		State.Departing => "outward bound",
+		State.Stranded => "stranded at the wharf",
+		_ => "?",
+	};
 }

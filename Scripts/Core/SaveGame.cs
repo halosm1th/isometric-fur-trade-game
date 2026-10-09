@@ -250,7 +250,7 @@ public static class SaveGame
             d["spouse"] = n.Spouse?.DisplayName ?? ""; d["father"] = n.Father?.DisplayName ?? "";
             var kids = new GArr(); foreach (var c in n.Children) kids.Add(c.DisplayName);
             d["children"] = kids;
-            d["gifts"] = n.GiftsFromPlayerMb; d["npcStanding"] = n.Standing;
+            d["gifts"] = n.GiftsFromPlayerMb; d["npcStanding"] = n.Standing; d["held"] = n.HeldBy == Sim.Nwc ? "nwc" : n.HeldBy == Sim.Fort ? "fort" : n.HeldBy == Sim.Outpost ? "outpost" : ""; d["heldUntil"] = n.HeldUntilDay;
             var rapport = new GDict(); foreach (var kv in n.Rapport) if (kv.Key != null && GodotObject.IsInstanceValid(kv.Key)) rapport[kv.Key.DisplayName] = kv.Value;
             d["rapport"] = rapport;
             var mem = new GArr();
@@ -268,7 +268,7 @@ public static class SaveGame
         foreach (var p in Sim.Players())
         {
             var d = AgentCommon(p);
-            d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["tongue2"] = p.AssiniboineFluency; d["authorized"] = p.AuthorizedAcrossUntilDay; d["inland"] = p.PostedInland;
+            d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["tongue2"] = p.AssiniboineFluency; d["authorized"] = p.AuthorizedAcrossUntilDay; d["inland"] = p.PostedInland; d["captive"] = p.CaptiveOf == Sim.Nwc ? "nwc" : p.CaptiveOf == Sim.Fort ? "fort" : ""; d["captiveUntil"] = p.CaptiveUntilDay; d["parole"] = p.ParoleUntilDay; d["paroleTo"] = (int)p.ParoleTo; d["paroleConfessed"] = p.ParoleConfessed;
             d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline;
             var known = new GArr(); foreach (var s in p.KnownSites) known.Add(s);
             d["knownSites"] = known;
@@ -439,6 +439,8 @@ public static class SaveGame
                 var p = nd["personality"].AsGodotArray();
                 npc.Personality = new Personality { Loyalty = p[0].AsSingle(), Talkative = p[1].AsSingle(), Suspicion = p[2].AsSingle(), Ambition = p[3].AsSingle(), Courage = p[4].AsSingle() };
                 npc.GiftsFromPlayerMb = F(nd, "gifts"); npc.Standing = F(nd, "npcStanding", 20f);
+                npc.HeldBy = S(nd, "held") switch { "nwc" => Sim.Nwc, "fort" => Sim.Fort, "outpost" => Sim.Outpost, _ => null }; npc.HeldUntilDay = I(nd, "heldUntil", -1);
+                if (npc.HeldBy != null) npc.Brain.Push(npc, new Agents.Goals.HeldPrisonerGoal(npc.HeldBy));
                 npc.AssignedTaskName = S(nd, "task");
                 foreach (var mv in nd["memories"].AsGodotArray())
                 {
@@ -495,7 +497,7 @@ public static class SaveGame
     {
         if (p == null || !_savedPlayers.TryGetValue(p.DisplayName, out var d)) return;
         LoadAgentCommon(p, d);
-        p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer"); p.CreeFluency = F(d, "tongue", 0.1f); p.AssiniboineFluency = F(d, "tongue2", 0.05f); p.AuthorizedAcrossUntilDay = I(d, "authorized", -1); p.PostedInland = B(d, "inland");
+        p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer"); p.CreeFluency = F(d, "tongue", 0.1f); p.AssiniboineFluency = F(d, "tongue2", 0.05f); p.AuthorizedAcrossUntilDay = I(d, "authorized", -1); p.PostedInland = B(d, "inland"); p.CaptiveOf = S(d, "captive") == "nwc" ? Sim.Nwc : S(d, "captive") == "fort" ? Sim.Fort : null; p.CaptiveUntilDay = I(d, "captiveUntil", -1); p.ParoleUntilDay = I(d, "parole", -1); p.ParoleTo = (Faction)I(d, "paroleTo"); p.ParoleConfessed = B(d, "paroleConfessed");
         var t = d["task"].AsGodotArray();
         p.Task.Kind = (TaskKind)t[0].AsInt32(); p.Task.Need = t[1].AsInt32(); p.Task.Done = t[2].AsInt32(); p.Task.DayAssigned = t[3].AsInt32();
         p.Task.Intent = S(d, "taskIntent"); p.Task.Deadline = I(d, "taskDeadline");

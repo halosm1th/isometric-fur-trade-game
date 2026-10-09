@@ -63,6 +63,10 @@ public class Needs
         if (Thirst <= 0f) damage += 5f;
         if (Hunger <= 0f) damage += 3f;
         if (!Invulnerable) Health = Mathf.Clamp(Health - damage * gameHours, 0f, 100f);
+        // Wounds knit (design doc 17.5): a point an hour when fed, watered and
+        // warm, half that on the move; nothing while you're starving or freezing.
+        if (damage == 0f && Hunger > 55f && Thirst > 45f && Warmth > 50f)
+            Health = Mathf.Min(100f, Health + (activity > 1.2f ? 0.5f : 1f) * gameHours);
     }
 
     // 1.0 at full capability, falling toward 0.5 as any need runs low.

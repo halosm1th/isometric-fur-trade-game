@@ -84,6 +84,7 @@ public partial class Agent : CharacterBody2D
 
     // Who hurt us last; drives fear and retaliation.
     public Agent LastAttacker { get; private set; }
+    public void ForgetAttacker() { LastAttacker = null; LastAttackedAgo = 999f; }
     public float LastAttackedAgo { get; private set; } = 999f;
 
     private bool _deathAnnounced;

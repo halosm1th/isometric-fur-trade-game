@@ -221,11 +221,21 @@ public class Conversation
         if (ownLeader || (ownMan && canCommand) || npc.Following == _player || CanAskAlong(npc)) AddOption("Work and orders...", () => ShowWork(npc));
         if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster)
             AddOption("Trade", () => ShowTrade(npc));
+        if (npc.IsFemale && _player.Needs.Health < 70f && !_player.IsDead)
+            AddOption("Ask her to see to your wounds", () => ShowTopics(Treat(npc)));
         AddOption("Give a gift", () => ShowGive(npc));
         if (npc.Needs.Hunger < 45f && _player.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
             AddOption($"Offer them something to eat ({Items.Items.Of(food).Name})", () => ShowTopics(OfferFood(npc, food)));
         if (npc.IsBandPerson && (npc.Role == Role.CreeChief || npc.Role == Role.CreeHunter)) AddOption("Family and marriage...", () => ShowFamily(npc));
         if (leader && (Economy.Rivalry.AreRivals(npc.Faction, _player.Faction) || ownLeader && Sim.Nwc != null)) AddOption("The companies...", () => ShowCompanies(npc));
+        // Held by the other side (design doc 9.1): buy your way out, or give your word.
+        if (leader && _player.CaptiveOf != null && Economy.Rivalry.PostOf(npc.Faction) == _player.CaptiveOf)
+        {
+            AddOption("Offer a ransom for your freedom", () => ShowTopics(Ransom(npc)));
+            AddOption("Give your parole: you'll carry no arms against them this year", () => ShowTopics(Parole(npc)));
+        }
+        if (ownLeader && _player.ParoleUntilDay > GameCalendar.Instance.Day)
+            AddOption("Confess you gave your parole to the other side", () => ShowTopics(Confess(npc)));
         if (npc.Faction != Faction.HBC || npc.Role == Role.Labourer)
             AddOption("Threaten them", () => ShowTopics(Threaten(npc)));
         AddOption("Leave", Close);
@@ -669,6 +679,56 @@ public class Conversation
         chief.ChangeRapport(_player, 5f); _player.Standing += 2f;
         Chronicle.Event($"{_player.DisplayName} carried tobacco between {band.Name} and {other.Name}.", chief.GlobalPosition, _player, weight: 1.2f);
         return $"\"Take this to their fire, then, and say it comes from us.\" The standing between the bands eases ({band.StandingWithOtherBand:0}).";
+    }
+
+    // Dressing a wound (design doc 17.5): clean water, a strip of blanket, a steady hand. Once a day.
+    private int _treatedDay = -1;
+    private string Treat(Npc her)
+    {
+        int day = GameCalendar.Instance.Day;
+        if (_treatedDay == day) return $"{her.DisplayName} has already seen to you today. \"Rest it.\"";
+        if (!_player.Inventory.Has(ItemId.Water) && !(her.HomeStores?.Stores.Has(ItemId.Water) ?? false)) return "\"There is no clean water. Fetch some and I will see to it.\"";
+        if (_player.Inventory.Has(ItemId.Water)) _player.Inventory.Remove(ItemId.Water); else her.HomeStores.Stores.Remove(ItemId.Water);
+        _treatedDay = day;
+        float before = _player.Needs.Health;
+        _player.Needs.Health = Mathf.Min(100f, _player.Needs.Health + 25f);
+        her.ChangeRapport(_player, 2f);
+        return $"{her.DisplayName} washes the wound and binds it with a strip of blanket. ({before:0} → {_player.Needs.Health:0})";
+    }
+
+    // Ransom and parole (design doc 9.1): a prisoner is worth more loose.
+    private string Ransom(Npc captor)
+    {
+        int price = 12;
+        if (_player.Inventory.Count(ItemId.TradeGoods) < price) return $"\"Twelve pieces of goods and you may walk out. You have {_player.Inventory.Count(ItemId.TradeGoods)}.\"";
+        _player.Inventory.Remove(ItemId.TradeGoods, price);
+        captor.HomeStores?.Stores.Add(ItemId.TradeGoods, price);
+        var post = _player.CaptiveOf; _player.CaptiveOf = null; _player.CaptiveUntilDay = -1;
+        captor.ChangeRapport(_player, 4f);
+        Chronicle.Event($"{_player.DisplayName} bought his freedom from {captor.DisplayName} for {price} pieces.", captor.GlobalPosition, _player, weight: 1.2f);
+        return $"\"A man who pays is a man of sense.\" {captor.DisplayName} counts the goods and waves you at the gate. ({post.Title} keeps your kit.)";
+    }
+
+    private string Parole(Npc captor)
+    {
+        float r = captor.RapportWith(_player);
+        if (captor.Personality.Suspicion > 0.65f && r < 10f) return "\"Your word? I have seen what your word is worth.\"";
+        _player.CaptiveOf = null; _player.CaptiveUntilDay = -1;
+        _player.ParoleUntilDay = GameCalendar.Instance.Day + 120;
+        _player.ParoleTo = captor.Faction;
+        captor.ChangeRapport(_player, 8f);
+        Chronicle.Event($"{_player.DisplayName} gave his parole to {captor.DisplayName}.", captor.GlobalPosition, _player, weight: 1.5f);
+        return "\"Then go. No arms against us till the ice goes out - and I will hear of it if you break it.\" You are free, and bound by your word for four months.";
+    }
+
+    private string Confess(Npc leader)
+    {
+        _player.Standing -= 6f;
+        _player.ParoleConfessed = true;
+        leader.ChangeRapport(_player, -4f);
+        return leader.Personality.Suspicion > 0.6f
+            ? "\"You gave the Canadians your word? Then you are their man as much as mine.\" He writes it down. (standing -6, but it will not surprise him later.)"
+            : "\"Better I hear it from you than from them.\" (standing -6, and no worse when it comes out.)";
     }
 
     private string NoWords(Npc npc) => $"You have not the words for it, and {npc.DisplayName} has not yours. Signs will buy meat; they will not carry this. Learn more of the tongue, or bring someone who has it - your wife, or a woman of the post.";

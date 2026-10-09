@@ -103,6 +103,8 @@ public partial class NeedsHud : Control
         if (_player.IsDrunk) weapon += "  |  drunk";
         if (_player.IsSick) weapon += "  |  FEVER";
         if (_player.HasScurvy) weapon += "  |  SCURVY (eat fresh meat)";
+        if (_player is Player.PlayerController ppc && ppc.ParoleUntilDay > (GameCalendar.Instance?.Day ?? 0)) weapon += $"  |  on parole to the {(ppc.ParoleTo == Agents.Faction.NWC ? "Nor'Westers" : "Company")} till day {ppc.ParoleUntilDay}";
+        if (_player is Player.PlayerController cpc && cpc.CaptiveOf != null) weapon += $"  |  PRISONER of {cpc.CaptiveOf.Title} (till day {cpc.CaptiveUntilDay})";
         _shelter.Text = $"{(_player.IsSheltered ? "Indoors  " : "")}Load {_player.Inventory.TotalWeightLbs:0}/{_player.CarryCapacityLbs:0} lb{(_player.IsOverloaded ? " (overloaded)" : "")}  |  {weapon}" + task;
     }
 
