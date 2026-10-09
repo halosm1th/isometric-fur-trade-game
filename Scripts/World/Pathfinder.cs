@@ -119,6 +119,10 @@ public class Pathfinder
         var gScore = new Dictionary<Vector2I, float> { [start] = 0f };
         var closed = new HashSet<Vector2I>();
         var goalPos = IsoGrid.ToWorld(goal);
+        // Weighted A* (design doc 19: cheap beats optimal): a long haul up
+        // the river road doesn't need the shortest path, only a good one.
+        float far = IsoGrid.ToWorld(start).DistanceTo(goalPos);
+        float weight = far > 6000f ? 2.2f : far > 2500f ? 1.6f : 1f;
         open.Enqueue(start, 0f);
         int expansions = 0;
 
@@ -141,7 +145,7 @@ public class Pathfinder
                 if (gScore.TryGetValue(n, out float known) && tentative >= known) continue;
                 gScore[n] = tentative;
                 cameFrom[n] = current;
-                open.Enqueue(n, tentative + IsoGrid.ToWorld(n).DistanceTo(goalPos));
+                open.Enqueue(n, tentative + IsoGrid.ToWorld(n).DistanceTo(goalPos) * weight);
             }
         }
         return result; // empty: no route
