@@ -16,8 +16,23 @@ public partial class NoticeLog : Control
     private const int MaxLines = 2;
     private const float LifeSeconds = 9f;
 
+    private Label _headline;
+    private float _headlineLeft;
+
     public override void _Ready()
     {
+        // A headline takes the middle of the screen for a few seconds.
+        _headline = new Label { HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart, Visible = false, MouseFilter = MouseFilterEnum.Ignore };
+        _headline.SetAnchorsPreset(LayoutPreset.CenterTop);
+        _headline.GrowHorizontal = GrowDirection.Both;
+        _headline.Position = new Vector2(0, 150);
+        _headline.CustomMinimumSize = new Vector2(760, 0);
+        _headline.AddThemeFontSizeOverride("font_size", 20);
+        _headline.AddThemeColorOverride("font_color", new Color(1f, 0.93f, 0.75f));
+        _headline.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.95f));
+        _headline.AddThemeConstantOverride("shadow_offset_y", 2);
+        AddChild(_headline);
+        Sim.OnHeadline += Shout;
         _box = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         _box.Position = new Vector2(16, 96);
         _box.AddThemeConstantOverride("separation", 1);
@@ -25,7 +40,15 @@ public partial class NoticeLog : Control
         Sim.OnNotice += Add;
     }
 
-    public override void _ExitTree() => Sim.OnNotice -= Add;
+    public override void _ExitTree() { Sim.OnNotice -= Add; Sim.OnHeadline -= Shout; }
+
+    private void Shout(string text)
+    {
+        if (_headline == null || !IsInstanceValid(_headline)) return;
+        _headline.Text = text;
+        _headline.Visible = true;
+        _headlineLeft = 6f;
+    }
 
     private void Add(string text)
     {
@@ -38,6 +61,15 @@ public partial class NoticeLog : Control
 
     public override void _Process(double delta)
     {
+        if (_headlineLeft > 0f)
+        {
+            _headlineLeft -= (float)delta;
+            if (_headline != null && IsInstanceValid(_headline))
+            {
+                _headline.Modulate = new Color(1, 1, 1, Mathf.Clamp(_headlineLeft / 1.5f, 0f, 1f));
+                if (_headlineLeft <= 0f) _headline.Visible = false;
+            }
+        }
         for (int i = _lines.Count - 1; i >= 0; i--)
         {
             var (l, age) = _lines[i];

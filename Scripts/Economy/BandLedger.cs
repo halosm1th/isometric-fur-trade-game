@@ -57,7 +57,15 @@ public partial class BandLedger : Household
 		float drift = hungry ? (price < 0.9f ? -3f : -1f) : (price >= 1.2f ? 1f : 0.3f);
 		bool was = WillTrade;
 		StandingWithCompany = Mathf.Clamp(StandingWithCompany + drift, 0f, 100f);
-		if (was && !WillTrade) Sim.Notice($"{Name} have had enough of the Company. They will not bring their furs to the post.");
+		if (was && !WillTrade)
+		{
+			Sim.Headline($"{Name} have had enough of the Company. They will not bring their furs to the post.");
+			foreach (var pc in Sim.Players())
+			{
+				string cause = LastInsultCause;
+				Core.Reveal.Lands(pc, $"{Name} will not trade with the post.", cause, 1.5f);
+			}
+		}
 		if (!was && WillTrade) Sim.Notice($"{Name} are willing to trade with the post again.");
 		StandingWithOtherBand = Mathf.Min(100f, StandingWithOtherBand + 0.3f);   // old alliances mend slowly
 		// The Assiniboine's seasonal round: down to the Bay for high summer, home for the buffalo in autumn.
@@ -83,11 +91,15 @@ public partial class BandLedger : Household
 	public float RumTaste;
 	public void OnRum(int drams) { RumTaste = Mathf.Min(100f, RumTaste + drams * 4f); }
 
-	public void OnInsult() { StandingWithCompany = Mathf.Max(0f, StandingWithCompany - 4f); }
+	// What the player did that the camp is angry about, for the journal to
+	// name when the consequence lands (design doc P.4).
+	public string LastInsultCause = "";
+	public void OnInsult(string cause = "") { StandingWithCompany = Mathf.Max(0f, StandingWithCompany - 4f); if (cause != "") LastInsultCause = cause; }
 
 	public void OnMemberKilledBy(Agents.Agent killer)
 	{
 		if (killer == null) return;
+		if (killer is Player.PlayerController) LastInsultCause = "killed";
 		if (killer.Faction == Agents.Faction.HBC) StandingWithCompany = Mathf.Max(0f, StandingWithCompany - 25f);
 		else if (killer.Faction == Agents.Faction.NWC) StandingWithNwc = Mathf.Max(0f, StandingWithNwc - 25f);
 		else return;

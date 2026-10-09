@@ -134,7 +134,7 @@ public partial class Ship : Node2D
                 {
                     float hit = Mathf.Min(25f, pile * 4f);
                     pc.Standing -= hit;
-					pc.Say($"The Factor has had you seen across the river {seen} time{(seen == 1 ? "" : "s")} this year with no account of it. It goes into his report. (standing -{hit:0})");
+					Core.Reveal.Lands(pc, $"Your standing falls by {hit:0}: the Factor's report names {seen} crossing{(seen == 1 ? "" : "s")} of the river you never accounted for.", "was seen at", 1.5f);
 					factor.Memories.RemoveAll(m => m.Subject == pc.DisplayName && m.Text.Contains("was seen at"));
                 }
             }

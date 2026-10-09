@@ -45,6 +45,10 @@ public partial class Population : Node2D
 		foreach (string arg in OS.GetCmdlineUserArgs())
 			if (arg.StartsWith("--shot=") && float.TryParse(arg.Substring(7), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float every))
 				for (int i = 1; i <= 6; i++) { int n = i; GetTree().CreateTimer(every * i).Timeout += () => { var path = ProjectSettings.GlobalizePath($"user://shot_{n}.png"); GetViewport().GetTexture().GetImage().SavePng(path); GD.Print($"[shot] {path}"); }; }
+		// Dev aid: `-- --kill=Name` - that person dies five seconds in (to watch
+		// a household take a loss: mourning, the empty bunk, the sale of effects).
+		foreach (string arg in OS.GetCmdlineUserArgs())
+			if (arg.StartsWith("--kill=")) { string who = arg.Substring(7); GetTree().CreateTimer(5.0).Timeout += () => { foreach (var n in Sim.Npcs) if (n.DisplayName == who && !n.IsDead) { n.TakeDamage(9999f, null); break; } }; }
 		if (Net.Net.IsServer) CallDeferred(nameof(SpawnAll));
 	}
 
@@ -224,7 +228,7 @@ public partial class Population : Node2D
 	private float _traceTimer;
 	public override void _Process(double delta)
 	{
-		if (Net.Net.IsServer) { SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f); Tiers.Tick((float)delta); HungrySpells(); }
+		if (Net.Net.IsServer) { SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f); Tiers.Tick((float)delta); HungrySpells(); Losses.Tick(); }
 		if (!_trace) return;
 		_traceTimer -= GameCalendar.Instance?.DeltaGameHours ?? 0f;
 		if (_traceTimer > 0f) return;

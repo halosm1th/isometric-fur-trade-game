@@ -95,6 +95,10 @@ public partial class Npc : Agent
     public readonly HashSet<string> Recalled = new();
     public readonly Dictionary<string, int> Mourned = new();
     public readonly Dictionary<BarkKind, int> LastBarkDay = new();
+    // At the household fire for the evening (HearthGoal), and things kept
+    // from the dead: (what, whose it was).
+    public World.Hearth AtHearth;
+    public readonly List<(ItemId id, string from)> Keepsakes = new();
     private readonly Queue<string> _recentLines = new();
     private float _barkTimer = (float)GD.RandRange(6.0, 30.0);
     private string _reply; private float _replyIn = -1f;
@@ -115,6 +119,7 @@ public partial class Npc : Agent
         _barkTimer -= dt;
         if (_barkTimer > 0f) return;
         _barkTimer = (float)GD.RandRange(25.0, 60.0) / Mathf.Lerp(0.5f, 1.5f, Personality.Talkative);
+        if (AtHearth != null) _barkTimer *= 0.3f;   // the fire is where the talk is
         if (Sleeping || Conversing || Tier != Core.Tier.Live || cal.IsSkipping || HeldBy != null) return;
         if (Brain.Tier0Goal() is AttackGoal or FleeGoal) return;
         // One at a time: if someone beside you has just spoken, wait your turn.
@@ -333,7 +338,7 @@ public partial class Npc : Agent
                 {
                     if (a.IsDead || a.Describe() != g.Against) continue;
                     var pursue = Grudges.Pursue(this, a);
-                    if (pursue != null) { Sim.Notice($"{DisplayName} sees {a.Describe()} and remembers {g.Victim}."); Brain.Push(this, pursue); return; }
+                    if (pursue != null) { Sim.Notice($"{DisplayName} sees {a.Describe()} and remembers {g.Victim}."); if (a is Player.PlayerController gp) Core.Reveal.Lands(gp, $"{DisplayName} is coming for you over {g.Victim}.", $"killed {g.Victim}", 1.5f); Brain.Push(this, pursue); return; }
                 }
             }
         }
@@ -730,7 +735,8 @@ public partial class Npc : Agent
     // ---- death ------------------------------------------------------------
 
     // A body restored from a save: dead where it lay, no alarm.
-    public void DieQuietly() { Needs.Health = 0f; OnDeath(); }
+    public void DieQuietly() { _quietDeath = true; Needs.Health = 0f; OnDeath(); }
+    private bool _quietDeath;
 
     protected override void OnDeath()
     {
@@ -755,6 +761,7 @@ public partial class Npc : Agent
         CollisionLayer = 0; CollisionMask = 0;
         AddToGroup("corpses");
         Sim.Unregister(this);
+        if (!_quietDeath) Losses.Record(this);
         Sim.Notice($"{DisplayName} has died.");
         string how = LastAttacker != null && LastAttackedAgo < 30f ? $"{DisplayName} was killed by {LastAttacker.Describe()}." : $"{DisplayName} died of want.";
         Chronicle.Event(how, GlobalPosition, LastAttacker != null && LastAttackedAgo < 30f ? LastAttacker : null, DisplayName, 2f);

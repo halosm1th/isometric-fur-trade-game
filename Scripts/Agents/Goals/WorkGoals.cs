@@ -131,10 +131,13 @@ public class HuntSiteGoal : Goal
                 if (_tryTimer <= 0f)
                 {
                     _tryTimer = 0.75f;
+                    string party = npc.HomeStores?.Title ?? npc.DisplayName;
+                    float crowd = _site.CrowdFactor(party, GameCalendar.Instance.Day);
+                    _site.ClaimForToday(party, GameCalendar.Instance.Day);
                     // Chance per attempt scales with how thick the game is.
-                    float chance = Mathf.Clamp(_site.Count / (float)_site.Capacity, 0.05f, 1f) * 0.35f * (0.6f + npc.Skills.Hunting * 0.8f);
+                    float chance = Mathf.Clamp(_site.Count / (float)_site.Capacity, 0.05f, 1f) * 0.22f * (0.6f + npc.Skills.Hunting * 0.8f);
                     npc.Skills.Learn(ref npc.Skills.Hunting, 0.004f);
-                    if (GD.Randf() < chance && _site.Count > 0)
+                    if (GD.Randf() < chance * crowd && _site.Count > 0)
                     {
                         _site.Take(1);
                         SpeciesInfo.Yield(_site.Species, npc.Inventory, npc.Weapon == ItemId.Musket);

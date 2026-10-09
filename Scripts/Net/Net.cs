@@ -94,6 +94,13 @@ public partial class Net : Node
         if (IsServer && Current != Mode.Dedicated) SpawnPlayer(1, _names.GetValueOrDefault(1, LocalName));
     }
 
+    public void BroadcastHeadline(string text)
+    {
+        if (Current != Mode.Offline) Rpc(nameof(HeadlineRpc), text);
+    }
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void HeadlineRpc(string text) => Sim.NoticeHeadlineLocal(text);
+
     public void BroadcastNoise(Vector2 pos, float radius, string kind)
     {
         Sim.ShowNoise(pos, radius, kind);

@@ -96,11 +96,22 @@ public partial class JournalPanel : Control
         }
     }
 
+    // What you mean to make of yourself (design doc P.2).
+    private void FillAmbitions(System.Text.StringBuilder sb)
+    {
+        if (_player == null) return;
+        sb.AppendLine("[color=#dcb][b]What you mean to do[/b][/color]");
+        if (_player.Ambitions.Count == 0) sb.AppendLine("   Nothing declared. (Esc - What you mean to do)");
+        foreach (var a in _player.Ambitions) sb.AppendLine($"   {a.Line(_player)}");
+        sb.AppendLine();
+    }
+
     private void FillJournal()
     {
         if (_player == null) { _journal.Text = ""; return; }
         var lines = _player.Journal;
         var sb = new System.Text.StringBuilder();
+        FillAmbitions(sb);
         for (int i = lines.Count - 1; i >= 0; i--) sb.AppendLine(lines[i]);
         _journal.Text = sb.Length == 0 ? "Nothing yet worth the ink. Only what you see with your own eyes goes in here." : sb.ToString();
     }

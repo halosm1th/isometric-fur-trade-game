@@ -36,6 +36,7 @@ public partial class PauseMenu : Control
         _main.AddChild(new HSeparator());
         Button("Resume", Close);
         Button("Key bindings", () => { _main.Visible = false; _keys.Visible = true; });
+        Button("What you mean to do...", () => { _main.Visible = false; BuildAmbitions(); _ambitions.Visible = true; });
         if (NetHub.IsServer) Button("Save (F5)", () => { SaveGame.Save(); _status.Text = SaveGame.LastMessage; });
         Button(Settings.Label, () => { Settings.Toggle(); RefreshLabels(); });
         Button("Main menu", ToMainMenu);
@@ -56,6 +57,57 @@ public partial class PauseMenu : Control
         back.Pressed += () => { _keys.Visible = false; _main.Visible = true; };
         _keys.AddChild(back);
         foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--pause") GetTree().CreateTimer(4.0).Timeout += Open;
+    }
+
+    // Declaring an ambition (design doc P.2): two at most, changeable at
+    // the turning points - which, for now, means whenever you sit down and
+    // think about it.
+    private VBoxContainer _ambitions;
+    private void BuildAmbitions()
+    {
+        if (_ambitions != null) { _ambitions.QueueFree(); }
+        _ambitions = new VBoxContainer { CustomMinimumSize = new Vector2(560, 0) };
+        _ambitions.AddThemeConstantOverride("separation", 6);
+        _panel.AddChild(_ambitions);
+        var t = new Label { Text = "What do you mean to make of yourself?", HorizontalAlignment = HorizontalAlignment.Center };
+        t.AddThemeFontSizeOverride("font_size", 18);
+        _ambitions.AddChild(t);
+        var p = Sim.Player as Player.PlayerController;
+        if (p == null) return;
+        var note = new Label { Text = "Two at most. They will pull against your orders; that is the point.", Modulate = new Color(0.75f, 0.72f, 0.65f) };
+        note.AddThemeFontSizeOverride("font_size", 12);
+        _ambitions.AddChild(note);
+        foreach (var kind in Agents.Ambitions.Offered)
+        {
+            var held = p.Ambitions.Find(a => a.Kind == kind);
+            var row = new HBoxContainer();
+            var b = new Button { Text = (held != null ? "✓  " : "    ") + new Agents.Ambition { Kind = kind }.Title, CustomMinimumSize = new Vector2(320, 0), Alignment = HorizontalAlignment.Left };
+            b.Pressed += () =>
+            {
+                var cal = GameCalendar.Instance;
+                if (held != null) { p.Ambitions.Remove(held); Sim.NoticeLocal($"You put aside the thought of it: {held.Title.ToLower()}."); }
+                else if (p.Ambitions.Count >= 2) Sim.NoticeLocal("Two is as many as a man can honestly carry.");
+                else
+                {
+                    var a = new Agents.Ambition { Kind = kind, DeclaredDay = cal?.Day ?? 0, DeclaredYear = cal?.Year ?? 1811 };
+                    p.Ambitions.Add(a);
+                    p.AmbitionsDeclared = true;
+                    p.Journal.Add($"{cal?.DateString}: You set yourself {a.Pledge}.");
+                    Sim.NoticeLocal($"You set yourself {a.Pledge}.");
+                }
+                BuildAmbitions();
+                _ambitions.Visible = true;
+            };
+            row.AddChild(b);
+            var d = new Label { Text = Agents.Ambitions.Blurb(kind), AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(230, 0) };
+            d.AddThemeFontSizeOverride("font_size", 11);
+            d.Modulate = new Color(0.8f, 0.78f, 0.7f);
+            row.AddChild(d);
+            _ambitions.AddChild(row);
+        }
+        var back = new Button { Text = "Back" };
+        back.Pressed += () => { _ambitions.Visible = false; _main.Visible = true; };
+        _ambitions.AddChild(back);
     }
 
     private void Button(string text, System.Action act)
@@ -109,7 +161,7 @@ public partial class PauseMenu : Control
     {
         if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F11 }) { Settings.Toggle(); RefreshLabels(); GetViewport().SetInputAsHandled(); return; }
         if (!@event.IsActionPressed("ui_cancel")) return;
-        if (_panel.Visible) { if (_keys.Visible) { _keys.Visible = false; _main.Visible = true; } else Close(); GetViewport().SetInputAsHandled(); return; }
+        if (_panel.Visible) { if (_keys.Visible) { _keys.Visible = false; _main.Visible = true; } else if (_ambitions != null && _ambitions.Visible) { _ambitions.Visible = false; _main.Visible = true; } else Close(); GetViewport().SetInputAsHandled(); return; }
         if (AnotherMenuOpen) return;   // Esc closes that first
         Open();
         GetViewport().SetInputAsHandled();
@@ -117,7 +169,7 @@ public partial class PauseMenu : Control
 
     private void Open()
     {
-        _panel.Visible = true; _main.Visible = true; _keys.Visible = false; IsOpen = true;
+        _panel.Visible = true; _main.Visible = true; _keys.Visible = false; if (_ambitions != null) _ambitions.Visible = false; IsOpen = true;
         bool alone = NetHub.I == null || NetHub.I.Current == NetHub.Mode.Offline;
         _status.Text = alone ? "Paused." : NetHub.IsServer ? "You are hosting: the world goes on while this is up." : "The host's world goes on while this is up.";
         // Not SceneTree.Paused: interpolated bodies vanish under it. Time simply stops.

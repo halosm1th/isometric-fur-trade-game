@@ -265,3 +265,89 @@ public class BrawlGoal : Goal
     }
     public override void OnExit(Npc npc) => npc.StopMoving();
 }
+
+// An evening at the fire (design doc P.8, 17.6): the household gathers at
+// its own hearth after the day's work - stories, songs, a word for the dead -
+// until bedtime. Talk comes thicker here (Npc.Chatter, Barks.HearthLine).
+public class HearthGoal : Goal
+{
+    private int _phase;
+    private Hearth _hearth;
+    public override string Label => "sitting by the fire";
+    public override void OnExit(Npc npc) { npc.AtHearth = null; }
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        switch (_phase)
+        {
+            case 0:
+                _hearth = HomeHearth(npc);
+                if (_hearth == null) return GoalStatus.Failed;
+                _phase = 1;
+                return Delegate(new GoToGoal(Seat(npc, _hearth), 30f));
+            case 1:
+                if (!ChildFinished(out var r)) return GoalStatus.Running;
+                if (r != GoalStatus.Done) return GoalStatus.Failed;
+                npc.AtHearth = _hearth;
+                npc.StopMoving();
+                npc.FaceToward(_hearth.GlobalPosition);
+                _phase = 2;
+                return GoalStatus.Running;
+            default:
+                float h = GameCalendar.Instance.Hour;
+                if (h >= 21.5f || h < 12f || _hearth == null || !GodotObject.IsInstanceValid(_hearth)) return GoalStatus.Done;
+                // An evening spent at the same fire draws people together.
+                foreach (var pc in Sim.Players()) if (pc.GlobalPosition.DistanceTo(_hearth.GlobalPosition) < 260f) npc.ChangeRapport(pc, hours * 0.8f);
+                return GoalStatus.Running;
+        }
+    }
+
+    // A place of his own round the fire: a free cell up to two steps out
+    // from the hearth without going through a wall, as far from the others
+    // already sitting as can be had.
+    private static Vector2I Seat(Npc npc, Hearth hearth)
+    {
+        var paths = Sim.Paths; var st = Sim.Structures;
+        var ring = new System.Collections.Generic.List<Vector2I>();
+        var seen = new System.Collections.Generic.HashSet<Vector2I> { hearth.Cell };
+        var frontier = new System.Collections.Generic.List<Vector2I> { hearth.Cell };
+        for (int step = 0; step < 2; step++)
+        {
+            var next = new System.Collections.Generic.List<Vector2I>();
+            foreach (var c in frontier)
+                foreach (var n in IsoGrid.EdgeNeighbours(c))
+                {
+                    if (!seen.Add(n) || paths != null && !paths.IsWalkable(n) || st != null && st.EdgeBlocked(c, n, out _)) continue;
+                    next.Add(n); ring.Add(n);
+                }
+            frontier = next;
+        }
+        if (ring.Count == 0) return npc.StandCellNear(hearth.Cell);
+        Vector2I best = ring[0]; float bestScore = float.MinValue;
+        foreach (var c in ring)
+        {
+            var w = IsoGrid.ToWorld(c);
+            float crowd = 0f;
+            foreach (var a in Sim.AgentsWithin(w, 90f)) if (a != npc) crowd += 1f;
+            float score = -crowd * 10f + GD.Randf();
+            if (score > bestScore) { bestScore = score; best = c; }
+        }
+        return best;
+    }
+
+    // The burning hearth of his own household nearest where he sleeps.
+    public static Hearth HomeHearth(Npc npc)
+    {
+        var s = Sim.Structures;
+        if (s == null || npc.HomeStores == null) return null;
+        var bed = IsoGrid.ToWorld(npc.BedCell);
+        Hearth best = null; float bestD = 1400f;
+        foreach (var h in s.AllHearths)
+        {
+            if (!h.IsBurning || !npc.HomeStores.HearthCells.Contains(h.Cell)) continue;
+            float d = h.GlobalPosition.DistanceTo(bed);
+            if (d < bestD) { bestD = d; best = h; }
+        }
+        return best;
+    }
+}

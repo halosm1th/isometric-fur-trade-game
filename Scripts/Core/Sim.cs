@@ -60,9 +60,9 @@ public static class Sim
         Agents.Clear(); Npcs.Clear(); Animals.Clear();
         // The old scene's HUD and painters hung handlers here; they're gone
         // with it, and the new scene subscribes afresh in its _Ready.
-        LocalPlayerChanged = null;
+        LocalPlayerChanged = null; OnHeadline = null;
         Nwc = null; Outpost = null; Assiniboine = null; Bands.Clear();
-        IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear(); IsometricFurTradeGame.Scripts.Agents.Barks.Reset();
+        IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear(); IsometricFurTradeGame.Scripts.Agents.Barks.Reset(); IsometricFurTradeGame.Scripts.Agents.Losses.Reset();
     }
 
     // A sound in the world (design doc 15, 16): animals in range react, and
@@ -87,6 +87,16 @@ public static class Sim
         parent.AddChild(ring);
     }
 
+    // Something that takes the screen for a moment: a death in the family,
+    // a post lost, an accord broken (design doc P.4).
+    public static event System.Action<string> OnHeadline;
+    public static void Headline(string text)
+    {
+        Notice(text);
+        OnHeadline?.Invoke(text);
+        if (Net.Net.IsServer) Net.Net.I?.BroadcastHeadline(text);
+    }
+
     // Log line to the console and, if a HUD listener exists, the screen.
     public static event System.Action<string> OnNotice;
     public static System.Action<Player.PlayerController> LocalPlayerChanged;
@@ -102,6 +112,7 @@ public static class Sim
 
     // A notice that arrived from the server (don't re-broadcast).
     public static void NoticeLocal(string text) => OnNotice?.Invoke(text);
+    public static void NoticeHeadlineLocal(string text) { OnNotice?.Invoke(text); OnHeadline?.Invoke(text); }
 
     public static IEnumerable<Player.PlayerController> Players()
     {

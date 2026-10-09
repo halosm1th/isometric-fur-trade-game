@@ -6,7 +6,7 @@ using IsometricFurTradeGame.Scripts.Player;
 
 namespace IsometricFurTradeGame.Scripts.Agents;
 
-public enum BarkKind { None, Shared, Sour, Mourning, State, Worry, Want, Reply }
+public enum BarkKind { None, Shared, Sour, Mourning, State, Worry, Want, Reply, Story, Song, Toast, Keepsake }
 
 public readonly struct BarkLine
 {
@@ -62,18 +62,20 @@ public static class Barks
 
     public static BarkLine Compose(Npc s, Agent listener)
     {
+        // 0. An evening at the fire has its own talk.
+        if (s.AtHearth != null && GD.Randf() < 0.7f)
+        {
+            var fire = HearthLine(s, listener);
+            if (!fire.IsEmpty) return fire;
+        }
+
         // 1. Something you went through together.
         var shared = Recallable(s, listener);
         if (shared != null && GD.Randf() < 0.6f) return Recall(s, listener, shared);
 
-        // 2. The dead of his own family.
-        var lost = LostKin(s);
-        if (lost != null && GD.Randf() < 0.5f)
-        {
-            s.Mourned[lost.DisplayName] = s.Mourned.GetValueOrDefault(lost.DisplayName) + 1;
-            string n = CallName(lost);
-            return new BarkLine(Pick($"{n} should be here.", $"I keep looking for {n} at the fire.", $"{n} would have laughed at that."), BarkKind.Mourning);
-        }
+        // 2. The hole someone left: his bunk, his things, the man himself.
+        var gone = LossLine(s, listener);
+        if (!gone.IsEmpty && GD.Randf() < 0.6f) return gone;
 
         // 3. The body.
         var state = BodyLine(s);
@@ -94,7 +96,7 @@ public static class Barks
 
     // The post's trouble gets said aloud once a day, by whoever says it first.
     private static readonly Dictionary<Household, int> _houseWorryDay = new();
-    public static void Reset() => _houseWorryDay.Clear();
+    public static void Reset() { _houseWorryDay.Clear(); _toldAt.Clear(); }
     private static bool HouseWorryFree(Npc s)
     {
         int day = (int)(GameCalendar.Instance?.DayOfYear ?? 0f);
@@ -115,7 +117,8 @@ public static class Barks
     // What saying it does: shared trouble warms both ways; the listener answers.
     public static void Apply(Npc s, Agent listener, BarkLine line)
     {
-        if (line.Memory != null) line.Memory.LastRaised = (int)(GameCalendar.Instance?.DayOfYear ?? 0f);
+        if (line.Kind == BarkKind.Story) Told(s, line.Memory);
+        else if (line.Memory != null) line.Memory.LastRaised = (int)(GameCalendar.Instance?.DayOfYear ?? 0f);
         if (line.Memory != null && listener != null) s.Recalled.Add(line.Memory.Key + "|" + listener.DisplayName);
         if (listener == null) return;
         if (line.Kind == BarkKind.Shared)
@@ -123,6 +126,9 @@ public static class Barks
             s.ChangeRapport(listener, 1.5f);
             if (listener is Npc ln) ln.ChangeRapport(s, 1.5f);
         }
+        if (line.Kind is BarkKind.Story or BarkKind.Song or BarkKind.Toast && s.AtHearth != null)
+            foreach (var a in Sim.AgentsWithin(s.AtHearth.GlobalPosition, 260f))
+                if (a is Npc n && n != s && n.AtHearth == s.AtHearth) n.ChangeRapport(s, 0.4f);
         if (listener is Npc l && !l.Sleeping) l.QueueReply(Reply(l, s, line), 2.5f);
     }
 
@@ -144,14 +150,18 @@ public static class Barks
     {
         BarkKind.Sour => l.Personality.Courage > 0.6f ? Pick("Then remember it.", "Say it to my face, then.") : Pick("That's done with.", "Leave it be."),
         BarkKind.Shared => l.Personality.Talkative < 0.25f ? "Mm." : IsWrong(line.Memory?.Text ?? "") ? Pick("I'd sooner not think on it.", "Aye. I see it too.") : IsHard(line.Memory?.Text ?? "") ? Pick("Aye. Ill times.", "We came through it.", "Never again, God willing.") : Pick("Aye, I remember.", "Don't I know it.", "How could I forget?"),
-        BarkKind.Mourning => Pick("God rest them.", "Aye.", "They're missed."),
+        BarkKind.Mourning => Pick("God rest him.", "Aye.", "He's missed."),
+        BarkKind.Toast => line.Text,
+        BarkKind.Story => l.Personality.Suspicion > 0.65f ? Pick("I heard it different.", "Who told you that?") : Pick("Is that so?", "God save us.", "I'd not heard that."),
+        BarkKind.Song => Pick("Again!", "Ha! That's the one.", "(the others join in)"),
+        BarkKind.Keepsake => Pick("He'd want you to have it.", "Keep it well."),
         BarkKind.State => l.Personality.Talkative < 0.3f ? null : Pick("You and me both.", "Aye.", "It'll pass."),
         BarkKind.Worry => l.Role is Role.Labourer or Role.Voyageur ? Pick("Then send us out.", "The beaver don't know about London.") : Pick("We'll make it.", "God help us."),
         _ => null,
     };
 
     // The event as one of the people in it would say it.
-    private static string Personalise(string text, Agent s, Agent listener)
+    public static string Personalise(string text, Agent s, Agent listener)
     {
         if (listener != null && !string.IsNullOrEmpty(listener.DisplayName))
         {
@@ -178,14 +188,124 @@ public static class Barks
     // Trouble nobody did to anyone: weather, hunger.
     private static bool IsHard(string t) => t.Contains("hungry") || t.Contains("blizzard");
 
-    private static Agent LostKin(Npc s)
+    // The dead who were close: kin always, housemates by how much they went
+    // through together (Losses.Bond). Kin mourn longer.
+    private static BarkLine LossLine(Npc s, Agent listener)
     {
-        foreach (var k in Kin(s))
+        string who = CallName(listener);
+        foreach (var l in Losses.All)
         {
-            if (k == null || !GodotObject.IsInstanceValid(k) || !k.IsDead) continue;
-            if (s.Mourned.GetValueOrDefault(k.DisplayName) < 6) return k;
+            if (l.Home != s.HomeStores || l.Name == s.DisplayName) continue;
+            string n = CallName(l.Name);
+            // His bunk, empty, or someone else's now.
+            if (l.Fresh && l.NewSleeper == null && s.GlobalPosition.DistanceTo(World.IsoGrid.ToWorld(l.Bed)) < 120f && s.Recalled.Add("bunk|" + l.Name))
+                return new BarkLine(Pick($"That was {n}'s bunk.", $"Nobody's taken {n}'s bunk yet. Nobody wants to.", $"{n} slept there. Snored like a bull."), BarkKind.Mourning);
+            if (l.NewSleeper != null && !l.NewSleeperTold && l.NewSleeper != s.DisplayName)
+            {
+                l.NewSleeperTold = true;
+                return new BarkLine($"{CallName(l.NewSleeper)} has {n}'s bunk now.", BarkKind.Mourning);
+            }
+            float bond = Losses.Bond(s, l);
+            int said = s.Mourned.GetValueOrDefault(l.Name);
+            bool kin = bond >= 10f;
+            if (!kin && (!l.Fresh || bond < 1.5f) || said >= (kin ? 8 : 4)) continue;
+            s.Mourned[l.Name] = said + 1;
+            // A thing they went through together, if there is one.
+            foreach (var m in s.Memories)
+                if (m.Directness == 1 && m.Weight >= 1f && m.Witnesses != null && m.Witnesses.Contains(l.Name) && !m.Text.Contains(l.Name + " died") && !m.Text.Contains(l.Name + " was killed") && GD.Randf() < 0.5f)
+                    return new BarkLine($"I keep thinking of {n}. {Personalise(m.Text, s, listener)}", BarkKind.Mourning);
+            return new BarkLine(Pick($"{n} should be here.", $"I keep looking for {n} at the fire.", $"{n} would have laughed at that.", kin ? $"I can't get used to it, {who}. {n}'s gone." : $"Poor {n}."), BarkKind.Mourning);
         }
-        return null;
+        // Something of his, kept.
+        if (s.Keepsakes.Count > 0 && GD.Randf() < 0.3f)
+        {
+            var (id, from) = s.Keepsakes[(int)(GD.Randi() % (uint)s.Keepsakes.Count)];
+            if (s.Inventory.Has(id))
+            {
+                string item = Items.Items.Of(id).Name.ToLower();
+                return new BarkLine(Pick($"This was {CallName(from)}'s {item}.", $"{CallName(from)} carried this {item} every day."), BarkKind.Keepsake);
+            }
+        }
+        return default;
+    }
+
+    // ---- the fire --------------------------------------------------------------
+
+    // What's been told at each fire tonight, so a story goes round once.
+    private static readonly Dictionary<World.Hearth, (int day, HashSet<string> told)> _toldAt = new();
+
+    private static BarkLine HearthLine(Npc s, Agent listener)
+    {
+        var fire = s.AtHearth;
+        int day = (int)(GameCalendar.Instance?.DayOfYear ?? 0f);
+        if (!_toldAt.TryGetValue(fire, out var night) || night.day != day) { night = (day, new HashSet<string>()); _toldAt[fire] = night; }
+
+        // A word for the dead of this house, once a night each.
+        foreach (var l in Losses.All)
+            if (l.Home == s.HomeStores && l.Fresh && night.told.Add("toast|" + l.Name))
+                return new BarkLine(s.IsBandPerson ? $"We remember {CallName(l.Name)}." : $"To {CallName(l.Name)}.", BarkKind.Toast);
+
+        float r = GD.Randf();
+        // A story: something he knows that the fire hasn't heard tonight.
+        if (r < 0.6f)
+        {
+            MemoryEntry best = null;
+            foreach (var m in s.Memories)
+            {
+                if (m.Weight < 0.8f || m.Directness > 3 || night.told.Contains(m.Key)) continue;
+                if (best == null || m.Weight / m.Directness > best.Weight / best.Directness) best = m;
+            }
+            if (best != null)
+            {
+                night.told.Add(best.Key);
+                string t = Personalise(best.Text, s, null);
+                return new BarkLine(best.Directness == 1 ? Pick($"I saw it myself. {t}", $"I was there. {t}") : Pick($"They say {Lower(t)}", $"I had it from a man who was there: {Lower(t)}"), BarkKind.Story, best);
+            }
+        }
+        // A song, or a tale of the people's own.
+        if (night.told.Add("song|" + s.DisplayName))
+        {
+            string song = s.Role switch
+            {
+                Role.Voyageur => Pick("(sings 'A la claire fontaine', and the others take up the chorus)", "(sings a paddling song, beating time on his knee)"),
+                Role.Labourer => Pick("(plays a reel on a borrowed fiddle)", "(sings an Orkney air, slow and low)"),
+                Role.CreeHunter or Role.CreeChief => Pick("(tells of Wisahkecahk and how he tricked the ducks)", "(tells of the winter the caribou did not come)"),
+                Role.CreeWoman or Role.CreeDaughter => Pick("(tells the children a story of the Thunderbirds)", "(tells how the rabbit got its long ears)", "(sings a lullaby to the smallest child)"),
+                Role.Woman or Role.Wife => Pick("(sings low over her sewing)", "(tells of her mother's people up the coast)"),
+                Role.Factor or Role.Clerk or Role.Postmaster => "(reads aloud from a London newspaper a year old)",
+                _ => null,
+            };
+            if (song != null) return new BarkLine(song, BarkKind.Song);
+        }
+        return default;
+    }
+
+    // A story told at the fire passes to everyone sitting there, one hop
+    // further from the truth (design doc 10.4) - and to a player within
+    // earshot, who hears it for their journal like anyone else.
+    public static void Told(Npc s, MemoryEntry m)
+    {
+        if (s.AtHearth == null || m == null) return;
+        foreach (var a in Sim.AgentsWithin(s.AtHearth.GlobalPosition, 260f))
+        {
+            if (a == s) continue;
+            if (a is Npc n && !n.IsDead && !n.Sleeping) n.Remember(m.Retell(s));
+            else if (a is PlayerController pc && pc.Known.Add(m.Key))
+            {
+                pc.Journal.Add($"{GameCalendar.Instance?.DateString}: At the fire, {s.DisplayName} told it: {m.Text}");
+                if (pc.Journal.Count > 40) pc.Journal.RemoveAt(0);
+            }
+        }
+    }
+
+    public static void ResetFires() => _toldAt.Clear();
+
+    // "They say a blizzard..." but "They say Magnus Spence...": only the
+    // little words at the head of a sentence lose their capital.
+    private static string Lower(string t)
+    {
+        foreach (var w in new[] { "A ", "An ", "The ", "There ", "Word " }) if (t.StartsWith(w)) return char.ToLower(t[0]) + t.Substring(1);
+        return t;
     }
 
     private static IEnumerable<Agent> Kin(Npc s)
@@ -233,9 +353,10 @@ public static class Barks
     }
 
     // "Mr. Auld" for gentlemen, the first name for everyone else.
-    public static string CallName(Agent a)
+    public static string CallName(Agent a) => CallName(a?.DisplayName ?? "");
+    public static string CallName(string n)
     {
-        var n = a?.DisplayName ?? "";
+        n = (n ?? "").Replace(" (clerk)", "").Replace(" (chief)", "").Replace(" (acting Factor)", "");
         if (n.StartsWith("Mr. ")) { var parts = n.Split(' '); return "Mr. " + parts[^1]; }
         int sp = n.IndexOf(' ');
         return sp > 0 ? n.Substring(0, sp) : n;

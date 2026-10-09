@@ -233,7 +233,7 @@ public static class Letters
         m.Payload["about"] = about; m.Payload["text"] = text; m.Payload["standing"] = standing;
         m.OnRead = _ =>
         {
-            foreach (var pc in Sim.Players()) if (pc.DisplayName == about) { pc.Standing -= standing; pc.Say($"Word has reached the Factor: {text} Your standing suffers."); }
+            foreach (var pc in Sim.Players()) if (pc.DisplayName == about) { pc.Standing -= standing; Core.Reveal.Lands(pc, $"Word has reached the Factor and your standing falls by {standing:0}.", "sold", 1.5f); }
             Sim.Notice($"The Factor has heard: {text}");
         };
         return m;

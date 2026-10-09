@@ -42,6 +42,8 @@ public abstract class RoleBehaviour
         if (IsNight) return new SleepGoal();
         var dram = EveningDrink(npc);
         if (dram != null) return dram;
+        var fire = EveningAtFire(npc);
+        if (fire != null) return fire;
         // Hangover: a man still drunk at first light does no work worth the name.
         if (npc.Intoxication > 35f && IsWorkHours) return new WanderGoal(npc.BedCell, 1, 0.8f);
         if (npc.AssignedTask != null && IsWorkHours && !(npc.AssignedTaskIsHunt && Cal.Hour >= 12f))
@@ -98,6 +100,18 @@ public abstract class RoleBehaviour
         if (!s.Stores.Has(ItemId.Rum) && !s.Stores.Has(ItemId.Ale)) return null;
         float inclination = 0.3f + npc.Personality.Talkative * 0.4f - npc.Personality.Loyalty * 0.3f;
         return GD.Randf() < inclination * 0.5f ? new CarouseGoal() : null;
+    }
+
+    // After the day's work the household drifts to its fire (design doc P.8):
+    // the sociable nearly always, the solitary now and then. A camp's fire
+    // is in the open, so a blizzard keeps the band in their lodges.
+    protected static Goal EveningAtFire(Npc npc)
+    {
+        if (npc.HomeStores == null || Cal.Hour < 18f || Cal.Hour >= 21f) return null;
+        if (npc.Role is Role.Sailor || npc.HeldBy != null || npc.Following != null) return null;
+        if (npc.IsBandPerson && FoulWeather) return null;
+        if (GD.Randf() > 0.35f + npc.Personality.Talkative * 0.55f) return null;
+        return HearthGoal.HomeHearth(npc) != null ? new HearthGoal() : null;
     }
 
     // Fires need wood; whoever notices first deals with it.

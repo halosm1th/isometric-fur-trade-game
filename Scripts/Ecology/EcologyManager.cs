@@ -48,6 +48,17 @@ public class SpawnSite
 
     public readonly List<Animal> Live = new();
     public readonly List<Trapline> Traplines = new();
+    // Who worked this ground today: a second party finds it picked over
+    // (design doc 16.3's shared finite site, P.3's slower crisis).
+    public readonly HashSet<string> WorkedToday = new();
+    public int WorkedDay = -1;
+    public bool ClaimForToday(string who, int day)
+    {
+        if (day != WorkedDay) { WorkedDay = day; WorkedToday.Clear(); }
+        WorkedToday.Add(who);
+        return WorkedToday.Count <= 1 || WorkedToday.Contains(who) && WorkedToday.Count <= 2;
+    }
+    public float CrowdFactor(string who, int day) => day == WorkedDay && WorkedToday.Count > 1 && !WorkedToday.Contains(who) ? 0.45f : 1f;
 
     public Trapline LineOf(string owner)
     {

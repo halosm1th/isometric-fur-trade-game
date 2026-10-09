@@ -100,6 +100,12 @@ public partial class PlayerController : Agent
 	public float BelievedFursMb;
 	public float BelievedQuotaMb = 60f;
 	public int LastCountedDay = -99;
+	// What the player is doing with the year (design doc P.2), and the
+	// history a leader weighs when the player asks him for something.
+	public readonly List<Ambition> Ambitions = new();
+	public int TasksDone, TasksRefused;
+	public float PrivateWorthMb;   // furs and goods kept out of the Company's books
+	public bool AmbitionsDeclared;
 	public int LastGiftToKinYear = 0;
 	public bool TravellingServer;   // the owner is on the road: the clock marches
 	public Economy.FortLedger HomePost => Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;
@@ -250,6 +256,7 @@ public partial class PlayerController : Agent
 		{
 			if (!IsInstanceValid(this)) return;
 			EmitSignal(SignalName.Notice, "York Factory, Hudson's Bay. You are the Company's new hand. E talks, 1-9 uses, left click strikes, Tab chats, F1 opens the test console.");
+			if (!AmbitionsDeclared) EmitSignal(SignalName.Notice, "A man wants something of a country like this. Esc - What you mean to do.");
 		};
 		// Dev aids: `--spawn=depot` moves you there (server permitting), `--provoke`
 		// knifes the nearest person after 3 s, `--talk` opens a conversation after 4 s.
@@ -278,8 +285,8 @@ public partial class PlayerController : Agent
 	{
 		var cal = GameCalendar.Instance;
 		if (Task.Kind != TaskKind.None && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say("Yesterday's task went undone. Mr. Auld noticed."); }
-		if (Task.Kind != TaskKind.None && Task.IsComplete) Standing += 5f;
-		Task.Kind = kind; Task.Need = need; Task.Done = 0; Task.DayAssigned = cal.Day; Task.Intent = intent ?? ""; Task.Deadline = cal.Day + 1;
+		if (Task.Kind != TaskKind.None && Task.IsComplete) { Standing += 5f; TasksDone++; }
+		Task.Kind = kind; Task.Need = need; Task.Done = 0; Task.DayAssigned = cal.Day; Task.Intent = intent ?? ""; Task.Deadline = cal.Day + 1; Task.Accepted = false; Task.OwnWay = false;
 		if (kind != TaskKind.None) Say(Task.Describe());
 	}
 
@@ -453,6 +460,26 @@ public partial class PlayerController : Agent
 		if (Needs.Thirst < 70f && (fort.Stores.Remove(ItemId.Water) || !GameCalendar.Instance.IsFrozen)) Needs.Thirst = Mathf.Min(100f, Needs.Thirst + 45f);
 	}
 
+	// What you have of your own (design doc P.2's private trade): furs and
+	// goods on your back, plus whatever you have put by in a canoe.
+	private void CountPrivate()
+	{
+		float mb = 0f;
+		foreach (var (id, n) in Inventory.All())
+		{
+			var k = Items.Items.Of(id).Kind;
+			if (k == ItemKind.Fur || k == ItemKind.Goods) mb += Items.Items.Of(id).ValueMb * n;
+		}
+		if (Sim.Spawner != null)
+			foreach (var c in Sim.Spawner.Canoes)
+				foreach (var (id, n) in c.Cargo.All())
+				{
+					var k = Items.Items.Of(id).Kind;
+					if (k == ItemKind.Fur || k == ItemKind.Goods) mb += Items.Items.Of(id).ValueMb * n * 0.5f;   // a cache you must still get home
+				}
+		PrivateWorthMb = Mathf.Max(PrivateWorthMb * 0.995f, mb);   // the high-water mark, decaying slowly if you spend it
+	}
+
 	private void CountStores()
 	{
 		var fort = HomePost;
@@ -482,7 +509,8 @@ public partial class PlayerController : Agent
 			wife.Role = Role.CreeDaughter; wife.HomeStores = band; wife.ResetBehaviour(); wife.Brain.Clear(wife);
 			if (band != null) { wife.BedCell = new List<Vector2I>(band.Tipis())[0]; wife.WorkCell = IsoGrid.Cell(band.Camp, 1, 2); band.StandingWithCompany = Mathf.Max(0f, band.StandingWithCompany - 15f); }
 			foreach (var n in Sim.Npcs) if (n.HomeStores == band) n.ChangeRapport(this, -20f);
-			Say($"{wife.DisplayName} has gone back to her people. A husband who is never there is no husband; her family will not forget it.");
+			Core.Reveal.Lands(this, $"{wife.DisplayName} has gone back to her people.", "", 1.6f);
+			Say($"A husband who is never there is no husband; her family will not forget it. ({apart} days since you last saw her.)");
 			Chronicle.Event($"{wife.DisplayName} left {DisplayName} and went home to her people.", wife.GlobalPosition, wife, DisplayName, 2f);
 		}
 		// Spring: her father looks for his due.
@@ -511,7 +539,7 @@ public partial class PlayerController : Agent
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (NetHub.IsServer) { SeenAcross(); MarriageTick(); CaptiveTick(); CountStores(); PostKeep((float)delta); }
+		if (NetHub.IsServer) { SeenAcross(); MarriageTick(); CaptiveTick(); CountStores(); CountPrivate(); PostKeep((float)delta); }
 		base._PhysicsProcess(delta);
 		float dt = (float)delta;
 		if (IsServerCopy) ServerCanoeTick();
@@ -1174,6 +1202,8 @@ public partial class PlayerController : Agent
 			if (take <= 0) continue;
 			Inventory.Remove(id, take); fort.Stores.Add(id, take); moved += take;
 			if (kind == ItemKind.Goods) { Task.Progress(TaskKind.CarryCargo, take); if (fort == Sim.Outpost) Task.Progress(TaskKind.Courier, take); }
+			// Leave to do it your way: anything of worth put into the stores counts.
+			if (Task.OwnWay && !Task.IsComplete && (kind == ItemKind.Fur || kind == ItemKind.Goods)) Task.Progress(Task.Kind, Mathf.Max(1, Mathf.RoundToInt(Items.Items.Of(id).ValueMb * take)));
 		}
 		if (provisions && moved > 0) { Standing += Mathf.Min(4f, moved * 0.5f); Chronicle.Event($"{DisplayName} brought {moved} of meat to the stores.", GlobalPosition, this, weight: 0.5f); }
 		return moved;

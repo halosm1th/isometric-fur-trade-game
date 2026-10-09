@@ -148,7 +148,7 @@ public static class SaveGame
             foreach (var l in s.Traplines) lines.Add(new GDict { ["owner"] = l.Owner, ["traps"] = l.Traps, ["caught"] = l.Caught, ["check"] = l.HoursSinceCheck, ["set"] = l.HoursSinceSet, ["robbed"] = l.Robbed, ["skill"] = l.Skill });
             a.Add(new GDict
             {
-                ["name"] = s.Name, ["count"] = s.Count, ["breeding"] = s.BreedingCapacity, ["scarcity"] = s.Scarcity, ["food"] = s.FoodStock,
+                ["name"] = s.Name, ["workedDay"] = s.WorkedDay, ["count"] = s.Count, ["breeding"] = s.BreedingCapacity, ["scarcity"] = s.Scarcity, ["food"] = s.FoodStock,
                 ["cx"] = s.Cell.X, ["cy"] = s.Cell.Y, ["lines"] = lines,
             });
         }
@@ -268,6 +268,9 @@ public static class SaveGame
         foreach (var p in Sim.Players())
         {
             var d = AgentCommon(p);
+            var ambs = new GArr();
+            foreach (var amb in p.Ambitions) ambs.Add(new GDict { ["kind"] = (int)amb.Kind, ["day"] = amb.DeclaredDay, ["year"] = amb.DeclaredYear, ["best"] = amb.Best, ["abandoned"] = amb.Abandoned });
+            d["ambitions"] = ambs; d["tasksDone"] = p.TasksDone; d["tasksRefused"] = p.TasksRefused; d["privateMb"] = p.PrivateWorthMb; d["ambDeclared"] = p.AmbitionsDeclared;
             d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["tongue2"] = p.AssiniboineFluency; d["authorized"] = p.AuthorizedAcrossUntilDay; d["inland"] = p.PostedInland; d["captive"] = p.CaptiveOf == Sim.Nwc ? "nwc" : p.CaptiveOf == Sim.Fort ? "fort" : ""; d["captiveUntil"] = p.CaptiveUntilDay; d["parole"] = p.ParoleUntilDay; d["paroleTo"] = (int)p.ParoleTo; d["paroleConfessed"] = p.ParoleConfessed;
             d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline;
             var known = new GArr(); foreach (var s in p.KnownSites) known.Add(s);
@@ -398,7 +401,7 @@ public static class SaveGame
                     var sd = sv.AsGodotDictionary();
                     var site = Sim.Ecology.Sites.Find(s => s.Name == S(sd, "name"));
                     if (site == null) continue;
-                    site.Count = F(sd, "count"); site.BreedingCapacity = F(sd, "breeding", 1f); site.Scarcity = B(sd, "scarcity"); site.FoodStock = F(sd, "food", 1f);
+                    site.Count = F(sd, "count"); site.WorkedDay = I(sd, "workedDay", -1); site.BreedingCapacity = F(sd, "breeding", 1f); site.Scarcity = B(sd, "scarcity"); site.FoodStock = F(sd, "food", 1f);
                     site.Cell = new Vector2I(I(sd, "cx", site.Cell.X), I(sd, "cy", site.Cell.Y));
                     site.Traplines.Clear();
                     foreach (var lv in sd["lines"].AsGodotArray())
@@ -497,6 +500,9 @@ public static class SaveGame
     {
         if (p == null || !_savedPlayers.TryGetValue(p.DisplayName, out var d)) return;
         LoadAgentCommon(p, d);
+        p.Ambitions.Clear();
+        if (d.ContainsKey("ambitions")) foreach (var av in d["ambitions"].AsGodotArray()) { var ad = av.AsGodotDictionary(); p.Ambitions.Add(new Ambition { Kind = (AmbitionKind)I(ad, "kind"), DeclaredDay = I(ad, "day"), DeclaredYear = I(ad, "year"), Best = F(ad, "best"), Abandoned = B(ad, "abandoned") }); }
+        p.TasksDone = I(d, "tasksDone"); p.TasksRefused = I(d, "tasksRefused"); p.PrivateWorthMb = F(d, "privateMb"); p.AmbitionsDeclared = B(d, "ambDeclared");
         p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer"); p.CreeFluency = F(d, "tongue", 0.1f); p.AssiniboineFluency = F(d, "tongue2", 0.05f); p.AuthorizedAcrossUntilDay = I(d, "authorized", -1); p.PostedInland = B(d, "inland"); p.CaptiveOf = S(d, "captive") == "nwc" ? Sim.Nwc : S(d, "captive") == "fort" ? Sim.Fort : null; p.CaptiveUntilDay = I(d, "captiveUntil", -1); p.ParoleUntilDay = I(d, "parole", -1); p.ParoleTo = (Faction)I(d, "paroleTo"); p.ParoleConfessed = B(d, "paroleConfessed");
         var t = d["task"].AsGodotArray();
         p.Task.Kind = (TaskKind)t[0].AsInt32(); p.Task.Need = t[1].AsInt32(); p.Task.Done = t[2].AsInt32(); p.Task.DayAssigned = t[3].AsInt32();

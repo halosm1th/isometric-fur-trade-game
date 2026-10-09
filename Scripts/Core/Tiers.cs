@@ -105,7 +105,8 @@ public static class Tiers
     {
         var cal = GameCalendar.Instance;
         bool foul = cal.Weather.Current is SkyState.Blizzard or SkyState.Storm;
-        foreach (var n in Sim.Npcs)
+        // A copy: someone who dies of want in the batch leaves Sim.Npcs mid-loop.
+        foreach (var n in new System.Collections.Generic.List<Npc>(Sim.Npcs))
         {
             if (n == null || !GodotObject.IsInstanceValid(n) || n.Tier != Tier.Background || n.IsDead) continue;
             var home = n.HomeStores;

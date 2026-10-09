@@ -15,6 +15,8 @@ public class PlayerTask
     public int DayAssigned;
     public string Intent = "";      // why, in the leader's words (design doc 3.5: intent, not reasoning)
     public int Deadline;            // day it's wanted by
+    public bool Accepted;           // you said you would
+    public bool OwnWay;             // he does not mind how (design doc 3.9)
 
     public bool IsComplete => Kind != TaskKind.None && Done >= Need;
 
@@ -28,7 +30,7 @@ public class PlayerTask
         TaskKind.Report => "Report to the Factor: find Mr. Auld and speak to him",
         TaskKind.Courier => $"Carry the outfit up the river road and stow it at Oxford House ({Done}/{Need} lots)",
         _ => "",
-    } + (Intent != "" ? $" - {Intent}" : "");
+    } + (Intent != "" ? $" - {Intent}" : "") + (OwnWay ? " [your own way]" : "");
 
     public void Progress(TaskKind kind, int n)
     {

@@ -245,6 +245,12 @@ public class Conversation
             if (mine || kin) AddOption($"Offer restitution for {g.Victim} ({g.DebtMb:0} trade goods{(mine ? "" : $", on {g.Against}'s behalf")})", () => ShowTopics(Restitution(npc, g)));
         }
 
+        // A dead man's effects for sale among the men this evening (design doc P.8).
+        if (ownLeader && Losses.OpenSaleAt(npc.HomeStores) is Loss sale)
+            AddOption($"Bid at the sale of {sale.Name}'s effects...", () => ShowSale(npc, sale));
+        // An evening at the fire: tell them something you saw.
+        if (npc.AtHearth != null && _player.GlobalPosition.DistanceTo(npc.AtHearth.GlobalPosition) < 300f && StoriesToTell(npc.AtHearth).Count > 0)
+            AddOption("Tell a story at the fire...", () => ShowStories(npc));
         AddOption("Talk...", () => ShowTalk(npc));
         if (ownLeader || (ownMan && canCommand) || npc.Following == _player || CanAskAlong(npc)) AddOption("Work and orders...", () => ShowWork(npc));
         if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster)
@@ -297,6 +303,80 @@ public class Conversation
         AddOption("Back", () => ShowTopics(Greeting(npc)));
     }
 
+    // ---- the sale of a dead man's effects (design doc P.8) -----------------------
+
+    private void ShowSale(Npc npc, Loss sale, string said = null)
+    {
+        _text = said ?? $"{npc.DisplayName} holds up what {sale.Name} left, one thing at a time. You have {_player.Inventory.Count(ItemId.TradeGoods)} pieces of goods.";
+        ClearOptions();
+        if (sale.AuctionOpen)
+            for (int i = 0; i < sale.Lots.Count; i++)
+            {
+                int lot = i;
+                var (id, n) = sale.Lots[i];
+                AddOption($"His {Items.Items.Of(id).Name.ToLower()}{(n > 1 ? $" x{n}" : "")} - {Losses.PriceOf(id, n)} pieces", () => ShowSale(npc, sale, Losses.Buy(_player, sale, lot)));
+            }
+        AddOption("Back", () => ShowTopics(Greeting(npc)));
+    }
+
+    // ---- telling at the fire ---------------------------------------------------------
+
+    // Things you saw yourself that someone sitting at this fire hasn't heard.
+    private List<MemoryEntry> StoriesToTell(World.Hearth fire)
+    {
+        var listeners = new List<Npc>();
+        foreach (var a in Sim.AgentsWithin(fire.GlobalPosition, 260f)) if (a is Npc n && n.AtHearth == fire) listeners.Add(n);
+        var seen = new HashSet<string>();
+        var stories = new List<MemoryEntry>();
+        foreach (var n in Sim.Npcs)
+            foreach (var m in n.Memories)
+            {
+                if (m.Directness != 1 || m.Weight < 0.8f || !m.Witnessed(_player) || !seen.Add(m.Key)) continue;
+                bool news = false;
+                foreach (var l in listeners) { bool knows = false; foreach (var k in l.Memories) if (k.Key == m.Key) { knows = true; break; } if (!knows) { news = true; break; } }
+                if (news) stories.Add(m);
+            }
+        float now = GameCalendar.Instance?.DayOfYear ?? 0f;
+        stories.Sort((a, b) => Mathf.PosMod(now - a.Day, 365f).CompareTo(Mathf.PosMod(now - b.Day, 365f)));
+        if (stories.Count > 4) stories.RemoveRange(4, stories.Count - 4);
+        return stories;
+    }
+
+    private void ShowStories(Npc npc)
+    {
+        _text = "Faces turn to you in the firelight. What will you tell them?";
+        ClearOptions();
+        foreach (var m in StoriesToTell(npc.AtHearth))
+        {
+            var story = m;
+            string label = story.Text.Length > 70 ? story.Text.Substring(0, 67) + "..." : story.Text;
+            AddOption(label, () => ShowTopics(TellAtFire(npc, story)));
+        }
+        AddOption("Back", () => ShowTopics(Greeting(npc)));
+    }
+
+    // You pass it on, firsthand: everyone at the fire who hadn't heard now
+    // has it from you, and an evening's story warms them to the teller.
+    private string TellAtFire(Npc npc, MemoryEntry m)
+    {
+        var fire = npc.AtHearth;
+        if (fire == null) return "The fire has broken up for the night.";
+        int told = 0;
+        Npc answer = null;
+        foreach (var a in Sim.AgentsWithin(fire.GlobalPosition, 260f))
+        {
+            if (a is not Npc n || n.AtHearth != fire) continue;
+            bool knows = false; foreach (var k in n.Memories) if (k.Key == m.Key) { knows = true; break; }
+            n.ChangeRapport(_player, 1f + n.Personality.Talkative);
+            if (knows) continue;
+            n.Remember(m.Copy());
+            told++; answer ??= n;
+        }
+        _player.Bark(Barks.Personalise(m.Text, _player, null));
+        answer?.QueueReply(answer.Personality.Suspicion > 0.65f ? "Is that the truth of it?" : "God save us. I'd not heard that.", 2.5f);
+        return told == 0 ? "They had all heard it already, but they listen to you tell it." : $"You tell them how it was. {told} of them hadn't heard it; now they have it from a man who was there.";
+    }
+
     private void ShowWork(Npc npc, string said = null)
     {
         _text = said ?? (npc.Role == Role.Factor || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster ? "\"Yes?\"" : $"{npc.DisplayName} straightens up.");
@@ -311,10 +391,7 @@ public class Conversation
         if (ownLeader)
         {
             if (_player.Task.Kind != TaskKind.None && !_player.Task.IsComplete && _player.Task.Kind != TaskKind.Report)
-            {
-                AddOption("Decline today's task", () => ShowWork(npc, DeclineTask(npc)));
-                AddOption("Ask for a different task", () => ShowWork(npc, CounterTask(npc)));
-            }
+                AddOption("About this task...", () => ShowBargain(npc));
             AddOption("Volunteer for something...", () => ShowVolunteer(npc));
             if (npc.Role == Role.Factor && Sim.Nwc != null) AddOption("\"I'll be across the river a few days.\"", () => ShowWork(npc, Authorize(npc)));
         }
@@ -477,6 +554,7 @@ public class Conversation
     {
         float cost = 3f + leader.Personality.Suspicion * 3f;
         _player.Standing -= cost;
+        _player.TasksRefused++;
         leader.ChangeRapport(_player, -5f);
         string was = _player.Task.Describe();
         _player.Task.Kind = TaskKind.None;
@@ -759,6 +837,71 @@ public class Conversation
             : "\"Better I hear it from you than from them.\" (standing -6, and no worse when it comes out.)";
     }
 
+    // Accept, decline, or argue the thing out (design doc 3.9 step 5, P.2).
+    // What he wears depends on rank, regard, what you have done for him,
+    // who speaks for you and what he has heard - and he says which.
+    private void ShowBargain(Npc leader, string said = null)
+    {
+        _text = said ?? $"\"{_player.Task.Describe()}\" {leader.DisplayName} waits.";
+        ClearOptions();
+        AddOption("\"It will be done.\"", () => { _player.Task.Accepted = true; leader.ChangeRapport(_player, 1f); ShowBargain(leader, "\"Good man.\" He turns back to his book."); });
+        AddOption("Ask for more time", () => ShowBargain(leader, AskMoreTime(leader)));
+        AddOption("Ask for a man to go with you", () => ShowBargain(leader, AskForAMan(leader)));
+        AddOption("Ask for something in hand for it", () => ShowBargain(leader, AskForPay(leader)));
+        AddOption("Ask leave to do it your own way", () => ShowBargain(leader, AskOwnWay(leader)));
+        AddOption("Ask for a different task", () => ShowBargain(leader, CounterTask(leader)));
+        AddOption("Decline it", () => ShowBargain(leader, DeclineTask(leader)));
+        AddOption("Back", () => ShowWork(leader));
+    }
+
+    private string AskMoreTime(Npc leader)
+    {
+        var v = Negotiation.Weigh(_player, leader, 0.5f, "returns");
+        if (!v.Granted) { leader.ChangeRapport(_player, -1f); return $"\"It wants doing today, not when it suits you.\" {v.Because()}"; }
+        _player.Task.Deadline += 2;
+        return $"\"Two days, then. No more.\" {v.Because()}";
+    }
+
+    private string AskForAMan(Npc leader)
+    {
+        var v = Negotiation.Weigh(_player, leader, 1.0f);
+        if (!v.Granted) { return $"\"Every man here has his own work.\" {v.Because()}"; }
+        Npc best = null;
+        foreach (var n in Sim.Npcs)
+        {
+            if (n.HomeStores != leader.HomeStores || n.IsDead || n.Role is not (Role.Labourer or Role.Voyageur) || n.Tier != Core.Tier.Live) continue;
+            if (best == null || n.RapportWith(_player) > best.RapportWith(_player)) best = n;
+        }
+        if (best == null) return "\"There is nobody about to send with you.\"";
+        best.Brain.Clear(best);
+        best.Brain.Push(best, new Agents.Goals.FollowGoal(_player, 10f));
+        best.ChangeRapport(_player, 2f);
+        return $"\"{best.DisplayName} - go with him.\" {v.Because()}";
+    }
+
+    private string AskForPay(Npc leader)
+    {
+        var fort = leader.HomeStores as Economy.FortLedger;
+        if (fort == null) return "\"...\"";
+        var v = Negotiation.Weigh(_player, leader, 1.2f);
+        if (!v.Granted) { leader.ChangeRapport(_player, -2f); return $"\"You are paid by the year like every other man.\" {v.Because()}"; }
+        int goods = fort.Stores.TakeUpTo(ItemId.TradeGoods, 4);
+        _player.Inventory.Add(ItemId.TradeGoods, goods);
+        if (!_player.Inventory.Has(ItemId.Rum) && fort.Stores.Remove(ItemId.Rum)) _player.Inventory.Add(ItemId.Rum);
+        return $"\"Against your account, then.\" He counts out {goods} pieces. {v.Because()}";
+    }
+
+    // Leave to fill the order your own way (design doc 3.9's "fulfilling an
+    // order is a choice of method"): the task becomes an open one.
+    private string AskOwnWay(Npc leader)
+    {
+        var v = Negotiation.Weigh(_player, leader, 1.4f, "returns");
+        if (!v.Granted) { leader.ChangeRapport(_player, -1f); return $"\"You will do it as I set it.\" {v.Because()}"; }
+        _player.Task.OwnWay = true;
+        _player.Task.Intent += " - your own way";
+        return $"\"I care how much comes in, not how.\" {v.Because()} (Bring in the worth of it by any road you like.)";
+    }
+
     private string NoWords(Npc npc) => $"You have not the words for it, and {npc.DisplayName} has not yours. Signs will buy meat; they will not carry this. Learn more of the tongue, or bring someone who has it - your wife, or a woman of the post.";
 
     private string Restitution(Npc holder, Grudge g)
@@ -861,7 +1004,7 @@ public class Conversation
         bool armed = _player.Weapon != null;
         float fear = (armed ? 0.5f : 0.2f) - npc.Personality.Courage * 0.5f + (npc.Weapon == null ? 0.2f : 0f);
         npc.ChangeRapport(_player, -15f);
-        if (npc.IsBandPerson) (npc.HomeStores as Economy.BandLedger)?.OnInsult();
+        if (npc.IsBandPerson) (npc.HomeStores as Economy.BandLedger)?.OnInsult($"threatened {npc.DisplayName}");
         if (fear > 0.25f)
         {
             // Cowed: hands over something small and remembers it.

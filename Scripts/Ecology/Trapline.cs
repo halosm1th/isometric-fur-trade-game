@@ -24,7 +24,7 @@ public class Trapline
 public static class TraplineRules
 {
     // Chance per trap per night, at a full lodge.
-    public const float CatchChanceAtCapacity = 0.12f;
+    public const float CatchChanceAtCapacity = 0.07f;
 
     public static void NightlyCatch(SpawnSite site)
     {
