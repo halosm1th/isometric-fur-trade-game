@@ -21,7 +21,7 @@ public class Conversation
 
     public Conversation(PlayerController player) { _player = player; }
 
-    public bool IsOpen => !_closed && (_stores != null || _pile != null || _npc != null && GodotObject.IsInstanceValid(_npc));
+    public bool IsOpen => !_closed && (_stores != null || _pile != null || _canoe != null || _npc != null && GodotObject.IsInstanceValid(_npc));
 
     // The storeroom chest as a counterpart with no face (design doc 12.5).
     private Economy.FortLedger _stores;
@@ -74,6 +74,28 @@ public class Conversation
         AddOption("Leave the pile", Close);
     }
 
+    // A canoe drawn up on the bank (design doc 12): take her, or load her.
+    private World.Canoe _canoe;
+    public const int CanoeId = -5;
+    public Godot.Collections.Dictionary StartCanoe(World.Canoe canoe)
+    {
+        if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
+        _npc = null; _stores = null; _pile = null; _canoe = canoe; _closed = false;
+        ShowCanoe();
+        return State();
+    }
+
+    private void ShowCanoe()
+    {
+        var c = _canoe;
+        _text = $"A canoe on the bank. She carries {c.LoadLbs:0} of {World.Canoe.CapacityLbs:0} lb{(c.Overloaded ? " and rides dangerously low" : "")}.{(c.Cargo.SlotCount > 0 ? " In her: " + c.Cargo.Summary() : "")}";
+        ClearOptions();
+        if (_player.Aboard == null) AddOption("Push off", () => { Close(); Net.Net.I?.Act("canoe"); });
+        AddOption("Load your goods and furs into her", () => { _text = _player.CanoeLoad(c, true); ShowCanoe(); });
+        if (c.Cargo.SlotCount > 0) AddOption("Take everything out", () => { _text = _player.CanoeLoad(c, false); ShowCanoe(); });
+        AddOption("Leave her", Close);
+    }
+
     private void ShowStores()
     {
         var fort = _stores;
@@ -104,7 +126,7 @@ public class Conversation
     public Godot.Collections.Dictionary Start(Npc npc)
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc) && _npc != npc) _npc.Conversing = false;
-        _npc = npc; _stores = null; _pile = null;
+        _npc = npc; _stores = null; _pile = null; _canoe = null;
         _closed = false;
         npc.Conversing = true;
         npc.StopMoving();
@@ -122,6 +144,12 @@ public class Conversation
     // The player picked option i (or -1 to walk away).
     public Godot.Collections.Dictionary Step(int npcId, int option)
     {
+        if (_canoe != null && npcId == CanoeId && !_closed)
+        {
+            if (option < 0 || option >= _options.Count) { Close(); return State(); }
+            _options[option].action();
+            return State();
+        }
         if (_pile != null && npcId == PileId && !_closed)
         {
             if (option < 0 || option >= _options.Count) { Close(); return State(); }
@@ -144,7 +172,7 @@ public class Conversation
     private void Close()
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
-        _stores = null; _pile = null;
+        _stores = null; _pile = null; _canoe = null;
         _closed = true;
     }
 
@@ -154,8 +182,8 @@ public class Conversation
         foreach (var (label, _) in _options) opts.Add(label);
         return new Godot.Collections.Dictionary
         {
-            ["closed"] = _closed, ["npc"] = _pile != null ? PileId : _stores != null ? StoresId : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.NetId : -1,
-            ["title"] = _pile != null ? "The woodpile" : _stores != null ? _stores.Title : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.DisplayName : "", ["text"] = _text, ["options"] = opts,
+            ["closed"] = _closed, ["npc"] = _canoe != null ? CanoeId : _pile != null ? PileId : _stores != null ? StoresId : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.NetId : -1,
+            ["title"] = _canoe != null ? "The canoe" : _pile != null ? "The woodpile" : _stores != null ? _stores.Title : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.DisplayName : "", ["text"] = _text, ["options"] = opts,
         };
     }
 

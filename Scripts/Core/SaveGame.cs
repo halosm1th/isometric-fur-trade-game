@@ -167,7 +167,7 @@ public static class SaveGame
     {
         var a = new GArr();
         if (Sim.Spawner == null) return a;
-        foreach (var c in Sim.Spawner.Canoes) a.Add(new GArr { c.Index, c.GlobalPosition.X, c.GlobalPosition.Y });
+        foreach (var c in Sim.Spawner.Canoes) a.Add(new GArr { c.Index, c.GlobalPosition.X, c.GlobalPosition.Y, Inv(c.Cargo) });
         return a;
     }
 
@@ -422,7 +422,7 @@ public static class SaveGame
                 {
                     var ca = cv.AsGodotArray();
                     int idx = ca[0].AsInt32();
-                    foreach (var canoe in Sim.Spawner.Canoes) if (canoe.Index == idx) canoe.SetState(new Vector2(ca[1].AsSingle(), ca[2].AsSingle()), 0);
+                    foreach (var canoe in Sim.Spawner.Canoes) if (canoe.Index == idx) { canoe.SetState(new Vector2(ca[1].AsSingle(), ca[2].AsSingle()), 0); if (ca.Count > 3) LoadInv(canoe.Cargo, ca[3].AsGodotDictionary()); }
                 }
             }
 

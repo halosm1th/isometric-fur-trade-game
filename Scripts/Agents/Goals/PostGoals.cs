@@ -208,6 +208,50 @@ public class HeldPrisonerGoal : Goal
     }
 }
 
+// Walk across and ask for your man back (design doc 9.1): if the house
+// has the odds they say no and it comes to blows; if not, they hand him over.
+public class RescueGoal : Goal
+{
+    private readonly Npc _held;
+    private readonly Economy.FortLedger _post;
+    private int _phase;
+    public RescueGoal(Npc held, Economy.FortLedger post) { _held = held; _post = post; }
+    public override string Label => $"fetch {_held?.DisplayName} back";
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        if (_held == null || !GodotObject.IsInstanceValid(_held) || _held.HeldBy == null) return GoalStatus.Done;
+        switch (_phase)
+        {
+            case 0:
+                _phase = 1;
+                npc.Raiding = true; npc.RaidTarget = _post.Company;
+                return Delegate(new GoToGoal(_post.AccessCell, 160f));
+            default:
+            {
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                npc.Raiding = false;
+                if (_held.HeldBy == null) return GoalStatus.Done;
+                bool theyHaveOdds = Economy.Rivalry.HouseHasOdds(_post.Company, npc.GlobalPosition);
+                if (theyHaveOdds && GD.Randf() < 0.6f)
+                {
+                    Sim.Notice($"{_post.Title} will not give {_held.DisplayName} up. {npc.DisplayName} comes away empty-handed.");
+                    Economy.Rivalry.Raise(5f, "a man refused back");
+                    return GoalStatus.Failed;
+                }
+                _held.HeldBy = null; _held.HeldUntilDay = -1;
+                _held.Brain.Clear(_held);
+                _held.Brain.Push(_held, new GoToGoal(npc.HomeStores?.AccessCell ?? npc.BedCell, 140f));
+                Sim.Notice($"{npc.DisplayName} has brought {_held.DisplayName} home from {_post.Title}.");
+                Chronicle.Event($"{npc.DisplayName} fetched {_held.DisplayName} back from {_post.Title}.", npc.GlobalPosition, npc, weight: 1.5f);
+                return GoalStatus.Done;
+            }
+        }
+    }
+
+    public override void OnExit(Npc npc) { npc.Raiding = false; npc.StopMoving(); }
+}
+
 // Sit down at your desk and open what's addressed to you (design doc
 // 10.1.1: the read event). Half an hour with the packet.
 public class ReadMailGoal : Goal

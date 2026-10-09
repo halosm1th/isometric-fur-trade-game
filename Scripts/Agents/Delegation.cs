@@ -162,6 +162,15 @@ public static class Delegation
             tasks.Add(new PostTask { Name = "lie up by the river road for the Company's packet", Men = 2, Urgency = 57f, KeyTask = true, Hunt = true, NeedsMusket = true, OneShot = true, Intent = "what the Bay sends inland is worth having", Make = _ => { nf.LastAmbushDay = Cal.Day; return new AmbushGoal(spot, 30f); } });
         }
 
+        // One of ours held across the river (design doc 9.1): a party goes to fetch him.
+        if (rival != null && men.Count >= 2)
+        {
+            Npc held = null;
+            foreach (var n in Sim.Npcs) if (n.HomeStores == fort && n.HeldBy == rival && !n.IsDead) { held = n; break; }
+            if (held != null)
+                tasks.Add(new PostTask { Name = $"fetch {held.DisplayName} back from {rival.Title}", Men = 2, Urgency = 72f, KeyTask = true, NeedsMusket = true, OneShot = true, Intent = "they are holding one of ours", Make = _ => new RescueGoal(held, rival) });
+        }
+
         // Wood: the post burns through it.
         int wood = fort.Stores.Count(ItemId.Firewood);
         tasks.Add(new PostTask { Name = "cut wood", Make = _ => new ChopWoodGoal(), Men = wood < 15 ? 3 : wood < 40 ? 2 : 1, Urgency = wood < 15 ? 65f : 20f, PlayerKind = Player.TaskKind.Firewood, PlayerNeed = 4, Intent = wood < 15 ? "the woodpile is bare" : "the woodpile" });

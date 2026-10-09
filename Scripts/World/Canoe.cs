@@ -11,6 +11,12 @@ public partial class Canoe : Node2D
 {
     public int Index;
     public int RiderNetId;          // 0 = empty
+    // What's lashed in the bottom (design doc 12): a north canoe took a
+    // ton and a half; this one is a small one - 300 lb and it rides low.
+    public readonly IsometricFurTradeGame.Scripts.Items.Inventory Cargo = new();
+    public const float CapacityLbs = 300f;
+    public float LoadLbs => Cargo.TotalWeightLbs;
+    public bool Overloaded => LoadLbs > CapacityLbs;
     private Sprite2D _sprite;
 
     public bool IsFree => RiderNetId == 0;

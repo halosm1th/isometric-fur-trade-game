@@ -158,7 +158,8 @@ public partial class TerrainPainter : TileMapLayer
         slippery = false;
         var cell = IsoGrid.FromWorld(worldPos);
         int src = GetCellSourceId(cell);
-        if (src == SourceIce || src == SourceWaterIce) { slippery = true; return 0.95f; }
+        // The frozen river is the winter road: fast, and slippery (design doc 14.1).
+        if (src == SourceIce || src == SourceWaterIce) { slippery = true; return 1.25f; }
         if (src == SourceSnow) return snowshoes ? 1.0f : 0.7f;
         if (src == SourceDirt) return 1.05f;
         if (src == SourceRoad) return 1.1f;

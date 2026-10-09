@@ -521,7 +521,7 @@ public partial class PlayerController : Agent
 		}
 		bool slippery = false;
 		float ground = Sim.Terrain != null ? Sim.Terrain.SpeedFactorAt(GlobalPosition, Inventory.IsWorn(ItemId.Snowshoes), out slippery) : 1f;
-		if (IsAfloat) { ground = 1.5f; slippery = false; }
+		if (IsAfloat) { ground = 1.5f * (Aboard != null && Aboard.Overloaded ? 0.6f : Aboard != null ? Mathf.Lerp(1f, 0.75f, Aboard.LoadLbs / Canoe.CapacityLbs) : 1f); slippery = false; }
 		// On the road the march is compressed with the clock (design doc 18.3).
 		float travelBoost = _travel != null ? Mathf.Clamp(NetHub.IsServer ? GameCalendar.Instance.MotionScale : GameCalendar.TravelBoost, 1f, 8f) : 1f;
 		var want = input * EffectiveSpeed * ground * travelBoost;
@@ -674,6 +674,7 @@ public partial class PlayerController : Agent
 				return RequestSkip(hours, night ? "You settle down for the night." : "You wait.");
 			}
 			case "cancel_wait": WantsSkipHours = 0f; return "";
+			case "canoe_load": return CanoeLoad(Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 150f), (bool)args[0]);
 			case "canoe":
 			{
 				if (Aboard != null) return "Paddle to a bank to step out.";
@@ -974,7 +975,8 @@ public partial class PlayerController : Agent
 			}
 		}
 
-		if (Aboard == null && Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 130f) != null) return ServerAction("canoe", new Godot.Collections.Array());
+		var nearCanoe = Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f);
+		if (nearCanoe != null) { NetHub.I?.PushDialogue(this, Conversation.StartCanoe(nearCanoe)); return ""; }
 
 		var bed = Sim.Structures?.NearestBed(GlobalPosition, 90f);
 		if (bed != null)
@@ -1061,7 +1063,7 @@ public partial class PlayerController : Agent
 		if (pickup != null) return $"E  Pick up {pickup.Label}";
 		var lodge = Sim.Ecology?.SiteNear(GlobalPosition, Ecology.Species.Beaver);
 		if (lodge != null) { var line = lodge.LineOf(TrapOwner); return line != null && line.Traps > 0 ? $"E  Check your traps ({lodge.Name})" : Inventory.Has(ItemId.SteelTrap) ? $"Use a steel trap here to set a line ({lodge.Name})" : $"{lodge.Name}"; }
-		if (Aboard == null && Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 130f) != null) return "E  Take the canoe";
+		if ((Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f)) != null) return "E  The canoe";
 		if (Sim.Structures?.NearestBed(GlobalPosition, 90f) != null) return (GameCalendar.Instance?.Hour ?? 12f) is >= 17f or < 6f ? "E  Sleep till morning" : "E  Rest an hour";
 		foreach (var h in OtherHouseholds()) if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(h.WoodpileCell)) < 120f) return $"E  {h.Title}'s woodpile";
 		var fort = HomePost;
@@ -1078,6 +1080,28 @@ public partial class PlayerController : Agent
 		var hearth = Sim.Structures?.HearthNear(GlobalPosition);
 		if (hearth != null) return hearth.IsBurning ? "E  Look at the fire" : hearth.FuelHours > 0f ? "Flint on it to light it" : "E  Cold hearth (feed it wood)";
 		return "";
+	}
+
+	// Loading and unloading a canoe, for the bank menu.
+	public string CanoeLoad(Canoe c, bool loading)
+	{
+		int moved = 0;
+		if (loading)
+		{
+			foreach (var (id, n) in new List<(ItemId, int)>(Inventory.All()))
+			{
+				var k = Items.Items.Of(id).Kind;
+				if (k == ItemKind.Clothing || k == ItemKind.Weapon || (k == ItemKind.Food && n <= 2)) continue;
+				int give = k == ItemKind.Food ? n - 2 : n;
+				float each = Items.Items.Of(id).WeightLbs;
+				if (c.LoadLbs + each * give > Canoe.CapacityLbs) give = Mathf.FloorToInt((Canoe.CapacityLbs - c.LoadLbs) / Mathf.Max(0.1f, each));
+				if (give <= 0) continue;
+				Inventory.Remove(id, give); c.Cargo.Add(id, give); moved += give;
+			}
+			return moved > 0 ? $"You stow {moved} lots in her ({c.LoadLbs:0}/{Canoe.CapacityLbs:0} lb)." : "Nothing to stow, or she's full.";
+		}
+		foreach (var (id, n) in new List<(ItemId, int)>(c.Cargo.All())) { c.Cargo.Remove(id, n); Inventory.Add(id, n); moved += n; }
+		return moved > 0 ? $"You take {moved} lots out of her." : "She's empty.";
 	}
 
 	private IEnumerable<Economy.Household> OtherHouseholds()
