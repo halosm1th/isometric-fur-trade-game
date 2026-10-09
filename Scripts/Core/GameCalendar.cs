@@ -29,7 +29,45 @@ public partial class GameCalendar : Node
     [Export] public int Day = 1;
     [Export] public float Hour = 9f;
 
-    [Export] public float SecondsPerGameHour = 10f;
+    // A year should take four to six hours of play, not a day (design doc
+    // P.3), and the compression is uneven: the trading season and the
+    // reckoning run close to live, deep winter nights go by in a breath.
+    [Export] public float SecondsPerGameHour = 4f;
+    [Export] public bool UnevenPacing = true;
+    public float PacingFactor { get; private set; } = 1f;
+    public string ChapterName => CurrentSeason switch
+    {
+        Season.FreezeUp => "Freeze-up - the postings are decided",
+        Season.Winter => "Winter - hold the men together",
+        Season.Breakup => "Breakup - the year's trade is won here",
+        _ => Month is 7 or 8 ? "The ship - the reckoning" : "Open water",
+    };
+
+    // How dense this hour is: what's happening, and who is near enough to care.
+    private float Pacing()
+    {
+        if (!UnevenPacing) return 1f;
+        float f = 1f;
+        // The reckoning and the trade run slow and close.
+        if (Sim.Ship != null && Sim.Ship.IsDocked) f *= 2.2f;
+        if (CurrentSeason == Season.Breakup) f *= 1.5f;
+        if (Month is 7 or 8) f *= 1.3f;
+        // Deep winter, and the small hours, go by fast - unless something is happening.
+        bool night = Hour < 5f || Hour >= 21f;
+        if (night) f *= CurrentSeason == Season.Winter ? 0.3f : 0.45f;
+        else if (CurrentSeason == Season.Winter) f *= 0.65f;
+        if (Weather.Current is SkyState.Blizzard or SkyState.Storm) f *= 0.8f;
+        // Company slows the clock: a crowd round you is a scene.
+        var pc = Sim.Player;
+        if (pc != null && GodotObject.IsInstanceValid(pc))
+        {
+            int near = 0;
+            foreach (var a in Sim.AgentsWithin(pc.GlobalPosition, 420f)) if (a != pc) near++;
+            if (near >= 2) f *= 1.5f; else if (near == 1) f *= 1.2f;
+            if (pc.LastAttackedAgo < 8f) f *= 2.5f;
+        }
+        return Mathf.Clamp(f, 0.25f, 3f);
+    }
     [Export] public float FastForwardMultiplier = 40f;
     [Export] public bool Paused = false;
 
@@ -181,7 +219,8 @@ public partial class GameCalendar : Node
             return;
         }
 
-        float speed = Input.IsActionPressed("time_fast") ? FastForwardMultiplier : 1f;
+        PacingFactor = Pacing();
+        float speed = (Input.IsActionPressed("time_fast") ? FastForwardMultiplier : 1f) / PacingFactor;
         // Someone on the river road: the day goes by at a march for everyone (design doc 18.3, 21.3).
         bool travelling = false;
         foreach (var p in Sim.Players()) if (p.TravellingServer && !p.IsDead) travelling = true;

@@ -95,6 +95,11 @@ public partial class PlayerController : Agent
 	// The marriage's obligations (design doc 8.4): her father expects to be
 	// remembered each spring, and a wife left too long goes home.
 	public int LastSawWifeDay = -1;
+	// What you have counted with your own eyes in the post's stores
+	// (design doc P.3: the HUD shows your belief, not the true ledger).
+	public float BelievedFursMb;
+	public float BelievedQuotaMb = 60f;
+	public int LastCountedDay = -99;
 	public int LastGiftToKinYear = 0;
 	public bool TravellingServer;   // the owner is on the road: the clock marches
 	public Economy.FortLedger HomePost => Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;
@@ -419,6 +424,46 @@ public partial class PlayerController : Agent
 
 	// ---- movement ------------------------------------------------------------------
 
+	// Standing in the storehouse, you can see what is in it.
+	// At your own post, the mess, the barrel and the hearth take care of
+	// the ordinary needs (design doc P.5): no clicking. When the stores are
+	// empty they stop, and that is the crisis the player should feel.
+	private float _messTimer;
+	private void PostKeep(float delta)
+	{
+		var fort = HomePost;
+		if (fort == null || IsDead || CaptiveOf != null) return;
+		bool home = GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.AccessCell)) < 900f;
+		if (!home) return;
+		_messTimer -= delta;
+		if (_messTimer > 0f) return;
+		_messTimer = 2f;
+		// Mess call: the plainest thing on the shelf, while there is any.
+		if (Needs.Hunger < 70f)
+		{
+			foreach (var id in new[] { ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Bread, ItemId.Pemmican })
+			{
+				if (!fort.Stores.Remove(id)) continue;
+				Needs.Hunger = Mathf.Min(100f, Needs.Hunger + Items.Items.Of(id).Nutrition);
+				if (id == ItemId.Venison || id == ItemId.Goose || id == ItemId.Fish || id == ItemId.Hare) DaysSinceFresh = 0f;
+				break;
+			}
+		}
+		// The water barrel.
+		if (Needs.Thirst < 70f && (fort.Stores.Remove(ItemId.Water) || !GameCalendar.Instance.IsFrozen)) Needs.Thirst = Mathf.Min(100f, Needs.Thirst + 45f);
+	}
+
+	private void CountStores()
+	{
+		var fort = HomePost;
+		if (fort == null || IsDead) return;
+		bool inStore = fort == Sim.Nwc ? WorldLayout.NwcHouse.Contains(Cell) : fort == Sim.Outpost ? WorldLayout.OutpostHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell);
+		if (!inStore && GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.AccessCell)) > 160f) return;
+		BelievedFursMb = fort.FursInStoreMb;
+		BelievedQuotaMb = fort.QuotaMb;
+		LastCountedDay = GameCalendar.Instance?.Day ?? 0;
+	}
+
 	private int _marriageDay = -1;
 	private void MarriageTick()
 	{
@@ -466,7 +511,7 @@ public partial class PlayerController : Agent
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (NetHub.IsServer) { SeenAcross(); MarriageTick(); CaptiveTick(); }
+		if (NetHub.IsServer) { SeenAcross(); MarriageTick(); CaptiveTick(); CountStores(); PostKeep((float)delta); }
 		base._PhysicsProcess(delta);
 		float dt = (float)delta;
 		if (IsServerCopy) ServerCanoeTick();
@@ -584,7 +629,7 @@ public partial class PlayerController : Agent
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "",
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
-			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["skills"] = new float[] { Skills.Hunting, Skills.Trapping, Skills.Trade, Skills.Woodcraft }, ["unworn"] = UnwornList(),
+			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["skills"] = new float[] { Skills.Hunting, Skills.Trapping, Skills.Trade, Skills.Woodcraft }, ["furs"] = BelievedFursMb, ["quota"] = BelievedQuotaMb, ["counted"] = LastCountedDay, ["unworn"] = UnwornList(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
 		};
 		_oneShotAnim = ""; _teleported = false;
@@ -610,6 +655,7 @@ public partial class PlayerController : Agent
 		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"]; Rank = (string)d["rank"]; if (d.ContainsKey("fresh")) DaysSinceFresh = (float)d["fresh"];
 		if (d.ContainsKey("tongue")) CreeFluency = (float)d["tongue"];
 		if (d.ContainsKey("tongue2")) AssiniboineFluency = (float)d["tongue2"];
+		if (d.ContainsKey("furs")) { BelievedFursMb = (float)d["furs"]; BelievedQuotaMb = (float)d["quota"]; LastCountedDay = (int)d["counted"]; }
 		if (d.ContainsKey("skills")) { var sk = (float[])d["skills"]; if (sk.Length == 4) { Skills.Hunting = sk[0]; Skills.Trapping = sk[1]; Skills.Trade = sk[2]; Skills.Woodcraft = sk[3]; } }
 		if (d.ContainsKey("unworn")) { Inventory.Unworn.Clear(); foreach (int u in (int[])d["unworn"]) Inventory.Unworn.Add((ItemId)u); }
 		if (d.ContainsKey("mail") && !NetHub.IsServer) { Mail.Clear(); foreach (string line in (string[])d["mail"]) { var parts = line.Split('|'); Mail.Add(new Message { Kind = parts[0], From = parts[1], To = parts[2], Subject = parts[3], Read = parts[4] == "1", Text = parts.Length > 5 ? parts[5] : "" }); } }

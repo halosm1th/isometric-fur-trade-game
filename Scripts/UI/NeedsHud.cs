@@ -105,6 +105,18 @@ public partial class NeedsHud : Control
         if (_player.HasScurvy) weapon += "  |  SCURVY (eat fresh meat)";
         if (_player is Player.PlayerController ppc && ppc.ParoleUntilDay > (GameCalendar.Instance?.Day ?? 0)) weapon += $"  |  on parole to the {(ppc.ParoleTo == Agents.Faction.NWC ? "Nor'Westers" : "Company")} till day {ppc.ParoleUntilDay}";
         if (_player is Player.PlayerController cpc && cpc.CaptiveOf != null) weapon += $"  |  PRISONER of {cpc.CaptiveOf.Title} (till day {cpc.CaptiveUntilDay})";
+        // The reckoning, counted down (design doc P.3).
+        if (_player is Player.PlayerController qpc && GameCalendar.Instance != null)
+        {
+            var cal = GameCalendar.Instance;
+            int doy = Mathf.RoundToInt(cal.DayOfYear);
+            int shipDoy = 232;   // 20 August
+            int days = shipDoy >= doy ? shipDoy - doy : 365 - doy + shipDoy;
+            string what = qpc.Faction == Agents.Faction.NWC ? "the brigade" : "the ship";
+            string packs = qpc.LastCountedDay < -50 ? "packs: you have not looked in the stores"
+                : $"packs {qpc.BelievedFursMb:0} of {qpc.BelievedQuotaMb:0}" + (cal.Day - qpc.LastCountedDay > 6 ? " (as you last counted)" : "");
+            task = $"\n{days} days to {what}  -  {packs}" + task;
+        }
         _shelter.Text = $"{(_player.IsSheltered ? "Indoors  " : "")}Load {_player.Inventory.TotalWeightLbs:0}/{_player.CarryCapacityLbs:0} lb{(_player.IsOverloaded ? " (overloaded)" : "")}  |  {weapon}" + task;
     }
 

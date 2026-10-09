@@ -16,10 +16,14 @@ public class MemoryEntry
     public int Directness;     // 1 = eyewitness
     public float Weight;       // how much it matters to this person
     public string Key;         // dedupe
+    // Everyone who was there (design doc P.9): a memory two people share
+    // firsthand is what "we went through that together" is made of.
+    public List<string> Witnesses;
+    public bool Witnessed(Agent a) => a != null && Witnesses != null && Witnesses.Contains(a.DisplayName);
 
     public MemoryEntry Copy() => new()
     {
-        Text = Text, Subject = Subject, Actor = Actor, Day = Day, Directness = Directness + 1, Weight = Weight * 0.7f, Key = Key, Distorted = Distorted,
+        Text = Text, Subject = Subject, Actor = Actor, Day = Day, Directness = Directness + 1, Weight = Weight * 0.7f, Key = Key, Distorted = Distorted, Witnesses = Witnesses,
     };
 
     public int Distorted;   // how many retellings bent it
@@ -76,8 +80,9 @@ public static class Chronicle
         var entry = new MemoryEntry
         {
             Text = text, Actor = actor, Subject = subject ?? actor?.DisplayName ?? "", Day = cal?.DayOfYear ?? 0f,
-            Directness = 1, Weight = weight, Key = $"{_seq++}",
+            Directness = 1, Weight = weight, Key = $"{_seq++}", Witnesses = new List<string>(),
         };
+        foreach (var a in Sim.AgentsWithin(where, WitnessRadius)) if (a is not Animal && !string.IsNullOrEmpty(a.DisplayName)) entry.Witnesses.Add(a.DisplayName);
         foreach (var a in Sim.AgentsWithin(where, WitnessRadius))
         {
             if (a is Npc n && !n.IsDead) n.Remember(entry);

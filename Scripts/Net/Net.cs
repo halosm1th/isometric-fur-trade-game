@@ -539,6 +539,23 @@ public partial class Net : Node
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void NoticeAll(string text) => Sim.NoticeLocal(text);
 
+    // Something an agent said aloud. Only sent while a player is near enough
+    // to see the bubble; the saying itself (and what it does to rapport)
+    // happens on the server either way.
+    public void BroadcastBark(Agent a, string text)
+    {
+        if (!IsServer || Current == Mode.Offline || a == null || a.NetId == 0) return;
+        bool seen = false;
+        foreach (var p in Sim.Players()) if (p.GlobalPosition.DistanceTo(a.GlobalPosition) < 1400f) { seen = true; break; }
+        if (seen) Rpc(nameof(BarkRpc), a.NetId, text);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+    private void BarkRpc(int netId, string text)
+    {
+        if (Agents.TryGetValue(netId, out var a) && IsInstanceValid(a)) a.ShowBark(text);
+    }
+
     // A line for one player only (their own actions' results).
     public void NoticeTo(PlayerController p, string text)
     {

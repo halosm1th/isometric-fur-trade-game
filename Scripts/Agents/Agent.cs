@@ -316,6 +316,29 @@ public partial class Agent : CharacterBody2D
         _healthBar.Show(this);
     }
 
+    // Something said out loud (design doc P.4, P.9): a bubble here, and the
+    // same line on every client near enough to see it.
+    public void Bark(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+        ShowBark(text);
+        if (Net.Net.IsServer) Net.Net.I?.BroadcastBark(this, text);
+    }
+
+    private SpeechBubble _bubble;
+    public void ShowBark(string text)
+    {
+        // Their own tongue to someone who hasn't learned it (design doc 10.6).
+        if (IsBandPerson && Sim.Player is Player.PlayerController me && me != this && me.FluencyWith(this) < 0.3f)
+            text = $"({(Faction == Faction.Assiniboine ? "Assiniboine" : "Cree")} - you catch a word or two)";
+        if (_bubble == null || !IsInstanceValid(_bubble))
+        {
+            _bubble = new SpeechBubble { Position = new Vector2(0, -140), ZIndex = 30, ZAsRelative = false };
+            AddChild(_bubble);
+        }
+        _bubble.Say(text);
+    }
+
     public bool InAttackRange(Agent target)
     {
         var (_, range, _) = AttackProfile();

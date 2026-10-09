@@ -254,7 +254,7 @@ public static class SaveGame
             var rapport = new GDict(); foreach (var kv in n.Rapport) if (kv.Key != null && GodotObject.IsInstanceValid(kv.Key)) rapport[kv.Key.DisplayName] = kv.Value;
             d["rapport"] = rapport;
             var mem = new GArr();
-            foreach (var m in n.Memories) mem.Add(new GDict { ["text"] = m.Text, ["subject"] = m.Subject ?? "", ["actor"] = m.Actor != null && GodotObject.IsInstanceValid(m.Actor) ? m.Actor.DisplayName : "", ["day"] = m.Day, ["directness"] = m.Directness, ["weight"] = m.Weight, ["key"] = m.Key ?? "" });
+            foreach (var m in n.Memories) mem.Add(new GDict { ["text"] = m.Text, ["subject"] = m.Subject ?? "", ["actor"] = m.Actor != null && GodotObject.IsInstanceValid(m.Actor) ? m.Actor.DisplayName : "", ["day"] = m.Day, ["directness"] = m.Directness, ["weight"] = m.Weight, ["key"] = m.Key ?? "", ["witnesses"] = m.Witnesses != null ? string.Join("|", m.Witnesses) : "" });
             d["memories"] = mem;
             d["task"] = n.AssignedTaskName ?? "";
             a.Add(d);
@@ -445,7 +445,7 @@ public static class SaveGame
                 foreach (var mv in nd["memories"].AsGodotArray())
                 {
                     var md = mv.AsGodotDictionary();
-                    npc.Memories.Add(new MemoryEntry { Text = S(md, "text"), Subject = S(md, "subject"), Day = F(md, "day"), Directness = I(md, "directness", 1), Weight = F(md, "weight", 1f), Key = S(md, "key") });
+                    npc.Memories.Add(new MemoryEntry { Text = S(md, "text"), Subject = S(md, "subject"), Day = F(md, "day"), Directness = I(md, "directness", 1), Weight = F(md, "weight", 1f), Key = S(md, "key"), Witnesses = S(md, "witnesses") == "" ? null : new System.Collections.Generic.List<string>(S(md, "witnesses").Split('|')) });
                 }
                 if (B(nd, "dead")) npc.DieQuietly();
                 if (!npc.IsDead && home != null && (npc.Role == Role.Factor || npc.Role == Role.NwcPartner || npc.Role == Role.CreeChief || npc.Role == Role.Postmaster)) home.Leader = npc;
