@@ -133,7 +133,8 @@ public static class Losses
         var given = new List<string>();
         foreach (var (id, n) in l.Lots)
         {
-            Npc best = null; float bestBond = 0.5f;
+            // Closest to him first; failing anyone close, whichever of the house wants it.
+            Npc best = null; float bestBond = float.MinValue;
             foreach (var m in Sim.Npcs)
             {
                 if (m.IsDead || m.HomeStores != l.Home || m.DisplayName == l.Name) continue;
@@ -148,7 +149,8 @@ public static class Losses
         l.Lots.Clear();
         if (given.Count == 0) return;
         string what = l.Home is FortLedger ? $"the men sold {l.Name}'s effects: {string.Join(", ", given)}" : $"{l.Name}'s family gave away his things: {string.Join(", ", given)}";
-        Chronicle.Shared(l.Home, what, 1.1f);
+        Chronicle.Shared(l.Home, what, 0.9f);   // told at the fire, not mooned over
+        Sim.Notice(char.ToUpper(what[0]) + what.Substring(1) + ".");
     }
 
     public static Loss OpenSaleAt(Household h)

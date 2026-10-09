@@ -317,6 +317,12 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 
 Every `Chronicle.Event` now records its **witnesses** (saved). `Chronicle.Shared` records things a household lives through together: a long **blizzard**, the **food running out** (at most once a fortnight), the **ship coming in**. The console prints each line as `[bark] Name: text`.
 
+**Evenings at the fire** (`HearthGoal`, `Barks.HearthLine`): from 18:00 to about 21:30 the household drifts to its own hearth (the sociable nearly always; a band's open fire not in a blizzard), each to a seat of their own round it, and the talk comes three times as thick: a **toast** to the house's recent dead ("To John."; "We remember ..." in a camp), **stories** - something the teller knows that the fire hasn't heard tonight, which passes to everyone sitting there one retelling further from the truth, and into your journal if you're within earshot - and **songs** and tales by people (a paddling song, an Orkney air, Wisahkecahk and the ducks, a year-old London paper). An evening at the same fire warms everyone there to you a little. Talk to anyone at the fire: *Tell a story at the fire...* offers up to four things you saw yourself that someone there hasn't heard; they have it from you firsthand, and like you better for it.
+
+**A death leaves a hole** (`Agents/Losses.cs`): every death in a household is recorded - his bunk, his day, his body. Housemates passing the **empty bunk** say so, and when a recruit takes it, someone remarks on that. Kin mourn aloud up to eight times; housemates who went through things with him (shared memories, rapport) for six weeks, sometimes with the memory itself. The evening after the death his **effects are gathered** off the body (whatever nobody looted; food to the stores) and a company post **sells them among the men** - talk to the master to *Bid at the sale of ...'s effects*, priced in pieces of goods, the money to his widow if he had one at the post, else the stores. At 21:00 what's left goes to whoever was closest to him; a band's family gives his things away the same way. Whoever has his capote or his knife says so now and then ("This was John's capote").
+
+Dev arg `--kill=Name` kills that person five seconds in (to watch a household take a loss).
+
 Dev arg `--shot=SECONDS` saves the screen to `user://shot_N.png` every SECONDS (six shots) - handy when no window capture is possible.
 
 ## Known gaps / next

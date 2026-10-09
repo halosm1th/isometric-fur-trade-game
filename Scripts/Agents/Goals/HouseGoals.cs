@@ -274,7 +274,7 @@ public class HearthGoal : Goal
     private int _phase;
     private Hearth _hearth;
     public override string Label => "sitting by the fire";
-    public override void OnExit(Npc npc) { npc.AtHearth = null; }
+    public override void OnExit(Npc npc) { npc.AtHearth = null; npc.HearthSeat = null; }
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {
@@ -284,7 +284,8 @@ public class HearthGoal : Goal
                 _hearth = HomeHearth(npc);
                 if (_hearth == null) return GoalStatus.Failed;
                 _phase = 1;
-                return Delegate(new GoToGoal(Seat(npc, _hearth), 30f));
+                npc.HearthSeat = Seat(npc, _hearth);
+                return Delegate(new GoToGoal(npc.HearthSeat.Value, 30f));
             case 1:
                 if (!ChildFinished(out var r)) return GoalStatus.Running;
                 if (r != GoalStatus.Done) return GoalStatus.Failed;
@@ -326,6 +327,9 @@ public class HearthGoal : Goal
         Vector2I best = ring[0]; float bestScore = float.MinValue;
         foreach (var c in ring)
         {
+            bool taken = false;
+            foreach (var o in Sim.Npcs) if (o != npc && o.HearthSeat == c) { taken = true; break; }
+            if (taken) continue;
             var w = IsoGrid.ToWorld(c);
             float crowd = 0f;
             foreach (var a in Sim.AgentsWithin(w, 90f)) if (a != npc) crowd += 1f;

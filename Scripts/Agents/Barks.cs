@@ -186,7 +186,7 @@ public static class Barks
         t.Contains(" struck ") || t.Contains(" killed ") || t.Contains(" robbed ") || t.Contains("prisoner") || t.Contains(" blows ") || t.Contains(" fell on ") || t.Contains("hard words") || t.Contains("broke into") || t.Contains("set fire");
 
     // Trouble nobody did to anyone: weather, hunger.
-    private static bool IsHard(string t) => t.Contains("hungry") || t.Contains("blizzard");
+    private static bool IsHard(string t) => t.Contains("hungry") || t.Contains("blizzard") || t.Contains(" died");
 
     // The dead who were close: kin always, housemates by how much they went
     // through together (Losses.Bond). Kin mourn longer.
