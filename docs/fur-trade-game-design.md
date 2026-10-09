@@ -2,7 +2,7 @@
 
 *Working design document. Compiled from planning discussion — intended as a shared reference for continued design and implementation work.*
 
-*Revision note: this version folds in the follow-up planning discussion — population scale and simulation tiers (Sections 11.1, 18.2), the spawn-site ecology system (Section 16.4), the map boundary and the Southern Department / James Bay region (Section 6), pre-1821 HBC and NWC structure (Section 5), the message system rebuilt around read events (Section 10.1), delegation and task assignment (Section 3.9), and the Fort William council (Section 3.8.1). A change list is at the end.*
+*Revision note: this version folds in the follow-up planning discussion — population scale and simulation tiers (Sections 11.1, 18.2), the spawn-site ecology system (Section 16.4), the map boundary and the Southern Department / James Bay region (Section 6), pre-1821 HBC and NWC structure (Section 5), the message system rebuilt around read events (Section 10.1), delegation and task assignment (Section 3.9), and the Fort William council (Section 3.8.1). A later pass added the player-experience layer — a second design test and the director (Sections 2.1, 2.2) and a new lettered Section P. A change list is at the end.*
 
 ---
 
@@ -15,6 +15,8 @@ The player is mechanically an equal agent among NPCs (Section 11.1) rather than 
 The single-protagonist framing above is the base case. Because the player is architecturally just another agent, the same model extends to 4–6 concurrent human players sharing one world without a separate multiplayer simulation — see Section 21.
 
 The game's arc runs toward a single historical inevitability: the **1821 forced merger** of the Hudson's Bay Company and the North West Company, and the rise of **George Simpson** as the man who reshapes the surviving company. Whatever path the player has taken, the ending is the moment their world gets absorbed into — or transformed by — the new order.
+
+That inevitability is the frame, not the goal. The player's own goal is whatever they've set out to make of themselves (Section P.2), and 1821 is the reckoning on it: Simpson's new order weighs what the player has become — the posts they hold, the families they're bound into, the books they kept honestly or didn't — and keeps them on, cuts them loose with the many, or hands them the axe to swing at others.
 
 ---
 
@@ -30,6 +32,96 @@ This is the rule every mechanic in this document gets checked against: behavior 
 - **History itself** (Section 4.4): even the game's real-world historical timeline follows this rule, with a small, explicitly-marked deterministic core rather than a fully scripted plot.
 
 The test for any future mechanic: does this rule *produce* the behavior, or does it *fake* it? A system that can only be described as "when X happens, show Y" needs to be rebuilt as an actual interacting rule before it belongs here.
+
+### 2.1 The Second Test — Does the Player Feel It?
+Section 2's test asks whether a rule is honest. It doesn't ask whether anyone will notice. A system that's simulated faithfully but never seen, understood, or acted on costs CPU and adds no fun. So every mechanic gets a second test alongside the first:
+
+> **The player test:** does the player *see* it happen, *understand* why, and get a *choice* because of it?
+
+All three, not one. Seeing without understanding is noise; understanding without a choice is a cutscene. A mechanic that fails any part isn't finished, however true it is — and the fix is almost never to fake it, but to give it a tell (Section 19), a path for its consequences to reach the player (Sections 2.2, P.4), or a decision point where it bites (Section P.5). Neither test overrides the other: a fun mechanic that fakes it fails Section 2; an honest mechanic nobody perceives fails this one.
+
+### 2.2 Simulate, Then Curate — The Director
+Section 2 rules out scripting, and that stands. But a world where nothing reaches the player unless it physically travels will let most of its best drama happen offstage and arrive late, garbled, or never. The answer isn't to fake events — it's to choose *which real ones* the player is put in the way of.
+
+The **director** is a background process that never creates an event, never changes an outcome, and never grants knowledge outside the propagation system (Section 10). Its only levers are biases on things that were already going to happen somewhere:
+- **Who talks about what.** When a visitor arrives carrying several memories worth retelling (Section 11.3), the director weights the one most relevant to the player's ambitions (Section P.2), kin, or grudges.
+- **Whose route crosses whose.** Among an NPC's equally-good options — a courier leaving today or tomorrow, a hunting party choosing between two sites it believes are equal — it prefers the one that passes near the player.
+- **When latent pressure surfaces.** A grudge-holder (Section 7.4) deciding whether to wait or act, a winter-strained man (Section 17.6) deciding whether tonight's the night: the director nudges timing toward moments the player has room to respond to, and away from piling three crises into one afternoon.
+- **Pacing memory.** It remembers what kind of drama the player last saw and how recently, so a quiet stretch is followed by pressure, a disaster by breathing room, and the same kind of event doesn't repeat back to back.
+
+The rule that keeps it honest: **switch the director off and the world must still be valid** — every event it surfaced would still have happened, just somewhere the player wasn't. It decides what's on stage, never what's in the play. (Reference point: RimWorld's storytellers, minus the event-spawning.) In multiplayer (Section 21) it weights across every player's anchor rather than one.
+
+---
+
+## P. Player Experience — What It Feels Like to Play
+
+*Lettered rather than numbered so the existing section references stay stable. Where Sections 3–21 describe how the world works, this section describes what the player is doing in it, minute to minute and year to year — and it's the first reference for whether a new mechanic is pulling its weight (Section 2.1).*
+
+### P.1 The Fantasy
+You are one person in a vast, indifferent country, trying to make something of yourself between two companies at war, among nations that were here first and will judge you by what you do. You trade, you winter, you marry, you scheme, you get caught. **You will die — and your family will remember.**
+
+Three feelings the game should reliably produce:
+- **Hard-won cleverness** — "I saw that coming because I'd been paying attention": a rumour weighed right, a bargain read correctly, an ambush anticipated.
+- **Consequence that comes home** — a choice made in March lands in August, and the player knows exactly why (Section P.4).
+- **Belonging** — a post, a band, a brigade, a family the player is part of and is afraid to lose.
+
+The success test for the whole game: after one in-game year, a player tells you a story about it without being asked.
+
+### P.2 Ambitions — What the Player Is Trying to Do
+Survival and the Factor's morning orders (Section 3.9) happen *to* the player. An ambition is what they're doing *with* it. At character creation (Section 5.4), and again at turning points — a promotion, a marriage, a defection, a succession (Section 9.3.3), the ship's reckoning — the player declares one or two **Ambitions**. Each is an ordinary Tier 1 goal (Section 3.1), the same object an ambitious clerk carries, with one difference: the player chose it, and the journal (Section 12.7) tracks it in the open.
+
+| Ambition | Built from | Where it bites |
+|---|---|---|
+| Rise to the top of the post / earn a partnership | Career competition (3.7), standing (3.6) | Rivals running the same goal against you |
+| Found your own post | Founding (13.8), recruits (13.2) | Approval, construction exposure, a rival's raid |
+| Marry into a family | Marriage (8), kinship obligation (15.2) | Your in-laws' wars become yours; absences cost |
+| Grow rich on private trade | Skimming (3.9), caches (12.5), audits (3.9) | Discovery; a ledger that has to balance |
+| Drive the other company off this river | Rivalry, raids, interception (10.3, 15.1) | Escalation nobody fully controls |
+| Keep the band fed and whole | Band ledger, ecology (16.4), credit (13.3) | The company's quota pulls the other way |
+
+Ambitions should regularly **pull against each other and against orders** — the quota wants the lodge trapped out; the marriage wants the band's country spared. That collision is where the decisions live.
+
+**1821 is the reckoning, not the win condition** (Section 1). When the merger lands, the new order measures the player against their ambitions as they actually turned out. Ambitions also survive death: an heir inherits the declared ones as unfinished business (Section 10.9) and can keep or abandon them.
+
+### P.3 The Year Is the Heartbeat
+The game's strongest tension machine is already built: **the ship comes in August, and London expects its packs** (Sections 3.9, 10.1.2). Everything the player does all year is measured against that day. The NWC equivalent is the July brigade and council (Section 3.8.1); the Métis/freeman one is the hunt and the pemmican sale (Section 16.1). Each path has one annual reckoning, and the year is shaped around reaching it.
+
+**Pacing target: a year in roughly 4–6 hours of play**, not ~24. The ship cycle only works as a heartbeat if a player gets several of them in an ordinary playthrough. Compression is uneven by design: the trading season and the reckoning run dense and close to live; deep winter compresses hardest — except when the winter itself is the drama (Section 17.6), and Section 18.3's drop-to-live rules apply to it like any trail.
+
+**Four seasonal chapters, each with one clear stake:**
+- **Freeze-up** — the posting is decided: who winters where, with what outfit (Section 3.9 step 2). Stake: where you'll be and with whom.
+- **Winter** — survive, trap, hold the men together (Sections 16.1, 17.6). Stake: come out with packs and everyone alive.
+- **Breakup** — the brigades move and the bands come in to trade (Section 14.1). Stake: the year's trade is won or lost here.
+- **The ship (or brigade, or hunt)** — reckoning, promotion, new orders, new arrivals (Section 5.5). Stake: what London, the council, or the family thinks of you now.
+
+A chapter is a frame, not a script — nothing in it is forced. It gives the player a goal they can name ("forty packs by August") and gives the HUD something to show: a **quota line counting down to the reckoning** — days to the ship, packs in hand against packs expected — drawn from the player's own beliefs (the stores they've counted), not the true ledger.
+
+**Resource crises should build over a season or more, not a fortnight.** A beaver lodge trapped out in two weeks of spring is the right consequence at the wrong speed; overharvest (Section 16.4) should give the player time to see it coming, argue about it, and choose.
+
+### P.4 Consequences You Can Read
+Hidden goals (Section 3.5) and stale information (Section 10) only feel good when the reveal lands. A player who connects a delayed consequence to its cause feels clever; one who doesn't feels cheated. Three tools, none of which break Section 2:
+- **The journal connects the threads.** When a consequence reaches the player, the journal entry names the chain *as far as the player can know it*: "Maskwa will not trade. (You struck Wapistan on 3 March. Word reached the camp, you're told, by the 9th.)" It never states what the player couldn't have learned; where the chain is unknown it says so — "Nobody will say why" — which is itself a hook.
+- **Tells and barks.** NPCs voice their state in passing — "Forty packs by August, God help us," a hungry man eyeing the stores, a strained one snapping at a dog — and show it in how they move and where they linger. Goal inference (Section 3.5) needs evidence on screen to infer from; this is Section 19's learnable-tell rule made concrete.
+- **Notices weighted by importance.** World notices scale their prominence with how much they matter to the player — a death in the family or a broken Accord takes the screen for a moment; routine work passes in a line. The full log stays in the journal (Section 12.7).
+
+### P.5 Needs Create Decisions, Not Chores
+Hunger, thirst, warmth, spoilage, scurvy, firewood: the classic simulation trap is upkeep with no choice in it. The rule: **a need surfaces when there's a decision to make about it, not because an hour has passed.**
+- **At the post, routine needs resolve themselves** — mess call, the stores counter, the hearth, the water barrel — the way they do for every NPC living there. The player keeps the same needs (Section 1's equal-agent commitment); they just don't click through them. A post where they *stop* resolving — rations cut, the woodpile empty — is a crisis, and that's the point.
+- **Away from the post, needs become planning**: what goes in the pack for the river road, push on or make camp, the last pemmican or the dog, a ford that saves a day and risks a soaking (Sections 17.3, 18.3). This is where survival is a game. See Section 17.7.
+
+### P.6 Lose Before You Die; Die Into Succession
+Permanent death (Section 9) is part of the tone, and succession (Section 9.3.3) with inherited memory (Section 10.9) is the game's most distinctive idea — it should be the headline, not a fallback. But dying early and abruptly is just frustrating. The ladder:
+1. **Many ways to lose without dying** — surrender, bluff, retreat (Section 15.5), captivity and ransom (Section 9.1), being wounded and carried home (Section 17.5). In the early game nearly every lost fight should end on one of these rungs.
+2. **Death is a turn of the story.** The handover shows what the heir inherits: grudges, debts, a wife's kin, half-finished ambitions (Section P.2), the memories others hold (Section 10.9). The first minutes as the heir should feel like opening a letter you didn't know was coming.
+3. **The family is the save file.** Marrying, raising children, placing a son or nephew at a post is how the player protects a run — which makes Sections 8 and 9.4 strategically central rather than flavour.
+
+### P.7 Knowledge Is Your Progression
+Because knowledge is currency (Sections 10, 16.4), the player's **map and journal are their real skill tree**. Sites found, routes walked, families known, rumours confirmed — each is something they can sell, trade, withhold, or lose. Skills (Section 3.10) make the player better at things; knowledge makes them *worth something to other people*. The player should regularly face the choice: tell the Factor where the lodge is (standing), sell it to Cameron (goods and a dangerous secret), or keep it for a private trapline (Section 10.8).
+
+### P.8 Build Order — The First Milestone Is One River, One Year
+The scope of this document stands: the full map, every region, all three paths, the metropole, multiplayer. It gets built out in stages, and each stage has to pass Section 2.1 before the next is layered on.
+
+The first milestone is the **York Factory river**: York Factory, Oxford House, the Nor'Westers' house, two bands, the ship, the brigade, the rivalry, marriage, and the river road — already a complete game in miniature. The milestone is reached when one in-game year on that river is fun on its own, by Section P.1's test. Until then, player-experience work on the river (ambitions, the barter, journal reveals, the director, the seasonal chapters and pacing) comes ahead of new regions, and existing systems such as multiplayer are kept working rather than extended. Each later region then arrives as a proven piece of the same machine rather than a new layer of unproven systems.
 
 ---
 
@@ -56,6 +148,8 @@ Goals are not shown to the player as UI — they're inferred the same way everyt
 
 A dedicated skill unlocks direct goal-reading later in the game — the first of the small set of player-specific abilities noted in Section 1. It should be earned and limited, not an omniscience toggle: gated behind sustained observation of or interaction with a specific person rather than passive range-reading, and tiered in what it reveals — a vague sense of priority at low skill, the specific active goal at higher skill, visibility into its actual steps only at mastery. This preserves the stakes of not knowing for most of the game, and makes the eventual payoff feel like earned insight rather than a stat unlock.
 
+Inference only works if there's evidence to infer from: hidden goals need a steady supply of on-screen tells — barks, visible behaviour, where an agent lingers — or the player is guessing blind. See Section P.4.
+
 ### 3.6 What This Makes Existing Ideas Actually Be
 - **Pemmican-making** is a reusable chain (butcher → dry → render fat → pound → pack), not a bolted-on minigame — it slots into a hunt camp's subsistence goal, a factor's provisioning goal, or a family's trade-goods goal alike. When the player runs it directly, the challenge is the same skill/timing decisions any agent running that chain faces (drying against the weather, fat ratio versus shelf life), not a separate abstracted screen.
 - **Fur trading** is a negotiation action between two agents' goals meeting — price and outcome depend on individual rapport, faction standing, seasonal pelt quality (Section 14.4), and what the other party currently needs (a trader who's already hit his quota drives a harder bargain than one desperate to fill it before the ship leaves). Reading the other agent's active goal — or inferring it, per Section 3.5 — is what good bargaining means here.
@@ -66,6 +160,14 @@ A dedicated skill unlocks direct goal-reading later in the game — the first of
   - **Indigenous nations** — kinship and reciprocity, close to individual rapport because the communities are the small, real ones the population model (Section 11.1) already commits to.
   - **Métis** — similarly family/brigade-centered rather than institutional.
   - **Americans** — barely an alliance concept at all, mostly a rivalry/threat-level meter.
+
+#### 3.6.1 The Barter — Trading as the Signature Interaction
+Trade is the core fantasy, so it gets more care than any other interaction. It's still the shared trade verb (Section 3.3); what changes is how much of the other party the player can read and work with:
+- **Opening with gifts.** The real trading ceremony began with gifts and a pipe before any goods changed hands. A gift sets the tone for the session; skipping it is noticed.
+- **Reading the other side.** The screen shows what the player can actually perceive about the other party's position (Section 3.5): a family that looked hungry at the gate, a hunter asking after guns while his band is at war (Section 7.2), a debt he's let slip to the Nor'Westers (Section 13.3), a trader glancing at the calendar. These are tells, not numbers — reading them is the skill.
+- **Offer and counter.** The player proposes, the other party counters from their goals and personality (Section 11.4), and each round spends patience. Push too hard and he walks — possibly across the river.
+- **Holding back.** Not every good has to go on the table: keeping the best cloth for the chief, or the guns from a band at war, is a decision with consequences elsewhere.
+- **Your own book.** Alongside the company's ledger the player can trade on their own account (Section 3.9's skimming, Section 12.5's caches), with the audit risk that carries.
 
 ### 3.7 Career Competition
 Promotion (Section 5.1's HBC salary-and-rank ladder, or Section 5.2's NWC path from clerk toward a partnership share) is a Tier 1 ambition goal (Section 3.1) like any other, which means rivals for the same seat are real named colleagues pursuing the identical goal, not a scripted competitor. Two clerks angling for the same advancement are two agents each running their own returns/relationship-building chains (Section 3.2) against the same superior's attention — whichever actually delivers, or maneuvers the other out of favor via the information system (Section 10), gets the seat. This turns career advancement into a legible political contest instead of a threshold on a stat bar.
@@ -364,6 +466,8 @@ On permanent death, the player chooses:
 2. **New character, new world** — a clean roguelike reset; much simpler to build since nothing has to persist.
 3. **Succession via kinship network** — play as someone already established in the player's relationship web (spouse, child, in-law). Under the unified agent model (Section 11.1), this isn't a separate system needing its own persistence layer — it's simply handing control to an agent the simulation was already running, with its own real memory, relationships, needs, and goals (Section 3.1) intact.
 
+Succession is the game's headline idea, not a consolation prize — Section P.6 covers how losing, dying, and the handover to an heir should feel.
+
 ### 9.4 Aging & Natural Decline
 Succession doesn't have to wait for violent death. Voyageur labor historically wore men out physically by their 40s, and a character's declining capacity — slower on the portage, worse in a fight, less suited to the brigade circuit — is a real, non-violent path toward handing control to an heir (Section 9.3.3), and a natural nudge toward the political/administrative side of a career (Section 3.7) as the physical one closes off. It also gives the multi-generational family-ambition goal (Section 3.1) a built-in reason to actually change hands over the course of a long game, rather than only doing so through tragedy.
 
@@ -475,6 +579,8 @@ Geography is knowledge like anything else in this section — no agent, includin
 - **A map as a physical item** — a chart covering some region, which instantly reveals that region's geography to whoever holds it, regardless of whether they personally explored it. A map is knowledge exactly like an intercepted message (Section 10.3): it can be found, bought, given, stolen, or sold, its value varies by buyer (a chart of unmapped Blackfoot territory is worth far more to a company than to a band that already knows the country), and losing one to a raid hands the finder real, permanent knowledge, not just an item.
 
 A found or purchased map doesn't need to cover the whole world at once — a partial regional chart growing into a fuller one as more pieces are acquired or explored fits the same "grows as it's explored" idea, without requiring a single map object to somehow represent the entire game world from the start.
+
+**Knowledge as the player's progression.** Because a known site or a chart is worth something to someone else, it's also the player's most visible progress (Section P.7). The interface should regularly put the question of who to tell — and at what price — in front of them.
 
 ### 10.9 Legacy — Memory Across Kinship
 A dead character's reputation doesn't vanish with them. Memories (Section 10.4) that NPCs already hold about a deceased agent don't just decay in place — when their kin (Section 8) are present, especially an heir who succeeds them (Section 9.3.3), those memories apply to the kin too, one hop further removed than an ordinary retelling, using the exact same weight-and-decay math rather than a new reputation stat.
@@ -715,6 +821,9 @@ A party's collective morale can break — early losses or a fallen leader can ca
 ### 15.5 Non-Lethal Outcomes
 Surrender, bluff, and retreat need to be real options given permadeath (Section 9) — especially early-game, when the player is one person against a party. A lost fight can resolve into captivity or slavery (Section 9.1/9.2) instead of death.
 
+### 15.6 Fights Are Won Before the First Shot
+With one-shot muskets (Section 15.3) and breakable morale (Section 15.4), the fun of combat is the setup, not the clicking: choosing the ground, the ambush at the portage (Section 12.2), who fires first, the long gap while everyone reloads, the moment a party breaks. A typical fight should be over in a tense twenty seconds or so and be largely decided beforehand by position, surprise, numbers, and nerve. Sneaking up for a first stroke, holding fire until the range is right, and having friends who will actually stand (Section 15.2) should matter far more than reflexes.
+
 ---
 
 ## 16. Hunting
@@ -808,6 +917,9 @@ A sixth month locked inside a cramped post with the same dozen people is its own
 
 **Countermeasures are a Factor's real administrative lever** (Section 3.9), on par with provisioning and trade rather than flavor: liquor rations, storytelling around a shared fire (the same hearth already doing double duty for warmth, Section 18.4), organized hunts to break the monotony and vary the food, and set-piece celebrations — a New Year's dance, fiddling — that cost real resources specifically to spend them on morale instead of returns. This gives the quiet middle of a long winter something the player and the post's leadership are actually managing, not just enduring.
 
+### 17.7 At the Post vs. Away
+Per Section P.5: inside a working post or camp, routine needs resolve through its ordinary arrangements — meals at the mess, the stores, the hearth, the water barrel — without the player managing them by hand, exactly as they resolve for the NPCs who live there. They become the player's problem when those arrangements fail (short rations, no firewood, a sick post) or when the player leaves them behind, and then they turn into the planning and judgement calls of Sections 17.1–17.3 and 18.3.
+
 ---
 
 ## 18. World Architecture — Open World, Simulation Fidelity & Travel Mode
@@ -839,6 +951,7 @@ This is what makes Section 11.1's "everyone is a full agent" affordable at open-
   - **Entering any fort/post tile** — needs live fidelity to interact with anyone there.
 - Manual drop-out is always available — it's a zoom level, not a locked mode.
 - The design property worth keeping: every automatic trigger is already a place the design puts real stakes, so the zoom level itself becomes a signal — if you're still zoomed out, nothing that matters is currently happening.
+- **Compression target**: tuned together with sleep/wait and the live clock so a full year runs about 4–6 hours of play (Section P.3).
 
 ### 18.4 Fire — A Simulated Object, Not a Tile Flag
 Fire is a real object that sits on a tile and does things over time, not a boolean "sheltered" flag:
@@ -874,6 +987,7 @@ Fire is a real object that sits on a tile and does things over time, not a boole
 - **Terminal failure states need an earlier, escapable warning state.** A starving post, an insolvent company, or an overharvested site shouldn't jump straight from fine to permanently lost — Section 13.1's subsistence fallbacks, Section 13.7's solvency crisis responses, and Section 16.4's rested-site option are all the same rule applied to different systems: give agents, the player included, a repertoire of increasingly desperate but real actions to try first, so failure reads as a cascade that could have been intervened in rather than a threshold that silently tripped.
 - Injuries (Section 15.3), addiction (Section 13.4), disease progression (Section 13.5), and perks (Section 12.7) are all long-running conditions that alter an agent's goals and capability over time — a strong candidate for one generic "condition" system specialized per case, rather than four separate ones.
 - **Every hidden system needs at least one learnable tell.** Section 2 commits to no ambient knowledge anywhere, but a rule that's hidden with no way to learn to read it stops feeling like mystery and starts feeling like arbitrary punishment. Goal inference from behavior (Section 3.5), personality-driven tells (Section 11.4), and visible ecological warning signs (Section 16.4's own beliefs a factor holds) are the existing instances of this; any new hidden system added later should come with its own observable tell as part of the same design pass, not as an afterthought.
+- **Two tests, not one** (Section 2.1): every mechanic is checked for honesty (Section 2) and for whether the player sees it, understands it, and can act on it. The director (Section 2.2) is the architectural answer to the second test for events far from the player — it biases selection, never outcome, and the world must stay valid with it switched off.
 
 ---
 
@@ -884,7 +998,7 @@ Fire is a real object that sits on a tile and does things over time, not a boole
 - **Marriage track mutability** — can a player renegotiate/change tracks more than once, or does each transition (Section 8.3) apply every time regardless of direction already traveled?
 - **Herd fragmentation** — Section 16.5 resolves the movement/contest question (a migratory herd is a mobile spawn site, contest falls out of the existing shared-finite-site logic); what's still open is whether sustained heavy pressure should be able to split a herd into two, or only push its whole route further off.
 - **Exact scope of the black-market intel system** — blowback resolves as a hidden roll (Section 10.3), but what that roll should weight (source_chain length, buyer, discretion of those involved) is still open.
-- **Travel mode compression ratio** — how many real-world minutes should represent one travel-day is untuned.
+- **Travel mode compression ratio** — how many real-world minutes should represent one travel-day is untuned. Section P.3 now sets the overall target (a year in roughly 4–6 hours); how that splits between travel mode, sleep/wait, and the live clock is still open.
 - **Rendezvous and major-battle scale** — Section 11.1 now targets ~10–20k named agents map-wide with only ~100 at full tick. How many named agents can be *live at once* at the Fort William rendezvous (Section 5.2) or a large intertribal battle (Section 7.2) still needs a concrete number, along with the staggered promotion that gets them there (Section 18.2). The council itself needs only a few dozen live deciders (Section 3.8.1); the open number is the local-tier crowd around them. Fort William Historical Park puts the rendezvous at perhaps two thousand people, roughly a tenth of the ~20k budget in one place.
 - **Goal decomposition depth and authoring** — how deep should chains realistically nest before bottoming out in atomic actions, and how much of the reusable-chain library needs hand-authoring up front versus emerging from combining a smaller primitive set? Section 3.9 bounds nesting by organizational depth (factor → clerk or outpost head → men), which narrows this but does not settle authoring.
 - **Fire spread tuning** — how easily a wooden post should actually catch and burn is a real balance question: too forgiving and arson/accidental fire never matters, too easy and it becomes a griefing tool or a source of constant unfair loss. Needs a concrete pass once other numeric placeholders (Section 9's decay rates, travel-day compression) are being tuned together.
@@ -936,6 +1050,14 @@ Fire is a real object that sits on a tile and does things over time, not a boole
 - **Canoe condition numbers** — how much damage a rapid, a rock strike, or a portage drop should deal, and how far a given amount of spruce gum goes (Section 12.2), need balancing.
 - **Message verification** — forging a replacement dispatch (Section 10.3) presumes something makes a genuine one verifiable (a seal, a known hand); that mechanic isn't designed yet.
 - **Express courier speed/risk tradeoff** — the actual numbers making an express canoe harder to catch but more valuable when caught (Section 10.3) are unset.
+
+**New — from the player-experience pass (Sections 2.1, 2.2, P):**
+- **Ambition catalogue and turning points** (Section P.2) — the full list of declarable ambitions per path, how many at once, which events open a re-declaration, and what the 1821 reckoning concretely awards or takes for each.
+- **Director levers and limits** (Section 2.2) — which NPC choices count as "equally good" enough to bias, how strongly, and how pacing memory is scored (what counts as drama, how long breathing room lasts).
+- **Journal causal chains** (Section P.4) — how much of a consequence's chain the journal can attribute from what the player actually knows, and how it phrases the parts they don't.
+- **Barter tells** (Section 3.6.1) — which of the other party's states are visible, at what rapport and skill, and how patience is spent per round.
+- **Seasonal chapter compression** (Section P.3) — per-season clock rates within the 4–6 hour year, and how chapter framing reads on the NWC and Métis paths.
+- **What "resolve themselves" means at the post** (Sections P.5, 17.7) — fully automatic or one-press, and how a failing post hands needs back to the player.
 
 ---
 
@@ -997,3 +1119,4 @@ This revision folds the follow-up planning discussion into the document. Where t
 - **Winter isolation** (Section 17.6): new Tier-0-adjacent need — psychological strain from isolation and monotony, susceptibility set by sociability (Section 11.4), escalating per the graceful-degradation principle rather than jumping straight to mutiny, countered by a Factor's own administrative choices (rations, storytelling, hunts, celebrations).
 - **Language, embezzlement, disease, and courier extensions** (Sections 10.6, 12.5, 3.9, 13.5, 13.4, 10.3): named languages and deliberate interpreter sabotage; caches as a fourth item location covering both stranded-brigade survival and off-the-books trading; triggerable audits; disease traveling through a contaminated trade good plus quarantine as a real choice; liquor dilution and the discoverable Fire Test; express couriers and dispatch forgery.
 - **Open questions** (Section 20): updated and extended.
+- **Player experience** (Sections 1, 2.1, 2.2, P, 3.5, 3.6.1, 9.3, 10.8, 15.6, 17.7, 18.3, 19, 20): new lettered Section P — the fantasy and its success test, declared Ambitions with 1821 as their reckoning, the year as the heartbeat (a 4–6 hour year in four seasonal chapters with a quota countdown), consequences connected in the journal, tells and barks, needs that surface as decisions rather than chores, losing before dying with succession as the headline, knowledge as progression, and a build order whose first milestone is one fun year on the York Factory river, with the long-term scope unchanged. Section 2 gains a second test (does the player see, understand, and get a choice) and the director (simulate, then curate: it biases which real events reach the player, never what happens). New subsections for the barter (3.6.1), setup-driven combat (15.6), and needs at the post vs. away (17.7).
