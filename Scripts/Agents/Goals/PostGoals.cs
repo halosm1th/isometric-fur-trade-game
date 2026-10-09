@@ -384,7 +384,7 @@ public class LookForGoal : Goal
                 {
                     string news = _missing.IsDead ? $"found {_missing.DisplayName} dead" : $"found {_missing.DisplayName} alive and well";
                     if (_missing.IsDead && _missing.Role == Role.Postmaster && Sim.Fort != null) Sim.Fort.KnowsOutpostMasterless = true;
-                    Chronicle.Event($"{npc.DisplayName} {news} out by {_where}.", npc.GlobalPosition, npc, _missing.DisplayName, 1.5f);
+                    Chronicle.Event($"{npc.DisplayName} {news} out in the bush.", npc.GlobalPosition, npc, _missing.DisplayName, 1.5f);
                     _phase = 2;
                     return Delegate(new ReportGoal(news, null, null));
                 }

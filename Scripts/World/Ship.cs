@@ -196,6 +196,7 @@ public partial class Ship : Node2D
         Current = State.Docked;
         _dockedHours = 0f;
         Sim.Notice("The ship is alongside the wharf. All hands to the landing.");
+        Agents.Chronicle.Shared(Sim.Fort, "the ship came in to the wharf, and everyone ran to the shore", 1.3f);
         if (_population != null)
         {
             Crew.Clear();

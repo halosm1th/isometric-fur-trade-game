@@ -297,6 +297,14 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 
 `--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze`
 
+## Barks and shared memory (design doc P.4, P.8)
+
+`Agents/Barks.cs`. People say things out loud in passing - a bubble over the head for a few seconds, to whoever is beside them, player or NPC - and the listener may answer. What they say comes from what they have, in this order: **a memory shared with the listener** (both saw it firsthand, weight >= 1, a day or more old, not yet raised between them: "Do you remember, Peter? ..."; a wrong the listener did you comes out sour), **dead kin** ("Kimiwan should be here", a handful of times), **the body** (hungry, cold, fever, scurvy, hurt, drunk), **the post's books** (Factor, clerks, postmaster: "30 beaver in the warehouse and London wants 60, with 229 days to the ship" - one voice per household every few days), **what they want** (by role and temper). Raising a shared hardship warms both people +1.5 rapport. One speaker at a time in a group. Cree or Assiniboine speech reads as "(Cree - you catch a word or two)" below 0.3 fluency.
+
+Every `Chronicle.Event` now records its **witnesses** (saved). `Chronicle.Shared` records things a household lives through together: a long **blizzard**, the **food running out** (at most once a fortnight), the **ship coming in**. The console prints each line as `[bark] Name: text`.
+
+Dev arg `--shot=SECONDS` saves the screen to `user://shot_N.png` every SECONDS (six shots) - handy when no window capture is possible.
+
 ## Known gaps / next
 
 - Art is placeholder everywhere new (trees, tipis, ship, women/factor recolours, item icons).

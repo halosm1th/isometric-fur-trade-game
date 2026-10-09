@@ -40,6 +40,11 @@ public partial class Population : Node2D
 		_creeWomanFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/CreeWomanFrames.tres");
 		_assiniboineFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/AssiniboineFrames.tres");
 		foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--trace") _trace = true;
+		// Dev aid: `-- --shot=SECONDS` saves what's on screen to user://shot_N.png
+		// every SECONDS (up to six), so a run can be checked without a window capture.
+		foreach (string arg in OS.GetCmdlineUserArgs())
+			if (arg.StartsWith("--shot=") && float.TryParse(arg.Substring(7), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float every))
+				for (int i = 1; i <= 6; i++) { int n = i; GetTree().CreateTimer(every * i).Timeout += () => { var path = ProjectSettings.GlobalizePath($"user://shot_{n}.png"); GetViewport().GetTexture().GetImage().SavePng(path); GD.Print($"[shot] {path}"); }; }
 		if (Net.Net.IsServer) CallDeferred(nameof(SpawnAll));
 	}
 
@@ -194,12 +199,32 @@ public partial class Population : Node2D
 		}
 	}
 
+	// A household whose food runs out goes hungry together, and remembers it
+	// together (design doc P.9). Once a day; a spell is remembered once a fortnight.
+	private int _hungerCheckDay = -1;
+	private readonly System.Collections.Generic.Dictionary<Household, int> _hungrySince = new();
+	private void HungrySpells()
+	{
+		int day = (int)(GameCalendar.Instance?.DayOfYear ?? 0f);
+		if (day == _hungerCheckDay) return;
+		_hungerCheckDay = day;
+		foreach (var h in Chronicle.Households())
+		{
+			int mouths = 0;
+			foreach (var n in Sim.Npcs) if (n.HomeStores == h && !n.IsDead) mouths++;
+			if (mouths == 0 || h.FoodDays(mouths) >= 1f) continue;
+			if (_hungrySince.TryGetValue(h, out int last) && Mathf.PosMod(day - last, 365) < 14) continue;
+			_hungrySince[h] = day;
+			Chronicle.Shared(h, "the food ran out and everyone went hungry", 1.3f);
+		}
+	}
+
 	// Dev aid: `-- --trace` prints everyone's goal and needs every 2 game hours.
 	private bool _trace;
 	private float _traceTimer;
 	public override void _Process(double delta)
 	{
-		if (Net.Net.IsServer) { SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f); Tiers.Tick((float)delta); }
+		if (Net.Net.IsServer) { SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f); Tiers.Tick((float)delta); HungrySpells(); }
 		if (!_trace) return;
 		_traceTimer -= GameCalendar.Instance?.DeltaGameHours ?? 0f;
 		if (_traceTimer > 0f) return;

@@ -19,6 +19,9 @@ public class MemoryEntry
     // Everyone who was there (design doc P.9): a memory two people share
     // firsthand is what "we went through that together" is made of.
     public List<string> Witnesses;
+    // The day it was last brought up aloud. Firsthand witnesses share this
+    // very entry, so once it's been raised at a post it rests a while for all.
+    public int LastRaised = -999;
     public bool Witnessed(Agent a) => a != null && Witnesses != null && Witnesses.Contains(a.DisplayName);
 
     public MemoryEntry Copy() => new()
@@ -90,4 +93,28 @@ public static class Chronicle
         // Players always know what happens in front of them.
         foreach (var pc in Sim.Players()) if (pc.GlobalPosition.DistanceTo(where) < WitnessRadius) { pc.Known.Add(entry.Key); pc.Journal.Add($"{cal?.DateString}: {text}"); if (pc.Journal.Count > 40) pc.Journal.RemoveAt(0); }
     }
+
+    // Something a whole household lives through together (design doc P.9):
+    // a blizzard, a hungry spell, the ship coming in. Nobody did it; everyone
+    // at home remembers it, and it's the stuff "we went through that" is made of.
+    public static void Shared(Economy.Household h, string what, float weight = 1.2f)
+    {
+        if (h == null) return;
+        Event($"{what} at {PlaceOf(h)}.", World.IsoGrid.ToWorld(h.AccessCell), subject: PlaceOf(h), weight: weight);
+    }
+
+    public static IEnumerable<Economy.Household> Households()
+    {
+        foreach (var p in Sim.Posts()) yield return p;
+        foreach (var b in Sim.Bands) yield return b;
+    }
+
+    public static string PlaceOf(Economy.Household h) => h switch
+    {
+        Economy.OutpostLedger => "Oxford House",
+        Economy.NwcLedger => "the Canadians' house",
+        Economy.FortLedger => "the Factory",
+        Economy.BandLedger b => b.IsCree ? "the Cree camp" : "the Assiniboine camp",
+        _ => h.Title,
+    };
 }

@@ -321,10 +321,14 @@ public partial class Agent : CharacterBody2D
     public void Bark(string text)
     {
         if (string.IsNullOrEmpty(text)) return;
+        LastBarkMs = Time.GetTicksMsec();
+        if (Net.Net.IsServer) GD.Print($"[bark] {Describe()}: {text}");
         ShowBark(text);
         if (Net.Net.IsServer) Net.Net.I?.BroadcastBark(this, text);
     }
 
+    public ulong LastBarkMs;
+    public bool BarkedWithin(float seconds) => LastBarkMs > 0 && Time.GetTicksMsec() - LastBarkMs < seconds * 1000f;
     private SpeechBubble _bubble;
     public void ShowBark(string text)
     {

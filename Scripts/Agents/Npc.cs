@@ -90,6 +90,44 @@ public partial class Npc : Agent
         }
     }
 
+    // Saying things out loud (design doc P.4, P.9): to whoever's beside you,
+    // player or not. What's been raised with whom, and the dead mourned.
+    public readonly HashSet<string> Recalled = new();
+    public readonly Dictionary<string, int> Mourned = new();
+    public readonly Dictionary<BarkKind, int> LastBarkDay = new();
+    private readonly Queue<string> _recentLines = new();
+    private float _barkTimer = (float)GD.RandRange(6.0, 30.0);
+    private string _reply; private float _replyIn = -1f;
+
+    public void QueueReply(string text, float delay)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+        _reply = text; _replyIn = delay;
+    }
+
+    private void Chatter(float dt, GameCalendar cal)
+    {
+        if (_replyIn >= 0f)
+        {
+            _replyIn -= dt;
+            if (_replyIn < 0f && _reply != null) { if (!Sleeping) Bark(_reply); _reply = null; }
+        }
+        _barkTimer -= dt;
+        if (_barkTimer > 0f) return;
+        _barkTimer = (float)GD.RandRange(25.0, 60.0) / Mathf.Lerp(0.5f, 1.5f, Personality.Talkative);
+        if (Sleeping || Conversing || Tier != Core.Tier.Live || cal.IsSkipping || HeldBy != null) return;
+        if (Brain.Tier0Goal() is AttackGoal or FleeGoal) return;
+        // One at a time: if someone beside you has just spoken, wait your turn.
+        foreach (var a in Sim.AgentsWithin(GlobalPosition, Barks.HearRadius)) if (a != this && a.BarkedWithin(5f)) { _barkTimer = 3f; return; }
+        var listener = Barks.ListenerFor(this);
+        var line = Barks.Compose(this, listener);
+        if (line.IsEmpty || _recentLines.Contains(line.Text)) return;
+        _recentLines.Enqueue(line.Text); if (_recentLines.Count > 5) _recentLines.Dequeue();
+        if (listener != null) FaceToward(listener.GlobalPosition);
+        Bark(line.Text);
+        Barks.Apply(this, listener, line);
+    }
+
     // Fast-moving individual rapport with other agents (design doc 3.6).
     public readonly Dictionary<Agent, float> Rapport = new();
     // Worth of everything the player has given this person (bride-price etc.).
@@ -243,6 +281,7 @@ public partial class Npc : Agent
         ZIndex = Sleeping ? 1 : 0;   // a sleeper lies on the bunk, not under it
         Animate();
         Gossip(dt);
+        Chatter(dt, cal);
     }
 
     // Things you do in passing, no plan needed.

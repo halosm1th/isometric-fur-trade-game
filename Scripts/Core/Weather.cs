@@ -46,6 +46,17 @@ public class Weather
 
     public void Roll(Season season)
     {
+        var was = Current;
+        try { RollSky(season); }
+        finally
+        {
+            if (Current == SkyState.Blizzard && was != SkyState.Blizzard && HoursLeft >= 8f && Net.Net.IsServer)
+                foreach (var h in Agents.Chronicle.Households()) Agents.Chronicle.Shared(h, "a blizzard shut everyone in by the fire", 1.1f);
+        }
+    }
+
+    private void RollSky(Season season)
+    {
         float r = GD.Randf();
         Current = season switch
         {

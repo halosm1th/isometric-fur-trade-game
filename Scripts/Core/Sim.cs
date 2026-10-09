@@ -62,7 +62,7 @@ public static class Sim
         // with it, and the new scene subscribes afresh in its _Ready.
         LocalPlayerChanged = null;
         Nwc = null; Outpost = null; Assiniboine = null; Bands.Clear();
-        IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear();
+        IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear(); IsometricFurTradeGame.Scripts.Agents.Barks.Reset();
     }
 
     // A sound in the world (design doc 15, 16): animals in range react, and
