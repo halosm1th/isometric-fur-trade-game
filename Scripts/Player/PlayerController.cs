@@ -250,6 +250,7 @@ public partial class PlayerController : Agent
 		// knifes the nearest person after 3 s, `--talk` opens a conversation after 4 s.
 		foreach (string arg in OS.GetCmdlineUserArgs())
 		{
+			if (arg.StartsWith("--spawn=") && NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => { GlobalPosition = IsoGrid.ToWorld(TerrainPainter.NamedSpot(spot)); _netTarget = GlobalPosition; _teleported = true; GD.Print($"[dev] host moved to {spot} {Cell}"); }; }
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
 			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
@@ -689,6 +690,7 @@ public partial class PlayerController : Agent
 				if (!OS.IsDebugBuild()) return "";
 				GlobalPosition = IsoGrid.ToWorld(TerrainPainter.NamedSpot((string)args[0]));
 				_netTarget = GlobalPosition; _teleported = true;
+				GD.Print($"[dev] moved {DisplayName} to {args[0]} {Cell}");
 				return $"(dev) moved to {args[0]}";
 			case "respawn": return Respawn();
 		}

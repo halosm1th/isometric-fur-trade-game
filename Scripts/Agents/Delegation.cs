@@ -291,7 +291,7 @@ public static class Delegation
         var fort = leader.HomeStores as FortLedger;
         if (fort == null) return;
         var men = new List<Npc>();
-        foreach (var n in Sim.Npcs) if (n.HomeStores == fort && (n.Role == Role.Labourer || n.Role == Role.Voyageur) && !n.IsDead && n != leader && n.HeldBy == null) men.Add(n);
+        foreach (var n in Sim.Npcs) if (n.HomeStores == fort && (n.Role == Role.Labourer || n.Role == Role.Voyageur) && !n.IsDead && n != leader && n.HeldBy == null && n.Tier == Core.Tier.Live) men.Add(n);
         if (men.Count == 0) return;
         int today = Cal.Day;
 

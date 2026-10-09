@@ -18,7 +18,7 @@ public class GoToGoal : Goal
         Target = target; ArriveDistance = arriveDistance;
     }
 
-    public override string Label => $"go to {Target}";
+    public override string Label => "on their way somewhere";
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {

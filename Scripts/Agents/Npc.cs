@@ -32,6 +32,8 @@ public struct Personality
 public partial class Npc : Agent
 {
     public Role Role;
+    // Which ring of the simulation this person is in (design doc 18.2).
+    public Core.Tier Tier = Core.Tier.Live;
     public Personality Personality = Personality.Random();
     public readonly Brain Brain = new();
 

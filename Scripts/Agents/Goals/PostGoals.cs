@@ -14,7 +14,7 @@ public class RoadGoal : Goal
     private System.Collections.Generic.List<Vector2I> _legs;
     private int _leg = -1;
     public RoadGoal(Vector2I dest) { _dest = dest; }
-    public override string Label => $"take the road to {_dest}";
+    public override string Label => "on the river road";
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {

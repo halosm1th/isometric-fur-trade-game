@@ -95,6 +95,7 @@ public partial class DebugMenu : Control
                 ("+50 food", () => fort.Stores.Add(ItemId.DriedGoose, 50)),
                 ("Empty food", () => { foreach (var id in new[] { ItemId.Pemmican, ItemId.DriedGoose, ItemId.Bread, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat }) fort.Stores.TakeUpTo(id, 9999); }));
         }
+        AddReadout("Simulation", () => $"Agents: {Sim.Agents.Count} ({Core.Tiers.Report()}); animals {Sim.Animals.Count}\nPaths {World.Pathfinder.Calls} ({World.Pathfinder.TotalMs:0} ms, {World.Pathfinder.SlowCalls} slow)");
         AddReadout("World log", () =>
         {
             var h = NoticeLog.History; var sb = new System.Text.StringBuilder();

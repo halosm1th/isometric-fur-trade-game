@@ -210,6 +210,7 @@ public partial class Net : Node
         // Bring the newcomer up to date: everything that exists, then their player.
         RpcId(peer, nameof(WorldSync), GameCalendar.Instance.Year, GameCalendar.Instance.Month, GameCalendar.Instance.Day, GameCalendar.Instance.Hour, (int)GameCalendar.Instance.Weather.Current);
         foreach (var a in Agents.Values) RpcId(peer, nameof(SpawnAgent), Describe(a));
+        foreach (var a in Agents.Values) if (a is Npc bgn && bgn.Tier == Core.Tier.Background) RpcId(peer, nameof(TierState), bgn.NetId, true);
         foreach (var kv in Players) RpcId(peer, nameof(BindPlayer), kv.Key, kv.Value.NetId, kv.Value.DisplayName);
         Sim.Structures?.SendCellStateTo(peer);
         RpcId(peer, nameof(ClockState), HostPaused, GameCalendar.Instance?.SecondsPerGameHour ?? 10f);
@@ -320,6 +321,20 @@ public partial class Net : Node
         if (Agents.TryGetValue(id, out var a)) a.PuppetDie();
     }
 
+    // The server has put someone into the background (or taken him out of
+    // it): clients hide or show their copy (design doc 18.2, 21.2).
+    public void AnnounceTier(Npc n, bool background)
+    {
+        if (IsServer && Current != Mode.Offline) Rpc(nameof(TierState), n.NetId, background);
+    }
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void TierState(int netId, bool background)
+    {
+        if (!Agents.TryGetValue(netId, out var a) || a is not Npc n || !IsInstanceValid(n)) return;
+        n.Tier = background ? Core.Tier.Background : Core.Tier.Live;
+        n.Visible = !background;
+    }
+
     public void AnnounceDeath(Agent a)
     {
         if (IsServer && Current != Mode.Offline) Rpc(nameof(AgentDied), a.NetId);
@@ -398,6 +413,7 @@ public partial class Net : Node
         foreach (var a in Agents.Values)
         {
             if (!IsInstanceValid(a)) continue;
+            if (a is Npc bg && bg.Tier == Core.Tier.Background) continue;   // nothing to send about a man who isn't moving
             arr.Add(new Godot.Collections.Array { a.NetId, a.GlobalPosition.X, a.GlobalPosition.Y, a.CurrentAnimation, a.FlipH, a is PlayerController pl && pl.Aboard != null });
             if (arr.Count >= 12) { Rpc(nameof(Snapshot), arr); arr = new Godot.Collections.Array(); }
         }

@@ -208,7 +208,7 @@ public class Conversation
             Role.Wife => "your wife",
             _ => "",
         };
-        string busy = npc.Brain.Top != null ? $" They were {npc.Brain.Top.Label}." : "";
+        string busy = npc.Tier == Core.Tier.Background ? " They have been about their own work." : npc.Brain.Top != null ? $" They were {npc.Brain.Top.Label}." : "";
         string debt = "";
         foreach (var g in Grudges.HeldBy(npc.DisplayName)) if (g.Against == _player.DisplayName) { debt = $" There is blood between you: {g.Victim}. {(npc.IsFighter ? "Their hand is on their knife." : "They will hear what you offer for it, or nothing.")}"; break; }
         if (debt == "" && _player.Spouse is Npc wife && npc.IsBandPerson)
