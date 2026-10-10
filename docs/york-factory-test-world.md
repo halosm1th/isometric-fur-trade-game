@@ -309,7 +309,7 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 
 ## Command-line dev args (after `--`)
 
-`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze`
+`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S`
 
 ## Barks and shared memory (design doc P.4, P.8)
 
@@ -322,6 +322,10 @@ Every `Chronicle.Event` now records its **witnesses** (saved). `Chronicle.Shared
 **A death leaves a hole** (`Agents/Losses.cs`): every death in a household is recorded - his bunk, his day, his body. Housemates passing the **empty bunk** say so, and when a recruit takes it, someone remarks on that. Kin mourn aloud up to eight times; housemates who went through things with him (shared memories, rapport) for six weeks, sometimes with the memory itself. The evening after the death his **effects are gathered** off the body (whatever nobody looted; food to the stores) and a company post **sells them among the men** - talk to the master to *Bid at the sale of ...'s effects*, priced in pieces of goods, the money to his widow if he had one at the post, else the stores. At 21:00 what's left goes to whoever was closest to him; a band's family gives his things away the same way. Whoever has his capote or his knife says so now and then ("This was John's capote").
 
 Dev arg `--kill=Name` kills that person five seconds in (to watch a household take a loss).
+
+**Children and succession** (`Agents/Heirs.cs`, design doc P.6). A country marriage bears children: a year or so after the wedding, if the two of them are still together, the wife bears a child at the post (headline, and the band's people think better of you), and the child grows year by year until at sixteen he "takes a man's work". **Death is a turn of the story, not a reset.** When the player dies the overlay reads out who takes his place - a grown son first, else a wife's brother if he married into the country, else a brother come out on the ship - with his age, his ties, and what he inherits. Pressing R hands the world over: the dead man goes into **your house** in the journal (`Forebear`: name, rank, years, how it ended, what he got done), blood debts held against his name follow the family at 0.6 of the debt, everyone's regard drops to 0.4 of what they thought of the man (a name is worth something, or costs something), the heir keeps the unfinished ambitions, the parole dies with the man, rank goes back to labourer, a quarter of the private pile survives, and a son or a wife's brother brings his own fluency and his hunting and trapping with him. All of it saves and loads.
+
+Dev args `--son` (the player has a grown son at the post from second six) and `--killme=SECONDS` (the player dies then, and takes up his heir's place four seconds later) walk the whole handover.
 
 Dev arg `--shot=SECONDS` saves the screen to `user://shot_N.png` every SECONDS (six shots) - handy when no window capture is possible.
 

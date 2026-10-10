@@ -1180,6 +1180,7 @@ public class Conversation
         if (gifts < 8f) return $"\"A daughter is not given for nothing.\" He looks at what you have brought him. (gifts worth {gifts:0.#} MB, wants 8)";
         daughter.Spouse = _player;
         _player.Spouse = daughter;
+        _player.MarriedOnDay = GameCalendar.Instance.Day;
         _player.Learn(daughter, 0.3f);
         daughter.Role = Role.Wife;
         daughter.HomeStores = Sim.Fort;

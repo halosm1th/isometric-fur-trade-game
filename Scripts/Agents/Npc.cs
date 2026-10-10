@@ -55,6 +55,8 @@ public partial class Npc : Agent
 
     // Kinship for the marriage system (design doc 8).
     public Npc Father;
+    // A child of the player carries his name rather than a node reference.
+    public string FatherName = "";
     public Agent Spouse;
     public readonly List<Npc> Children = new();
 

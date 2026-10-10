@@ -125,5 +125,18 @@ public partial class NeedsHud : Control
         var cal = GameCalendar.Instance;
         _death.Text = $"You died.\n{cal?.DateString}\n\nPress R to begin again.";
         _death.Visible = true;
+        if (_player is Player.PlayerController dpc)
+        {
+            var inh = dpc.LookAtInheritance();
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"{dpc.DisplayName} is dead.");
+            sb.AppendLine($"{inh.Name} takes his place - {inh.Relation}, {inh.Age}.");
+            foreach (var t in inh.Ties) sb.AppendLine("  " + t);
+            foreach (var b in inh.Burdens) sb.AppendLine("  He inherits: " + b);
+            foreach (var a in inh.Unfinished) sb.AppendLine($"  Unfinished: {a.Title.ToLower()}");
+            sb.AppendLine();
+            sb.AppendLine("Press R to take up his place.");
+            _death.Text = sb.ToString();
+        }
     }
 }

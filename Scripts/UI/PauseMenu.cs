@@ -141,7 +141,8 @@ public partial class PauseMenu : Control
             var keys = new System.Collections.Generic.List<string>();
             foreach (var ev in InputMap.ActionGetEvents(action))
             {
-                if (ev is InputEventKey k) keys.Add(OS.GetKeycodeString(k.PhysicalKeycode != Key.None ? DisplayServer.KeyboardGetKeycodeFromPhysical(k.PhysicalKeycode) : k.Keycode));
+                // A headless run has no keyboard to ask about the layout of.
+                if (ev is InputEventKey k) keys.Add(OS.GetKeycodeString(k.PhysicalKeycode != Key.None && !Godot.DisplayServer.GetName().Contains("headless") ? DisplayServer.KeyboardGetKeycodeFromPhysical(k.PhysicalKeycode) : k.PhysicalKeycode != Key.None ? k.PhysicalKeycode : k.Keycode));
                 else if (ev is InputEventMouseButton m) keys.Add($"mouse {m.ButtonIndex}");
             }
             sb.AppendLine($"{string.Join(" / ", keys),-14} {what}");

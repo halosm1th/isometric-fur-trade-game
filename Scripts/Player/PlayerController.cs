@@ -106,6 +106,10 @@ public partial class PlayerController : Agent
 	public int TasksDone, TasksRefused;
 	public float PrivateWorthMb;   // furs and goods kept out of the Company's books
 	public bool AmbitionsDeclared;
+	// Those of your house who went before (design doc P.6): the family is
+	// the save file, and the journal keeps the line.
+	public readonly List<Forebear> House = new();
+	public int MarriedOnDay = -1;
 	public int LastGiftToKinYear = 0;
 	public bool TravellingServer;   // the owner is on the road: the clock marches
 	public Economy.FortLedger HomePost => Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;
@@ -274,6 +278,8 @@ public partial class PlayerController : Agent
 			if (arg == "--scurvy" && NetHub.IsServer) GetTree().CreateTimer(2.0).Timeout += () => { foreach (var n in Sim.Npcs) if (n.Faction == Faction.HBC) n.DaysSinceFresh = 41.5f; DaysSinceFresh = 41.5f; };
 			if (arg.StartsWith("--autoload=") && double.TryParse(arg.Substring(11), out double lsecs) && NetHub.IsServer) GetTree().CreateTimer(lsecs).Timeout += () => { if (!SaveGame.BeginLoad(GetTree())) GD.Print("[load] " + SaveGame.LastMessage); };
 			if (arg.StartsWith("--autosave=") && double.TryParse(arg.Substring(11), out double secs)) GetTree().CreateTimer(secs).Timeout += () => { SaveGame.Save(); GD.Print("[save] " + SaveGame.LastMessage); };
+			// Dev: die at a given second, so succession can be watched end to end.
+			if (arg.StartsWith("--killme=") && double.TryParse(arg.Substring(9), out double kms) && NetHub.IsServer) GetTree().CreateTimer(kms).Timeout += () => { TakeDamage(9999f, NearestNpc(900f)); GD.Print("[dev] the player is killed"); GetTree().CreateTimer(4.0).Timeout += () => { GD.Print("[dev] " + (LookAtInheritance() is var ih ? $"heir would be {ih.Name} ({ih.Relation}), burdens {ih.Burdens.Count}" : "")); NetHub.I?.Act("respawn", new Godot.Collections.Array()); }; };
 			if (arg == "--leave") GetTree().CreateTimer(6.0).Timeout += () => { var d = UI.DialogueMenu.Instance; if (d != null && d.IsOpen) NetHub.I?.DialogueRequest(d.CurrentNpc, d.OptionCount - 1); };
 		}
 	}
@@ -781,19 +787,28 @@ public partial class PlayerController : Agent
 		return others > 0 && WantsSkipHours > 0f ? $"{text} Waiting for the others to turn in." : text;
 	}
 
+	// Death is a turn of the story (design doc P.6): someone of the house
+	// takes your place, and begins with what you left him.
 	private string Respawn()
 	{
+		var inh = LookAtInheritance();
+		PendingInheritance = null;
+		Heirs.Succeed(this, inh);
 		Revive();
+		Inventory.Clear();
 		GiveStartingKit();
 		GlobalPosition = IsoGrid.ToWorld(WorldLayout.GateOutside);
 		_netTarget = GlobalPosition; _teleported = true;
-		Task.Kind = TaskKind.None; Standing = Mathf.Max(0f, Standing - 5f);
+		Task.Kind = TaskKind.None;
 		if (_sprite != null) _sprite.Play("idle");
 		if (_label != null) _label.Text = DisplayName;
 		if (IsLocal) EmitSignal(SignalName.Revived);
-		Sim.Notice($"{DisplayName} begins again as a new hand off the ship.");
 		return "";
 	}
+
+	// What the heir is handed, for the overlay to read out before he takes it up.
+	public Heirs.Inheritance PendingInheritance;
+	public Heirs.Inheritance LookAtInheritance() => PendingInheritance ??= Heirs.Prepare(this);
 
 	private string TryAttack(Agent target)
 	{

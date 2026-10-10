@@ -100,6 +100,12 @@ public partial class JournalPanel : Control
     private void FillAmbitions(System.Text.StringBuilder sb)
     {
         if (_player == null) return;
+        if (_player.House.Count > 0)
+        {
+            sb.AppendLine("[color=#dcb][b]Your house[/b][/color]");
+            foreach (var f in _player.House) sb.AppendLine("   " + f.Line);
+            sb.AppendLine();
+        }
         sb.AppendLine("[color=#dcb][b]What you mean to do[/b][/color]");
         if (_player.Ambitions.Count == 0) sb.AppendLine("   Nothing declared. (Esc - What you mean to do)");
         foreach (var a in _player.Ambitions) sb.AppendLine($"   {a.Line(_player)}");

@@ -241,7 +241,7 @@ public static class SaveGame
         {
             if (!GodotObject.IsInstanceValid(n)) continue;
             var d = AgentCommon(n);
-            d["role"] = (int)n.Role; d["female"] = n.IsFemale;
+            d["role"] = (int)n.Role; d["female"] = n.IsFemale; d["fatherName"] = n.FatherName;
             d["bed"] = new GArr { n.BedCell.X, n.BedCell.Y }; d["work"] = new GArr { n.WorkCell.X, n.WorkCell.Y };
             d["home"] = n.HomeStores == Sim.Fort ? "fort" : n.HomeStores == Sim.Nwc ? "nwc" : n.HomeStores == Sim.Band ? "band" : n.HomeStores == Sim.Outpost ? "outpost" : n.HomeStores == Sim.Assiniboine ? "assiniboine" : "";
             d["frames"] = n.FramesPath; d["tint"] = n.Tint.ToHtml(); d["scale"] = n.SpriteScale;
@@ -270,6 +270,9 @@ public static class SaveGame
             var d = AgentCommon(p);
             var ambs = new GArr();
             foreach (var amb in p.Ambitions) ambs.Add(new GDict { ["kind"] = (int)amb.Kind, ["day"] = amb.DeclaredDay, ["year"] = amb.DeclaredYear, ["best"] = amb.Best, ["abandoned"] = amb.Abandoned });
+            var house = new GArr();
+            foreach (var f in p.House) house.Add(new GDict { ["name"] = f.Name, ["born"] = f.Born, ["died"] = f.Died, ["rank"] = f.Rank, ["end"] = f.End, ["did"] = f.Did });
+            d["house"] = house; d["married"] = p.MarriedOnDay;
             d["ambitions"] = ambs; d["tasksDone"] = p.TasksDone; d["tasksRefused"] = p.TasksRefused; d["privateMb"] = p.PrivateWorthMb; d["ambDeclared"] = p.AmbitionsDeclared;
             d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["tongue2"] = p.AssiniboineFluency; d["authorized"] = p.AuthorizedAcrossUntilDay; d["inland"] = p.PostedInland; d["captive"] = p.CaptiveOf == Sim.Nwc ? "nwc" : p.CaptiveOf == Sim.Fort ? "fort" : ""; d["captiveUntil"] = p.CaptiveUntilDay; d["parole"] = p.ParoleUntilDay; d["paroleTo"] = (int)p.ParoleTo; d["paroleConfessed"] = p.ParoleConfessed;
             d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline;
@@ -441,6 +444,7 @@ public static class SaveGame
                 LoadAgentCommon(npc, nd);
                 var p = nd["personality"].AsGodotArray();
                 npc.Personality = new Personality { Loyalty = p[0].AsSingle(), Talkative = p[1].AsSingle(), Suspicion = p[2].AsSingle(), Ambition = p[3].AsSingle(), Courage = p[4].AsSingle() };
+                npc.FatherName = S(nd, "fatherName");
                 npc.GiftsFromPlayerMb = F(nd, "gifts"); npc.Standing = F(nd, "npcStanding", 20f);
                 npc.HeldBy = S(nd, "held") switch { "nwc" => Sim.Nwc, "fort" => Sim.Fort, "outpost" => Sim.Outpost, _ => null }; npc.HeldUntilDay = I(nd, "heldUntil", -1);
                 if (npc.HeldBy != null) npc.Brain.Push(npc, new Agents.Goals.HeldPrisonerGoal(npc.HeldBy));
@@ -500,6 +504,9 @@ public static class SaveGame
     {
         if (p == null || !_savedPlayers.TryGetValue(p.DisplayName, out var d)) return;
         LoadAgentCommon(p, d);
+        p.House.Clear();
+        if (d.ContainsKey("house")) foreach (var hv in d["house"].AsGodotArray()) { var hd = hv.AsGodotDictionary(); p.House.Add(new Forebear { Name = S(hd, "name"), Born = I(hd, "born"), Died = I(hd, "died"), Rank = S(hd, "rank", "labourer"), End = S(hd, "end"), Did = S(hd, "did") }); }
+        p.MarriedOnDay = I(d, "married", -1);
         p.Ambitions.Clear();
         if (d.ContainsKey("ambitions")) foreach (var av in d["ambitions"].AsGodotArray()) { var ad = av.AsGodotDictionary(); p.Ambitions.Add(new Ambition { Kind = (AmbitionKind)I(ad, "kind"), DeclaredDay = I(ad, "day"), DeclaredYear = I(ad, "year"), Best = F(ad, "best"), Abandoned = B(ad, "abandoned") }); }
         p.TasksDone = I(d, "tasksDone"); p.TasksRefused = I(d, "tasksRefused"); p.PrivateWorthMb = F(d, "privateMb"); p.AmbitionsDeclared = B(d, "ambDeclared");

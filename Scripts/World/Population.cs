@@ -49,6 +49,18 @@ public partial class Population : Node2D
 		// a household take a loss: mourning, the empty bunk, the sale of effects).
 		foreach (string arg in OS.GetCmdlineUserArgs())
 			if (arg.StartsWith("--kill=")) { string who = arg.Substring(7); GetTree().CreateTimer(5.0).Timeout += () => { foreach (var n in Sim.Npcs) if (n.DisplayName == who && !n.IsDead) { n.TakeDamage(9999f, null); break; } }; }
+		// Dev aid: `-- --son` - the player has a grown son at the post, so the
+		// nearer line of succession (design doc P.6) can be watched.
+		foreach (string arg in OS.GetCmdlineUserArgs())
+			if (arg == "--son") GetTree().CreateTimer(6.0).Timeout += () => {
+				foreach (var pl in Sim.Players())
+				{
+					var home = pl.HomePost ?? (Household)Sim.Fort;
+					var son = Spawn("William " + Agents.Heirs.Surname(pl.DisplayName), Role.Labourer, Faction.HBC, IsoGrid.Cell(WorldLayout.MensHouse.Top, 2, 3), IsoGrid.Cell(WorldLayout.MensHouse.Top, 2, 3), home, _labourerFrames, new Color(1f, 0.95f, 0.9f), 0.78f);
+					son.Age = 18; son.FatherName = pl.DisplayName;
+					GD.Print($"[dev] {son.DisplayName}, {pl.DisplayName}'s son, is grown at the post");
+				}
+			};
 		if (Net.Net.IsServer) CallDeferred(nameof(SpawnAll));
 	}
 
@@ -169,6 +181,40 @@ public partial class Population : Node2D
 		Sim.Notice($"York Factory: {Sim.Npcs.Count} souls in the world.");
 	}
 
+	// A marriage bears children (design doc 8, P.6): a year or so in, if
+	// the two of them have actually been together, a child is born at the
+	// post and grows up in the country.
+	private int _birthDay = -1;
+	private void Births()
+	{
+		var cal = GameCalendar.Instance;
+		if (cal == null || cal.Day == _birthDay) return;
+		_birthDay = cal.Day;
+		foreach (var p in Sim.Players())
+		{
+			if (p.IsDead || p.Spouse is not Npc wife || wife.IsDead) continue;
+			if (p.MarriedOnDay < 0) { p.MarriedOnDay = cal.Day; continue; }
+			int together = cal.Day - p.MarriedOnDay;
+			if (together < 300 || GD.Randf() > 0.02f) continue;
+			p.MarriedOnDay = cal.Day;
+			bool boy = GD.Randf() < 0.52f;
+			string[] boys = { "William", "James", "Thomas", "John", "Robert" };
+			string[] girls = { "Nancy", "Isabella", "Margaret", "Christina" };
+			string name = (boy ? boys[(int)(GD.Randi() % 5u)] : girls[(int)(GD.Randi() % 4u)]) + " " + Heirs.Surname(p.DisplayName);
+			var home = p.HomePost ?? (Household)Sim.Fort;
+			var child = Spawn(name, boy ? Role.Labourer : Role.Woman, Faction.HBC, wife.BedCell, wife.WorkCell, home, boy ? _labourerFrames : _hbcFrames, new Color(1f, 0.95f, 0.9f), 0.6f, !boy);
+			child.Age = 0;
+			child.FatherName = p.DisplayName;
+			child.Father = null;
+			child.Spouse = null;
+			wife.Children.Add(child);
+			child.Skills.Seed(0.1f, 0.1f, 0.1f, 0.1f);
+			Sim.Headline($"{wife.DisplayName} has borne {p.DisplayName} a {(boy ? "son" : "daughter")}: {name}.");
+			Core.Reveal.Lands(p, $"You have a {(boy ? "son" : "daughter")}, {name}.", "", 1.6f);
+			foreach (var n in Sim.Npcs) if (n.HomeStores == wife.Father?.HomeStores) n.ChangeRapport(p, 8f);
+		}
+	}
+
 	// Fever spreads between people who stand together (design doc 13.5),
 	// and everyone is a year older each New Year (design doc 9.4).
 	private float _contagionTimer;
@@ -181,7 +227,18 @@ public partial class Population : Node2D
 		if (cal.Year != _lastYear)
 		{
 			_lastYear = cal.Year;
-			foreach (var n in Sim.Npcs) if (!n.IsDead) { n.Age++; n.Immune = false; if (n.Age > 45) n.MoveSpeed = Mathf.Max(80f, n.MoveSpeed * 0.97f); }
+			foreach (var n in Sim.Npcs)
+			{
+				if (n.IsDead) continue;
+				n.Age++; n.Immune = false;
+				if (n.Age > 45) n.MoveSpeed = Mathf.Max(80f, n.MoveSpeed * 0.97f);
+				// Children of the country grow into the post (design doc 9.4).
+				if (n.FatherName != "" && n.Age <= 16)
+				{
+					n.SetAppearance(GD.Load<SpriteFrames>(n.FramesPath), n.Tint, Mathf.Lerp(0.6f, 0.8f, Mathf.Clamp(n.Age / 16f, 0f, 1f)));
+					if (n.Age == 16) Sim.Notice($"{n.DisplayName} is grown and takes a man's work at the post.");
+				}
+			}
 			foreach (var p in Sim.Players()) { p.Age++; p.Immune = false; }
 		}
 		_contagionTimer -= hours;
@@ -228,7 +285,7 @@ public partial class Population : Node2D
 	private float _traceTimer;
 	public override void _Process(double delta)
 	{
-		if (Net.Net.IsServer) { SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f); Tiers.Tick((float)delta); HungrySpells(); Losses.Tick(); }
+		if (Net.Net.IsServer) { SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f); Tiers.Tick((float)delta); HungrySpells(); Losses.Tick(); Births(); }
 		if (!_trace) return;
 		_traceTimer -= GameCalendar.Instance?.DeltaGameHours ?? 0f;
 		if (_traceTimer > 0f) return;
