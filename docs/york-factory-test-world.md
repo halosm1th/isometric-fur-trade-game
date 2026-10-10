@@ -123,6 +123,12 @@ E on a person stops them and opens topics: how things stand, about them (role, t
 
 The background batch has to be livable, or the far places quietly die while the player is elsewhere. A background household now gathers its own firewood (a camp with no cordwood used to freeze to death), melts snow at the fire for water, hunts its own country if it is a band, goes looking further when it has under a fortnight's food (and comes back knowing where the game is, which is real knowledge it keeps), falls through from an empty trapline to hunting instead of standing about, and keeps enough on snares and lines not to starve. Oxford House buys country provisions off the inland bands with its goods when its shelves get thin, before it buys furs. A man who freezes now dies of cold rather than of want.
 
+## Your own book (design doc 3.6.1, 3.9 step 8)
+
+Furs bought at a camp with your own goods, or your own goods sold there, is private trade, and it is recorded where it happens: whoever is within earshot remembers it, and the word travels by the ordinary rumour rules. If it has reached the Factor by the time the ship sails, his report names it and your standing falls by four and three a time, with the cause shown in your journal - the same shape as the river crossings he cannot account for. Trading without the words now costs a fifth more on the lot instead of a piece on every article.
+
+Dev args `--quitafter=S` ends a run cleanly (a run killed from outside dies mid-print and leaves a scary-looking CLR line in the log that means nothing), and a crash in one branch of the talk no longer slams the door: the conversation says the fault is in the game and offers Back, with the exception on the console.
+
 ## Provisions that move (design doc 13.1, 17.1)
 
 The Assiniboine make pemmican to sell, so a camp sitting on more than its own winter's worth (thirty pieces, or three a mouth) takes up to twenty pieces down to whichever house will have it and takes goods for it - the Company's if they will deal with the Company, else the Canadians'; if neither will, the country hears that they have pemmican to spare and nobody to sell it to. A background house now fishes through the ice where it has a line (Oxford House is issued three), and a house with nothing in the store goes on **short commons** - thin over weeks rather than dead in days - with a headline out after eight days of it, so there is time for somebody to do something about it.
@@ -349,7 +355,7 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 
 ## Command-line dev args (after `--`)
 
-`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2` · `--nodirector` · `--brawl` · `--provoke=N` · `--dumpbook=S`
+`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2` · `--nodirector` · `--brawl` · `--provoke=N` · `--dumpbook=S` · `--quitafter=S`
 
 ## Barks and shared memory (design doc P.4, P.8)
 

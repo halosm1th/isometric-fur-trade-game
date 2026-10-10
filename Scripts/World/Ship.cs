@@ -138,6 +138,19 @@ public partial class Ship : Node2D
 					factor.Memories.RemoveAll(m => m.Subject == pc.DisplayName && m.Text.Contains("was seen at"));
                 }
             }
+            // Private trade, if the word reached him (design doc 3.9 step 8).
+            if (factor != null)
+            {
+                int onHisOwn = 0;
+                foreach (var m in factor.Memories) if (m.Subject == pc.DisplayName && m.Text.Contains("on his own account")) onHisOwn++;
+                if (onHisOwn > 0)
+                {
+                    float hit = Mathf.Min(20f, 4f + onHisOwn * 3f);
+                    pc.Standing -= hit;
+                    Core.Reveal.Lands(pc, $"Your standing falls by {hit:0}: the Factor's report says you have been trading on your own account.", "on his own account", 1.5f);
+                    factor.Memories.RemoveAll(m => m.Subject == pc.DisplayName && m.Text.Contains("on his own account"));
+                }
+            }
             if (pc.ParoleUntilDay > 0 && !pc.ParoleConfessed && factor != null)
             {
                 pc.ParoleConfessed = true;

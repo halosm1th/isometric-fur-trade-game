@@ -144,7 +144,9 @@ public class Barter
 		// What he is short of, he parts with dearly.
 		if (def.Kind == ItemKind.Weapon && Band != null && Band.AtOddsWithOtherBand) mult *= 1.3f;
 		int cost = Mathf.Max(n, Mathf.CeilToInt(def.ValueMb * n * mult / Swing));
-		return Crude ? cost + n : cost;
+		// Without the words you pay for the misunderstanding - a part more on
+		// the lot, not a piece more on every article.
+		return Crude ? cost + Mathf.Max(1, Mathf.RoundToInt(cost * 0.2f)) : cost;
 	}
 
 	// ---- the rounds --------------------------------------------------------

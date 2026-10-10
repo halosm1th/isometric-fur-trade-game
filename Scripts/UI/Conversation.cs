@@ -165,7 +165,17 @@ public class Conversation
         if (_npc == null || !GodotObject.IsInstanceValid(_npc) || _npc.NetId != npcId || _closed) { Close(); return State(); }
         if (_npc.IsDead || _npc.GlobalPosition.DistanceTo(_player.GlobalPosition) > 220f) { Close(); return State(); }
         if (option < 0 || option >= _options.Count) { Close(); return State(); }
-        _options[option].action();
+        // A bug in one branch of the talk should not slam the door in the
+        // player's face: say what went wrong and stay in the conversation.
+        try { _options[option].action(); }
+        catch (System.Exception e)
+        {
+            GD.PushError($"[talk] option {option} with {_npc?.DisplayName} threw: {e.Message}");
+            GD.Print($"[talk] option {option} with {_npc?.DisplayName} threw: {e}");
+            _text = "Something went wrong there. (The fault is in the game, not in him.)";
+            ClearOptions();
+            AddOption("Back", () => ShowTopics(Greeting(_npc)));
+        }
         return State();
     }
 
@@ -1155,6 +1165,11 @@ public class Conversation
                     Core.Reveal.Lands(_player, $"{band.Name} have a gun of your selling, and they are at war.", "you sold a musket at the camp", 1.3f);
                 }
                 _player.Skills.Learn(ref _player.Skills.Trade, 0.012f);
+                // Trading your own goods at a camp is private trade (design
+                // doc 3.6.1, 3.9): whoever sees it may carry the word, and the
+                // Factor reads his report when the ship sails.
+                if (npc.IsBandPerson)
+                    Chronicle.Event($"{_player.DisplayName} traded on his own account at {(band?.Name ?? "the camp")}.", _player.GlobalPosition, _player, _player.DisplayName, 0.8f);
                 ShowTrade(npc, "Done, and the goods change hands.");
             });
             if (_options.Count >= 3) break;
@@ -1179,6 +1194,10 @@ public class Conversation
                 counter.Remove(bought, buyN); _player.Inventory.Add(bought, buyN);
                 _player.Inventory.Remove(ItemId.TradeGoods, cost); counter.Add(ItemId.TradeGoods, cost);
                 _player.Skills.Learn(ref _player.Skills.Trade, 0.012f);
+                // Furs bought at a camp with your own goods are the classic
+                // private trade (design doc 3.9 step 8): witnesses may carry it.
+                if (npc.IsBandPerson && Items.Items.Of(bought).Kind == ItemKind.Fur)
+                    Chronicle.Event($"{_player.DisplayName} traded on his own account at {(band?.Name ?? "the camp")}.", _player.GlobalPosition, _player, _player.DisplayName, 0.8f);
                 ShowTrade(npc, "Done, and the goods change hands.");
             });
             shown++;

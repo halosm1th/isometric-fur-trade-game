@@ -128,6 +128,7 @@ public static class Tiers
             // for somebody to do something.
             if (n.Needs.Warmth <= 0f) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 10f);
             else if (n.Needs.Hunger <= 0f) { n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 3f); ShortCommons(home); }
+            if (ate) _hungryDays.Remove(home);   // the spell is over when there is food again
             else if (n.Needs.Health < 100f) n.Needs.Health = Mathf.Min(100f, n.Needs.Health + 6f);
             if (n.Needs.Health <= 0f) { n.DieQuietly(); Sim.Notice($"{n.DisplayName} has died of {(n.Needs.Warmth <= 0f ? "cold" : "want")} at {home.Title}."); continue; }
             if (!ate) n.DaysSinceFresh += 1f;
@@ -163,8 +164,13 @@ public static class Tiers
     // How long each house has been on short commons, and a word out when it
     // has gone on long enough to be news.
     private static readonly System.Collections.Generic.Dictionary<Economy.Household, int> _hungryDays = new();
+    private static readonly System.Collections.Generic.Dictionary<Economy.Household, int> _hungryCountedOn = new();
     private static void ShortCommons(Economy.Household home)
     {
+        // Once a day for the house, not once for every man in it.
+        int today = GameCalendar.Instance?.Day ?? 0;
+        if (_hungryCountedOn.TryGetValue(home, out int on) && on == today) return;
+        _hungryCountedOn[home] = today;
         int days = (_hungryDays.TryGetValue(home, out int had) ? had : 0) + 1;
         _hungryDays[home] = days;
         if (days == 8 || days % 30 == 0)
