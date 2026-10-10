@@ -149,6 +149,10 @@ A barren-ground herd was never a resident stock a post could live off: it passes
 
 The demand side needed no change once supply was seasonal: a house with a full cellar is not short of food, so it issues no hunting orders at all, and what sends men out in midwinter is men going too long without **fresh** meat - which is the scurvy pressure, answered by hares, fish through the ice and the beaver lodges rather than by the herd.
 
+## Fishing through the ice (design doc 14.4, 16.1, 13.5)
+
+Between the deer passing in October and the geese coming back in May there is no fresh food in the country but hares, the beaver lodges and what comes through the ice - and dried goose and pemmican do not answer the scurvy. So the houses now fish in winter: a hole, a line (every house is issued them, and no line means no winter fish), about four hours for nought to two fish where open water gives nought to four. The women go not only when the store is low but when the men have gone a fortnight without anything fresh, which is what the scurvy actually turns on.
+
 ## The goose hunt (design doc 14.1, 16.1)
 
 `World/GooseHunt.cs`. The autumn flight is the one event in the year a Bay post cannot afford to miss, and it is now the year's second climax after the ship. From 20 August to 15 October the marsh holds the whole passage going south ("the water black with geese"), the master turns the **whole establishment** out to it - not two men - and the orders carry the count: *"84 casks in the cellar before the flight goes over, or we eat short"*, with the days of the flight left. A volley into a settled flock is a bag of eight birds with a musket, four with a bow, and that many come off the marsh.

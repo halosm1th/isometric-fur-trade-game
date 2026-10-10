@@ -87,12 +87,18 @@ public class FetchWaterGoal : Goal
 public class FishGoal : Goal
 {
     private int _phase;
-    public override string Label => "fishing";
+    private readonly bool _throughIce;
+    public FishGoal(bool throughIce = false) { _throughIce = throughIce; }
+    public override string Label => _throughIce ? "fishing through the ice" : "fishing";
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {
         var stores = npc.HomeStores;
-        if (stores == null || GameCalendar.Instance.IsFrozen) return GoalStatus.Failed;
+        if (stores == null) return GoalStatus.Failed;
+        bool frozen = GameCalendar.Instance.IsFrozen;
+        if (frozen && !_throughIce) return GoalStatus.Failed;
+        // A hole in the ice and a line: no line, no winter fish.
+        if (frozen && !(stores.Stores.Has(ItemId.FishingLine) || npc.Inventory.Has(ItemId.FishingLine))) return GoalStatus.Failed;
         switch (_phase)
         {
             case 0:
@@ -104,10 +110,10 @@ public class FishGoal : Goal
                 if (!ChildFinished(out var r)) return GoalStatus.Running;
                 if (r != GoalStatus.Done) return GoalStatus.Failed;
                 _phase = 2;
-                return Delegate(new WaitGoal(2.5f));
+                return Delegate(new WaitGoal(_throughIce ? 4f : 2.5f));
             case 2:
                 if (!ChildFinished(out _)) return GoalStatus.Running;
-                int caught = GD.RandRange(0, 4);
+                int caught = _throughIce ? GD.RandRange(0, 2) : GD.RandRange(0, 4);
                 npc.Inventory.Add(ItemId.Fish, caught);
                 _phase = 3;
                 return Delegate(new GoToGoal(stores.AccessCell, 100f));
