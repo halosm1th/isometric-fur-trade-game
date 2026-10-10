@@ -82,6 +82,10 @@ public partial class Population : Node2D
 		// close friend from the start (rapport 60, a hard winter shared).
 		foreach (string arg in OS.GetCmdlineUserArgs())
 			if (arg.StartsWith("--befriend=")) { string who = arg.Substring(11); GetTree().CreateTimer(3.0).Timeout += () => Befriend(who); }
+		// Dev aid: `-- --liar=Name` makes that person a liar by temper (loyalty
+		// 0.05, ambition 0.95); `--liar=Name:spite` also has him hate the player.
+		foreach (string arg in OS.GetCmdlineUserArgs())
+			if (arg.StartsWith("--liar=")) { string spec = arg.Substring(7); GetTree().CreateTimer(3.0).Timeout += () => MakeLiar(spec); }
 		// Dev aid: `-- --converse=SECONDS:Name>option>option` - at that time the
 		// local player steps up to Name, opens a conversation and picks each
 		// option whose label contains the text, printing every step as [talk].
@@ -212,8 +216,21 @@ public partial class Population : Node2D
 			bool hours = when.StartsWith("h");
 			if (!float.TryParse(hours ? when.Substring(1) : when, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float at)) { _conversations.RemoveAt(i); continue; }
 			if ((hours ? now - _startHours : Time.GetTicksMsec() / 1000f - _startSeconds) < at) continue;
-			_conversations.RemoveAt(i);
-			Converse(script.Substring(colon + 1));
+			// A "*" target waits until someone fits; anything else goes once.
+			if (Converse(script.Substring(colon + 1)) || !script.Substring(colon + 1).StartsWith("*")) _conversations.RemoveAt(i);
+		}
+	}
+
+	private static void MakeLiar(string spec)
+	{
+		var parts = spec.Split(':');
+		foreach (var n in Sim.Npcs)
+		{
+			if (!n.DisplayName.Contains(parts[0]) || n.IsDead) continue;
+			n.Personality.Loyalty = 0.05f; n.Personality.Ambition = 0.95f;
+			if (parts.Length > 1 && parts[1] == "spite" && Sim.Player is Player.PlayerController p) n.Rapport[p] = -40f;
+			GD.Print($"[dev] {n.DisplayName} is a liar by temper{(parts.Length > 1 ? " and hates you" : "")}");
+			return;
 		}
 	}
 
@@ -231,12 +248,15 @@ public partial class Population : Node2D
 		}
 	}
 
-	private static void Converse(string script)
+	private static bool Converse(string script)
 	{
 		var steps = script.Split('>');
 		Npc who = null;
-		foreach (var n in Sim.Npcs) if (n.DisplayName.Contains(steps[0]) && !n.IsDead) { who = n; break; }
-		if (who == null || Sim.Player is not Player.PlayerController p) { GD.Print($"[talk] nobody called {steps[0]}"); return; }
+		// "*about-me": whoever is holding a story about the player's misdeeds.
+		if (steps[0] == "*about-me" && Sim.Player is Player.PlayerController me)
+			foreach (var n in Sim.Npcs) { if (n.IsDead) continue; foreach (var m in n.Memories) if (m.Actor == me && m.Liar != n.DisplayName && Lies.IsMisdeed(m.Text)) { who = n; break; } if (who != null) break; }
+		else foreach (var n in Sim.Npcs) if (n.DisplayName.Contains(steps[0]) && !n.IsDead) { who = n; break; }
+		if (who == null || Sim.Player is not Player.PlayerController p) { if (!steps[0].StartsWith("*")) GD.Print($"[talk] nobody called {steps[0]}"); return false; }
 		p.GlobalPosition = who.GlobalPosition + new Vector2(45f, 12f);
 		var state = p.Conversation.Start(who);
 		PrintTalk(state);
@@ -250,6 +270,7 @@ public partial class Population : Node2D
 			state = p.Conversation.Step(who.NetId, pick);
 			PrintTalk(state);
 		}
+		return true;
 	}
 
 	private static void PrintTalk(Godot.Collections.Dictionary state)

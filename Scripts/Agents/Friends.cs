@@ -59,6 +59,7 @@ public static class Friends
 
     // Things a man means to tell a friend when next he sees him.
     private static readonly Dictionary<Npc, Dictionary<string, string>> _toTell = new();
+    private static readonly Dictionary<(Npc, string), (string key, string liar)> _whoStarted = new();
 
     // Called when he hears something: is it bad news for a friend of his?
     public static void Heard(Npc n, MemoryEntry e)
@@ -69,6 +70,7 @@ public static class Friends
         if (!_toTell.TryGetValue(n, out var list)) _toTell[n] = list = new Dictionary<string, string>();
         string said = Barks.YouForm(e.Text, friend.DisplayName).TrimEnd('.');
         GD.Print($"[friend] {n.DisplayName} means to tell {friend.DisplayName}: {e.Text}");
+        if (e.Liar != null && e.Directness <= 2) _whoStarted[(n, friend.DisplayName)] = (e.Key, e.Liar);
         list[friend.DisplayName] = e.Liar != null && e.Liar != friend.DisplayName
             ? $"There's a story going round that {Lower(said)}. I don't believe it. {(e.Directness <= 2 ? $"It started with {Barks.CallName(e.Liar)}." : "I couldn't say who started it.")}"
             : $"Word is going round that {Lower(said)}. Your master will hear of it before long.";
@@ -77,7 +79,12 @@ public static class Friends
     private static bool DeliverWarning(Npc n, Agent a)
     {
         string text = null;
-        if (_toTell.TryGetValue(n, out var list) && list.TryGetValue(a.DisplayName, out var t)) { text = t; list.Remove(a.DisplayName); }
+        if (_toTell.TryGetValue(n, out var list) && list.TryGetValue(a.DisplayName, out var t))
+        {
+            text = t; list.Remove(a.DisplayName);
+            // He named who started it: now you know too.
+            if (_whoStarted.Remove((n, a.DisplayName), out var started)) Lies.Learned(a, started.key, started.liar);
+        }
         else
             foreach (var g in Grudges.All)
                 if (!g.Settled && g.Against == a.Describe() && g.Holder != n.DisplayName && n.Recalled.Add("warned|" + g.Holder + "|" + a.DisplayName))
@@ -123,7 +130,7 @@ public static class Friends
         return null;
     }
 
-    public static void Reset() { _fedDay.Clear(); _toTell.Clear(); }
+    public static void Reset() { _fedDay.Clear(); _toTell.Clear(); _whoStarted.Clear(); }
 
     private static string Lower(string t) => t.StartsWith("You") ? "y" + t.Substring(1) : t;
     private static string Pick(params string[] o) => o[(int)(GD.Randi() % (uint)o.Length)];

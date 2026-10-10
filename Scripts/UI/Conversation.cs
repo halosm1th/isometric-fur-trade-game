@@ -300,6 +300,7 @@ public class Conversation
         AddOption("Tell me about yourself", () => ShowTalk(npc, AskAboutThem(npc)));
         AddOption("What's the talk? (rumours)", () => ShowTalk(npc, AskGossip(npc)));
         if (canTalk) AddOption("Tell them something... (it needn't be true)", () => ShowLieWho(npc, false));
+        if (canTalk && StoriesAboutMe(npc).Count > 0) AddOption("What are they saying about me?", () => ShowDeny(npc));
         if ((npc.IsBandPerson && npc.Role is Role.CreeChief or Role.CreeHunter) || npc.Role is Role.Labourer or Role.Voyageur or Role.NwcPartner)
             AddOption("Where is the game?", () => ShowTalk(npc, AskHunting(npc)));
         if (npc.Role == Role.Factor && Sim.Fort != null)
@@ -400,6 +401,32 @@ public class Conversation
             AddOption(who.DisplayName, () => ShowLieWhat(npc, who, atFire));
         }
         AddOption("Think better of it", () => ShowTopics(Greeting(npc)));
+    }
+
+    // What this man holds against you: misdeeds with your name on them,
+    // true or not. You know which are which; he doesn't.
+    private List<MemoryEntry> StoriesAboutMe(Npc npc)
+    {
+        var list = new List<MemoryEntry>();
+        foreach (var m in npc.Memories) if (m.Actor == _player && m.Liar != npc.DisplayName && Lies.IsMisdeed(m.Text) && !npc.Recalled.Contains("denied|" + m.Key)) list.Add(m);   // a liar does not recount his own story to your face
+        if (list.Count > 3) list.RemoveRange(0, list.Count - 3);
+        return list;
+    }
+
+    private void ShowDeny(Npc npc, string said = null)
+    {
+        var stories = StoriesAboutMe(npc);
+        _text = said ?? (stories.Count == 0 ? "He has nothing against you that he'll say." : $"{npc.DisplayName} tells you what he's heard.");
+        ClearOptions();
+        foreach (var m in stories)
+        {
+            var story = m;
+            string told = Barks.YouForm(story.Text, _player.DisplayName);
+            AddOption($"\"{(told.Length > 60 ? told.Substring(0, 57) + "..." : told)}\" - deny it", () => ShowDeny(npc, Lies.Deny(npc, _player, story, false)));
+            string liar = Lies.KnownLiar(_player, story.Key);
+            if (liar != null) AddOption($"   ...and say {Barks.CallName(liar)} started it", () => ShowDeny(npc, Lies.Deny(npc, _player, story, true)));
+        }
+        AddOption("Back", () => ShowTalk(npc));
     }
 
     private void ShowLieWhat(Npc npc, Npc accused, bool atFire)

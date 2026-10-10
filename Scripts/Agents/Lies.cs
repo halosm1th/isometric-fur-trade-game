@@ -33,7 +33,7 @@ public static class Lies
         float now = GameCalendar.Instance?.DayOfYear ?? 0f;
         return new MemoryEntry
         {
-            Text = text, Actor = accused, Subject = accused.DisplayName, Day = Mathf.PosMod(now - (float)GD.RandRange(0.4, 2.0), 365f),   // "the other night" Directness = 1, Weight = 1.6f,
+            Text = text, Actor = accused, Subject = accused.DisplayName, Day = Mathf.PosMod(now - (float)GD.RandRange(0.4, 2.0), 365f) /* "the other night" */, Directness = 1, Weight = 1.6f,
             Key = $"lie{_seq++}", Witnesses = new List<string> { liar.DisplayName }, Liar = liar.DisplayName, Accused = accused.DisplayName, CoversKey = coversKey,
         };
     }
@@ -108,7 +108,158 @@ public static class Lies
         }
     }
 
-    public static void Reset() => _housesTold.Clear();
+    public static void Reset() { _housesTold.Clear(); _lastLieDay.Clear(); _lastAgainst.Clear(); _knownLiars.Clear(); }
+
+    // ---- NPCs lie too ------------------------------------------------------------------
+
+    // Once a game day at most, a man with little loyalty in him and a reason
+    // to lie looks for someone to tell it to - face to face, so a player
+    // close enough sees the whisper. Reasons, first that fits wins:
+    //   cover    - his own misdeed, laid on whoever he likes least of those who saw it
+    //   spite    - someone he can't abide, to anyone who'll listen
+    //   career   - an ambitious man pulling down a rival close behind or ahead, to their master
+    //   rivalry  - the other company's men, to a band, when the rivalry runs hot
+    private static readonly Dictionary<Npc, int> _lastLieDay = new();
+    private static readonly Dictionary<(Npc, string), int> _lastAgainst = new();
+    public static void Consider(Npc n)
+    {
+        if (n.Personality.Loyalty >= 0.5f || n.IsBandPerson || n.Conversing || n.Brain.Tier0Goal() != null) return;
+        int day = (int)(GameCalendar.Instance?.DayOfYear ?? 0f);
+        if (_lastLieDay.TryGetValue(n, out int last) && Mathf.PosMod(day - last, 365) < 1) return;
+        var near = new List<Agent>();
+        foreach (var a in Sim.AgentsWithin(n.GlobalPosition, 200f)) if (a != n && a is not Animal && !a.IsDead) near.Add(a);
+        if (near.Count == 0) return;   // nobody to tell; try again later
+        _lastLieDay[n] = day;
+        float bent = 1f - n.Personality.Loyalty * 2f;   // 0 at loyalty 0.5, 1 at loyalty 0
+
+        // Cover: his own misdeed, still fresh.
+        foreach (var m in n.Memories)
+        {
+            if (m.Directness != 1 || m.Actor != n || m.Liar != null || !IsMisdeed(m.Text) || m.Text.Contains("telling lies") || Mathf.PosMod(day - m.Day, 365f) > 10f) continue;
+            if (GD.Randf() > bent * 0.6f) break;
+            Agent scapegoat = null;
+            foreach (var w in m.Witnesses ?? new List<string>())
+            {
+                var a = Find(w);
+                if (a != null && a != n && !a.IsDead && a is not Animal && (scapegoat == null || n.RapportWith(a) < n.RapportWith(scapegoat))) scapegoat = a;
+            }
+            var hearer = Pick(near, a => a is Npc h && h != scapegoat && !m.Witnessed(h));
+            if (scapegoat == null || hearer == null) break;
+            Tell(n, (Npc)hearer, scapegoat, m.Text.Replace(n.DisplayName, scapegoat.DisplayName), m.Key, "cover");
+            return;
+        }
+        // Spite: someone he cannot abide.
+        Agent hated = null;
+        foreach (var kv in n.Rapport)
+            if (kv.Value <= -25f && GodotObject.IsInstanceValid(kv.Key) && !kv.Key.IsDead && kv.Key is not Animal && (hated == null || kv.Value < n.RapportWith(hated))) hated = kv.Key;
+        if (hated != null && GD.Randf() < bent * 0.35f)
+        {
+            var hearer = Pick(near, a => a is Npc h && h != hated);
+            if (hearer is Npc h)
+            {
+                Agent victim = h.Spouse as Npc ?? h.Father;
+                string text = victim != null && victim != hated && !victim.IsDead ? $"{hated.DisplayName} struck {victim.DisplayName}." : $"{hated.DisplayName} robbed the traps at {TrapSiteOf(h)}.";
+                Tell(n, h, hated, text, null, "spite");
+                return;
+            }
+        }
+        // Career: a rival in his own house standing higher, told to the master.
+        var leader = n.HomeStores?.Leader;
+        if (leader != null && leader != n && near.Contains(leader) && n.Role is Role.Clerk or Role.Labourer or Role.Voyageur or Role.Postmaster && n.Personality.Ambition > 0.55f && GD.Randf() < bent * n.Personality.Ambition * 0.5f)
+        {
+            // A rival is anyone of his rank in the house close behind him or ahead.
+            Agent rival = null; float rivalStanding = n.Standing - 5f;
+            foreach (var m in Sim.Npcs) if (m != n && m != leader && !m.IsDead && m.HomeStores == n.HomeStores && m.Role == n.Role && m.Standing >= rivalStanding) { rival = m; rivalStanding = m.Standing; }
+            foreach (var p in Sim.Players()) if (!p.IsDead && p.HomePost == n.HomeStores && p.Standing >= rivalStanding) { rival = p; rivalStanding = p.Standing; }
+            if (rival != null)
+            {
+                string rivalHouse = rival.Faction == Faction.NWC ? "the Company's post" : "the Nor'Westers' house";
+                string text = GD.Randf() < 0.5f ? $"{rival.DisplayName} traded on his own account at the camp." : $"{rival.DisplayName} was seen at {rivalHouse} after dark, talking with their master.";
+                Tell(n, leader, rival, text, null, "career");
+                return;
+            }
+        }
+        // Rivalry: the other company's men, to a band, when it runs hot.
+        if (Rivalry.Tension >= 50f && GD.Randf() < bent * 0.4f)
+        {
+            var hearer = Pick(near, a => a is Npc h && h.IsBandPerson);
+            Npc enemy = null;
+            foreach (var m in Sim.Npcs) if (!m.IsDead && Rivalry.AreRivals(m.Faction, n.Faction) && !m.IsFemale && (enemy == null || GD.Randf() < 0.4f)) enemy = m;
+            if (hearer is Npc h && enemy != null) Tell(n, h, enemy, $"{enemy.DisplayName} robbed the traps at {TrapSiteOf(h)}.", null, "rivalry");
+        }
+    }
+
+    // He tells it, low, to the one man, and keeps it himself to pass on as
+    // anyone passes on what they know. A player near enough overhears.
+    public static void Tell(Npc n, Npc hearer, Agent accused, string text, string coversKey, string why)
+    {
+        // Once it's out, it travels by itself: he starts a story about the same man every few days at most.
+        int day = (int)(GameCalendar.Instance?.DayOfYear ?? 0f);
+        if (_lastAgainst.TryGetValue((n, accused.DisplayName), out int last) && Mathf.PosMod(day - last, 365) < 5) return;
+        _lastAgainst[(n, accused.DisplayName)] = day;
+        var lie = Make(n, accused, text, coversKey);
+        n.Memories.Add(lie);
+        n.FaceToward(hearer.GlobalPosition);
+        n.Bark("(low) " + Barks.Personalise(text, n, hearer));
+        GD.Print($"[lie] {n.DisplayName} ({why}) to {hearer.DisplayName}: {text}");
+        hearer.Remember(lie.Copy());
+        foreach (var p in Sim.Players())
+        {
+            if (p.IsDead || p.GlobalPosition.DistanceTo(n.GlobalPosition) > 260f) continue;
+            Learned(p, lie.Key, n.DisplayName);
+            p.Journal.Add($"{GameCalendar.Instance?.DateString}: You overheard {n.DisplayName} tell {hearer.DisplayName}: \"{text}\"");
+        }
+    }
+
+    private static string TrapSiteOf(Npc h)
+    {
+        if (Sim.Ecology != null && h.HomeStores != null)
+            foreach (var s in Sim.Ecology.Sites) if (s.LineOf(h.HomeStores.Title) != null) return s.Name;
+        return "the beaver lodge";
+    }
+
+    private static Agent Pick(List<Agent> from, System.Func<Agent, bool> ok)
+    {
+        foreach (var a in from) if (ok(a)) return a;
+        return null;
+    }
+
+    // ---- what a player knows of who started what ---------------------------------------
+
+    private static readonly Dictionary<string, Dictionary<string, string>> _knownLiars = new();
+    public static void Learned(Agent p, string key, string liar)
+    {
+        if (p == null || key == null || liar == null) return;
+        if (!_knownLiars.TryGetValue(p.DisplayName, out var d)) _knownLiars[p.DisplayName] = d = new Dictionary<string, string>();
+        d[key] = liar;
+    }
+    public static string KnownLiar(Agent p, string key) => p != null && key != null && _knownLiars.TryGetValue(p.DisplayName, out var d) && d.TryGetValue(key, out var l) ? l : null;
+
+    // The player says it isn't so. Against a man who saw it, hopeless. For a
+    // story that really is a lie, he's believed if he's better liked than the
+    // liar - and if he can name the liar, the liar is the one marked down.
+    // For a true story, the denial is a lie of his own and a gamble on regard.
+    public static string Deny(Npc n, Player.PlayerController p, MemoryEntry m, bool nameLiar)
+    {
+        string about = Barks.YouForm(m.Text, p.DisplayName).TrimEnd('.');
+        if (m.Directness == 1) { n.ChangeRapport(p, -6f); return $"\"I saw it with my own eyes.\" {n.DisplayName} looks at you as if you'd spat."; }
+        var liar = Find(m.Liar);
+        bool believed = m.Liar != null
+            ? n.RapportWith(p) + 10f >= (liar != null ? n.RapportWith(liar) : 0f)
+            : GD.Randf() < Mathf.Clamp(0.2f + n.RapportWith(p) / 100f, 0.05f, 0.8f);
+        if (!believed) { n.ChangeRapport(p, -2f); return $"\"So you say.\" {n.DisplayName} doesn't believe you."; }
+        n.Memories.Remove(m);
+        n.Recalled.Add("denied|" + m.Key);
+        if (n.HomeStores?.Leader == n && m.Actor == p) p.Standing += 2f;
+        if (nameLiar && liar != null)
+        {
+            n.ChangeRapport(liar, -10f);
+            // True this time, and he heard it from a man who knows.
+            n.Remember(new MemoryEntry { Text = $"{m.Liar} has been telling lies about {p.DisplayName}.", Actor = liar, Subject = m.Liar, Day = GameCalendar.Instance?.DayOfYear ?? 0f, Directness = 2, Weight = 1.6f, Key = $"named{m.Key}", Witnesses = new List<string> { p.DisplayName } });
+            return $"\"{Barks.CallName(m.Liar)}, is it?\" {n.DisplayName} puts the story about how {about} out of his head - and thinks a good deal less of {Barks.CallName(m.Liar)}.";
+        }
+        return $"{n.DisplayName} hears you out and lets the story about how {about} go.";
+    }
 
     private static string Personal(string text, Agent p) => Barks.YouForm(text, p.DisplayName).TrimEnd('.') + ".";
 
