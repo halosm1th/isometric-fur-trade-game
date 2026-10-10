@@ -82,7 +82,12 @@ public static class Grudges
     // What the holder does about it when the debtor is in front of him.
     public static Goal Pursue(Npc holder, Agent debtor)
     {
-        if (holder.IsFighter && holder.Personality.Courage > 0.45f && holder.Needs.Health > 50f) return new AttackGoal(debtor);
-        return null;
+        if (!holder.IsFighter || holder.Personality.Courage <= 0.45f || holder.Needs.Health <= 50f) return null;
+        // A man who means to settle a death will settle it; whether today is
+        // the day is the director's to nudge (design doc 2.2, 7.4). Saying no
+        // only means not this afternoon.
+        if (debtor is Player.PlayerController && !Core.Director.MayActNow("blood", 1.5f, holder.GlobalPosition)) return null;
+        if (debtor is Player.PlayerController) Core.Director.Saw("blood", 1.5f);
+        return new AttackGoal(debtor);
     }
 }

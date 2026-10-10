@@ -44,10 +44,19 @@ public static class Barks
 
     // A thing both of them saw firsthand, that mattered, not yet raised
     // between them, and at least a day old.
+    // Whichever player is close enough to hear, if any.
+    private static Player.PlayerController Nearby(Npc s)
+    {
+        foreach (var p in Sim.Players())
+            if (p != null && GodotObject.IsInstanceValid(p) && !p.IsDead && p.GlobalPosition.DistanceTo(s.GlobalPosition) < HearRadius * 1.5f) return p;
+        return null;
+    }
+
     public static MemoryEntry Recallable(Npc s, Agent listener)
     {
         if (listener == null) return null;
         float now = GameCalendar.Instance?.DayOfYear ?? 0f;
+        var open = new List<MemoryEntry>();
         for (int i = s.Memories.Count - 1; i >= 0; i--)
         {
             var m = s.Memories[i];
@@ -55,9 +64,14 @@ public static class Barks
             if (Mathf.PosMod(now - m.Day, 365f) < 1f) continue;
             if (s.Recalled.Contains(m.Key + "|" + listener.DisplayName)) continue;
             if (m.LastRaised > -999 && Mathf.PosMod(now - m.LastRaised, 365f) < 7f) continue;   // just talked over, here
-            return m;
+            open.Add(m);
+            if (open.Count >= 6) break;
         }
-        return null;
+        if (open.Count == 0) return null;
+        // Of the things the two of them both saw, the one that touches the
+        // player's own business comes out first (design doc 2.2).
+        var who = listener as Player.PlayerController ?? Nearby(s);
+        return who != null ? Core.Director.MostRelevant(open, m => m.Text, who) : open[0];
     }
 
     public static BarkLine Compose(Npc s, Agent listener)
@@ -250,10 +264,22 @@ public static class Barks
         if (r < 0.6f)
         {
             MemoryEntry best = null;
+            var tellable = new List<MemoryEntry>();
             foreach (var m in s.Memories)
             {
                 if (m.Weight < 0.8f || m.Directness > 3 || night.told.Contains(m.Key)) continue;
+                tellable.Add(m);
                 if (best == null || m.Weight / m.Directness > best.Weight / best.Directness) best = m;
+            }
+            // With a player at the fire, the story told is the one he has
+            // reason to care about - still only things the teller knows.
+            var listening = Nearby(s);
+            if (listening != null && tellable.Count > 1 && best != null)
+            {
+                var worth = new List<MemoryEntry>();
+                float top = best.Weight / best.Directness;
+                foreach (var m in tellable) if (m.Weight / m.Directness >= top * 0.7f) worth.Add(m);
+                best = Core.Director.MostRelevant(worth, m => m.Text, listening) ?? best;
             }
             if (best != null)
             {

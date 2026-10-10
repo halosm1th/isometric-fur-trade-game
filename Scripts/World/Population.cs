@@ -40,6 +40,8 @@ public partial class Population : Node2D
 		_creeWomanFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/CreeWomanFrames.tres");
 		_assiniboineFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/AssiniboineFrames.tres");
 		foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--trace") _trace = true;
+		Core.Director.Reset();
+		Core.Director.ReadArgs();
 		// Dev aid: `-- --shot=SECONDS` saves what's on screen to user://shot_N.png
 		// every SECONDS (up to six), so a run can be checked without a window capture.
 		foreach (string arg in OS.GetCmdlineUserArgs())
@@ -295,7 +297,7 @@ public partial class Population : Node2D
 		sb.AppendLine();
 		foreach (var n in Sim.Npcs)
 			sb.AppendLine($"  {n.DisplayName,-24} {n.Cell} {(n.IsDead ? "DEAD" : n.GoalDescription)}  H{n.Needs.Hunger:0} W{n.Needs.Warmth:0} T{n.Needs.Thirst:0} HP{n.Needs.Health:0}");
-		sb.Append($"  {Tiers.Report()}; animals live: {Sim.Animals.Count}; fort furs {Sim.Fort?.FursInStoreMb:0} MB; goods {Sim.Fort?.Stores.Count(ItemId.TradeGoods)}; ship {Sim.Ship?.Status()}; band cache: {Sim.Band?.Stores.Summary()}");
+		sb.Append($"  {Tiers.Report()}; animals live: {Sim.Animals.Count}; fort furs {Sim.Fort?.FursInStoreMb:0} MB; goods {Sim.Fort?.Stores.Count(ItemId.TradeGoods)}; ship {Sim.Ship?.Status()}; band cache: {Sim.Band?.Stores.Summary()}; director: {Core.Director.Describe()}");
 		GD.Print(sb.ToString());
 	}
 

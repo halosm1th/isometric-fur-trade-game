@@ -194,6 +194,7 @@ public partial class EcologyManager : Node2D
     public SpawnSite BestSite(Species s, Economy.Household knownBy = null)
     {
         SpawnSite best = null; float bestScore = 0f;
+        _scored.Clear();
         foreach (var site in Sites)
         {
             if (site.Species != s || site.IsDead || site.Count < 1f) continue;
@@ -213,9 +214,21 @@ public partial class EcologyManager : Node2D
                 score /= 1f + walk / 2500f;
             }
             if (best == null || score > bestScore) { best = site; bestScore = score; }
+            _scored[site] = score;
+        }
+        // Among sites the household thinks are as good as each other, the
+        // director prefers the one a player might actually see them work
+        // (design doc 2.2). The choice is still one the party would have made.
+        if (best != null && _scored.Count > 1)
+        {
+            var equal = new List<SpawnSite>();
+            foreach (var (site, sc) in _scored) if (sc >= bestScore * 0.88f) equal.Add(site);
+            best = Core.Director.Equal(equal, x => _scored[x], x => x.WorldPos) ?? best;
         }
         return best;
     }
+
+    private readonly Dictionary<SpawnSite, float> _scored = new();
 
     // Anyone passing close to a site learns where it is for their household.
     public void Scout(Agents.Npc npc)

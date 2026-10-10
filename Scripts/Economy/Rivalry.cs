@@ -113,6 +113,9 @@ public static class Rivalry
         var sent = new List<Npc>();
         if (leader == null || from == null || target == null) return sent;
         foreach (var n in Sim.Npcs) if (n.Raiding && !n.IsDead) return sent;   // one party out at a time
+        // The raid is coming either way; the director keeps it from landing on
+        // the same afternoon as everything else (design doc 2.2).
+        if (!Core.Director.MayActNow("raid", 2f, target.AccessCell == default ? leader.GlobalPosition : IsoGrid.ToWorld(target.AccessCell))) return sent;
         foreach (var n in Sim.Npcs)
         {
             if (sent.Count >= party) break;
@@ -130,6 +133,7 @@ public static class Rivalry
         if (sent.Count > 0)
         {
             from.LastRaidDay = GameCalendar.Instance?.Day ?? 0;
+            Core.Director.Saw("raid", 2f);
             var names = new List<string>(); foreach (var n in sent) names.Add(n.DisplayName);
             Chronicle.Event($"{leader.DisplayName} sent {string.Join(", ", names)} to seize {target.Title}.", leader.GlobalPosition, leader, weight: 1.5f);
             Sim.Notice($"{leader.DisplayName}: \"{string.Join(", ", names)} - muskets. We are going to relieve the {(target.Company == Faction.NWC ? "Nor'Westers" : "Company")} of their provisions.\"");

@@ -119,6 +119,16 @@ Talk to the chief or a hunter with a daughter: "Ask about marriage in the custom
 
 E on a person stops them and opens topics: how things stand, about them (role, temper, family), the others (gossip, scaled by how talkative they are), the hunting (Cree), marriage (Cree men), work (Factor), tell him where the game is (Factor), trade (clerks, Factor, chief), a gift, offer food to someone hungry (big rapport), threaten (they may hand something over, or fight). They walk off if you do.
 
+## The director (design doc 2.2)
+
+`Core/Director.cs`. Simulate, then curate. It never makes an event, never changes an outcome and never hands anyone knowledge the propagation system would not have carried; it only biases things that were going to happen anyway.
+
+- **Who talks about what.** Of the memories two people both witnessed, and of the stories a man could tell at the fire, the one that touches the player's own business comes out first - his name, his wife, his house's dead, the men who hold a death against him or he against them, and the words of whatever he has declared he means to do.
+- **Whose route crosses whose.** Among game sites a household rates within 12% of each other, hunting and trapping parties take the one nearer a player. The party would have gone to one of them regardless.
+- **When latent pressure surfaces.** A blood debt coming for the player and a raid across the river ask the director first. A heavy thing wants room either side of it (about 29 hours for a raid), the same kind of trouble does not come twice inside a day and a half, nothing lands within three hours of the last piece of news, and a long quiet stretch (two days with no trouble) makes it readier to let the next one through. "Not now" always means not yet, never no.
+
+Dev arg `--nodirector` switches it off; the test that keeps it honest is that the world must still be valid with it off, because every beat it staged would have happened anyway. `--trace` prints its pacing state.
+
 ## The barter (design doc 3.6.1)
 
 `Economy/Barter.cs`. Trade is a session with a man, not a shop. Opening it reads out up to three **tells** - what you can actually perceive of his position: thin children at the fire, little hanging in the smoke, he asks after guns before anything else, he is already in the Nor'Westers' book, his eyes go to the kegs, he glances at the calendar with the warehouse not full, the stores are thin, more packs behind him than he means you to count. A sharper trader (trade skill, or standing with him) sees more; without the words you get only what his body shows, and pay a piece more besides.
@@ -317,7 +327,7 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 
 ## Command-line dev args (after `--`)
 
-`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2`
+`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2` · `--nodirector`
 
 ## Barks and shared memory (design doc P.4, P.8)
 

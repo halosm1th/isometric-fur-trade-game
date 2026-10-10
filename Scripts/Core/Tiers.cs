@@ -167,11 +167,18 @@ public static class Tiers
     {
         var eco = Sim.Ecology;
         if (eco == null) return;
-        var site = eco.BestSite(Species.Caribou, home) ?? eco.BestSite(Species.Goose, home) ?? eco.BestSite(Species.Beaver, home);
+        // A band hunts its own country, whether or not the camp has been
+        // told where the herd is this week; a post only knows what it knows.
+        var known = home is Economy.BandLedger ? null : home;
+        var site = eco.BestSite(Species.Caribou, known) ?? eco.BestSite(Species.Goose, known) ?? eco.BestSite(Species.Beaver, known);
         if (site == null || site.Count < 1f)
         {
-            // Snares along the bush: thin fare, no site drawn down.
-            if (GD.Randf() < 0.5f + n.Skills.Hunting * 0.3f) home.Stores.Add(ItemId.Hare, 1 + (GD.Randf() < n.Skills.Hunting ? 1 : 0));
+            // Snares and lines along the bush: thin fare, no site drawn down,
+            // but enough that a camp out of the player's sight does not quietly
+            // starve to death (design doc 18.2 - the batch must be livable).
+            int snared = (GD.Randf() < 0.75f + n.Skills.Hunting * 0.2f ? 1 : 0) + (GD.Randf() < 0.4f + n.Skills.Hunting * 0.4f ? 1 : 0);
+            if (snared > 0) home.Stores.Add(ItemId.Hare, snared);
+            if (!GameCalendar.Instance.IsFrozen && GD.Randf() < 0.5f) home.Stores.Add(ItemId.Fish, 1 + (GD.Randf() < 0.4f ? 1 : 0));
             return;
         }
         float chance = Mathf.Clamp(site.Count / site.Capacity, 0.05f, 1f) * (0.35f + n.Skills.Hunting * 0.45f);

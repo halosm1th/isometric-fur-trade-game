@@ -92,6 +92,9 @@ public static class Sim
     public static event System.Action<string> OnHeadline;
     public static void Headline(string text)
     {
+        // The director keeps a pacing memory of what has reached the player
+        // lately (design doc 2.2).
+        Director.Saw("headline", 1f);
         Notice(text);
         OnHeadline?.Invoke(text);
         if (Net.Net.IsServer) Net.Net.I?.BroadcastHeadline(text);
