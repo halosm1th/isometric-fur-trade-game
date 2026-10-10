@@ -112,6 +112,26 @@ public partial class JournalPanel : Control
             foreach (var f in _player.House) sb.AppendLine("   " + f.Line);
             sb.AppendLine();
         }
+        // The cellar and the seat: the two things a man at the post actually
+        // watches (design doc P.3, 3.7).
+        var post = _player.HomePost ?? Sim.Fort;
+        if (post != null)
+        {
+            string flight = World.GooseHunt.Countdown(post);
+            int casks = post.Stores.Count(Items.ItemId.SaltGeese);
+            float weeks = World.GooseHunt.WeeksInHand(post);
+            sb.AppendLine("[color=#dcb][b]The cellar[/b][/color]");
+            sb.AppendLine($"   {casks} casks of salt geese, {weeks:0} weeks' food in the store.");
+            if (flight != "") sb.AppendLine("   " + flight);
+            sb.AppendLine();
+        }
+        string race = Agents.Rivals.Describe();
+        if (race != "")
+        {
+            sb.AppendLine("[color=#dcb][b]The seat you want[/b][/color]");
+            sb.AppendLine("   " + race);
+            sb.AppendLine();
+        }
         sb.AppendLine("[color=#dcb][b]What you mean to do[/b][/color]");
         if (_player.Ambitions.Count == 0) sb.AppendLine("   Nothing declared. (Esc - What you mean to do)");
         foreach (var a in _player.Ambitions) sb.AppendLine($"   {a.Line(_player)}");
