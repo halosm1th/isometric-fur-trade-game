@@ -39,6 +39,7 @@ public class Brigade
 	// approximate and want correcting from a source); the fractions below are
 	// the fallback if the atlas is silent.
 	private static (float at, string name, bool heavy)[] _portages;
+	public static void ForgetPortages() => _portages = null;
 	public static (float at, string name, bool heavy)[] Portages
 	{
 		get
@@ -91,7 +92,8 @@ public static class Brigades
 	public static readonly List<Brigade> All = new();
 	private static int _lastDay = -1;
 
-	public static void Reset() { All.Clear(); _lastDay = -1; }
+	// A new world may have had its road and carrying places re-laid.
+	public static void Reset() { All.Clear(); _lastDay = -1; Brigade.ForgetPortages(); }
 
 	// Load and send one. The men go on the books as away, not as bodies on the
 	// water: a brigade on the open river is exactly what the tiers are for.
