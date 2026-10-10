@@ -1084,7 +1084,11 @@ public class Conversation
     }
 
     private int _tradePage;
-    private void ShowTrade(Npc npc)
+    private Economy.Barter _barter;
+
+    // The barter (design doc 3.6.1). Not a shop: a session with a man who has
+    // his own position, his own patience, and a price he means to keep.
+    private void ShowTrade(Npc npc, string said = null)
     {
         var fort = Sim.Fort; var band = npc.HomeStores as Economy.BandLedger ?? Sim.Band;
         var post = npc.Faction == Faction.NWC ? (Economy.FortLedger)Sim.Nwc : npc.HomeStores as Economy.FortLedger ?? Sim.Fort;
@@ -1096,54 +1100,116 @@ public class Conversation
         }
         Inventory counter = npc.IsBandPerson ? band?.Stores : fort?.Stores;
         if (counter == null) { ShowTopics("\"Nothing to trade.\""); return; }
-        bool crude = npc.IsBandPerson && _player.FluencyWith(npc) < 0.5f;   // design doc 10.6: signs and fingers
-        _text = npc.IsBandPerson
-            ? (crude ? "Without the words, it is fingers and pointing: the band trades meat and hides for goods, and you pay a piece more for the misunderstanding." : "The band will trade meat and hides for goods, one for one by worth.")
-            : $"The Company sells from the stores at cost and buys furs at {fort.PeltPrice:0.00} MB in goods per MB.";
+        if (!Economy.Barter.WillSitDown(npc, out float sulk))
+        {
+            _barter = null;
+            ShowTopics($"He will not sit down to it again today - you pushed him past his patience, and he has {sulk:0} hours of being asked nothing at all coming to him.");
+            return;
+        }
+        if (_barter == null || _barter.With != npc) _barter = new Economy.Barter(_player, npc, counter, npc.IsBandPerson ? null : fort, npc.IsBandPerson ? band : null);
+        var bart = _barter;
+        if (bart.Walked) { _barter = null; ShowTopics(said ?? "He is gone."); return; }
+        bool crude = bart.Crude;
+
+        var sb = new System.Text.StringBuilder();
+        if (said != null) { sb.AppendLine(said); sb.AppendLine(); }
+        sb.AppendLine(npc.IsBandPerson
+            ? (crude ? "Without the words it is fingers and pointing, and you pay a piece more for the misunderstanding." : "Meat and hides against the Company's goods, and the price is what the two of you make it.")
+            : $"The Company's counter: furs at {fort.PeltPrice:0.00} MB in goods per MB, the stores at cost.");
+        int told = 0;
+        foreach (string t in bart.Tells) { if (told++ >= 3) break; sb.AppendLine("  - " + t); }
+        sb.AppendLine();
+        sb.AppendLine($"{bart.Standing()} {bart.Mood()}");
+        _text = sb.ToString();
         ClearOptions();
 
-        // Sell furs / buy with trade goods.
+        // Sell out of your own pack.
         foreach (var (id, n) in new List<(ItemId, int)>(_player.Inventory.All()))
         {
             var def = Items.Items.Of(id);
-            if (!npc.IsBandPerson && def.Kind == ItemKind.Fur)
+            bool wanted = npc.IsBandPerson
+                ? def.Kind is ItemKind.Goods or ItemKind.Tool or ItemKind.Weapon or ItemKind.Clothing
+                : def.Kind == ItemKind.Fur;
+            if (!wanted) continue;
+            if (npc.IsBandPerson && id == ItemId.Musket && bart.HeldBackGuns) continue;
+            // The whole lot goes over the counter at once; that is where the
+            // haggling shows (design doc 3.6.1).
+            int lot = n;
+            ItemId paidIn = npc.IsBandPerson ? ItemId.BeaverPelt : ItemId.TradeGoods;
+            while (lot > 1 && counter.Count(paidIn) < bart.SellPrice(id, lot)) lot--;
+            int pay = bart.SellPrice(id, lot);
+            if (counter.Count(paidIn) < pay) continue;
+            var sold = id; int sellN = lot;
+            AddOption($"Sell {Items.Items.Lot(id, sellN)} for {pay} {(paidIn == ItemId.TradeGoods ? "trade goods" : "pelts")}", () =>
             {
-                int pay = Mathf.Max(1, Mathf.RoundToInt(def.ValueMb * fort.PeltPrice * (_player.Skills.Trade >= 0.5f ? 1.15f : 1f)));
-                if (counter.Count(ItemId.TradeGoods) >= pay)
-                    AddOption($"Sell {def.Name} for {pay} trade goods", () =>
-                    {
-                        _player.Inventory.Remove(id); counter.Add(id); counter.Remove(ItemId.TradeGoods, pay); _player.Inventory.Add(ItemId.TradeGoods, pay);
-                        fort.FursTakenMb += def.ValueMb; fort.GoodsPaidMb += pay; _player.Skills.Learn(ref _player.Skills.Trade, 0.01f);
-                        ShowTrade(npc);
-                    });
-            }
-            if (_options.Count >= 4) break;
+                _player.Inventory.Remove(sold, sellN); counter.Add(sold, sellN);
+                counter.Remove(paidIn, pay); _player.Inventory.Add(paidIn, pay);
+                if (!npc.IsBandPerson) { fort.FursTakenMb += def.ValueMb * sellN; fort.GoodsPaidMb += pay; }
+                if (npc.IsBandPerson && sold == ItemId.Musket && band != null && band.AtOddsWithOtherBand)
+                {
+                    band.StandingWithCompany = Mathf.Min(100f, band.StandingWithCompany + 6f);
+                    Core.Reveal.Lands(_player, $"{band.Name} have a gun of your selling, and they are at war.", "you sold a musket at the camp", 1.3f);
+                }
+                _player.Skills.Learn(ref _player.Skills.Trade, 0.012f);
+                ShowTrade(npc, "Done, and the goods change hands.");
+            });
+            if (_options.Count >= 3) break;
         }
-        // Buy from the counter with trade goods (or furs at the camp).
+
+        // Buy off his counter.
         int shown = 0, skipped = 0; bool more = false;
         foreach (var (id, n) in new List<(ItemId, int)>(counter.All()))
         {
             var def = Items.Items.Of(id);
             if (def.Kind == ItemKind.Fur && !npc.IsBandPerson) continue;
             if (id == ItemId.TradeGoods) continue;
-            if (shown >= 4) { more = true; break; }
-            if (skipped < _tradePage * 4) { skipped++; continue; }
-            int cost = Mathf.Max(1, Mathf.CeilToInt(def.ValueMb * (def.Kind == ItemKind.Food ? fort.FoodPriceMultiplier : 1f) * (_player.Skills.Trade >= 0.5f ? 0.85f : 1f))) + (crude ? 1 : 0);
-            ItemId currency = ItemId.TradeGoods;
-            if (_player.Inventory.Count(currency) >= cost)
+            if (shown >= 3) { more = true; break; }
+            if (skipped < _tradePage * 3) { skipped++; continue; }
+            int want = def.Kind is ItemKind.Food or ItemKind.Fuel ? Mathf.Min(n, 5) : 1;
+            while (want > 1 && _player.Inventory.Count(ItemId.TradeGoods) < bart.BuyPrice(id, want)) want--;
+            int cost = bart.BuyPrice(id, want);
+            if (_player.Inventory.Count(ItemId.TradeGoods) < cost) continue;
+            var bought = id; int buyN = want;
+            AddOption($"Buy {Items.Items.Lot(id, buyN)} ({n} by him) for {cost} trade goods", () =>
             {
-                AddOption($"Buy {def.Name} ({n} in store) for {cost} trade goods", () =>
-                {
-                    counter.Remove(id); _player.Inventory.Add(id); _player.Inventory.Remove(currency, cost); counter.Add(currency, cost); _player.Skills.Learn(ref _player.Skills.Trade, 0.01f);
-                    ShowTrade(npc);
-                });
-                shown++;
-            }
+                counter.Remove(bought, buyN); _player.Inventory.Add(bought, buyN);
+                _player.Inventory.Remove(ItemId.TradeGoods, cost); counter.Add(ItemId.TradeGoods, cost);
+                _player.Skills.Learn(ref _player.Skills.Trade, 0.012f);
+                ShowTrade(npc, "Done, and the goods change hands.");
+            });
+            shown++;
         }
-        if (_options.Count == 0 && _tradePage == 0) _text += "\n\nYou have nothing they want, or they nothing you can pay for. Trade goods are the coin here.";
-        if (more) AddOption("More of the stores...", () => { _tradePage++; ShowTrade(npc); });
+
+        // The rounds themselves.
+        if (!bart.GiftGiven) AddOption(npc.IsBandPerson ? "Open with a gift and a pipe..." : "Put something in his hand first...", () => ShowGiftOpening(npc));
+        AddOption("Press him for a better price", () => ShowTrade(npc, bart.Press()));
+        if (bart.Presses > 0) AddOption("Allow that he has a point", () => ShowTrade(npc, bart.Relent()));
+        if (npc.IsBandPerson && band != null && band.AtOddsWithOtherBand && _player.Inventory.Has(ItemId.Musket) && !bart.HeldBackGuns)
+            AddOption("Tell him the muskets are not for trade", () => ShowTrade(npc, bart.HoldBackGuns()));
+        if (_options.Count == 0 && _tradePage == 0) _text += "\n\nYou have nothing he wants, nor he anything you can pay for. Trade goods are the coin here.";
+        if (more) AddOption("More of his stores...", () => { _tradePage++; ShowTrade(npc); });
         else if (_tradePage > 0) AddOption("Back to the first shelf", () => { _tradePage = 0; ShowTrade(npc); });
-        AddOption("Back", () => { _tradePage = 0; ShowTopics(Greeting(npc)); });
+        AddOption("Break off", () => { _tradePage = 0; _barter = null; ShowTopics(Greeting(npc)); });
+    }
+
+    // The gift that opens a trade: what you can spare, worth first.
+    private void ShowGiftOpening(Npc npc)
+    {
+        _text = npc.IsBandPerson
+            ? "Nothing is traded until something is given. What do you put in his hands?"
+            : "A small thing across the counter does no harm. What?";
+        ClearOptions();
+        int shown = 0;
+        foreach (var (id, n) in new List<(ItemId, int)>(_player.Inventory.All()))
+        {
+            var def = Items.Items.Of(id);
+            if (def.Kind is not (ItemKind.Drink or ItemKind.Food or ItemKind.Goods or ItemKind.Tool or ItemKind.Clothing)) continue;
+            if (shown++ >= 5) break;
+            var give = id;
+            AddOption($"Give {def.Name.ToLower()} ({def.ValueMb:0.0#} MB)", () => ShowTrade(npc, _barter?.Gift(give)));
+        }
+        if (shown == 0) _text += "\n\nYou have nothing to give that he would take as a gift.";
+        AddOption("Go straight to the goods", () => ShowTrade(npc, null));
     }
 
     private void ShowGive(Npc npc)

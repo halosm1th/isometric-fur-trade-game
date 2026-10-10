@@ -101,6 +101,26 @@ public static class Items
         { ItemId.Tomahawk,     new("Tomahawk",       ItemKind.Weapon,   2.0f, IconDir + "tomahawk.png",     ValueMb: 1.5f, Damage: 28f, Range: 70f, Cooldown: 1.0f) },
     };
 
+    // Many of these are mass nouns or have an odd plural, and "5 dried gooses"
+    // reads like a machine wrote it.
+    private static readonly Dictionary<ItemId, string> PluralNames = new()
+    {
+        { ItemId.Pemmican, "pemmican" }, { ItemId.DriedGoose, "dried geese" }, { ItemId.Goose, "geese" },
+        { ItemId.Bread, "loaves of bread" }, { ItemId.Ale, "tankards of ale" }, { ItemId.Rum, "drams of rum" },
+        { ItemId.Water, "water" }, { ItemId.Venison, "fresh meat" }, { ItemId.DriedMeat, "dried meat" },
+        { ItemId.Firewood, "firewood" }, { ItemId.TradeGoods, "trade goods" }, { ItemId.Fish, "fish" },
+        { ItemId.Knife, "knives" }, { ItemId.Flint, "flints and steels" }, { ItemId.FishingLine, "fishing line" },
+        { ItemId.Snowshoes, "pairs of snowshoes" }, { ItemId.ShotPelt, "shot-through pelts" },
+    };
+
+    // "a beaver pelt" / "8 beaver pelts" / "5 dried geese", lower case.
+    public static string Lot(ItemId id, int n)
+    {
+        string one = Defs[id].Name.ToLower();
+        if (n == 1) return one;
+        return n + " " + (PluralNames.TryGetValue(id, out string many) ? many : one + "s");
+    }
+
     public static ItemDef Of(ItemId id) => Defs[id];
     public static bool IsFood(ItemId id) => Defs[id].Kind == ItemKind.Food;
 }

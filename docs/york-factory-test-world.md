@@ -119,6 +119,14 @@ Talk to the chief or a hunter with a daughter: "Ask about marriage in the custom
 
 E on a person stops them and opens topics: how things stand, about them (role, temper, family), the others (gossip, scaled by how talkative they are), the hunting (Cree), marriage (Cree men), work (Factor), tell him where the game is (Factor), trade (clerks, Factor, chief), a gift, offer food to someone hungry (big rapport), threaten (they may hand something over, or fight). They walk off if you do.
 
+## The barter (design doc 3.6.1)
+
+`Economy/Barter.cs`. Trade is a session with a man, not a shop. Opening it reads out up to three **tells** - what you can actually perceive of his position: thin children at the fire, little hanging in the smoke, he asks after guns before anything else, he is already in the Nor'Westers' book, his eyes go to the kegs, he glances at the calendar with the warehouse not full, the stores are thin, more packs behind him than he means you to count. A sharper trader (trade skill, or standing with him) sees more; without the words you get only what his body shows, and pay a piece more besides.
+
+Goods go over the counter **by the lot**, which is where the haggling shows. **Opening with a gift** (the ceremony came before the goods) moves the price and buys patience; skipping it at a camp is one of the tells he can read on you. **Press him for a better price** spends his patience whether it lands or not - the odds are your trade skill, his regard for you, how badly he needs what you carry, whether you opened with a gift, and how many times you have already asked. **Allow that he has a point** gives back a little of the margin for a lot of the patience. Push past the end of it and he breaks off: the camp man gathers his furs and the Nor'Westers' house is across the river; the clerk closes the counter to you for six hours, and the band marks the insult. **Holding back** - telling him the muskets are not for trade while his people are at war - costs you with the band and lands in your journal, and selling them the gun lands there too.
+
+His patience, the price as it stands and his mood are all in words ("He is beginning to shift his feet"), never numbers. Every round teaches the trade skill a little.
+
 ## Combat
 
 Left click / F. A reload bar shows over your head while your weapon cools down; anyone hit shows a health bar for a few seconds. Hitting someone makes their armed friends within earshot come at you, and costs standing if they're Company men. Sneaking (Ctrl) up on a grazing animal and knifing it is the cheap way to a caribou.
@@ -309,7 +317,7 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 
 ## Command-line dev args (after `--`)
 
-`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S`
+`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2`
 
 ## Barks and shared memory (design doc P.4, P.8)
 

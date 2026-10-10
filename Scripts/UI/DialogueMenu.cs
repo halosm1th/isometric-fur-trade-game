@@ -24,6 +24,7 @@ public partial class DialogueMenu : Control
     public override void _Ready()
     {
         Instance = this;
+        SetUpDevPicks();
         _panel = new PanelContainer { Visible = false };
         _panel.SetAnchorsPreset(LayoutPreset.CenterBottom);
         _panel.GrowHorizontal = GrowDirection.Both; _panel.GrowVertical = GrowDirection.Begin;
@@ -76,8 +77,31 @@ public partial class DialogueMenu : Control
             _options.AddChild(b);
             _buttons.Add(b);
         }
+        if (_trace) { GD.Print($"[talk] {_title.Text}: {_body.Text}"); for (int k = 0; k < _buttons.Count; k++) GD.Print($"[talk]   {k}. {opts[k]}"); }
         // Long menus scroll instead of climbing off the screen.
         _scroll.CustomMinimumSize = new Vector2(600, Mathf.Min(34f * opts.Count + 12f, 380f));
+    }
+
+    // Dev aid: `-- --talktrace` prints every screen of a conversation, and
+    // `-- --pick=1,3,2` presses those options (0-based) a second apart, so a
+    // dialogue tree can be walked in a headless run.
+    private bool _trace;
+    private void SetUpDevPicks()
+    {
+        foreach (string arg in OS.GetCmdlineUserArgs())
+        {
+            if (arg == "--talktrace") _trace = true;
+            if (!arg.StartsWith("--pick=")) continue;
+            _trace = true;
+            double when = 8.0;
+            foreach (string part in arg.Substring(7).Split(','))
+            {
+                if (!int.TryParse(part, out int idx)) continue;
+                int pick = idx;
+                GetTree().CreateTimer(when).Timeout += () => { if (IsOpen) { GD.Print($"[talk] > option {pick}"); Pick(pick); } else GD.Print("[talk] > nothing open"); };
+                when += 1.5;
+            }
+        }
     }
 
     private void Pick(int idx) => NetHub.I?.DialogueRequest(_npcId, idx);
