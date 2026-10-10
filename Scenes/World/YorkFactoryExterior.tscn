@@ -751,7 +751,7 @@ position = Vector2(128, -192)
 position = Vector2(0, 0)
 
 [node name="Goose marsh" type="Node2D" parent="Wildlife"]
-position = Vector2(45056, 9152)
+position = Vector2(43968, 8160)
 script = ExtResource("31_site")
 SiteName = "Goose marsh"
 Species = 1

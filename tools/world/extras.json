@@ -172,11 +172,12 @@
     {
       "name": "Goose marsh",
       "species": "Goose",
-      "lon": -92.0,
-      "lat": 56.95,
+      "lon": -92.79,
+      "lat": 57.455,
       "count": 180,
       "capacity": 300,
-      "radius": 700
+      "radius": 700,
+      "note": "On the bay shore just beyond Sloops Creek from the post (moved with the fort, Oct 2026)."
     },
     {
       "name": "Beaver lodge (upper)",
