@@ -34,7 +34,7 @@ public static class SpeciesInfo
         switch (s)
         {
             case Species.Caribou:
-                into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 8);   // ~100 lb of meat on a barren-ground caribou
+                into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 18);   // ~100 lb of meat: a man eats three to five pounds a day
                 into.Add(shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotHide : IsometricFurTradeGame.Scripts.Items.ItemId.CaribouHide, 1);
                 break;
             case Species.Goose: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Goose, 1); break;
@@ -44,7 +44,7 @@ public static class SpeciesInfo
                 int m = IsometricFurTradeGame.Scripts.Core.GameCalendar.Instance?.Month ?? 1;
                 var pelt = shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotPelt : m >= 6 && m <= 9 ? IsometricFurTradeGame.Scripts.Items.ItemId.ThinPelt : IsometricFurTradeGame.Scripts.Items.ItemId.BeaverPelt;
                 into.Add(pelt, 1);
-                into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 1);
+                into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 3);   // 25 lb of beaver, and the tail is the best of it
                 break;
             }
             case Species.Wolf: into.Add(shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotPelt : IsometricFurTradeGame.Scripts.Items.ItemId.WolfPelt, 1); break;

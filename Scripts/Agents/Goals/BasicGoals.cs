@@ -354,7 +354,13 @@ public class AttackGoal : Goal
         if (Target == null || !GodotObject.IsInstanceValid(Target) || Target.IsDead)
         {
             npc.StopMoving();
-            if (Target is Animal kill && GodotObject.IsInstanceValid(kill) && kill.IsDead && npc.GlobalPosition.DistanceTo(kill.GlobalPosition) < 160f) kill.Butcher(npc.Inventory);
+            if (Target is Animal kill && GodotObject.IsInstanceValid(kill) && kill.IsDead && npc.GlobalPosition.DistanceTo(kill.GlobalPosition) < 160f)
+            {
+                kill.Butcher(npc, out int took, out int left);
+                // More meat than one back will hold (design doc 12.4): he says
+                // so where he stands, and it lies there till somebody fetches it.
+                if (left >= 4) Chronicle.Event($"{npc.DisplayName} butchered a {kill.Def.Name.ToLower()} and could carry only {took} of it; {left} pieces lie at the kill.", kill.GlobalPosition, npc, weight: 0.6f);
+            }
             return GoalStatus.Done;
         }
         if (Target is Player.PlayerController pcap && pcap.CaptiveOf != null) { npc.StopMoving(); return GoalStatus.Done; }

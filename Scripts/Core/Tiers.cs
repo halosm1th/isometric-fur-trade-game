@@ -246,7 +246,7 @@ public static class Tiers
         }
         if (desperate && home is not Economy.BandLedger && home.Learn(site.Name, site.Cell))
             Sim.Notice($"{home.Title}: the men went looking and found the game at {site.Name}.");
-        float chance = Mathf.Clamp(site.Count / site.Capacity, 0.05f, 1f) * (0.35f + n.Skills.Hunting * 0.45f);
+        float chance = Mathf.Clamp(site.Count / site.Capacity, 0.05f, 1f) * (0.16f + n.Skills.Hunting * 0.24f);
         if (GD.Randf() >= chance) return;
         site.Take(1);
         SpeciesInfo.Yield(site.Species, home.Stores, n.Weapon == ItemId.Musket);

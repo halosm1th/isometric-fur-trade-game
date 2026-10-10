@@ -1043,7 +1043,12 @@ public partial class PlayerController : Agent
 		if (body != null)
 		{
 			if (body is Animal animal)
-				return animal.Butcher(Inventory) ? $"You butcher the {animal.Describe().ToLower()}." : "Nothing more to take.";
+			{
+				if (!animal.Butcher(this, out int took, out int left)) return animal.MeatLeft > 0 ? "You cannot carry another pound of it." : "Nothing more to take.";
+				return left > 0
+					? $"You butcher what you can carry of the {animal.Describe().ToLower()}: {took} pieces, and {left} left lying. Come back for it, or bring a man."
+					: $"You butcher the {animal.Describe().ToLower()}: {took} pieces.";
+			}
 			int moved = 0;
 			foreach (var (id, n) in new List<(ItemId, int)>(body.Inventory.All())) { body.Inventory.Remove(id, n); Inventory.Add(id, n); moved += n; }
 			int papers = body.Mail.Count;

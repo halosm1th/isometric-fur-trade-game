@@ -305,13 +305,53 @@ public partial class Animal : Agent
         GetTree().CreateTimer(GameCalendar.Instance.SecondsPerGameHour * 36f).Timeout += () => { if (IsInstanceValid(this)) QueueFree(); };
     }
 
-    // Butcher the carcass: meat and a pelt into the given pack.
-    public bool Butcher(Inventory into)
+    // Butcher the carcass. A caribou is more meat than a man can carry
+    // (design doc 12.4, 16.1): you take what your back will hold and the rest
+    // stays on the carcass for whoever comes back for it before it spoils.
+    private Inventory _remains;
+    public int MeatLeft => _remains == null ? 0 : _remains.Count(ItemId.Venison) + _remains.Count(ItemId.Goose);
+    public bool HasRemains => _remains != null && _remains.TotalWeightLbs > 0.01f;
+
+    public bool Butcher(Inventory into) => Butcher(into, 50f, out _, out _);
+    public bool Butcher(Agent by) => by != null && Butcher(by.Inventory, by.CarryCapacityLbs, out _, out _);
+    public bool Butcher(Agent by, out int took, out int left)
     {
-        if (!IsDead || _butchered) return false;
-        _butchered = true;
-        SpeciesInfo.Yield(Species, into, ShotDead);
-        if (_label != null) _label.Text = $"{Def.Name} ({(ShotDead ? "shot, butchered" : "butchered")})";
-        return true;
+        took = 0; left = 0;
+        return by != null && Butcher(by.Inventory, by.CarryCapacityLbs, out took, out left);
     }
+
+    public bool Butcher(Inventory into, float carryLbs, out int took, out int left)
+    {
+        took = 0; left = 0;
+        if (!IsDead) return false;
+        if (_remains == null)
+        {
+            if (_butchered) return false;
+            _butchered = true;
+            _remains = new Inventory();
+            SpeciesInfo.Yield(Species, _remains, ShotDead);
+        }
+        // Pelts and hides first - they are what the Company pays for - then
+        // as much meat as there is room for.
+        if (into == null) return false;
+        foreach (var (id, n) in new System.Collections.Generic.List<(ItemId, int)>(_remains.All()))
+        {
+            var def = Items.Items.Of(id);
+            bool meat = def.Kind == ItemKind.Food;
+            for (int i = 0; i < n; i++)
+            {
+                // A hide or a pelt always comes; meat only while there is room.
+                if (meat && into.TotalWeightLbs + def.WeightLbs > carryLbs) break;
+                _remains.Remove(id); into.Add(id);
+                took++;
+            }
+        }
+        left = 0;
+        foreach (var (_, n) in _remains.All()) left += n;
+        if (_label != null) _label.Text = left > 0 ? $"{Def.Name} (half butchered, {left} left)" : $"{Def.Name} ({(ShotDead ? "shot, butchered" : "butchered")})";
+        return took > 0;
+    }
+
+    // How long the meat keeps where it lies. After that the carcass is gone.
+    public string Lying => MeatLeft > 0 ? $"{MeatLeft} pieces of meat still lie at the {Def.Name.ToLower()}" : "";
 }
