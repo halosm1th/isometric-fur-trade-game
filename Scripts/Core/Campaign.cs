@@ -208,7 +208,7 @@ public static class Campaign
     {
         var cal = GameCalendar.Instance;
         if (cal == null || !Net.Net.IsServer) return;
-        if (!_begun) Begin();
+        if (!_begun) { if (SaveGame.HasPending) return; Begin(); }
         int today = DayOf(cal.Year, cal.Month, cal.Day);
         if (today == _lastDay) return;
         _lastDay = today;
@@ -390,6 +390,7 @@ public static class Campaign
         if (d.TryGetValue("transit", out var tr))
             foreach (var x in tr.AsGodotArray()) { var e = x.AsGodotDictionary(); _inTransit.Add((e["day"].AsInt32(), e["news"].AsGodotDictionary())); }
         if (d.TryGetValue("log", out var lg)) foreach (var x in lg.AsGodotArray()) Log.Add(x.AsString());
+        GD.Print($"[campaign] restored {Title} ({Level}): {_done.Count}/{_beats.Count} beats past, {_inTransit.Count} letters on the way");
     }
 
     // ---- helpers ------------------------------------------------------------------------
