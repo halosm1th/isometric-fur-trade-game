@@ -148,6 +148,9 @@ public partial class Ship : Node2D
 			pc.Rank = pc.Standing >= 60f ? "postmaster" : pc.Standing >= 35f ? "clerk" : pc.Standing >= 15f ? "labourer" : "on notice";
 			if (pc.Rank != was) pc.Say(pc.Standing >= 35f ? $"The Factor writes well of you in the accounts that sail today. You are rated {pc.Rank}." : $"The Factor's report on you is cool. You are rated {pc.Rank}.");
             if (pc.Rank == "clerk" || pc.Rank == "postmaster") pc.Inventory.Add(Items.ItemId.TradeGoods, pc.Rank == "postmaster" ? 12 : 6);
+            // The trade year closes with her: the player's own account of it
+            // goes into his book (design doc P.3).
+            Core.Reckoning.AtShipSailing(pc, mb, Sim.Fort);
         }
         if (factor != null) Agents.Delegation.OrderSupply(factor);
         if (Sim.Fort != null)

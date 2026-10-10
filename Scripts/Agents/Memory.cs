@@ -90,8 +90,18 @@ public static class Chronicle
         {
             if (a is Npc n && !n.IsDead) n.Remember(entry);
         }
-        // Players always know what happens in front of them.
-        foreach (var pc in Sim.Players()) if (pc.GlobalPosition.DistanceTo(where) < WitnessRadius) { pc.Known.Add(entry.Key); pc.Journal.Add($"{cal?.DateString}: {text}"); if (pc.Journal.Count > 40) pc.Journal.RemoveAt(0); }
+        // Players always know what happens in front of them. The book, though,
+        // is not a log of other men's chores (design doc P.4): day work worth
+        // nothing to anyone stays out of it unless the player is in it.
+        foreach (var pc in Sim.Players())
+        {
+            if (pc.GlobalPosition.DistanceTo(where) >= WitnessRadius) continue;
+            pc.Known.Add(entry.Key);
+            bool hisOwn = subject == pc.DisplayName || actor == pc || text.Contains(pc.DisplayName);
+            if (weight < 0.5f && !hisOwn) continue;
+            pc.Journal.Add($"{cal?.DateString}: {text}");
+            if (pc.Journal.Count > 60) pc.Journal.RemoveAt(0);
+        }
     }
 
     // Something a whole household lives through together (design doc P.9):

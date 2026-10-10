@@ -48,6 +48,10 @@ public partial class PlayerController : Agent
 	public readonly HashSet<string> Known = new();
 	public readonly List<string> Journal = new();
 	public string Rank = "labourer";
+	// For the year's account when the ship sails (design doc P.3).
+	public float LastYearStanding = -1000f;
+	public string LastYearRank = "";
+	public bool StoodGuardOverTheQuota;
 	// The country's tongue (design doc 10.6): 0 = none, 1 = fluent. Grows with talk and marriage.
 	public float CreeFluency = 0.1f;
 	public float AssiniboineFluency = 0.05f;
@@ -275,6 +279,8 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--talkto=") && NetHub.IsServer) { string who = arg.Substring(9); GetTree().CreateTimer(4.0).Timeout += () => { foreach (var n in Sim.Npcs) if (!n.IsDead && n.DisplayName.Contains(who)) { GlobalPosition = n.GlobalPosition + new Vector2(40, 0); _netTarget = GlobalPosition; _teleported = true; GD.Print($"[dev] stood beside {n.DisplayName}"); GetTree().CreateTimer(1.0).Timeout += () => { var st = Conversation.Start(n); NetHub.I?.PushDialogue(this, st); }; break; } }; }
 			// Dev: `--kit=BeaverPelt:4,TradeGoods:30` puts those in your pack.
 			if (arg.StartsWith("--kit=") && NetHub.IsServer) { foreach (string part in arg.Substring(6).Split(',')) { var bits = part.Split(':'); if (!System.Enum.TryParse<ItemId>(bits[0], true, out var kid)) continue; int howMany = bits.Length > 1 && int.TryParse(bits[1], out int c) ? c : 1; Inventory.Add(kid, howMany); GD.Print($"[dev] {howMany} x {Items.Items.Of(kid).Name} in your pack"); } }
+			// Dev: `--dumpbook=S` prints your journal to the console at that second.
+			if (arg.StartsWith("--dumpbook=") && double.TryParse(arg.Substring(11), out double bsecs) && NetHub.IsServer) GetTree().CreateTimer(bsecs).Timeout += () => { GD.Print("[book] " + DisplayName + "'s journal:"); foreach (string line in Journal) GD.Print("[book] " + line); };
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
 			if (arg.StartsWith("--use=") && int.TryParse(arg.Substring(6), out int slot)) GetTree().CreateTimer(3.0).Timeout += () => NetHub.I?.Act("use", new Godot.Collections.Array { slot });
 			if (arg.StartsWith("--click=")) { _devClick = true; double when = 3.0; foreach (var part in arg.Substring(8).Split(',')) { if (!int.TryParse(part, out int cslot)) continue; GetTree().CreateTimer(when).Timeout += () => { var p = GlobalPosition + new Vector2(90, 40); NetHub.I?.Act("click", new Godot.Collections.Array { cslot, p.X, p.Y }); }; when += 3.0; } }

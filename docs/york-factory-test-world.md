@@ -123,6 +123,12 @@ E on a person stops them and opens topics: how things stand, about them (role, t
 
 The background batch has to be livable, or the far places quietly die while the player is elsewhere. A background household now gathers its own firewood (a camp with no cordwood used to freeze to death), melts snow at the fire for water, hunts its own country if it is a band, goes looking further when it has under a fortnight's food (and comes back knowing where the game is, which is real knowledge it keeps), falls through from an empty trapline to hunting instead of standing about, and keeps enough on snares and lines not to starve. Oxford House buys country provisions off the inland bands with its goods when its shelves get thin, before it buys furs. A man who freezes now dies of cold rather than of want.
 
+## The year's account (design doc P.3, P.4)
+
+`Core/Reckoning.cs`. The trade year closes when the ship sails, and that is when the player's own book is written up: what the post shipped against its quota and whether you had a hand in it, your rank and standing with the change on last year, the work set you that you did and refused, what your own account stands at, your wife and children, anyone of your house who died this year, every declared ambition measured against what you actually did, and how things stand between the houses. Nothing in it is knowledge you did not have. The counters reset with it, so next year's entry is about next year.
+
+The journal is no longer a log of other men's chores: events of no weight to anyone are kept out of it unless the player is in them, and it holds sixty entries rather than forty. `--dumpbook=S` prints it to the console.
+
 ## The director (design doc 2.2)
 
 `Core/Director.cs`. Simulate, then curate. It never makes an event, never changes an outcome and never hands anyone knowledge the propagation system would not have carried; it only biases things that were going to happen anyway.
@@ -339,7 +345,7 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 
 ## Command-line dev args (after `--`)
 
-`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2` · `--nodirector` · `--brawl` · `--provoke=N`
+`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2` · `--nodirector` · `--brawl` · `--provoke=N` · `--dumpbook=S`
 
 ## Barks and shared memory (design doc P.4, P.8)
 

@@ -1144,7 +1144,7 @@ public class Conversation
             {
                 _player.Inventory.Remove(sold, sellN); counter.Add(sold, sellN);
                 counter.Remove(paidIn, pay); _player.Inventory.Add(paidIn, pay);
-                if (!npc.IsBandPerson) { fort.FursTakenMb += def.ValueMb * sellN; fort.GoodsPaidMb += pay; }
+                if (!npc.IsBandPerson) { fort.FursTakenMb += def.ValueMb * sellN; fort.GoodsPaidMb += pay; if (def.Kind == ItemKind.Fur && fort.Company == _player.Faction) _player.StoodGuardOverTheQuota = true; }
                 if (npc.IsBandPerson && sold == ItemId.Musket && band != null && band.AtOddsWithOtherBand)
                 {
                     band.StandingWithCompany = Mathf.Min(100f, band.StandingWithCompany + 6f);
