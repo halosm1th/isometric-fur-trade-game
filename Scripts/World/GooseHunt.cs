@@ -152,7 +152,7 @@ public static class GooseHunt
 			foreach (var p in Sim.Players())
 			{
 				if (p == null || p.IsDead || p.HomePost != post && Sim.Fort != post) continue;
-				Reveal.Lands(p, $"{post.Title} has {got} casks of salt geese in the cellar of the {want} wanted: {weeks:0} weeks' food.",
+				Reveal.Word(p, $"{post.Title} has {got} casks of salt geese in the cellar of the {want} wanted: {weeks:0} weeks' food.",
 					got >= want ? "the men were at the marsh while the flight lasted" : "the flight went over with the work half done",
 					got >= want ? 1.2f : 1.8f);
 			}

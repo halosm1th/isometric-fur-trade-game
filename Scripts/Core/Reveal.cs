@@ -26,6 +26,21 @@ public static class Reveal
         if (importance >= 1.5f) Sim.Headline(line);
     }
 
+    // A consequence whose reason is known but is not something the player did:
+    // the flight going over half worked, a hull opening with no gum left, the
+    // other house knowing which day you would be on the carrying place. It is
+    // said plainly, without pretending he has it in his own book.
+    public static void Word(Player.PlayerController p, string what, string because = "", float importance = 1f)
+    {
+        if (p == null) return;
+        var cal = GameCalendar.Instance;
+        string line = because == "" ? what : $"{what} ({because})";
+        p.Journal.Add($"{cal?.DateString}: {line}");
+        if (p.Journal.Count > 120) p.Journal.RemoveAt(0);
+        p.Say(line);
+        if (importance >= 1.5f) Sim.Headline(line);
+    }
+
     // Look back through what the player themselves witnessed for the deed,
     // and date it. Their journal is the only record they are entitled to.
     private static string Trace(Player.PlayerController p, string cause)

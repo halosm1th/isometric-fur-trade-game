@@ -225,6 +225,8 @@ public static class Delegation
         best.Brain.Push(best, new RoadGoal(op.AccessCell));
         fort.KnowsOutpostMasterless = false;
         Sim.Notice($"{factor.DisplayName} names {best.DisplayName} to the charge of Oxford House and sends him up the river road.");
+        // If that was the seat the player was after, he hears who got it and why.
+        Rivals.SeatFilled(best, "the charge of Oxford House");
         Chronicle.Event($"{factor.DisplayName} gave {best.DisplayName} the charge of Oxford House.", factor.GlobalPosition, factor, best.DisplayName, 1.5f);
         if (runnerUp != null) { runnerUp.ChangeRapport(best, -15f); runnerUp.ChangeRapport(factor, -5f); Chronicle.Event($"{runnerUp.DisplayName} was passed over for Oxford House.", runnerUp.GlobalPosition, runnerUp, weight: 0.8f); }
         // The players in the running hear how they placed.

@@ -76,7 +76,7 @@ public static class Rivals
 				Current = new Contest { Him = him, Seat = seat };
 				Current.HisScore = Score(him, post); Current.YourScore = Score(p);
 				Current.HeWasAhead = Current.HisScore > Current.YourScore;
-				Reveal.Lands(p, $"{him.DisplayName} is after {seat} as well as you.",
+				Reveal.Word(p, $"{him.DisplayName} is after {seat} as well as you.",
 					him.Role == Role.Clerk ? "he keeps the books and the Factor's ear" : "he has made himself useful this season", 1.3f);
 				continue;
 			}
@@ -89,7 +89,7 @@ public static class Rivals
 			c.HeWasAhead = aheadNow;
 			if (cal.Day - c.LastWordDay < 10) continue;
 			c.LastWordDay = cal.Day;
-			Reveal.Lands(p, aheadNow
+			Reveal.Word(p, aheadNow
 				? $"{c.Him.DisplayName} stands better for {c.Seat} than you do."
 				: $"You stand better for {c.Seat} than {c.Him.DisplayName} does.",
 				aheadNow ? Lately(c.Him) : "what you have got done this season", 1.4f);
@@ -173,7 +173,7 @@ public static class Rivals
 			p.Standing += 2f;
 			Chronicle.Event($"{p.DisplayName} told {leader.DisplayName} what {c.Him.DisplayName} had done.", p.GlobalPosition, p, c.Him.DisplayName, 1.2f);
 			c.Him.ChangeRapport(p, -25f);   // he will hear of it, and he will not forget
-			Reveal.Lands(p, $"{c.Him.DisplayName}'s standing has fallen with the Factor.", "you carried it to him yourself", 1.3f);
+			Reveal.Word(p, $"{c.Him.DisplayName}'s standing has fallen with the Factor.", "you carried it to him yourself", 1.3f);
 			return $"He hears you out, and writes it down. ({v.Because()}) It will not stay a secret that it came from you.";
 		}
 		p.Standing -= 4f;
@@ -193,12 +193,31 @@ public static class Rivals
 		if (v.Granted)
 		{
 			p.Standing += 6f;
-			Reveal.Lands(p, $"The Factor will put your name forward for {seat}.", "you asked him for it, and the books bore you out", 1.5f);
+			Reveal.Word(p, $"The Factor will put your name forward for {seat}.", "you asked him for it, and the books bore you out", 1.5f);
 			return $"\"I will put your name forward.\" ({v.Because()})";
 		}
 		return c?.Him != null
 			? $"\"{c.Him.DisplayName} is the better man for it as things stand.\" ({v.Because()})"
 			: $"\"Not yet.\" ({v.Because()})";
+	}
+
+	// A seat has been filled. If it was the one the player was after, he hears
+	// who had it and what carried the day (design doc P.4).
+	public static void SeatFilled(Npc who, string seat)
+	{
+		foreach (var p in Sim.Players())
+		{
+			if (p == null || p.IsDead) continue;
+			if (Seat(p) != seat) continue;
+			var post = p.HomePost ?? Sim.Fort;
+			bool mine = who == null;
+			if (mine) continue;
+			string cause = post?.Leader != null && post.Leader.RapportWith(who) > post.Leader.RapportWith(p)
+				? $"{who.DisplayName} stood better with the master than you did"
+				: $"{who.DisplayName}'s record was the longer one";
+			Reveal.Word(p, $"{who.DisplayName} has {seat}, and you wanted it.", cause, 1.8f);
+			if (Current?.Him == who) Current = null;
+		}
 	}
 
 	public static string Describe()

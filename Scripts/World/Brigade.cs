@@ -270,7 +270,7 @@ public static class Brigades
 			if (p == null || p.IsDead) continue;
 			bool his = b.PlayerWith || b.From != null && b.From.Company == p.Faction;
 			if (!his) continue;
-			Reveal.Lands(p, what, cause, weight);
+			Reveal.Word(p, what, cause, weight);
 		}
 	}
 
