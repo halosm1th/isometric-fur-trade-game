@@ -29,6 +29,28 @@ public class SpawnSite
     public Vector2I HomeCell;   // where it started; the name's "place"
 
     // One week's travel toward this month's ground. Returns how far it moved.
+    // Is the main herd in the country this month?
+    public bool Passing { get; private set; }
+
+    public void HerdPassage(int month)
+    {
+        if (!IsMobile || IsDead) return;
+        bool pass = month == 9 || month == 10 || month == 4 || month == 5;
+        if (pass && !Passing)
+        {
+            Passing = true;
+            _scattered = false;
+            Count = Mathf.Max(Count, Capacity * (month >= 9 ? 1f : 0.7f));
+            Sim.Notice($"{Name}: the deer are passing - the country is full of caribou.");
+        }
+        else if (!pass && Passing)
+        {
+            Passing = false;
+            Count = Mathf.Min(Count, Capacity * 0.25f);
+            Sim.Notice($"{Name}: the main herd has gone on. A few deer winter in the country.");
+        }
+    }
+
     public float Migrate(int month)
     {
         if (!IsMobile || IsDead) return 0f;
@@ -109,7 +131,13 @@ public class SpawnSite
         if (IsMobile)
         {
             // A herd hunted hard leaves the country; it comes back thin next spring.
-            if (!_scattered && Count < Capacity * Def.SustainFloor) { _scattered = true; Sim.Notice($"{Name}: the caribou have been hunted so hard they have left this country. Few will be seen before spring."); }
+            if (!_scattered && Count < Capacity * Def.SustainFloor)
+            {
+                _scattered = true;
+                Passing = false;
+                Count = 1f;   // gone: the ground is bare till the herd passes again
+                Sim.Notice($"{Name}: the deer have been worked so hard they have quit this country. Nothing will be had here till they pass again.");
+            }
             return;
         }
         if (!IsDead && Count < Capacity * Def.SustainFloor)
@@ -198,6 +226,9 @@ public partial class EcologyManager : Node2D
         foreach (var site in Sites)
         {
             if (site.Species != s || site.IsDead || site.Count < 1f) continue;
+            // A ground the herd has quit is not worth the walk, and everyone
+            // heard that it had (design doc 16.5).
+            if (site.IsMobile && !site.Passing && site.Count < site.Capacity * 0.1f) continue;
             if (knownBy != null && !knownBy.Knows(site.Name)) continue;
             if (knownBy != null && site.IsMobile && knownBy.LostToday(site.Name, GameCalendar.Instance?.Day ?? 0)) continue;
             // Thick game first; a lodge other parties are already working is
@@ -313,6 +344,7 @@ public partial class EcologyManager : Node2D
             float pressure = PreyPressure;
             foreach (var s in Sites) s.WeeklyTick(pressure);
             Migration(cal.Month);
+            foreach (var s in Sites) s.HerdPassage(cal.Month);
             foreach (var s in Sites)
             {
                 float moved = s.Migrate(cal.Month);

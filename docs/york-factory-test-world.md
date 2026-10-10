@@ -139,6 +139,16 @@ Hulls wear on the rapids and on the drag of the portage itself. Spruce gum patch
 
 A brigade on the water is part of the world's record: her position, her hull, her gum, her manifest, what the men have left to eat and which men they are all save and load, so a quicksave halfway up the Hayes comes back halfway up the Hayes ("2 brigades are still on the river"). The men are reclaimed by name on load and taken off the post's books again.
 
+## The deer pass, they are not farmed (design doc 16.2, 16.4, 17.1)
+
+A barren-ground herd was never a resident stock a post could live off: it passes. The site's logistic regrowth yields about twelve deer a year on a capacity of 140, and five households cannot live off twelve deer, so the old herd was always going to be hunted out of the country by spring - which is exactly what the long runs showed.
+
+`SpawnSite.HerdPassage` makes the herd seasonal instead. In **September and October** the country fills to capacity ("the deer are passing - the country is full of caribou") and in **April and May** to seven tenths of it; when the main herd goes on, the ground keeps **a quarter of capacity** as the deer that winter there. So October is fat, February is lean, and the post that filled its cellar during the goose flight gets through while the one that did not has to buy provisions off the bands or go short.
+
+**Scattering is now a thing that happens rather than a line of text.** A ground worked past its sustain floor is quit outright - the deer are gone, and nothing is to be had there until the next passage. Orders stop sending men to it while it is bare, because the notice went round the country, so nobody walks a day out to empty ground.
+
+The demand side needed no change once supply was seasonal: a house with a full cellar is not short of food, so it issues no hunting orders at all, and what sends men out in midwinter is men going too long without **fresh** meat - which is the scurvy pressure, answered by hares, fish through the ice and the beaver lodges rather than by the herd.
+
 ## The goose hunt (design doc 14.1, 16.1)
 
 `World/GooseHunt.cs`. The autumn flight is the one event in the year a Bay post cannot afford to miss, and it is now the year's second climax after the ship. From 20 August to 15 October the marsh holds the whole passage going south ("the water black with geese"), the master turns the **whole establishment** out to it - not two men - and the orders carry the count: *"84 casks in the cellar before the flight goes over, or we eat short"*, with the days of the flight left. A volley into a settled flock is a bag of eight birds with a musket, four with a bow, and that many come off the marsh.
