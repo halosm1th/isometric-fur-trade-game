@@ -389,6 +389,8 @@ Dev args `--son` (the player has a grown son at the post from second six) and `-
 
 Dev arg `--shot=SECONDS` saves the screen to `user://shot_N.png` every SECONDS (six shots) - handy when no window capture is possible.
 
+Dev args for menus: `--snap=S1,S2` saves the screen to `user://snap_N.png` at those seconds in any scene, the main menu included; `--menu=settings|multiplayer` opens the main menu on that page; `--settings` opens the Esc menu's settings 4 s into the world. Settings live in `user://settings.cfg` (`Core/Settings.cs`; `UI/SettingsPanel.cs` is the shared screen, `UI/SettingsRuntime.cs` the root node for F11, Ctrl+wheel zoom, FPS, focus pause and autosave).
+
 ## Known gaps / next
 
 - Art is placeholder everywhere new (trees, tipis, ship, women/factor recolours, item icons).

@@ -4,15 +4,20 @@ using NetHub = IsometricFurTradeGame.Scripts.Net.Net;
 
 namespace IsometricFurTradeGame.Scripts.UI;
 
-// Esc: resume, key bindings, back to the main menu, quit. Alone, the clock
+// Esc: resume, settings, back to the main menu, quit. Alone, the clock
 // stops while it's up; with others in the world it can't (the host's
 // simulation is everyone's), so it just floats over the game.
 public partial class PauseMenu : Control
 {
     public static bool IsOpen { get; private set; }
+    public static PauseMenu Instance { get; private set; }
     private PanelContainer _panel;
-    private VBoxContainer _main, _keys;
+    private VBoxContainer _main;
+    private SettingsPanel _settings;
     private Label _status;
+
+    public override void _EnterTree() => Instance = this;
+    public override void _ExitTree() { if (Instance == this) Instance = null; }
 
     public override void _Ready()
     {
@@ -22,6 +27,7 @@ public partial class PauseMenu : Control
         var style = new StyleBoxFlat { BgColor = new Color(0.08f, 0.07f, 0.06f, 0.96f), BorderColor = new Color(0.7f, 0.58f, 0.35f) };
         style.SetBorderWidthAll(2); style.SetCornerRadiusAll(4); style.SetContentMarginAll(16);
         _panel.AddThemeStyleboxOverride("panel", style);
+        _panel.Theme = MenuTheme.Get();
         AddChild(_panel);
 
         _main = new VBoxContainer { CustomMinimumSize = new Vector2(360, 0) };
@@ -35,28 +41,36 @@ public partial class PauseMenu : Control
         _main.AddChild(_status);
         _main.AddChild(new HSeparator());
         Button("Resume", Close);
-        Button("Key bindings", () => { _main.Visible = false; _keys.Visible = true; });
         Button("What you mean to do...", () => { _main.Visible = false; BuildAmbitions(); _ambitions.Visible = true; });
         if (NetHub.IsServer) Button("Save (F5)", () => { SaveGame.Save(); _status.Text = SaveGame.LastMessage; });
-        Button(Settings.Label, () => { Settings.Toggle(); RefreshLabels(); });
+        Button("Settings", () => { _main.Visible = false; _settings.Visible = true; _settings.Refresh(); });
+        _main.AddChild(new HSeparator());
         Button("Main menu", ToMainMenu);
         Button("Exit the game", () => GetTree().Quit());
 
-        _keys = new VBoxContainer { Visible = false, CustomMinimumSize = new Vector2(420, 0) };
-        _panel.AddChild(_keys);
-        var kt = new Label { Text = "Key bindings", HorizontalAlignment = HorizontalAlignment.Center };
-        kt.AddThemeFontSizeOverride("font_size", 18);
-        _keys.AddChild(kt);
-        var list = new Label { Text = BindingsText() };
-        list.AddThemeFontSizeOverride("font_size", 12);
-        _keys.AddChild(list);
-        var note = new Label { Text = "Bindings live in project.godot [input]; a rebinding screen is on the list.", Modulate = new Color(0.6f, 0.6f, 0.6f) };
-        note.AddThemeFontSizeOverride("font_size", 11);
-        _keys.AddChild(note);
-        var back = new Button { Text = "Back" };
-        back.Pressed += () => { _keys.Visible = false; _main.Visible = true; };
-        _keys.AddChild(back);
-        foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--pause") GetTree().CreateTimer(4.0).Timeout += Open;
+        _settings = new SettingsPanel(() => { _settings.Visible = false; _main.Visible = true; }) { Visible = false };
+        _panel.AddChild(_settings);
+        foreach (string arg in OS.GetCmdlineUserArgs())
+        {
+            if (arg == "--pause") GetTree().CreateTimer(4.0).Timeout += Open;
+            if (arg == "--settings") GetTree().CreateTimer(4.0).Timeout += () => { Open(); _main.Visible = false; _settings.Visible = true; };
+        }
+    }
+
+    // Pages differ in size; keep the panel fitted to whichever is up, centred.
+    public override void _Process(double delta)
+    {
+        if (!_panel.Visible) return;
+        var min = _panel.GetCombinedMinimumSize();
+        if (_panel.Size != min) _panel.SetAnchorsAndOffsetsPreset(LayoutPreset.Center, LayoutPresetMode.Minsize);
+    }
+
+    // The window went to the background: alone, stop the world until you're back.
+    public void OpenFromFocusLoss()
+    {
+        bool alone = NetHub.I == null || NetHub.I.Current == NetHub.Mode.Offline;
+        if (!alone || IsOpen || Sim.Player == null) return;
+        Open();
     }
 
     // Declaring an ambition (design doc P.2): two at most, changeable at
@@ -117,13 +131,8 @@ public partial class PauseMenu : Control
         _main.AddChild(b);
     }
 
-    private void RefreshLabels()
-    {
-        foreach (var c in _main.GetChildren()) if (c is Button b && b.Text.StartsWith("Full screen")) b.Text = Settings.Label;
-    }
-
     // Read straight from the InputMap so it can't go stale.
-    private static string BindingsText()
+    public static string BindingsText()
     {
         var sb = new System.Text.StringBuilder();
         var names = new (string action, string what)[]
@@ -151,6 +160,8 @@ public partial class PauseMenu : Control
         sb.AppendLine($"{"Mouse wheel",-14} pick a hotbar slot");
         sb.AppendLine($"{"F5 / F9",-14} save / load (host)");
         sb.AppendLine($"{"Esc",-14} this menu / close a menu");
+        sb.AppendLine($"{"F11",-14} full screen on / off");
+        sb.AppendLine($"{"Ctrl + wheel",-14} zoom the view (Ctrl + = / - / 0 too)");
         return sb.ToString();
     }
 
@@ -160,9 +171,8 @@ public partial class PauseMenu : Control
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F11 }) { Settings.Toggle(); RefreshLabels(); GetViewport().SetInputAsHandled(); return; }
         if (!@event.IsActionPressed("ui_cancel")) return;
-        if (_panel.Visible) { if (_keys.Visible) { _keys.Visible = false; _main.Visible = true; } else if (_ambitions != null && _ambitions.Visible) { _ambitions.Visible = false; _main.Visible = true; } else Close(); GetViewport().SetInputAsHandled(); return; }
+        if (_panel.Visible) { if (_settings.Visible) { _settings.Visible = false; _main.Visible = true; } else if (_ambitions != null && _ambitions.Visible) { _ambitions.Visible = false; _main.Visible = true; } else Close(); GetViewport().SetInputAsHandled(); return; }
         if (AnotherMenuOpen) return;   // Esc closes that first
         Open();
         GetViewport().SetInputAsHandled();
@@ -170,7 +180,7 @@ public partial class PauseMenu : Control
 
     private void Open()
     {
-        _panel.Visible = true; _main.Visible = true; _keys.Visible = false; if (_ambitions != null) _ambitions.Visible = false; IsOpen = true;
+        _panel.Visible = true; _main.Visible = true; _settings.Visible = false; if (_ambitions != null) _ambitions.Visible = false; IsOpen = true;
         bool alone = NetHub.I == null || NetHub.I.Current == NetHub.Mode.Offline;
         _status.Text = alone ? "Paused." : NetHub.IsServer ? "You are hosting: the world goes on while this is up." : "The host's world goes on while this is up.";
         // Not SceneTree.Paused: interpolated bodies vanish under it. Time simply stops.

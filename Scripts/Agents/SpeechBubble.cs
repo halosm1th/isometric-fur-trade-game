@@ -40,7 +40,7 @@ public partial class SpeechBubble : Node2D
         _label.Size = new Vector2(Width, 0);
         float h = _label.GetMinimumSize().Y;
         _label.Position = new Vector2(-Width / 2f, -h);
-        _ttl = 3.5f + text.Length * 0.045f;
+        _ttl = (3.5f + text.Length * 0.045f) * Core.Settings.BubbleTime;
         Modulate = Colors.White;
         Visible = true;
     }

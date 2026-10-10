@@ -3,18 +3,22 @@ using NetHub = IsometricFurTradeGame.Scripts.Net.Net;
 
 namespace IsometricFurTradeGame.Scripts.UI;
 
-// Solo / host / join. Dev args skip it: --solo, --host, --server (headless
-// dedicated), --join=ip[:port], --name=Whoever.
+// Continue / new game / multiplayer / settings / quit. Dev args skip it:
+// --solo, --host, --server (headless dedicated), --join=ip[:port],
+// --name=Whoever; --menu=settings|multiplayer opens on that page.
 public partial class MainMenu : Control
 {
     private const string WorldScene = "res://Scenes/World/YorkFactoryExterior.tscn";
     private LineEdit _name, _address;
     private Label _status;
+    private PanelContainer _panel;
+    private Control _home, _multi;
+    private SettingsPanel _settings;
 
     public override void _Ready()
     {
         var net = NetHub.I;
-        string autoName = null, join = null; bool solo = false, host = false, server = false;
+        string autoName = null, join = null, page = null; bool solo = false, host = false, server = false;
         foreach (string arg in OS.GetCmdlineUserArgs())
         {
             if (arg == "--solo") solo = true;
@@ -22,6 +26,7 @@ public partial class MainMenu : Control
             else if (arg == "--server") server = true;
             else if (arg.StartsWith("--join=")) join = arg.Substring(7);
             else if (arg.StartsWith("--name=")) autoName = arg.Substring(7);
+            else if (arg.StartsWith("--menu=")) page = arg.Substring(7);
             else if (arg == "--load") { Core.SaveGame.Pending = Core.SaveGame.Read(Core.SaveGame.QuickPath); solo = solo || (!host && !server && join == null); }
             else if (arg.StartsWith("--spawn=") || arg.StartsWith("--hour=") || arg.StartsWith("--date=")) solo = solo || (!host && !server && join == null);
         }
@@ -32,79 +37,201 @@ public partial class MainMenu : Control
         if (solo) { net.StartSolo(); Go(); return; }
 
         Build();
+        if (page == "settings") Show(_settings);
+        else if (page == "multiplayer") Show(_multi);
     }
 
     private void Build()
     {
-        var bg = new ColorRect { Color = new Color(0.07f, 0.08f, 0.1f) };
-        bg.SetAnchorsPreset(LayoutPreset.FullRect);
-        AddChild(bg);
+        Theme = MenuTheme.Get();
 
-        var box = new VBoxContainer { CustomMinimumSize = new Vector2(420, 0) };
-        box.SetAnchorsPreset(LayoutPreset.Center);
-        box.GrowHorizontal = GrowDirection.Both; box.GrowVertical = GrowDirection.Both;
-        box.AddThemeConstantOverride("separation", 10);
-        AddChild(box);
+        // Dusk over the Bay: a warm band low down fading up into night.
+        var grad = new Gradient();
+        grad.SetColor(0, new Color(0.05f, 0.06f, 0.09f));
+        grad.SetColor(1, new Color(0.22f, 0.13f, 0.08f));
+        grad.AddPoint(0.7f, new Color(0.11f, 0.09f, 0.1f));
+        var sky = new TextureRect { Texture = new GradientTexture2D { Gradient = grad, FillFrom = new Vector2(0, 0), FillTo = new Vector2(0, 1), Width = 8, Height = 256 }, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.Scale };
+        sky.SetAnchorsPreset(LayoutPreset.FullRect);
+        AddChild(sky);
+
+        // The annual ship riding at anchor, and a new hand just off her.
+        var scene = new Control { MouseFilter = MouseFilterEnum.Ignore };
+        scene.SetAnchorsPreset(LayoutPreset.FullRect);
+        AddChild(scene);
+        var ship = new TextureRect { Texture = GD.Load<Texture2D>("res://assets/sprites/ship.png"), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, Modulate = new Color(0.75f, 0.68f, 0.62f, 0.9f) };
+        ship.AnchorLeft = 0.5f; ship.AnchorRight = 0.98f; ship.AnchorTop = 0.18f; ship.AnchorBottom = 0.85f;
+        scene.AddChild(ship);
+        var man = new TextureRect { Texture = GD.Load<Texture2D>("res://assets/sprites/player/idle_front.png"), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered };
+        man.AnchorLeft = 0.56f; man.AnchorRight = 0.66f; man.AnchorTop = 0.72f; man.AnchorBottom = 0.93f;
+        scene.AddChild(man);
+
+        // The menu itself, down the left.
+        var margin = new MarginContainer();
+        margin.SetAnchorsPreset(LayoutPreset.LeftWide);
+        margin.AnchorRight = 0f;
+        margin.AddThemeConstantOverride("margin_left", 56);
+        margin.AddThemeConstantOverride("margin_top", 40);
+        margin.AddThemeConstantOverride("margin_bottom", 40);
+        AddChild(margin);
+        var center = new CenterContainer();
+        margin.AddChild(center);
+        _panel = new PanelContainer();
+        _panel.AddThemeStyleboxOverride("panel", MenuTheme.PanelBox(22));
+        center.AddChild(_panel);
+
+        _home = BuildHome();
+        _panel.AddChild(_home);
+        _multi = BuildMultiplayer();
+        _panel.AddChild(_multi);
+        _settings = new SettingsPanel(() => Show(_home));
+        _panel.AddChild(_settings);
+
+        var foot = new Label { Text = "F11 full screen  ·  Command line: --solo | --host | --server | --join=ip[:port] | --name=Name", Modulate = new Color(0.55f, 0.52f, 0.48f) };
+        foot.AddThemeFontSizeOverride("font_size", 11);
+        foot.SetAnchorsPreset(LayoutPreset.BottomRight);
+        foot.GrowHorizontal = GrowDirection.Begin; foot.GrowVertical = GrowDirection.Begin;
+        foot.OffsetRight = -14; foot.OffsetBottom = -8;
+        AddChild(foot);
+
+        Show(_home);
+    }
+
+    private Control BuildHome()
+    {
+        var box = new VBoxContainer { CustomMinimumSize = new Vector2(380, 0) };
+        box.AddThemeConstantOverride("separation", 9);
 
         var title = new Label { Text = "York Factory, 1811", HorizontalAlignment = HorizontalAlignment.Center };
-        title.AddThemeFontSizeOverride("font_size", 30);
+        title.AddThemeFontSizeOverride("font_size", 34);
+        title.AddThemeColorOverride("font_color", new Color(1f, 0.9f, 0.7f));
         box.AddChild(title);
-        var sub = new Label { Text = "Hudson's Bay Company - the Pemmican War years", HorizontalAlignment = HorizontalAlignment.Center };
-        sub.Modulate = new Color(0.8f, 0.75f, 0.65f);
+        var sub = new Label { Text = "Hudson's Bay Company - the Pemmican War years", HorizontalAlignment = HorizontalAlignment.Center, Modulate = MenuTheme.Dim };
+        sub.AddThemeFontSizeOverride("font_size", 13);
         box.AddChild(sub);
         box.AddChild(new HSeparator());
 
-        box.AddChild(new Label { Text = "Your name" });
-        _name = new LineEdit { Text = NetHub.I.LocalName };
-        box.AddChild(_name);
-
-        var solo = new Button { Text = "Play alone" };
-        solo.Pressed += () => { Apply(); NetHub.I.StartSolo(); Go(); };
-        box.AddChild(solo);
+        var nameRow = new HBoxContainer();
+        nameRow.AddThemeConstantOverride("separation", 10);
+        nameRow.AddChild(new Label { Text = "Your name", Modulate = MenuTheme.Dim });
+        _name = new LineEdit { Text = NetHub.I.LocalName, SizeFlagsHorizontal = SizeFlags.ExpandFill, MaxLength = 32 };
+        nameRow.AddChild(_name);
+        box.AddChild(nameRow);
+        box.AddChild(new Control { CustomMinimumSize = new Vector2(0, 4) });
 
         if (Core.SaveGame.Exists())
         {
-            string summary = Core.SaveGame.Summary();
-            var cont = new Button { Text = $"Continue alone ({summary})" };
+            var cont = Big(box, "Continue");
             cont.Pressed += () => { Apply(); NetHub.I.StartSolo(); Core.SaveGame.Pending = Core.SaveGame.Read(Core.SaveGame.QuickPath); Go(); };
-            box.AddChild(cont);
-            var contHost = new Button { Text = "Continue and host" };
-            contHost.Pressed += () => { Apply(); var e = NetHub.I.StartHost(); if (e == Error.Ok) { Core.SaveGame.Pending = Core.SaveGame.Read(Core.SaveGame.QuickPath); Go(); } else _status.Text = $"Could not host: {e}"; };
-            box.AddChild(contHost);
+            Small(box, Core.SaveGame.Summary());
         }
+        var fresh = Big(box, "New game");
+        fresh.Pressed += () => { Apply(); NetHub.I.StartSolo(); Go(); };
+        if (Core.SaveGame.Exists()) Small(box, "Your saved game is kept until you save over it (F5, or the autosave).");
+        Big(box, "Multiplayer").Pressed += () => Show(_multi);
+        Big(box, "Settings").Pressed += () => Show(_settings);
+        Big(box, "Quit").Pressed += () => GetTree().Quit();
 
-        var host = new Button { Text = "Host a game (friends join you, port 7777)" };
-        host.Pressed += () => { Apply(); var e = NetHub.I.StartHost(); if (e == Error.Ok) Go(); else _status.Text = $"Could not host: {e}"; };
-        box.AddChild(host);
-
-        box.AddChild(new Label { Text = "Host address" });
-        _address = new LineEdit { Text = NetHub.I.JoinAddress, PlaceholderText = "ip or ip:port" };
-        box.AddChild(_address);
-        var join = new Button { Text = "Join a game" };
-        join.Pressed += () => { Apply(); Join(_address.Text); };
-        box.AddChild(join);
-
-        var full = new Button { Text = Core.Settings.Label };
-        full.Pressed += () => { Core.Settings.Toggle(); full.Text = Core.Settings.Label; };
-        box.AddChild(full);
-
-        var dedicated = new Button { Text = "Run a dedicated server (no player, this window stays open)" };
-        dedicated.Pressed += () => { Apply(); var e = NetHub.I.StartHost(NetHub.DefaultPort, true); if (e == Error.Ok) Go(); else _status.Text = $"Could not host: {e}"; };
-        box.AddChild(dedicated);
-
-        _status = new Label { HorizontalAlignment = HorizontalAlignment.Center };
+        _status = new Label { HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _status.Modulate = new Color(1f, 0.8f, 0.6f);
+        _status.Visible = false;
         box.AddChild(_status);
-        var help = new Label { Text = "Command line: --solo | --host | --server | --join=ip[:port] | --name=Name", HorizontalAlignment = HorizontalAlignment.Center };
-        help.AddThemeFontSizeOverride("font_size", 11);
-        help.Modulate = new Color(0.6f, 0.6f, 0.6f);
-        box.AddChild(help);
+        return box;
+    }
+
+    private Control BuildMultiplayer()
+    {
+        var box = new VBoxContainer { CustomMinimumSize = new Vector2(420, 0) };
+        box.AddThemeConstantOverride("separation", 9);
+        var title = new Label { Text = "Multiplayer", HorizontalAlignment = HorizontalAlignment.Center };
+        title.AddThemeFontSizeOverride("font_size", 24);
+        box.AddChild(title);
+        Small(box, $"Playing as {NetHub.I.LocalName} - change it on the first page.").Name = "PlayingAs";
+        box.AddChild(new HSeparator());
+
+        Heading(box, "Host");
+        var host = Big(box, $"Host a new game (port {NetHub.DefaultPort})");
+        host.Pressed += () => { Apply(); var e = NetHub.I.StartHost(); if (e == Error.Ok) Go(); else Fail($"Could not host: {e}"); };
+        if (Core.SaveGame.Exists())
+        {
+            var contHost = Big(box, "Continue the saved game and host");
+            contHost.Pressed += () => { Apply(); var e = NetHub.I.StartHost(); if (e == Error.Ok) { Core.SaveGame.Pending = Core.SaveGame.Read(Core.SaveGame.QuickPath); Go(); } else Fail($"Could not host: {e}"); };
+        }
+        Small(box, "Friends join you at your IP address. Your world keeps running while you're in a menu.");
+
+        Heading(box, "Join");
+        var row = new HBoxContainer();
+        row.AddThemeConstantOverride("separation", 8);
+        _address = new LineEdit { Text = NetHub.I.JoinAddress, PlaceholderText = "ip or ip:port", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        row.AddChild(_address);
+        var join = new Button { Text = "Join", CustomMinimumSize = new Vector2(90, 0) };
+        join.Pressed += () => { Apply(); Join(_address.Text); };
+        _address.TextSubmitted += _ => { Apply(); Join(_address.Text); };
+        row.AddChild(join);
+        box.AddChild(row);
+
+        Heading(box, "Server");
+        var dedicated = Big(box, "Run a dedicated server");
+        dedicated.Pressed += () => { Apply(); var e = NetHub.I.StartHost(NetHub.DefaultPort, true); if (e == Error.Ok) Go(); else Fail($"Could not host: {e}"); };
+        Small(box, "No player of your own; this window stays open as the world.");
+
+        box.AddChild(new HSeparator());
+        Big(box, "Back").Pressed += () => Show(_home);
+        return box;
+    }
+
+    private static Button Big(VBoxContainer box, string text)
+    {
+        var b = new Button { Text = text, CustomMinimumSize = new Vector2(0, 40) };
+        b.AddThemeFontSizeOverride("font_size", 17);
+        box.AddChild(b);
+        return b;
+    }
+
+    private static Label Small(VBoxContainer box, string text)
+    {
+        var l = new Label { Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = MenuTheme.Dim, HorizontalAlignment = HorizontalAlignment.Center };
+        l.AddThemeFontSizeOverride("font_size", 12);
+        box.AddChild(l);
+        return l;
+    }
+
+    private static void Heading(VBoxContainer box, string text)
+    {
+        var l = new Label { Text = text.ToUpper() };
+        l.AddThemeFontSizeOverride("font_size", 12);
+        l.AddThemeColorOverride("font_color", MenuTheme.Brass);
+        box.AddChild(l);
+    }
+
+    private void Show(Control page)
+    {
+        Apply();
+        foreach (var p in new[] { _home, _multi, _settings }) p.Visible = p == page;
+        if (page == _multi && _multi.FindChild("PlayingAs", true, false) is Label who) who.Text = $"Playing as {NetHub.I.LocalName} - change it on the first page.";
+        if (page == _settings) _settings.Refresh();
+        _panel.ResetSize();
+        // Keyboard and pad players start on the first button.
+        Callable.From(() => FirstButton(page)?.GrabFocus()).CallDeferred();
+    }
+
+    private static Button FirstButton(Node n)
+    {
+        foreach (var c in n.GetChildren())
+        {
+            if (c is Button b && b.Visible) return b;
+            if (c is Control and not TabContainer && FirstButton(c) is Button inner) return inner;
+        }
+        return null;
     }
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F11 }) Core.Settings.Toggle();
+        if (_home == null || _home.Visible || !@event.IsActionPressed("ui_cancel")) return;
+        Show(_home);
+        GetViewport().SetInputAsHandled();
     }
+
+    private void Fail(string text) { Show(_home); _status.Text = text; _status.Visible = true; }
 
     private void Apply()
     {
@@ -118,7 +245,7 @@ public partial class MainMenu : Control
         int colon = address.LastIndexOf(':');
         if (colon > 0 && int.TryParse(address.Substring(colon + 1), out int p)) { host = address.Substring(0, colon); port = p; }
         var e = NetHub.I.StartClient(host, port);
-        if (e != Error.Ok) { if (_status != null) _status.Text = $"Could not connect: {e}"; return; }
+        if (e != Error.Ok) { if (_status != null) Fail($"Could not connect: {e}"); return; }
         Go();
     }
 
