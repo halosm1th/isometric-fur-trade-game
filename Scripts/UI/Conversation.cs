@@ -1172,7 +1172,7 @@ public class Conversation
                     Chronicle.Event($"{_player.DisplayName} traded on his own account at {(band?.Name ?? "the camp")}.", _player.GlobalPosition, _player, _player.DisplayName, 0.8f);
                 ShowTrade(npc, "Done, and the goods change hands.");
             });
-            if (_options.Count >= 3) break;
+            if (_options.Count >= 4) break;
         }
 
         // Buy off his counter.
@@ -1182,8 +1182,8 @@ public class Conversation
             var def = Items.Items.Of(id);
             if (def.Kind == ItemKind.Fur && !npc.IsBandPerson) continue;
             if (id == ItemId.TradeGoods) continue;
-            if (shown >= 3) { more = true; break; }
-            if (skipped < _tradePage * 3) { skipped++; continue; }
+            if (shown >= 4) { more = true; break; }
+            if (skipped < _tradePage * 4) { skipped++; continue; }
             int want = def.Kind is ItemKind.Food or ItemKind.Fuel ? Mathf.Min(n, 5) : 1;
             while (want > 1 && _player.Inventory.Count(ItemId.TradeGoods) < bart.BuyPrice(id, want)) want--;
             int cost = bart.BuyPrice(id, want);

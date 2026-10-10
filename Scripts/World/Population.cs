@@ -41,6 +41,7 @@ public partial class Population : Node2D
 		_assiniboineFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/AssiniboineFrames.tres");
 		foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--trace") _trace = true;
 		Core.Director.Reset();
+		Economy.Barter.Forget();
 		Core.Director.ReadArgs();
 		// Dev aid: `-- --shot=SECONDS` saves what's on screen to user://shot_N.png
 		// every SECONDS (up to six), so a run can be checked without a window capture.

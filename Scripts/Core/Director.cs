@@ -41,7 +41,11 @@ public static class Director
 
 	public static void Saw(string kind, float weight = 1f)
 	{
-		_beats.Add(new Beat { Kind = kind, At = Now(), Weight = weight });
+		// A loaded save puts the clock back; beats from a future that no longer
+		// happened would otherwise freeze the pacing for good.
+		float now = Now();
+		_beats.RemoveAll(b => b.At > now);
+		_beats.Add(new Beat { Kind = kind, At = now, Weight = weight });
 		_counts[kind] = _counts.GetValueOrDefault(kind) + 1;
 		if (_beats.Count > 64) _beats.RemoveRange(0, 32);
 	}
@@ -49,7 +53,7 @@ public static class Director
 	public static float HoursSince(string kind)
 	{
 		float best = 9999f, now = Now();
-		foreach (var b in _beats) if (b.Kind == kind) best = Mathf.Min(best, now - b.At);
+		foreach (var b in _beats) if (b.Kind == kind && b.At <= now) best = Mathf.Min(best, now - b.At);
 		return best;
 	}
 
@@ -61,7 +65,7 @@ public static class Director
 		get
 		{
 			float best = 9999f, now = Now();
-			foreach (var b in _beats) if (b.Weight >= 1.5f) best = Mathf.Min(best, now - b.At);
+			foreach (var b in _beats) if (b.Weight >= 1.5f && b.At <= now) best = Mathf.Min(best, now - b.At);
 			return best;
 		}
 	}

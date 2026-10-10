@@ -33,6 +33,9 @@ public class Barter
 	// A man who has been pushed too hard will not sit down again the same day.
 	private static readonly Dictionary<Npc, float> Sulking = new();
 
+	// A new world, or a loaded one: nobody is sulking yet.
+	public static void Forget() => Sulking.Clear();
+
 	public static bool WillSitDown(Npc npc, out float hoursLeft)
 	{
 		hoursLeft = 0f;
