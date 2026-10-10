@@ -66,5 +66,24 @@ public partial class OutpostLedger : FortLedger
         FursTakenMb += pelts; GoodsPaidMb += pay;
         if (Stores.Has(ItemId.Rum) && GD.Randf() < RumShare) Stores.Remove(ItemId.Rum);
         Chronicle.Event($"an inland party traded {pelts} beaver at Oxford House for {pay} pieces.", IsoGrid.ToWorld(AccessCell), subject: Name, weight: 0.5f);
+
+        // An inland post lives on country provisions bought from the same
+        // people (design doc 13.1): when the shelves are thin the postmaster
+        // buys meat before furs, and says so in the week's returns.
+        int mouths = 0;
+        foreach (var n in Sim.Npcs) if (n.HomeStores == this && !n.IsDead) mouths++;
+        if (FoodDays(Mathf.Max(1, mouths)) < 14f)
+        {
+            int canSpend = Mathf.Min(Stores.Count(ItemId.TradeGoods), 10);
+            if (canSpend > 0)
+            {
+                Stores.Remove(ItemId.TradeGoods, canSpend);
+                Stores.Add(ItemId.Pemmican, canSpend * 2);
+                Stores.Add(ItemId.DriedMeat, canSpend);
+                GoodsPaidMb += canSpend;
+                Chronicle.Event($"Oxford House bought {canSpend * 3} pieces of provisions off the country for {canSpend} in goods.", IsoGrid.ToWorld(AccessCell), subject: Name, weight: 0.6f);
+            }
+            else Sim.Notice("Oxford House has neither provisions nor goods to buy them with.");
+        }
     }
 }

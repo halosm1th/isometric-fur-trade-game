@@ -116,7 +116,8 @@ public static class Tiers
             // at the same rate a live man would.
             bool ate = home.TakeRation(n, 1) || n.Eat();
             n.Needs.Hunger = ate ? 100f : Mathf.Max(0f, n.Needs.Hunger - 26f);
-            n.Needs.Thirst = home.Stores.Has(ItemId.Water) || !cal.IsFrozen ? 100f : Mathf.Max(20f, n.Needs.Thirst - 10f);
+            // Snow melted at the fire does for water where there is wood.
+            n.Needs.Thirst = home.Stores.Has(ItemId.Water) || !cal.IsFrozen || home.Stores.Has(ItemId.Firewood) ? 100f : Mathf.Max(20f, n.Needs.Thirst - 10f);
             if (home.Stores.Has(ItemId.Water)) home.Stores.Remove(ItemId.Water);
             // A fire in the house keeps him warm; a cold hearth doesn't.
             bool warm = home.Stores.Has(ItemId.Firewood) || !cal.IsFrozen;
@@ -124,7 +125,7 @@ public static class Tiers
             else n.Needs.Warmth = Mathf.Max(0f, n.Needs.Warmth - 30f);
             if (n.Needs.Hunger <= 0f || n.Needs.Warmth <= 0f) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 10f);
             else if (n.Needs.Health < 100f) n.Needs.Health = Mathf.Min(100f, n.Needs.Health + 6f);
-            if (n.Needs.Health <= 0f) { n.DieQuietly(); Sim.Notice($"{n.DisplayName} has died of want at {home.Title}."); continue; }
+            if (n.Needs.Health <= 0f) { n.DieQuietly(); Sim.Notice($"{n.DisplayName} has died of {(n.Needs.Warmth <= 0f ? "cold" : "want")} at {home.Title}."); continue; }
             if (!ate) n.DaysSinceFresh += 1f;
 
             if (foul) continue;   // nobody works in a blizzard
@@ -155,11 +156,20 @@ public static class Tiers
         }
     }
 
+    private static int Mouths(Economy.Household home)
+    {
+        int m = 0;
+        foreach (var o in Sim.Npcs) if (o.HomeStores == home && !o.IsDead) m++;
+        return Mathf.Max(1, m);
+    }
+
     private static void Work(Npc n, Economy.Household home)
     {
         // Wood first, then whatever the post is short of.
         if (home.Stores.Count(ItemId.Firewood) < 30) { home.Stores.Add(ItemId.Firewood, n.Skills.Woodcraft >= 0.5f ? 5 : 4); n.Skills.Learn(ref n.Skills.Woodcraft, 0.004f); return; }
-        if (home is FortLedger f && f.Stores.Has(ItemId.SteelTrap) && GameCalendar.Instance.CurrentSeason == Season.Winter) { Trap(n, home); return; }
+        // Traps if there is a line to work; otherwise out after meat. A man
+        // whose trapline comes to nothing does not stand about all day.
+        if (home is FortLedger f && f.Stores.Has(ItemId.SteelTrap) && GameCalendar.Instance.CurrentSeason == Season.Winter && Trap(n, home)) return;
         Hunt(n, home);
     }
 
@@ -168,8 +178,12 @@ public static class Tiers
         var eco = Sim.Ecology;
         if (eco == null) return;
         // A band hunts its own country, whether or not the camp has been
-        // told where the herd is this week; a post only knows what it knows.
+        // told where the herd is this week; a post only knows what it knows -
+        // until it is hungry, when the men go looking further and come back
+        // knowing where the game is.
         var known = home is Economy.BandLedger ? null : home;
+        bool desperate = home.FoodDays(Mouths(home)) < 8f;
+        if (desperate) known = null;
         var site = eco.BestSite(Species.Caribou, known) ?? eco.BestSite(Species.Goose, known) ?? eco.BestSite(Species.Beaver, known);
         if (site == null || site.Count < 1f)
         {
@@ -181,6 +195,8 @@ public static class Tiers
             if (!GameCalendar.Instance.IsFrozen && GD.Randf() < 0.5f) home.Stores.Add(ItemId.Fish, 1 + (GD.Randf() < 0.4f ? 1 : 0));
             return;
         }
+        if (desperate && home is not Economy.BandLedger && home.Learn(site.Name, site.Cell))
+            Sim.Notice($"{home.Title}: the men went looking and found the game at {site.Name}.");
         float chance = Mathf.Clamp(site.Count / site.Capacity, 0.05f, 1f) * (0.35f + n.Skills.Hunting * 0.45f);
         if (GD.Randf() >= chance) return;
         site.Take(1);
@@ -189,26 +205,31 @@ public static class Tiers
         n.DaysSinceFresh = 0f;
     }
 
-    private static void Trap(Npc n, Economy.Household home)
+    private static bool Trap(Npc n, Economy.Household home)
     {
         var eco = Sim.Ecology;
         var site = eco?.BestSite(Species.Beaver, home);
-        if (site == null) return;
+        if (site == null) return false;
         var line = site.LineOf(home.Title);
         if (line == null || line.Traps == 0)
         {
             int traps = home.Stores.TakeUpTo(ItemId.SteelTrap, 4);
             if (traps > 0) site.SetTraps(home.Title, traps, n.Skills.Trapping);
-            return;
+            return traps > 0;
         }
         // The nightly catch already happens at the site; the man brings it in.
         int got = line.Caught; line.Caught = 0; line.HoursSinceCheck = 0f;
         for (int i = 0; i < got; i++) SpeciesInfo.Yield(Species.Beaver, home.Stores);
         if (got > 0) n.Skills.Learn(ref n.Skills.Trapping, 0.006f);
+        return true;
     }
 
     private static void House(Npc n, Economy.Household home)
     {
+        // Wood for the fire comes before anything else in a frozen country:
+        // a camp with no cordwood in the batch used to freeze to death out of
+        // the player's sight.
+        if (home.Stores.Count(ItemId.Firewood) < 12) { home.Stores.Add(ItemId.Firewood, 4); n.Skills.Learn(ref n.Skills.Woodcraft, 0.003f); return; }
         // Water, drying, pemmican: the work that keeps a household alive.
         if (home.Stores.Count(ItemId.Water) < 10 && home.Stores.Has(ItemId.Kettle)) { home.Stores.Add(ItemId.Water, 4); return; }
         if (home.Stores.Count(ItemId.Venison) >= 3)

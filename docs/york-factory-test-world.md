@@ -119,6 +119,10 @@ Talk to the chief or a hunter with a daughter: "Ask about marriage in the custom
 
 E on a person stops them and opens topics: how things stand, about them (role, temper, family), the others (gossip, scaled by how talkative they are), the hunting (Cree), marriage (Cree men), work (Factor), tell him where the game is (Factor), trade (clerks, Factor, chief), a gift, offer food to someone hungry (big rapport), threaten (they may hand something over, or fight). They walk off if you do.
 
+## Life out of sight (design doc 18.2)
+
+The background batch has to be livable, or the far places quietly die while the player is elsewhere. A background household now gathers its own firewood (a camp with no cordwood used to freeze to death), melts snow at the fire for water, hunts its own country if it is a band, goes looking further when it has under a fortnight's food (and comes back knowing where the game is, which is real knowledge it keeps), falls through from an empty trapline to hunting instead of standing about, and keeps enough on snares and lines not to starve. Oxford House buys country provisions off the inland bands with its goods when its shelves get thin, before it buys furs. A man who freezes now dies of cold rather than of want.
+
 ## The director (design doc 2.2)
 
 `Core/Director.cs`. Simulate, then curate. It never makes an event, never changes an outcome and never hands anyone knowledge the propagation system would not have carried; it only biases things that were going to happen anyway.

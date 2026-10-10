@@ -298,6 +298,7 @@ public partial class Population : Node2D
 		foreach (var n in Sim.Npcs)
 			sb.AppendLine($"  {n.DisplayName,-24} {n.Cell} {(n.IsDead ? "DEAD" : n.GoalDescription)}  H{n.Needs.Hunger:0} W{n.Needs.Warmth:0} T{n.Needs.Thirst:0} HP{n.Needs.Health:0}");
 		sb.Append($"  {Tiers.Report()}; animals live: {Sim.Animals.Count}; fort furs {Sim.Fort?.FursInStoreMb:0} MB; goods {Sim.Fort?.Stores.Count(ItemId.TradeGoods)}; ship {Sim.Ship?.Status()}; band cache: {Sim.Band?.Stores.Summary()}; director: {Core.Director.Describe()}");
+		sb.Append($"; outpost: {Sim.Outpost?.Stores.Summary()}");
 		GD.Print(sb.ToString());
 	}
 
