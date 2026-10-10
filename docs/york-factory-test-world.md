@@ -145,7 +145,7 @@ Fresh geese spoil; **casks** do not. The women of the post salt eight birds to a
 
 The player gets his own place in it: the Factor's orders include *"to the marsh while the flight lasts: bring 12 geese to the stores"*, counted as he hands them in at the counter.
 
-A hunting trip to a far ground is no longer a day trip either: men sent beyond about 2500 px sleep out at the ground (the post kept goose tents at the marsh) and come in when they are loaded rather than when the light goes - and, the bug that hid all of this, **a hunting party outside the live ring is no longer parked back at its own door with the day's work undone**, which is why nothing had ever come back from the goose marsh.
+A hunting trip to a far ground is no longer a day trip either: whether a man sleeps out is judged by the walk - his own pace, the distance to the ground and a quarter added for the road not running straight, against a nine-hour working day with a couple of hours at the game in it - so he stays out where the game is (the post kept goose tents at the marsh) and comes in when he is loaded rather than when the light goes, and the rule still means the same thing when the map is redrawn - and, the bug that hid all of this, **a hunting party outside the live ring is no longer parked back at its own door with the day's work undone**, which is why nothing had ever come back from the goose marsh.
 
 ## Provisions at a post, and what a compressed clock does (design doc 13.1, 18.2)
 

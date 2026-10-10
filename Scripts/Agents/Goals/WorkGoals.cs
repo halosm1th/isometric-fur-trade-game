@@ -24,6 +24,19 @@ public class HuntSiteGoal : Goal
 
     private bool HerdHere(Npc npc) => _site.WorldPos.DistanceTo(npc.GlobalPosition) < _site.RadiusPx * 1.3f;
 
+    // Too far to come home for the night: he sleeps out at the ground, as the
+    // post's men did at the goose tents. Judged by the walk rather than by a
+    // distance, so it survives the map being redrawn - out, a few hours at the
+    // game, and back inside a working day, or he stays where the game is
+    // (design doc 16.1).
+    private bool StaysOut(Npc npc)
+    {
+        if (npc.HomeStores == null) return false;
+        float pxPerHour = Mathf.Max(200f, npc.MoveSpeed * 10f);   // his pace per game hour at the baseline clock
+        float walk = World.IsoGrid.ToWorld(npc.HomeStores.AccessCell).DistanceTo(_site.WorldPos) * 1.25f;   // no road runs straight
+        return 2f * (walk / pxPerHour) + 2.5f > 9f;
+    }
+
     // A hunter after furs leaves the musket slung: a ball ruins the pelt.
     private ItemId? _weaponBefore;
     public override void OnEnter(Npc npc)
@@ -99,7 +112,10 @@ public class HuntSiteGoal : Goal
                 _tryTimer -= hours;
                 // Weather closing in or the light going: head home with what you have.
                 var sky = GameCalendar.Instance.Weather.Current;
-                if (sky == SkyState.Blizzard || sky == SkyState.Storm || GameCalendar.Instance.Hour >= 16f || npc.Needs.Thirst < 40f || npc.Needs.Hunger < 30f)
+                bool out_ = StaysOut(npc);
+                if (sky == SkyState.Blizzard || sky == SkyState.Storm
+                    || (!out_ && GameCalendar.Instance.Hour >= 16f)
+                    || npc.Needs.Thirst < (out_ ? 18f : 40f) || npc.Needs.Hunger < (out_ ? 15f : 30f))
                 {
                     _phase = 3;
                     if (npc.HomeStores == null) return GoalStatus.Done;
@@ -135,7 +151,7 @@ public class HuntSiteGoal : Goal
                     float crowd = _site.CrowdFactor(party, GameCalendar.Instance.Day);
                     _site.ClaimForToday(party, GameCalendar.Instance.Day);
                     // Chance per attempt scales with how thick the game is.
-                    float chance = Mathf.Clamp(_site.Count / (float)_site.Capacity, 0.05f, 1f) * 0.22f * (0.6f + npc.Skills.Hunting * 0.8f);
+                    float chance = Mathf.Clamp(_site.Count / (float)_site.Capacity, 0.05f, 1f) * (_site.Species == Species.Goose ? 0.4f : 0.22f) * (0.6f + npc.Skills.Hunting * 0.8f);
                     npc.Skills.Learn(ref npc.Skills.Hunting, 0.004f);
                     if (GD.Randf() < chance * crowd && _site.Count > 0)
                     {
@@ -151,7 +167,7 @@ public class HuntSiteGoal : Goal
                     }
                 }
                 // One caribou is a load; small game you keep working.
-                int enough = _site.Species == Species.Caribou ? 1 : _site.Species == Species.Beaver ? 2 : 4;
+                int enough = _site.Species == Species.Caribou ? 1 : _site.Species == Species.Beaver ? 2 : _site.Species == Species.Goose ? 8 : 4;
                 bool loaded = npc.Inventory.TotalWeightLbs > 90f || _kills >= enough;
                 if (_worked >= _workHours || loaded || _site.Count <= 0)
                 {

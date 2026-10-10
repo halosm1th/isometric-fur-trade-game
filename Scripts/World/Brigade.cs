@@ -134,6 +134,7 @@ public static class Brigades
 		if (cal == null || !Net.Net.IsServer || cal.Day == _lastDay) return;
 		if (cal.Day < _lastDay) Reset();   // a new world, or a save put the clock back
 		_lastDay = cal.Day;
+		DevSend();
 		// Anyone walking with the brigade is with it, and hears everything at
 		// first hand (design doc 18.3).
 		foreach (var br in All)
@@ -274,6 +275,26 @@ public static class Brigades
 			if (!his) continue;
 			Reveal.Word(p, what, cause, weight);
 		}
+	}
+
+	// Dev aid: `-- --brigade` sends the outfit up the moment the world starts,
+	// whatever the date, to watch a journey and its carrying places.
+	private static bool _devSent;
+	private static void DevSend()
+	{
+		if (_devSent) return;
+		foreach (string arg in OS.GetCmdlineUserArgs())
+		{
+			if (arg != "--brigade") continue;
+			_devSent = true;
+			Send(Sim.Fort, Sim.Outpost, "the autumn outfit", true, 5, new List<(ItemId, int)>
+			{
+				(ItemId.TradeGoods, 40), (ItemId.Musket, 2), (ItemId.PointBlanket, 6), (ItemId.SteelTrap, 6),
+			});
+			GD.Print("[dev] a brigade is away up the river");
+			return;
+		}
+		_devSent = true;
 	}
 
 	// The season's brigades, off the calendar: the outfit up once the ship has
