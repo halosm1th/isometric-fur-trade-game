@@ -206,5 +206,28 @@
       "capacity": 75,
       "radius": 380
     }
+  ],
+  "portages_about": "Hayes River portages, positions APPROXIMATE (placed along the traced Hayes, upstream order) - correct them from a proper source. build_world.py publishes each as a fraction of the York Factory - Oxford House road.",
+  "portages": [
+    {
+      "name": "Rock Portage",
+      "lon": -93.25,
+      "lat": 56.36
+    },
+    {
+      "name": "Borrowick Falls",
+      "lon": -93.75,
+      "lat": 56.02
+    },
+    {
+      "name": "Trout Falls",
+      "lon": -94.15,
+      "lat": 55.65
+    },
+    {
+      "name": "Hill Gates",
+      "lon": -94.5,
+      "lat": 55.3
+    }
   ]
 }

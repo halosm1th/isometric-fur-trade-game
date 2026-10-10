@@ -334,11 +334,24 @@ def lay_out(G, places, extras):
                 r.append(list(rc))
         sites.append(dict(name=s["name"], species=s["species"], cell=list(c), count=s["count"], capacity=s["capacity"], radius=s["radius"], route=r))
 
+    # Portages as a fraction of the way along the road (nearest point to each).
+    seglen = [math.dist(a, b) for a, b in zip(road, road[1:])]
+    total = sum(seglen) or 1
+    portages = []
+    for pt in extras.get("portages", []):
+        p = world(pt["lon"], pt["lat"]); best, bd, run = 0.0, 1e18, 0.0
+        for (a, b), L in zip(zip(road, road[1:]), seglen):
+            vx, vy = b[0] - a[0], b[1] - a[1]
+            t = max(0, min(1, ((p[0] - a[0]) * vx + (p[1] - a[1]) * vy) / (vx * vx + vy * vy or 1)))
+            dd = math.dist(p, (a[0] + t * vx, a[1] + t * vy))
+            if dd < bd: bd, best = dd, (run + t * L) / total
+            run += L
+        portages.append(dict(name=pt["name"], fraction=round(best, 3), cell=list(world_cell(*p))))
     km = lambda a, b: math.dist(cell_world(*a), cell_world(*b)) / PX_PER_KM
     print(f"{len(crossings)} river cells forded; fort {fort}, nwc {nwc} ({km(fort, nwc):.0f} km), oxford {outpost} ({km(fort, outpost):.0f} km), road {len(road)} pts")
     return dict(fort_top=list(fort), nwc_top=list(nwc), outpost_top=list(outpost),
                 cree_winter=list(winter), cree_summer=list(summer), assiniboine_winter=list(a_winter), assiniboine_summer=list(a_summer),
-                road=road, trail=trail, crossings=crossings, sites=sites)
+                road=road, trail=trail, crossings=crossings, portages=portages, sites=sites)
 
 if __name__ == "__main__":
     main()

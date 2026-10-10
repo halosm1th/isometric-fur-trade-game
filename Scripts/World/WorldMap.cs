@@ -130,6 +130,19 @@ public static class WorldMap
     public static Godot.Collections.Array LayoutArray(string key) =>
         _layout.TryGetValue(key, out var v) ? v.AsGodotArray() : new Godot.Collections.Array();
 
+    // The carrying places on the York Factory - Oxford House road, upstream
+    // order, as a fraction of the way along WorldLayout.RiverRoad.
+    public static List<(string Name, float Fraction, Vector2I Cell)> Portages()
+    {
+        var list = new List<(string, float, Vector2I)>();
+        foreach (var v in LayoutArray("portages"))
+        {
+            var d = v.AsGodotDictionary(); var c = d["cell"].AsGodotArray();
+            list.Add((d["name"].AsString(), (float)d["fraction"].AsDouble(), new Vector2I(c[0].AsInt32(), c[1].AsInt32())));
+        }
+        return list;
+    }
+
     public static WorldPlace? Place(string name)
     {
         foreach (var p in Places) if (p.Name == name) return p;
