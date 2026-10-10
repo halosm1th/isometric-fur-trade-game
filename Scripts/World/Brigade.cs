@@ -92,8 +92,25 @@ public static class Brigades
 	public static readonly List<Brigade> All = new();
 	private static int _lastDay = -1;
 
-	// A new world may have had its road and carrying places re-laid.
-	public static void Reset() { All.Clear(); _lastDay = -1; Brigade.ForgetPortages(); }
+	// A new world may have had its road and carrying places re-laid. A brigade
+	// in flight is not yet saved with the world (that wants a block in
+	// SaveGame), so rather than let a load destroy a loaded canoe, the pieces
+	// go back on the books of the house that sent them.
+	public static void Reset()
+	{
+		foreach (var b in All)
+		{
+			if (b.From == null || b.Now == Brigade.State.Arrived) continue;
+			int lots = 0;
+			foreach (var (id, n) in new List<(ItemId, int)>(b.Cargo.All())) { b.Cargo.Remove(id, n); b.From.Stores.Add(id, n); lots += n; }
+			if (lots > 0) Sim.Notice($"{b.Name} was never sent after all: {lots} pieces back on {b.From.Title}'s books.");
+		}
+		All.Clear();
+		_lastDay = -1;
+		_outfitYear = _returnsYear = -1;
+		_devSent = false;
+		Brigade.ForgetPortages();
+	}
 
 	// Load and send one. The men go on the books as away, not as bodies on the
 	// water: a brigade on the open river is exactly what the tiers are for.
