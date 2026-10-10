@@ -175,8 +175,17 @@ public static class Barks
     };
 
     // The event as one of the people in it would say it.
+    // "Thomas has been..." to Thomas's face is "you have been...".
+    public static string YouForm(string text, string name)
+    {
+        if (string.IsNullOrEmpty(name)) return text;
+        return text.Replace(name + " has ", "you have ").Replace(name + " was ", "you were ").Replace(name + " is ", "you are ").Replace(name + "'s", "your").Replace(name, "you");
+    }
+
     public static string Personalise(string text, Agent s, Agent listener)
     {
+        if (listener != null && !string.IsNullOrEmpty(listener.DisplayName)) text = text.Replace(listener.DisplayName + " has ", "you have ").Replace(listener.DisplayName + " was ", "you were ");
+        if (!string.IsNullOrEmpty(s?.DisplayName)) text = text.Replace(s.DisplayName + " has ", "I have ").Replace(s.DisplayName + " is ", "I am ");
         if (listener != null && !string.IsNullOrEmpty(listener.DisplayName))
         {
             text = text.Replace(listener.DisplayName + "'s", "your");

@@ -78,6 +78,10 @@ public partial class Population : Node2D
 				for (int i = 0; i < theirs.Count; i++) theirs[i].Brain.Push(theirs[i], new Agents.Goals.AttackGoal(ours[i % ours.Count]));
 				GD.Print($"[dev] {ours.Count} of the Company against {theirs.Count} Nor'Westers at the gate");
 			};
+		// Dev aid: `-- --befriend=Name` - that person counts the local player a
+		// close friend from the start (rapport 60, a hard winter shared).
+		foreach (string arg in OS.GetCmdlineUserArgs())
+			if (arg.StartsWith("--befriend=")) { string who = arg.Substring(11); GetTree().CreateTimer(3.0).Timeout += () => Befriend(who); }
 		// Dev aid: `-- --converse=SECONDS:Name>option>option` - at that time the
 		// local player steps up to Name, opens a conversation and picks each
 		// option whose label contains the text, printing every step as [talk].
@@ -210,6 +214,20 @@ public partial class Population : Node2D
 			if ((hours ? now - _startHours : Time.GetTicksMsec() / 1000f - _startSeconds) < at) continue;
 			_conversations.RemoveAt(i);
 			Converse(script.Substring(colon + 1));
+		}
+	}
+
+	private static void Befriend(string who)
+	{
+		if (Sim.Player is not Player.PlayerController p) return;
+		foreach (var n in Sim.Npcs)
+		{
+			if (!n.DisplayName.Contains(who) || n.IsDead) continue;
+			n.Rapport[p] = 60f;
+			for (int i = 0; i < 2; i++)
+				n.Memories.Add(new MemoryEntry { Text = $"{n.DisplayName} and {p.DisplayName} came through a hard winter together.", Subject = p.DisplayName, Day = 1f, Directness = 1, Weight = 1.2f, Key = $"befriend{i}{n.DisplayName}", Witnesses = new System.Collections.Generic.List<string> { n.DisplayName, p.DisplayName } });
+			GD.Print($"[dev] {n.DisplayName} is {p.DisplayName}'s friend");
+			return;
 		}
 	}
 

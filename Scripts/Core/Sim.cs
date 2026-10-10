@@ -63,7 +63,7 @@ public static class Sim
         LocalPlayerChanged = null; OnHeadline = null;
         IsometricFurTradeGame.Scripts.World.WorldLayout.ForgetSites();
         Nwc = null; Outpost = null; Assiniboine = null; Bands.Clear();
-        IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear(); IsometricFurTradeGame.Scripts.Agents.Barks.Reset(); IsometricFurTradeGame.Scripts.Agents.Losses.Reset();
+        IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear(); IsometricFurTradeGame.Scripts.Agents.Barks.Reset(); IsometricFurTradeGame.Scripts.Agents.Losses.Reset(); IsometricFurTradeGame.Scripts.Agents.Lies.Reset(); IsometricFurTradeGame.Scripts.Agents.Friends.Reset();
     }
 
     // A sound in the world (design doc 15, 16): animals in range react, and

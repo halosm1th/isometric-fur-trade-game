@@ -177,6 +177,11 @@ public partial class PlayerController : Agent
 
 	// Mirrored from the server for the owner's HUD.
 	public string TaskText = "";
+	// The last thing a friend took you aside to tell you (design doc P.8), and
+	// the "what matters now" lines the HUD shows (P.4), mirrored to the owner.
+	public string LastWarning = "";
+	public int LastWarningDay = -999;
+	public string FocusText = "";
 	public string SkipStatus = "";
 
 	public override string CurrentAnimation => _sprite?.Animation ?? "idle";
@@ -676,7 +681,7 @@ public partial class PlayerController : Agent
 			["h"] = Needs.Health, ["w"] = Needs.Warmth, ["f"] = Needs.Hunger, ["t"] = Needs.Thirst,
 			["inv"] = inv, ["standing"] = Standing, ["task"] = Task.Kind == TaskKind.None ? "" : Task.Describe() + (Task.IsComplete ? " - done" : ""),
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
-			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "",
+			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "", ["focus"] = Core.Focus.For(this),
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
 			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["skills"] = new float[] { Skills.Hunting, Skills.Trapping, Skills.Trade, Skills.Woodcraft }, ["furs"] = BelievedFursMb, ["quota"] = BelievedQuotaMb, ["counted"] = LastCountedDay, ["unworn"] = UnwornList(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
@@ -698,6 +703,7 @@ public partial class PlayerController : Agent
 		if (anim != "") _oneShotAnim = anim;
 		int w = (int)d["weapon"]; PreferredWeapon = w >= 0 ? (ItemId)w : null;
 		SkipStatus = (string)d["skip"];
+		if (d.ContainsKey("focus")) FocusText = (string)d["focus"];
 		if ((bool)d["tele"]) GlobalPosition = new Vector2((float)d["px"], (float)d["py"]);
 		Faction = (Faction)(int)d["faction"];
 		_afloatMirror = (bool)d["afloat"];

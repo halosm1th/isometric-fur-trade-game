@@ -263,7 +263,7 @@ public class Conversation
         if (ownLeader && Losses.OpenSaleAt(npc.HomeStores) is Loss sale)
             AddOption($"Bid at the sale of {sale.Name}'s effects...", () => ShowSale(npc, sale));
         // An evening at the fire: tell them something you saw.
-        if (npc.AtHearth != null && _player.GlobalPosition.DistanceTo(npc.AtHearth.GlobalPosition) < 300f && StoriesToTell(npc.AtHearth).Count > 0)
+        if (npc.AtHearth != null && _player.GlobalPosition.DistanceTo(npc.AtHearth.GlobalPosition) < 300f)
             AddOption("Tell a story at the fire...", () => ShowStories(npc));
         AddOption("Talk...", () => ShowTalk(npc));
         if (ownLeader || (ownMan && canCommand) || npc.Following == _player || CanAskAlong(npc)) AddOption("Work and orders...", () => ShowWork(npc));
@@ -299,6 +299,7 @@ public class Conversation
         AddOption("How do things stand?", () => ShowTalk(npc, AskNews(npc)));
         AddOption("Tell me about yourself", () => ShowTalk(npc, AskAboutThem(npc)));
         AddOption("What's the talk? (rumours)", () => ShowTalk(npc, AskGossip(npc)));
+        if (canTalk) AddOption("Tell them something... (it needn't be true)", () => ShowLieWho(npc, false));
         if ((npc.IsBandPerson && npc.Role is Role.CreeChief or Role.CreeHunter) || npc.Role is Role.Labourer or Role.Voyageur or Role.NwcPartner)
             AddOption("Where is the game?", () => ShowTalk(npc, AskHunting(npc)));
         if (npc.Role == Role.Factor && Sim.Fort != null)
@@ -369,7 +370,89 @@ public class Conversation
             string label = story.Text.Length > 70 ? story.Text.Substring(0, 67) + "..." : story.Text;
             AddOption(label, () => ShowTopics(TellAtFire(npc, story)));
         }
+        AddOption("Make something up...", () => ShowLieWho(npc, true));
         AddOption("Back", () => ShowTopics(Greeting(npc)));
+    }
+
+    // ---- a story that isn't true (design doc P.10) --------------------------------------
+
+    // Whom to blame: the men you might gain by pulling down - clerks of your
+    // own post, the other company's people - and the listener's own house.
+    private void ShowLieWho(Npc npc, bool atFire)
+    {
+        _text = atFire ? "The fire waits. Whose name goes in the story?" : $"{npc.DisplayName} waits. Whose name goes in the story?";
+        ClearOptions();
+        var people = new List<(Npc n, float score)>();
+        foreach (var n in Sim.Npcs)
+        {
+            if (n.IsDead || n == npc || n.HomeStores == null) continue;
+            float score = 0f;
+            if (n.HomeStores == _player.HomePost && n.Role is Role.Clerk or Role.Postmaster) score = 3f;
+            else if (Economy.Rivalry.AreRivals(n.Faction, _player.Faction)) score = 2f;
+            else if (n.HomeStores == npc.HomeStores) score = 1f;
+            else continue;
+            people.Add((n, score + GD.Randf() * 0.5f));
+        }
+        people.Sort((a, b) => b.score.CompareTo(a.score));
+        for (int i = 0; i < people.Count && i < 6; i++)
+        {
+            var who = people[i].n;
+            AddOption(who.DisplayName, () => ShowLieWhat(npc, who, atFire));
+        }
+        AddOption("Think better of it", () => ShowTopics(Greeting(npc)));
+    }
+
+    private void ShowLieWhat(Npc npc, Npc accused, bool atFire)
+    {
+        _text = $"What do you say {accused.DisplayName} did?";
+        ClearOptions();
+        string x = accused.DisplayName;
+        // His own trapline, if the listener's house has one.
+        string site = null;
+        if (Sim.Ecology != null && npc.HomeStores != null)
+            foreach (var s in Sim.Ecology.Sites) if (s.LineOf(npc.HomeStores.Title) != null) { site = s.Name; break; }
+        site ??= "the beaver lodge";
+        AddOption($"...robbed the traps at {site}", () => ShowTopics(TellLie(npc, accused, $"{x} robbed the traps at {site}.", null, atFire)));
+        Npc victim = npc.Spouse as Npc ?? npc.Father;
+        if (victim == null || victim.IsDead || victim == accused) foreach (var n in Sim.Npcs) if (!n.IsDead && n.HomeStores == npc.HomeStores && n != npc && n != accused) { victim = n; break; }
+        if (victim != null) AddOption($"...struck {victim.DisplayName}", () => ShowTopics(TellLie(npc, accused, $"{x} struck {victim.DisplayName}.", null, atFire)));
+        AddOption("...has been trading furs on his own account", () => ShowTopics(TellLie(npc, accused, $"{x} traded on his own account at the camp.", null, atFire)));
+        string rival = accused.Faction == Faction.NWC ? "the Company's post" : "the Nor'Westers' house";
+        AddOption($"...was at {rival} after dark", () => ShowTopics(TellLie(npc, accused, $"{x} was seen at {rival} after dark, talking with their master.", null, atFire)));
+        // Something you did yourself, laid at his door.
+        MemoryEntry mine = null;
+        foreach (var n in Sim.Npcs) foreach (var m in n.Memories)
+            if (m.Directness == 1 && m.Actor == _player && m.Liar == null && Lies.IsMisdeed(m.Text) && !m.Text.Contains("telling lies") && (mine == null || m.Day > mine.Day)) mine = m;
+        if (mine != null)
+        {
+            var deed = mine;
+            string told = deed.Text.Replace(_player.DisplayName, x);
+            AddOption($"Say it was him, not you: \"{(told.Length > 60 ? told.Substring(0, 57) + "..." : told)}\"", () => ShowTopics(TellLie(npc, accused, told, deed.Key, atFire)));
+        }
+        AddOption("Think better of it", () => ShowTopics(Greeting(npc)));
+    }
+
+    private string TellLie(Npc npc, Npc accused, string text, string coversKey, bool atFire)
+    {
+        var lie = Lies.Make(_player, accused, text, coversKey);
+        var hearers = new List<Npc>();
+        if (atFire && npc.AtHearth != null) { foreach (var a in Sim.AgentsWithin(npc.AtHearth.GlobalPosition, 260f)) if (a is Npc n && n.AtHearth == npc.AtHearth) hearers.Add(n); }
+        else hearers.Add(npc);
+        _player.Bark(Barks.Personalise(text, _player, null));
+        int took = 0, refused = 0;
+        foreach (var h in hearers)
+        {
+            h.Remember(lie.Copy());
+            bool believed = false; foreach (var k in h.Memories) if (k.Key == lie.Key) { believed = true; break; }
+            if (!believed) { refused++; continue; }
+            took++;
+            h.ChangeRapport(_player, 1f);
+            // A cover story believed takes the place of what he'd heard of the truth.
+            if (coversKey != null && h.Memories.RemoveAll(k => k.Key == coversKey && k.Directness > 1) > 0) h.ChangeRapport(_player, 5f);
+        }
+        if (refused == 0) return took == 1 ? $"{npc.DisplayName} takes it in. Nobody has said otherwise - yet." : $"They take it in, all {took} of them. Nobody has said otherwise - yet.";
+        if (took == 0) return "Nobody believes you.";
+        return $"{took} take it in; {refused} won't have it.";
     }
 
     // You pass it on, firsthand: everyone at the fire who hadn't heard now

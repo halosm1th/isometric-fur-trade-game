@@ -22,11 +22,16 @@ public class MemoryEntry
     // The day it was last brought up aloud. Firsthand witnesses share this
     // very entry, so once it's been raised at a post it rests a while for all.
     public int LastRaised = -999;
+    // A made-up story (design doc P.10): who first told it, whom it blames,
+    // and - for a story told to cover something - the true memory it hides.
+    // The people who were really there know it for what it is.
+    public string Liar, Accused, CoversKey;
     public bool Witnessed(Agent a) => a != null && Witnesses != null && Witnesses.Contains(a.DisplayName);
 
     public MemoryEntry Copy() => new()
     {
         Text = Text, Subject = Subject, Actor = Actor, Day = Day, Directness = Directness + 1, Weight = Weight * 0.7f, Key = Key, Distorted = Distorted, Witnesses = Witnesses,
+        LastRaised = LastRaised, Liar = Liar, Accused = Accused, CoversKey = CoversKey,
     };
 
     public int Distorted;   // how many retellings bent it

@@ -13,6 +13,9 @@ public partial class NeedsHud : Control
     private readonly ProgressBar[] _bars = new ProgressBar[4];
     private Label _shelter;
     private Label _death;
+    // What matters now (design doc P.4): three lines, top right.
+    private Label _focus;
+    private float _focusTimer;
 
     private static readonly (string name, Color color)[] Rows =
     {
@@ -74,6 +77,22 @@ public partial class NeedsHud : Control
         _death.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.8f));
         AddChild(_death);
 
+        var box2 = new StyleBoxFlat { BgColor = new Color(0.06f, 0.05f, 0.04f, 0.62f), ContentMarginLeft = 10, ContentMarginRight = 10, ContentMarginTop = 6, ContentMarginBottom = 7 };
+        box2.SetCornerRadiusAll(4);
+        _focus = new Label
+        {
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            CustomMinimumSize = new Vector2(380, 0),
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        _focus.AddThemeStyleboxOverride("normal", box2);
+        _focus.AddThemeFontSizeOverride("font_size", 13);
+        _focus.AddThemeColorOverride("font_color", new Color(0.95f, 0.91f, 0.82f));
+        _focus.SetAnchorsPreset(LayoutPreset.TopRight);
+        _focus.GrowHorizontal = GrowDirection.Begin;
+        _focus.Position = new Vector2(-396, 16);
+        AddChild(_focus);
+
     }
 
     private void OnPlayerBound()
@@ -86,6 +105,13 @@ public partial class NeedsHud : Control
     public override void _Process(double delta)
     {
         if (_player == null) return;
+        _focusTimer -= (float)delta;
+        if (_focusTimer <= 0f && _player is Player.PlayerController fpc)
+        {
+            _focusTimer = 0.5f;
+            _focus.Text = fpc.IsServerCopy ? Focus.For(fpc) : fpc.FocusText;
+            _focus.Visible = _focus.Text != "";
+        }
         var n = _player.Needs;
         _bars[0].Value = n.Health;
         _bars[1].Value = n.Warmth;

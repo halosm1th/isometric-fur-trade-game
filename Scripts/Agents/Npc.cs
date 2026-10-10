@@ -70,12 +70,18 @@ public partial class Npc : Agent
     public void Remember(MemoryEntry e)
     {
         foreach (var m in Memories) if (m.Key == e.Key) return;
+        // A made-up story meets someone who knows better (design doc P.10).
+        if (e.Liar != null)
+        {
+            string why = Lies.SeesThrough(this, e, out bool quiet);
+            if (why != null) { if (!quiet && Recalled.Add("exposed|" + e.Key)) Lies.Exposed(this, e, why); return; }
+        }
         Memories.Add(e);
         // Personality filters (design doc 11.4): what you think of the actor.
-        if (e.Actor != null && e.Actor != this && e.Weight >= 1f && e.Text.Contains(" robbed ") || e.Text.Contains(" killed ") || e.Text.Contains(" struck "))
-        {
-            if (e.Actor != null && e.Actor != this) ChangeRapport(e.Actor, -6f * e.Weight / e.Directness);
-        }
+        if (e.Actor != null && e.Actor != this && (e.Text.Contains(" robbed ") || e.Text.Contains(" killed ") || e.Text.Contains(" struck ")))
+            ChangeRapport(e.Actor, -6f * e.Weight / e.Directness);
+        Lies.Consequences(this, e);
+        Friends.Heard(this, e);
         if (Memories.Count > 24) Memories.RemoveAt(0);
     }
 
@@ -90,6 +96,7 @@ public partial class Npc : Agent
             if (a is not Npc other || other == this || other.IsDead) continue;
             var m = Memories[(int)(GD.Randi() % (uint)Memories.Count)];
             if (m.Directness >= 4) continue;   // too garbled to pass on
+            if (!Friends.WillRepeat(this, m, other)) break;   // a friend's misdeeds stay unsaid
             other.Remember(m.Retell(this));
             break;
         }
@@ -107,6 +114,7 @@ public partial class Npc : Agent
     private readonly Queue<string> _recentLines = new();
     private float _barkTimer = (float)GD.RandRange(6.0, 30.0);
     private string _reply; private float _replyIn = -1f;
+    private float _friendTimer = (float)GD.RandRange(1.0, 3.0), _defendTimer;
 
     public void QueueReply(string text, float delay)
     {
@@ -297,6 +305,12 @@ public partial class Npc : Agent
         Animate();
         Gossip(dt);
         Chatter(dt, cal);
+        _friendTimer -= dt;
+        if (_friendTimer <= 0f)
+        {
+            _friendTimer = 3f;
+            if (!Sleeping && Tier == Core.Tier.Live && HeldBy == null) Friends.Act(this);   // talking to you is when he'd tell you
+        }
     }
 
     // Things you do in passing, no plan needed.
@@ -353,6 +367,14 @@ public partial class Npc : Agent
             }
         }
         _grudgeTimer -= 1f / 60f;
+        // A friend set upon: he comes in on their side (design doc P.8).
+        _defendTimer -= 1f / 60f;
+        if (_defendTimer <= 0f)
+        {
+            _defendTimer = 0.3f;
+            var foe = Friends.FightFor(this);
+            if (foe != null) { Brain.Push(this, new AttackGoal(foe)); return; }
+        }
         // Walking with someone: their fight is your fight.
         if (Following != null && IsInstanceValid(Following) && !Following.IsDead && Following.LastAttackedAgo < 2f && Following.LastAttacker != null && IsInstanceValid(Following.LastAttacker) && !Following.LastAttacker.IsDead && Following.LastAttacker != this)
         {
