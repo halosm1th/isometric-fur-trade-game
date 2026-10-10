@@ -32,6 +32,9 @@ public struct Personality
 public partial class Npc : Agent
 {
     public Role Role;
+    // Seconds of being on his guard: a shot heard, a blow taken, a fight on.
+    // While it runs down he cannot be taken unawares (design doc 15.6).
+    public float Alerted;
     // Which ring of the simulation this person is in (design doc 18.2).
     public Core.Tier Tier = Core.Tier.Live;
     public Personality Personality = Personality.Random();
@@ -249,6 +252,11 @@ public partial class Npc : Agent
         float dt = (float)delta;
         var cal = GameCalendar.Instance;
         if (cal == null) return;
+        // On his guard, or not (design doc 15.6). A man at work with his back
+        // to the bush can be taken; one who has heard a shot cannot.
+        if (Alerted > 0f) Alerted -= dt;
+        if (LastAttackedAgo < 20f || Brain.Tier0Goal() is AttackGoal or FleeGoal) Alerted = 25f;
+        Unaware = Alerted <= 0f && !Conversing;
 
         // A client's copy just glides toward the last snapshot.
         if (!Net.Net.IsServer)
@@ -560,6 +568,9 @@ public partial class Npc : Agent
     // and everyone of your people thinks less of the attacker.
     public override void TakeDamage(float amount, Agent from)
     {
+        // Fired on without warning: the house is shaken for a while, whatever
+        // the numbers say (design doc 15.6).
+        if (Alerted <= 0f && from != null && from is not Animal && !IsDead) Nerve.Shock(Faction, 0.3f);
         // A beaten rival is taken, not killed, when his own side isn't there to help.
         if (!IsDead && !Invulnerable && from is Npc captor && Economy.Rivalry.AreRivals(captor.Faction, Faction) && Needs.Health - amount <= 0f && HeldBy == null && !IsFemale)
         {
@@ -581,6 +592,9 @@ public partial class Npc : Agent
                 Economy.Rivalry.Raise(6f, $"{DisplayName} taken prisoner");
                 Sim.Notice($"{captor.DisplayName} has taken {DisplayName} prisoner.");
                 Chronicle.Event($"{captor.DisplayName} took {DisplayName} prisoner.", GlobalPosition, captor, DisplayName, 2f);
+                // Seeing a man of yours walked off is as bad for a party's
+                // nerve as seeing him shot (design doc 15.6).
+                Nerve.TheyBreak(this, captor);
                 return;
             }
         }
@@ -593,8 +607,9 @@ public partial class Npc : Agent
             if (a is not Npc ally || ally == this || ally.IsDead || ally.Faction != Faction || ally == from) continue;
             ally.ChangeRapport(from, -10f);
             if (ally.Brain.Tier0Goal() is AttackGoal || ally.Brain.Tier0Goal() is FleeGoal) continue;
-            if (ally.Weapon != null && ally.Personality.Courage > 0.25f) ally.Brain.Push(ally, new AttackGoal(from));
-            else if (ally.Personality.Courage < 0.3f) ally.Brain.Push(ally, new FleeGoal(from, 6f));
+            // Numbers, a man giving orders, who is already hurt (design doc 15.6).
+            if (Nerve.Stands(ally, from)) ally.Brain.Push(ally, new AttackGoal(from));
+            else if (ally.Weapon == null || ally.Personality.Courage < 0.45f) ally.Brain.Push(ally, new FleeGoal(from, 6f));
         }
         if (from is Player.PlayerController attacker && Faction == Faction.HBC) attacker.Standing -= 5f;
         // Blood between the companies' servants is what the rivalry feeds on.
@@ -769,6 +784,9 @@ public partial class Npc : Agent
         string how = LastAttacker != null && LastAttackedAgo < 30f ? $"{DisplayName} was killed by {LastAttacker.Describe()}." : $"{DisplayName} died of want.";
         Chronicle.Event(how, GlobalPosition, LastAttacker != null && LastAttackedAgo < 30f ? LastAttacker : null, DisplayName, 2f);
         if (IsBandPerson && LastAttacker != null && LastAttackedAgo < 30f) (HomeStores as BandLedger)?.OnMemberKilledBy(LastAttacker);
+        // Fights are won before the first shot (design doc 15.6): a man down is
+        // where a party's nerve usually goes.
+        if (LastAttacker != null && LastAttackedAgo < 30f) Nerve.TheyBreak(this, LastAttacker);
         // Blood debts (design doc 7.4): a killing makes one, a killer's death pays one, a holder's death passes one on.
         if (LastAttacker != null && LastAttackedAgo < 30f) Grudges.OnKilled(this, LastAttacker);
         foreach (var g in new List<Grudge>(Grudges.All)) if (!g.Settled && g.Against == DisplayName) { Grudges.Settle(g, true); Sim.Notice($"{DisplayName} is dead; the debt for {g.Victim} is paid in blood."); }

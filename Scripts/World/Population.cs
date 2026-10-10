@@ -63,6 +63,25 @@ public partial class Population : Node2D
 					GD.Print($"[dev] {son.DisplayName}, {pl.DisplayName}'s son, is grown at the post");
 				}
 			};
+		// Dev aid: `-- --brawl` sets the two houses' armed men on each other by
+		// the Company's gate, to watch a fight turn on nerve (design doc 15.6).
+		foreach (string arg in OS.GetCmdlineUserArgs())
+			if (arg == "--brawl") GetTree().CreateTimer(8.0).Timeout += () => {
+				var ours = new List<Npc>(); var theirs = new List<Npc>();
+				foreach (var n in Sim.Npcs)
+				{
+					if (n.IsDead || !n.IsFighter) continue;
+					if (n.Faction == Faction.HBC && ours.Count < 3) ours.Add(n);
+					else if (n.Faction == Faction.NWC && theirs.Count < 3) theirs.Add(n);
+				}
+				if (ours.Count == 0 || theirs.Count == 0) { GD.Print("[dev] nobody to brawl"); return; }
+				var ground = IsoGrid.ToWorld(WorldLayout.GateOutside);
+				for (int i = 0; i < ours.Count; i++) { ours[i].GlobalPosition = ground + new Vector2(-120, i * 70 - 70); ours[i].Brain.Clear(ours[i]); }
+				for (int i = 0; i < theirs.Count; i++) { theirs[i].GlobalPosition = ground + new Vector2(120, i * 70 - 70); theirs[i].Brain.Clear(theirs[i]); }
+				for (int i = 0; i < ours.Count; i++) ours[i].Brain.Push(ours[i], new Agents.Goals.AttackGoal(theirs[i % theirs.Count]));
+				for (int i = 0; i < theirs.Count; i++) theirs[i].Brain.Push(theirs[i], new Agents.Goals.AttackGoal(ours[i % ours.Count]));
+				GD.Print($"[dev] {ours.Count} of the Company against {theirs.Count} Nor'Westers at the gate");
+			};
 		if (Net.Net.IsServer) CallDeferred(nameof(SpawnAll));
 	}
 

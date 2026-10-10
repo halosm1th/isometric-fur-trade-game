@@ -73,6 +73,9 @@ public static class Sim
         foreach (var a in AgentsWithin(pos, radius))
         {
             if (a is Animal an && an != source) an.Hear(pos, radius, kind);
+            // A shot puts a whole house on its guard: nobody is taken unawares
+            // twice in the same fight (design doc 15.6).
+            else if (kind == "shot" && a is Agents.Npc man && man != source) man.Alerted = 25f;
         }
         Net.Net.I?.BroadcastNoise(pos, radius, kind);
     }

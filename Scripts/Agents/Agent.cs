@@ -363,8 +363,18 @@ public partial class Agent : CharacterBody2D
         if (range > 100f) CombatFx.Shot(this, target.GlobalPosition + new Vector2(0, -40), Weapon == ItemId.Musket);
         if (Weapon == ItemId.Musket) Sim.Noise(GlobalPosition, 1500f, this, "shot");
         else if (range > 100f) Sim.Noise(GlobalPosition, 200f, this, "step");
-        // Drink spoils the aim; fever weakens the arm.
-        float missChance = (range > 100f ? 0.3f * (1f - Skills.Hunting * 0.7f) : 0f) + Intoxication / 250f;
+        // Hold your fire until the range is right (design doc 15.6): a smooth
+        // bore at the edge of its reach mostly throws the ball away, and at
+        // ten paces it is a butcher's tool. Drink spoils the aim; fever
+        // weakens the arm.
+        float missChance = Intoxication / 250f;
+        if (range > 100f)
+        {
+            float reach = Mathf.Clamp(GlobalPosition.DistanceTo(target.GlobalPosition) / range, 0f, 1f);
+            missChance += (0.08f + 0.62f * reach * reach) * (1f - Skills.Hunting * 0.55f);
+            if (target.IsSprinting) missChance += 0.1f;
+            if (IsSneaking && target.Unaware) missChance *= 0.4f;   // a steady rest and all the time in the world
+        }
         if (range > 100f) Skills.Learn(ref Skills.Hunting, 0.01f);
         if (IsSick) mult *= 0.6f;
         if (GD.Randf() < missChance) { OnAttackMissed(target); return false; }

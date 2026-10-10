@@ -269,6 +269,8 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--spawn=") && NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => { GlobalPosition = IsoGrid.ToWorld(TerrainPainter.NamedSpot(spot)); _netTarget = GlobalPosition; _teleported = true; GD.Print($"[dev] host moved to {spot} {Cell}"); }; }
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
 			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
+			// Dev: `--provoke=8` keeps swinging, every two seconds, so a fight runs its course.
+			if (arg.StartsWith("--provoke=") && int.TryParse(arg.Substring(10), out int blows)) for (int i = 0; i < blows; i++) GetTree().CreateTimer(3.0 + i * 2.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			// Dev: `--talkto=Name` stands you beside that person and opens the talk.
 			if (arg.StartsWith("--talkto=") && NetHub.IsServer) { string who = arg.Substring(9); GetTree().CreateTimer(4.0).Timeout += () => { foreach (var n in Sim.Npcs) if (!n.IsDead && n.DisplayName.Contains(who)) { GlobalPosition = n.GlobalPosition + new Vector2(40, 0); _netTarget = GlobalPosition; _teleported = true; GD.Print($"[dev] stood beside {n.DisplayName}"); GetTree().CreateTimer(1.0).Timeout += () => { var st = Conversation.Start(n); NetHub.I?.PushDialogue(this, st); }; break; } }; }
 			// Dev: `--kit=BeaverPelt:4,TradeGoods:30` puts those in your pack.

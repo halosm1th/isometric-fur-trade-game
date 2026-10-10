@@ -141,6 +141,14 @@ Goods go over the counter **by the lot**, which is where the haggling shows. **O
 
 His patience, the price as it stands and his mood are all in words ("He is beginning to shift his feet"), never numbers. Every round teaches the trade skill a little.
 
+## Fights are won before the first shot (design doc 15.6)
+
+`Agents/Nerve.cs`. A smooth bore at the edge of its reach mostly throws the ball away and at ten paces it is a butcher's tool: a ranged shot's chance of missing now grows with the square of the range you take it at, eased by the shooter's hunting, worsened against a running man, and cut to a fraction when a sneaking man fires on someone who has not seen him (on top of the sneak stroke's own damage). Every man carries an **on his guard** timer - a shot heard anywhere within 1500 px, a blow taken, or a fight he is already in sets it for 25 seconds - and while it runs he cannot be taken unawares. Firing on a house that was not on its guard leaves it **shaken** for a quarter hour, which counts against every nerve check its men make.
+
+A man weighs whether to **stand**: his courage, how many of his own are in sight against how many of theirs, whether anyone of rank is there to give orders, his own wounds, a musket in his hands rather than a knife, his own country, rum, and whether the house is shaken. Allies now turn out on that reckoning instead of courage alone. When a man **falls or is walked off a prisoner**, everyone who saw it weighs it again, and those whose nerve fails drop what they are doing and run together for a quarter of a minute - a party that breaks, with the console line to say who ran and a chronicle event others will retell. Prisoners and sleepers are not counted; they have nowhere to run.
+
+Dev args: `--brawl` sets three of the Company's armed men against three Nor'Westers at the gate; `--provoke=12` keeps you swinging at whoever is nearest every two seconds.
+
 ## Combat
 
 Left click / F. A reload bar shows over your head while your weapon cools down; anyone hit shows a health bar for a few seconds. Hitting someone makes their armed friends within earshot come at you, and costs standing if they're Company men. Sneaking (Ctrl) up on a grazing animal and knifing it is the cheap way to a caribou.
@@ -331,7 +339,7 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 
 ## Command-line dev args (after `--`)
 
-`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2` · `--nodirector`
+`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2` · `--nodirector` · `--brawl` · `--provoke=N`
 
 ## Barks and shared memory (design doc P.4, P.8)
 
