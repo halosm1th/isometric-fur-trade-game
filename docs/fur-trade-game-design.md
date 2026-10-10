@@ -102,6 +102,7 @@ A chapter is a frame, not a script — nothing in it is forced. It gives the pla
 Hidden goals (Section 3.5) and stale information (Section 10) only feel good when the reveal lands. A player who connects a delayed consequence to its cause feels clever; one who doesn't feels cheated. Three tools, none of which break Section 2:
 - **The journal connects the threads.** When a consequence reaches the player, the journal entry names the chain *as far as the player can know it*: "Maskwa will not trade. (You struck Wapistan on 3 March. Word reached the camp, you're told, by the 9th.)" It never states what the player couldn't have learned; where the chain is unknown it says so — "Nobody will say why" — which is itself a hook.
 - **Tells and barks.** NPCs voice their state in passing — "Forty packs by August, God help us," a hungry man eyeing the stores, a strained one snapping at a dog — and show it in how they move and where they linger. Goal inference (Section 3.5) needs evidence on screen to infer from; this is Section 19's learnable-tell rule made concrete.
+- **What matters now.** A small panel, always on screen, with three lines built from what the player can actually know: the most pressing thing (wounds, cold, a blood-debt holder close by, a friend's warning, a sale, the task, a thin store), the next step on their declared ambition (Section P.2), and the freshest thing they've heard that touches them (the director's relevance measure, Section 2.2). A deep world needs one place that says where you stand.
 - **Notices weighted by importance.** World notices scale their prominence with how much they matter to the player — a death in the family or a broken Accord takes the screen for a moment; routine work passes in a line. The full log stays in the journal (Section 12.7).
 
 ### P.5 Needs Create Decisions, Not Chores
@@ -140,6 +141,18 @@ Every agent is a full, real person (Section 11.1), but simulating people well do
 The scope of this document stands: the full map, every region, all three paths, the metropole, multiplayer. It gets built out in stages, and each stage has to pass Section 2.1 before the next is layered on.
 
 The first milestone is the **York Factory river**: York Factory, Oxford House, the Nor'Westers' house, two bands, the ship, the brigade, the rivalry, marriage, and the river road — already a complete game in miniature. The milestone is reached when one in-game year on that river is fun on its own, by Section P.1's test. Until then, player-experience work on the river (ambitions, the barter, journal reveals, the director, the seasonal chapters and pacing) comes ahead of new regions, and existing systems such as multiplayer are kept working rather than extended. Each later region then arrives as a proven piece of the same machine rather than a new layer of unproven systems.
+
+---
+
+### P.10 Lies
+Gossip is a weapon when the player can make it up. A lie is an ordinary memory with a liar's name on it (Section 11.2): it travels by the ordinary rumour rules (Section 10.4) and does exactly what the truth would do - a master marks his man down, a band thinks less of the company whose man it names - until it reaches **someone who knows better**:
+- the man accused;
+- anyone named in the story;
+- whoever saw the real deed (for a lie told to cover your own);
+- whoever was with the accused at that very hour - the witness lists make alibis real;
+- sometimes, a close friend of the accused who simply won't believe it (Section P.8).
+
+He says so aloud, thinks less of the teller, and "X has been telling lies about Y" goes round in its turn, reaching the liar's own master like any misdeed. A lie can be told to one man in conversation or to the whole fire (Section P.8), and can be about a rival clerk, the other company's men, or the listener's own house; the most tempting kind lays the player's own misdeed at someone else's door, and is the most dangerous, because the people who were really there are walking around. The same machinery is open to NPCs (an ambitious clerk whispering about a rival), which is the next step.
 
 ---
 
@@ -1140,4 +1153,5 @@ This revision folds the follow-up planning discussion into the document. Where t
 - **Language, embezzlement, disease, and courier extensions** (Sections 10.6, 12.5, 3.9, 13.5, 13.4, 10.3): named languages and deliberate interpreter sabotage; caches as a fourth item location covering both stranded-brigade survival and off-the-books trading; triggerable audits; disease traveling through a contaminated trade good plus quarantine as a real choice; liquor dilution and the discoverable Fire Test; express couriers and dispatch forgery.
 - **Open questions** (Section 20): updated and extended.
 - **Player experience** (Sections 1, 2.1, 2.2, P, 3.5, 3.6.1, 9.3, 10.8, 15.6, 17.7, 18.3, 19, 20): new lettered Section P — the fantasy and its success test, declared Ambitions with 1821 as their reckoning, the year as the heartbeat (a 4–6 hour year in four seasonal chapters with a quota countdown), consequences connected in the journal, tells and barks, needs that surface as decisions rather than chores, losing before dying with succession as the headline, knowledge as progression, and a build order whose first milestone is one fun year on the York Factory river, with the long-term scope unchanged. Section 2 gains a second test (does the player see, understand, and get a choice) and the director (simulate, then curate: it biases which real events reach the player, never what happens). New subsections for the barter (3.6.1), setup-driven combat (15.6), and needs at the post vs. away (17.7).
+- **Lies, friends who act, what matters now** (Sections P.10, P.8, P.4): made-up stories as memories with a liar attached, exposed by the accused, the named, the true witnesses, alibis and friends; close friends who share food, warn, keep quiet, disbelieve lies and stand in a fight; the three-line "what matters now" panel.
 - **Attachment** (Sections P.8, 11.2, P.4): shared firsthand memory (a witness list on every memory entry) as the bond between any two agents, shared household hardship recorded as memory so bonds don't only form around violence, seven levers (small circle, specificity, callbacks, reciprocity, change, need, loss), and barks — agents speaking aloud to whoever is beside them, NPC or player — as the channel that makes it visible. Build order renumbered to P.9.
