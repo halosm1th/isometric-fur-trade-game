@@ -131,40 +131,6 @@ public partial class PauseMenu : Control
         _main.AddChild(b);
     }
 
-    // Read straight from the InputMap so it can't go stale.
-    public static string BindingsText()
-    {
-        var sb = new System.Text.StringBuilder();
-        var names = new (string action, string what)[]
-        {
-            ("move_up", "walk up"), ("move_down", "walk down"), ("move_left", "walk left"), ("move_right", "walk right"),
-            ("sprint", "run"), ("sneak", "crouch / sneak (and deliberate arson with flint)"), ("interact", "talk / use what's in front of you"),
-            ("attack_nearest", "strike the nearest hostile"), ("drink", "drink"), ("wait", "wait an hour / sleep at night"),
-            ("time_fast", "hold to fast-forward"), ("pause_clock", "stop / start the clock (host)"), ("clock_slower", "slower clock (host)"), ("clock_faster", "faster clock (host)"), ("hotbar_use", "use the selected hotbar slot"), ("hotbar_1", "hotbar 1 (… to 9)"),
-            ("chat", "chat"), ("journal", "journal"), ("log", "the log"), ("inventory", "your pack"), ("map", "map"), ("help", "help"),
-            ("debug_menu", "test console (host)"), ("restart", "begin again after death"),
-        };
-        foreach (var (action, what) in names)
-        {
-            if (!InputMap.HasAction(action)) continue;
-            var keys = new System.Collections.Generic.List<string>();
-            foreach (var ev in InputMap.ActionGetEvents(action))
-            {
-                // A headless run has no keyboard to ask about the layout of.
-                if (ev is InputEventKey k) keys.Add(OS.GetKeycodeString(k.PhysicalKeycode != Key.None && !Godot.DisplayServer.GetName().Contains("headless") ? DisplayServer.KeyboardGetKeycodeFromPhysical(k.PhysicalKeycode) : k.PhysicalKeycode != Key.None ? k.PhysicalKeycode : k.Keycode));
-                else if (ev is InputEventMouseButton m) keys.Add($"mouse {m.ButtonIndex}");
-            }
-            sb.AppendLine($"{string.Join(" / ", keys),-14} {what}");
-        }
-        sb.AppendLine($"{"Left click",-14} strike whoever is under the cursor");
-        sb.AppendLine($"{"Mouse wheel",-14} pick a hotbar slot");
-        sb.AppendLine($"{"F5 / F9",-14} save / load (host)");
-        sb.AppendLine($"{"Esc",-14} this menu / close a menu");
-        sb.AppendLine($"{"F11",-14} full screen on / off");
-        sb.AppendLine($"{"Ctrl + wheel",-14} zoom the view (Ctrl + = / - / 0 too)");
-        return sb.ToString();
-    }
-
     private static bool AnotherMenuOpen =>
         (DialogueMenu.Instance != null && DialogueMenu.Instance.IsOpen) || (ChatBox.Instance != null && ChatBox.Instance.IsTyping) ||
         JournalPanel.IsOpen || MapPanel.IsOpen || HelpPanel.IsOpen || DebugMenu.IsOpenStatic;

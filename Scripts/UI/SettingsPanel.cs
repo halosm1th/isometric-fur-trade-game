@@ -17,6 +17,9 @@ public partial class SettingsPanel : VBoxContainer
     public SettingsPanel() { }
     public SettingsPanel(Action back) { _back = back; }
 
+    private TabContainer _tabs;
+    public void ShowTab(int i) { if (_tabs != null) _tabs.CurrentTab = i; }
+
     public static void RefreshAll() { foreach (var p in Live) if (IsInstanceValid(p)) p.Refresh(); }
 
     public override void _EnterTree() => Live.Add(this);
@@ -31,7 +34,7 @@ public partial class SettingsPanel : VBoxContainer
         title.AddThemeFontSizeOverride("font_size", 22);
         AddChild(title);
 
-        var tabs = new TabContainer { CustomMinimumSize = new Vector2(0, 360) };
+        var tabs = _tabs = new TabContainer { CustomMinimumSize = new Vector2(0, 360) };
         AddChild(tabs);
 
         var display = Page(tabs, "Display");
@@ -61,14 +64,13 @@ public partial class SettingsPanel : VBoxContainer
             "Writes the quicksave (the same file as F5) when you are alone or hosting.");
 
         var keys = Page(tabs, "Controls");
-        var list = new Label { Text = PauseMenu.BindingsText() };
-        list.AddThemeFontSizeOverride("font_size", 12);
-        keys.AddChild(list);
-        Note(keys, "Bindings live in project.godot [input]; a rebinding screen is on the list.");
+        BuildKeys(keys);
 
         var row = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.End };
         row.AddThemeConstantOverride("separation", 8);
         AddChild(row);
+        _keyStatus.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        row.AddChild(_keyStatus);
         var reset = new Button { Text = "Restore defaults", CustomMinimumSize = new Vector2(150, 0) };
         reset.Pressed += () => { Settings.Reset(); RefreshAll(); };
         row.AddChild(reset);
@@ -76,6 +78,76 @@ public partial class SettingsPanel : VBoxContainer
         back.Pressed += () => _back?.Invoke();
         row.AddChild(back);
         Refresh();
+    }
+
+    // ---- key rebinding ------------------------------------------------------
+
+    private (string action, int slot, Button button)? _capturing;
+    private Label _keyStatus;
+
+    private void BuildKeys(VBoxContainer page)
+    {
+        Note(page, "Click a key, then press the new one. Esc cancels; right-click clears it. A key taken from another action leaves that one without it.");
+        foreach (var (action, what) in Keybinds.Actions)
+        {
+            if (!InputMap.HasAction(action)) continue;
+            var row = new HBoxContainer();
+            row.AddThemeConstantOverride("separation", 8);
+            var name = new Label { Text = what, SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipText = true, SizeFlagsVertical = SizeFlags.ShrinkCenter };
+            name.AddThemeFontSizeOverride("font_size", 13);
+            row.AddChild(name);
+            for (int slot = 0; slot < Keybinds.Slots; slot++)
+            {
+                int s = slot;
+                var b = new Button { CustomMinimumSize = new Vector2(110, 0), FocusMode = FocusModeEnum.None };
+                b.AddThemeFontSizeOverride("font_size", 13);
+                b.Pressed += () => StartCapture(action, s, b);
+                b.GuiInput += e =>
+                {
+                    if (e is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right })
+                    {
+                        _capturing = null;
+                        Keybinds.Bind(action, s, Key.None, out _);
+                        _keyStatus.Text = "";
+                        RefreshAll();
+                    }
+                };
+                row.AddChild(b);
+                _refreshers.Add(() => { if (_capturing?.button != b) b.Text = Keybinds.Name(Keybinds.Current(action)[s]); });
+            }
+            page.AddChild(row);
+        }
+        Note(page, "Kept by the game: Esc (menus), F5 / F9 (save / load), F11 (full screen), Ctrl + wheel (zoom), left click (strike), mouse wheel (hotbar).");
+        var reset = new Button { Text = "Restore default keys", SizeFlagsHorizontal = SizeFlags.ShrinkBegin };
+        reset.Pressed += () => { _capturing = null; Keybinds.ResetAll(); _keyStatus.Text = "Keys put back as they came."; RefreshAll(); };
+        page.AddChild(reset);
+        _keyStatus = new Label { Modulate = new Color(1f, 0.8f, 0.6f), AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        _keyStatus.AddThemeFontSizeOverride("font_size", 12);
+    }
+
+    private void StartCapture(string action, int slot, Button b)
+    {
+        if (_capturing is { } old) old.button.Text = Keybinds.Name(Keybinds.Current(old.action)[old.slot]);
+        _capturing = (action, slot, b);
+        b.Text = "press a key...";
+        _keyStatus.Text = "";
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        if (_capturing is not { } c || !IsVisibleInTree()) return;
+        if (@event is InputEventMouseButton { Pressed: true } && !c.button.GetGlobalRect().HasPoint(c.button.GetGlobalMousePosition()))
+        {
+            _capturing = null; Refresh(); return;   // clicked elsewhere: never mind
+        }
+        if (@event is not InputEventKey { Pressed: true, Echo: false } k) return;
+        GetViewport().SetInputAsHandled();
+        _capturing = null;
+        var key = k.PhysicalKeycode != Key.None ? k.PhysicalKeycode : k.Keycode;
+        if (key == Key.Escape) { Refresh(); return; }
+        string taken = Keybinds.Bind(c.action, c.slot, key, out bool refused);
+        _keyStatus.Text = refused ? taken : taken != null ? $"{Keybinds.Name(key)} was \"{taken}\"; that has lost it." : "";
+        RefreshAll();
     }
 
     public void Refresh()

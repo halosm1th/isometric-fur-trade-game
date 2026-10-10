@@ -15,6 +15,9 @@ public static class Settings
 {
     private const string Path = "user://settings.cfg";
     public const float BaseCameraZoom = 1.3f;   // Player.tscn's Camera2D
+    // World zoom 100% sits this far out from the scene's camera, so you see
+    // the country round you rather than the man in front of you.
+    public const float DefaultView = 0.75f;
     public static readonly Vector2I Designed = new(1280, 720);
 
     public enum Mode { Windowed, Fullscreen, Exclusive }
@@ -60,6 +63,7 @@ public static class Settings
             ShowFps = (bool)cfg.GetValue("interface", "show_fps", false);
             PauseOnFocusLoss = (bool)cfg.GetValue("game", "pause_on_focus_loss", true);
             Autosave = (int)cfg.GetValue("game", "autosave_minutes", 10);
+            Keybinds.Read(cfg);
         }
         ApplyWindow();
         ApplyRendering();
@@ -81,6 +85,7 @@ public static class Settings
         cfg.SetValue("interface", "show_fps", ShowFps);
         cfg.SetValue("game", "pause_on_focus_loss", PauseOnFocusLoss);
         cfg.SetValue("game", "autosave_minutes", Autosave);
+        Keybinds.Write(cfg);
         cfg.Save(Path);
     }
 
@@ -172,14 +177,14 @@ public static class Settings
         ApplyCamera();
     }
 
-    // The world on screen is BaseCameraZoom x damped stretch x WorldZoom,
+    // The world on screen is BaseCameraZoom x DefaultView x damped stretch x WorldZoom,
     // whatever the interface is set to.
     public static Vector2 CameraZoom
     {
         get
         {
             float stretch = Stretch;
-            return Vector2.One * (BaseCameraZoom * WorldZoom * Damped(stretch) / (stretch * ContentScale));
+            return Vector2.One * (BaseCameraZoom * DefaultView * WorldZoom * Damped(stretch) / (stretch * ContentScale));
         }
     }
 
