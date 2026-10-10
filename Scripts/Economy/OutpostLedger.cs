@@ -38,6 +38,7 @@ public partial class OutpostLedger : FortLedger
         Stores.Add(ItemId.Water, 10);
         Stores.Add(ItemId.Axe, 2);
         Stores.Add(ItemId.Snowshoes, 2);
+        Stores.Add(ItemId.FishingLine, 3);   // an inland post lives on the ice in March
         Stores.Add(ItemId.BeaverPelt, 8);
         KnownSites.Add("Beaver lodge (Knee Lake)");
         KnownSites.Add("Beaver lodge (Oxford)");

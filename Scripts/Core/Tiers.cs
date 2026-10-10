@@ -123,7 +123,11 @@ public static class Tiers
             bool warm = home.Stores.Has(ItemId.Firewood) || !cal.IsFrozen;
             if (warm) { n.Needs.Warmth = 100f; home.Stores.TakeUpTo(ItemId.Firewood, 1); }
             else n.Needs.Warmth = Mathf.Max(0f, n.Needs.Warmth - 30f);
-            if (n.Needs.Hunger <= 0f || n.Needs.Warmth <= 0f) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 10f);
+            // Short commons, not a quiet wipe (design doc 17.1): a house with
+            // nothing gets thin over weeks, and the country hears of it in time
+            // for somebody to do something.
+            if (n.Needs.Warmth <= 0f) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 10f);
+            else if (n.Needs.Hunger <= 0f) { n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 3f); ShortCommons(home); }
             else if (n.Needs.Health < 100f) n.Needs.Health = Mathf.Min(100f, n.Needs.Health + 6f);
             if (n.Needs.Health <= 0f) { n.DieQuietly(); Sim.Notice($"{n.DisplayName} has died of {(n.Needs.Warmth <= 0f ? "cold" : "want")} at {home.Title}."); continue; }
             if (!ate) n.DaysSinceFresh += 1f;
@@ -154,6 +158,17 @@ public static class Tiers
                     break;
             }
         }
+    }
+
+    // How long each house has been on short commons, and a word out when it
+    // has gone on long enough to be news.
+    private static readonly System.Collections.Generic.Dictionary<Economy.Household, int> _hungryDays = new();
+    private static void ShortCommons(Economy.Household home)
+    {
+        int days = (_hungryDays.TryGetValue(home, out int had) ? had : 0) + 1;
+        _hungryDays[home] = days;
+        if (days == 8 || days % 30 == 0)
+            Sim.Headline($"Word comes that {home.Title} is on short commons: nothing in the store and the men going thin.");
     }
 
     private static int Mouths(Economy.Household home)
@@ -192,7 +207,14 @@ public static class Tiers
             // starve to death (design doc 18.2 - the batch must be livable).
             int snared = (GD.Randf() < 0.75f + n.Skills.Hunting * 0.2f ? 1 : 0) + (GD.Randf() < 0.4f + n.Skills.Hunting * 0.4f ? 1 : 0);
             if (snared > 0) home.Stores.Add(ItemId.Hare, snared);
-            if (!GameCalendar.Instance.IsFrozen && GD.Randf() < 0.5f) home.Stores.Add(ItemId.Fish, 1 + (GD.Randf() < 0.4f ? 1 : 0));
+            // A line through the ice is how an inland post got through March
+            // (design doc 14.4, 16.1): thin, steady, and it keeps men alive.
+            bool line = home.Stores.Has(ItemId.FishingLine) || n.Inventory.Has(ItemId.FishingLine);
+            if (line || !GameCalendar.Instance.IsFrozen)
+            {
+                int fish = (GD.Randf() < 0.65f ? 1 : 0) + (GD.Randf() < 0.35f + n.Skills.Hunting * 0.3f ? 1 : 0);
+                if (fish > 0) home.Stores.Add(ItemId.Fish, fish);
+            }
             return;
         }
         if (desperate && home is not Economy.BandLedger && home.Learn(site.Name, site.Cell))

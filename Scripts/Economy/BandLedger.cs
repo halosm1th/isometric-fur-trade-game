@@ -84,6 +84,31 @@ public partial class BandLedger : Household
 		if (_hoursToWeek > 0f) return;
 		_hoursToWeek += 24f * 7f;
 		if (Camp == WinterGround) { Stores.Add(ItemId.Pemmican, 14); Stores.Add(ItemId.CaribouHide, 1); }
+		SellTheSurplus();
+	}
+
+	// Pemmican is made to be sold (design doc 13.1): a camp sitting on more
+	// provisions than it can eat takes the surplus to whichever house will
+	// have it, rather than letting it pile up in the cache for ever. Only what
+	// is well beyond their own winter goes - a band feeds itself first.
+	private void SellTheSurplus()
+	{
+		int keep = Mathf.Max(30, Mouths * 3);
+		int spare = Stores.Count(ItemId.Pemmican) - keep;
+		if (spare < 10) return;
+		var post = WillTrade ? Sim.Fort : null;
+		if (post == null && StandingWithNwc > 20f) post = Sim.Nwc;
+		if (post == null) { Sim.Notice($"{Name} have pemmican to spare and nobody they will sell it to."); return; }
+		int lot = Mathf.Min(spare, 20);
+		int pay = Mathf.Max(1, Mathf.RoundToInt(lot * Items.Items.Of(ItemId.Pemmican).ValueMb * post.PeltPrice));
+		if (post.Stores.Count(ItemId.TradeGoods) < pay) return;
+		Stores.Remove(ItemId.Pemmican, lot);
+		post.Stores.Add(ItemId.Pemmican, lot);
+		post.Stores.Remove(ItemId.TradeGoods, pay);
+		Stores.Add(ItemId.TradeGoods, pay);
+		post.GoodsPaidMb += pay;
+		Sim.Notice($"{Name} brought {lot} pieces of pemmican down to {post.Title} and took {pay} in goods for it.");
+		Chronicle.Event($"{Name} sold {lot} pemmican at {post.Title}.", IsoGrid.ToWorld(post.AccessCell), subject: Name, weight: 0.5f);
 	}
 
 	// Rum in the camp (design doc 13.4): the band comes to want it, and the

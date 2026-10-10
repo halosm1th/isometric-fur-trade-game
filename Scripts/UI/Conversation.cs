@@ -215,6 +215,10 @@ public class Conversation
             foreach (var g in Grudges.HeldBy(npc.DisplayName)) { debt = $" Your wife's people have a debt unanswered: {g.Against} killed {g.Victim}. As kin, it is yours to help settle."; break; }
         string tongue = npc.IsBandPerson && _player.FluencyWith(npc) < 0.4f ? (_player.HasInterpreterFor(npc) ? "" : " You have little of their tongue; you get by with signs and a few words.") : "";
         string state = npc.IsSick ? " They are grey with fever - keep your distance." : npc.HasScurvy ? " Their gums are black with scurvy." : npc.IsDrunk ? " They are drunk." : npc.Needs.Hunger < 35 ? " They look hungry." : npc.Needs.Warmth < 35 ? " They are shivering." : npc.Needs.Health < 50 ? " They are hurt." : "";
+        // Two more things a face shows (design doc 3.5): a man on his guard,
+        // and one who has just buried somebody of his house.
+        if (state == "" && npc.Alerted > 0f && npc.Weapon != null) state = " He has not let go of his musket; something has him on his guard.";
+        if (state == "") foreach (var l in Losses.All) if (l.Home == npc.HomeStores && l.Fresh) { state = $" His house is still short of {l.Name}; it is in his face."; break; }
         if (npc.IsBandPerson && !_player.HasInterpreterFor(npc)) _player.Learn(npc, 0.02f);   // every talk teaches a little
         return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{busy}{state}{debt}{tongue}";
     }
