@@ -146,6 +146,7 @@ public partial class Population : Node2D
 			child.FatherName = p.DisplayName;
 			child.Father = null;
 			child.Spouse = null;
+			child.ApplyAppearance();   // now it knows it is a child
 			wife.Children.Add(child);
 			child.Skills.Seed(0.1f, 0.1f, 0.1f, 0.1f);
 			Sim.Headline($"{wife.DisplayName} has borne {p.DisplayName} a {(boy ? "son" : "daughter")}: {name}.");

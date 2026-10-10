@@ -637,11 +637,21 @@ public partial class PlayerController : Agent
 			bool side = Mathf.Abs(input.X) > Mathf.Abs(input.Y) * 1.2f;
 			target = input == Vector2.Zero ? "sneak_idle" : side ? "sneak_side" : (input.Y < -0.3f ? "sneak_back" : "sneak");
 		}
-		else target = input == Vector2.Zero ? "idle" : (input.Y < -0.3f ? "walk_back" : "walk");
+		else if (input == Vector2.Zero) target = _facing == "walk_side" ? "idle_side" : _facing == "walk_back" ? "idle_back" : "idle";
+		else
+		{
+			bool side = Mathf.Abs(input.X) > Mathf.Abs(input.Y) * 1.2f;
+			target = side ? "walk_side" : input.Y < -0.3f ? "walk_back" : "walk";
+			_facing = target;
+			if (side && IsSprinting) target = "run_side";
+		}
+		if (!_sprite.SpriteFrames.HasAnimation(target)) target = target.StartsWith("idle") ? "idle" : target == "run_side" ? "walk_side" : "walk";
 		if (_sprite.Animation != target) _sprite.Play(target);
-		_sprite.SpeedScale = IsSprinting && input != Vector2.Zero ? 1.6f : 1f;
+		_sprite.SpeedScale = IsSprinting && input != Vector2.Zero && target != "run_side" ? 1.6f : 1f;
 		MoveAndSlide();
 	}
+
+	private string _facing = "walk";
 
 	public override void ApplySnapshot(Vector2 pos, string anim, bool flip)
 	{

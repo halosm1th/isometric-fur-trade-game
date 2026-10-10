@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=36 format=3]
+[gd_resource type="SpriteFrames" load_steps=77 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/player/idle_front.png" id="t1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/walk_front_0.png" id="t2"]
@@ -35,6 +35,47 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/player/shoot_1.png" id="t33"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/shoot_2.png" id="t34"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/shoot_3.png" id="t35"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/idle_side.png" id="t36"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_side_0.png" id="t37"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_side_1.png" id="t38"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_side_2.png" id="t39"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_side_3.png" id="t40"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_side_4.png" id="t41"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/walk_side_5.png" id="t42"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/run_side_0.png" id="t43"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/run_side_1.png" id="t44"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/run_side_2.png" id="t45"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/run_side_3.png" id="t46"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/attack_0.png" id="t47"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/attack_1.png" id="t48"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/attack_2.png" id="t49"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/attack_3.png" id="t50"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/paddle_0.png" id="t51"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/paddle_1.png" id="t52"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/paddle_2.png" id="t53"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/paddle_3.png" id="t54"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/carry_0.png" id="t55"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/carry_1.png" id="t56"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/carry_2.png" id="t57"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/carry_3.png" id="t58"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/carry_side_0.png" id="t59"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/carry_side_1.png" id="t60"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/carry_side_2.png" id="t61"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/carry_side_3.png" id="t62"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/chop_0.png" id="t63"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/chop_1.png" id="t64"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/chop_2.png" id="t65"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/chop_3.png" id="t66"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/sleep_0.png" id="t67"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/sleep_1.png" id="t68"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/shiver_0.png" id="t69"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/shiver_1.png" id="t70"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/shiver_2.png" id="t71"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/shiver_3.png" id="t72"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/drunk_0.png" id="t73"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/drunk_1.png" id="t74"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/drunk_2.png" id="t75"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/drunk_3.png" id="t76"]
 
 [resource]
 animations = [{
@@ -52,13 +93,16 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("t2")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t3")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t4")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t5")
 }]
@@ -69,13 +113,16 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("t6")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t7")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t8")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t9")
 }]
@@ -86,13 +133,16 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("t10")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t11")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t12")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t13")
 }]
@@ -103,13 +153,16 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("t14")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t15")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t16")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t17")
 }]
@@ -120,10 +173,12 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("t18")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t19")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t20")
 }]
@@ -134,13 +189,16 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("t21")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t22")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t23")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t24")
 }]
@@ -151,10 +209,12 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("t25")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t26")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t27")
 }]
@@ -165,13 +225,16 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("t28")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t29")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t30")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t31")
 }]
@@ -190,14 +253,225 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("t32")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t33")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t34")
-}, {
+},
+{
 "duration": 1.0,
 "texture": ExtResource("t35")
+}]
+}, {
+"name": &"idle_side",
+"speed": 6.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t36")
+}]
+}, {
+"name": &"walk_side",
+"speed": 8.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t37")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t38")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t39")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t40")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t41")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t42")
+}]
+}, {
+"name": &"run_side",
+"speed": 11.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t43")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t44")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t45")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t46")
+}]
+}, {
+"name": &"attack",
+"speed": 9.0,
+"loop": false,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t47")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t48")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t49")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t50")
+}]
+}, {
+"name": &"paddle",
+"speed": 6.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t51")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t52")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t53")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t54")
+}]
+}, {
+"name": &"carry",
+"speed": 6.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t55")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t56")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t57")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t58")
+}]
+}, {
+"name": &"carry_side",
+"speed": 6.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t59")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t60")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t61")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t62")
+}]
+}, {
+"name": &"chop",
+"speed": 6.0,
+"loop": false,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t63")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t64")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t65")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t66")
+}]
+}, {
+"name": &"sleep",
+"speed": 1.5,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t67")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t68")
+}]
+}, {
+"name": &"shiver",
+"speed": 8.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t69")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t70")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t71")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t72")
+}]
+}, {
+"name": &"drunk",
+"speed": 5.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t73")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t74")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t75")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t76")
 }]
 }]

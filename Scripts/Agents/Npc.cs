@@ -225,10 +225,21 @@ public partial class Npc : Agent
     public void ApplyAppearance()
     {
         if (_sprite == null) return;
+        if (Net.Net.IsServer)
+        {
+            string sheet = Appearance.For(this);
+            if (sheet == null && Appearance.IsChildSheet(FramesPath))
+                sheet = IsFemale ? "res://Scenes/Npc/CountryWifeFrames.tres" : "res://Scenes/Npc/LabourerFrames.tres";
+            // Real art needs no tint to tell it apart.
+            if (sheet != null && sheet != FramesPath) { FramesPath = sheet; Tint = Colors.White; }
+        }
         _tint = Tint;
         _sprite.SpriteFrames = GD.Load<SpriteFrames>(FramesPath);
         _sprite.Modulate = Tint;
         _sprite.Scale = Vector2.One * SpriteScale;
+        // Frames stand on the bottom edge of their canvas, centred; canvases differ by sheet.
+        var first = _sprite.SpriteFrames.GetFrameTexture("idle", 0);
+        if (first != null) _sprite.Offset = new Vector2(-first.GetWidth() / 2f, -first.GetHeight() + 2f);
         _sprite.Play("idle");
         if (_label != null) _label.Text = DisplayName;
     }
@@ -571,17 +582,24 @@ public partial class Npc : Agent
         if (_sinceEatAnim < 0.9f) return; // let one-shot anims play
         var v = Velocity;
         string target;
-        if (v.LengthSquared() < 4f) target = "idle";
+        if (v.LengthSquared() < 4f)
+        {
+            // Stood still, he stays facing the way he was going.
+            target = _facing == "walk_side" ? "idle_side" : _facing == "walk_back" ? "idle_back" : "idle";
+        }
         else
         {
             bool side = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f && _sprite.SpriteFrames.HasAnimation("walk_side");
             target = side ? "walk_side" : (v.Y < -0.3f * v.Length() ? "walk_back" : "walk");
             _sprite.FlipH = v.X < 0f;
+            _facing = target;
         }
         if (!_sprite.SpriteFrames.HasAnimation(target)) target = "idle";
         if (_sprite.Animation != target) _sprite.Play(target);
         _sprite.SpeedScale = IsSprinting ? 1.6f : 1f;
     }
+
+    private string _facing = "walk";
 
     public void PlayAnimation(string anim)
     {
