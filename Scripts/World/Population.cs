@@ -83,7 +83,7 @@ public partial class Population : Node2D
 		// option whose label contains the text, printing every step as [talk].
 		// Several may be given. A way to drive dialogue without a keyboard.
 		foreach (string arg in OS.GetCmdlineUserArgs())
-			if (arg.StartsWith("--converse=")) { string script = arg.Substring(11); int colon = script.IndexOf(':'); if (colon > 0 && float.TryParse(script.Substring(0, colon), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float at)) GetTree().CreateTimer(at).Timeout += () => Converse(script.Substring(colon + 1)); }
+			if (arg.StartsWith("--converse=")) _conversations.Add(arg.Substring(11));
 		if (Net.Net.IsServer) CallDeferred(nameof(SpawnAll));
 	}
 
@@ -191,6 +191,28 @@ public partial class Population : Node2D
 		}
 	}
 
+	// "SECONDS:..." real seconds after start, or "hHOURS:..." game hours after it.
+	private readonly System.Collections.Generic.List<string> _conversations = new();
+	private float _startHours = -1f;
+	private float _startSeconds;
+	private void RunConversations()
+	{
+		if (_conversations.Count == 0) return;
+		float now = GameCalendar.Instance.DayOfYear * 24f;
+		if (_startHours < 0f) { _startHours = now; _startSeconds = Time.GetTicksMsec() / 1000f; }
+		for (int i = _conversations.Count - 1; i >= 0; i--)
+		{
+			string script = _conversations[i];
+			int colon = script.IndexOf(':');
+			string when = colon > 0 ? script.Substring(0, colon) : "";
+			bool hours = when.StartsWith("h");
+			if (!float.TryParse(hours ? when.Substring(1) : when, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float at)) { _conversations.RemoveAt(i); continue; }
+			if ((hours ? now - _startHours : Time.GetTicksMsec() / 1000f - _startSeconds) < at) continue;
+			_conversations.RemoveAt(i);
+			Converse(script.Substring(colon + 1));
+		}
+	}
+
 	private static void Converse(string script)
 	{
 		var steps = script.Split('>');
@@ -244,7 +266,7 @@ public partial class Population : Node2D
 	private float _traceTimer;
 	public override void _Process(double delta)
 	{
-		if (Net.Net.IsServer) { SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f); Tiers.Tick((float)delta); HungrySpells(); Losses.Tick(); Births(); }
+		if (Net.Net.IsServer) { SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f); Tiers.Tick((float)delta); HungrySpells(); Losses.Tick(); Births(); RunConversations(); }
 		if (!_trace) return;
 		_traceTimer -= GameCalendar.Instance?.DeltaGameHours ?? 0f;
 		if (_traceTimer > 0f) return;
