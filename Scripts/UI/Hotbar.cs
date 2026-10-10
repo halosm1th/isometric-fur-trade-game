@@ -17,6 +17,8 @@ public partial class Hotbar : Control
     private readonly Panel[] _panels = new Panel[Slots];
     private readonly TextureRect[] _icons = new TextureRect[Slots];
     private readonly Label[] _counts = new Label[Slots];
+    private readonly Label[] _keys = new Label[Slots];
+    private int _keysVersion = -1;
     private Label _name;
     private Label _notice;
     private Label _hint;
@@ -101,7 +103,7 @@ public partial class Hotbar : Control
             count.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.9f));
             panel.AddChild(count);
 
-            _panels[i] = panel; _icons[i] = icon; _counts[i] = count;
+            _panels[i] = panel; _icons[i] = icon; _counts[i] = count; _keys[i] = key;
         }
     }
 
@@ -149,6 +151,12 @@ public partial class Hotbar : Control
 
     public override void _Process(double delta)
     {
+        // Each slot shows whatever key it is bound to now.
+        if (_keysVersion != Core.Keybinds.Version)
+        {
+            _keysVersion = Core.Keybinds.Version;
+            for (int i = 0; i < Slots; i++) if (_keys[i] != null) _keys[i].Text = Core.Keybinds.KeyFor($"hotbar_{i + 1}");
+        }
         _hintTimer -= (float)delta;
         if (_hintTimer <= 0f && _hint != null && _player != null) { _hintTimer = 0.2f; _hint.Text = _player.IsLocal ? _player.InteractHint() : ""; }
         if (_player == null) return;

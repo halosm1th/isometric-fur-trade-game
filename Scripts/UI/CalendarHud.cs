@@ -36,7 +36,7 @@ public partial class CalendarHud : Label
         var cal = GameCalendar.Instance;
         if (cal == null) return;
 
-        string fast = Net.Net.HostPaused ? "  || PAUSED (Space)" : Input.IsActionPressed("time_fast") ? "  >>" : cal.SecondsPerGameHour != 10f ? $"  ({cal.SecondsPerGameHour:0.#} s/hour)" : "";
+        string fast = Net.Net.HostPaused ? $"  || PAUSED ({Core.Keybinds.KeyFor("pause_clock")})" : Input.IsActionPressed("time_fast") ? "  >>" : cal.SecondsPerGameHour != 10f ? $"  ({cal.SecondsPerGameHour:0.#} s/hour)" : "";
         Text = $"{cal.DateString}   {cal.TimeString}{fast}\n{cal.ChapterName} - {cal.Weather.Describe()}";
 
         if (_eventTimer > 0f)

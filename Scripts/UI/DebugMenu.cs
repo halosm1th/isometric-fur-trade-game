@@ -272,7 +272,7 @@ public partial class DebugMenu : Control
         var cal = GameCalendar.Instance;
         const string S = "Calendar";
         AddSlider(S, "Seconds / hour", 0.5f, 60f, 0.5f, () => cal.SecondsPerGameHour, v => cal.SecondsPerGameHour = v);
-        AddSlider(S, "Fast-forward (T)", 2f, 400f, 1f, () => cal.FastForwardMultiplier, v => cal.FastForwardMultiplier = v, "0");
+        AddSlider(S, $"Fast-forward ({Core.Keybinds.KeyFor("time_fast")})", 2f, 400f, 1f, () => cal.FastForwardMultiplier, v => cal.FastForwardMultiplier = v, "0");
         AddButtonRow(S,
             ("+1 h", () => cal.SkipHours(1)),
             ("+6 h", () => cal.SkipHours(6)),

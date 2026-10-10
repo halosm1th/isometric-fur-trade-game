@@ -149,7 +149,7 @@ public partial class NeedsHud : Control
     private void OnDied()
     {
         var cal = GameCalendar.Instance;
-        _death.Text = $"You died.\n{cal?.DateString}\n\nPress R to begin again.";
+        _death.Text = $"You died.\n{cal?.DateString}\n\nPress {Core.Keybinds.KeyFor("restart")} to begin again.";
         _death.Visible = true;
         if (_player is Player.PlayerController dpc)
         {
@@ -161,7 +161,7 @@ public partial class NeedsHud : Control
             foreach (var b in inh.Burdens) sb.AppendLine("  He inherits: " + b);
             foreach (var a in inh.Unfinished) sb.AppendLine($"  Unfinished: {a.Title.ToLower()}");
             sb.AppendLine();
-            sb.AppendLine("Press R to take up his place.");
+            sb.AppendLine($"Press {Core.Keybinds.KeyFor("restart")} to take up his place.");
             _death.Text = sb.ToString();
         }
     }

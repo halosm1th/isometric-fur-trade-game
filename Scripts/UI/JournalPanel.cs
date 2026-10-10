@@ -67,7 +67,13 @@ public partial class JournalPanel : Control
     private void Toggle(int tab)
     {
         if (_panel.Visible && _tabs.CurrentTab == tab) _panel.Visible = false;
-        else { _panel.Visible = true; _tabs.CurrentTab = tab; }
+        else
+        {
+            _panel.Visible = true; _tabs.CurrentTab = tab;
+            _tabs.SetTabTitle(0, $"Journal ({Core.Keybinds.KeyFor("journal")})");
+            _tabs.SetTabTitle(1, $"Log ({Core.Keybinds.KeyFor("log")})");
+            _tabs.SetTabTitle(2, $"Pack ({Core.Keybinds.KeyFor("inventory")})");
+        }
         IsOpen = _panel.Visible;
     }
 

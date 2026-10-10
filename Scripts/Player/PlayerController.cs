@@ -268,7 +268,7 @@ public partial class PlayerController : Agent
 		GetTree().CreateTimer(1.5).Timeout += () =>
 		{
 			if (!IsInstanceValid(this)) return;
-			EmitSignal(SignalName.Notice, "York Factory, Hudson's Bay. You are the Company's new hand. E talks, 1-9 uses, left click strikes, Tab chats, F1 opens the test console.");
+			EmitSignal(SignalName.Notice, $"York Factory, Hudson's Bay. You are the Company's new hand. {Core.Keybinds.KeyFor("interact")} talks, {Core.Keybinds.HotbarKeys()} uses, left click strikes, {Core.Keybinds.KeyFor("chat")} chats, {Core.Keybinds.KeyFor("debug_menu")} opens the test console.");
 			if (!AmbitionsDeclared) EmitSignal(SignalName.Notice, "A man wants something of a country like this. Esc - What you mean to do.");
 		};
 		// Dev aids: `--spawn=depot` moves you there (server permitting), `--provoke`
@@ -893,7 +893,7 @@ public partial class PlayerController : Agent
 				{
 					// Your own post's timbers only burn on purpose: crouch to mean it.
 					bool ours = HomePost != null && (Faction == Faction.NWC ? WorldLayout.NwcYardCells().Contains(cell) : WorldLayout.YardCells().Contains(cell));
-					if (ours && !IsSneaking) return "That's the Company's own timber. Crouch (Ctrl) if you truly mean to burn it.";
+					if (ours && !IsSneaking) return $"That's the Company's own timber. Crouch ({Core.Keybinds.KeyFor("sneak")}) if you truly mean to burn it.";
 					if (!fire.Ignite(cell)) return "It won't catch.";
 					Chronicle.Event($"{DisplayName} set fire to the buildings.", GlobalPosition, this, weight: 3f);
 					foreach (var a in Sim.AgentsWithin(GlobalPosition, 650f))
@@ -1171,31 +1171,31 @@ public partial class PlayerController : Agent
 	{
 		if (IsDead) return "";
 		if (_travel != null) return "On the river road - E or any step stops";
-		if (NearRoadHead(out bool atYork) && NearestNpc(110f) == null) return atYork ? "E  Take the river road inland to Oxford House (a day's march)" : "E  Take the river road down to York Factory";
+		if (NearRoadHead(out bool atYork) && NearestNpc(110f) == null) return atYork ? $"{Core.Keybinds.KeyFor("interact")}  Take the river road inland to Oxford House (a day's march)" : $"{Core.Keybinds.KeyFor("interact")}  Take the river road down to York Factory";
 		var npc = NearestNpc(110f);
-		if (npc != null) return $"E  Talk to {npc.DisplayName}";
+		if (npc != null) return $"{Core.Keybinds.KeyFor("interact")}  Talk to {npc.DisplayName}";
 		var body = NearestCorpse(110f);
-		if (body != null) return body is Animal ? $"E  Butcher the {body.Describe().ToLower()}" : $"E  Search {body.Describe()}";
+		if (body != null) return body is Animal ? $"{Core.Keybinds.KeyFor("interact")}  Butcher the {body.Describe().ToLower()}" : $"{Core.Keybinds.KeyFor("interact")}  Search {body.Describe()}";
 		var pickup = NearestPickup();
-		if (pickup != null) return $"E  Pick up {pickup.Label}";
+		if (pickup != null) return $"{Core.Keybinds.KeyFor("interact")}  Pick up {pickup.Label}";
 		var lodge = Sim.Ecology?.SiteNear(GlobalPosition, Ecology.Species.Beaver);
-		if (lodge != null) { var line = lodge.LineOf(TrapOwner); return line != null && line.Traps > 0 ? $"E  Check your traps ({lodge.Name})" : Inventory.Has(ItemId.SteelTrap) ? $"Use a steel trap here to set a line ({lodge.Name})" : $"{lodge.Name}"; }
-		if ((Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f)) != null) return "E  The canoe";
-		if (Sim.Structures?.NearestBed(GlobalPosition, 90f) != null) return (GameCalendar.Instance?.Hour ?? 12f) is >= 17f or < 6f ? "E  Sleep till morning" : "E  Rest an hour";
-		foreach (var h in OtherHouseholds()) if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(h.WoodpileCell)) < 120f) return $"E  {h.Title}'s woodpile";
+		if (lodge != null) { var line = lodge.LineOf(TrapOwner); return line != null && line.Traps > 0 ? $"{Core.Keybinds.KeyFor("interact")}  Check your traps ({lodge.Name})" : Inventory.Has(ItemId.SteelTrap) ? $"Use a steel trap here to set a line ({lodge.Name})" : $"{lodge.Name}"; }
+		if ((Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f)) != null) return $"{Core.Keybinds.KeyFor("interact")}  The canoe";
+		if (Sim.Structures?.NearestBed(GlobalPosition, 90f) != null) return (GameCalendar.Instance?.Hour ?? 12f) is >= 17f or < 6f ? $"{Core.Keybinds.KeyFor("interact")}  Sleep till morning" : $"{Core.Keybinds.KeyFor("interact")}  Rest an hour";
+		foreach (var h in OtherHouseholds()) if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(h.WoodpileCell)) < 120f) return $"{Core.Keybinds.KeyFor("interact")}  {h.Title}'s woodpile";
 		var fort = HomePost;
 		if (fort != null)
 		{
-			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.WoodpileCell)) < 120f) return "E  The woodpile";
-			if (fort == Sim.Nwc ? WorldLayout.NwcHouse.Contains(Cell) : fort == Sim.Outpost ? WorldLayout.OutpostHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell)) return "E  The storeroom chest";
-			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.AccessCell)) < 110f && Inventory.CountOfKind(ItemKind.Food) < 3) return "E  Draw a ration";
-			if (Faction == Faction.HBC && Sim.Ship != null && Sim.Ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 160f && Sim.Ship.Cargo.SlotCount > 0) return "E  Shoulder cargo from the ship";
+			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.WoodpileCell)) < 120f) return $"{Core.Keybinds.KeyFor("interact")}  The woodpile";
+			if (fort == Sim.Nwc ? WorldLayout.NwcHouse.Contains(Cell) : fort == Sim.Outpost ? WorldLayout.OutpostHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell)) return $"{Core.Keybinds.KeyFor("interact")}  The storeroom chest";
+			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.AccessCell)) < 110f && Inventory.CountOfKind(ItemKind.Food) < 3) return $"{Core.Keybinds.KeyFor("interact")}  Draw a ration";
+			if (Faction == Faction.HBC && Sim.Ship != null && Sim.Ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 160f && Sim.Ship.Cargo.SlotCount > 0) return $"{Core.Keybinds.KeyFor("interact")}  Shoulder cargo from the ship";
 		}
 		var rival = Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(Faction));
-		if (rival != null && (rival.Company == Faction.NWC ? WorldLayout.NwcHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell))) return "E  Plunder their stores";
-		if (Sim.Structures != null && Sim.Structures.HasDoorNear(Position)) return "E  Open / close the door";
+		if (rival != null && (rival.Company == Faction.NWC ? WorldLayout.NwcHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell))) return $"{Core.Keybinds.KeyFor("interact")}  Plunder their stores";
+		if (Sim.Structures != null && Sim.Structures.HasDoorNear(Position)) return $"{Core.Keybinds.KeyFor("interact")}  Open / close the door";
 		var hearth = Sim.Structures?.HearthNear(GlobalPosition);
-		if (hearth != null) return hearth.IsBurning ? "E  Look at the fire" : hearth.FuelHours > 0f ? "Flint on it to light it" : "E  Cold hearth (feed it wood)";
+		if (hearth != null) return hearth.IsBurning ? $"{Core.Keybinds.KeyFor("interact")}  Look at the fire" : hearth.FuelHours > 0f ? "Flint on it to light it" : $"{Core.Keybinds.KeyFor("interact")}  Cold hearth (feed it wood)";
 		return "";
 	}
 

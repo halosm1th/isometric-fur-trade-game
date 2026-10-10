@@ -30,6 +30,9 @@ public static class Keybinds
 
     private static Dictionary<string, Key[]> _defaults;
 
+    // Goes up whenever a binding changes, so on-screen hints can tell they're stale.
+    public static int Version { get; private set; }
+
     private static void SnapshotDefaults()
     {
         if (_defaults != null) return;
@@ -74,6 +77,7 @@ public static class Keybinds
         var mine = Current(action);
         mine[slot] = key;
         Set(action, Compact(mine, slot));
+        Version++;
         Settings.Save();
         return takenFrom;
     }
@@ -92,6 +96,7 @@ public static class Keybinds
     {
         SnapshotDefaults();
         foreach (var (action, keys) in _defaults) Set(action, keys);
+        Version++;
         Settings.Save();
     }
 
@@ -107,6 +112,7 @@ public static class Keybinds
             for (int i = 0; i < Slots && i < arr.Length; i++) keys[i] = (Key)arr[i];
             Set(action, keys);
         }
+        Version++;
     }
 
     public static void Write(ConfigFile cfg)
@@ -130,6 +136,24 @@ public static class Keybinds
         if (physical == Key.None) return "-";
         bool headless = DisplayServer.GetName().Contains("headless");
         return OS.GetKeycodeString(headless ? physical : DisplayServer.KeyboardGetKeycodeFromPhysical(physical));
+    }
+
+    // The first key for an action, for hints like "E  Talk to ...".
+    public static string KeyFor(string action)
+    {
+        foreach (var k in Current(action)) if (k != Key.None) return Name(k);
+        return "(unbound)";
+    }
+
+    // "1-9" while the hotbar keys are the digits in order, else each one.
+    public static string HotbarKeys()
+    {
+        bool digits = true;
+        for (int i = 1; i <= 9; i++) if (KeyFor($"hotbar_{i}") != i.ToString()) digits = false;
+        if (digits) return "1-9";
+        var names = new List<string>();
+        for (int i = 1; i <= 9; i++) names.Add(KeyFor($"hotbar_{i}"));
+        return string.Join(" ", names);
     }
 
     public static string Describe(string action)

@@ -26,7 +26,7 @@ public static class Focus
         if (n.Health < 35f) return "you are badly hurt - eat, keep warm, and find a woman of the post to dress it.";
         if (n.Warmth < 25f) return "you are freezing - get to a fire, or make one.";
         if (n.Hunger < 25f) return "you are starving - eat, draw a ration at the stores, or ask a friend.";
-        if (n.Thirst < 25f) return "you are parched - drink (Q).";
+        if (n.Thirst < 25f) return $"you are parched - drink ({Keybinds.KeyFor("drink")}).";
         foreach (var g in Grudges.All)
         {
             if (g.Settled || g.Against != p.DisplayName) continue;
@@ -50,7 +50,7 @@ public static class Focus
     private static string Aim(Player.PlayerController p)
     {
         foreach (var a in p.Ambitions) if (!a.Abandoned) return a.Line(p);
-        return "none declared - open your book (J) and choose what you mean to make of yourself.";
+        return $"none declared - open your book ({Keybinds.KeyFor("journal")}) and choose what you mean to make of yourself.";
     }
 
     // The most relevant of the last dozen things in the journal, by the

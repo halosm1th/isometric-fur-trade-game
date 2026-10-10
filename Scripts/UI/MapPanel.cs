@@ -13,6 +13,7 @@ namespace IsometricFurTradeGame.Scripts.UI;
 public partial class MapPanel : Control
 {
     public static bool IsOpen { get; private set; }
+    private Label _title;
     private const float Scale = 1f / 32f;   // world px -> map px (10240 -> 320)
     private PanelContainer _panel;
     private MapCanvas _canvas;
@@ -31,7 +32,7 @@ public partial class MapPanel : Control
         AddChild(_panel);
         var box = new VBoxContainer();
         _panel.AddChild(box);
-        var title = new Label { Text = "The country as you know it (M)", HorizontalAlignment = HorizontalAlignment.Center };
+        var title = _title = new Label { Text = "The country as you know it", HorizontalAlignment = HorizontalAlignment.Center };
         title.AddThemeFontSizeOverride("font_size", 15);
         title.AddThemeColorOverride("font_color", new Color(0.2f, 0.12f, 0.05f));
         box.AddChild(title);
@@ -46,7 +47,7 @@ public partial class MapPanel : Control
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (@event.IsActionPressed("map")) { _panel.Visible = !_panel.Visible; if (_panel.Visible && _player != null) _canvas.CallDeferred(nameof(MapCanvas.CentreOn), _player.GlobalPosition); GetViewport().SetInputAsHandled(); }
+        if (@event.IsActionPressed("map")) { _panel.Visible = !_panel.Visible; _title.Text = $"The country as you know it ({Core.Keybinds.KeyFor("map")})"; if (_panel.Visible && _player != null) _canvas.CallDeferred(nameof(MapCanvas.CentreOn), _player.GlobalPosition); GetViewport().SetInputAsHandled(); }
         else if (_panel.Visible && @event.IsActionPressed("ui_cancel")) { _panel.Visible = false; GetViewport().SetInputAsHandled(); }
     }
 
