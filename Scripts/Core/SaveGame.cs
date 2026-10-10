@@ -80,6 +80,7 @@ public static class SaveGame
             ["abroad"] = MailOf(Mail.Abroad),
             ["council"] = CouncilState(),
             ["grudges"] = GrudgeState(),
+            ["losses"] = Losses.Save(HomeKey),
             ["fort"] = Ledger(Sim.Fort),
             ["nwc"] = Ledger(Sim.Nwc),
             ["outpost"] = Ledger(Sim.Outpost),
@@ -187,8 +188,30 @@ public static class SaveGame
             ["inv"] = Inv(a.Inventory), ["age"] = a.Age, ["sick"] = a.SickDaysLeft, ["immune"] = a.Immune, ["drunk"] = a.Intoxication,
             ["weapon"] = a.PreferredWeapon?.ToString() ?? "", ["dead"] = a.IsDead, ["fresh"] = a.DaysSinceFresh, ["mail"] = MailOf(a.Mail),
             ["skills"] = new GArr { a.Skills.Hunting, a.Skills.Trapping, a.Skills.Trade, a.Skills.Woodcraft },
+            ["keepsakes"] = Keepsakes(a),
         };
     }
+
+    // "id:whose|id:whose" - things kept from the dead (design doc P.8).
+    private static string Keepsakes(Agent a)
+    {
+        var parts = new List<string>();
+        foreach (var (id, from) in a.Keepsakes) parts.Add($"{(int)id}:{from}");
+        return string.Join("|", parts);
+    }
+
+    private static void LoadKeepsakes(Agent a, string s)
+    {
+        a.Keepsakes.Clear();
+        foreach (var part in s.Split('|', System.StringSplitOptions.RemoveEmptyEntries))
+        {
+            int c = part.IndexOf(':');
+            if (c > 0 && int.TryParse(part.Substring(0, c), out int id)) a.Keepsakes.Add(((ItemId)id, part.Substring(c + 1)));
+        }
+    }
+
+    private static string HomeKey(Household h) => h == Sim.Fort ? "fort" : h == Sim.Nwc ? "nwc" : h == Sim.Band ? "band" : h == Sim.Outpost ? "outpost" : h == Sim.Assiniboine ? "assiniboine" : "";
+    private static Household HomeOf(string k) => k switch { "fort" => Sim.Fort, "nwc" => Sim.Nwc, "band" => Sim.Band, "outpost" => Sim.Outpost, "assiniboine" => Sim.Assiniboine, _ => null };
 
     private static GDict CouncilState()
     {
@@ -257,6 +280,8 @@ public static class SaveGame
             foreach (var m in n.Memories) mem.Add(new GDict { ["text"] = m.Text, ["subject"] = m.Subject ?? "", ["actor"] = m.Actor != null && GodotObject.IsInstanceValid(m.Actor) ? m.Actor.DisplayName : "", ["day"] = m.Day, ["directness"] = m.Directness, ["weight"] = m.Weight, ["key"] = m.Key ?? "", ["witnesses"] = m.Witnesses != null ? string.Join("|", m.Witnesses) : "" });
             d["memories"] = mem;
             d["task"] = n.AssignedTaskName ?? "";
+            var mourned = new GDict(); foreach (var kv in n.Mourned) mourned[kv.Key] = kv.Value;
+            d["mourned"] = mourned; d["recalled"] = string.Join(";;", n.Recalled);
             a.Add(d);
         }
         return a;
@@ -355,6 +380,7 @@ public static class SaveGame
         LoadInv(a.Inventory, d["inv"].AsGodotDictionary());
         a.Age = I(d, "age", 25); a.SickDaysLeft = F(d, "sick"); a.Immune = B(d, "immune"); a.Intoxication = F(d, "drunk"); a.DaysSinceFresh = F(d, "fresh");
         a.Faction = (Faction)I(d, "faction");
+        LoadKeepsakes(a, S(d, "keepsakes"));
         string w = S(d, "weapon");
         a.PreferredWeapon = w != "" && Enum.TryParse(w, out ItemId wid) ? wid : null;
         a.Mail.Clear();
@@ -449,6 +475,8 @@ public static class SaveGame
                 npc.HeldBy = S(nd, "held") switch { "nwc" => Sim.Nwc, "fort" => Sim.Fort, "outpost" => Sim.Outpost, _ => null }; npc.HeldUntilDay = I(nd, "heldUntil", -1);
                 if (npc.HeldBy != null) npc.Brain.Push(npc, new Agents.Goals.HeldPrisonerGoal(npc.HeldBy));
                 npc.AssignedTaskName = S(nd, "task");
+                if (nd.ContainsKey("mourned")) foreach (var kv in nd["mourned"].AsGodotDictionary()) npc.Mourned[kv.Key.AsString()] = kv.Value.AsInt32();
+                foreach (var r in S(nd, "recalled").Split(";;", System.StringSplitOptions.RemoveEmptyEntries)) npc.Recalled.Add(r);
                 foreach (var mv in nd["memories"].AsGodotArray())
                 {
                     var md = mv.AsGodotDictionary();
@@ -472,6 +500,8 @@ public static class SaveGame
                 foreach (var kv in nd["rapport"].AsGodotDictionary()) if (!byName.ContainsKey(kv.Key.AsString())) savedRapport[kv.Key.AsString()] = kv.Value.AsSingle();
                 if (savedRapport.Count > 0) _npcPlayerRapport[npc] = savedRapport;
             }
+            if (d.ContainsKey("losses")) Losses.Load(d["losses"].AsGodotArray(), HomeOf, name => byName.TryGetValue(name, out var b) ? b : null);
+            else Losses.Reset();
 
             var sh = d["ship"].AsGodotDictionary();
             if (Sim.Ship != null && sh.Count > 0)

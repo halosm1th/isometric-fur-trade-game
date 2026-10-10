@@ -321,15 +321,18 @@ public class Conversation
 
     private void ShowSale(Npc npc, Loss sale, string said = null)
     {
-        _text = said ?? $"{npc.DisplayName} holds up what {sale.Name} left, one thing at a time. You have {_player.Inventory.Count(ItemId.TradeGoods)} pieces of goods.";
         ClearOptions();
-        if (sale.AuctionOpen)
-            for (int i = 0; i < sale.Lots.Count; i++)
-            {
-                int lot = i;
-                var (id, n) = sale.Lots[i];
-                AddOption($"His {Items.Items.Of(id).Name.ToLower()}{(n > 1 ? $" x{n}" : "")} - {Losses.PriceOf(id, n)} pieces", () => ShowSale(npc, sale, Losses.Buy(_player, sale, lot)));
-            }
+        if (!sale.HasLot) { _text = said ?? "The sale is over."; AddOption("Back", () => ShowTopics(Greeting(npc))); return; }
+        var (id, n) = sale.Lots[0];
+        string holder = sale.HighBidder == _player ? "you" : sale.HighBidder != null ? sale.HighBidder.DisplayName : "nobody yet";
+        string state = $"Up now: {sale.Name}'s {Losses.ItemName(id, n)}, at {sale.Price} pieces ({holder}). {sale.Lots.Count - 1} more lots after it. You have {_player.Inventory.Count(ItemId.TradeGoods)} pieces of goods.";
+        _text = said != null ? said + " " + state : $"{npc.DisplayName} holds up what {sale.Name} left, one thing at a time. " + state;
+        if (sale.HighBidder != _player)
+        {
+            int offer = sale.HighBidder == null ? sale.Price : sale.Price + 1;
+            AddOption($"Bid {offer}", () => ShowSale(npc, sale, Losses.Bid(_player, sale)));
+        }
+        AddOption("Wait and watch", () => ShowSale(npc, sale, "You hold your peace."));
         AddOption("Back", () => ShowTopics(Greeting(npc)));
     }
 

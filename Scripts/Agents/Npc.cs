@@ -104,7 +104,6 @@ public partial class Npc : Agent
     // from the dead: (what, whose it was).
     public World.Hearth AtHearth;
     public Vector2I? HearthSeat;
-    public readonly List<(ItemId id, string from)> Keepsakes = new();
     private readonly Queue<string> _recentLines = new();
     private float _barkTimer = (float)GD.RandRange(6.0, 30.0);
     private string _reply; private float _replyIn = -1f;

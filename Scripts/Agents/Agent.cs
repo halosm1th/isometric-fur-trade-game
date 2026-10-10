@@ -22,6 +22,8 @@ public partial class Agent : CharacterBody2D
     public readonly Skills Skills = new();
     // Letters and packets carried (design doc 10.1.1). Not items: each is one particular paper.
     public readonly System.Collections.Generic.List<Message> Mail = new();
+    // Things kept from the dead (design doc P.8): what, and whose it was.
+    public readonly System.Collections.Generic.List<(ItemId id, string from)> Keepsakes = new();
 
     [Export] public string DisplayName = "";
 
