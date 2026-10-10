@@ -139,6 +139,45 @@ public partial class FortLedger : Household
 		KnownSites.Add("Beaver lodge (upper)");
 	}
 
+	// A post lives on country provisions through the winter (design doc 13.1,
+	// 17.1). Besides whatever the hunters bring in and what band parties sell
+	// at the counter, the master sends out for meat when the store gets low:
+	// a week's traffic of small purchases, in numbers, from any band that will
+	// still deal with him. A post that has neither food nor goods says so.
+	private float _hoursToProvisions = 24f * 7f;
+	public override void _Process(double delta)
+	{
+		base._Process(delta);
+		var cal = GameCalendar.Instance;
+		if (cal == null || !Net.Net.IsServer) return;
+		_hoursToProvisions -= cal.DeltaGameHours;
+		if (_hoursToProvisions > 0f) return;
+		_hoursToProvisions += 24f * 7f;
+
+		int mouths = 0;
+		foreach (var n in Sim.Npcs) if (n.HomeStores == this && !n.IsDead) mouths++;
+		if (mouths == 0 || FoodDays(mouths) > 25f) return;
+		BandLedger from = null;
+		foreach (var b in Sim.Bands) if (b != null && b.WillTradeWith(this) && b.Stores.Count(ItemId.Pemmican) + b.Stores.Count(ItemId.DriedMeat) > 10) { from = b; break; }
+		if (from == null)
+		{
+			Sim.Notice($"{Title}: {FoodDays(mouths):0} days' food in the store and nobody selling provisions.");
+			return;
+		}
+		int goods = Mathf.Min(Stores.Count(ItemId.TradeGoods), Mathf.Max(4, mouths / 2));
+		if (goods <= 0) { Sim.Notice($"{Title}: no goods left to buy provisions with."); return; }
+		int got = 0;
+		for (int i = 0; i < goods; i++)
+		{
+			if (from.Stores.Remove(ItemId.Pemmican, 2)) { Stores.Add(ItemId.Pemmican, 2); got += 2; }
+			else if (from.Stores.Remove(ItemId.DriedMeat, 2)) { Stores.Add(ItemId.DriedMeat, 2); got += 2; }
+			else break;
+			Stores.Remove(ItemId.TradeGoods); from.Stores.Add(ItemId.TradeGoods);
+			GoodsPaidMb += 1;
+		}
+		if (got > 0) Sim.Notice($"{Title} bought {got} pieces of provisions from {from.Name} - {FoodDays(mouths):0} days' food in hand.");
+	}
+
 	// A Cree party sells furs at the counter. Returns the MB of goods paid.
 	// Debt on the books is settled first (design doc 13.3).
 	public float BuyFurs(Inventory seller, Inventory buyerGoodsTo, BandLedger band = null)

@@ -123,6 +123,14 @@ E on a person stops them and opens topics: how things stand, about them (role, t
 
 The background batch has to be livable, or the far places quietly die while the player is elsewhere. A background household now gathers its own firewood (a camp with no cordwood used to freeze to death), melts snow at the fire for water, hunts its own country if it is a band, goes looking further when it has under a fortnight's food (and comes back knowing where the game is, which is real knowledge it keeps), falls through from an empty trapline to hunting instead of standing about, and keeps enough on snares and lines not to starve. Oxford House buys country provisions off the inland bands with its goods when its shelves get thin, before it buys furs. A man who freezes now dies of cold rather than of want.
 
+## Provisions at a post, and what a compressed clock does (design doc 13.1, 18.2)
+
+Besides the hunters' kills and what band parties sell at the counter, a post whose store falls under 25 days' food now sends out for meat once a week: a few pieces of goods for pemmican or dried meat from any band that will still deal with it, named in the console with the days' food in hand. A post with no provisions and nobody selling says so, and one with no goods to buy them with says that.
+
+A man in his own yard with food on the shelf no longer starves when a day passes faster than he can walk in and eat, and above about six times ordinary motion (fast-forward, a long time skip) **everyone's** day is resolved in numbers rather than on foot, as a background person's already was. Every death now names its cause: of hunger, of the cold, of the fever, of the scurvy, or killed by whoever did it.
+
+**Known balance limit:** at an ordinary clock three weeks of February pass at York Factory with nobody dying. Driven at twenty-five times that (`--speed=0.1`, a day every two and a half seconds), the post and the camp still lose people to hunger over a month or more of simulated famine - forty mouths need more than the live hunt and the weekly purchases deliver at that rate. Judge food balance at a human clock; the compressed runs are for watching events, not for reading the provisions economy.
+
 ## Your own book (design doc 3.6.1, 3.9 step 8)
 
 Furs bought at a camp with your own goods, or your own goods sold there, is private trade, and it is recorded where it happens: whoever is within earshot remembers it, and the word travels by the ordinary rumour rules. If it has reached the Factor by the time the ship sails, his report names it and your standing falls by four and three a time, with the cause shown in your journal - the same shape as the river crossings he cannot account for. Trading without the words now costs a fifth more on the lot instead of a piece on every article.

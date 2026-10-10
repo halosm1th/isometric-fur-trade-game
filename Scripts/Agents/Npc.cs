@@ -780,8 +780,16 @@ public partial class Npc : Agent
         AddToGroup("corpses");
         Sim.Unregister(this);
         if (!_quietDeath) Losses.Record(this);
-        Sim.Notice($"{DisplayName} has died.");
-        string how = LastAttacker != null && LastAttackedAgo < 30f ? $"{DisplayName} was killed by {LastAttacker.Describe()}." : $"{DisplayName} died of want.";
+        // Say what took him: a death nobody can account for is no use to
+        // anybody (design doc P.4).
+        string cause = LastAttacker != null && LastAttackedAgo < 30f ? $"killed by {LastAttacker.Describe()}"
+            : IsSick ? "of the fever"
+            : HasScurvy ? "of the scurvy"
+            : Needs.Warmth <= 1f ? "of the cold"
+            : Needs.Hunger <= 1f ? "of hunger"
+            : "of want";
+        Sim.Notice($"{DisplayName} has died {cause}.");
+        string how = LastAttacker != null && LastAttackedAgo < 30f ? $"{DisplayName} was killed by {LastAttacker.Describe()}." : $"{DisplayName} died {cause}.";
         Chronicle.Event(how, GlobalPosition, LastAttacker != null && LastAttackedAgo < 30f ? LastAttacker : null, DisplayName, 2f);
         if (IsBandPerson && LastAttacker != null && LastAttackedAgo < 30f) (HomeStores as BandLedger)?.OnMemberKilledBy(LastAttacker);
         // Fights are won before the first shot (design doc 15.6): a man down is

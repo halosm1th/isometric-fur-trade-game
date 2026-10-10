@@ -105,10 +105,31 @@ public static class Tiers
     {
         var cal = GameCalendar.Instance;
         bool foul = cal.Weather.Current is SkyState.Blizzard or SkyState.Storm;
+        bool rushing = cal.MotionScale > 6f;
         // A copy: someone who dies of want in the batch leaves Sim.Npcs mid-loop.
         foreach (var n in new System.Collections.Generic.List<Npc>(Sim.Npcs))
         {
-            if (n == null || !GodotObject.IsInstanceValid(n) || n.Tier != Tier.Background || n.IsDead) continue;
+            if (n == null || !GodotObject.IsInstanceValid(n) || n.IsDead) continue;
+            // A man standing in his own yard with food on the shelf does not
+            // starve (design doc P.5), whatever the clock is doing - a day can
+            // pass in a couple of seconds under fast-forward, too fast for him
+            // to walk in and eat.
+            // A day that passes in two seconds is a day in which nobody could
+            // have walked anywhere (design doc 18.2): under heavy fast-forward
+            // everyone's day is resolved in numbers, not on foot, or the whole
+            // country starves with food on the shelf.
+            if (n.Tier != Tier.Background && !rushing)
+            {
+                // Even at an ordinary clock, a man in his own yard with food on
+                // the shelf does not starve (design doc P.5).
+                if (n.Needs.Hunger < 25f)
+                {
+                    if (n.HomeStores != null && n.GlobalPosition.DistanceTo(World.IsoGrid.ToWorld(n.HomeStores.AccessCell)) < 900f)
+                        n.HomeStores.TakeRation(n, 1);
+                    n.Eat();
+                }
+                continue;
+            }
             var home = n.HomeStores;
             if (home == null) continue;
 
