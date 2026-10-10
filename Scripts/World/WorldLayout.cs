@@ -4,7 +4,7 @@ using IsometricFurTradeGame.Scripts.Ecology;
 
 namespace IsometricFurTradeGame.Scripts.World;
 
-public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse }
+public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse, FactorsHouse, ClerksHouse, ProvisionStore, SummerMess, GuestHouse, BoatShed, PowderMagazine }
 
 public readonly record struct BuildingDef(BuildingKind Kind, string Name, Vector2I Top, int Width, int Depth, int DoorOffset)
 {
@@ -40,16 +40,59 @@ public static class WorldLayout
     public static int MapHeight => WorldMap.Rows;
 
     // ---- the fort ---------------------------------------------------------
+    // York Factory after G. Ray's plan and the survey of the post: a long
+    // palisade, its length running west-south-west to east-north-east along
+    // the north bank of the Hayes, the Depot in the middle, a boardwalk from
+    // it through the river gate to the landings, Sloops Creek behind.
+    // In cells, i runs toward the river (screen down-right) and j along the
+    // length of the post (screen down-left), from the north corner.
     public static readonly Vector2I FortTop = WorldMap.Anchor("fort_top", new(30, 64));
-    public const int FortWidth = 22, FortDepth = 18, GateOffset = 10;
-    public static Vector2I GateCell => IsoGrid.Cell(FortTop, GateOffset, FortDepth - 1);
-    public static Vector2I GateOutside => IsoGrid.DownLeft(IsoGrid.DownLeft(GateCell));
+    public const int FortWidth = 22, FortDepth = 34, GateOffset = 21;
+    // The river gate, in the south-east palisade.
+    public static Vector2I GateCell => IsoGrid.Cell(FortTop, FortWidth - 1, GateOffset);
+    public static Vector2I GateOutside => IsoGrid.DownRight(IsoGrid.DownRight(GateCell));
     public static IEnumerable<Vector2I> YardCells() => IsoGrid.Rhombus(FortTop, FortWidth, FortDepth);
     public static Vector2 FortCentre => IsoGrid.ToWorld(IsoGrid.Cell(FortTop, FortWidth / 2, FortDepth / 2));
 
-    public static readonly BuildingDef Depot = new(BuildingKind.Depot, "Trading room", IsoGrid.Cell(FortTop, 3, 2), 7, 5, 3);
-    public static readonly BuildingDef Warehouse = new(BuildingKind.Warehouse, "Warehouse", IsoGrid.Cell(FortTop, 12, 2), 8, 6, 3);
-    public static readonly BuildingDef MensHouse = new(BuildingKind.MensHouse, "Men's house", IsoGrid.Cell(FortTop, 3, 10), 7, 5, 3);
+    // The three the post's work goes through keep their old names: the
+    // trading room is the Indian Trading Shop at the west end, the
+    // warehouse the great Depot.
+    public static readonly BuildingDef Depot = new(BuildingKind.Depot, "Indian trading shop", IsoGrid.Cell(FortTop, 10, 27), 7, 5, 3);
+    public static readonly BuildingDef Warehouse = new(BuildingKind.Warehouse, "the Depot", IsoGrid.Cell(FortTop, 8, 15), 8, 6, 3);
+    public static readonly BuildingDef MensHouse = new(BuildingKind.MensHouse, "Men's house", IsoGrid.Cell(FortTop, 7, 2), 7, 5, 3);
+    public static readonly BuildingDef FactorsHouse = new(BuildingKind.FactorsHouse, "the Chief Factor's house", IsoGrid.Cell(FortTop, 2, 18), 5, 6, 2);
+    public static readonly BuildingDef ClerksHouse = new(BuildingKind.ClerksHouse, "Clerks' house", IsoGrid.Cell(FortTop, 2, 10), 5, 6, 2);
+    public static readonly BuildingDef SummerMess = new(BuildingKind.SummerMess, "Summer mess", IsoGrid.Cell(FortTop, 8, 8), 5, 5, 2);
+    public static readonly BuildingDef ProvisionStore = new(BuildingKind.ProvisionStore, "Provision store", IsoGrid.Cell(FortTop, 12, 22), 5, 4, 2);
+    public static readonly BuildingDef GuestHouse = new(BuildingKind.GuestHouse, "Guest house", IsoGrid.Cell(FortTop, 16, 13), 4, 5, 1);
+    // Outside the palisade: the boat-building shed by the cargo landing, the
+    // powder magazine beyond the creek, away from everything that burns.
+    public static readonly BuildingDef BoatShed = new(BuildingKind.BoatShed, "Boat-building shed", IsoGrid.Cell(FortTop, FortWidth + 2, 2), 5, 6, 2);
+    public static readonly BuildingDef PowderMagazine = new(BuildingKind.PowderMagazine, "Powder magazine", IsoGrid.Cell(FortTop, -10, 6), 3, 3, 1);
+
+    // The boardwalk from the Depot's door to the river gate.
+    public static IEnumerable<Vector2I> BoardwalkCells()
+    {
+        for (int i = 11; i < FortWidth; i++) yield return IsoGrid.Cell(FortTop, i, GateOffset);
+    }
+
+    // Sloops Creek: behind the post, along its length, then down past the
+    // north corner to the river - with a ford where the graveyard path crosses.
+    public static IEnumerable<Vector2I> SloopsCreek()
+    {
+        for (int j = FortDepth + 4; j >= -5; j--) { yield return IsoGrid.Cell(FortTop, -5, j); yield return IsoGrid.Cell(FortTop, -6, j); }
+        for (int i = -4; i <= FortWidth + 14; i++) { yield return IsoGrid.Cell(FortTop, i, -5); yield return IsoGrid.Cell(FortTop, i, -6); }
+    }
+    public static IEnumerable<Vector2I> SloopsCreekFord()
+    {
+        for (int j = 6; j <= 7; j++) { yield return IsoGrid.Cell(FortTop, -5, j); yield return IsoGrid.Cell(FortTop, -6, j); }
+    }
+
+    static WorldLayout()
+    {
+        WorldMap.Carve(SloopsCreek(), Ground.River);
+        WorldMap.Carve(SloopsCreekFord(), Ground.Ford);
+    }
 
     // ---- the Nor'Westers' post, up the river (design doc 5.2, 7.1) ------------------
     public static readonly Vector2I NwcTop = WorldMap.Anchor("nwc_top", new(66, 150));
@@ -73,7 +116,7 @@ public static class WorldLayout
     public static IEnumerable<Vector2I> OutpostYardCells() => IsoGrid.Rhombus(OutpostTop, OutpostWidth, OutpostDepth);
     public static Vector2I OutpostWoodpileCell => IsoGrid.Cell(OutpostTop, 9, 6);
 
-    public static readonly BuildingDef[] Buildings = { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse };
+    public static readonly BuildingDef[] Buildings = { Depot, Warehouse, MensHouse, FactorsHouse, ClerksHouse, SummerMess, ProvisionStore, GuestHouse, BoatShed, PowderMagazine, NwcHouse, OutpostHouse };
 
     // ---- the river road: York Factory to Oxford House, up the Hayes -----------
     // Laid by the importer along dry ground beside the river (fording it
@@ -98,27 +141,29 @@ public static class WorldLayout
     }
 
     // Yard props.
-    public static Vector2I WoodpileCell => IsoGrid.Cell(FortTop, 13, 11);
-    public static Vector2I FlagCell => IsoGrid.Cell(FortTop, 10, 9);
+    public static Vector2I WoodpileCell => IsoGrid.Cell(FortTop, 18, 7);
+    // The flag staff in the square south-east of the Depot.
+    public static Vector2I FlagCell => IsoGrid.Cell(FortTop, 19, 19);
 
-    // ---- wharf and ship ---------------------------------------------------
-    // Up-right from the fort's north corner into the estuary (the importer
-    // only accepts a fort site where the last planks stand in deep water).
-    public static readonly Vector2I WharfRoot = FortTop + new Vector2I(8, -22);
+    // ---- the landing and the ship ----------------------------------------------
+    // The boardwalk carries on out of the river gate to the passenger landing
+    // (the importer only accepts a site where its last planks stand in the river).
     public const int WharfLength = 14;
+    public static readonly Vector2I WharfRoot = IsoGrid.DownRight(GateCell);
     public static IEnumerable<Vector2I> WharfCells()
     {
         var c = WharfRoot;
-        for (int i = 0; i < WharfLength; i++) { yield return c; c = IsoGrid.UpRight(c); }
+        for (int i = 0; i < WharfLength; i++) { yield return c; c = IsoGrid.DownRight(c); }
     }
     public static Vector2I WharfEnd
     {
-        get { var c = WharfRoot; for (int i = 0; i < WharfLength - 1; i++) c = IsoGrid.UpRight(c); return c; }
+        get { var c = WharfRoot; for (int i = 0; i < WharfLength - 1; i++) c = IsoGrid.DownRight(c); return c; }
     }
     // Where the ship's hull sits when tied up: alongside the last planks.
-    public static Vector2 ShipBerth => IsoGrid.ToWorld(WharfEnd) + new Vector2(-40, -120);
+    public static Vector2 ShipBerth => IsoGrid.ToWorld(WharfEnd) + new Vector2(120, -40);
     // Out in the Bay beyond sight of the post, the way she came in.
-    public static Vector2 ShipOffscreen => ShipBerth + new Vector2(5200, -2600);
+    // Down the Hayes and out into the Bay, the way she came in.
+    public static Vector2 ShipOffscreen => ShipBerth + new Vector2(5600, -2200);
 
     // ---- the Cree camp ----------------------------------------------------
     // The band follows the seasons (design doc 6, 14.1): the winter camp

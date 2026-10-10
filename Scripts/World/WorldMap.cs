@@ -94,6 +94,9 @@ public static class WorldMap
     private static string Str(Godot.Collections.Dictionary d, string k) => d.TryGetValue(k, out var v) ? v.AsString() : "";
     private static void Set(Vector2I c, Ground g) { if (InBounds(c)) _ground[c.Y * Columns + c.X] = (byte)g; }
 
+    // Hand-laid water the atlas is too coarse to have (a creek behind a post).
+    public static void Carve(IEnumerable<Vector2I> cells, Ground g) { foreach (var c in cells) Set(c, g); }
+
     public static bool InBounds(Vector2I c) => c.X >= 0 && c.Y >= 0 && c.X < Columns && c.Y < Rows;
 
     // Off the edge of the map is open water: nobody walks off the world.

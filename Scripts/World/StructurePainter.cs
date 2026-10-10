@@ -217,23 +217,25 @@ public partial class StructurePainter : TileMapLayer
     private void SetBack(Vector2I cell, int source) => SetCell(cell, source, Vector2I.Zero);
     private void SetFront(Vector2I cell, int source) => (_front ?? this).SetCell(cell, source, Vector2I.Zero);
 
+    // York Factory's palisade: the gate is in the river side (south-east),
+    // where the boardwalk goes out to the landings.
     private void PaintPalisade()
     {
         var top = WorldLayout.FortTop;
         int w = WorldLayout.FortWidth, d = WorldLayout.FortDepth;
         var gate = WorldLayout.GateCell;
-        var gateNext = IsoGrid.Cell(top, WorldLayout.GateOffset + 1, d - 1);
+        var gateNext = IsoGrid.Cell(top, w - 1, WorldLayout.GateOffset + 1);
 
         for (int i = 0; i < w; i++)
         {
             SetBack(IsoGrid.Cell(top, i, 0), SourceFenceS);
-            var front = IsoGrid.Cell(top, i, d - 1);
-            if (front != gate && front != gateNext) SetFront(front, SourceFenceN);
+            SetFront(IsoGrid.Cell(top, i, d - 1), SourceFenceN);
         }
         for (int j = 0; j < d; j++)
         {
             SetBack(IsoGrid.Cell(top, 0, j), SourceFenceE);
-            SetFront(IsoGrid.Cell(top, w - 1, j), SourceFenceW);
+            var river = IsoGrid.Cell(top, w - 1, j);
+            if (river != gate && river != gateNext) SetFront(river, SourceFenceW);
         }
         // Top and bottom corners need two walls that both belong on the same
         // layer, so they take a composite corner tile.
@@ -357,6 +359,54 @@ public partial class StructurePainter : TileMapLayer
                 for (int i = 2; i <= 5; i++) SetBack(IsoGrid.Cell(top, i, 3), SourceBed);
                 SetBack(IsoGrid.Cell(top, 3, 1), SourceBed);
                 break;
+            case BuildingKind.FactorsHouse:
+                // The Chief Factor's house: his own hearth, bed, table and books.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                SetBack(IsoGrid.Cell(top, 2, 2), SourceBed);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceShelfTall);
+                SetBack(IsoGrid.Cell(top, 3, 3), SourceTableChairs);
+                SetBack(IsoGrid.Cell(top, 1, 4), SourceCandleStand);
+                SetBack(IsoGrid.Cell(top, 2, 4), SourceRug);
+                break;
+            case BuildingKind.ClerksHouse:
+                // The clerks share a room: two beds, a desk, the ledgers.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                SetBack(IsoGrid.Cell(top, 1, 2), SourceBed);
+                SetBack(IsoGrid.Cell(top, 3, 2), SourceBed);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceShelf);
+                SetBack(IsoGrid.Cell(top, 2, 4), SourceTable);
+                SetBack(IsoGrid.Cell(top, 3, 4), SourceCandleStand);
+                break;
+            case BuildingKind.SummerMess:
+                // Where the men eat in the open-water season.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceTableChairs);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceTableChairs);
+                SetBack(IsoGrid.Cell(top, 1, 3), SourceTableChairs);
+                SetBack(IsoGrid.Cell(top, 3, 3), SourceCrate);
+                break;
+            case BuildingKind.ProvisionStore:
+                // Pemmican, flour, salt geese: the post's food under one roof.
+                for (int i = 1; i <= 3; i++) SetBack(IsoGrid.Cell(top, i, 1), SourceCrate);
+                SetBack(IsoGrid.Cell(top, 1, 2), SourceHayBales);
+                SetBack(IsoGrid.Cell(top, 3, 2), SourceShelf);
+                break;
+            case BuildingKind.GuestHouse:
+                // For the officers off the ship and the brigade's guides.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceBed);
+                SetBack(IsoGrid.Cell(top, 2, 1), SourceBed);
+                SetBack(IsoGrid.Cell(top, 1, 3), SourceTable);
+                SetBack(IsoGrid.Cell(top, 2, 3), SourceCandleStand);
+                break;
+            case BuildingKind.BoatShed:
+                // York boats are built and mended here.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceCrate);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceHayBales);
+                SetBack(IsoGrid.Cell(top, 1, 4), SourceCrate);
+                SetBack(IsoGrid.Cell(top, 3, 4), SourceWoodpile);
+                break;
+            case BuildingKind.PowderMagazine:
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceCrate);
+                break;
             case BuildingKind.MensHouse:
                 // Where the labourers sleep: a big hearth, benches, a table.
                 SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
@@ -374,8 +424,8 @@ public partial class StructurePainter : TileMapLayer
     private void PaintYard()
     {
         SetBack(WorldLayout.WoodpileCell, SourceWoodpile);
-        SetBack(IsoGrid.Cell(WorldLayout.FortTop, 15, 12), SourceCrate);
-        SetBack(IsoGrid.Cell(WorldLayout.FortTop, 16, 13), SourceHayBales);
+        SetBack(IsoGrid.Cell(WorldLayout.FortTop, 19, 25), SourceCrate);
+        SetBack(IsoGrid.Cell(WorldLayout.FortTop, 20, 26), SourceHayBales);
     }
 
     private void PaintCamp()

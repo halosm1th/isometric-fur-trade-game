@@ -49,7 +49,14 @@ public partial class TerrainPainter : TileMapLayer
     private readonly HashSet<Vector2I> _loaded = new();
     private readonly List<Vector2I> _queue = new();
     private readonly Dictionary<Vector2I, StaticBody2D> _chunkBodies = new();
-    private static readonly HashSet<Vector2I> Wharf = new(WorldLayout.WharfCells());
+    // The landing, and the boardwalk up to it from the Depot (planks, not dirt).
+    private static readonly HashSet<Vector2I> Wharf = WharfSet();
+    private static HashSet<Vector2I> WharfSet()
+    {
+        var w = new HashSet<Vector2I>(WorldLayout.WharfCells());
+        foreach (var c in WorldLayout.BoardwalkCells()) w.Add(c);
+        return w;
+    }
     private static readonly HashSet<Vector2I> Yards = YardSet();
     private float _focusTimer;
 

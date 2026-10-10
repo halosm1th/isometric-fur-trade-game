@@ -117,19 +117,20 @@ def main():
         for r in rings(f):
             if len(r) > 2: dw.polygon([P(*q) for q in r], fill=1)
     rivers = [(f["n"], r) for f in atlas["base"]["rivers"] for r in rings(f)]
+    widths = {x["name"]: x["width_px"] for x in extras.get("rivers", []) if "width_px" in x}
     rivers += [(x["name"], x["pts"]) for x in extras.get("rivers", [])]
     fords = []
     for name, r in rivers:
         if len(r) < 2: continue
         pts = [P(*q) for q in r]
-        width = (260 if name in MAJOR_RIVERS else 150) / RES
+        width = widths.get(name, 260 if name in MAJOR_RIVERS else 150) / RES
         dw.line(pts, fill=2, width=max(2, int(width)), joint="curve")
         # A ford every 40 km or so, so summer country isn't cut into islands.
         acc = 0.0
         for a, b in zip(pts, pts[1:]):
             seg = math.dist(a, b) * RES / PX_PER_KM
             acc += seg
-            if acc > 110: acc = 0; fords.append(b)
+            if acc > 110 and name not in widths: acc = 0; fords.append(b)
     dw2 = ImageDraw.Draw(water)
     for fx, fy in fords:
         rr = 170 / RES
@@ -251,15 +252,17 @@ def lay_out(G, places, extras):
     def footprint_dry(top, w, d, margin=2):
         return all(dry(c) for c in Rhombus(Cell(top, -margin, -margin), w + 2 * margin, d + 2 * margin))
 
-    # York Factory: dry fort, wharf root ashore, the last planks in deep water.
+    # York Factory (G. Ray's plan): a 22 x 34 palisade on dry ground with room
+    # behind it for Sloops Creek and the powder magazine, the boat shed dry
+    # outside the river side, and the boardwalk running out of the river gate
+    # (i = 21, j = 21) down-right until its last planks stand in the Hayes.
     def fort_ok(top):
-        if not footprint_dry(top, 22, 18): return False
-        root = (top[0] + 8, top[1] - 22)
-        c = root; cells = []
-        for _ in range(14): cells.append(c); c = UR(c)
-        end = cells[-1]
-        return wet(end) and wet(UR(end)) and wet(cells[-3]) and dry(cells[0])
-    fort = search(centred(near("York Factory"), 22, 18), (30, 64), fort_ok)
+        if not all(dry(c) for c in Rhombus(Cell(top, -11, -7), 22 + 11 + 2, 34 + 7 + 4)): return False
+        if not all(dry(c) for c in Rhombus(Cell(top, 24, 2), 5, 6)): return False
+        c = DR(Cell(top, 21, 21)); cells = []
+        for _ in range(14): cells.append(c); c = DR(c)
+        return dry(cells[0]) and dry(cells[1]) and all(wet(x) for x in cells[-3:]) and wet(DR(cells[-1]))
+    fort = search(centred(near("York Factory"), 22, 34), (30, 64), fort_ok)
     far = lambda c, px: math.dist(cell_world(*c), cell_world(*fort)) >= px
     nwc = search(centred(near("Nor'Westers' house (York)"), 12, 10), (66, 150), lambda t: far(t, 3500) and footprint_dry(t, 12, 10))
     outpost = search(centred(near("Oxford House"), 12, 9), (36, 396), lambda t: footprint_dry(t, 12, 9))
@@ -275,7 +278,7 @@ def lay_out(G, places, extras):
     a_winter = camp("Assiniboine winter camp", (16, 424))
     a_summer = camp("Assiniboine summer camp", (22, 118))
 
-    gate = Cell(fort, 10, 17); gate_out = DL(DL(gate))
+    gate = Cell(fort, 21, 21); gate_out = DR(DR(gate))
     ogate = Cell(outpost, 5, 8); ogate_out = DL(DL(ogate))
 
     # Roads: the cheapest dry way, hugging the Hayes (the real route ran up it).
