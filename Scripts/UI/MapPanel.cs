@@ -146,6 +146,9 @@ public partial class MapCanvas : Control
                 for (int dx = 0; dx < 4; dx++) { int xx = px + dx; if (xx >= 0 && xx < w && py >= 0 && py < h) img.SetPixel(xx, py, col); }
             }
         }
+        // Dev aid: `-- --dumpmap` saves the whole country to user://map.png.
+        foreach (string arg in OS.GetCmdlineUserArgs())
+            if (arg == "--dumpmap") { var path = ProjectSettings.GlobalizePath("user://map.png"); img.SavePng(path); GD.Print($"[map] {path}"); }
         _base = ImageTexture.CreateFromImage(img);
     }
 
