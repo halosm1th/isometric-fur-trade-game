@@ -61,14 +61,16 @@ public static class GooseHunt
 	public static int CasksThisSeason(Household home) => home == null ? 0 : _casks.GetValueOrDefault(home);
 
 	// What a house ought to lay in: a cask is eight birds and about seven
-	// man-days, and the aim is the winter itself - five months between the
-	// flight going over and the geese coming back - with the daily hunt and
-	// the bands' provisions making up the difference.
+	// man-days, and the aim is the hard part of the winter - some three months
+	// of the five between the flight going over and the geese coming back -
+	// with the deer that pass, what comes through the ice, and the bands'
+	// provisions expected to make up the rest. A post never did live on geese
+	// alone, and a target it could not reach would only read as failure.
 	public static int Wanted(Household home)
 	{
 		int mouths = 0;
 		foreach (var n in Sim.Npcs) if (n.HomeStores == home && !n.IsDead) mouths++;
-		return Mathf.Max(4, Mathf.RoundToInt(mouths * 150f * 33.6f / Items.Items.Of(ItemId.SaltGeese).Nutrition));
+		return Mathf.Max(4, Mathf.RoundToInt(mouths * 90f * 33.6f / Items.Items.Of(ItemId.SaltGeese).Nutrition));
 	}
 
 	// How long the cellar would carry the house if nothing else came in.
