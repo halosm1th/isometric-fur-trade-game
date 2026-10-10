@@ -109,9 +109,24 @@ public static class Letters
             "letter" => LetterToChief((string)payload["from"]),
             "rumour" => Rumour((string)payload["about"], (string)payload["text"], (float)payload["standing"]),
             "reply" => Reply((string)payload["from"], (string)payload["answer"]),
+            "news" => News(payload),
             "report" => OutpostReport((string)payload["from"], (float)payload["furs"], (float)payload["food"], (int)payload["men"], (string)payload["news"]),
             _ => new Message { Kind = kind },
         };
+    }
+
+    // News of the wider world, sent by the campaign (design doc 2.3): it
+    // happened somewhere else, and is known here only once this is read.
+    public static Message News(Godot.Collections.Dictionary payload)
+    {
+        var m = new Message
+        {
+            Kind = "news", From = (string)payload["from"], To = (string)payload["to"], Subject = (string)payload["subject"], Text = (string)payload["text"],
+            Company = (string)payload["company"] == "NWC" ? Faction.NWC : Faction.HBC, Payload = payload,
+        };
+        m.OnRead = reader => Campaign.NewsRead(reader, payload);
+        m.OnIntercepted = reader => Campaign.NewsRead(reader, payload);
+        return m;
     }
 
     // London's once-a-year instruction set (design doc 10.1.2). Inert till the Factor opens it.

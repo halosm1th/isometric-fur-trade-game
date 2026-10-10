@@ -11,6 +11,7 @@ public partial class WorldRoot : Node2D
     public override void _EnterTree()
     {
         Sim.Reset();
+        Campaign.Reset();
         Net.Net.I?.ResetWorld();
         WorldLayout.SetCamp(WorldLayout.WinterCamp);
     }

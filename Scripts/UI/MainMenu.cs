@@ -12,7 +12,7 @@ public partial class MainMenu : Control
     private LineEdit _name, _address;
     private Label _status;
     private PanelContainer _panel;
-    private Control _home, _multi;
+    private Control _home, _multi, _newGame;
     private SettingsPanel _settings;
 
     public override void _Ready()
@@ -84,6 +84,8 @@ public partial class MainMenu : Control
         _panel.AddChild(_home);
         _multi = BuildMultiplayer();
         _panel.AddChild(_multi);
+        _newGame = BuildNewGame();
+        _panel.AddChild(_newGame);
         _settings = new SettingsPanel(() => Show(_home));
         _panel.AddChild(_settings);
 
@@ -126,7 +128,7 @@ public partial class MainMenu : Control
             Small(box, Core.SaveGame.Summary());
         }
         var fresh = Big(box, "New game");
-        fresh.Pressed += () => { Apply(); NetHub.I.StartSolo(); Go(); };
+        fresh.Pressed += () => { Apply(); Show(_newGame); };
         if (Core.SaveGame.Exists()) Small(box, "Your saved game is kept until you save over it (F5, or the autosave).");
         Big(box, "Multiplayer").Pressed += () => Show(_multi);
         Big(box, "Settings").Pressed += () => Show(_settings);
@@ -223,6 +225,64 @@ public partial class MainMenu : Control
             if (c is Control and not TabContainer && FirstButton(c) is Button inner) return inner;
         }
         return null;
+    }
+
+    // Which campaign the world follows and how hard (design doc 2.3).
+    private Control BuildNewGame()
+    {
+        var box = new VBoxContainer { CustomMinimumSize = new Vector2(440, 0) };
+        box.AddThemeConstantOverride("separation", 9);
+        var title = new Label { Text = "New game", HorizontalAlignment = HorizontalAlignment.Center };
+        title.AddThemeFontSizeOverride("font_size", 24);
+        box.AddChild(title);
+        box.AddChild(new HSeparator());
+
+        Heading(box, "Campaign");
+        var pick = new OptionButton();
+        box.AddChild(pick);
+        var about = Small(box, "");
+        var choices = Core.Campaign.Available();
+        void Fill()
+        {
+            pick.Clear();
+            choices = Core.Campaign.Available();
+            for (int i = 0; i < choices.Count; i++)
+            {
+                pick.AddItem(choices[i].Title, i);
+                if (choices[i].Id == Core.Campaign.Id) pick.Select(i);
+            }
+            about.Text = choices[Mathf.Max(0, pick.Selected)].Description;
+        }
+        Fill();
+        pick.ItemSelected += i => { Core.Campaign.Id = choices[(int)i].Id; about.Text = choices[(int)i].Description; };
+        Core.Campaign.Id = choices[Mathf.Max(0, pick.Selected)].Id;
+
+        Heading(box, "How closely history is held to");
+        var level = new OptionButton();
+        string[] names = { "Gentle - the world finds its own way", "Steady - pressure toward the script", "Firm - late events are made to happen", "Strict - events happen on time" };
+        string[] notes =
+        {
+            "Only fixed facts (the blockade, a post's founding) are certain. The director favours news that bears on what history has coming, and nothing more.",
+            "As Gentle, and each event's pressures build as its date nears - bad blood between the companies, London's orders - but whether it happens is up to the world.",
+            "As Steady, and an event the world hasn't produced by twice its grace period is made to happen. You still only hear of it when the news reaches you.",
+            "As Steady, and every event happens once its grace period runs out. History keeps its shape; you play inside it.",
+        };
+        for (int i = 0; i < names.Length; i++) level.AddItem(names[i], i);
+        level.Select((int)Core.Campaign.Level);
+        box.AddChild(level);
+        var levelNote = Small(box, notes[(int)Core.Campaign.Level]);
+        level.ItemSelected += i => { Core.Campaign.Level = (Core.Adherence)(int)i; levelNote.Text = notes[(int)i]; };
+
+        var folder = new Button { Text = "Open the campaigns folder (write your own)" };
+        folder.Pressed += () => { OS.ShellOpen(Core.Campaign.EnsureUserFolder()); Fill(); };
+        box.AddChild(folder);
+        Small(box, "my-campaign.json there starts as a copy of the historical script, and README.txt explains the format. Come back to this page to pick it up.");
+
+        box.AddChild(new HSeparator());
+        Big(box, "Begin").Pressed += () => { Apply(); NetHub.I.StartSolo(); Go(); };
+        Big(box, "Begin and host").Pressed += () => { Apply(); var e = NetHub.I.StartHost(); if (e == Error.Ok) Go(); else Fail($"Could not host: {e}"); };
+        Big(box, "Back").Pressed += () => Show(_home);
+        return box;
     }
 
     public override void _UnhandledInput(InputEvent @event)

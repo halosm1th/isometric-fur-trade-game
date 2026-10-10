@@ -1,0 +1,163 @@
+{
+  "title": "The Pemmican War, 1811-1821",
+  "description": "The historical arc (design doc 4.1): Selkirk's colony, the Pemmican Proclamation, Seven Oaks, Fort William seized, the lawless years, and the union of the companies. The blockade and the colony's founding are fixed; the rest is pressure the world may or may not answer, unless you ask for it to be held to.",
+  "posts_by_founding_year": true,
+  "beats": [
+    {
+      "id": "blockade",
+      "title": "The Continental Blockade holds the fur market down",
+      "kind": "fixed",
+      "date": "1811-06-01",
+      "happens": [
+        { "do": "london", "price": 0.85, "quota": 0.85 },
+        { "do": "flag", "name": "blockade" }
+      ]
+    },
+    {
+      "id": "red-river-grant",
+      "title": "Lord Selkirk's grant of Assiniboia (the Red River Colony)",
+      "kind": "fixed",
+      "date": "1811-06-12",
+      "keywords": ["Selkirk", "Red River", "colony", "Assiniboia"],
+      "happens": [
+        { "do": "flag", "name": "red_river_colony" },
+        { "do": "news", "from": "the Governor and Committee, London", "to": "the Factor at York Factory", "days": 70,
+          "subject": "Lord Selkirk's grant", "text": "The Committee has granted Lord Selkirk a hundred and sixteen thousand square miles on the Red River for a settlement. Settlers will come out by the Bay. Give them every assistance; the Canadians will not like it." }
+      ]
+    },
+    {
+      "id": "war-of-1812",
+      "title": "War between Britain and the United States",
+      "kind": "fixed",
+      "date": "1812-06-18",
+      "keywords": ["war", "Americans", "Montreal"],
+      "happens": [
+        { "do": "news", "from": "Montreal", "to": "the wintering partner", "days": 75, "company": "NWC",
+          "subject": "war with the Americans", "text": "The Americans have declared war. Michilimackinac is in danger and the canoes may be wanted for the King's service." },
+        { "do": "news", "from": "the Governor and Committee, London", "to": "the Factor at York Factory", "days": 400,
+          "subject": "the American war", "text": "Britain is at war with the United States. The ship may be late; ration accordingly." }
+      ]
+    },
+    {
+      "id": "astoria-sold",
+      "title": "Astor's Fort Astoria sold to the North West Company (Fort George)",
+      "kind": "fixed",
+      "date": "1813-10-16",
+      "keywords": ["Astoria", "Columbia", "Fort George"],
+      "happens": [
+        { "do": "flag", "name": "fort_george" },
+        { "do": "news", "from": "Fort William", "to": "the wintering partner", "days": 250, "company": "NWC",
+          "subject": "Astoria is ours", "text": "Astor's men on the Columbia have sold out to us. Fort Astoria is Fort George now, and many of his clerks are Nor'Westers." }
+      ]
+    },
+    {
+      "id": "pemmican-proclamation",
+      "title": "Governor Macdonell's Pemmican Proclamation",
+      "kind": "event",
+      "date": "1814-01-08",
+      "window_days": 60,
+      "lead_days": 120,
+      "requires": ["red-river-grant"],
+      "keywords": ["pemmican", "Red River", "Macdonell", "proclamation", "provisions"],
+      "done_when": ["flag:pemmican_proclamation"],
+      "pressure": [
+        { "do": "tension", "add": 10, "why": "word that the colony's governor means to stop the pemmican" }
+      ],
+      "happens": [
+        { "do": "flag", "name": "pemmican_proclamation" },
+        { "do": "tension", "add": 20, "why": "the Pemmican Proclamation" },
+        { "do": "news", "from": "Fort Gibraltar", "to": "the wintering partner", "days": 45, "company": "NWC",
+          "subject": "the Pemmican Proclamation", "text": "Macdonell has forbidden any provisions to leave the colony's lands. Our brigades eat pemmican or they do not run. The partners will not stand it." },
+        { "do": "news", "from": "Red River", "to": "the Factor at York Factory", "days": 120,
+          "subject": "the governor's proclamation", "text": "Governor Macdonell has proclaimed that no pemmican may be taken out of Assiniboia. The Nor'Westers are furious; keep your people close." }
+      ]
+    },
+    {
+      "id": "colony-dispersed",
+      "title": "The Red River Colony attacked and dispersed",
+      "kind": "event",
+      "date": "1815-06-25",
+      "window_days": 60,
+      "requires": ["pemmican-proclamation"],
+      "keywords": ["Red River", "colony", "settlers", "burned"],
+      "done_when": ["flag:colony_dispersed"],
+      "pressure": [ { "do": "tension", "add": 8, "why": "the Métis gathering against the colony" } ],
+      "happens": [
+        { "do": "flag", "name": "colony_dispersed" },
+        { "do": "tension", "add": 15, "why": "the colony burned out" },
+        { "do": "news", "from": "Norway House", "to": "the Factor at York Factory", "days": 40,
+          "subject": "the colony broken up", "text": "The settlers at Red River have been driven off and their houses burned. Some are coming down to the Bay." }
+      ]
+    },
+    {
+      "id": "seven-oaks",
+      "title": "The Battle of Seven Oaks: Governor Semple and twenty colonists killed",
+      "kind": "event",
+      "date": "1816-06-19",
+      "window_days": 45,
+      "requires": ["pemmican-proclamation"],
+      "keywords": ["Seven Oaks", "Semple", "Grant", "Métis", "Red River"],
+      "done_when": ["flag:seven_oaks"],
+      "pressure": [ { "do": "tension", "add": 15, "why": "Cuthbert Grant's riders on the Assiniboine" } ],
+      "happens": [
+        { "do": "flag", "name": "seven_oaks" },
+        { "do": "flag", "name": "governor_killed" },
+        { "do": "tension", "add": 25, "why": "Seven Oaks" },
+        { "do": "news", "from": "Norway House", "to": "the Factor at York Factory", "days": 35,
+          "subject": "Seven Oaks", "text": "Governor Semple is dead with twenty of the colonists, shot down at Seven Oaks by Grant's half-breeds. The colony is gone." },
+        { "do": "news", "from": "Fort William", "to": "the wintering partner", "days": 60, "company": "NWC",
+          "subject": "Seven Oaks", "text": "Grant's people met Semple at Seven Oaks. Semple is dead and the colony scattered. There will be a reckoning for this in Montreal." }
+      ]
+    },
+    {
+      "id": "selkirk-fort-william",
+      "title": "Lord Selkirk marches on Fort William and arrests the partners",
+      "kind": "conditional",
+      "requires": ["seven-oaks"],
+      "when": ["flag:governor_killed"],
+      "delay_days": 420,
+      "lead_days": 0,
+      "keywords": ["Selkirk", "Fort William", "de Meurons", "soldiers"],
+      "happens": [
+        { "do": "flag", "name": "fort_william_seized" },
+        { "do": "tension", "add": 10, "why": "Fort William taken" },
+        { "do": "news", "from": "Fort William", "to": "the wintering partner", "days": 70, "company": "NWC",
+          "subject": "Fort William taken", "text": "Selkirk came up the lakes with his de Meurons and took Fort William. McGillivray and the partners are under arrest." }
+      ]
+    },
+    {
+      "id": "blockade-lifted",
+      "title": "Peace in Europe: the fur market reopens",
+      "kind": "fixed",
+      "date": "1814-05-30",
+      "happens": [
+        { "do": "unflag", "name": "blockade" },
+        { "do": "london", "price": 1.18, "quota": 1.15 },
+        { "do": "news", "from": "the Governor and Committee, London", "to": "the Factor at York Factory", "days": 80,
+          "subject": "peace", "text": "Bonaparte is beaten and the Continent is open again. Furs will sell; the Committee expects returns to answer." }
+      ]
+    },
+    { "id": "interior-war-1818", "title": "The lawless years: posts burned, brigades stopped", "kind": "pressure", "date": "1818-06-01", "requires": ["seven-oaks"], "keywords": ["burned", "brigade", "seized"], "pressure": [ { "do": "tension", "add": 15, "why": "the interior war" } ] },
+    { "id": "interior-war-1819", "title": "The lawless years: Grand Rapids", "kind": "pressure", "date": "1819-06-01", "requires": ["seven-oaks"], "keywords": ["Grand Rapids", "brigade", "seized"], "pressure": [ { "do": "tension", "add": 15, "why": "the interior war" } ] },
+    { "id": "interior-war-1820", "title": "The lawless years: both companies near the end of their means", "kind": "pressure", "date": "1820-06-01", "requires": ["seven-oaks"], "keywords": ["ruin", "debts", "London"], "pressure": [ { "do": "tension", "add": 10, "why": "the interior war" }, { "do": "london", "price": 0.85, "quota": 0.9 } ] },
+    {
+      "id": "merger",
+      "title": "The union of the Hudson's Bay and North West Companies",
+      "kind": "event",
+      "date": "1821-03-26",
+      "window_days": 120,
+      "lead_days": 365,
+      "keywords": ["union", "merger", "coalition", "Simpson", "the new company"],
+      "done_when": ["flag:merger"],
+      "pressure": [ { "do": "london", "price": 0.9, "quota": 0.9 } ],
+      "happens": [
+        { "do": "flag", "name": "merger" },
+        { "do": "tension", "add": -70, "why": "the companies made one" },
+        { "do": "news", "from": "the Governor and Committee, London", "to": "the Factor at York Factory", "days": 90,
+          "subject": "the union of the companies", "text": "The Company and the North West Company are joined under the Company's charter. Mr. George Simpson will govern the Northern Department. Expect economies." },
+        { "do": "news", "from": "Montreal", "to": "the wintering partner", "days": 75, "company": "NWC",
+          "subject": "the coalition", "text": "It is done: the North West Company goes into the Hudson's Bay Company. The wintering partners are to be chief factors and chief traders. Many of the men will be let go." }
+      ]
+    }
+  ]
+}

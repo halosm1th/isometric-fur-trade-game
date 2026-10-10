@@ -298,6 +298,7 @@ public partial class EcologyManager : Node2D
         foreach (var s in Sites) s.TickTraplines(cal.DeltaGameHours);
         Economy.Rivalry.DailyTick(cal.Day);
         Mail.Tick(cal.DeltaGameHours);
+        Campaign.Tick();
         // Traps work at night.
         int day = cal.Day;
         if (day != _lastTrapDay && cal.Hour >= 5f)

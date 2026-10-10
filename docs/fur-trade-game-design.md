@@ -51,6 +51,29 @@ The **director** is a background process that never creates an event, never chan
 
 The rule that keeps it honest: **switch the director off and the world must still be valid** — every event it surfaced would still have happened, just somewhere the player wasn't. It decides what's on stage, never what's in the play. (Reference point: RimWorld's storytellers, minus the event-spawning.) In multiplayer (Section 21) it weights across every player's anchor rather than one.
 
+### 2.3 Campaign Scripts — How Hard History Is Held To
+Section 4.4 already splits history into a small fixed core and a much larger body of pressure. The campaign script makes that split explicit, and gives the player a dial on it. It is a file of dated **beats** (the blockade, Selkirk's grant, the Pemmican Proclamation, Seven Oaks, Fort William, the merger) that the director works toward. Three choices at a new game:
+- **No script**: the world runs on its own pressures. Posts that stand at the start date exist; later ones appear only if someone founds them.
+- **Historical**: the 1811–1821 arc of Section 4.1, shipped with the game.
+- **Another script**: any file in the player's campaigns folder. The game writes a copy of the historical script and a README there to start from. Scripts are plain JSON, meant to be rewritten.
+
+Each beat is one of four kinds:
+- **fixed**: happens on its date at every setting. This is 4.4's fixed core: the blockade, the colony's founding, and a post's founding date (6.1).
+- **conditional**: happens once its conditions hold. This is 4.4's Selkirk rule: a governor killed brings the soldiers.
+- **event**: the world may produce it by itself, which the beat's "done when" test detects.
+- **pressure**: pushes toward the arc but decides nothing.
+
+**Adherence**, chosen with the script, is how far the script may lean on the world:
+- **Gentle**: fixed and conditional beats only. The director weights news bearing on what is due (2.2's "who talks about what") and does nothing else. This is 2.2 exactly: switch it off and the world is still valid.
+- **Steady**: adds each beat's pressures as its date nears: bad blood between the companies, London's orders. Whether the event happens is still the world's business.
+- **Firm**: an event the world hasn't produced by twice its grace window is made to happen.
+- **Strict**: every event happens once its grace window runs out. History keeps its shape, and the player plays inside it.
+
+Firm and Strict deliberately break 2.2's "never creates an event" rule, because that is what the player asked for. They are labelled that way, and every forced beat is logged as forced. What they never break is Section 10: a forced beat is still news that has to travel. It arrives as a sealed letter that takes effect only when someone reads it, so the player hears of Seven Oaks when a canoe from Norway House brings it, not when it happens.
+
+Beats can watch flags that the simulation sets itself. The rivalry crossing into open hostility is one. As the Red River colony, the Métis hunt and the interior war become simulated rather than scripted, their systems set the flags that the historical script's "done when" tests look for. The same script then reads as pressure, not as enforcement.
+
+
 ---
 
 ## P. Player Experience — What It Feels Like to Play
@@ -405,6 +428,7 @@ Distinct zones with distinct feel/mechanics — including distinct wildlife (Sec
 - **West edge**: working assumption is the Pacific coast, as already planned, which keeps the Columbia region and the Americans-in-Oregon thread. A cut at the Rockies was floated, but it would chop the Columbia region already built out here (Section 20).
 - **South**: the real cut is depth into the American interior. Only the edge of it is in play, via Astor and Manuel Lisa as the nuisance faction (Section 7.3) — no simulation of St. Louis or the deep Missouri.
 - **Date gating**: the map spans c. 1670–1870, and several posts labeled on it post-date the game window (for example Fort Vancouver 1825, Fort Union 1828, Fort Ellice 1831, St. Paul 1841, Fort Victoria 1843). Every post needs a founding date and only exists in-world once the timeline reaches it.
+- **In the game (Oct 2026)**: the play area above is built at half scale, 20 px to the km on a Lambert conformal conic projection. That gives 501 × 1180 cells, generated from the atlas data by `tools/world/build_world.py` into `Data/World/ground.png` (hand-paintable) and `world.json`, and streamed in chunks around the viewer (18.1). Buildings stay at life size, so a fort covers what the map calls tens of kilometres. Hand-built places keep their shape and are fitted onto dry ground near their real positions. Posts appear by founding year when the campaign says so (2.3).
 - **Reusable map layers**: post types (HBC, NWC, American, French regime, Russian-American Co.), factory/district HQs, pemmican provision posts, Indigenous sacred sites (S1–S11), historic events and battles, key portages, canoe/brigade routes, nation homelands and language families, the Rupert's Land limit, and HBC district boundaries.
 
 ### 6.2 Southern Department (James Bay / East Main)

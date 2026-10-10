@@ -137,6 +137,9 @@ public static class Director
 			if (g.Against == p.DisplayName && text.Contains(g.Holder)) score += 2f;
 			if (g.Holder == p.DisplayName && text.Contains(g.Against)) score += 2f;
 		}
+		// What the campaign has coming (design doc 2.3): news that bears on
+		// it gets told first, never made up.
+		foreach (var k in Campaign.Keywords()) if (text.Contains(k, StringComparison.OrdinalIgnoreCase)) score += 1f;
 		foreach (var a in p.Ambitions)
 		{
 			if (a.Abandoned) continue;

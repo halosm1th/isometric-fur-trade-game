@@ -24,6 +24,7 @@ public static class Rivalry
         if (!Net.Net.IsServer || amount == 0f) return;
         bool was = OpenHostility;
         Tension = Mathf.Clamp(Tension + amount, 0f, 100f);
+        if (!was && OpenHostility) Campaign.Flag("open_hostility");
         if (!was && OpenHostility) Sim.Notice($"Bad blood between the companies has become open hostility ({why}). Armed men go about both posts now.");
         if (was && !OpenHostility) Sim.Notice($"The companies have drawn back from open hostility ({why}).");
     }
