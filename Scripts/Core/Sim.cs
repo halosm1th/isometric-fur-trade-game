@@ -61,6 +61,7 @@ public static class Sim
         // The old scene's HUD and painters hung handlers here; they're gone
         // with it, and the new scene subscribes afresh in its _Ready.
         LocalPlayerChanged = null; OnHeadline = null;
+        IsometricFurTradeGame.Scripts.World.WorldLayout.ForgetSites();
         Nwc = null; Outpost = null; Assiniboine = null; Bands.Clear();
         IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear(); IsometricFurTradeGame.Scripts.Agents.Barks.Reset(); IsometricFurTradeGame.Scripts.Agents.Losses.Reset();
     }

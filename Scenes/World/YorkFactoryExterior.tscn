@@ -29,6 +29,14 @@
 [ext_resource type="Script" path="res://Scripts/UI/HelpPanel.cs" id="24_help"]
 [ext_resource type="Script" path="res://Scripts/UI/PauseMenu.cs" id="25_pause"]
 
+[ext_resource type="Script" path="res://Scripts/World/NpcSpawn.cs" id="30_npcspawn"]
+[ext_resource type="Script" path="res://Scripts/World/WildlifeSite.cs" id="31_site"]
+[ext_resource type="SpriteFrames" path="res://Scenes/Player/PlayerFrames.tres" id="32_hbc"]
+[ext_resource type="SpriteFrames" path="res://Scenes/Npc/RivalFrames.tres" id="32_factor"]
+[ext_resource type="SpriteFrames" path="res://Scenes/Npc/CreeFrames.tres" id="32_cree"]
+[ext_resource type="SpriteFrames" path="res://Scenes/Npc/LabourerFrames.tres" id="32_lab"]
+[ext_resource type="SpriteFrames" path="res://Scenes/Npc/CreeWomanFrames.tres" id="32_creew"]
+[ext_resource type="SpriteFrames" path="res://Scenes/Npc/AssiniboineFrames.tres" id="32_assin"]
 [node name="YorkFactoryExterior" type="Node2D" unique_id=1419352490]
 script = ExtResource("12_root")
 
@@ -95,6 +103,715 @@ script = ExtResource("16_ship")
 
 [node name="Fire" type="Node2D" parent="YSort"]
 script = ExtResource("16_fire")
+
+[node name="Cast" type="Node2D" parent="."]
+
+[node name="York Factory" type="Node2D" parent="Cast"]
+
+[node name="Mr William Auld" type="Node2D" parent="Cast/York Factory"]
+position = Vector2(4096, 2368)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. William Auld"
+Role = 0
+Faction = 0
+Home = 0
+Leader = true
+Frames = ExtResource("32_factor")
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/York Factory/Mr William Auld"]
+position = Vector2(-128, 0)
+
+[node name="John Fidler clerk" type="Node2D" parent="Cast/York Factory"]
+position = Vector2(4160, 2400)
+script = ExtResource("30_npcspawn")
+DisplayName = "John Fidler (clerk)"
+Role = 1
+Faction = 0
+Home = 0
+Frames = ExtResource("32_hbc")
+Tint = Color(0.9, 0.9, 1, 1)
+Inventory = "Capote, Knife, Bread"
+
+[node name="Work" type="Marker2D" parent="Cast/York Factory/John Fidler clerk"]
+position = Vector2(-192, 32)
+
+[node name="Alex Kennedy clerk" type="Node2D" parent="Cast/York Factory"]
+position = Vector2(3904, 2400)
+script = ExtResource("30_npcspawn")
+DisplayName = "Alex Kennedy (clerk)"
+Role = 1
+Faction = 0
+Home = 0
+Frames = ExtResource("32_hbc")
+Tint = Color(0.85, 0.95, 0.9, 1)
+Inventory = "Capote, Knife, Bread"
+
+[node name="Work" type="Marker2D" parent="Cast/York Factory/Alex Kennedy clerk"]
+position = Vector2(256, 64)
+
+[node name="James Isbister" type="Node2D" parent="Cast/York Factory"]
+position = Vector2(3392, 2592)
+script = ExtResource("30_npcspawn")
+DisplayName = "James Isbister"
+Role = 2
+Faction = 0
+Home = 0
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, DriedGoose:2, Musket"
+
+[node name="Work" type="Marker2D" parent="Cast/York Factory/James Isbister"]
+position = Vector2(512, 0)
+
+[node name="William Flett" type="Node2D" parent="Cast/York Factory"]
+position = Vector2(3456, 2624)
+script = ExtResource("30_npcspawn")
+DisplayName = "William Flett"
+Role = 2
+Faction = 0
+Home = 0
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, DriedGoose:2, Musket"
+
+[node name="Work" type="Marker2D" parent="Cast/York Factory/William Flett"]
+position = Vector2(512, 0)
+
+[node name="Magnus Spence" type="Node2D" parent="Cast/York Factory"]
+position = Vector2(3520, 2656)
+script = ExtResource("30_npcspawn")
+DisplayName = "Magnus Spence"
+Role = 2
+Faction = 0
+Home = 0
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, DriedGoose:2"
+
+[node name="Work" type="Marker2D" parent="Cast/York Factory/Magnus Spence"]
+position = Vector2(512, 0)
+
+[node name="John Linklater" type="Node2D" parent="Cast/York Factory"]
+position = Vector2(3584, 2688)
+script = ExtResource("30_npcspawn")
+DisplayName = "John Linklater"
+Role = 2
+Faction = 0
+Home = 0
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, DriedGoose:2"
+
+[node name="Work" type="Marker2D" parent="Cast/York Factory/John Linklater"]
+position = Vector2(512, 0)
+
+[node name="Thomas Corrigal" type="Node2D" parent="Cast/York Factory"]
+position = Vector2(3648, 2720)
+script = ExtResource("30_npcspawn")
+DisplayName = "Thomas Corrigal"
+Role = 2
+Faction = 0
+Home = 0
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, DriedGoose:2"
+
+[node name="Work" type="Marker2D" parent="Cast/York Factory/Thomas Corrigal"]
+position = Vector2(512, 0)
+
+[node name="Peter Sinclair" type="Node2D" parent="Cast/York Factory"]
+position = Vector2(3328, 2624)
+script = ExtResource("30_npcspawn")
+DisplayName = "Peter Sinclair"
+Role = 2
+Faction = 0
+Home = 0
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, DriedGoose:2"
+
+[node name="Work" type="Marker2D" parent="Cast/York Factory/Peter Sinclair"]
+position = Vector2(896, 128)
+
+[node name="Nancy Isbister" type="Node2D" parent="Cast/York Factory"]
+position = Vector2(3392, 2656)
+script = ExtResource("30_npcspawn")
+DisplayName = "Nancy Isbister"
+Role = 3
+Faction = 0
+Home = 0
+Frames = ExtResource("32_hbc")
+Tint = Color(1, 0.8, 0.85, 1)
+SpriteScale = 0.72
+Female = true
+Inventory = "PointBlanket, Knife"
+
+[node name="Work" type="Marker2D" parent="Cast/York Factory/Nancy Isbister"]
+position = Vector2(128, 0)
+
+[node name="Margaret Flett" type="Node2D" parent="Cast/York Factory"]
+position = Vector2(3456, 2688)
+script = ExtResource("30_npcspawn")
+DisplayName = "Margaret Flett"
+Role = 3
+Faction = 0
+Home = 0
+Frames = ExtResource("32_hbc")
+Tint = Color(1, 0.8, 0.85, 1)
+SpriteScale = 0.72
+Female = true
+Inventory = "PointBlanket, Knife"
+
+[node name="Work" type="Marker2D" parent="Cast/York Factory/Margaret Flett"]
+position = Vector2(64, -32)
+
+[node name="Jane Spence" type="Node2D" parent="Cast/York Factory"]
+position = Vector2(3520, 2720)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jane Spence"
+Role = 3
+Faction = 0
+Home = 0
+Frames = ExtResource("32_hbc")
+Tint = Color(1, 0.8, 0.85, 1)
+SpriteScale = 0.72
+Female = true
+Inventory = "PointBlanket, Knife"
+
+[node name="Work" type="Marker2D" parent="Cast/York Factory/Jane Spence"]
+position = Vector2(0, -64)
+
+[node name="Cree camp" type="Node2D" parent="Cast"]
+
+[node name="Maskwa chief" type="Node2D" parent="Cast/Cree camp"]
+position = Vector2(2048, 4608)
+script = ExtResource("30_npcspawn")
+DisplayName = "Maskwa (chief)"
+Role = 5
+Faction = 1
+Home = 1
+Leader = true
+Frames = ExtResource("32_cree")
+Inventory = "Musket, HideCoat, Venison:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Cree camp/Maskwa chief"]
+position = Vector2(-128, -64)
+
+[node name="Wapistan" type="Node2D" parent="Cast/Cree camp"]
+position = Vector2(1664, 4608)
+script = ExtResource("30_npcspawn")
+DisplayName = "Wapistan"
+Role = 6
+Faction = 1
+Home = 1
+Frames = ExtResource("32_cree")
+Tint = Color(0.95, 0.92, 0.9, 1)
+Inventory = "Bow, Knife, HideCoat, Venison:2, Snowshoes"
+
+[node name="Work" type="Marker2D" parent="Cast/Cree camp/Wapistan"]
+position = Vector2(64, -96)
+
+[node name="Mahihkan" type="Node2D" parent="Cast/Cree camp"]
+position = Vector2(1664, 4416)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mahihkan"
+Role = 6
+Faction = 1
+Home = 1
+Frames = ExtResource("32_cree")
+Tint = Color(0.95, 0.92, 0.9, 1)
+Inventory = "Musket, Knife, HideCoat, Venison:2, Snowshoes"
+
+[node name="Work" type="Marker2D" parent="Cast/Cree camp/Mahihkan"]
+position = Vector2(64, 96)
+
+[node name="Pisiskiw" type="Node2D" parent="Cast/Cree camp"]
+position = Vector2(2048, 4416)
+script = ExtResource("30_npcspawn")
+DisplayName = "Pisiskiw"
+Role = 6
+Faction = 1
+Home = 1
+Frames = ExtResource("32_cree")
+Tint = Color(0.95, 0.92, 0.9, 1)
+Inventory = "Bow, Knife, HideCoat, Venison:2, Snowshoes"
+
+[node name="Work" type="Marker2D" parent="Cast/Cree camp/Pisiskiw"]
+position = Vector2(-320, 96)
+
+[node name="Kihiw" type="Node2D" parent="Cast/Cree camp"]
+position = Vector2(1856, 4704)
+script = ExtResource("30_npcspawn")
+DisplayName = "Kihiw"
+Role = 6
+Faction = 1
+Home = 1
+Frames = ExtResource("32_cree")
+Tint = Color(0.95, 0.92, 0.9, 1)
+Inventory = "Musket, Knife, HideCoat, Venison:2, Snowshoes"
+
+[node name="Work" type="Marker2D" parent="Cast/Cree camp/Kihiw"]
+position = Vector2(-128, -192)
+
+[node name="Niska" type="Node2D" parent="Cast/Cree camp"]
+position = Vector2(2048, 4608)
+script = ExtResource("30_npcspawn")
+DisplayName = "Niska"
+Role = 7
+Faction = 1
+Home = 1
+Frames = ExtResource("32_creew")
+SpriteScale = 0.78
+Female = true
+Inventory = "HideCoat, Knife"
+Spouse = NodePath("../Maskwa chief")
+
+[node name="Work" type="Marker2D" parent="Cast/Cree camp/Niska"]
+position = Vector2(-256, -64)
+
+[node name="Sakihitowin" type="Node2D" parent="Cast/Cree camp"]
+position = Vector2(1664, 4608)
+script = ExtResource("30_npcspawn")
+DisplayName = "Sakihitowin"
+Role = 7
+Faction = 1
+Home = 1
+Frames = ExtResource("32_creew")
+SpriteScale = 0.78
+Female = true
+Inventory = "HideCoat, Knife"
+Spouse = NodePath("../Wapistan")
+
+[node name="Work" type="Marker2D" parent="Cast/Cree camp/Sakihitowin"]
+position = Vector2(128, -64)
+
+[node name="Wapun" type="Node2D" parent="Cast/Cree camp"]
+position = Vector2(1664, 4416)
+script = ExtResource("30_npcspawn")
+DisplayName = "Wapun"
+Role = 7
+Faction = 1
+Home = 1
+Frames = ExtResource("32_creew")
+SpriteScale = 0.78
+Female = true
+Inventory = "HideCoat, Knife"
+Spouse = NodePath("../Mahihkan")
+
+[node name="Work" type="Marker2D" parent="Cast/Cree camp/Wapun"]
+position = Vector2(128, 128)
+
+[node name="Atim-iskwew" type="Node2D" parent="Cast/Cree camp"]
+position = Vector2(2048, 4416)
+script = ExtResource("30_npcspawn")
+DisplayName = "Atim-iskwew"
+Role = 7
+Faction = 1
+Home = 1
+Frames = ExtResource("32_creew")
+SpriteScale = 0.78
+Female = true
+Inventory = "HideCoat, Knife"
+Spouse = NodePath("../Pisiskiw")
+
+[node name="Work" type="Marker2D" parent="Cast/Cree camp/Atim-iskwew"]
+position = Vector2(-256, 128)
+
+[node name="Kimiwan" type="Node2D" parent="Cast/Cree camp"]
+position = Vector2(2048, 4608)
+script = ExtResource("30_npcspawn")
+DisplayName = "Kimiwan"
+Role = 8
+Faction = 1
+Home = 1
+Frames = ExtResource("32_creew")
+Tint = Color(1, 0.96, 0.9, 1)
+SpriteScale = 0.74
+Female = true
+Inventory = "HideCoat"
+Father = NodePath("../Maskwa chief")
+
+[node name="Work" type="Marker2D" parent="Cast/Cree camp/Kimiwan"]
+position = Vector2(-256, 0)
+
+[node name="Wawatew" type="Node2D" parent="Cast/Cree camp"]
+position = Vector2(1664, 4608)
+script = ExtResource("30_npcspawn")
+DisplayName = "Wawatew"
+Role = 8
+Faction = 1
+Home = 1
+Frames = ExtResource("32_creew")
+Tint = Color(1, 0.96, 0.9, 1)
+SpriteScale = 0.74
+Female = true
+Inventory = "HideCoat"
+Father = NodePath("../Wapistan")
+
+[node name="Work" type="Marker2D" parent="Cast/Cree camp/Wawatew"]
+position = Vector2(0, -64)
+
+[node name="Nor'Westers" type="Node2D" parent="Cast"]
+
+[node name="Mr Duncan Cameron NWC" type="Node2D" parent="Cast/Nor'Westers"]
+position = Vector2(8640, 5088)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Duncan Cameron (NWC)"
+Role = 11
+Faction = 4
+Home = 2
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.9, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Nor'Westers/Mr Duncan Cameron NWC"]
+position = Vector2(-64, 32)
+
+[node name="Baptiste Lagimodiere" type="Node2D" parent="Cast/Nor'Westers"]
+position = Vector2(8448, 5120)
+script = ExtResource("30_npcspawn")
+DisplayName = "Baptiste Lagimodiere"
+Role = 12
+Faction = 4
+Home = 2
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Pemmican:2, Musket"
+
+[node name="Work" type="Marker2D" parent="Cast/Nor'Westers/Baptiste Lagimodiere"]
+position = Vector2(128, 64)
+
+[node name="Pierre Falcon" type="Node2D" parent="Cast/Nor'Westers"]
+position = Vector2(8512, 5152)
+script = ExtResource("30_npcspawn")
+DisplayName = "Pierre Falcon"
+Role = 12
+Faction = 4
+Home = 2
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Nor'Westers/Pierre Falcon"]
+position = Vector2(64, 32)
+
+[node name="Antoine Desjarlais" type="Node2D" parent="Cast/Nor'Westers"]
+position = Vector2(8576, 5184)
+script = ExtResource("30_npcspawn")
+DisplayName = "Antoine Desjarlais"
+Role = 12
+Faction = 4
+Home = 2
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Nor'Westers/Antoine Desjarlais"]
+position = Vector2(0, 0)
+
+[node name="Assiniboine camp" type="Node2D" parent="Cast"]
+
+[node name="Tchatka chief" type="Node2D" parent="Cast/Assiniboine camp"]
+position = Vector2(2304, 13696)
+script = ExtResource("30_npcspawn")
+DisplayName = "Tchatka (chief)"
+Role = 5
+Faction = 5
+Home = 4
+Leader = true
+Frames = ExtResource("32_assin")
+Inventory = "Musket, HideCoat, Pemmican:3"
+
+[node name="Work" type="Marker2D" parent="Cast/Assiniboine camp/Tchatka chief"]
+position = Vector2(-128, -64)
+
+[node name="Mato" type="Node2D" parent="Cast/Assiniboine camp"]
+position = Vector2(1920, 13696)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mato"
+Role = 6
+Faction = 5
+Home = 4
+Frames = ExtResource("32_assin")
+Tint = Color(0.96, 0.93, 0.9, 1)
+Inventory = "Musket, Knife, HideCoat, Pemmican:3, Snowshoes"
+
+[node name="Work" type="Marker2D" parent="Cast/Assiniboine camp/Mato"]
+position = Vector2(64, -96)
+
+[node name="Wanbdi" type="Node2D" parent="Cast/Assiniboine camp"]
+position = Vector2(1920, 13504)
+script = ExtResource("30_npcspawn")
+DisplayName = "Wanbdi"
+Role = 6
+Faction = 5
+Home = 4
+Frames = ExtResource("32_assin")
+Tint = Color(0.96, 0.93, 0.9, 1)
+Inventory = "Bow, Knife, HideCoat, Pemmican:3, Snowshoes"
+
+[node name="Work" type="Marker2D" parent="Cast/Assiniboine camp/Wanbdi"]
+position = Vector2(64, 96)
+
+[node name="Cetan" type="Node2D" parent="Cast/Assiniboine camp"]
+position = Vector2(2304, 13504)
+script = ExtResource("30_npcspawn")
+DisplayName = "Cetan"
+Role = 6
+Faction = 5
+Home = 4
+Frames = ExtResource("32_assin")
+Tint = Color(0.96, 0.93, 0.9, 1)
+Inventory = "Bow, Knife, HideCoat, Pemmican:3, Snowshoes"
+
+[node name="Work" type="Marker2D" parent="Cast/Assiniboine camp/Cetan"]
+position = Vector2(-320, 96)
+
+[node name="Wiyaka" type="Node2D" parent="Cast/Assiniboine camp"]
+position = Vector2(2304, 13696)
+script = ExtResource("30_npcspawn")
+DisplayName = "Wiyaka"
+Role = 7
+Faction = 5
+Home = 4
+Frames = ExtResource("32_creew")
+Tint = Color(0.9, 0.78, 0.62, 1)
+SpriteScale = 0.78
+Female = true
+Inventory = "HideCoat, Knife"
+Spouse = NodePath("../Tchatka chief")
+
+[node name="Work" type="Marker2D" parent="Cast/Assiniboine camp/Wiyaka"]
+position = Vector2(-256, -64)
+
+[node name="Ptesan" type="Node2D" parent="Cast/Assiniboine camp"]
+position = Vector2(1920, 13696)
+script = ExtResource("30_npcspawn")
+DisplayName = "Ptesan"
+Role = 7
+Faction = 5
+Home = 4
+Frames = ExtResource("32_creew")
+Tint = Color(0.9, 0.78, 0.62, 1)
+SpriteScale = 0.78
+Female = true
+Inventory = "HideCoat, Knife"
+Spouse = NodePath("../Mato")
+
+[node name="Work" type="Marker2D" parent="Cast/Assiniboine camp/Ptesan"]
+position = Vector2(128, -64)
+
+[node name="Wakanda" type="Node2D" parent="Cast/Assiniboine camp"]
+position = Vector2(1920, 13504)
+script = ExtResource("30_npcspawn")
+DisplayName = "Wakanda"
+Role = 7
+Faction = 5
+Home = 4
+Frames = ExtResource("32_creew")
+Tint = Color(0.9, 0.78, 0.62, 1)
+SpriteScale = 0.78
+Female = true
+Inventory = "HideCoat, Knife"
+Spouse = NodePath("../Wanbdi")
+
+[node name="Work" type="Marker2D" parent="Cast/Assiniboine camp/Wakanda"]
+position = Vector2(128, 128)
+
+[node name="Winona" type="Node2D" parent="Cast/Assiniboine camp"]
+position = Vector2(2304, 13696)
+script = ExtResource("30_npcspawn")
+DisplayName = "Winona"
+Role = 8
+Faction = 5
+Home = 4
+Frames = ExtResource("32_creew")
+Tint = Color(0.95, 0.85, 0.7, 1)
+SpriteScale = 0.74
+Female = true
+Inventory = "HideCoat"
+Father = NodePath("../Tchatka chief")
+
+[node name="Work" type="Marker2D" parent="Cast/Assiniboine camp/Winona"]
+position = Vector2(-256, 0)
+
+[node name="Oxford House" type="Node2D" parent="Cast"]
+
+[node name="Mr James Sutherland postmaster" type="Node2D" parent="Cast/Oxford House"]
+position = Vector2(4800, 12960)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. James Sutherland (postmaster)"
+Role = 4
+Faction = 0
+Home = 3
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Oxford House/Mr James Sutherland postmaster"]
+position = Vector2(-128, 0)
+
+[node name="Andrew Setter" type="Node2D" parent="Cast/Oxford House"]
+position = Vector2(4608, 12992)
+script = ExtResource("30_npcspawn")
+DisplayName = "Andrew Setter"
+Role = 2
+Faction = 0
+Home = 3
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Pemmican:2, Snowshoes, Musket"
+
+[node name="Work" type="Marker2D" parent="Cast/Oxford House/Andrew Setter"]
+position = Vector2(64, 32)
+
+[node name="George Tait" type="Node2D" parent="Cast/Oxford House"]
+position = Vector2(4672, 13024)
+script = ExtResource("30_npcspawn")
+DisplayName = "George Tait"
+Role = 2
+Faction = 0
+Home = 3
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Pemmican:2, Snowshoes"
+
+[node name="Work" type="Marker2D" parent="Cast/Oxford House/George Tait"]
+position = Vector2(64, 32)
+
+[node name="Robert Garrick" type="Node2D" parent="Cast/Oxford House"]
+position = Vector2(4736, 13056)
+script = ExtResource("30_npcspawn")
+DisplayName = "Robert Garrick"
+Role = 2
+Faction = 0
+Home = 3
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Pemmican:2, Snowshoes"
+
+[node name="Work" type="Marker2D" parent="Cast/Oxford House/Robert Garrick"]
+position = Vector2(64, 32)
+
+[node name="Mary Linklater" type="Node2D" parent="Cast/Oxford House"]
+position = Vector2(4800, 13088)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mary Linklater"
+Role = 3
+Faction = 0
+Home = 3
+Frames = ExtResource("32_hbc")
+Tint = Color(1, 0.8, 0.85, 1)
+SpriteScale = 0.72
+Female = true
+Inventory = "PointBlanket, Knife"
+
+[node name="Work" type="Marker2D" parent="Cast/Oxford House/Mary Linklater"]
+position = Vector2(0, -64)
+
+[node name="Wildlife" type="Node2D" parent="."]
+
+[node name="Caribou herd" type="Node2D" parent="Wildlife"]
+position = Vector2(1600, 6432)
+script = ExtResource("31_site")
+SiteName = "Caribou herd"
+Species = 0
+Count = 90
+Capacity = 140
+RadiusPx = 900.0
+
+[node name="Jan" type="Marker2D" parent="Wildlife/Caribou herd"]
+position = Vector2(0, 0)
+
+[node name="Feb" type="Marker2D" parent="Wildlife/Caribou herd"]
+position = Vector2(0, 192)
+
+[node name="Mar" type="Marker2D" parent="Wildlife/Caribou herd"]
+position = Vector2(-256, -128)
+
+[node name="Apr" type="Marker2D" parent="Wildlife/Caribou herd"]
+position = Vector2(-768, -1088)
+
+[node name="May" type="Marker2D" parent="Wildlife/Caribou herd"]
+position = Vector2(-512, -2432)
+
+[node name="Jun" type="Marker2D" parent="Wildlife/Caribou herd"]
+position = Vector2(-512, -3200)
+
+[node name="Jul" type="Marker2D" parent="Wildlife/Caribou herd"]
+position = Vector2(0, -3392)
+
+[node name="Aug" type="Marker2D" parent="Wildlife/Caribou herd"]
+position = Vector2(-512, -3072)
+
+[node name="Sep" type="Marker2D" parent="Wildlife/Caribou herd"]
+position = Vector2(-768, -2240)
+
+[node name="Oct" type="Marker2D" parent="Wildlife/Caribou herd"]
+position = Vector2(-768, -1088)
+
+[node name="Nov" type="Marker2D" parent="Wildlife/Caribou herd"]
+position = Vector2(-256, -320)
+
+[node name="Dec" type="Marker2D" parent="Wildlife/Caribou herd"]
+position = Vector2(0, 0)
+
+[node name="Goose marsh" type="Node2D" parent="Wildlife"]
+position = Vector2(8512, 1504)
+script = ExtResource("31_site")
+SiteName = "Goose marsh"
+Species = 1
+Count = 180
+Capacity = 300
+RadiusPx = 700.0
+
+[node name="Beaver lodge upper" type="Node2D" parent="Wildlife"]
+position = Vector2(8000, 3808)
+script = ExtResource("31_site")
+SiteName = "Beaver lodge (upper)"
+Species = 2
+Count = 40
+Capacity = 60
+RadiusPx = 350.0
+
+[node name="Beaver lodge bend" type="Node2D" parent="Wildlife"]
+position = Vector2(7104, 5856)
+script = ExtResource("31_site")
+SiteName = "Beaver lodge (bend)"
+Species = 2
+Count = 45
+Capacity = 60
+RadiusPx = 350.0
+
+[node name="Beaver lodge lower" type="Node2D" parent="Wildlife"]
+position = Vector2(7744, 7904)
+script = ExtResource("31_site")
+SiteName = "Beaver lodge (lower)"
+Species = 2
+Count = 36
+Capacity = 60
+RadiusPx = 350.0
+
+[node name="Wolf den" type="Node2D" parent="Wildlife"]
+position = Vector2(1088, 10592)
+script = ExtResource("31_site")
+SiteName = "Wolf den"
+Species = 3
+Count = 6
+Capacity = 10
+RadiusPx = 800.0
+
+[node name="Beaver lodge Knee Lake" type="Node2D" parent="Wildlife"]
+position = Vector2(3136, 11936)
+script = ExtResource("31_site")
+SiteName = "Beaver lodge (Knee Lake)"
+Species = 2
+Count = 50
+Capacity = 70
+RadiusPx = 350.0
+
+[node name="Beaver lodge Oxford" type="Node2D" parent="Wildlife"]
+position = Vector2(3904, 13728)
+script = ExtResource("31_site")
+SiteName = "Beaver lodge (Oxford)"
+Species = 2
+Count = 55
+Capacity = 75
+RadiusPx = 380.0
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1419517200]
 

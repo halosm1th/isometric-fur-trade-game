@@ -18,17 +18,12 @@ public partial class Population : Node2D
 		"James Isbister", "William Flett", "Magnus Spence", "John Linklater", "Thomas Corrigal",
 		"Peter Sinclair", "Andrew Setter", "George Tait", "Robert Garrick", "Malcolm Sabiston",
 	};
-	private static readonly string[] Women = { "Nancy Isbister", "Margaret Flett", "Jane Spence", "Mary Linklater" };
 	// Placeholder Cree given names (Cree words in common romanisation), to be
 	// replaced with properly researched period names.
 	private static readonly string[] CreeMen = { "Maskwa", "Wapistan", "Mahihkan", "Pisiskiw", "Kihiw", "Mistatim" };
-	private static readonly string[] CreeWomenNames = { "Niska", "Sakihitowin", "Wapun", "Atim-iskwew", "Pihesiw" };
-	private static readonly string[] CreeDaughters = { "Kimiwan", "Wawatew" };
 	private static readonly string[] Sailors = { "Bos'n Hurst", "Ned Carrow", "Tom Ellery", "Will Pascoe", "Sam Rudd", "Jack Tremayne", "Davy Roskilly", "Harry Penrose" };
 
 		private SpriteFrames _hbcFrames, _factorFrames, _creeFrames, _labourerFrames, _creeWomanFrames, _assiniboineFrames;
-	private static readonly string[] AssinMen = { "Tchatka", "Mato", "Wanbdi", "Cetan" };
-	private static readonly string[] AssinWomen = { "Wiyaka", "Ptesan", "Wakanda" };
 
 	public override void _Ready()
 	{
@@ -83,121 +78,35 @@ public partial class Population : Node2D
 				for (int i = 0; i < theirs.Count; i++) theirs[i].Brain.Push(theirs[i], new Agents.Goals.AttackGoal(ours[i % ours.Count]));
 				GD.Print($"[dev] {ours.Count} of the Company against {theirs.Count} Nor'Westers at the gate");
 			};
+		// Dev aid: `-- --converse=SECONDS:Name>option>option` - at that time the
+		// local player steps up to Name, opens a conversation and picks each
+		// option whose label contains the text, printing every step as [talk].
+		// Several may be given. A way to drive dialogue without a keyboard.
+		foreach (string arg in OS.GetCmdlineUserArgs())
+			if (arg.StartsWith("--converse=")) { string script = arg.Substring(11); int colon = script.IndexOf(':'); if (colon > 0 && float.TryParse(script.Substring(0, colon), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float at)) GetTree().CreateTimer(at).Timeout += () => Converse(script.Substring(colon + 1)); }
 		if (Net.Net.IsServer) CallDeferred(nameof(SpawnAll));
 	}
 
 	private void SpawnAll()
 	{
 		if (SaveGame.HasPending) { SaveGame.Restore(this); return; }
-		var fort = Sim.Fort; var band = Sim.Band;
-		var depot = WorldLayout.Depot; var mens = WorldLayout.MensHouse;
-
-		// The Factor and his clerks live in the trading house.
-		var factor = Spawn("Mr. William Auld", Role.Factor, Faction.HBC, IsoGrid.Cell(depot.Top, 3, 1), IsoGrid.Cell(depot.Top, 2, 2), fort, _factorFrames, Colors.White);
-		factor.Inventory.Add(ItemId.Musket); factor.Inventory.Add(ItemId.Capote); factor.Inventory.Add(ItemId.Pemmican, 2);
-		if (fort != null) fort.Leader = factor;
-		var clerkA = Spawn("John Fidler (clerk)", Role.Clerk, Faction.HBC, IsoGrid.Cell(depot.Top, 4, 1), IsoGrid.Cell(depot.Top, 3, 3), fort, _hbcFrames, new Color(0.9f, 0.9f, 1f));
-		var clerkB = Spawn("Alex Kennedy (clerk)", Role.Clerk, Faction.HBC, IsoGrid.Cell(depot.Top, 2, 3), IsoGrid.Cell(depot.Top, 5, 2), fort, _hbcFrames, new Color(0.85f, 0.95f, 0.9f));
-		foreach (var c in new[] { clerkA, clerkB }) { c.Inventory.Add(ItemId.Capote); c.Inventory.Add(ItemId.Knife); c.Inventory.Add(ItemId.Bread); }
-
-		// Labourers in the men's house.
-		for (int i = 0; i < 6; i++)
+		// The starting cast is placed in the editor (Cast/*, NpcSpawn markers).
+		var made = new Dictionary<NpcSpawn, Npc>();
+		foreach (var node in GetTree().GetNodesInGroup(NpcSpawn.Group))
 		{
-			var bed = i < 5 ? IsoGrid.Cell(mens.Top, 1 + i, 2) : IsoGrid.Cell(mens.Top, 1, 3);
-			var m = Spawn(OrkneyMen[i], Role.Labourer, Faction.HBC, bed, IsoGrid.Cell(WorldLayout.FortTop, 8 + i, 8), fort, _labourerFrames, Colors.White);
-			m.Inventory.Add(ItemId.Capote); m.Inventory.Add(ItemId.Knife); m.Inventory.Add(ItemId.DriedGoose, 2);
-			if (i < 2) m.Inventory.Add(ItemId.Musket);
+			if (node is not NpcSpawn m) continue;
+			var home = m.Household();
+			if (home == null) continue;   // that household isn't in this world
+			var npc = Spawn(m.DisplayName, m.Role, m.Faction, m.Shifted(m.BedCell, home), m.Shifted(m.WorkCell, home), home, m.Frames ?? _hbcFrames, m.Tint, m.SpriteScale, m.Female);
+			if (m.Age > 0) npc.Age = m.Age;
+			m.FillInventory(npc);
+			if (m.Leader) home.Leader = npc;
+			made[m] = npc;
 		}
-		// Women of the post: country wives of the men, keeping house.
-		for (int i = 0; i < 3; i++)
+		foreach (var (m, npc) in made)
 		{
-			var bed = IsoGrid.Cell(mens.Top, 2 + i, 3);
-			var w = Spawn(Women[i], Role.Woman, Faction.HBC, bed, IsoGrid.Cell(mens.Top, 3, 2), fort, _hbcFrames, new Color(1f, 0.8f, 0.85f), 0.72f, true);
-			w.Inventory.Add(ItemId.PointBlanket); w.Inventory.Add(ItemId.Knife);
-		}
-
-		// The Cree band at the camp.
-		var tipis = new List<Vector2I>(WorldLayout.TipiCells());
-		var chief = Spawn(CreeMen[0] + " (chief)", Role.CreeChief, Faction.Cree, tipis[0], IsoGrid.Cell(WorldLayout.CampCentre, 1, 0), band, _creeFrames, Colors.White);
-		chief.Inventory.Add(ItemId.Musket); chief.Inventory.Add(ItemId.HideCoat); chief.Inventory.Add(ItemId.Venison, 2);
-		if (band != null) band.Leader = chief;
-		var hunters = new List<Npc>();
-		for (int i = 0; i < 4; i++)
-		{
-			var h = Spawn(CreeMen[1 + i], Role.CreeHunter, Faction.Cree, tipis[1 + i % 4], IsoGrid.Cell(WorldLayout.CampCentre, -1, 1), band, _creeFrames, new Color(0.95f, 0.92f, 0.9f));
-			h.Inventory.Add(i % 2 == 0 ? ItemId.Bow : ItemId.Musket); h.Inventory.Add(ItemId.Knife); h.Inventory.Add(ItemId.HideCoat); h.Inventory.Add(ItemId.Venison, 2); h.Inventory.Add(ItemId.Snowshoes);
-			hunters.Add(h);
-		}
-		for (int i = 0; i < 4; i++)
-		{
-			var w = Spawn(CreeWomenNames[i], Role.CreeWoman, Faction.Cree, tipis[i % tipis.Count], IsoGrid.Cell(WorldLayout.CampCentre, 0, 1), band, _creeWomanFrames, Colors.White, 0.78f, true);
-			w.Inventory.Add(ItemId.HideCoat); w.Inventory.Add(ItemId.Knife);
-			if (i == 0) { w.Spouse = chief; chief.Spouse = w; }
-			else { w.Spouse = hunters[i - 1]; hunters[i - 1].Spouse = w; }
-		}
-		// Two unmarried daughters - the chief's and a hunter's (design doc 8).
-		var d1 = Spawn(CreeDaughters[0], Role.CreeDaughter, Faction.Cree, tipis[0], IsoGrid.Cell(WorldLayout.CampCentre, 1, 2), band, _creeWomanFrames, new Color(1f, 0.96f, 0.9f), 0.74f, true);
-		d1.Father = chief; chief.Children.Add(d1); d1.Inventory.Add(ItemId.HideCoat);
-		var d2 = Spawn(CreeDaughters[1], Role.CreeDaughter, Faction.Cree, tipis[1], IsoGrid.Cell(WorldLayout.CampCentre, -1, 2), band, _creeWomanFrames, new Color(1f, 0.96f, 0.9f), 0.74f, true);
-		d2.Father = hunters[0]; hunters[0].Children.Add(d2); d2.Inventory.Add(ItemId.HideCoat);
-
-		// The Nor'Westers across the river: a wintering partner and his men.
-		var nwc = Sim.Nwc; var house = WorldLayout.NwcHouse;
-		if (nwc != null)
-		{
-			var partner = Spawn("Mr. Duncan Cameron (NWC)", Role.NwcPartner, Faction.NWC, IsoGrid.Cell(house.Top, 3, 1), IsoGrid.Cell(house.Top, 3, 2), nwc, _factorFrames, new Color(1f, 0.9f, 0.9f));
-			partner.Inventory.Add(ItemId.Musket); partner.Inventory.Add(ItemId.Capote); partner.Inventory.Add(ItemId.Pemmican, 2);
-			nwc.Leader = partner;
-			string[] voyageurs = { "Baptiste Lagimodiere", "Pierre Falcon", "Antoine Desjarlais" };
-			for (int i = 0; i < 3; i++)
-			{
-				var v = Spawn(voyageurs[i], Role.Voyageur, Faction.NWC, IsoGrid.Cell(house.Top, 2 + i, 3), IsoGrid.Cell(WorldLayout.NwcTop, 6, 5), nwc, _factorFrames, new Color(0.85f, 0.75f, 0.75f));
-				v.Inventory.Add(ItemId.Capote); v.Inventory.Add(ItemId.Knife); v.Inventory.Add(ItemId.Pemmican, 2);
-				if (i == 0) v.Inventory.Add(ItemId.Musket);
-			}
-		}
-
-		// The Assiniboine (design doc 7.2): a plains band wintering upland
-		// near Oxford House with pemmican to sell, down to the Bay in summer.
-		var assin = Sim.Assiniboine;
-		if (assin != null)
-		{
-			var at = new List<Vector2I>(assin.Tipis());
-			var achief = Spawn(AssinMen[0] + " (chief)", Role.CreeChief, Faction.Assiniboine, at[0], IsoGrid.Cell(assin.Camp, 1, 0), assin, _assiniboineFrames, Colors.White);
-			achief.Inventory.Add(ItemId.Musket); achief.Inventory.Add(ItemId.HideCoat); achief.Inventory.Add(ItemId.Pemmican, 3);
-			assin.Leader = achief;
-			var ahunters = new List<Npc>();
-			for (int i = 0; i < 3; i++)
-			{
-				var h = Spawn(AssinMen[1 + i], Role.CreeHunter, Faction.Assiniboine, at[1 + i], IsoGrid.Cell(assin.Camp, -1, 1), assin, _assiniboineFrames, new Color(0.96f, 0.93f, 0.9f));
-				h.Inventory.Add(i == 0 ? ItemId.Musket : ItemId.Bow); h.Inventory.Add(ItemId.Knife); h.Inventory.Add(ItemId.HideCoat); h.Inventory.Add(ItemId.Pemmican, 3); h.Inventory.Add(ItemId.Snowshoes);
-				ahunters.Add(h);
-			}
-			for (int i = 0; i < 3; i++)
-			{
-				var w = Spawn(AssinWomen[i], Role.CreeWoman, Faction.Assiniboine, at[i % at.Count], IsoGrid.Cell(assin.Camp, 0, 1), assin, _creeWomanFrames, new Color(0.9f, 0.78f, 0.62f), 0.78f, true);
-				w.Inventory.Add(ItemId.HideCoat); w.Inventory.Add(ItemId.Knife);
-				if (i == 0) { w.Spouse = achief; achief.Spouse = w; } else { w.Spouse = ahunters[i - 1]; ahunters[i - 1].Spouse = w; }
-			}
-			var ad = Spawn("Winona", Role.CreeDaughter, Faction.Assiniboine, at[0], IsoGrid.Cell(assin.Camp, 1, 2), assin, _creeWomanFrames, new Color(0.95f, 0.85f, 0.7f), 0.74f, true);
-			ad.Father = achief; achief.Children.Add(ad); ad.Inventory.Add(ItemId.HideCoat);
-		}
-
-		// Oxford House, up the river road: a postmaster, three men, a wife.
-		var outpost = Sim.Outpost; var oh = WorldLayout.OutpostHouse;
-		if (outpost != null)
-		{
-			var pm = Spawn("Mr. James Sutherland (postmaster)", Role.Postmaster, Faction.HBC, IsoGrid.Cell(oh.Top, 3, 1), IsoGrid.Cell(oh.Top, 2, 2), outpost, _factorFrames, new Color(0.95f, 0.95f, 1f));
-			pm.Inventory.Add(ItemId.Musket); pm.Inventory.Add(ItemId.Capote); pm.Inventory.Add(ItemId.Pemmican, 2);
-			outpost.Leader = pm;
-			for (int i = 0; i < 3; i++)
-			{
-				var m = Spawn(OrkneyMen[6 + i], Role.Labourer, Faction.HBC, IsoGrid.Cell(oh.Top, 2 + i, 3), IsoGrid.Cell(WorldLayout.OutpostTop, 5 + i, 5), outpost, _labourerFrames, Colors.White);
-				m.Inventory.Add(ItemId.Capote); m.Inventory.Add(ItemId.Knife); m.Inventory.Add(ItemId.Pemmican, 2); m.Inventory.Add(ItemId.Snowshoes);
-				if (i == 0) m.Inventory.Add(ItemId.Musket);
-			}
-			var ow = Spawn(Women[3], Role.Woman, Faction.HBC, IsoGrid.Cell(oh.Top, 5, 3), IsoGrid.Cell(oh.Top, 4, 2), outpost, _hbcFrames, new Color(1f, 0.8f, 0.85f), 0.72f, true);
-			ow.Inventory.Add(ItemId.PointBlanket); ow.Inventory.Add(ItemId.Knife);
+			if (m.Spouse != null && made.TryGetValue(m.Spouse, out var sp)) { npc.Spouse = sp; sp.Spouse = npc; }
+			if (m.Father != null && made.TryGetValue(m.Father, out var fa)) { npc.Father = fa; if (!fa.Children.Contains(npc)) fa.Children.Add(npc); }
 		}
 
 		Sim.Notice($"York Factory: {Sim.Npcs.Count} souls in the world.");
@@ -280,6 +189,34 @@ public partial class Population : Node2D
 				if (GD.Randf() < chance) b.CatchFever();
 			}
 		}
+	}
+
+	private static void Converse(string script)
+	{
+		var steps = script.Split('>');
+		Npc who = null;
+		foreach (var n in Sim.Npcs) if (n.DisplayName.Contains(steps[0]) && !n.IsDead) { who = n; break; }
+		if (who == null || Sim.Player is not Player.PlayerController p) { GD.Print($"[talk] nobody called {steps[0]}"); return; }
+		p.GlobalPosition = who.GlobalPosition + new Vector2(45f, 12f);
+		var state = p.Conversation.Start(who);
+		PrintTalk(state);
+		for (int i = 1; i < steps.Length; i++)
+		{
+			var opts = state["options"].AsGodotArray();
+			int pick = -1;
+			for (int o = 0; o < opts.Count; o++) if (opts[o].AsString().Contains(steps[i], System.StringComparison.OrdinalIgnoreCase)) { pick = o; break; }
+			if (pick < 0) { GD.Print($"[talk] no option like '{steps[i]}'"); break; }
+			GD.Print($"[talk] > {opts[pick].AsString()}");
+			state = p.Conversation.Step(who.NetId, pick);
+			PrintTalk(state);
+		}
+	}
+
+	private static void PrintTalk(Godot.Collections.Dictionary state)
+	{
+		var opts = new System.Collections.Generic.List<string>();
+		foreach (var o in state["options"].AsGodotArray()) opts.Add(o.AsString());
+		GD.Print($"[talk] {state["title"]}: {state["text"]} || {string.Join(" | ", opts)}");
 	}
 
 	// A household whose food runs out goes hungry together, and remembers it

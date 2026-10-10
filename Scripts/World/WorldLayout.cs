@@ -158,26 +158,24 @@ public static class WorldLayout
     public static bool IsRiverBank(Vector2I c) => !IsRiver(c) && Mathf.Abs(c.X - RiverCentre(c.Y)) <= 2.6f;
 
     // ---- wildlife sites (design doc 16.4) -------------------------------------
-    public static readonly SiteDef[] Sites =
+    // Placed in the editor as WildlifeSite nodes. Read live in the editor
+    // (so moving one shows at once); cached once a game has them.
+    private static SiteDef[] _sites;
+    public static SiteDef[] Sites
     {
-        // The herd winters in the bush south of the camp and summers on the
-        // open ground toward the coast, west of the fort; the route drifts.
-        new("Caribou herd", Species.Caribou, new Vector2I(12, 200), 90, 140, 900f, new[]
+        get
         {
-            new Vector2I(12, 200), new Vector2I(12, 206), new Vector2I(10, 196),   // Jan-Mar: wintering
-            new Vector2I(6, 166), new Vector2I(8, 124), new Vector2I(8, 100),      // Apr-Jun: moving north
-            new Vector2I(12, 94), new Vector2I(8, 104), new Vector2I(6, 130),      // Jul-Sep: summer range
-            new Vector2I(6, 166), new Vector2I(10, 190), new Vector2I(12, 200),    // Oct-Dec: back south
-        }),
-        new("Goose marsh", Species.Goose, new Vector2I(66, 46), 180, 300, 700f),
-        new("Beaver lodge (upper)", Species.Beaver, new Vector2I(62, 118), 40, 60, 350f),
-        new("Beaver lodge (bend)", Species.Beaver, new Vector2I(55, 182), 45, 60, 350f),
-        new("Beaver lodge (lower)", Species.Beaver, new Vector2I(60, 246), 36, 60, 350f),
-        new("Wolf den", Species.Wolf, new Vector2I(8, 330), 6, 10, 800f),
-        // The inland lodges: richer, and the reason a post is there at all.
-        new("Beaver lodge (Knee Lake)", Species.Beaver, new Vector2I(24, 372), 50, 70, 350f),
-        new("Beaver lodge (Oxford)", Species.Beaver, new Vector2I(30, 428), 55, 75, 380f),
-    };
+            if (Engine.IsEditorHint()) return WildlifeSite.Collect();
+            if (_sites == null || _sites.Length == 0) _sites = WildlifeSite.Collect();
+            return _sites;
+        }
+    }
+    public static void ForgetSites() => _sites = null;
+    public static SiteDef SiteOf(Species s)
+    {
+        foreach (var d in Sites) if (d.Species == s) return d;
+        return default;
+    }
 
     // ---- the trail from the gate to the camp ----------------------------------
     public static readonly Vector2[] Trail =

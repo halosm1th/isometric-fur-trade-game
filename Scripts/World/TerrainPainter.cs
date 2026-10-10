@@ -235,10 +235,10 @@ public partial class TerrainPainter : TileMapLayer
         "ford" => new Vector2I(58, 160),
         "berth" => IsoGrid.Cell(WorldLayout.WharfEnd, -2, 0),
         "camp" => IsoGrid.Cell(WorldLayout.CampCentre, 1, 1),
-        "caribou" => WorldLayout.Sites[0].Cell,
-        "geese" => WorldLayout.Sites[1].Cell,
-        "beaver" => WorldLayout.Sites[2].Cell,
-        "wolves" => IsoGrid.Cell(WorldLayout.Sites[5].Cell, 4, 0),
+        "caribou" => WorldLayout.SiteOf(Ecology.Species.Caribou).Cell,
+        "geese" => WorldLayout.SiteOf(Ecology.Species.Goose).Cell,
+        "beaver" => WorldLayout.SiteOf(Ecology.Species.Beaver).Cell,
+        "wolves" => IsoGrid.Cell(WorldLayout.SiteOf(Ecology.Species.Wolf).Cell, 4, 0),
         _ => WorldLayout.GateOutside,
     };
 
