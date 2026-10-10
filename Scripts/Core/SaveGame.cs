@@ -93,6 +93,7 @@ public static class SaveGame
             ["cells"] = Sim.Structures?.ChangedCells() ?? new GArr(),
             ["items"] = Sim.Spawner?.GoneItems() ?? new GArr(),
             ["canoes"] = Canoes(),
+            ["brigades"] = World.Brigades.Save(),
             ["ship"] = Ship(),
             ["npcs"] = Npcs(),
             ["players"] = Players(),
@@ -513,6 +514,9 @@ public static class SaveGame
                 Sim.Ship.Restore((Ship.State)I(sh, "state"), Pos(sh), cargo, hold, F(sh, "dockedHours"), B(sh, "ordersRead"));
                 foreach (var n in Sim.Npcs) if (n.Role == Role.Sailor && !n.IsDead) Sim.Ship.Crew.Add(n);
             }
+
+            // The brigades last, because they claim their men by name.
+            World.Brigades.Load(d.ContainsKey("brigades") ? d["brigades"].AsGodotArray() : null);
 
             _savedPlayers.Clear();
             foreach (var pv in d["players"].AsGodotArray()) { var pd = pv.AsGodotDictionary(); _savedPlayers[S(pd, "name")] = pd; }

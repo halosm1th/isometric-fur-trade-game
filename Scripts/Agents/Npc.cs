@@ -32,6 +32,11 @@ public struct Personality
 public partial class Npc : Agent
 {
     public Role Role;
+    // Away with a brigade (design doc 12.1): not at the post, not on the
+    // day's orders, and fed out of the canoes rather than out of the store.
+    public bool Away;
+    public string AwayWith = "";
+
     // Seconds of being on his guard: a shot heard, a blow taken, a fight on.
     // While it runs down he cannot be taken unawares (design doc 15.6).
     public float Alerted;

@@ -23,8 +23,11 @@ public class Brigade
 	public string Name = "the brigade";
 	public FortLedger From, To;
 	public bool Upstream;                        // against the current, half the pace
-	public readonly List<string> Crew = new();   // by name: the men are background on the water
+	public readonly List<string> Crew = new();   // by name, for the manifest and the save
+	public readonly List<Agents.Npc> Men = new();
 	public readonly Inventory Cargo = new();
+	public readonly Inventory Provisions = new();   // what the canoes eat on the way
+	public bool Homeward;                           // the men coming back empty
 	public float Along;                          // 0..1 of the road
 	public float Condition = 1f;                 // hulls and pitch
 	public int GumLeft = 2;                      // patches they carry
@@ -103,6 +106,8 @@ public static class Brigades
 			if (b.From == null || b.Now == Brigade.State.Arrived) continue;
 			int lots = 0;
 			foreach (var (id, n) in new List<(ItemId, int)>(b.Cargo.All())) { b.Cargo.Remove(id, n); b.From.Stores.Add(id, n); lots += n; }
+			foreach (var (id, n) in new List<(ItemId, int)>(b.Provisions.All())) { b.Provisions.Remove(id, n); b.From.Stores.Add(id, n); }
+			foreach (var n in b.Men) PutAshore(n, b.From);
 			if (lots > 0) Sim.Notice($"{b.Name} was never sent after all: {lots} pieces back on {b.From.Title}'s books.");
 		}
 		All.Clear();
@@ -124,16 +129,28 @@ public static class Brigades
 			if (got > 0) b.Cargo.Add(id, got);
 		}
 		if (b.Cargo.TotalWeightLbs < 1f) { Sim.Notice($"{from.Title} has nothing to send inland."); return null; }
-		// The men: whoever can be spared, by name. They are away from the post
-		// until the brigade comes back, which is what makes sending it cost.
+		// The men: whoever can be spared. They go off the post's books for the
+		// whole journey - no orders, no rations from the store, not at the fire -
+		// which is what makes sending a brigade cost something.
 		int taken = 0;
 		foreach (var n in Sim.Npcs)
 		{
 			if (taken >= men) break;
-			if (n.IsDead || n.HomeStores != from) continue;
+			if (n.IsDead || n.Away || n.HomeStores != from) continue;
 			if (n.Role != Role.Labourer && n.Role != Role.Voyageur) continue;
 			b.Crew.Add(n.DisplayName);
+			b.Men.Add(n);
+			TakeAway(n, b);
 			taken++;
+		}
+		// Provisions for the way: a man eats whatever is in the canoe, and a
+		// brigade that set out light goes hungry on the water.
+		int wantFood = Mathf.Max(8, taken * 15);
+		foreach (var id in new[] { ItemId.Pemmican, ItemId.SaltGeese, ItemId.DriedGoose, ItemId.DriedMeat })
+		{
+			if (b.Provisions.FoodNutritionTotal >= wantFood * 35f) break;
+			int got = from.Stores.TakeUpTo(id, id == ItemId.SaltGeese ? Mathf.Max(1, taken / 2) : wantFood);
+			if (got > 0) b.Provisions.Add(id, got);
 		}
 		b.GumLeft = 1 + taken / 3;
 		All.Add(b);
@@ -141,6 +158,35 @@ public static class Brigades
 		Sim.Headline($"{name} sets off {(upstream ? "up" : "down")} the river: {taken} men, {lots} pieces, {Brigade.Portages.Length} portages between here and {to.Title}.");
 		Chronicle.Event($"{name} left {from.Title} for {to.Title} with {lots} pieces.", IsoGrid.ToWorld(from.AccessCell), null, name, 1.2f);
 		return b;
+	}
+
+	// Off the post's books, and his body with the canoes.
+	private static void TakeAway(Agents.Npc n, Brigade b)
+	{
+		n.Away = true;
+		n.AwayWith = b.Name;
+		n.Tier = Core.Tier.Background;
+		n.Brain.Clear(n);
+		n.StopMoving();
+		n.Velocity = Vector2.Zero;
+		n.AssignedTask = null;
+		n.AssignedTaskName = $"away with {b.Name}";
+		n.Visible = false;
+		n.ProcessMode = Node.ProcessModeEnum.Disabled;
+		Net.Net.I?.AnnounceTier(n, true);
+	}
+
+	// Landed: he is a man at a post again, wherever the brigade has put him.
+	private static void PutAshore(Agents.Npc n, Economy.FortLedger at)
+	{
+		if (n == null || !GodotObject.IsInstanceValid(n)) return;
+		n.Away = false;
+		n.AwayWith = "";
+		n.AssignedTaskName = "";
+		if (at != null) n.GlobalPosition = IsoGrid.ToWorld(n.StandCellNear(at.AccessCell));
+		n.Visible = true;
+		n.ProcessMode = Node.ProcessModeEnum.Inherit;
+		Net.Net.I?.AnnounceTier(n, false);
 	}
 
 	// A day of the journey, resolved where nobody can see it and dropped to
@@ -161,6 +207,9 @@ public static class Brigades
 		{
 			if (b.Now == Brigade.State.Arrived) { All.Remove(b); continue; }
 			b.DaysOut++;
+			Feed(b);
+			foreach (var n in b.Men)
+				if (n != null && GodotObject.IsInstanceValid(n) && !n.IsDead) n.GlobalPosition = b.Where;
 			switch (b.Now)
 			{
 				case Brigade.State.Portaging:
@@ -174,6 +223,33 @@ public static class Brigades
 					continue;
 			}
 		}
+	}
+
+	// A day's rations out of the canoe. A brigade with nothing left lives on
+	// what the country gives, which is not much on the water.
+	private static void Feed(Brigade b)
+	{
+		bool short_ = false;
+		// A brigade fishes and snares at the carrying places and the camps, as
+		// voyageurs did: thin, and not enough on its own for a long journey.
+		if (b.Men.Count > 0 && b.Provisions.FoodNutritionTotal < b.Men.Count * 40f && GD.Randf() < 0.7f)
+			b.Provisions.Add(ItemId.Fish, 1 + b.Men.Count / 3);
+		foreach (var n in b.Men)
+		{
+			if (n == null || !GodotObject.IsInstanceValid(n) || n.IsDead) continue;
+			bool ate = false;
+			foreach (var id in new[] { ItemId.Pemmican, ItemId.DriedGoose, ItemId.DriedMeat, ItemId.Hare, ItemId.Fish })
+				if (b.Provisions.Remove(id)) { n.Needs.Hunger = 100f; ate = true; break; }
+			if (!ate && b.Provisions.Remove(ItemId.SaltGeese)) { b.Provisions.Add(ItemId.DriedGoose, 7); n.Needs.Hunger = 100f; ate = true; }
+			if (ate) { n.Needs.Thirst = 100f; n.Needs.Warmth = Mathf.Max(40f, n.Needs.Warmth); continue; }
+			n.Needs.Hunger = Mathf.Max(0f, n.Needs.Hunger - 26f);
+			n.Needs.Thirst = 100f;   // there is no want of water on a river
+			if (n.Needs.Hunger <= 0f) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 4f);
+			if (n.Needs.Health <= 0f) { Sim.Notice($"{n.DisplayName} died on the water with {b.Name}."); n.Away = false; n.DieQuietly(); }
+			else short_ = true;
+		}
+		if (short_ && GD.Randf() < 0.3f)
+			Sim.Notice($"{b.Name} is out of provisions: the men are on short commons on the water.");
 	}
 
 	private static void Paddle(Brigade b, GameCalendar cal)
@@ -276,6 +352,35 @@ public static class Brigades
 			b.Cargo.Remove(id, n); b.To.Stores.Add(id, n); lots += n;
 		}
 		if (b.To is OutpostLedger op) op.LastSupplyDay = GameCalendar.Instance?.Day ?? 0;
+		foreach (var n in b.Men) PutAshore(n, b.To);
+		// The men whose post is the other end go back down in their own time,
+		// empty, and are off the books until they land there.
+		if (!b.Homeward && b.From != null && b.Men.Count > 0)
+		{
+			var home = new Brigade
+			{
+				Name = b.Upstream ? "the outfit's men, homeward" : "the returns' men, homeward",
+				From = b.To, To = b.From, Upstream = !b.Upstream, Homeward = true,
+			};
+			foreach (var n in b.Men)
+			{
+				if (n == null || !GodotObject.IsInstanceValid(n) || n.IsDead || n.HomeStores != b.From) continue;
+				home.Crew.Add(n.DisplayName); home.Men.Add(n); TakeAway(n, home);
+			}
+			if (home.Men.Count > 0)
+			{
+				int rations = Mathf.Max(6, home.Men.Count * 8);
+				foreach (var id in new[] { ItemId.Pemmican, ItemId.DriedGoose, ItemId.DriedMeat })
+					if (home.Provisions.FoodNutritionTotal < rations * 35f)
+					{
+						int got = b.To.Stores.TakeUpTo(id, rations);
+						if (got > 0) home.Provisions.Add(id, got);
+					}
+				home.GumLeft = 1 + home.Men.Count / 3;
+				All.Add(home);
+				Sim.Notice($"{home.Men.Count} of {b.Name}'s men start back down the river for {b.From.Title}.");
+			}
+		}
 		Sim.Headline($"{b.Name} is in at {b.To.Title}: {lots} pieces landed after {b.DaysOut} days and {Brigade.Portages.Length} portages.");
 		Tell(b, $"{b.Name} landed {lots} pieces at {b.To.Title}.", $"{b.DaysOut} days up the river", 1.2f);
 		Chronicle.Event($"{b.Name} came in to {b.To.Title} with {lots} pieces.", IsoGrid.ToWorld(b.To.AccessCell), null, b.Name, 1.2f);
@@ -293,6 +398,81 @@ public static class Brigades
 			Reveal.Word(p, what, cause, weight);
 		}
 	}
+
+	// ---- the world's own record -------------------------------------------
+	// A brigade in flight is part of the world: where she is, what she carries,
+	// what the men have left to eat, and which men they are. Saved and loaded
+	// like anything else, so a journey survives a quicksave on the water.
+	public static Godot.Collections.Array Save()
+	{
+		var a = new Godot.Collections.Array();
+		foreach (var b in All)
+		{
+			var crew = new Godot.Collections.Array();
+			foreach (string name in b.Crew) crew.Add(name);
+			var cargo = new Godot.Collections.Dictionary();
+			foreach (var (id, n) in b.Cargo.All()) cargo[id.ToString()] = n;
+			var food = new Godot.Collections.Dictionary();
+			foreach (var (id, n) in b.Provisions.All()) food[id.ToString()] = n;
+			a.Add(new Godot.Collections.Dictionary
+			{
+				["name"] = b.Name, ["from"] = Key(b.From), ["to"] = Key(b.To),
+				["up"] = b.Upstream, ["home"] = b.Homeward, ["along"] = b.Along,
+				["cond"] = b.Condition, ["gum"] = b.GumLeft, ["state"] = (int)b.Now,
+				["dayLeft"] = b.DayLeft, ["at"] = b.At, ["out"] = b.DaysOut,
+				["with"] = b.PlayerWith, ["crew"] = crew, ["cargo"] = cargo, ["food"] = food,
+			});
+		}
+		return a;
+	}
+
+	public static void Load(Godot.Collections.Array saved)
+	{
+		All.Clear();
+		_lastDay = -1;
+		_devSent = true;   // a loaded world has already had whatever was sent
+		Brigade.ForgetPortages();
+		if (saved == null) return;
+		foreach (var v in saved)
+		{
+			var d = v.AsGodotDictionary();
+			var b = new Brigade
+			{
+				Name = d["name"].AsString(),
+				From = Post(d["from"].AsString()), To = Post(d["to"].AsString()),
+				Upstream = d["up"].AsBool(), Homeward = d.ContainsKey("home") && d["home"].AsBool(),
+				Along = (float)d["along"].AsDouble(), Condition = (float)d["cond"].AsDouble(),
+				GumLeft = d["gum"].AsInt32(), Now = (Brigade.State)d["state"].AsInt32(),
+				DayLeft = d["dayLeft"].AsInt32(), At = d["at"].AsString(),
+				DaysOut = d["out"].AsInt32(), PlayerWith = d["with"].AsBool(),
+			};
+			foreach (var c in d["cargo"].AsGodotDictionary())
+				if (System.Enum.TryParse<ItemId>(c.Key.AsString(), out var cid)) b.Cargo.Add(cid, c.Value.AsInt32());
+			if (d.ContainsKey("food"))
+				foreach (var c in d["food"].AsGodotDictionary())
+					if (System.Enum.TryParse<ItemId>(c.Key.AsString(), out var fid)) b.Provisions.Add(fid, c.Value.AsInt32());
+			foreach (var cv in d["crew"].AsGodotArray())
+			{
+				string name = cv.AsString();
+				b.Crew.Add(name);
+				foreach (var n in Sim.Npcs)
+					if (!n.IsDead && n.DisplayName == name) { b.Men.Add(n); TakeAway(n, b); break; }
+			}
+			if (b.From != null && b.To != null) All.Add(b);
+		}
+		if (All.Count > 0) Sim.Notice($"{All.Count} brigade{(All.Count == 1 ? " is" : "s are")} still on the river.");
+	}
+
+	private static string Key(Economy.FortLedger f) =>
+		f == null ? "" : f == Sim.Fort ? "fort" : f == (Economy.FortLedger)Sim.Nwc ? "nwc" : f == (Economy.FortLedger)Sim.Outpost ? "outpost" : "";
+
+	private static Economy.FortLedger Post(string key) => key switch
+	{
+		"fort" => Sim.Fort,
+		"nwc" => Sim.Nwc,
+		"outpost" => Sim.Outpost,
+		_ => null,
+	};
 
 	// Dev aid: `-- --brigade` sends the outfit up the moment the world starts,
 	// whatever the date, to watch a journey and its carrying places.

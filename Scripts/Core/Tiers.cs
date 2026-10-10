@@ -68,6 +68,9 @@ public static class Tiers
         foreach (var n in Sim.Npcs)
         {
             if (n == null || !GodotObject.IsInstanceValid(n)) continue;
+            // A man away with a brigade is neither at the post nor out of the
+            // world: the brigade speaks for him until he lands.
+            if (n.Away) { n.Tier = Tier.Background; BackgroundCount++; continue; }
             // Where a background man is reckoned to be: at his own door.
             var where = n.Tier == Tier.Background && n.HomeStores != null ? World.IsoGrid.ToWorld(n.HomeStores.AccessCell) : n.GlobalPosition;
             float d = DistanceToNearestPlayer(where);
@@ -119,6 +122,7 @@ public static class Tiers
         foreach (var n in new System.Collections.Generic.List<Npc>(Sim.Npcs))
         {
             if (n == null || !GodotObject.IsInstanceValid(n) || n.IsDead) continue;
+            if (n.Away) continue;   // the brigade feeds its own
             // A man standing in his own yard with food on the shelf does not
             // starve (design doc P.5), whatever the clock is doing - a day can
             // pass in a couple of seconds under fast-forward, too fast for him
