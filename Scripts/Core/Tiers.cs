@@ -42,6 +42,9 @@ public static class Tiers
         if (cal != null && cal.Day != _lastBatchDay)
         {
             _lastBatchDay = cal.Day;
+            World.GooseHunt.Tick();
+            World.Brigades.Season();
+            World.Brigades.Tick();
             DailyBatch();
         }
     }
@@ -79,8 +82,13 @@ public static class Tiers
     {
         if (n.IsDead || n.HomeStores == null) return;           // bodies and strays stay as they are
         if (n.HeldBy != null || n.Following != null) return;     // prisoners and companions keep their own thread
-        if (n.Brain.Has<CourierGoal>() || n.Brain.Has<RaidGoal>() || n.Brain.Has<AmbushGoal>() || n.Brain.Has<RoadGoal>() || n.Brain.Has<RescueGoal>() || n.Brain.Has<LookForGoal>())
-            return;   // a man on a journey is the story; he walks it himself
+        // A man on a journey is the story; he walks it himself. A hunting trip
+        // to a far site is a journey too: demoting him used to park him back at
+        // his own door with the day's work undone, which is why nothing ever
+        // came back from the goose marsh.
+        if (n.Brain.Has<CourierGoal>() || n.Brain.Has<RaidGoal>() || n.Brain.Has<AmbushGoal>() || n.Brain.Has<RoadGoal>() || n.Brain.Has<RescueGoal>() || n.Brain.Has<LookForGoal>()
+            || n.Brain.Has<HuntSiteGoal>())
+            return;
         n.Tier = Tier.Background;
         n.Brain.Clear(n);
         n.StopMoving();
@@ -248,7 +256,7 @@ public static class Tiers
             Sim.Notice($"{home.Title}: the men went looking and found the game at {site.Name}.");
         float chance = Mathf.Clamp(site.Count / site.Capacity, 0.05f, 1f) * (0.16f + n.Skills.Hunting * 0.24f);
         if (GD.Randf() >= chance) return;
-        site.Take(1);
+        site.Take(SpeciesInfo.PerKill(site.Species, n.Weapon == ItemId.Musket));
         SpeciesInfo.Yield(site.Species, home.Stores, n.Weapon == ItemId.Musket);
         n.Skills.Learn(ref n.Skills.Hunting, 0.004f);
         n.DaysSinceFresh = 0f;
@@ -275,6 +283,16 @@ public static class Tiers
 
     private static void House(Npc n, Economy.Household home)
     {
+        // The flight is salted down before any other work (design doc 14.1).
+        if (home.Stores.Count(ItemId.Goose) >= 8)
+        {
+            int birds = home.Stores.TakeUpTo(ItemId.Goose, 24);
+            int casks = birds / 8;
+            home.Stores.Add(ItemId.Goose, birds - casks * 8);
+            home.Stores.Add(ItemId.SaltGeese, casks);
+            World.GooseHunt.Salted(home, casks);
+            return;
+        }
         // Wood for the fire comes before anything else in a frozen country:
         // a camp with no cordwood in the batch used to freeze to death out of
         // the player's sight.

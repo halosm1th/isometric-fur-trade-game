@@ -26,6 +26,11 @@ public static class SpeciesInfo
     };
     public static SpeciesDef Of(Species s) => Defs[s];
 
+    // How many animals one go at them accounts for. A volley into a flock
+    // settled on the marsh is a bag of birds, not a bird; everything else is
+    // one beast at a time.
+    public static int PerKill(Species s, bool shot) => s == Species.Goose ? (shot ? 8 : 4) : 1;
+
     // What a kill puts in the hunter's pack. `shot` = killed with a musket:
     // a ball tears the skin and the pelt grades as damaged; traps, arrows
     // and the knife leave it whole (design doc 13.6).
@@ -37,7 +42,7 @@ public static class SpeciesInfo
                 into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 18);   // ~100 lb of meat: a man eats three to five pounds a day
                 into.Add(shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotHide : IsometricFurTradeGame.Scripts.Items.ItemId.CaribouHide, 1);
                 break;
-            case Species.Goose: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Goose, 1); break;
+            case Species.Goose: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Goose, PerKill(s, shot)); break;
             case Species.Beaver:
             {
                 // Prime in winter, thin and worth half from June to September (design doc 14.4).

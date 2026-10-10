@@ -8,6 +8,7 @@ public enum ItemId
     // Food and drink
     Pemmican,
     DriedGoose,
+    SaltGeese,
     Bread,
     Ale,
     Rum,
@@ -65,6 +66,9 @@ public static class Items
     {
         { ItemId.Pemmican,     new("Pemmican",       ItemKind.Food,     1.5f, IconDir + "pemmican.png",     Nutrition: 45f, ValueMb: 0.3f) },
         { ItemId.DriedGoose,   new("Dried goose",    ItemKind.Food,     1.0f, IconDir + "dried_goose.png",  Nutrition: 30f, ValueMb: 0.2f) },
+        // A post's winter came in casks: eight birds salted down, and a man
+        // does not eat one at a sitting (design doc 13.1, 14.1).
+        { ItemId.SaltGeese,    new("Cask of salt geese", ItemKind.Food, 60f, IconDir + "dried_goose.png", Nutrition: 240f, ValueMb: 1.6f) },
         { ItemId.Bread,        new("Loaf of bread",  ItemKind.Food,     1.0f, IconDir + "bread_loaf.png",   Nutrition: 25f, ValueMb: 0.15f) },
         { ItemId.Ale,          new("Tankard of ale", ItemKind.Drink,    2.0f, IconDir + "ale_tankard.png",  Nutrition: 6f, Thirst: 45f, Warmth: 4f, ValueMb: 0.2f, Intoxication: 12f) },
         { ItemId.Rum,          new("Dram of rum",    ItemKind.Drink,    1.0f, IconDir + "rum.png",          Thirst: 10f, Warmth: 8f, ValueMb: 0.8f, Intoxication: 35f) },
@@ -106,6 +110,7 @@ public static class Items
     private static readonly Dictionary<ItemId, string> PluralNames = new()
     {
         { ItemId.Pemmican, "pemmican" }, { ItemId.DriedGoose, "dried geese" }, { ItemId.Goose, "geese" },
+        { ItemId.SaltGeese, "casks of salt geese" },
         { ItemId.Bread, "loaves of bread" }, { ItemId.Ale, "tankards of ale" }, { ItemId.Rum, "drams of rum" },
         { ItemId.Water, "water" }, { ItemId.Venison, "fresh meat" }, { ItemId.DriedMeat, "dried meat" },
         { ItemId.Firewood, "firewood" }, { ItemId.TradeGoods, "trade goods" }, { ItemId.Fish, "fish" },

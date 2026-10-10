@@ -139,7 +139,7 @@ public class HuntSiteGoal : Goal
                     npc.Skills.Learn(ref npc.Skills.Hunting, 0.004f);
                     if (GD.Randf() < chance * crowd && _site.Count > 0)
                     {
-                        _site.Take(1);
+                        _site.Take(SpeciesInfo.PerKill(_site.Species, npc.Weapon == ItemId.Musket));
                         SpeciesInfo.Yield(_site.Species, npc.Inventory, npc.Weapon == ItemId.Musket);
                         _kills++;
                     }
@@ -596,6 +596,47 @@ public class MakePemmicanGoal : Goal
                 npc.Inventory.Remove(ItemId.DriedMeat, dried);
                 stores.Stores.Add(ItemId.Pemmican, made);
                 Chronicle.Event($"{npc.DisplayName} made {made} pemmican.", npc.GlobalPosition, npc, weight: 0.2f);
+                return GoalStatus.Done;
+            }
+        }
+    }
+}
+
+// Salt the geese down (design doc 13.1, 14.1): the autumn flight is what a
+// post lives on until spring, but only what goes into a cask keeps. Eight
+// birds to a cask, an hour at the stores, and the cask is the winter.
+public class SaltGeeseGoal : Goal
+{
+    private int _phase;
+    public override string Label => "salt the geese";
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        var stores = npc.HomeStores;
+        if (stores == null) return GoalStatus.Failed;
+        switch (_phase)
+        {
+            case 0:
+                if (stores.Stores.Count(ItemId.Goose) < 8) return GoalStatus.Failed;
+                _phase = 1;
+                return Delegate(new GoToGoal(stores.AccessCell, 100f));
+            case 1:
+            {
+                if (!ChildFinished(out var r)) return GoalStatus.Running;
+                if (r != GoalStatus.Done) return GoalStatus.Failed;
+                _phase = 2;
+                return Delegate(new WaitGoal(1.4f));
+            }
+            default:
+            {
+                if (!ChildFinished(out _)) return GoalStatus.Running;
+                int birds = stores.Stores.TakeUpTo(ItemId.Goose, 48);
+                int casks = birds / 8;
+                stores.Stores.Add(ItemId.Goose, birds - casks * 8);
+                if (casks <= 0) return GoalStatus.Failed;
+                stores.Stores.Add(ItemId.SaltGeese, casks);
+                World.GooseHunt.Salted(stores, casks);
+                Chronicle.Event($"{npc.DisplayName} salted down {casks * 8} geese - {casks} cask{(casks == 1 ? "" : "s")} for the winter.", npc.GlobalPosition, npc, weight: 0.4f);
                 return GoalStatus.Done;
             }
         }

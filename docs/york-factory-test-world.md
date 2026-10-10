@@ -123,6 +123,24 @@ E on a person stops them and opens topics: how things stand, about them (role, t
 
 The background batch has to be livable, or the far places quietly die while the player is elsewhere. A background household now gathers its own firewood (a camp with no cordwood used to freeze to death), melts snow at the fire for water, hunts its own country if it is a band, goes looking further when it has under a fortnight's food (and comes back knowing where the game is, which is real knowledge it keeps), falls through from an empty trapline to hunting instead of standing about, and keeps enough on snares and lines not to starve. Oxford House buys country provisions off the inland bands with its goods when its shelves get thin, before it buys furs. A man who freezes now dies of cold rather than of want.
 
+## The brigade (design doc 12.1, 12.2, 18.3)
+
+`World/Brigade.cs`. Twice a year the river road carries a brigade: **the autumn outfit** up to Oxford House once the ship has been unloaded (goods, muskets, blankets, traps, rum and salt geese), and **the spring returns** down as soon as the ice is out (the winter's furs). A brigade is men, canoes and a manifest moving along the road - the open water resolved in numbers at about a twentieth of the road a day upstream and twice that coming down, slower with a heavy load, a thin crew or a storm, and frozen in where it lies if freeze-up catches it short.
+
+The four portages of the Hayes - the Rock portage, Borrowick Falls, Trout Falls and the Hill Gates - are where things happen to it. The canoes come out of the water, the pieces go over on men's backs (two days at the heavy ones), and **anyone who means to stop you knows exactly where you will be**: with bad blood between the houses the other company may be waiting, and takes half the manifest into its own store, raising the tension and landing in your journal with the cause named - *the other house knew which day you would be on the carrying place*. The director paces those interceptions like any other heavy beat.
+
+Hulls wear on the rapids and on the drag of the portage itself. Spruce gum patches hold them (a brigade carries one patch per three men); a hull that opens with no gum left loses a third of the manifest in the river and costs two days. The crew are named and their number sets the pace, and anyone walking the road beside the brigade counts as with it and hears everything at first hand. (Making the crew actually absent from the post's working day - bodies on the water rather than names on a manifest - is the next step.)
+
+## The goose hunt (design doc 14.1, 16.1)
+
+`World/GooseHunt.cs`. The autumn flight is the one event in the year a Bay post cannot afford to miss, and it is now the year's second climax after the ship. From 20 August to 15 October the marsh holds the whole passage going south ("the water black with geese"), the master turns the **whole establishment** out to it - not two men - and the orders carry the count: *"84 casks in the cellar before the flight goes over, or we eat short"*, with the days of the flight left. A volley into a settled flock is a bag of eight birds with a musket, four with a bow, and that many come off the marsh.
+
+Fresh geese spoil; **casks** do not. The women of the post salt eight birds to a cask (`SaltGeeseGoal`, and the same in the background batch), a cask holds about a week's food for a man, and a household with nothing loose on the shelf breaks one open. What is in the cellar when the flight goes over is what the post eats until spring, so the reckoning at the end of the season - casks salted against casks wanted, in weeks of food - is a cause the player can point at in February, written into the journal as a reveal and headlined if the post goes into the winter short.
+
+The player gets his own place in it: the Factor's orders include *"to the marsh while the flight lasts: bring 12 geese to the stores"*, counted as he hands them in at the counter.
+
+A hunting trip to a far ground is no longer a day trip either: men sent beyond about 2500 px sleep out at the ground (the post kept goose tents at the marsh) and come in when they are loaded rather than when the light goes - and, the bug that hid all of this, **a hunting party outside the live ring is no longer parked back at its own door with the day's work undone**, which is why nothing had ever come back from the goose marsh.
+
 ## Provisions at a post, and what a compressed clock does (design doc 13.1, 18.2)
 
 Besides the hunters' kills and what band parties sell at the counter, a post whose store falls under 25 days' food now sends out for meat once a week: a few pieces of goods for pemmican or dried meat from any band that will still deal with it, named in the console with the days' food in hand. A post with no provisions and nobody selling says so, and one with no goods to buy them with says that.

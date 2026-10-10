@@ -91,8 +91,29 @@ public static class Delegation
         int mouths = 0, scorbutic = 0;
         foreach (var n in Sim.Npcs) if (n.HomeStores == fort && !n.IsDead) { mouths++; if (n.DaysSinceFresh > 28f) scorbutic++; }
         float foodDays = fort.FoodDays(mouths + 1);
-        bool gooseSeason = (Cal.Month == 9 || Cal.Month == 10 || Cal.Month == 5) && eco?.BestSite(Species.Goose, fort) != null;
+        bool gooseSeason = World.GooseHunt.Season && eco?.BestSite(Species.Goose, fort) != null;
         bool foodShort = foodDays < 30f || scorbutic >= 3;
+        // The autumn flight: the whole establishment goes to the marsh while
+        // it lasts, because what is not salted now is not eaten in February.
+        if (World.GooseHunt.Autumn && eco?.BestSite(Species.Goose, fort) is SpawnSite marsh)
+        {
+            int casks = World.GooseHunt.CasksThisSeason(fort), want = World.GooseHunt.Wanted(fort);
+            if (casks < want)
+                tasks.Add(new PostTask
+                {
+                    Name = $"shoot geese at {marsh.Name}",
+                    Make = _ => new HuntSiteGoal(marsh, 7f),
+                    Men = Math.Max(2, mouths / 3),
+                    Urgency = casks < want / 2 ? 95f : 75f,
+                    Hunt = true, NeedsMusket = true, KeyTask = true, Site = marsh,
+                    PlayerKind = Player.TaskKind.Geese, PlayerNeed = 12,
+                    Intent = $"{casks} casks salted of {want}, and {World.GooseHunt.DaysLeft} days of the flight left",
+                });
+        }
+        // Birds coming in faster than the women can put them down: the men
+        // leave the marsh and get them into casks, or they rot on the floor.
+        if (World.GooseHunt.Season && fort.Stores.Count(ItemId.Goose) >= 40)
+            tasks.Add(new PostTask { Name = "salt the geese down", Make = _ => new SaltGeeseGoal(), Men = fort.Stores.Count(ItemId.Goose) >= 120 ? 3 : 1, Urgency = 80f, KeyTask = true, Intent = $"{fort.Stores.Count(ItemId.Goose)} birds on the floor and the flight still on" });
         if (gooseSeason || foodShort)
         {
             var site = eco?.BestSite(gooseSeason ? Species.Goose : Species.Caribou, fort);

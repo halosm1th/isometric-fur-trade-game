@@ -208,6 +208,9 @@ public class HouseholdBehaviour : RoleBehaviour
         var water = WaterDuty(npc, 12);
         if (water != null) return water;
         if (IsWorkHours && !Cal.IsFrozen && npc.HomeStores != null && npc.HomeStores.FoodDays(10) < 14f && GD.Randf() < 0.5f) return new FishGoal();
+        // While the flight is on, salting comes before everything else: fresh
+        // geese spoil and casks do not (design doc 14.1).
+        if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Goose) >= 8) return new SaltGeeseGoal();
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Venison) >= 3) return new DryMeatGoal();
         if (npc.Needs.Thirst < 60f) return new DrinkGoal();
         return new WanderGoal(npc.WorkCell, 2, 1.2f);
@@ -294,6 +297,7 @@ public class CreeWomanBehaviour : RoleBehaviour
         if (water != null) return water;
         if (IsWorkHours && !Cal.IsFrozen && npc.HomeStores != null && npc.HomeStores.FoodDays(11) < 8f && GD.Randf() < 0.5f) return new FishGoal();
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Venison) >= 3) return new DryMeatGoal();
+        if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Goose) >= 8) return new SaltGeeseGoal();
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.DriedMeat) >= 8 && GD.Randf() < 0.5f) return new MakePemmicanGoal();
         if (npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Firewood) < 12 && IsWorkHours) return new ChopWoodGoal();
         return new WanderGoal((npc.HomeStores as Economy.BandLedger)?.Camp ?? WorldLayout.CampCentre, 3, 1.2f);
