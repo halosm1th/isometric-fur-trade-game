@@ -34,14 +34,36 @@ public class Brigade
 	public int DaysOut;
 	public bool PlayerWith;                      // the player went with them
 
-	// The portages of the Hayes, as the brigade meets them going up.
-	public static readonly (float at, string name, bool heavy)[] Portages =
+	// The carrying places of the Hayes, as the brigade meets them going up.
+	// Read from the world atlas where it has them (their positions there are
+	// approximate and want correcting from a source); the fractions below are
+	// the fallback if the atlas is silent.
+	private static (float at, string name, bool heavy)[] _portages;
+	public static (float at, string name, bool heavy)[] Portages
 	{
-		(0.18f, "the Rock portage", false),
-		(0.37f, "Borrowick Falls", false),
-		(0.58f, "Trout Falls", true),
-		(0.79f, "the Hill Gates", true),
-	};
+		get
+		{
+			if (_portages != null) return _portages;
+			var fromMap = WorldMap.Portages();
+			if (fromMap.Count > 0)
+			{
+				var list = new List<(float, string, bool)>();
+				foreach (var (name, fraction, _) in fromMap)
+					list.Add((fraction, name, name.Contains("Falls") || name.Contains("Gates")));
+				list.Sort((a, b) => a.Item1.CompareTo(b.Item1));
+				_portages = list.ToArray();
+			}
+			else
+				_portages = new (float, string, bool)[]
+				{
+					(0.218f, "the Rock portage", false),
+					(0.367f, "Borrowick Falls", false),
+					(0.499f, "Trout Falls", true),
+					(0.634f, "the Hill Gates", true),
+				};
+			return _portages;
+		}
+	}
 
 	public Vector2 Where
 	{

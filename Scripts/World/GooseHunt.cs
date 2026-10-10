@@ -108,6 +108,18 @@ public static class GooseHunt
 				break;   // one headline is enough; every house hears its own master
 			}
 		}
+		else if (Autumn && _opened)
+		{
+			// A word every few days on how the flight is going, which is the
+			// one number at a Bay post everybody watched.
+			if (cal.Day % 3 == 0)
+				foreach (var post in Sim.Posts())
+				{
+					if (post == null || post != Sim.Fort) continue;
+					int birds = post.Stores.Count(ItemId.Goose), casks = post.Stores.Count(ItemId.SaltGeese);
+					Sim.Notice($"The flight: {casks} casks down, {birds} birds on the floor, {DaysLeft} days of geese left (wanted {Wanted(post)}).");
+				}
+		}
 		else if (!Autumn && _opened && !_closed)
 		{
 			_opened = false; _closed = true;
