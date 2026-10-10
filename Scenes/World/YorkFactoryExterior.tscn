@@ -109,7 +109,7 @@ script = ExtResource("16_fire")
 [node name="York Factory" type="Node2D" parent="Cast"]
 
 [node name="Mr William Auld" type="Node2D" parent="Cast/York Factory"]
-position = Vector2(4096, 2368)
+position = Vector2(45952, 9472)
 script = ExtResource("30_npcspawn")
 DisplayName = "Mr. William Auld"
 Role = 0
@@ -123,7 +123,7 @@ Inventory = "Musket, Capote, Pemmican:2"
 position = Vector2(-128, 0)
 
 [node name="John Fidler clerk" type="Node2D" parent="Cast/York Factory"]
-position = Vector2(4160, 2400)
+position = Vector2(46016, 9504)
 script = ExtResource("30_npcspawn")
 DisplayName = "John Fidler (clerk)"
 Role = 1
@@ -137,7 +137,7 @@ Inventory = "Capote, Knife, Bread"
 position = Vector2(-192, 32)
 
 [node name="Alex Kennedy clerk" type="Node2D" parent="Cast/York Factory"]
-position = Vector2(3904, 2400)
+position = Vector2(45760, 9504)
 script = ExtResource("30_npcspawn")
 DisplayName = "Alex Kennedy (clerk)"
 Role = 1
@@ -151,7 +151,7 @@ Inventory = "Capote, Knife, Bread"
 position = Vector2(256, 64)
 
 [node name="James Isbister" type="Node2D" parent="Cast/York Factory"]
-position = Vector2(3392, 2592)
+position = Vector2(45248, 9696)
 script = ExtResource("30_npcspawn")
 DisplayName = "James Isbister"
 Role = 2
@@ -164,7 +164,7 @@ Inventory = "Capote, Knife, DriedGoose:2, Musket"
 position = Vector2(512, 0)
 
 [node name="William Flett" type="Node2D" parent="Cast/York Factory"]
-position = Vector2(3456, 2624)
+position = Vector2(45312, 9728)
 script = ExtResource("30_npcspawn")
 DisplayName = "William Flett"
 Role = 2
@@ -177,7 +177,7 @@ Inventory = "Capote, Knife, DriedGoose:2, Musket"
 position = Vector2(512, 0)
 
 [node name="Magnus Spence" type="Node2D" parent="Cast/York Factory"]
-position = Vector2(3520, 2656)
+position = Vector2(45376, 9760)
 script = ExtResource("30_npcspawn")
 DisplayName = "Magnus Spence"
 Role = 2
@@ -190,7 +190,7 @@ Inventory = "Capote, Knife, DriedGoose:2"
 position = Vector2(512, 0)
 
 [node name="John Linklater" type="Node2D" parent="Cast/York Factory"]
-position = Vector2(3584, 2688)
+position = Vector2(45440, 9792)
 script = ExtResource("30_npcspawn")
 DisplayName = "John Linklater"
 Role = 2
@@ -203,7 +203,7 @@ Inventory = "Capote, Knife, DriedGoose:2"
 position = Vector2(512, 0)
 
 [node name="Thomas Corrigal" type="Node2D" parent="Cast/York Factory"]
-position = Vector2(3648, 2720)
+position = Vector2(45504, 9824)
 script = ExtResource("30_npcspawn")
 DisplayName = "Thomas Corrigal"
 Role = 2
@@ -216,7 +216,7 @@ Inventory = "Capote, Knife, DriedGoose:2"
 position = Vector2(512, 0)
 
 [node name="Peter Sinclair" type="Node2D" parent="Cast/York Factory"]
-position = Vector2(3328, 2624)
+position = Vector2(45184, 9728)
 script = ExtResource("30_npcspawn")
 DisplayName = "Peter Sinclair"
 Role = 2
@@ -229,7 +229,7 @@ Inventory = "Capote, Knife, DriedGoose:2"
 position = Vector2(896, 128)
 
 [node name="Nancy Isbister" type="Node2D" parent="Cast/York Factory"]
-position = Vector2(3392, 2656)
+position = Vector2(45248, 9760)
 script = ExtResource("30_npcspawn")
 DisplayName = "Nancy Isbister"
 Role = 3
@@ -245,7 +245,7 @@ Inventory = "PointBlanket, Knife"
 position = Vector2(128, 0)
 
 [node name="Margaret Flett" type="Node2D" parent="Cast/York Factory"]
-position = Vector2(3456, 2688)
+position = Vector2(45312, 9792)
 script = ExtResource("30_npcspawn")
 DisplayName = "Margaret Flett"
 Role = 3
@@ -261,7 +261,7 @@ Inventory = "PointBlanket, Knife"
 position = Vector2(64, -32)
 
 [node name="Jane Spence" type="Node2D" parent="Cast/York Factory"]
-position = Vector2(3520, 2720)
+position = Vector2(45376, 9824)
 script = ExtResource("30_npcspawn")
 DisplayName = "Jane Spence"
 Role = 3
@@ -279,7 +279,7 @@ position = Vector2(0, -64)
 [node name="Cree camp" type="Node2D" parent="Cast"]
 
 [node name="Maskwa chief" type="Node2D" parent="Cast/Cree camp"]
-position = Vector2(2048, 4608)
+position = Vector2(43648, 8512)
 script = ExtResource("30_npcspawn")
 DisplayName = "Maskwa (chief)"
 Role = 5
@@ -293,7 +293,7 @@ Inventory = "Musket, HideCoat, Venison:2"
 position = Vector2(-128, -64)
 
 [node name="Wapistan" type="Node2D" parent="Cast/Cree camp"]
-position = Vector2(1664, 4608)
+position = Vector2(43264, 8512)
 script = ExtResource("30_npcspawn")
 DisplayName = "Wapistan"
 Role = 6
@@ -307,7 +307,7 @@ Inventory = "Bow, Knife, HideCoat, Venison:2, Snowshoes"
 position = Vector2(64, -96)
 
 [node name="Mahihkan" type="Node2D" parent="Cast/Cree camp"]
-position = Vector2(1664, 4416)
+position = Vector2(43264, 8320)
 script = ExtResource("30_npcspawn")
 DisplayName = "Mahihkan"
 Role = 6
@@ -321,7 +321,7 @@ Inventory = "Musket, Knife, HideCoat, Venison:2, Snowshoes"
 position = Vector2(64, 96)
 
 [node name="Pisiskiw" type="Node2D" parent="Cast/Cree camp"]
-position = Vector2(2048, 4416)
+position = Vector2(43648, 8320)
 script = ExtResource("30_npcspawn")
 DisplayName = "Pisiskiw"
 Role = 6
@@ -335,7 +335,7 @@ Inventory = "Bow, Knife, HideCoat, Venison:2, Snowshoes"
 position = Vector2(-320, 96)
 
 [node name="Kihiw" type="Node2D" parent="Cast/Cree camp"]
-position = Vector2(1856, 4704)
+position = Vector2(43456, 8608)
 script = ExtResource("30_npcspawn")
 DisplayName = "Kihiw"
 Role = 6
@@ -349,7 +349,7 @@ Inventory = "Musket, Knife, HideCoat, Venison:2, Snowshoes"
 position = Vector2(-128, -192)
 
 [node name="Niska" type="Node2D" parent="Cast/Cree camp"]
-position = Vector2(2048, 4608)
+position = Vector2(43648, 8512)
 script = ExtResource("30_npcspawn")
 DisplayName = "Niska"
 Role = 7
@@ -365,7 +365,7 @@ Spouse = NodePath("../Maskwa chief")
 position = Vector2(-256, -64)
 
 [node name="Sakihitowin" type="Node2D" parent="Cast/Cree camp"]
-position = Vector2(1664, 4608)
+position = Vector2(43264, 8512)
 script = ExtResource("30_npcspawn")
 DisplayName = "Sakihitowin"
 Role = 7
@@ -381,7 +381,7 @@ Spouse = NodePath("../Wapistan")
 position = Vector2(128, -64)
 
 [node name="Wapun" type="Node2D" parent="Cast/Cree camp"]
-position = Vector2(1664, 4416)
+position = Vector2(43264, 8320)
 script = ExtResource("30_npcspawn")
 DisplayName = "Wapun"
 Role = 7
@@ -397,7 +397,7 @@ Spouse = NodePath("../Mahihkan")
 position = Vector2(128, 128)
 
 [node name="Atim-iskwew" type="Node2D" parent="Cast/Cree camp"]
-position = Vector2(2048, 4416)
+position = Vector2(43648, 8320)
 script = ExtResource("30_npcspawn")
 DisplayName = "Atim-iskwew"
 Role = 7
@@ -413,7 +413,7 @@ Spouse = NodePath("../Pisiskiw")
 position = Vector2(-256, 128)
 
 [node name="Kimiwan" type="Node2D" parent="Cast/Cree camp"]
-position = Vector2(2048, 4608)
+position = Vector2(43648, 8512)
 script = ExtResource("30_npcspawn")
 DisplayName = "Kimiwan"
 Role = 8
@@ -430,7 +430,7 @@ Father = NodePath("../Maskwa chief")
 position = Vector2(-256, 0)
 
 [node name="Wawatew" type="Node2D" parent="Cast/Cree camp"]
-position = Vector2(1664, 4608)
+position = Vector2(43264, 8512)
 script = ExtResource("30_npcspawn")
 DisplayName = "Wawatew"
 Role = 8
@@ -449,7 +449,7 @@ position = Vector2(0, -64)
 [node name="Nor'Westers" type="Node2D" parent="Cast"]
 
 [node name="Mr Duncan Cameron NWC" type="Node2D" parent="Cast/Nor'Westers"]
-position = Vector2(8640, 5088)
+position = Vector2(42304, 9504)
 script = ExtResource("30_npcspawn")
 DisplayName = "Mr. Duncan Cameron (NWC)"
 Role = 11
@@ -464,7 +464,7 @@ Inventory = "Musket, Capote, Pemmican:2"
 position = Vector2(-64, 32)
 
 [node name="Baptiste Lagimodiere" type="Node2D" parent="Cast/Nor'Westers"]
-position = Vector2(8448, 5120)
+position = Vector2(42112, 9536)
 script = ExtResource("30_npcspawn")
 DisplayName = "Baptiste Lagimodiere"
 Role = 12
@@ -478,7 +478,7 @@ Inventory = "Capote, Knife, Pemmican:2, Musket"
 position = Vector2(128, 64)
 
 [node name="Pierre Falcon" type="Node2D" parent="Cast/Nor'Westers"]
-position = Vector2(8512, 5152)
+position = Vector2(42176, 9568)
 script = ExtResource("30_npcspawn")
 DisplayName = "Pierre Falcon"
 Role = 12
@@ -492,7 +492,7 @@ Inventory = "Capote, Knife, Pemmican:2"
 position = Vector2(64, 32)
 
 [node name="Antoine Desjarlais" type="Node2D" parent="Cast/Nor'Westers"]
-position = Vector2(8576, 5184)
+position = Vector2(42240, 9600)
 script = ExtResource("30_npcspawn")
 DisplayName = "Antoine Desjarlais"
 Role = 12
@@ -508,7 +508,7 @@ position = Vector2(0, 0)
 [node name="Assiniboine camp" type="Node2D" parent="Cast"]
 
 [node name="Tchatka chief" type="Node2D" parent="Cast/Assiniboine camp"]
-position = Vector2(2304, 13696)
+position = Vector2(40576, 15488)
 script = ExtResource("30_npcspawn")
 DisplayName = "Tchatka (chief)"
 Role = 5
@@ -522,7 +522,7 @@ Inventory = "Musket, HideCoat, Pemmican:3"
 position = Vector2(-128, -64)
 
 [node name="Mato" type="Node2D" parent="Cast/Assiniboine camp"]
-position = Vector2(1920, 13696)
+position = Vector2(40192, 15488)
 script = ExtResource("30_npcspawn")
 DisplayName = "Mato"
 Role = 6
@@ -536,7 +536,7 @@ Inventory = "Musket, Knife, HideCoat, Pemmican:3, Snowshoes"
 position = Vector2(64, -96)
 
 [node name="Wanbdi" type="Node2D" parent="Cast/Assiniboine camp"]
-position = Vector2(1920, 13504)
+position = Vector2(40192, 15296)
 script = ExtResource("30_npcspawn")
 DisplayName = "Wanbdi"
 Role = 6
@@ -550,7 +550,7 @@ Inventory = "Bow, Knife, HideCoat, Pemmican:3, Snowshoes"
 position = Vector2(64, 96)
 
 [node name="Cetan" type="Node2D" parent="Cast/Assiniboine camp"]
-position = Vector2(2304, 13504)
+position = Vector2(40576, 15296)
 script = ExtResource("30_npcspawn")
 DisplayName = "Cetan"
 Role = 6
@@ -564,7 +564,7 @@ Inventory = "Bow, Knife, HideCoat, Pemmican:3, Snowshoes"
 position = Vector2(-320, 96)
 
 [node name="Wiyaka" type="Node2D" parent="Cast/Assiniboine camp"]
-position = Vector2(2304, 13696)
+position = Vector2(40576, 15488)
 script = ExtResource("30_npcspawn")
 DisplayName = "Wiyaka"
 Role = 7
@@ -581,7 +581,7 @@ Spouse = NodePath("../Tchatka chief")
 position = Vector2(-256, -64)
 
 [node name="Ptesan" type="Node2D" parent="Cast/Assiniboine camp"]
-position = Vector2(1920, 13696)
+position = Vector2(40192, 15488)
 script = ExtResource("30_npcspawn")
 DisplayName = "Ptesan"
 Role = 7
@@ -598,7 +598,7 @@ Spouse = NodePath("../Mato")
 position = Vector2(128, -64)
 
 [node name="Wakanda" type="Node2D" parent="Cast/Assiniboine camp"]
-position = Vector2(1920, 13504)
+position = Vector2(40192, 15296)
 script = ExtResource("30_npcspawn")
 DisplayName = "Wakanda"
 Role = 7
@@ -615,7 +615,7 @@ Spouse = NodePath("../Wanbdi")
 position = Vector2(128, 128)
 
 [node name="Winona" type="Node2D" parent="Cast/Assiniboine camp"]
-position = Vector2(2304, 13696)
+position = Vector2(40576, 15488)
 script = ExtResource("30_npcspawn")
 DisplayName = "Winona"
 Role = 8
@@ -634,7 +634,7 @@ position = Vector2(-256, 0)
 [node name="Oxford House" type="Node2D" parent="Cast"]
 
 [node name="Mr James Sutherland postmaster" type="Node2D" parent="Cast/Oxford House"]
-position = Vector2(4800, 12960)
+position = Vector2(41408, 14432)
 script = ExtResource("30_npcspawn")
 DisplayName = "Mr. James Sutherland (postmaster)"
 Role = 4
@@ -649,7 +649,7 @@ Inventory = "Musket, Capote, Pemmican:2"
 position = Vector2(-128, 0)
 
 [node name="Andrew Setter" type="Node2D" parent="Cast/Oxford House"]
-position = Vector2(4608, 12992)
+position = Vector2(41216, 14464)
 script = ExtResource("30_npcspawn")
 DisplayName = "Andrew Setter"
 Role = 2
@@ -662,7 +662,7 @@ Inventory = "Capote, Knife, Pemmican:2, Snowshoes, Musket"
 position = Vector2(64, 32)
 
 [node name="George Tait" type="Node2D" parent="Cast/Oxford House"]
-position = Vector2(4672, 13024)
+position = Vector2(41280, 14496)
 script = ExtResource("30_npcspawn")
 DisplayName = "George Tait"
 Role = 2
@@ -675,7 +675,7 @@ Inventory = "Capote, Knife, Pemmican:2, Snowshoes"
 position = Vector2(64, 32)
 
 [node name="Robert Garrick" type="Node2D" parent="Cast/Oxford House"]
-position = Vector2(4736, 13056)
+position = Vector2(41344, 14528)
 script = ExtResource("30_npcspawn")
 DisplayName = "Robert Garrick"
 Role = 2
@@ -688,7 +688,7 @@ Inventory = "Capote, Knife, Pemmican:2, Snowshoes"
 position = Vector2(64, 32)
 
 [node name="Mary Linklater" type="Node2D" parent="Cast/Oxford House"]
-position = Vector2(4800, 13088)
+position = Vector2(41408, 14560)
 script = ExtResource("30_npcspawn")
 DisplayName = "Mary Linklater"
 Role = 3
@@ -706,7 +706,7 @@ position = Vector2(0, -64)
 [node name="Wildlife" type="Node2D" parent="."]
 
 [node name="Caribou herd" type="Node2D" parent="Wildlife"]
-position = Vector2(1600, 6432)
+position = Vector2(42560, 10912)
 script = ExtResource("31_site")
 SiteName = "Caribou herd"
 Species = 0
@@ -718,40 +718,40 @@ RadiusPx = 900.0
 position = Vector2(0, 0)
 
 [node name="Feb" type="Marker2D" parent="Wildlife/Caribou herd"]
-position = Vector2(0, 192)
+position = Vector2(-64, 160)
 
 [node name="Mar" type="Marker2D" parent="Wildlife/Caribou herd"]
-position = Vector2(-256, -128)
+position = Vector2(128, -128)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Caribou herd"]
-position = Vector2(-768, -1088)
+position = Vector2(512, -704)
 
 [node name="May" type="Marker2D" parent="Wildlife/Caribou herd"]
-position = Vector2(-512, -2432)
+position = Vector2(704, -1440)
 
 [node name="Jun" type="Marker2D" parent="Wildlife/Caribou herd"]
-position = Vector2(-512, -3200)
+position = Vector2(1024, -1792)
 
 [node name="Jul" type="Marker2D" parent="Wildlife/Caribou herd"]
-position = Vector2(0, -3392)
+position = Vector2(1216, -2016)
 
 [node name="Aug" type="Marker2D" parent="Wildlife/Caribou herd"]
-position = Vector2(-512, -3072)
+position = Vector2(896, -1792)
 
 [node name="Sep" type="Marker2D" parent="Wildlife/Caribou herd"]
-position = Vector2(-768, -2240)
+position = Vector2(576, -1312)
 
 [node name="Oct" type="Marker2D" parent="Wildlife/Caribou herd"]
-position = Vector2(-768, -1088)
+position = Vector2(448, -672)
 
 [node name="Nov" type="Marker2D" parent="Wildlife/Caribou herd"]
-position = Vector2(-256, -320)
+position = Vector2(128, -192)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Caribou herd"]
 position = Vector2(0, 0)
 
 [node name="Goose marsh" type="Node2D" parent="Wildlife"]
-position = Vector2(8512, 1504)
+position = Vector2(45056, 9152)
 script = ExtResource("31_site")
 SiteName = "Goose marsh"
 Species = 1
@@ -760,7 +760,7 @@ Capacity = 300
 RadiusPx = 700.0
 
 [node name="Beaver lodge upper" type="Node2D" parent="Wildlife"]
-position = Vector2(8000, 3808)
+position = Vector2(44096, 9696)
 script = ExtResource("31_site")
 SiteName = "Beaver lodge (upper)"
 Species = 2
@@ -769,7 +769,7 @@ Capacity = 60
 RadiusPx = 350.0
 
 [node name="Beaver lodge bend" type="Node2D" parent="Wildlife"]
-position = Vector2(7104, 5856)
+position = Vector2(43776, 10816)
 script = ExtResource("31_site")
 SiteName = "Beaver lodge (bend)"
 Species = 2
@@ -778,7 +778,7 @@ Capacity = 60
 RadiusPx = 350.0
 
 [node name="Beaver lodge lower" type="Node2D" parent="Wildlife"]
-position = Vector2(7744, 7904)
+position = Vector2(42944, 11552)
 script = ExtResource("31_site")
 SiteName = "Beaver lodge (lower)"
 Species = 2
@@ -787,7 +787,7 @@ Capacity = 60
 RadiusPx = 350.0
 
 [node name="Wolf den" type="Node2D" parent="Wildlife"]
-position = Vector2(1088, 10592)
+position = Vector2(42176, 11552)
 script = ExtResource("31_site")
 SiteName = "Wolf den"
 Species = 3
@@ -796,7 +796,7 @@ Capacity = 10
 RadiusPx = 800.0
 
 [node name="Beaver lodge Knee Lake" type="Node2D" parent="Wildlife"]
-position = Vector2(3136, 11936)
+position = Vector2(42112, 13632)
 script = ExtResource("31_site")
 SiteName = "Beaver lodge (Knee Lake)"
 Species = 2
@@ -805,7 +805,7 @@ Capacity = 70
 RadiusPx = 350.0
 
 [node name="Beaver lodge Oxford" type="Node2D" parent="Wildlife"]
-position = Vector2(3904, 13728)
+position = Vector2(41856, 14208)
 script = ExtResource("31_site")
 SiteName = "Beaver lodge (Oxford)"
 Species = 2

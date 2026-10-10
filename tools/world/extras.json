@@ -1,0 +1,210 @@
+{
+  "_about": "Hand additions to the atlas geography (lon, lat). Natural Earth's 50m rivers leave out the Hayes, the York Factory - Oxford House road; it is traced here approximately. Edit and re-run build_world.py.",
+  "rivers": [
+    {
+      "name": "Hayes",
+      "major": true,
+      "pts": [
+        [
+          -92.3,
+          57.0
+        ],
+        [
+          -92.62,
+          56.8
+        ],
+        [
+          -92.95,
+          56.58
+        ],
+        [
+          -93.35,
+          56.3
+        ],
+        [
+          -93.8,
+          55.98
+        ],
+        [
+          -94.2,
+          55.6
+        ],
+        [
+          -94.55,
+          55.25
+        ],
+        [
+          -94.72,
+          55.05
+        ],
+        [
+          -95.0,
+          54.95
+        ],
+        [
+          -95.3,
+          54.93
+        ]
+      ]
+    }
+  ],
+  "places": [
+    {
+      "name": "Nor'Westers' house (York)",
+      "kind": "nwc_post",
+      "lon": -93.55,
+      "lat": 56.55,
+      "company": "NWC",
+      "year": 1801,
+      "note": "The game's rival post, up-country from York Factory."
+    },
+    {
+      "name": "Cree winter camp (York)",
+      "kind": "camp",
+      "lon": -93.45,
+      "lat": 56.8
+    },
+    {
+      "name": "Cree summer camp (York)",
+      "kind": "camp",
+      "lon": -92.55,
+      "lat": 56.98
+    },
+    {
+      "name": "Assiniboine winter camp",
+      "kind": "camp",
+      "lon": -95.7,
+      "lat": 54.8
+    },
+    {
+      "name": "Assiniboine summer camp",
+      "kind": "camp",
+      "lon": -92.85,
+      "lat": 56.95
+    }
+  ],
+  "sites": [
+    {
+      "name": "Caribou herd",
+      "species": "Caribou",
+      "lon": -94.2,
+      "lat": 56.3,
+      "count": 90,
+      "capacity": 140,
+      "radius": 900,
+      "route": [
+        [
+          -94.2,
+          56.3
+        ],
+        [
+          -94.3,
+          56.25
+        ],
+        [
+          -94.1,
+          56.35
+        ],
+        [
+          -93.8,
+          56.6
+        ],
+        [
+          -93.5,
+          56.85
+        ],
+        [
+          -93.2,
+          57.05
+        ],
+        [
+          -93.0,
+          57.15
+        ],
+        [
+          -93.3,
+          57.05
+        ],
+        [
+          -93.6,
+          56.8
+        ],
+        [
+          -93.9,
+          56.6
+        ],
+        [
+          -94.1,
+          56.4
+        ],
+        [
+          -94.2,
+          56.3
+        ]
+      ]
+    },
+    {
+      "name": "Goose marsh",
+      "species": "Goose",
+      "lon": -92.0,
+      "lat": 56.95,
+      "count": 180,
+      "capacity": 300,
+      "radius": 700
+    },
+    {
+      "name": "Beaver lodge (upper)",
+      "species": "Beaver",
+      "lon": -92.75,
+      "lat": 56.72,
+      "count": 40,
+      "capacity": 60,
+      "radius": 350
+    },
+    {
+      "name": "Beaver lodge (bend)",
+      "species": "Beaver",
+      "lon": -93.3,
+      "lat": 56.32,
+      "count": 45,
+      "capacity": 60,
+      "radius": 350
+    },
+    {
+      "name": "Beaver lodge (lower)",
+      "species": "Beaver",
+      "lon": -93.85,
+      "lat": 55.98,
+      "count": 36,
+      "capacity": 60,
+      "radius": 350
+    },
+    {
+      "name": "Wolf den",
+      "species": "Wolf",
+      "lon": -94.6,
+      "lat": 56.05,
+      "count": 6,
+      "capacity": 10,
+      "radius": 800
+    },
+    {
+      "name": "Beaver lodge (Knee Lake)",
+      "species": "Beaver",
+      "lon": -94.75,
+      "lat": 55.08,
+      "count": 50,
+      "capacity": 70,
+      "radius": 350
+    },
+    {
+      "name": "Beaver lodge (Oxford)",
+      "species": "Beaver",
+      "lon": -95.05,
+      "lat": 54.86,
+      "count": 55,
+      "capacity": 75,
+      "radius": 380
+    }
+  ]
+}

@@ -29,42 +29,43 @@ public readonly record struct BuildingDef(BuildingKind Kind, string Name, Vector
 // site like a lodge or a den (design doc 16.5).
 public readonly record struct SiteDef(string Name, Species Species, Vector2I Cell, int Count, int Capacity, float RadiusPx, Vector2I[] Route = null);
 
-// The York Factory test world, in cells. One place to look up where
-// everything is; both painters and the population spawner read from here.
-// Rows are 32 px, columns 128 px: the map is 80 x 320 cells = 10240 px square.
+// Where everything is, in cells. The country itself is WorldMap (the whole
+// play area from real geography, half scale); this is where the hand-built
+// places sit in it - each post keeps its shape, and build_world.py found the
+// nearest dry spot to its real position (Data/World/world.json, "layout").
+// Both painters and the population read from here.
 public static class WorldLayout
 {
-    public const int MapWidth = 80;
-    public const int MapHeight = 460;   // grown south to make room for the inland post
-    public const int WaterRows = 40;
-    public const int BeachRows = 3;
+    public static int MapWidth => WorldMap.Columns;
+    public static int MapHeight => WorldMap.Rows;
 
     // ---- the fort ---------------------------------------------------------
-    public static readonly Vector2I FortTop = new(30, 64);
+    public static readonly Vector2I FortTop = WorldMap.Anchor("fort_top", new(30, 64));
     public const int FortWidth = 22, FortDepth = 18, GateOffset = 10;
     public static Vector2I GateCell => IsoGrid.Cell(FortTop, GateOffset, FortDepth - 1);
     public static Vector2I GateOutside => IsoGrid.DownLeft(IsoGrid.DownLeft(GateCell));
     public static IEnumerable<Vector2I> YardCells() => IsoGrid.Rhombus(FortTop, FortWidth, FortDepth);
+    public static Vector2 FortCentre => IsoGrid.ToWorld(IsoGrid.Cell(FortTop, FortWidth / 2, FortDepth / 2));
 
     public static readonly BuildingDef Depot = new(BuildingKind.Depot, "Trading room", IsoGrid.Cell(FortTop, 3, 2), 7, 5, 3);
     public static readonly BuildingDef Warehouse = new(BuildingKind.Warehouse, "Warehouse", IsoGrid.Cell(FortTop, 12, 2), 8, 6, 3);
     public static readonly BuildingDef MensHouse = new(BuildingKind.MensHouse, "Men's house", IsoGrid.Cell(FortTop, 3, 10), 7, 5, 3);
 
-    // ---- the Nor'Westers' post, across the river (design doc 5.2, 7.1) ------------
-    public static readonly Vector2I NwcTop = new(66, 150);
+    // ---- the Nor'Westers' post, up the river (design doc 5.2, 7.1) ------------------
+    public static readonly Vector2I NwcTop = WorldMap.Anchor("nwc_top", new(66, 150));
     public const int NwcWidth = 12, NwcDepth = 10, NwcGateOffset = 5;
     public static Vector2I NwcGateCell => IsoGrid.Cell(NwcTop, NwcGateOffset, NwcDepth - 1);
     public static readonly BuildingDef NwcHouse = new(BuildingKind.NwcHouse, "Nor'Westers' house", IsoGrid.Cell(NwcTop, 2, 2), 7, 5, 3);
     public static IEnumerable<Vector2I> NwcYardCells() => IsoGrid.Rhombus(NwcTop, NwcWidth, NwcDepth);
     public static Vector2I NwcWoodpileCell => IsoGrid.Cell(NwcTop, 9, 7);
 
-    // A shallow crossing: the only way over the river on foot in summer.
-    public static bool IsFord(Vector2I c) => c.Y >= 158 && c.Y <= 162 && IsRiver(c);
+    // A shallow crossing: where a river can be waded in summer.
+    public static bool IsFord(Vector2I c) => WorldMap.At(c) == Ground.Ford;
 
     // ---- the inland post (design doc 3.9's far outpost, 10.1.2's second leg) --
-    // Oxford House, a day's hard walk up the river road. A postmaster, a
-    // few men, a woman, its own books, and the inland bands' furs.
-    public static readonly Vector2I OutpostTop = new(36, 396);
+    // Oxford House, up the Hayes. A postmaster, a few men, a woman, its own
+    // books, and the inland bands' furs.
+    public static readonly Vector2I OutpostTop = WorldMap.Anchor("outpost_top", new(36, 396));
     public const int OutpostWidth = 12, OutpostDepth = 9, OutpostGateOffset = 5;
     public static Vector2I OutpostGateCell => IsoGrid.Cell(OutpostTop, OutpostGateOffset, OutpostDepth - 1);
     public static Vector2I OutpostGateOutside => IsoGrid.DownLeft(IsoGrid.DownLeft(OutpostGateCell));
@@ -74,23 +75,21 @@ public static class WorldLayout
 
     public static readonly BuildingDef[] Buildings = { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse };
 
-    // ---- the river road: York Factory to Oxford House along the west bank -----
-    public static readonly Vector2[] RiverRoad =
+    // ---- the river road: York Factory to Oxford House, up the Hayes -----------
+    // Laid by the importer along dry ground beside the river (fording it
+    // where it must), from gate to gate.
+    public static readonly Vector2[] RiverRoad = Road();
+    private static Vector2[] Road()
     {
-        IsoGrid.ToWorld(GateOutside),
-        new Vector2(3000, 3400),
-        new Vector2(3400, 4600),
-        new Vector2(4600, 6200),
-        new Vector2(5200, 7800),
-        new Vector2(5400, 9400),
-        new Vector2(5200, 11000),
-        new Vector2(4200, 12300),
-        new Vector2(3400, 13000),
-        IsoGrid.ToWorld(OutpostGateOutside),
-    };
-    // Where you stand to take the road: on the bank below each gate.
-    public static Vector2I RoadHeadYork => IsoGrid.FromWorld(new Vector2(3050, 3350));
-    public static Vector2I RoadHeadOutpost => IsoGrid.FromWorld(new Vector2(3450, 12950));
+        var pts = new List<Vector2>(WorldMap.Polyline("road"));
+        if (pts.Count < 2) pts = new List<Vector2> { IsoGrid.ToWorld(GateOutside), IsoGrid.ToWorld(OutpostGateOutside) };
+        // Callers index into the middle of it (a spot "a few legs up the road").
+        while (pts.Count < 6) pts.Insert(pts.Count - 1, pts[^2].Lerp(pts[^1], 0.5f));
+        return pts.ToArray();
+    }
+    // Where you stand to take the road: a little way out of each gate.
+    public static Vector2I RoadHeadYork => IsoGrid.FromWorld(RiverRoad[0].Lerp(RiverRoad[1], 0.5f));
+    public static Vector2I RoadHeadOutpost => IsoGrid.FromWorld(RiverRoad[^1].Lerp(RiverRoad[^2], 0.5f));
     public static float RoadDistance(Vector2 p)
     {
         float best = float.MaxValue;
@@ -103,7 +102,9 @@ public static class WorldLayout
     public static Vector2I FlagCell => IsoGrid.Cell(FortTop, 10, 9);
 
     // ---- wharf and ship ---------------------------------------------------
-    public static readonly Vector2I WharfRoot = new(38, 42);
+    // Up-right from the fort's north corner into the estuary (the importer
+    // only accepts a fort site where the last planks stand in deep water).
+    public static readonly Vector2I WharfRoot = FortTop + new Vector2I(8, -22);
     public const int WharfLength = 14;
     public static IEnumerable<Vector2I> WharfCells()
     {
@@ -116,20 +117,21 @@ public static class WorldLayout
     }
     // Where the ship's hull sits when tied up: alongside the last planks.
     public static Vector2 ShipBerth => IsoGrid.ToWorld(WharfEnd) + new Vector2(-40, -120);
-    public static Vector2 ShipOffscreen => new(MapWidth * IsoGrid.TileW + 600, 700);
+    // Out in the Bay beyond sight of the post, the way she came in.
+    public static Vector2 ShipOffscreen => ShipBerth + new Vector2(5200, -2600);
 
     // ---- the Cree camp ----------------------------------------------------
     // The band follows the seasons (design doc 6, 14.1): the winter camp
     // in the bush, and a summer camp on the trail beside the post for the
     // trading season. CampCentre is wherever they are now.
-    public static readonly Vector2I WinterCamp = new(14, 140);
-    public static readonly Vector2I SummerCamp = new(23, 100);
+    public static readonly Vector2I WinterCamp = WorldMap.Anchor("cree_winter", new(14, 140));
+    public static readonly Vector2I SummerCamp = WorldMap.Anchor("cree_summer", new(23, 100));
     public static Vector2I CampCentre { get; private set; } = WinterCamp;
     public static void SetCamp(Vector2I centre) => CampCentre = centre;
     // The Assiniboine (design doc 7.2): a plains people wintering upland
     // near Oxford House, coming down to the Bay in high summer to trade.
-    public static readonly Vector2I AssiniboineWinterCamp = new(16, 424);
-    public static readonly Vector2I AssiniboineSummerCamp = new(22, 118);
+    public static readonly Vector2I AssiniboineWinterCamp = WorldMap.Anchor("assiniboine_winter", new(16, 424));
+    public static readonly Vector2I AssiniboineSummerCamp = WorldMap.Anchor("assiniboine_summer", new(22, 118));
     public static IEnumerable<Vector2I> TipiCellsAt(Vector2I c)
     {
         yield return IsoGrid.Cell(c, 3, 0);
@@ -141,21 +143,13 @@ public static class WorldLayout
     public static bool IsSummerCamp => CampCentre == SummerCamp;
     public const float CampClearingPx = 460f;
     public static Vector2I CampFire => CampCentre;
-    public static IEnumerable<Vector2I> TipiCells()
-    {
-        var c = CampCentre;
-        yield return IsoGrid.Cell(c, 3, 0);
-        yield return IsoGrid.Cell(c, 0, 3);
-        yield return IsoGrid.Cell(c, -3, 0);
-        yield return IsoGrid.Cell(c, 0, -3);
-        yield return IsoGrid.Cell(c, 3, 3);
-    }
+    public static IEnumerable<Vector2I> TipiCells() => TipiCellsAt(CampCentre);
 
-    // ---- the river --------------------------------------------------------
-    // Column of the river's centre at a given row; it meanders a little.
-    public static float RiverCentre(int row) => 58f + 4f * Mathf.Sin(row / 25f) + 1.5f * Mathf.Sin(row / 7f);
-    public static bool IsRiver(Vector2I c) => c.Y >= WaterRows - 6 && Mathf.Abs(c.X - RiverCentre(c.Y)) <= 1.4f;
-    public static bool IsRiverBank(Vector2I c) => !IsRiver(c) && Mathf.Abs(c.X - RiverCentre(c.Y)) <= 2.6f;
+    // ---- rivers and shore ---------------------------------------------------
+    public static bool IsRiver(Vector2I c) => WorldMap.At(c) == Ground.River;
+    public static bool IsRiverBank(Vector2I c) => !WorldMap.IsWater(c) && WorldMap.Near(c, g => g is Ground.River or Ground.Lake);
+    // Sand along the sea: two cells of beach.
+    public static bool IsBeach(Vector2I c) => !WorldMap.IsWater(c) && WorldMap.Near(c, g => g == Ground.Ocean, 2);
 
     // ---- wildlife sites (design doc 16.4) -------------------------------------
     // Placed in the editor as WildlifeSite nodes. Read live in the editor
@@ -178,13 +172,12 @@ public static class WorldLayout
     }
 
     // ---- the trail from the gate to the camp ----------------------------------
-    public static readonly Vector2[] Trail =
+    public static readonly Vector2[] Trail = TrailPoints();
+    private static Vector2[] TrailPoints()
     {
-        IsoGrid.ToWorld(GateOutside),
-        IsoGrid.ToWorld(new Vector2I(22, 105)),
-        IsoGrid.ToWorld(new Vector2I(16, 128)),
-        IsoGrid.ToWorld(CampCentre),
-    };
+        var pts = WorldMap.Polyline("trail");
+        return pts.Length >= 2 ? pts : new[] { IsoGrid.ToWorld(GateOutside), IsoGrid.ToWorld(WinterCamp) };
+    }
 
     public static float TrailDistance(Vector2 p)
     {
@@ -197,13 +190,40 @@ public static class WorldLayout
     }
 
     // ---- forest -----------------------------------------------------------
-    // Everything west and south of the fort is bush, thinning toward the
-    // fort, cleared along the trail, around the camp, and off the river.
+    // Is there a tree on the cell as the country was made (before anyone's
+    // axe)? Asked a great deal by the pathfinder, so remembered per cell.
+    private static byte[] _forest;
+    public static bool ForestAt(Vector2I c)
+    {
+        if (!WorldMap.InBounds(c)) return false;
+        _forest ??= new byte[WorldMap.Columns * WorldMap.Rows];
+        int i = c.Y * WorldMap.Columns + c.X;
+        if (_forest[i] == 0)
+        {
+            float density = ForestDensity(c);
+            _forest[i] = (byte)(density > 0f && IsoGrid.Hash(c, 11) < density ? 2 : 1);
+        }
+        return _forest[i] == 2;
+    }
+
+    // How thick the bush is by ecozone (design doc 6), cleared round the
+    // posts and camps, along the road and trail, and off the water.
     public static float ForestDensity(Vector2I c)
     {
+        var g = WorldMap.At(c);
+        float density = g switch
+        {
+            Ground.Boreal => 0.32f, Ground.LakesForest => 0.32f, Ground.Shield => 0.22f, Ground.Cordillera => 0.2f,
+            Ground.Parkland => 0.1f, Ground.Tundra => 0.02f, Ground.TallGrass => 0.01f, _ => 0f,
+        };
+        if (density <= 0f) return 0f;
+        // Patchy: groves and openings rather than an even scatter.
+        density *= 0.55f + 0.9f * IsoGrid.Hash(new Vector2I(c.X / 6, c.Y / 12), 31);
+        if (IsRiverBank(c) || IsBeach(c)) return 0f;
         var p = IsoGrid.ToWorld(c);
-        if (c.Y < WaterRows + 8) return 0f;
-        if (IsRiver(c) || IsRiverBank(c)) return 0f;
+        // Far from anything that's been cleared: no need to measure.
+        float fortDist = p.DistanceTo(FortCentre);
+        if (fortDist > 30000f && p.DistanceTo(IsoGrid.ToWorld(OutpostTop)) > 8000f) return Mathf.Clamp(density, 0f, 0.5f);
         if (TrailDistance(p) < 130f) return 0f;
         if (RoadDistance(p) < 150f) return 0f;
         var outpostCentre = IsoGrid.ToWorld(IsoGrid.Cell(OutpostTop, OutpostWidth / 2, OutpostDepth / 2));
@@ -213,14 +233,9 @@ public static class WorldLayout
         if (p.DistanceTo(IsoGrid.ToWorld(AssiniboineWinterCamp)) < CampClearingPx) return 0f;
         if (p.DistanceTo(IsoGrid.ToWorld(AssiniboineSummerCamp)) < CampClearingPx) return 0f;
         // Keep the fort's surroundings open.
-        var fortCentre = IsoGrid.ToWorld(IsoGrid.Cell(FortTop, FortWidth / 2, FortDepth / 2));
-        float fortDist = p.DistanceTo(fortCentre);
         if (fortDist < 1500f) return 0f;
         var nwcCentre = IsoGrid.ToWorld(IsoGrid.Cell(NwcTop, NwcWidth / 2, NwcDepth / 2));
         if (p.DistanceTo(nwcCentre) < 1100f) return 0f;
-        float density = 0.12f;
-        if (p.X < 3000f) density += 0.28f * Mathf.Clamp((3000f - p.X) / 1600f, 0f, 1f);
-        if (p.Y > 4200f) density += 0.28f * Mathf.Clamp((p.Y - 4200f) / 1800f, 0f, 1f);
         if (fortDist < 2300f) density *= (fortDist - 1500f) / 800f;
         return Mathf.Clamp(density, 0f, 0.5f);
     }

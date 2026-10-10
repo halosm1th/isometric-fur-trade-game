@@ -204,8 +204,15 @@ public partial class StructurePainter : TileMapLayer
         foreach (var b in WorldLayout.Buildings) PaintBuilding(b, floor);
         PaintYard();
         PaintCamp();
-        PaintForest();
+        // The forest is painted chunk by chunk as TerrainPainter streams the country in.
     }
+
+    // Around an editor save: the scene file keeps none of the painted tiles.
+    public void ClearAll()
+    {
+        Clear(); _front?.Clear(); _floor?.Clear();
+    }
+    public void Repaint() { if (AutoGenerate) Paint(); }
 
     private void SetBack(Vector2I cell, int source) => SetCell(cell, source, Vector2I.Zero);
     private void SetFront(Vector2I cell, int source) => (_front ?? this).SetCell(cell, source, Vector2I.Zero);
@@ -433,19 +440,22 @@ public partial class StructurePainter : TileMapLayer
     }
 
 
-    private void PaintForest()
+    // Trees on the cells of a chunk that has come into view.
+    public void PaintForest(IEnumerable<Vector2I> cells)
     {
-        for (int x = 0; x < WorldLayout.MapWidth; x++)
+        foreach (var cell in cells)
         {
-            for (int y = WorldLayout.WaterRows; y < WorldLayout.MapHeight; y++)
-            {
-                var cell = new Vector2I(x, y);
-                float density = WorldLayout.ForestDensity(cell);
-                if (density <= 0f || IsoGrid.Hash(cell, 11) >= density) continue;
-                if (GetCellSourceId(cell) != -1) continue;
-                SetBack(cell, SourceSpruce0 + (int)(IsoGrid.Hash(cell, 12) * 3f));
-            }
+            if (!WorldLayout.ForestAt(cell) || _felled.Contains(cell)) continue;
+            if (GetCellSourceId(cell) != -1) continue;
+            SetBack(cell, SourceSpruce0 + (int)(IsoGrid.Hash(cell, 12) * 3f));
         }
+    }
+
+    // And off a chunk that has gone out of view (the trees are still there:
+    // IsTree answers from the layout).
+    public void ClearForest(IEnumerable<Vector2I> cells)
+    {
+        foreach (var cell in cells) if (IsTreeSource(GetCellSourceId(cell))) EraseCell(cell);
     }
 
     // A hearth object for a fire cell that hasn't got one (a campfire built
@@ -479,9 +489,8 @@ public partial class StructurePainter : TileMapLayer
     // A tree was felled: the cell clears and the cutter gets wood.
     public bool FellTreeAt(Vector2I cell)
     {
-        int s = GetCellSourceId(cell);
-        if (s < SourceSpruce0 || s > SourceSpruce0 + 2) return false;
-        EraseCell(cell);
+        if (!IsTree(cell)) return false;
+        if (IsTreeSource(GetCellSourceId(cell))) EraseCell(cell);
         _felled.Add(cell);
         RebuildCollision();
         Net.Net.I?.BroadcastCell(0, cell, -1);
@@ -505,21 +514,34 @@ public partial class StructurePainter : TileMapLayer
         return best;
     }
 
+    // A tree whether or not its chunk is painted right now.
     public bool IsTree(Vector2I cell)
     {
         int s = GetCellSourceId(cell);
-        return s >= SourceSpruce0 && s <= SourceSpruce0 + 2;
+        if (IsTreeSource(s)) return true;
+        if (s != -1 || (Sim.Terrain?.IsLoaded(cell) ?? false)) return false;
+        return WorldLayout.ForestAt(cell) && !_felled.Contains(cell);
     }
 
+    // Ring by ring outward, nearest first.
     public Vector2I? NearestTree(Vector2 worldPos, float maxDist = 4000f)
     {
+        var c = LocalToMap(worldPos);
+        int rings = Mathf.CeilToInt(maxDist / IsoGrid.TileW);
         Vector2I? best = null;
         float bestD = maxDist;
-        foreach (var cell in GetUsedCells())
+        for (int r = 0; r <= rings; r++)
         {
-            if (!IsTree(cell)) continue;
-            float d = MapToLocal(cell).DistanceTo(worldPos);
-            if (d < bestD) { bestD = d; best = cell; }
+            if (best.HasValue && r * IsoGrid.TileH / 2f > bestD) break;
+            for (int dx = -r; dx <= r; dx++)
+                for (int dy = -2 * r; dy <= 2 * r; dy++)
+                {
+                    if (Mathf.Abs(dx) != r && Mathf.Abs(dy) < 2 * r - 1) continue;
+                    var n = new Vector2I(c.X + dx, c.Y + dy);
+                    if (!IsTree(n)) continue;
+                    float d = MapToLocal(n).DistanceTo(worldPos);
+                    if (d < bestD) { bestD = d; best = n; }
+                }
         }
         return best;
     }
@@ -578,6 +600,8 @@ public partial class StructurePainter : TileMapLayer
             return;
         }
         var l = layer == 0 ? this : layer == 1 ? (_front ?? this) : (_floor ?? this);
+        // A felled tree stays felled when its chunk is painted again.
+        if (layer == 0 && source < 0 && IsTree(cell)) _felled.Add(cell);
         if (source < 0) l.EraseCell(cell); else l.SetCell(cell, source, Vector2I.Zero);
         if (layer == 0 && source == SourceCampfire) { EnsureHearth(cell, 0f); if (!_campfires.Contains(cell)) _campfires.Add(cell); }
         RebuildCollision();
@@ -611,7 +635,7 @@ public partial class StructurePainter : TileMapLayer
             if ((_floor ?? this).GetCellSourceId(cell) < 0) { net.RpcId(peer, nameof(Net.Net.SetCell), 1, cell.X, cell.Y, -1); net.RpcId(peer, nameof(Net.Net.SetCell), 2, cell.X, cell.Y, -1); net.RpcId(peer, nameof(Net.Net.SetCell), 3, cell.X, cell.Y, -1); }
         }
     }
-    private readonly List<Vector2I> _felled = new();
+    private readonly HashSet<Vector2I> _felled = new();
 
     // Everything that differs from the generated map, for a save: open
     // doors and cells cleared by axe or fire.

@@ -125,27 +125,20 @@ public partial class MapCanvas : Control
 
     private void BuildBase()
     {
-        int w = Mathf.CeilToInt(WorldLayout.MapWidth * IsoGrid.TileW * S), h = Mathf.CeilToInt(WorldLayout.MapHeight * IsoGrid.TileH / 2f * S);
-        var img = Image.CreateEmpty(w, h, false, Image.Format.Rgba8);
-        var water = new Color(0.36f, 0.5f, 0.66f); var sand = new Color(0.78f, 0.7f, 0.5f); var grass = new Color(0.6f, 0.64f, 0.42f);
-        var bush = new Color(0.36f, 0.45f, 0.3f); var yard = new Color(0.55f, 0.42f, 0.28f);
+        // The whole country from the world map: a cell is 128 x 32 world px,
+        // so at 1/32 it is four map pixels across and one down.
+        var src = WorldMap.GroundImage;
+        if (src == null) return;
+        var img = (Image)src.Duplicate();
+        img.Convert(Image.Format.Rgba8);
+        img.Resize(WorldMap.Columns * 4, WorldMap.Rows, Image.Interpolation.Nearest);
+        var yard = new Color(0.55f, 0.42f, 0.28f);
         var fortCells = new HashSet<Vector2I>(WorldLayout.YardCells()); foreach (var c in WorldLayout.NwcYardCells()) fortCells.Add(c); foreach (var c in WorldLayout.OutpostYardCells()) fortCells.Add(c);
-        for (int x = 0; x < WorldLayout.MapWidth; x++)
+        foreach (var cell in fortCells)
         {
-            int shore = TerrainPainter.ShorelineRow(x);
-            for (int y = 0; y < WorldLayout.MapHeight; y++)
-            {
-                var cell = new Vector2I(x, y);
-                Color col;
-                if (y < shore || WorldLayout.IsRiver(cell) && !WorldLayout.IsFord(cell)) col = water;
-                else if (y < shore + WorldLayout.BeachRows || WorldLayout.IsRiverBank(cell) || WorldLayout.IsFord(cell)) col = sand;
-                else if (fortCells.Contains(cell)) col = yard;
-                else if (WorldLayout.ForestDensity(cell) > 0.2f) col = bush;
-                else col = grass;
-                var p = IsoGrid.ToWorld(cell) * S;
-                int px = Mathf.FloorToInt(p.X) - 2, py = Mathf.FloorToInt(p.Y);
-                for (int dx = 0; dx < 4; dx++) { int xx = px + dx; if (xx >= 0 && xx < w && py >= 0 && py < h) img.SetPixel(xx, py, col); }
-            }
+            var p = IsoGrid.ToWorld(cell) * S;
+            int px = Mathf.FloorToInt(p.X) - 2, py = Mathf.FloorToInt(p.Y);
+            for (int dx = 0; dx < 4; dx++) { int xx = px + dx; if (xx >= 0 && xx < img.GetWidth() && py >= 0 && py < img.GetHeight()) img.SetPixel(xx, py, yard); }
         }
         // Dev aid: `-- --dumpmap` saves the whole country to user://map.png.
         foreach (string arg in OS.GetCmdlineUserArgs())
@@ -182,7 +175,7 @@ public partial class MapCanvas : Control
         var outC = M(IsoGrid.Cell(WorldLayout.OutpostTop, WorldLayout.OutpostWidth / 2, WorldLayout.OutpostDepth / 2));
         DrawRect(new Rect2(outC - new Vector2(3, 3), new Vector2(6, 6)), new Color(0.5f, 0.25f, 0.1f));
         DrawString(font, outC + new Vector2(8, 4), "Oxford House", HorizontalAlignment.Left, -1, 12, ink);
-        var ford = M(new Vector2I(58, 160));
+        var ford = M(TerrainPainter.NamedSpot("ford"));
         DrawString(font, ford + new Vector2(6, 4), "ford", HorizontalAlignment.Left, -1, 11, ink);
 
         // What you know of the game (design doc 16.4, 16.5).

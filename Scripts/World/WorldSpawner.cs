@@ -43,9 +43,9 @@ public partial class WorldSpawner : Node2D
         PlaceItem(ItemId.Bread, 1, table + new Vector2(-26, 6), 52f);
         PlaceItem(ItemId.Ale, 1, table + new Vector2(22, 8), 52f);
 
-        // Canoes drawn up on the shore: one by the wharf, one at the Nor'Westers' landing.
+        // Canoes drawn up on the shore: one by the wharf, one outside the Nor'Westers' gate.
         PlaceCanoe(0, IsoGrid.ToWorld(IsoGrid.DownLeft(IsoGrid.DownLeft(WorldLayout.WharfRoot))) + new Vector2(-90, 10));
-        PlaceCanoe(1, IsoGrid.ToWorld(new Vector2I(60, 168)));
+        PlaceCanoe(1, IsoGrid.ToWorld(IsoGrid.DownLeft(IsoGrid.DownLeft(IsoGrid.DownLeft(WorldLayout.NwcGateCell)))) + new Vector2(60, 10));
 
         // The men's house table has a bite too.
         var mens = IsoGrid.ToWorld(IsoGrid.Cell(WorldLayout.MensHouse.Top, 3, 1));
