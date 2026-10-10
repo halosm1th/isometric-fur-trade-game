@@ -5,7 +5,7 @@ namespace IsometricFurTradeGame.Scripts.UI;
 
 // Continue / new game / multiplayer / settings / quit. Dev args skip it:
 // --solo, --host, --server (headless dedicated), --join=ip[:port],
-// --name=Whoever; --menu=settings|controls|multiplayer opens on that page.
+// --name=Whoever; --menu=settings|controls|multiplayer|newgame opens on that page.
 public partial class MainMenu : Control
 {
     private const string WorldScene = "res://Scenes/World/YorkFactoryExterior.tscn";
@@ -40,6 +40,7 @@ public partial class MainMenu : Control
         if (page == "settings") Show(_settings);
         else if (page == "controls") { Show(_settings); _settings.ShowTab(3); }
         else if (page == "multiplayer") Show(_multi);
+        else if (page == "newgame") Show(_newGame);
     }
 
     private void Build()
