@@ -145,7 +145,7 @@ public static class Brigades
 		}
 		// Provisions for the way: a man eats whatever is in the canoe, and a
 		// brigade that set out light goes hungry on the water.
-		int wantFood = Mathf.Max(8, taken * 15);
+		int wantFood = Mathf.Max(8, taken * 22);
 		foreach (var id in new[] { ItemId.Pemmican, ItemId.SaltGeese, ItemId.DriedGoose, ItemId.DriedMeat })
 		{
 			if (b.Provisions.FoodNutritionTotal >= wantFood * 35f) break;
@@ -369,7 +369,7 @@ public static class Brigades
 			}
 			if (home.Men.Count > 0)
 			{
-				int rations = Mathf.Max(6, home.Men.Count * 8);
+				int rations = Mathf.Max(6, home.Men.Count * 16);
 				foreach (var id in new[] { ItemId.Pemmican, ItemId.DriedGoose, ItemId.DriedMeat })
 					if (home.Provisions.FoodNutritionTotal < rations * 35f)
 					{
