@@ -237,10 +237,23 @@ public static class Brigades
 		foreach (var n in b.Men)
 		{
 			if (n == null || !GodotObject.IsInstanceValid(n) || n.IsDead) continue;
+			// The day of being alive that a hidden body gets no physics loop
+			// for: the fever runs down, and the days without fresh meat mount.
+			n.DaysSinceFresh += 1f;
+			if (n.IsSick)
+			{
+				n.SickDaysLeft -= 1f;
+				n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 8f);
+				if (n.SickDaysLeft <= 0f) { n.Immune = true; Sim.Notice($"{n.Describe()} is over the fever, on the water with {b.Name}."); }
+			}
+			else if (n.HasScurvy) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 3f);
+
 			bool ate = false;
-			foreach (var id in new[] { ItemId.Pemmican, ItemId.DriedGoose, ItemId.DriedMeat, ItemId.Hare, ItemId.Fish })
-				if (b.Provisions.Remove(id)) { n.Needs.Hunger = 100f; ate = true; break; }
-			if (!ate && b.Provisions.Remove(ItemId.SaltGeese)) { b.Provisions.Add(ItemId.DriedGoose, 7); n.Needs.Hunger = 100f; ate = true; }
+			// Fish first: it is what they caught today, and it is the only
+			// thing in the canoe that answers the scurvy.
+			foreach (var id in new[] { ItemId.Fish, ItemId.Hare, ItemId.Pemmican, ItemId.DriedGoose, ItemId.DriedMeat })
+				if (b.Provisions.Remove(id)) { n.Inventory.Add(id); ate = n.Consume(id); break; }
+			if (!ate && b.Provisions.Remove(ItemId.SaltGeese)) { b.Provisions.Add(ItemId.DriedGoose, 7); n.Inventory.Add(ItemId.DriedGoose); ate = n.Consume(ItemId.DriedGoose); }
 			if (ate) { n.Needs.Thirst = 100f; n.Needs.Warmth = Mathf.Max(40f, n.Needs.Warmth); continue; }
 			n.Needs.Hunger = Mathf.Max(0f, n.Needs.Hunger - 26f);
 			n.Needs.Thirst = 100f;   // there is no want of water on a river
