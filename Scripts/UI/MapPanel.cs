@@ -24,8 +24,8 @@ public partial class MapPanel : Control
         _player = Sim.Player as PlayerController;
         Sim.LocalPlayerChanged += p => { _player = p; if (_canvas != null) _canvas.Player = p; };
         _panel = new PanelContainer { Visible = false };
-        _panel.SetAnchorsPreset(LayoutPreset.Center);
-        _panel.GrowHorizontal = GrowDirection.Both; _panel.GrowVertical = GrowDirection.Both;
+        _panel.SetAnchorsPreset(LayoutPreset.FullRect);
+        _panel.OffsetLeft = 40; _panel.OffsetTop = 30; _panel.OffsetRight = -40; _panel.OffsetBottom = -30;
         var style = new StyleBoxFlat { BgColor = new Color(0.86f, 0.78f, 0.6f, 0.97f), BorderColor = new Color(0.4f, 0.3f, 0.15f) };
         style.SetBorderWidthAll(3); style.SetCornerRadiusAll(3); style.SetContentMarginAll(10);
         _panel.AddThemeStyleboxOverride("panel", style);
@@ -36,13 +36,14 @@ public partial class MapPanel : Control
         title.AddThemeFontSizeOverride("font_size", 15);
         title.AddThemeColorOverride("font_color", new Color(0.2f, 0.12f, 0.05f));
         box.AddChild(title);
-        _canvas = new MapCanvas { Player = _player };
+        _canvas = new MapCanvas { Player = _player, SizeFlagsVertical = SizeFlags.ExpandFill, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         box.AddChild(_canvas);
-        var legend = new Label { Text = "you ●   others ●   posts ■   camp ▲   sites ○ (where you last knew them)   ship ◆      drag to pan, wheel to zoom", HorizontalAlignment = HorizontalAlignment.Center };
+        var legend = new Label { Text = "you ●   posts ■ (HBC red, NWC blue)   camps ▲   sites ○   waypoint ◆ gold   your task ◆ blue      click: set a waypoint   right-click: clear it   drag: pan   wheel: zoom", HorizontalAlignment = HorizontalAlignment.Center };
         legend.AddThemeFontSizeOverride("font_size", 11);
         legend.AddThemeColorOverride("font_color", new Color(0.25f, 0.17f, 0.08f));
         box.AddChild(legend);
-        foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--map") GetTree().CreateTimer(2.5).Timeout += () => _panel.Visible = true;
+        foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--map") GetTree().CreateTimer(2.5).Timeout += () => { _panel.Visible = true; if (_player != null) _canvas.CentreOn(_player.GlobalPosition); };
+        GetParent()?.CallDeferred(Node.MethodName.AddChild, new WayfindingHud { Name = "Wayfinding" });
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -67,14 +68,17 @@ public partial class MapCanvas : Control
     private float Zoom = 1.3f;
     private Vector2 Pan = Vector2.Zero;
     private bool _dragging;
+    private float _dragMoved;
     private const float S = 1f / 32f;
+    private ImageTexture _fog;
+    private int _fogVersion = -1;
 
     public override void _Ready()
     {
         BuildBase();
         ClipContents = true;
         MouseFilter = MouseFilterEnum.Stop;
-        CustomMinimumSize = new Vector2(760, 560);
+        CustomMinimumSize = new Vector2(600, 400);
         Pan = new Vector2(0, 0);
     }
 
@@ -83,7 +87,13 @@ public partial class MapCanvas : Control
     {
         if (@event is InputEventMouseButton mb)
         {
-            if (mb.ButtonIndex == MouseButton.Left) { _dragging = mb.Pressed; AcceptEvent(); }
+            if (mb.ButtonIndex == MouseButton.Left)
+            {
+                // A click that didn't drag marks a waypoint there.
+                if (!mb.Pressed && _dragging && _dragMoved < 6f) Waypoint.Set((mb.Position - Pan) / (S * Zoom));
+                _dragging = mb.Pressed; _dragMoved = 0f; AcceptEvent();
+            }
+            else if (mb.ButtonIndex == MouseButton.Right && mb.Pressed) { Waypoint.Clear(); AcceptEvent(); }
             else if (mb.Pressed && (mb.ButtonIndex == MouseButton.WheelUp || mb.ButtonIndex == MouseButton.WheelDown))
             {
                 float factor = mb.ButtonIndex == MouseButton.WheelUp ? 1.25f : 0.8f;
@@ -100,6 +110,7 @@ public partial class MapCanvas : Control
         else if (@event is InputEventMouseMotion mm && _dragging)
         {
             Pan += mm.Relative;
+            _dragMoved += mm.Relative.Length();
             ClampPan();
             QueueRedraw();
             AcceptEvent();
@@ -146,6 +157,19 @@ public partial class MapCanvas : Control
         _base = ImageTexture.CreateFromImage(img);
     }
 
+    private void BuildFog()
+    {
+        _fogVersion = Exploration.Version;
+        int w = Exploration.Width, h = Exploration.Height;
+        var img = Image.CreateEmpty(w, h, false, Image.Format.Rgba8);
+        var parchment = new Color(0.8f, 0.72f, 0.55f);
+        for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++)
+                img.SetPixel(x, y, Exploration.IsSeenCell(x, y) ? new Color(parchment, 0f) : parchment);
+        img.Resize(w * 8, h * 8, Image.Interpolation.Bilinear);
+        _fog = ImageTexture.CreateFromImage(img);
+    }
+
     private Vector2 M(Vector2 world) => world * S * Zoom + Pan;
     private Vector2 M(Vector2I cell) => M(IsoGrid.ToWorld(cell));
 
@@ -155,6 +179,25 @@ public partial class MapCanvas : Control
         DrawTextureRect(_base, new Rect2(Pan, _base.GetSize() * Zoom), false);
         var ink = new Color(0.15f, 0.1f, 0.05f);
         var font = ThemeDB.FallbackFont;
+        if (_fogVersion != Exploration.Version) BuildFog();
+        if (_fog != null) DrawTextureRect(_fog, new Rect2(Pan, new Vector2(Exploration.Width, Exploration.Height) * Exploration.CellPx * S * Zoom), false);
+
+        // The posts and camps of the wider country, where you have been.
+        foreach (var post in Posts.Standing())
+        {
+            if (!Exploration.IsSeen(post.Centre)) continue;
+            var c = M(post.Centre);
+            DrawRect(new Rect2(c - new Vector2(3, 3), new Vector2(6, 6)), post.Company == "NWC" ? new Color(0.15f, 0.25f, 0.6f) : new Color(0.6f, 0.15f, 0.1f));
+            if (Zoom >= 1.6f) DrawString(font, c + new Vector2(8, 4), post.Name, HorizontalAlignment.Left, -1, 11, ink);
+        }
+        foreach (var camp in Camps.All)
+        {
+            var w = IsoGrid.ToWorld(camp.Centre);
+            if (!Exploration.IsSeen(w)) continue;
+            var c = M(w);
+            DrawColoredPolygon(new[] { c + new Vector2(0, -6), c + new Vector2(5, 3), c + new Vector2(-5, 3) }, new Color(0.62f, 0.42f, 0.25f));
+            if (Zoom >= 2.4f && !camp.IsFamily) DrawString(font, c + new Vector2(8, 4), camp.Name, HorizontalAlignment.Left, -1, 10, ink);
+        }
 
         // Common knowledge: the posts, the wharf, the camp where it stands now.
         var fortC = M(IsoGrid.Cell(WorldLayout.FortTop, WorldLayout.FortWidth / 2, WorldLayout.FortDepth / 2));
@@ -212,6 +255,19 @@ public partial class MapCanvas : Control
             DrawCircle(p, me ? 5f : 4f, me ? Colors.White : new Color(1f, 0.85f, 0.3f));
             DrawArc(p, me ? 5f : 4f, 0f, Mathf.Tau, 16, ink, 1f);
             if (!me) DrawString(font, p + new Vector2(7, 4), pc.DisplayName, HorizontalAlignment.Left, -1, 11, ink);
+        }
+        // Where you mean to go, and where your task is.
+        if (Waypoint.Target is { } wp)
+        {
+            var p = M(wp);
+            DrawColoredPolygon(new[] { p + new Vector2(0, -7), p + new Vector2(6, 0), p + new Vector2(0, 7), p + new Vector2(-6, 0) }, new Color(0.95f, 0.75f, 0.2f));
+            if (Player != null) DrawString(font, p + new Vector2(9, 4), $"waypoint, {Player.GlobalPosition.DistanceTo(wp) / WorldMap.PxPerKm:0} km", HorizontalAlignment.Left, -1, 11, ink);
+        }
+        if (Objective.Of(Player) is { } goal)
+        {
+            var p = M(goal.At);
+            DrawColoredPolygon(new[] { p + new Vector2(0, -6), p + new Vector2(5, 0), p + new Vector2(0, 6), p + new Vector2(-5, 0) }, new Color(0.3f, 0.55f, 0.9f));
+            DrawString(font, p + new Vector2(8, -6), goal.Label, HorizontalAlignment.Left, -1, 11, ink);
         }
         if (Player != null && Player.Spouse != null && IsInstanceValid(Player.Spouse) && !Player.Spouse.IsDead)
         {

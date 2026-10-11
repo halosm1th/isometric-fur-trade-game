@@ -77,6 +77,7 @@ public static class SaveGame
             ["calendar"] = new GDict { ["year"] = cal.Year, ["month"] = cal.Month, ["day"] = cal.Day, ["hour"] = cal.Hour, ["sky"] = (int)cal.Weather.Current, ["skyHours"] = cal.Weather.HoursLeft },
             ["tension"] = Rivalry.Tension,
             ["campaign"] = Campaign.Save(),
+            ["explored"] = UI.Exploration.Save(),
             ["posts"] = PostLedgers(),
             ["camp"] = new GArr { WorldLayout.CampCentre.X, WorldLayout.CampCentre.Y },
             ["abroad"] = MailOf(Mail.Abroad),
@@ -414,6 +415,7 @@ public static class SaveGame
             cal.Weather.Force((SkyState)I(c, "sky"), F(c, "skyHours", 6f));
             Rivalry.Tension = F(d, "tension", 20f);
             Campaign.Restore(d.ContainsKey("campaign") ? d["campaign"].AsGodotDictionary() : null);
+            if (d.ContainsKey("explored")) UI.Exploration.Load(d["explored"].AsGodotArray());
             Posts.Sync(false);
             if (d.ContainsKey("posts"))
                 foreach (var kv in d["posts"].AsGodotDictionary())

@@ -14,6 +14,7 @@ public partial class WorldRoot : Node2D
         Campaign.Reset();
         Posts.Reset();
         Camps.Reset();
+        UI.Exploration.Reset(); UI.Waypoint.Clear();
         Net.Net.I?.ResetWorld();
         WorldLayout.SetCamp(WorldLayout.WinterCamp);
     }
