@@ -68,20 +68,20 @@ public static class Items
         { ItemId.DriedGoose,   new("Dried goose",    ItemKind.Food,     1.0f, IconDir + "dried_goose.png",  Nutrition: 30f, ValueMb: 0.2f) },
         // A post's winter came in casks: eight birds salted down, and a man
         // does not eat one at a sitting (design doc 13.1, 14.1).
-        { ItemId.SaltGeese,    new("Cask of salt geese", ItemKind.Food, 60f, IconDir + "dried_goose.png", Nutrition: 240f, ValueMb: 1.6f) },
+        { ItemId.SaltGeese,    new("Cask of salt geese", ItemKind.Food, 60f, IconDir + "salt_geese.png", Nutrition: 240f, ValueMb: 1.6f) },
         { ItemId.Bread,        new("Loaf of bread",  ItemKind.Food,     1.0f, IconDir + "bread_loaf.png",   Nutrition: 25f, ValueMb: 0.15f) },
         { ItemId.Ale,          new("Tankard of ale", ItemKind.Drink,    2.0f, IconDir + "ale_tankard.png",  Nutrition: 6f, Thirst: 45f, Warmth: 4f, ValueMb: 0.2f, Intoxication: 12f) },
         { ItemId.Rum,          new("Dram of rum",    ItemKind.Drink,    1.0f, IconDir + "rum.png",          Thirst: 10f, Warmth: 8f, ValueMb: 0.8f, Intoxication: 35f) },
         { ItemId.Water,        new("Water",          ItemKind.Drink,    2.0f, IconDir + "water.png",        Thirst: 50f) },
         { ItemId.Venison,      new("Fresh meat",     ItemKind.Food,     2.0f, IconDir + "venison.png",      Nutrition: 30f, ValueMb: 0.15f) },
-        { ItemId.DriedMeat,    new("Dried meat",     ItemKind.Food,     0.8f, IconDir + "dried_goose.png",  Nutrition: 35f, ValueMb: 0.25f) },
+        { ItemId.DriedMeat,    new("Dried meat",     ItemKind.Food,     0.8f, IconDir + "dried_meat.png",  Nutrition: 35f, ValueMb: 0.25f) },
         { ItemId.Goose,        new("Goose",          ItemKind.Food,     1.5f, IconDir + "goose_item.png",   Nutrition: 35f, ValueMb: 0.15f) },
         { ItemId.Firewood,     new("Firewood",       ItemKind.Fuel,     5.0f, IconDir + "firewood.png",     FuelHours: 3f) },
         { ItemId.Capote,       new("Capote",         ItemKind.Clothing, 4.0f, IconDir + "capote.png",       Warmth: 3f, ValueMb: 3f) },
         { ItemId.PointBlanket, new("Point blanket",  ItemKind.Clothing, 5.0f, IconDir + "blanket_pelt.png", Warmth: 4f, ValueMb: 4f) },
         { ItemId.HideCoat,     new("Hide coat",      ItemKind.Clothing, 5.0f, IconDir + "hide_coat.png",    Warmth: 6f, ValueMb: 2f) },
         { ItemId.BeaverPelt,   new("Beaver pelt",    ItemKind.Fur,      1.5f, IconDir + "beaver_pelt.png",  ValueMb: 1f) },
-        { ItemId.ThinPelt,     new("Summer pelt",    ItemKind.Fur,      1.2f, IconDir + "beaver_pelt.png",  ValueMb: 0.45f) },
+        { ItemId.ThinPelt,     new("Summer pelt",    ItemKind.Fur,      1.2f, IconDir + "thin_pelt.png",  ValueMb: 0.45f) },
         // A ball tears a pelt; the graders in London pay a fraction (design doc 13.6, 14.4).
         { ItemId.ShotPelt,     new("Shot-through pelt", ItemKind.Fur,   1.5f, IconDir + "shot_pelt.png",    ValueMb: 0.35f) },
         { ItemId.ShotHide,     new("Holed hide",     ItemKind.Fur,      6.0f, IconDir + "shot_hide.png",    ValueMb: 0.2f) },
