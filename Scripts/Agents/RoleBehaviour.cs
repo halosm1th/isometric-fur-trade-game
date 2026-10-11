@@ -181,7 +181,11 @@ public class ClerkBehaviour : RoleBehaviour
         }
         var fire = FireDuty(npc, 3f);
         if (fire != null) return fire;
-        return new WanderGoal(WorldLayout.Depot.Centre, 1, 1.5f);
+        // About his own counter, wherever his post is. This used to be York's
+        // depot by name, which sent a clerk at Edmonton House walking two
+        // thousand miles to the Bay - the reason the planned posts had to give
+        // their clerks a labourer's behaviour instead of a clerk's.
+        return new WanderGoal(npc.HomeStores != null ? npc.HomeStores.AccessCell : npc.WorkCell, 1, 1.5f);
     }
 }
 
