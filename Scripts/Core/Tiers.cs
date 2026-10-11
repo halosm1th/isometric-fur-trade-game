@@ -235,6 +235,8 @@ public static class Tiers
             Sim.Headline($"Word comes that {home.Title} is on short commons: nothing in the store and the men going thin.");
     }
 
+    private static readonly System.Collections.Generic.HashSet<string> _toldOf = new();
+
     private static int Mouths(Economy.Household home)
     {
         int m = 0;
@@ -256,13 +258,15 @@ public static class Tiers
     {
         var eco = Sim.Ecology;
         if (eco == null) return;
-        // A band hunts its own country, whether or not the camp has been
-        // told where the herd is this week; a post only knows what it knows -
-        // until it is hungry, when the men go looking further and come back
-        // knowing where the game is.
-        var known = home is Economy.BandLedger ? null : home;
+        // Everyone hunts by what his house knows: a band's ledger has learned
+        // every ground in its own country, a post knows what it has been told.
+        // When a house is hungry the men go looking further - but only as far
+        // as their own country, not to the thickest herd on the continent.
+        var known = home;
         bool desperate = home.FoodDays(Mouths(home)) < 8f;
-        if (desperate) known = null;
+        if (desperate)
+            foreach (var near in World.WorldLayout.SitesNear(home.AccessCell, World.WorldLayout.HomeCountryPx))
+                home.Learn(near.Name, near.Cell);
         var site = eco.BestSite(Species.Caribou, known) ?? eco.BestSite(Species.Goose, known) ?? eco.BestSite(Species.Beaver, known);
         if (site == null || site.Count < 1f)
         {
@@ -292,8 +296,11 @@ public static class Tiers
             }
             return;
         }
-        if (desperate && home is not Economy.BandLedger && home.Learn(site.Name, site.Cell))
+        if (desperate && home is not Economy.BandLedger && site.Name != "" && !_toldOf.Contains(home.Title + site.Name))
+        {
+            _toldOf.Add(home.Title + site.Name);
             Sim.Notice($"{home.Title}: the men went looking and found the game at {site.Name}.");
+        }
         float chance = Mathf.Clamp(site.Count / site.Capacity, 0.05f, 1f) * (0.16f + n.Skills.Hunting * 0.24f);
         if (GD.Randf() >= chance) return;
         site.Take(SpeciesInfo.PerKill(site.Species, n.Weapon == ItemId.Musket));
