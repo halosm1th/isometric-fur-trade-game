@@ -89,7 +89,7 @@ public static class Delegation
 
         // Provisions (design doc 13.1): days of food, and the scurvy count.
         int mouths = 0, scorbutic = 0;
-        foreach (var n in Sim.Npcs) if (n.HomeStores == fort && !n.IsDead) { mouths++; if (n.DaysSinceFresh > 28f) scorbutic++; }
+        foreach (var n in Sim.Npcs) if (n.HomeStores == fort && !n.IsDead) { mouths++; if (n.DaysSinceFresh > 18f) scorbutic++; }
         float foodDays = fort.FoodDays(mouths + 1);
         bool gooseSeason = World.GooseHunt.Season && eco?.BestSite(Species.Goose, fort) != null;
         bool foodShort = foodDays < 30f || scorbutic >= 3;

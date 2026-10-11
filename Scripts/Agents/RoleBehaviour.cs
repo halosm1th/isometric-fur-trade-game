@@ -28,6 +28,15 @@ public abstract class RoleBehaviour
 
     protected static GameCalendar Cal => GameCalendar.Instance;
     protected static bool IsNight => Cal.Hour >= 21f || Cal.Hour < 6f;
+    // Is anybody in this house going too long without anything fresh? That,
+    // not the fisher's own belly, is what the scurvy turns on.
+    protected static bool HouseWantsFresh(Economy.Household home, float days = 12f)
+    {
+        if (home == null) return false;
+        foreach (var n in Sim.Npcs) if (!n.IsDead && n.HomeStores == home && n.DaysSinceFresh > days) return true;
+        return false;
+    }
+
     protected static bool IsWorkHours => Cal.Hour >= 7f && Cal.Hour < 18f && !FoulWeather;
     protected static bool FoulWeather => Cal.Weather.Current == SkyState.Blizzard || Cal.Weather.Current == SkyState.Storm;
 
@@ -208,7 +217,7 @@ public class HouseholdBehaviour : RoleBehaviour
         var water = WaterDuty(npc, 12);
         if (water != null) return water;
         if (IsWorkHours && !Cal.IsFrozen && npc.HomeStores != null && npc.HomeStores.FoodDays(10) < 14f && GD.Randf() < 0.5f) return new FishGoal();
-        if (IsWorkHours && Cal.IsFrozen && npc.HomeStores != null && (npc.DaysSinceFresh > 14f || npc.HomeStores.FoodDays(10) < 20f) && GD.Randf() < 0.4f) return new FishGoal(true);
+        if (IsWorkHours && Cal.IsFrozen && npc.HomeStores != null && (HouseWantsFresh(npc.HomeStores) || npc.HomeStores.FoodDays(10) < 20f) && GD.Randf() < 0.6f) return new FishGoal(true);
         // While the flight is on, salting comes before everything else: fresh
         // geese spoil and casks do not (design doc 14.1).
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Goose) >= 8) return new SaltGeeseGoal();
@@ -297,7 +306,7 @@ public class CreeWomanBehaviour : RoleBehaviour
         var water = WaterDuty(npc, 10);
         if (water != null) return water;
         if (IsWorkHours && !Cal.IsFrozen && npc.HomeStores != null && npc.HomeStores.FoodDays(11) < 8f && GD.Randf() < 0.5f) return new FishGoal();
-        if (IsWorkHours && Cal.IsFrozen && npc.HomeStores != null && (npc.DaysSinceFresh > 14f || npc.HomeStores.FoodDays(11) < 14f) && GD.Randf() < 0.4f) return new FishGoal(true);
+        if (IsWorkHours && Cal.IsFrozen && npc.HomeStores != null && (HouseWantsFresh(npc.HomeStores) || npc.HomeStores.FoodDays(11) < 14f) && GD.Randf() < 0.6f) return new FishGoal(true);
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Venison) >= 3) return new DryMeatGoal();
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Goose) >= 8) return new SaltGeeseGoal();
         if (IsWorkHours && npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.DriedMeat) >= 8 && GD.Randf() < 0.5f) return new MakePemmicanGoal();

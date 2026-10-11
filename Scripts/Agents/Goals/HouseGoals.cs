@@ -113,7 +113,7 @@ public class FishGoal : Goal
                 return Delegate(new WaitGoal(_throughIce ? 4f : 2.5f));
             case 2:
                 if (!ChildFinished(out _)) return GoalStatus.Running;
-                int caught = _throughIce ? GD.RandRange(0, 2) : GD.RandRange(0, 4);
+                int caught = _throughIce ? GD.RandRange(1, 3) : GD.RandRange(0, 4);
                 npc.Inventory.Add(ItemId.Fish, caught);
                 _phase = 3;
                 return Delegate(new GoToGoal(stores.AccessCell, 100f));

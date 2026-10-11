@@ -151,7 +151,7 @@ The demand side needed no change once supply was seasonal: a house with a full c
 
 ## Fishing through the ice (design doc 14.4, 16.1, 13.5)
 
-Between the deer passing in October and the geese coming back in May there is no fresh food in the country but hares, the beaver lodges and what comes through the ice - and dried goose and pemmican do not answer the scurvy. So the houses now fish in winter: a hole, a line (every house is issued them, and no line means no winter fish), about four hours for nought to two fish where open water gives nought to four. The women go not only when the store is low but when the men have gone a fortnight without anything fresh, which is what the scurvy actually turns on.
+Between the deer passing in October and the geese coming back in May there is no fresh food in the country but hares, the beaver lodges and what comes through the ice - and dried goose and pemmican do not answer the scurvy. So the houses now fish in winter: a hole, a line (every house is issued them, and no line means no winter fish), about four hours for nought to two fish where open water gives nought to four. The women go not only when the store is low but when anybody **in the house** has gone a fortnight without anything fresh - the fisher's own belly is not the point, and a woman who had eaten fish herself used to stop going while the men went without. A hole yields one to three fish where open water gives nought to four. The post's own reckoning of its scorbutic men now counts anyone eighteen days without fresh meat rather than twenty-eight, because a house that waits a month is already too late: the disease is on a man at six weeks.
 
 ## The goose hunt (design doc 14.1, 16.1)
 
