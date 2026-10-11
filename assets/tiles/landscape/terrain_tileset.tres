@@ -60,34 +60,33 @@
 [ext_resource type="Texture2D" uid="uid://cjqonbapycsm1" path="res://assets/tiles/props/fur_bale.png" id="tex_59"]
 [ext_resource type="Texture2D" uid="uid://bilb01rr20eiv" path="res://assets/tiles/buildings/roof.png" id="tex_60"]
 [ext_resource type="Texture2D" uid="uid://bxmjfk00ihrh8" path="res://assets/tiles/furniture/bed.png" id="tex_61"]
+[ext_resource type="Texture2D" uid="uid://dnvs75uw6u32x" path="res://assets/tiles/landscape/prairie.png" id="tex_r70"]
+[ext_resource type="Texture2D" uid="uid://brojudmninnqf" path="res://assets/tiles/landscape/tallgrass.png" id="tex_r71"]
+[ext_resource type="Texture2D" uid="uid://wapi8ce05n5" path="res://assets/tiles/landscape/parkland.png" id="tex_r72"]
+[ext_resource type="Texture2D" uid="uid://duidck0w1ji6c" path="res://assets/tiles/landscape/tundra.png" id="tex_r73"]
+[ext_resource type="Texture2D" uid="uid://bq84qbpoiwpj" path="res://assets/tiles/landscape/shield.png" id="tex_r74"]
+[ext_resource type="Texture2D" uid="uid://dkpnkd3klj6ql" path="res://assets/tiles/landscape/muskeg.png" id="tex_r75"]
+[ext_resource type="Texture2D" uid="uid://bniqsuntsubfw" path="res://assets/tiles/landscape/mountain.png" id="tex_r76"]
+[ext_resource type="Texture2D" uid="uid://cu6281lmdbt7e" path="res://assets/tiles/props/tamarack.png" id="tex_r80"]
+[ext_resource type="Texture2D" uid="uid://cxboancsgd2qo" path="res://assets/tiles/props/willow.png" id="tex_r81"]
+[ext_resource type="Texture2D" uid="uid://mgqjvkb7bxvs" path="res://assets/tiles/props/rocks.png" id="tex_r82"]
+[ext_resource type="Texture2D" uid="uid://cs7gjxahueown" path="res://assets/tiles/props/boulder.png" id="tex_r83"]
+[ext_resource type="Texture2D" uid="uid://defrbkbxagc1s" path="res://assets/tiles/props/reeds.png" id="tex_r84"]
+[ext_resource type="Texture2D" uid="uid://db7sfx7mstvk6" path="res://assets/tiles/props/muskeg_pool.png" id="tex_r85"]
+[ext_resource type="Texture2D" uid="uid://c1q06o4puyyxy" path="res://assets/tiles/props/dead_tree.png" id="tex_r86"]
+[ext_resource type="Texture2D" uid="uid://b5oqvy8rxdtcm" path="res://assets/tiles/props/beaver_lodge.png" id="tex_r87"]
+[ext_resource type="Texture2D" uid="uid://t7xq17hc05us" path="res://assets/tiles/props/beaver_dam.png" id="tex_r88"]
+[ext_resource type="Texture2D" uid="uid://pqn4ydrlx3fd" path="res://assets/tiles/props/snowdrift.png" id="tex_r89"]
+[ext_resource type="Texture2D" uid="uid://ck0eqgtdu8xim" path="res://assets/tiles/props/drying_rack.png" id="tex_r90"]
+[ext_resource type="Texture2D" uid="uid://ebvflvgcsirl" path="res://assets/tiles/props/fish_trap.png" id="tex_r91"]
+[ext_resource type="Texture2D" uid="uid://bls5qylvrdrnq" path="res://assets/tiles/props/canoe_beached.png" id="tex_r92"]
+[ext_resource type="Texture2D" uid="uid://c4bgtah2vbj2v" path="res://assets/tiles/props/flagstaff.png" id="tex_r93"]
+[ext_resource type="Texture2D" uid="uid://brho1ngc8dd2d" path="res://assets/tiles/props/grave.png" id="tex_r94"]
+[ext_resource type="Texture2D" uid="uid://ba3nc6vduir5q" path="res://assets/tiles/props/cache.png" id="tex_r95"]
+[ext_resource type="Texture2D" uid="uid://ygqt3m0kyu2y" path="res://assets/tiles/props/willow_winter.png" id="tex_r96"]
+[ext_resource type="Texture2D" uid="uid://dmpwdjg8x5led" path="res://assets/tiles/props/aspen.png" id="tex_r97"]
+[ext_resource type="Texture2D" uid="uid://d3yvsywxqysjh" path="res://assets/tiles/props/jackpine.png" id="tex_r98"]
 [ext_resource type="Texture2D" uid="uid://hdspbdutg87d" path="res://assets/tiles/landscape/road.png" id="tex_road"]
-
-[ext_resource type="Texture2D" path="res://assets/tiles/landscape/prairie.png" id="tex_r70"]
-[ext_resource type="Texture2D" path="res://assets/tiles/landscape/tallgrass.png" id="tex_r71"]
-[ext_resource type="Texture2D" path="res://assets/tiles/landscape/parkland.png" id="tex_r72"]
-[ext_resource type="Texture2D" path="res://assets/tiles/landscape/tundra.png" id="tex_r73"]
-[ext_resource type="Texture2D" path="res://assets/tiles/landscape/shield.png" id="tex_r74"]
-[ext_resource type="Texture2D" path="res://assets/tiles/landscape/muskeg.png" id="tex_r75"]
-[ext_resource type="Texture2D" path="res://assets/tiles/landscape/mountain.png" id="tex_r76"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/tamarack.png" id="tex_r80"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/willow.png" id="tex_r81"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/rocks.png" id="tex_r82"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/boulder.png" id="tex_r83"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/reeds.png" id="tex_r84"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/muskeg_pool.png" id="tex_r85"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/dead_tree.png" id="tex_r86"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/beaver_lodge.png" id="tex_r87"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/beaver_dam.png" id="tex_r88"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/snowdrift.png" id="tex_r89"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/drying_rack.png" id="tex_r90"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/fish_trap.png" id="tex_r91"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/canoe_beached.png" id="tex_r92"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/flagstaff.png" id="tex_r93"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/grave.png" id="tex_r94"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/cache.png" id="tex_r95"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/willow_winter.png" id="tex_r96"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/aspen.png" id="tex_r97"]
-[ext_resource type="Texture2D" path="res://assets/tiles/props/jackpine.png" id="tex_r98"]
 
 [sub_resource type="TileSetAtlasSource" id="Atlas_grass"]
 texture = ExtResource("tex_1")
@@ -449,18 +448,6 @@ texture_region_size = Vector2i(128, 256)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, 86)
 
-[sub_resource type="TileSetAtlasSource" id="Atlas_wall_S"]
-texture = ExtResource("tex_9")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_wall_W"]
-texture = ExtResource("tex_10")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
 [sub_resource type="TileSetAtlasSource" id="Atlas_r70_prairie"]
 texture = ExtResource("tex_r70")
 texture_region_size = Vector2i(132, 99)
@@ -502,6 +489,12 @@ texture = ExtResource("tex_r76")
 texture_region_size = Vector2i(132, 99)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, -16)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_wall_S"]
+texture = ExtResource("tex_9")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
 
 [sub_resource type="TileSetAtlasSource" id="Atlas_r80_tamarack"]
 texture = ExtResource("tex_r80")
@@ -559,6 +552,12 @@ texture_region_size = Vector2i(128, 256)
 
 [sub_resource type="TileSetAtlasSource" id="Atlas_r89_snowdrift"]
 texture = ExtResource("tex_r89")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_wall_W"]
+texture = ExtResource("tex_10")
 texture_region_size = Vector2i(128, 256)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, 86)
