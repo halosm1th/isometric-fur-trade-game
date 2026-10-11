@@ -41,6 +41,14 @@ public partial class NeedsHud : Control
         for (int i = 0; i < Rows.Length; i++)
         {
             var row = new HBoxContainer();
+            row.AddThemeConstantOverride("separation", 6);
+            var icon = new TextureRect
+            {
+                Texture = GD.Load<Texture2D>($"res://assets/ui/needs/{Rows[i].name.ToLower()}.png"),
+                CustomMinimumSize = new Vector2(20, 20), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = MouseFilterEnum.Ignore,
+            };
+            row.AddChild(icon);
             var label = new Label { Text = Rows[i].name, CustomMinimumSize = new Vector2(64, 0) };
             label.AddThemeFontSizeOverride("font_size", 14);
             var bar = new ProgressBar

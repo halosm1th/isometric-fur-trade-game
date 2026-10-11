@@ -56,7 +56,7 @@ def parts(path, merge=40, min_frac=0.2):
     # Cell borders: long straight dark lines no sprite has. Erase them so
     # they don't join every figure on the sheet into one.
     dark = im.max(axis=2) < 70
-    lines = ndimage.binary_opening(dark, structure=np.ones((120, 1))) | ndimage.binary_opening(dark, structure=np.ones((1, 120)))
+    lines = (ndimage.binary_opening(dark, structure=np.ones((120, 1))) & ~ndimage.binary_opening(dark, structure=np.ones((120, 9)))) |             (ndimage.binary_opening(dark, structure=np.ones((1, 120))) & ~ndimage.binary_opening(dark, structure=np.ones((9, 120))))
     fg &= ~ndimage.binary_dilation(lines, iterations=3)
     fg = ndimage.binary_opening(fg, iterations=1)
     lab, n = ndimage.label(fg)
