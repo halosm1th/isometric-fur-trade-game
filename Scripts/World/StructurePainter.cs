@@ -206,6 +206,9 @@ public partial class StructurePainter : TileMapLayer
         foreach (var b in WorldLayout.Buildings) PaintBuilding(b, floor);
         PaintYard();
         PaintCamp();
+        PlaceSign(WorldLayout.GateOutside, "York Factory", "Hudson's Bay Company");
+        PlaceSign(IsoGrid.DownLeft(IsoGrid.DownLeft(WorldLayout.NwcGateCell)), "Nor'Westers' House", "North West Company");
+        PlaceSign(WorldLayout.OutpostGateOutside, "Oxford House", "Hudson's Bay Company");
         // The camps of the wider country: a band's ring of tipis, or one
         // family's lodge and fire outside a post.
         foreach (var c in Camps.All)
@@ -228,6 +231,7 @@ public partial class StructurePainter : TileMapLayer
         PaintBuilding(p.House, _floor ?? this);
         SetBack(p.WoodpileCell, SourceWoodpile);
         SetBack(IsoGrid.Cell(p.Top, 10, 3), SourceCrate);
+        PlaceSign(p.GateOutside, p.Name, p.Company == "NWC" ? "North West Company" : "Hudson's Bay Company");
         if (!live) return;
         EnsureHearth(p.HearthCell, 6f);
         var host = GetParent()?.GetParent();
@@ -239,6 +243,16 @@ public partial class StructurePainter : TileMapLayer
             _roofs.Add((p.House, roof));
         }
         RebuildCollision();
+    }
+
+    // A name board outside a gate (never saved with the scene: no owner).
+    private readonly HashSet<string> _signs = new();
+    public void PlaceSign(Vector2I cell, string text, string sub = "")
+    {
+        var host = GetParent() ?? this;
+        string name = "Sign_" + text.Replace(' ', '_').Replace('.', '_').Replace("'", "_");
+        if (!_signs.Add(name)) return;
+        host.CallDeferred(Node.MethodName.AddChild, new PostSign { Name = name, Text = text, Sub = sub, Position = MapToLocal(cell) + new Vector2(70, 10) });
     }
 
     // Around an editor save: the scene file keeps none of the painted tiles.

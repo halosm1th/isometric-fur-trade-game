@@ -32,7 +32,8 @@ public partial class GameCalendar : Node
     // A year should take four to six hours of play, not a day (design doc
     // P.3), and the compression is uneven: the trading season and the
     // reckoning run close to live, deep winter nights go by in a breath.
-    [Export] public float SecondsPerGameHour = 4f;
+    // A day in twelve minutes of play (the user's pick, Oct 2026).
+    [Export] public float SecondsPerGameHour = 30f;
     [Export] public bool UnevenPacing = true;
     public float PacingFactor { get; private set; } = 1f;
     public string ChapterName => CurrentSeason switch
