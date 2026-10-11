@@ -35,6 +35,8 @@
 [ext_resource type="SpriteFrames" path="res://Scenes/Npc/RivalFrames.tres" id="32_factor"]
 [ext_resource type="SpriteFrames" path="res://Scenes/Player/PlayerFrames.tres" id="32_hbc"]
 [ext_resource type="SpriteFrames" path="res://Scenes/Npc/LabourerFrames.tres" id="32_lab"]
+[ext_resource type="SpriteFrames" path="res://Scenes/Npc/VoyageurFrames.tres" id="32_voy"]
+[ext_resource type="SpriteFrames" path="res://Scenes/Npc/CountryWifeFrames.tres" id="32_cwife"]
 
 [ext_resource type="Script" path="res://Scripts/World/GeneratedTileLayer.cs" id="40_genlayer"]
 [node name="YorkFactoryExterior" type="Node2D" unique_id=1419352490]
@@ -16249,6 +16251,257 @@ Father = NodePath("../Many Badger the Younger")
 
 [node name="Work" type="Marker2D" parent="Cast/Camps/Assiniboine family at Fort QuAppelle/Elk Woman the Younger"]
 position = Vector2(-192, 32)
+
+[node name="Metis of the Forks" type="Node2D" parent="Cast/Camps"]
+
+[node name="Antoine Hogue captain" type="Node2D" parent="Cast/Camps/Metis of the Forks"]
+position = Vector2(77120, 52320)
+script = ExtResource("30_npcspawn")
+DisplayName = "Antoine Hogue (hunt captain)"
+Role = 5
+Faction = 13
+Home = 6
+PostName = "Métis of the Forks"
+Leader = true
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the Forks/Antoine Hogue captain"]
+position = Vector2(-128, -64)
+
+[node name="Michel Bruce" type="Node2D" parent="Cast/Camps/Metis of the Forks"]
+position = Vector2(76736, 52320)
+script = ExtResource("30_npcspawn")
+DisplayName = "Michel Bruce"
+Role = 6
+Faction = 13
+Home = 6
+PostName = "Métis of the Forks"
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the Forks/Michel Bruce"]
+position = Vector2(64, -96)
+
+[node name="Joseph Laroque" type="Node2D" parent="Cast/Camps/Metis of the Forks"]
+position = Vector2(76736, 52128)
+script = ExtResource("30_npcspawn")
+DisplayName = "Joseph Laroque"
+Role = 6
+Faction = 13
+Home = 6
+PostName = "Métis of the Forks"
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the Forks/Joseph Laroque"]
+position = Vector2(64, 96)
+
+[node name="Francois Ducharme" type="Node2D" parent="Cast/Camps/Metis of the Forks"]
+position = Vector2(77120, 52128)
+script = ExtResource("30_npcspawn")
+DisplayName = "François Ducharme"
+Role = 6
+Faction = 13
+Home = 6
+PostName = "Métis of the Forks"
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the Forks/Francois Ducharme"]
+position = Vector2(-64, 96)
+
+[node name="Marguerite Hogue" type="Node2D" parent="Cast/Camps/Metis of the Forks"]
+position = Vector2(76928, 52416)
+script = ExtResource("30_npcspawn")
+DisplayName = "Marguerite Hogue"
+Role = 7
+Faction = 13
+Home = 6
+PostName = "Métis of the Forks"
+Frames = ExtResource("32_cwife")
+SpriteScale = 0.76
+Female = true
+Spouse = NodePath("../Antoine Hogue captain")
+Inventory = "Kettle, Knife, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the Forks/Marguerite Hogue"]
+position = Vector2(96, 64)
+
+[node name="Josephte Bruce" type="Node2D" parent="Cast/Camps/Metis of the Forks"]
+position = Vector2(76928, 52032)
+script = ExtResource("30_npcspawn")
+DisplayName = "Josephte Bruce"
+Role = 7
+Faction = 13
+Home = 6
+PostName = "Métis of the Forks"
+Frames = ExtResource("32_cwife")
+SpriteScale = 0.76
+Female = true
+Spouse = NodePath("../Michel Bruce")
+Inventory = "Kettle, Knife, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the Forks/Josephte Bruce"]
+position = Vector2(-96, -64)
+
+[node name="Metis at Pembina" type="Node2D" parent="Cast/Camps"]
+
+[node name="Louis Bottineau captain" type="Node2D" parent="Cast/Camps/Metis at Pembina"]
+position = Vector2(77376, 54944)
+script = ExtResource("30_npcspawn")
+DisplayName = "Louis Bottineau (hunt captain)"
+Role = 5
+Faction = 13
+Home = 6
+PostName = "Métis at Pembina"
+Leader = true
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis at Pembina/Louis Bottineau captain"]
+position = Vector2(-128, -64)
+
+[node name="Jean-Baptiste Lapointe" type="Node2D" parent="Cast/Camps/Metis at Pembina"]
+position = Vector2(76992, 54944)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jean-Baptiste Lapointe"
+Role = 6
+Faction = 13
+Home = 6
+PostName = "Métis at Pembina"
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis at Pembina/Jean-Baptiste Lapointe"]
+position = Vector2(64, -96)
+
+[node name="Charles Fisher" type="Node2D" parent="Cast/Camps/Metis at Pembina"]
+position = Vector2(76992, 54752)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Fisher"
+Role = 6
+Faction = 13
+Home = 6
+PostName = "Métis at Pembina"
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis at Pembina/Charles Fisher"]
+position = Vector2(64, 96)
+
+[node name="Angelique Bottineau" type="Node2D" parent="Cast/Camps/Metis at Pembina"]
+position = Vector2(77376, 54752)
+script = ExtResource("30_npcspawn")
+DisplayName = "Angélique Bottineau"
+Role = 7
+Faction = 13
+Home = 6
+PostName = "Métis at Pembina"
+Frames = ExtResource("32_cwife")
+SpriteScale = 0.76
+Female = true
+Spouse = NodePath("../Louis Bottineau captain")
+Inventory = "Kettle, Knife, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis at Pembina/Angelique Bottineau"]
+position = Vector2(-64, 96)
+
+[node name="Marie Lapointe" type="Node2D" parent="Cast/Camps/Metis at Pembina"]
+position = Vector2(77184, 55040)
+script = ExtResource("30_npcspawn")
+DisplayName = "Marie Lapointe"
+Role = 7
+Faction = 13
+Home = 6
+PostName = "Métis at Pembina"
+Frames = ExtResource("32_cwife")
+SpriteScale = 0.76
+Female = true
+Spouse = NodePath("../Jean-Baptiste Lapointe")
+Inventory = "Kettle, Knife, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis at Pembina/Marie Lapointe"]
+position = Vector2(96, 64)
+
+[node name="Metis of the QuAppelle" type="Node2D" parent="Cast/Camps"]
+
+[node name="Alexis Lacerte captain" type="Node2D" parent="Cast/Camps/Metis of the QuAppelle"]
+position = Vector2(65152, 49536)
+script = ExtResource("30_npcspawn")
+DisplayName = "Alexis Lacerte (hunt captain)"
+Role = 5
+Faction = 13
+Home = 6
+PostName = "Métis of the Qu'Appelle"
+Leader = true
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the QuAppelle/Alexis Lacerte captain"]
+position = Vector2(-128, -64)
+
+[node name="Paul Fagnant" type="Node2D" parent="Cast/Camps/Metis of the QuAppelle"]
+position = Vector2(64768, 49536)
+script = ExtResource("30_npcspawn")
+DisplayName = "Paul Fagnant"
+Role = 6
+Faction = 13
+Home = 6
+PostName = "Métis of the Qu'Appelle"
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the QuAppelle/Paul Fagnant"]
+position = Vector2(64, -96)
+
+[node name="Pierre Fleury" type="Node2D" parent="Cast/Camps/Metis of the QuAppelle"]
+position = Vector2(64768, 49344)
+script = ExtResource("30_npcspawn")
+DisplayName = "Pierre Fleury"
+Role = 6
+Faction = 13
+Home = 6
+PostName = "Métis of the Qu'Appelle"
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the QuAppelle/Pierre Fleury"]
+position = Vector2(64, 96)
+
+[node name="Madeleine Lacerte" type="Node2D" parent="Cast/Camps/Metis of the QuAppelle"]
+position = Vector2(65152, 49344)
+script = ExtResource("30_npcspawn")
+DisplayName = "Madeleine Lacerte"
+Role = 7
+Faction = 13
+Home = 6
+PostName = "Métis of the Qu'Appelle"
+Frames = ExtResource("32_cwife")
+SpriteScale = 0.76
+Female = true
+Spouse = NodePath("../Alexis Lacerte captain")
+Inventory = "Kettle, Knife, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the QuAppelle/Madeleine Lacerte"]
+position = Vector2(-64, 96)
+
+[node name="Isabelle Fleury" type="Node2D" parent="Cast/Camps/Metis of the QuAppelle"]
+position = Vector2(64960, 49632)
+script = ExtResource("30_npcspawn")
+DisplayName = "Isabelle Fleury"
+Role = 7
+Faction = 13
+Home = 6
+PostName = "Métis of the Qu'Appelle"
+Frames = ExtResource("32_cwife")
+SpriteScale = 0.76
+Female = true
+Spouse = NodePath("../Paul Fagnant")
+Inventory = "Kettle, Knife, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the QuAppelle/Isabelle Fleury"]
+position = Vector2(96, 64)
 
 [node name="Wildlife" type="Node2D" parent="." unique_id=894892724]
 

@@ -392,8 +392,8 @@ def lay_out(G, places, extras, atlas):
     # peoples at its place in 1811, and a family of the nearest nation
     # camped outside each post (the "homeguard" who lived by the posts).
     peoples = []
-    for pe in atlas["peoples"]:
-        nation = NATION_OF.get(pe["name"])
+    for pe in atlas["peoples"] + extras.get("peoples", []):
+        nation = pe.get("nation") or NATION_OF.get(pe["name"])
         if nation is None: continue
         lon, lat = pe["lon"], pe["lat"]
         kf = [k for k in pe.get("kf", []) if k[0] <= 1811]

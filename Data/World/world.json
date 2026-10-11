@@ -3992,6 +3992,36 @@
      1496
     ],
     "people": 4
+   },
+   {
+    "name": "Métis of the Forks",
+    "nation": "Metis",
+    "kind": "band",
+    "centre": [
+     600,
+     1631
+    ],
+    "people": 12
+   },
+   {
+    "name": "Métis at Pembina",
+    "nation": "Metis",
+    "kind": "band",
+    "centre": [
+     602,
+     1713
+    ],
+    "people": 8
+   },
+   {
+    "name": "Métis of the Qu'Appelle",
+    "nation": "Metis",
+    "kind": "band",
+    "centre": [
+     507,
+     1544
+    ],
+    "people": 8
    }
   ]
  }

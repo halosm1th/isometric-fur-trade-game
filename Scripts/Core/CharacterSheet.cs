@@ -130,7 +130,7 @@ public static class CharacterSheet
         pc.Faction = path switch { StartPath.NWC => Faction.NWC, StartPath.Cree => Faction.Cree, StartPath.Assiniboine => Faction.Assiniboine, StartPath.Nation => camp.Nation, _ => Faction.HBC };
         if (path == StartPath.Cree) pc.CreeFluency = 1f;
         if (path == StartPath.Assiniboine) { pc.AssiniboineFluency = 1f; pc.CreeFluency = Mathf.Max(pc.CreeFluency, 0.3f); }
-        if (path == StartPath.Nation) { pc.CreeFluency = camp.Nation == Faction.Ojibwe ? 0.6f : 0.15f; pc.AssiniboineFluency = camp.Nation is Faction.Sioux ? 0.6f : 0.1f; Family(pc, camp); }
+        if (path == StartPath.Nation) { pc.CreeFluency = camp.Nation is Faction.Ojibwe or Faction.Metis ? 0.6f : 0.15f; pc.AssiniboineFluency = camp.Nation is Faction.Sioux ? 0.6f : 0.1f; Family(pc, camp); }
         if (IsBand(path))
         {
             // Born to it: a family in the camp, your own kit, nothing of the Company's.
@@ -139,7 +139,7 @@ public static class CharacterSheet
             pc.Inventory.Add(ItemId.DriedMeat, 4); pc.Inventory.Add(ItemId.Flint); pc.Inventory.Add(ItemId.FishingLine);
             pc.Inventory.Add(ItemId.Firewood, 2); pc.Inventory.Add(ItemId.SteelTrap, 2);
             var nation = path == StartPath.Nation && World.Camps.Named(campName) is World.CountryCamp nc ? nc.Nation : path == StartPath.Assiniboine ? Faction.Assiniboine : Faction.Cree;
-            pc.FramesPath = nation is Faction.Assiniboine or Faction.Blackfoot or Faction.Sioux or Faction.Missouri ? "res://Scenes/Npc/AssiniboineFrames.tres" : "res://Scenes/Npc/CreeFrames.tres";
+            pc.FramesPath = nation == Faction.Metis ? "res://Scenes/Npc/VoyageurFrames.tres" : nation is Faction.Assiniboine or Faction.Blackfoot or Faction.Sioux or Faction.Missouri ? "res://Scenes/Npc/AssiniboineFrames.tres" : "res://Scenes/Npc/CreeFrames.tres";
             pc.Rank = "of the band"; pc.Standing = 0f;
             Kin(pc, BandOf(pc), 3, 50f);
         }
@@ -194,6 +194,7 @@ public static class CharacterSheet
         [Faction.Missouri] = new[] { "Sheheke", "Kakoakis", "Mato Tope", "Posecopsahe" },
         [Faction.Cree] = new[] { "Kiskiman", "Paskwaw", "Mahkesis", "Sakimay" },
         [Faction.Assiniboine] = new[] { "Iyahe", "Ptehan", "Hunka", "Mato Ska" },
+        [Faction.Metis] = new[] { "Baptiste Lavallée", "Joseph Hogue", "Antoine Morin", "Pierre Delorme" },
     };
     private static readonly Dictionary<Faction, string[]> _women = new()
     {
@@ -201,6 +202,7 @@ public static class CharacterSheet
         [Faction.Blackfoot] = new[] { "Sikapiaki", "Natawista" }, [Faction.Sioux] = new[] { "Winona", "Tasina" },
         [Faction.Plateau] = new[] { "Wetxuwiis", "Kawsis" }, [Faction.Coast] = new[] { "Kaclasko", "Illchee" },
         [Faction.Missouri] = new[] { "Sakakawea", "Mahtowi" }, [Faction.Cree] = new[] { "Iskwesis", "Wapun" }, [Faction.Assiniboine] = new[] { "Winyan", "Ptesan" },
+        [Faction.Metis] = new[] { "Marie-Anne Lavallée", "Josephte Morin" },
     };
 
     private static void Family(Player.PlayerController pc, World.CountryCamp camp)
@@ -211,8 +213,9 @@ public static class CharacterSheet
         foreach (var n in Sim.Npcs) if (!n.IsDead && n.HomeStores == camp.Ledger) living++;
         if (living >= 2) return;   // the camp has its people (placed in the editor): your kin are among them
         bool plains = camp.Nation is Faction.Blackfoot or Faction.Sioux or Faction.Assiniboine or Faction.Missouri;
-        var manFrames = GD.Load<SpriteFrames>(plains ? "res://Scenes/Npc/AssiniboineFrames.tres" : "res://Scenes/Npc/CreeFrames.tres");
-        var womanFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/CreeWomanFrames.tres");
+        bool metis = camp.Nation == Faction.Metis;
+        var manFrames = GD.Load<SpriteFrames>(metis ? "res://Scenes/Npc/VoyageurFrames.tres" : plains ? "res://Scenes/Npc/AssiniboineFrames.tres" : "res://Scenes/Npc/CreeFrames.tres");
+        var womanFrames = GD.Load<SpriteFrames>(metis ? "res://Scenes/Npc/CountryWifeFrames.tres" : "res://Scenes/Npc/CreeWomanFrames.tres");
         var men = _men.GetValueOrDefault(camp.Nation, _men[Faction.Cree]);
         var women = _women.GetValueOrDefault(camp.Nation, _women[Faction.Cree]);
         var c = camp.Centre;
@@ -221,7 +224,7 @@ public static class CharacterSheet
         var cousin = pop.Spawn(men[1], Role.CreeHunter, camp.Nation, World.IsoGrid.Cell(c, 3, 2), World.IsoGrid.Cell(c, 3, 1), camp.Ledger, manFrames, Colors.White);
         elder.Age = GD.RandRange(42, 55); cousin.Age = GD.RandRange(17, 24);
         elder.Spouse = woman; woman.Spouse = elder;
-        foreach (var n in new[] { elder, cousin }) { n.Inventory.Add(ItemId.Bow); n.Inventory.Add(ItemId.Knife); n.Inventory.Add(ItemId.DriedMeat, 3); n.Skills.Seed(0.6f, 0.5f, 0.3f, 0.5f); }
+        foreach (var n in new[] { elder, cousin }) { n.Inventory.Add(metis ? ItemId.Musket : ItemId.Bow); n.Inventory.Add(ItemId.Knife); n.Inventory.Add(ItemId.DriedMeat, 3); n.Skills.Seed(0.6f, 0.5f, 0.3f, 0.5f); }
         woman.Inventory.Add(ItemId.Kettle); woman.Inventory.Add(ItemId.DriedMeat, 3);
         camp.Ledger.Stores.Add(ItemId.DriedMeat, 20); camp.Ledger.Stores.Add(ItemId.Firewood, 12); camp.Ledger.Stores.Add(ItemId.BeaverPelt, 4);
         camp.Ledger.Leader ??= elder;
