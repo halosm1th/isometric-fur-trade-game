@@ -109,10 +109,10 @@ Every nation below needs, at least: a band/camp record with homeland and seasona
 
 **There now:** 100 posts in `world.json` (HBC, NWC, AMER, FR), each with a ledger and founding year. York Factory is the only one built as a scene (`Scenes/World/YorkFactoryExterior.tscn`). Every other post is a map point and a ledger with no buildings, people or layout.
 
-### 4.1 Broken right now (P1)
+### 4.1 Start locations (P1)
 
-- **`FortWilliamExterior.tscn` and `FortGarryExterior.tscn` are referenced in `Core/GameManager.cs` but don't exist.** Picking the NWC or Red River start will crash. Build them or hide those start options.
-- **Fort Garry is anachronistic as the Red River start.** Upper Fort Garry is 1822 in `world.json`. For 1811 to 1821, the Red River start should be **Fort Douglas** (HBC / colony, 1812 to 1813; the map says 1815 *(check)*) or **Fort Gibraltar** (NWC, 1809), or a Métis camp at **Pembina** / **Fort Daer**.
+- ~~`FortWilliamExterior.tscn` and `FortGarryExterior.tscn` referenced but missing~~ **Not a crash (checked 2026-10-11).** Every start path (HBC, NWC, Cree, Assiniboine; `Core/Starts.cs`) begins in the one York Factory world scene, and the old per-post scene map in `GameManager.cs` was dead code; it's been removed. An NWC start at Fort William, or a Métis start at Red River, would be a place in the streamed world, not a separate scene.
+- **If a Red River start is added, don't call it Fort Garry.** Upper Fort Garry is 1822 in `world.json`. For 1811 to 1821, the Red River start should be **Fort Douglas** (HBC / colony, 1812 to 1813; the map says 1815 *(check)*) or **Fort Gibraltar** (NWC, 1809), or a Métis camp at **Pembina** / **Fort Daer**.
 
 ### 4.2 Missing posts that matter in the window (P2)
 

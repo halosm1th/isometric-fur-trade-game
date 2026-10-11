@@ -181,7 +181,7 @@ What plays when, and what's still wanted, is in `audio-prompts.md` under **In th
 
 ## 9. Scenes
 
-`Scenes/World/` contains one scene: `YorkFactoryExterior.tscn`. `GameManager.cs:26-27` also maps start locations to `FortWilliamExterior.tscn` and `FortGarryExterior.tscn`, **neither of which exists** — picking either start crashes. Unchanged since the last inventory.
+`Scenes/World/` contains one scene: `YorkFactoryExterior.tscn`, and every start path begins in it (the rest of the country streams in round it). The old map in `GameManager.cs` to `FortWilliamExterior.tscn` and `FortGarryExterior.tscn` was dead code (nothing called it, so no start could crash) and was removed 2026-10-11.
 
 ---
 
@@ -232,4 +232,3 @@ What plays when, and what's still wanted, is in `audio-prompts.md` under **In th
 - Delete `assets/external/critters/` (110 files) — fully superseded by the new animal sheets.
 - Consider a `.gdignore` on, or removal of, the unused external packs (`kenney_isometricDungeon`, `kenney_isometricPrototypeTiles`, `isometric tileset`, `Assets/`) and the two `.zip`s: ~1,600 files Godot scans on every import for no benefit.
 - Record licences for `critters/`, `isometric tileset/` and `Assets/` before any release, or remove them.
-- Build the two missing world scenes, or gate those start options so they cannot crash.
