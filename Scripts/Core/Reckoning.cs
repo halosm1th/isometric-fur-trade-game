@@ -75,8 +75,7 @@ public static class Reckoning
 	{
 		if (p == null || p.IsDead || !p.IsBandPerson) return;
 		var cal = GameCalendar.Instance;
-		// A player belongs to a band by his nation, not by a household link.
-		var band = p.Faction == Faction.Assiniboine ? Sim.Assiniboine : Sim.Band;
+		var band = BandOf(p);
 		var lines = new List<string>
 		{
 			$"{cal?.DateString}: the ice is out and the geese are back. The year turns.",
@@ -95,6 +94,22 @@ public static class Reckoning
 		Ambitions(p, lines);
 		Country(lines);
 		Close(p, lines, "The ice is out. Your year is in your journal.");
+	}
+
+	// A player belongs to a band by his nation, not by a household link. The
+	// York country's two bands are in Sim.Bands; the wider country's camps are
+	// not, so they are found through their own people.
+	private static BandLedger BandOf(Player.PlayerController p)
+	{
+		foreach (var b in Sim.Bands) if (b != null && b.Nation == p.Faction) return b;
+		BandLedger nearest = null; float best = float.MaxValue;
+		foreach (var n in Sim.Npcs)
+		{
+			if (n.IsDead || n.HomeStores is not BandLedger camp || camp.Nation != p.Faction) continue;
+			float d = n.GlobalPosition.DistanceTo(p.GlobalPosition);
+			if (d < best) { best = d; nearest = camp; }
+		}
+		return nearest;
 	}
 
 	// ---- the parts every close shares --------------------------------------

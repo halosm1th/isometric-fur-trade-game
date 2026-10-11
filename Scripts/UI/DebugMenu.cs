@@ -42,6 +42,7 @@ public partial class DebugMenu : Control
         var style = new StyleBoxFlat { BgColor = new Color(0.06f, 0.06f, 0.08f, 0.92f), BorderColor = new Color(0.6f, 0.5f, 0.3f) };
         style.SetBorderWidthAll(1); style.SetCornerRadiusAll(4); style.SetContentMarginAll(10);
         _panel.AddThemeStyleboxOverride("panel", style);
+        _panel.Theme = MenuTheme.Get();   // the same furniture as the menus
         AddChild(_panel);
 
         // Title and status stay put; everything else lives in its own tab,
@@ -56,7 +57,7 @@ public partial class DebugMenu : Control
         _status = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(380, 0) };
         _status.AddThemeFontSizeOverride("font_size", 12);
         _body.AddChild(_status);
-        _tabs = new TabContainer { CustomMinimumSize = new Vector2(400, 620), SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        _tabs = new TabContainer { CustomMinimumSize = new Vector2(400, 500), SizeFlagsHorizontal = SizeFlags.ExpandFill };
         _tabs.AddThemeFontSizeOverride("font_size", 12);
         _body.AddChild(_tabs);
 
