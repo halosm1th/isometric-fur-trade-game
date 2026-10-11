@@ -139,6 +139,10 @@ Hulls wear on the rapids and on the drag of the portage itself. Spruce gum patch
 
 A brigade on the water is part of the world's record: her position, her hull, her gum, her manifest, what the men have left to eat and which men they are all save and load, so a quicksave halfway up the Hayes comes back halfway up the Hayes ("2 brigades are still on the river"). The men are reclaimed by name on load and taken off the post's books again.
 
+## A day of being alive, out of sight (design doc 18.2, 13.5)
+
+A hidden body gets no physics loop, so the batch has to give a background person the day the loop would have given him. It now does: the **fever runs its course** (a day off the count, eight health, and immunity with a word out when it ends - before this, a man who caught it out of sight was sick for the rest of his life and every later death of his was reported as fever), the **days without fresh meat mount up** whatever he ate, and the scurvy takes its three health a day. He also **actually eats** his ration rather than having a full belly conjured for him, which is what makes the fresh-meat reckoning - and therefore the scurvy - honest in the background, and stops a larder accumulating in his pack. A death out of sight now names what took him: the fever, cold, the scurvy, or plain want.
+
 ## The deer pass, they are not farmed (design doc 16.2, 16.4, 17.1)
 
 A barren-ground herd was never a resident stock a post could live off: it passes. The site's logistic regrowth yields about twelve deer a year on a capacity of 140, and five households cannot live off twelve deer, so the old herd was always going to be hunted out of the country by spring - which is exactly what the long runs showed.

@@ -146,10 +146,24 @@ public static class Tiers
             var home = n.HomeStores;
             if (home == null) continue;
 
-            // Eat and drink from the cache. A household with nothing starves,
-            // at the same rate a live man would.
-            bool ate = home.TakeRation(n, 1) || n.Eat();
-            n.Needs.Hunger = ate ? 100f : Mathf.Max(0f, n.Needs.Hunger - 26f);
+            // A day's worth of being alive, which a hidden body does not get
+            // from the physics loop: the fever runs its course or ends, and
+            // the days without fresh meat mount up.
+            n.DaysSinceFresh += 1f;
+            if (n.IsSick)
+            {
+                n.SickDaysLeft -= 1f;
+                n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 8f);
+                if (n.SickDaysLeft <= 0f) { n.Immune = true; Sim.Notice($"{n.Describe()} is over the fever."); }
+            }
+            else if (n.HasScurvy) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 3f);
+
+            // Eat and drink from the cache, and actually eat it: the scurvy
+            // turns on what a man swallowed, not on a ration being issued.
+            bool ate = home.TakeRation(n, 1) && n.Eat();
+            if (!ate) ate = n.Eat();   // whatever is in his own pack
+            if (!ate) n.Needs.Hunger = Mathf.Max(0f, n.Needs.Hunger - 26f);
+            else n.Needs.Hunger = Mathf.Max(n.Needs.Hunger, 60f);
             // Snow melted at the fire does for water where there is wood.
             n.Needs.Thirst = home.Stores.Has(ItemId.Water) || !cal.IsFrozen || home.Stores.Has(ItemId.Firewood) ? 100f : Mathf.Max(20f, n.Needs.Thirst - 10f);
             if (home.Stores.Has(ItemId.Water)) home.Stores.Remove(ItemId.Water);
@@ -164,8 +178,13 @@ public static class Tiers
             else if (n.Needs.Hunger <= 0f) { n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 3f); ShortCommons(home); }
             if (ate) _hungryDays.Remove(home);   // the spell is over when there is food again
             else if (n.Needs.Health < 100f) n.Needs.Health = Mathf.Min(100f, n.Needs.Health + 6f);
-            if (n.Needs.Health <= 0f) { n.DieQuietly(); Sim.Notice($"{n.DisplayName} has died of {(n.Needs.Warmth <= 0f ? "cold" : "want")} at {home.Title}."); continue; }
-            if (!ate) n.DaysSinceFresh += 1f;
+            if (n.Needs.Health <= 0f)
+            {
+                string took = n.IsSick ? "the fever" : n.Needs.Warmth <= 0f ? "cold" : n.HasScurvy && n.Needs.Hunger > 1f ? "the scurvy" : "want";
+                n.DieQuietly();
+                Sim.Notice($"{n.DisplayName} has died of {took} at {home.Title}.");
+                continue;
+            }
 
             if (foul) continue;   // nobody works in a blizzard
 
