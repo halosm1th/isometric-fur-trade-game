@@ -122,8 +122,8 @@ public static class Starts
                 : "The coast is closer. The afternoon wears on." };
             if (!seen.Contains("mates")) hub.Add($"Talk with {a} and {b}", () => { seen.Add("mates"); return Mates(); });
             if (!seen.Contains("sailor")) hub.Add($"See what {sailor} wants", () => { seen.Add("sailor"); return Sailor(); });
-            if (!seen.Contains("mate")) hub.Add("Ask the mate about the Factory", () => { seen.Add("mate"); return Mate(); });
-            hub.Add("Turn in. The ship will be in by morning.", () => Arrive());
+            if (!seen.Contains("mate")) hub.Add(bySloop ? "Ask the master about the Factory" : "Ask the mate about the Factory", () => { seen.Add("mate"); return Mate(); });
+            hub.Add(bySloop ? "Turn in. The sloop will be in by morning." : "Turn in. The ship will be in by morning.", () => Arrive());
             return hub;
         }
         ScenePage Mates() => new ScenePage { Title = "At the rail", Text = $"{a} talks of his mother's croft on Sanday and the five years ahead of him. {b} says little, but he shares his tobacco. \"We'll stick together over there,\" {a} says. \"Whatever they set us to.\"" }
@@ -141,7 +141,7 @@ public static class Starts
             })
             .Add("No.", () => Hub())
             .Add("Tell the mate.", () => { p.Standing += 3f; Note(p, $"You told the mate {sailor} was trading brandy on his own account. The Company will think well of it; the crew will not."); return new ScenePage { Title = "The mate", Text = $"The mate takes it down. {sailor} looks at you across the deck for the rest of the day." }.Add("Back", Hub); });
-        ScenePage Mate() => new ScenePage { Title = "The mate", Text = $"\"{factor}'s the Factor - an old Bay man, hard but fair, and he'll want you the hour you land. Watch {rival}: he wants the next place going and he'll not thank a new man for crowding him. And keep off the Canadians across the river - {partner}'s people. There's been bad blood since the winter.\"" }
+        ScenePage Mate() => new ScenePage { Title = bySloop ? "The master" : "The mate", Text = $"\"{factor}'s the Factor - an old Bay man, hard but fair, and he'll want you the hour you land. Watch {rival}: he wants the next place going and he'll not thank a new man for crowding him. And keep off the Canadians across the river - {partner}'s people. There's been bad blood since the winter.\"" }
             .Add("Thank him", () => { Note(p, $"The mate's advice: report to {factor} at once; {rival} wants the next place going; keep clear of {partner}'s Nor'Westers."); return Hub(); });
         ScenePage Arrive() => new ScenePage { Title = "York Factory", Text = $"Morning. The {(bySloop ? "sloop" : "ship")} comes up the Hayes on the tide and makes fast at the Factory's wharf. Palisade, flag, smoke from the chimneys, and every soul in the place come down to the shore. Your first order is in your pocket: report to {factor}." }
             .Add("Step ashore", () => { Note(p, $"You came ashore at York Factory with {a} and {b}. Report to {factor}."); return null; });
