@@ -4,7 +4,7 @@ using IsometricFurTradeGame.Scripts.Ecology;
 
 namespace IsometricFurTradeGame.Scripts.World;
 
-public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse, FactorsHouse, ClerksHouse, ProvisionStore, SummerMess, GuestHouse, BoatShed, PowderMagazine, TradingPost }
+public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse, FactorsHouse, ClerksHouse, ProvisionStore, SummerMess, GuestHouse, BoatShed, PowderMagazine, TradingPost, GreatHall, PartnersHouse }
 
 public readonly record struct BuildingDef(BuildingKind Kind, string Name, Vector2I Top, int Width, int Depth, int DoorOffset)
 {

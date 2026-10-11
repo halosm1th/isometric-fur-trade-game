@@ -230,20 +230,27 @@ public partial class StructurePainter : TileMapLayer
     // it gets its hearth and roof too; in the editor just the tiles.
     public void PaintPost(TradingPost p, bool live)
     {
-        PaintPalisadeAt(p.Top, TradingPost.Width, TradingPost.Depth, TradingPost.GateOffset);
+        PaintPalisadeAt(p.Top, p.Width, p.Depth, p.GateOffset);
         PaintBuilding(p.House, _floor ?? this);
+        foreach (var b in p.Extra) PaintBuilding(b, _floor ?? this);
         SetBack(p.WoodpileCell, SourceWoodpile);
-        SetBack(IsoGrid.Cell(p.Top, 10, 3), SourceCrate);
+        SetBack(p.CrateCell, SourceCrate);
         PlaceSign(p.GateOutside, p.Name, p.Company == "NWC" ? "North West Company" : "Hudson's Bay Company");
         if (!live) return;
         EnsureHearth(p.HearthCell, 6f);
+        foreach (var b in p.Extra) EnsureHearth(IsoGrid.Cell(b.Top, 1, 1), 6f);
         var host = GetParent()?.GetParent();
         if (host != null && !Engine.IsEditorHint())
         {
-            var roof = new TileMapLayer { TileSet = TileSet, ZIndex = 5, ZAsRelative = false, Name = $"Roof_{p.Name.Replace(' ', '_').Replace('.', '_').Replace('\'', '_')}", Position = new Vector2(0, -RoofLift) };
-            foreach (var cell in IsoGrid.Rhombus(p.House.Top, p.House.Width, p.House.Depth)) roof.SetCell(cell, SourceRoof, Vector2I.Zero);
-            host.AddChild(roof);
-            _roofs.Add((p.House, roof));
+            var roofed = new List<BuildingDef> { p.House };
+            roofed.AddRange(p.Extra);
+            foreach (var b in roofed)
+            {
+                var roof = new TileMapLayer { TileSet = TileSet, ZIndex = 5, ZAsRelative = false, Name = $"Roof_{(p.Name + "_" + b.Name).Replace(' ', '_').Replace('.', '_').Replace('\'', '_')}", Position = new Vector2(0, -RoofLift) };
+                foreach (var cell in IsoGrid.Rhombus(b.Top, b.Width, b.Depth)) roof.SetCell(cell, SourceRoof, Vector2I.Zero);
+                host.AddChild(roof);
+                _roofs.Add((b, roof));
+            }
         }
         RebuildCollision();
     }
@@ -457,6 +464,22 @@ public partial class StructurePainter : TileMapLayer
                 break;
             case BuildingKind.PowderMagazine:
                 SetBack(IsoGrid.Cell(top, 1, 1), SourceCrate);
+                break;
+            case BuildingKind.GreatHall:
+                // Where the partners dine and sit in council each July: a
+                // long table down the room, the hearth at the end, candles.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                for (int i = 2; i <= 5; i++) SetBack(IsoGrid.Cell(top, i, 2), SourceTableChairs);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceRug);
+                SetBack(IsoGrid.Cell(top, 5, 1), SourceShelfTall);
+                SetBack(IsoGrid.Cell(top, 1, 2), SourceCandleStand);
+                SetBack(IsoGrid.Cell(top, 4, 1), SourceCandleStand);
+                break;
+            case BuildingKind.PartnersHouse:
+                // The wintering partners' quarters while they're down for the rendezvous.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                SetBack(IsoGrid.Cell(top, 2, 1), SourceBed);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceBed);
                 break;
             case BuildingKind.MensHouse:
                 // Where the labourers sleep: a big hearth, benches, a table.

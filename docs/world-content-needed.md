@@ -10,7 +10,9 @@ Sources checked: `Agents/Npc.cs` (13 `Role`s), `Ecology/Species.cs` (4 `Species`
 
 ## 1. Indigenous nations and peoples
 
-**There now:** two nations, and only at York. `Cree` (roles `CreeChief`, `CreeHunter`, `CreeWoman`, `CreeDaughter`; sprites `cree`, `cree_captain`, `cree_woman`) and `Assiniboine` (sprite `assiniboine`, no role of its own). Four camps in `world.json`: Cree winter/summer and Assiniboine winter/summer, all near York.
+> **Update 2026-10-11:** this section was written before the country's camps went in. The code now has band camps for the Cree, Assiniboine, **Ojibwe, Dene, Blackfoot, Sioux, Plateau, Coast and Missouri** peoples across the map (`World/Camps.cs`, 121 camps from the atlas), and **the Métis** (three camps: the Forks, Pembina, the Qu'Appelle). What below is still true is the depth each needs: leaders, seasonal rounds, alliances and enemies, their own sprites (most borrow the Cree and Assiniboine sheets; the Métis wear the voyageur's).
+
+**There at first writing:** two nations, and only at York. `Cree` (roles `CreeChief`, `CreeHunter`, `CreeWoman`, `CreeDaughter`; sprites `cree`, `cree_captain`, `cree_woman`) and `Assiniboine` (sprite `assiniboine`, no role of its own). Four camps in `world.json`: Cree winter/summer and Assiniboine winter/summer, all near York.
 
 Every nation below needs, at least: a band/camp record with homeland and seasonal round, leaders, language (for the literacy/language barrier, design doc 10.6), trade wants and furs offered, alliances and enemies (design doc 7.2), a clothing look for sprites, and where it sits on the map.
 
@@ -27,7 +29,7 @@ Every nation below needs, at least: a band/camp record with homeland and seasona
 
 | People | Why the game needs them |
 |---|---|
-| **Métis (Bois-Brûlés, Michif)** | A whole starting path (design doc 5.3) with no role, sprite or group in code. Buffalo hunt captains, pemmican suppliers, Cuthbert Grant's riders at Seven Oaks. Need: Red River and Pembina communities, the hunt organisation (captains, scouts, soldiers; design doc 16.1), Red River carts, sashes and capotes, the Michif language, the Métis flag (first flown c. 1815 *(check)*). |
+| **Métis (Bois-Brûlés, Michif)**: **camps in code 2026-10-11** | Three band camps (the Forks, Pembina, the Qu'Appelle) under hunt captains, playable as a birth camp. Still wanted: their own sprite sheet, the buffalo hunt, Red River carts, the flag. Buffalo hunt captains, pemmican suppliers, Cuthbert Grant's riders at Seven Oaks. Need: Red River and Pembina communities, the hunt organisation (captains, scouts, soldiers; design doc 16.1), Red River carts, sashes and capotes, the Michif language, the Métis flag (first flown c. 1815 *(check)*). |
 | **Ojibwe / Saulteaux (Anishinaabe)** | Red River, Lake of the Woods, Rainy Lake, Lake Superior. **Chief Peguis** and his Saulteaux helped Selkirk's settlers survive (1812 on). The canoe route from Fort William crosses their country: wild rice, maple sugar, fish. Southern Department bands too (design doc 6.2). |
 | **Dene: Chipewyan (Denesuline)** | Athabasca and Churchill country. Fort Chipewyan is on the map; the Athabasca was the richest fur district and the hottest HBC/NWC battleground in 1815 to 1821. Need: a group, caribou-dependent round, relations with the Cree (historically hostile, then peace). |
 | **Blackfoot Confederacy: Siksika, Kainai (Blood), Piikani (Peigan)** | Named in design doc 7.2 as the plains military power, with war parties that physically move (15.1). None in code. Need: three nations with their own leaders, horse herds, war-party agents, trade at Edmonton / Rocky Mountain House. |
@@ -129,7 +131,7 @@ Every nation below needs, at least: a band/camp record with homeland and seasona
 
 ### 4.3 Posts on the map that need a playable layout (by priority)
 
-1. **Fort William** (NWC HQ, the July rendezvous, Great Hall, the council). Its own building set: Montreal-style squared-timber buildings, the Great Hall, a palisade, the canoe yard, the voyageurs' camp outside the walls.
+1. **Fort William**: **first pass done 2026-10-11.** A 17 x 10 palisade on the Kaministiquia shore (the old post was 12 x 9) holding the store, **the Great Hall** (long council table, hearth, candles) and **the partners' house** (`Posts.FortWilliam`, `BuildingKind.GreatHall` / `PartnersHouse`). Still wanted: the July rendezvous gathering people into it, the council (`Economy/Council.cs`) actually sitting in the Hall, the canoe yard and the voyageurs' camp outside the walls, more of the real fort's forty buildings.
 2. **Fort Douglas / Fort Gibraltar** (Red River pair, Seven Oaks between them).
 3. **Norway House** (HBC's inland depot from 1814, the hub of the York boat brigades).
 4. **Cumberland House** (HBC's first inland post, 1774; the Saskatchewan gateway).
