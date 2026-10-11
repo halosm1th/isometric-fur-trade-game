@@ -11657,6 +11657,978 @@
     ],
     "people": 4
    }
+  ],
+  "routes": [
+   {
+    "name": "Montréal canoe route",
+    "pts": [
+     [
+      127119,
+      59678
+     ],
+     [
+      122700,
+      60021
+     ],
+     [
+      120115,
+      59335
+     ],
+     [
+      115534,
+      56824
+     ],
+     [
+      110239,
+      55322
+     ],
+     [
+      105884,
+      54884
+     ],
+     [
+      103839,
+      54472
+     ],
+     [
+      99745,
+      54227
+     ],
+     [
+      95645,
+      54671
+     ],
+     [
+      91600,
+      55474
+     ],
+     [
+      87839,
+      53700
+     ],
+     [
+      85786,
+      50933
+     ],
+     [
+      83277,
+      48821
+     ],
+     [
+      82329,
+      47795
+     ]
+    ]
+   },
+   {
+    "name": "Saskatchewan brigade",
+    "pts": [
+     [
+      81708,
+      47182
+     ],
+     [
+      76998,
+      39987
+     ],
+     [
+      75755,
+      37402
+     ],
+     [
+      73379,
+      36868
+     ],
+     [
+      68083,
+      34039
+     ],
+     [
+      65412,
+      33500
+     ],
+     [
+      60859,
+      35957
+     ],
+     [
+      53993,
+      38194
+     ],
+     [
+      47895,
+      35722
+     ],
+     [
+      41212,
+      33679
+     ],
+     [
+      36060,
+      33278
+     ]
+    ]
+   },
+   {
+    "name": "Northern (Athabasca) brigade",
+    "pts": [
+     [
+      65412,
+      33500
+     ],
+     [
+      62022,
+      27111
+     ],
+     [
+      57242,
+      26989
+     ],
+     [
+      51478,
+      26449
+     ],
+     [
+      49748,
+      22981
+     ],
+     [
+      47706,
+      21018
+     ],
+     [
+      45674,
+      15008
+     ],
+     [
+      44931,
+      11255
+     ],
+     [
+      42288,
+      5169
+     ]
+    ]
+   },
+   {
+    "name": "York Factory inland route",
+    "pts": [
+     [
+      89320,
+      18167
+     ],
+     [
+      85688,
+      22244
+     ],
+     [
+      83145,
+      28203
+     ],
+     [
+      80081,
+      31749
+     ],
+     [
+      76970,
+      32970
+     ],
+     [
+      77916,
+      37701
+     ]
+    ]
+   },
+   {
+    "name": "Columbia / New Caledonia brigade",
+    "pts": [
+     [
+      2621,
+      61821
+     ],
+     [
+      11200,
+      61952
+     ],
+     [
+      14800,
+      53644
+     ],
+     [
+      16086,
+      47090
+     ],
+     [
+      15225,
+      41934
+     ],
+     [
+      12846,
+      37086
+     ],
+     [
+      11846,
+      32066
+     ],
+     [
+      10514,
+      25806
+     ],
+     [
+      9608,
+      23022
+     ]
+    ]
+   }
+  ],
+  "landmarks": [
+   {
+    "name": "Methye Portage (Portage La Loche)",
+    "kind": "portage",
+    "at": [
+     47706,
+     21018
+    ],
+    "note": "20-km divide between the Churchill & Mackenzie (Athabasca) watersheds."
+   },
+   {
+    "name": "Frog Portage (Portage du Traite)",
+    "kind": "portage",
+    "at": [
+     62022,
+     27111
+    ],
+    "note": "Churchill ↔ Saskatchewan (Sturgeon-Weir) watershed carry."
+   },
+   {
+    "name": "Grand Rapids",
+    "kind": "portage",
+    "at": [
+     73379,
+     36868
+    ],
+    "note": "Head of navigation where the Saskatchewan enters Lake Winnipeg."
+   },
+   {
+    "name": "Grand Portage",
+    "kind": "portage",
+    "at": [
+     102904,
+     56553
+    ],
+    "note": "13.5-km carry from Lake Superior around the Pigeon River falls."
+   },
+   {
+    "name": "Portage la Prairie",
+    "kind": "portage",
+    "at": [
+     76895,
+     50798
+    ],
+    "note": "Assiniboine ↔ Lake Manitoba carrying place."
+   },
+   {
+    "name": "Rock Portage",
+    "kind": "portage",
+    "at": [
+     86413,
+     23047
+    ],
+    "note": "On the York Factory - Oxford House road."
+   },
+   {
+    "name": "Borwick's Falls",
+    "kind": "portage",
+    "at": [
+     85811,
+     24239
+    ],
+    "note": "On the York Factory - Oxford House road."
+   },
+   {
+    "name": "Trout Falls",
+    "kind": "portage",
+    "at": [
+     83961,
+     27937
+    ],
+    "note": "On the York Factory - Oxford House road."
+   },
+   {
+    "name": "Rocky Mountains",
+    "kind": "mountains",
+    "at": [
+     19271,
+     23202
+    ],
+    "note": ""
+   },
+   {
+    "name": "Coast Mountains",
+    "kind": "mountains",
+    "at": [
+     765,
+     22075
+    ],
+    "note": ""
+   },
+   {
+    "name": "Hudson Bay",
+    "kind": "water",
+    "at": [
+     92619,
+     11787
+    ],
+    "note": ""
+   },
+   {
+    "name": "James Bay",
+    "kind": "water",
+    "at": [
+     121729,
+     26898
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Winnipeg",
+    "kind": "water",
+    "at": [
+     78314,
+     39449
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Superior",
+    "kind": "water",
+    "at": [
+     109555,
+     56386
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Michigan",
+    "kind": "water",
+    "at": [
+     115073,
+     73964
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Athabasca",
+    "kind": "water",
+    "at": [
+     48849,
+     9080
+    ],
+    "note": ""
+   },
+   {
+    "name": "Cypress Hills",
+    "kind": "hills",
+    "at": [
+     43293,
+     51995
+    ],
+    "note": ""
+   },
+   {
+    "name": "Wood Mountain",
+    "kind": "hills",
+    "at": [
+     53595,
+     53682
+    ],
+    "note": ""
+   },
+   {
+    "name": "Touchwood Hills",
+    "kind": "hills",
+    "at": [
+     61246,
+     45496
+    ],
+    "note": ""
+   },
+   {
+    "name": "Duck Mountain",
+    "kind": "hills",
+    "at": [
+     69257,
+     43898
+    ],
+    "note": ""
+   },
+   {
+    "name": "Riding Mountain",
+    "kind": "hills",
+    "at": [
+     71890,
+     47808
+    ],
+    "note": ""
+   },
+   {
+    "name": "Turtle Mountain",
+    "kind": "hills",
+    "at": [
+     71592,
+     55154
+    ],
+    "note": ""
+   },
+   {
+    "name": "Moose Mountain",
+    "kind": "hills",
+    "at": [
+     64017,
+     52621
+    ],
+    "note": ""
+   },
+   {
+    "name": "Pasquia Hills",
+    "kind": "hills",
+    "at": [
+     65092,
+     37313
+    ],
+    "note": ""
+   },
+   {
+    "name": "Wollaston Lake",
+    "kind": "lake",
+    "at": [
+     62783,
+     15000
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Manitoba",
+    "kind": "lake",
+    "at": [
+     75099,
+     45632
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Winnipegosis",
+    "kind": "lake",
+    "at": [
+     71056,
+     39952
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake of the Woods",
+    "kind": "lake",
+    "at": [
+     87646,
+     52399
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Nipigon",
+    "kind": "lake",
+    "at": [
+     104634,
+     47848
+    ],
+    "note": ""
+   },
+   {
+    "name": "Reindeer Lake",
+    "kind": "lake",
+    "at": [
+     64852,
+     19283
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Winnebago",
+    "kind": "lake",
+    "at": [
+     110258,
+     73032
+    ],
+    "note": ""
+   },
+   {
+    "name": "Churchill Lake",
+    "kind": "lake",
+    "at": [
+     49895,
+     22891
+    ],
+    "note": ""
+   },
+   {
+    "name": "Cree Lake",
+    "kind": "lake",
+    "at": [
+     55011,
+     17702
+    ],
+    "note": ""
+   },
+   {
+    "name": "Kasba Lake",
+    "kind": "lake",
+    "at": [
+     65243,
+     5313
+    ],
+    "note": ""
+   },
+   {
+    "name": "Scott Lake",
+    "kind": "lake",
+    "at": [
+     56690,
+     6469
+    ],
+    "note": ""
+   },
+   {
+    "name": "Yellowstone Lake",
+    "kind": "lake",
+    "at": [
+     39834,
+     74664
+    ],
+    "note": ""
+   },
+   {
+    "name": "Flathead Lake",
+    "kind": "lake",
+    "at": [
+     30267,
+     57770
+    ],
+    "note": ""
+   },
+   {
+    "name": "Southern Indian Lake",
+    "kind": "lake",
+    "at": [
+     73772,
+     19052
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Clare",
+    "kind": "lake",
+    "at": [
+     42773,
+     11603
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake St. Joseph",
+    "kind": "lake",
+    "at": [
+     96902,
+     43686
+    ],
+    "note": ""
+   },
+   {
+    "name": "Leech Lake",
+    "kind": "lake",
+    "at": [
+     89404,
+     62209
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lac des Mille Lacs",
+    "kind": "lake",
+    "at": [
+     99905,
+     52886
+    ],
+    "note": ""
+   },
+   {
+    "name": "Big Trout Lake",
+    "kind": "lake",
+    "at": [
+     97085,
+     31275
+    ],
+    "note": ""
+   },
+   {
+    "name": "Trout Lake",
+    "kind": "lake",
+    "at": [
+     90520,
+     44067
+    ],
+    "note": ""
+   },
+   {
+    "name": "Island Lake",
+    "kind": "lake",
+    "at": [
+     85668,
+     32776
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lac la Ronge",
+    "kind": "lake",
+    "at": [
+     58920,
+     28075
+    ],
+    "note": ""
+   },
+   {
+    "name": "Mille Lacs Lake",
+    "kind": "lake",
+    "at": [
+     92363,
+     65952
+    ],
+    "note": ""
+   },
+   {
+    "name": "Gods Lake",
+    "kind": "lake",
+    "at": [
+     85885,
+     29012
+    ],
+    "note": ""
+   },
+   {
+    "name": "Malheur Lake",
+    "kind": "lake",
+    "at": [
+     12183,
+     75044
+    ],
+    "note": ""
+   },
+   {
+    "name": "Rainy Lake",
+    "kind": "lake",
+    "at": [
+     92694,
+     55232
+    ],
+    "note": ""
+   },
+   {
+    "name": "Williston Lake",
+    "kind": "lake",
+    "at": [
+     13232,
+     17057
+    ],
+    "note": ""
+   },
+   {
+    "name": "Split Lake",
+    "kind": "lake",
+    "at": [
+     80438,
+     23001
+    ],
+    "note": ""
+   },
+   {
+    "name": "Ft. Peck Lake",
+    "kind": "lake",
+    "at": [
+     51492,
+     60884
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Sakakawea",
+    "kind": "lake",
+    "at": [
+     65054,
+     60766
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Oahe",
+    "kind": "lake",
+    "at": [
+     71102,
+     71897
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lower Arrow Lake",
+    "kind": "lake",
+    "at": [
+     20383,
+     48529
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Pend Oreille",
+    "kind": "lake",
+    "at": [
+     23835,
+     55366
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Chelan",
+    "kind": "lake",
+    "at": [
+     12584,
+     53637
+    ],
+    "note": ""
+   },
+   {
+    "name": "Black Lake",
+    "kind": "lake",
+    "at": [
+     58049,
+     10531
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lower Red Lake",
+    "kind": "lake",
+    "at": [
+     87200,
+     58765
+    ],
+    "note": ""
+   },
+   {
+    "name": "Upper Red Lake",
+    "kind": "lake",
+    "at": [
+     87631,
+     58090
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Île-á-la-Crosse",
+    "kind": "lake",
+    "at": [
+     51431,
+     26215
+    ],
+    "note": ""
+   },
+   {
+    "name": "Wholdaia Lake",
+    "kind": "lake",
+    "at": [
+     61160,
+     3336
+    ],
+    "note": ""
+   },
+   {
+    "name": "Kinbasket Lake",
+    "kind": "lake",
+    "at": [
+     21674,
+     36247
+    ],
+    "note": ""
+   },
+   {
+    "name": "Harney Lake",
+    "kind": "lake",
+    "at": [
+     10840,
+     75100
+    ],
+    "note": ""
+   },
+   {
+    "name": "Albany River",
+    "kind": "river",
+    "at": [
+     108754,
+     38338
+    ],
+    "note": ""
+   },
+   {
+    "name": "Athabasca River",
+    "kind": "river",
+    "at": [
+     40444,
+     20436
+    ],
+    "note": ""
+   },
+   {
+    "name": "Columbia River",
+    "kind": "river",
+    "at": [
+     12271,
+     57523
+    ],
+    "note": ""
+   },
+   {
+    "name": "Nelson River",
+    "kind": "river",
+    "at": [
+     76949,
+     34171
+    ],
+    "note": ""
+   },
+   {
+    "name": "Peace River",
+    "kind": "river",
+    "at": [
+     30146,
+     14708
+    ],
+    "note": ""
+   },
+   {
+    "name": "Saskatchewan River",
+    "kind": "river",
+    "at": [
+     68028,
+     33907
+    ],
+    "note": ""
+   },
+   {
+    "name": "South Saskatchewan River",
+    "kind": "river",
+    "at": [
+     38885,
+     49612
+    ],
+    "note": ""
+   },
+   {
+    "name": "Winnipeg River",
+    "kind": "river",
+    "at": [
+     85610,
+     48762
+    ],
+    "note": ""
+   },
+   {
+    "name": "Fraser River",
+    "kind": "river",
+    "at": [
+     11726,
+     32584
+    ],
+    "note": ""
+   },
+   {
+    "name": "Liard River",
+    "kind": "river",
+    "at": [
+     14445,
+     1693
+    ],
+    "note": ""
+   },
+   {
+    "name": "North Saskatchewan River",
+    "kind": "river",
+    "at": [
+     36517,
+     32899
+    ],
+    "note": ""
+   },
+   {
+    "name": "Skeena River",
+    "kind": "river",
+    "at": [
+     2908,
+     15356
+    ],
+    "note": ""
+   },
+   {
+    "name": "Slave River",
+    "kind": "river",
+    "at": [
+     42730,
+     2800
+    ],
+    "note": ""
+   },
+   {
+    "name": "Red River",
+    "kind": "river",
+    "at": [
+     80698,
+     48605
+    ],
+    "note": ""
+   },
+   {
+    "name": "Assiniboine River",
+    "kind": "river",
+    "at": [
+     75458,
+     51195
+    ],
+    "note": ""
+   },
+   {
+    "name": "Qu'Appelle River",
+    "kind": "river",
+    "at": [
+     64585,
+     48845
+    ],
+    "note": ""
+   },
+   {
+    "name": "Souris River",
+    "kind": "river",
+    "at": [
+     70386,
+     53860
+    ],
+    "note": ""
+   },
+   {
+    "name": "Hayes River",
+    "kind": "river",
+    "at": [
+     85519,
+     24945
+    ],
+    "note": ""
+   }
   ]
  }
 }

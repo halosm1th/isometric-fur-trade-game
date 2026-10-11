@@ -212,6 +212,25 @@ public partial class StructurePainter : TileMapLayer
         PlaceSign(WorldLayout.GateOutside, "York Factory", "Hudson's Bay Company");
         PlaceSign(IsoGrid.DownLeft(IsoGrid.DownLeft(WorldLayout.NwcGateCell)), "Nor'Westers' House", "North West Company");
         PlaceSign(WorldLayout.OutpostGateOutside, "Oxford House", "Hudson's Bay Company");
+        // Each great carrying place: a board, a canoe drawn up and a cache at the landing.
+        foreach (var lm in WorldMap.Landmarks())
+        {
+            if (lm.Kind != "portage") continue;
+            var at = IsoGrid.FromWorld(lm.At);
+            Vector2I? land = null;
+            for (int r = 0; r <= 8 && land == null; r++)
+                for (int dx = -r; dx <= r && land == null; dx++)
+                    for (int dy = -2 * r; dy <= 2 * r && land == null; dy++)
+                    {
+                        var n = new Vector2I(at.X + dx, at.Y + dy);
+                        if (!WorldMap.IsWater(n) && WorldMap.InBounds(n)) land = n;
+                    }
+            if (land == null) continue;
+            PlaceSign(land.Value, lm.Name, "Portage");
+            var canoe = IsoGrid.Cell(land.Value, 2, 1); var cache = IsoGrid.Cell(land.Value, -1, 2);
+            if (!WorldMap.IsWater(canoe) && GetCellSourceId(canoe) == -1) SetBack(canoe, WorldLayout.CanoeBeached);
+            if (!WorldMap.IsWater(cache) && GetCellSourceId(cache) == -1) SetBack(cache, WorldLayout.Cache);
+        }
         // A beaver lodge in the water by each beaver ground, so you can see it.
         foreach (var site in WorldLayout.Sites)
         {

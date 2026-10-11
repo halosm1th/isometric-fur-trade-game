@@ -146,6 +146,34 @@ public static class WorldMap
         return list;
     }
 
+    // The brigade routes and the named landmarks (build_world.py, from the atlas).
+    public readonly record struct Landmark(string Name, string Kind, Vector2 At, string Note);
+    private static List<Landmark> _landmarks;
+    public static List<Landmark> Landmarks()
+    {
+        if (_landmarks != null) return _landmarks;
+        _landmarks = new List<Landmark>();
+        foreach (var v in LayoutArray("landmarks"))
+        {
+            var d = v.AsGodotDictionary(); var at = d["at"].AsGodotArray();
+            _landmarks.Add(new Landmark(d["name"].AsString(), d["kind"].AsString(), new Vector2((float)at[0].AsDouble(), (float)at[1].AsDouble()), d.TryGetValue("note", out var n) ? n.AsString() : ""));
+        }
+        return _landmarks;
+    }
+    private static List<(string Name, Vector2[] Points)> _routes;
+    public static List<(string Name, Vector2[] Points)> BrigadeRoutes()
+    {
+        if (_routes != null) return _routes;
+        _routes = new List<(string, Vector2[])>();
+        foreach (var v in LayoutArray("routes"))
+        {
+            var d = v.AsGodotDictionary(); var pts = new List<Vector2>();
+            foreach (var p in d["pts"].AsGodotArray()) { var a = p.AsGodotArray(); pts.Add(new Vector2((float)a[0].AsDouble(), (float)a[1].AsDouble())); }
+            _routes.Add((d["name"].AsString(), pts.ToArray()));
+        }
+        return _routes;
+    }
+
     public static WorldPlace? Place(string name)
     {
         foreach (var p in Places) if (p.Name == name) return p;

@@ -444,6 +444,7 @@ public partial class TerrainPainter : TileMapLayer
     {
         // Any post or place on the map by name: `--spawn="Fort William"`.
         if (WorldMap.Place(name) is { } place) return Sim.Paths?.NearestWalkable(place.Cell, 12) ?? place.Cell;
+        foreach (var lm in WorldMap.Landmarks()) if (lm.Name == name) { var c = IsoGrid.FromWorld(lm.At); return Sim.Paths?.NearestWalkable(c, 12) ?? c; }
         return name switch
         {
             "depot" => WorldLayout.Depot.Centre,

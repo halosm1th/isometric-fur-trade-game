@@ -245,7 +245,7 @@ public static class WorldLayout
     // ---- what grows where (design doc 6: a region should look like itself) ------
     // Tile sources (terrain_tileset.tres) for the growth and the ground clutter.
     public const int Spruce0 = 52, Tamarack = 80, Willow = 81, Rocks = 82, Boulder = 83, Reeds = 84, MuskegPool = 85,
-        DeadTree = 86, Aspen = 97, JackPine = 98, BeaverLodge = 87;
+        DeadTree = 86, Aspen = 97, JackPine = 98, BeaverLodge = 87, CanoeBeached = 92, Cache = 95;
     public static bool IsTreeSource(int s) => s is >= Spruce0 and <= Spruce0 + 2 or Tamarack or DeadTree or Aspen or JackPine;
     public static bool IsFloraSource(int s) => IsTreeSource(s) || s is >= Willow and <= MuskegPool;
 
@@ -256,6 +256,8 @@ public static class WorldLayout
         if (WorldMap.IsWater(c) || IsBeach(c)) return true;
         var p = IsoGrid.ToWorld(c);
         if (Posts.NearAny(p, 900f)) return true;
+        // A carrying place is trodden bare at the landing.
+        foreach (var lm in WorldMap.Landmarks()) if (lm.Kind == "portage" && lm.At.DistanceTo(p) < 700f) return true;
         float fortDist = p.DistanceTo(FortCentre);
         if (fortDist > 30000f && p.DistanceTo(IsoGrid.ToWorld(OutpostTop)) > 8000f) return false;
         if (fortDist < 1500f || TrailDistance(p) < 130f || RoadDistance(p) < 150f) return true;

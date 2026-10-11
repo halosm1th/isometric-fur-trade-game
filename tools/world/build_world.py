@@ -516,11 +516,56 @@ def lay_out(G, places, extras, atlas):
         if 0 <= c[0] < cols and 0 <= c[1] < rows and dry(c): add("Hare flats", "Hare", c, rng.randint(40, 90), 140, 500)
     sites.extend(country)
     print(f"  {len(country)} country wildlife sites")
+    # ---- routes and landmarks: the brigade roads, the great carrying places,
+    # the named waters, hills and ranges (for the map, and boards on the ground).
+    def in_world(x, y): return 0 <= x < WORLD_W and 0 <= y < WORLD_H
+    routes = []
+    for r in atlas.get("routes", []):
+        pts = [world(lon, lat) for lon, lat in r["pts"]]
+        pts = [[round(x), round(y)] for x, y in pts if in_world(x, y)]
+        if len(pts) >= 2: routes.append(dict(name=r["name"], pts=pts))
+    landmarks = []; seen_marks = set()
+    def tidy(n):
+        n = " ".join(n.split())
+        if n.isupper(): n = n.title()
+        if n.startswith("L. "): n = "Lake " + n[3:]
+        if n.endswith(" L."): n = n[:-3] + " Lake"
+        return n.replace("Mts.", "Mountains").replace("Mtn.", "Mountain")
+    def mark(name, kind, lon, lat, note=""):
+        name = tidy(name)
+        if name.lower() in seen_marks: return
+        x, y = world(lon, lat)
+        if in_world(x, y): seen_marks.add(name.lower()); landmarks.append(dict(name=name, kind=kind, at=[round(x), round(y)], note=note))
+    for q in atlas.get("portages", []): mark(q["name"], "portage", q["lon"], q["lat"], q.get("note", ""))
+    for q in extras.get("portages", []): mark(q["name"], "portage", q["lon"], q["lat"], "On the York Factory - Oxford House road.")
+    for name, q in atlas.get("mountain_ranges", {}).items():
+        lon, lat = q.get("label", q["line"][len(q["line"]) // 2]); mark(name, "mountains", lon, lat)
+    for q in atlas.get("water_labels", []): mark(q["name"], "water", q["lon"], q["lat"])
+    for q in atlas.get("phys_labels", []): mark(q["name"], "hills", q["lon"], q["lat"])
+    # The bigger named lakes, at the middle of their outline.
+    for f in atlas["base"]["lakes"]:
+        n = f.get("n", "")
+        if not n: continue
+        rs = rings(f)
+        if not rs: continue
+        ring = max(rs, key=len)
+        if len(ring) < 12: continue
+        lon = sum(q[0] for q in ring) / len(ring); lat = sum(q[1] for q in ring) / len(ring)
+        mark(n, "lake", lon, lat)
+    # The named rivers, half way along their longest reach.
+    named_rivers = set(atlas.get("rivers_to_label", [])) | {"Hayes"}
+    best = {}
+    all_rivers = [(f["n"], r) for f in atlas["base"]["rivers"] for r in rings(f)] + [(x["name"], x["pts"]) for x in extras.get("rivers", [])]
+    for name, r in all_rivers:
+        if name in named_rivers and len(r) > len(best.get(name, [])): best[name] = r
+    for name, r in best.items():
+        lon, lat = r[len(r) // 2]; mark(f"{name} River" if "River" not in name else name, "river", lon, lat)
+    print(f"  {len(routes)} routes, {len(landmarks)} landmarks")
     km = lambda a, b: math.dist(cell_world(*a), cell_world(*b)) / PX_PER_KM
     print(f"{len(camps)} camps ({sum(1 for c in camps if c['kind'] == 'band')} bands); {len(posts)} other posts fitted; {len(crossings)} river cells forded; fort {fort}, nwc {nwc} ({km(fort, nwc):.0f} km), oxford {outpost} ({km(fort, outpost):.0f} km), road {len(road)} pts")
     return dict(fort_top=list(fort), nwc_top=list(nwc), outpost_top=list(outpost),
                 cree_winter=list(winter), cree_summer=list(summer), assiniboine_winter=list(a_winter), assiniboine_summer=list(a_summer),
-                road=road, trail=trail, crossings=crossings, portages=portages, sites=sites, posts=posts, camps=camps)
+                road=road, trail=trail, crossings=crossings, portages=portages, sites=sites, posts=posts, camps=camps, routes=routes, landmarks=landmarks)
 
 if __name__ == "__main__":
     main()
