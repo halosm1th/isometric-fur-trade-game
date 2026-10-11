@@ -31,6 +31,8 @@ def key_magenta(rgb):
     r, g, b = [rgb[..., i].astype(int) for i in range(3)]
     # Magenta and the JPEG mush round it: red and blue both well above green.
     bg = (r - g > 70) & (b - g > 70) & (r > 120) & (b > 120)
+    # ...and the dark purple of a cast shadow drawn in the same magenta.
+    bg |= (r - g > 50) & (b - g > 50) & (abs(r - b) < 50) & (r > 55)
     return ~bg
 
 
@@ -51,6 +53,11 @@ def parts(path, merge=40, min_frac=0.2):
     a dropped pipe - which join the nearest figure within `merge` px."""
     im = np.array(Image.open(path).convert("RGB"))
     fg = key_magenta(im)
+    # Cell borders: long straight dark lines no sprite has. Erase them so
+    # they don't join every figure on the sheet into one.
+    dark = im.max(axis=2) < 70
+    lines = ndimage.binary_opening(dark, structure=np.ones((120, 1))) | ndimage.binary_opening(dark, structure=np.ones((1, 120)))
+    fg &= ~ndimage.binary_dilation(lines, iterations=3)
     fg = ndimage.binary_opening(fg, iterations=1)
     lab, n = ndimage.label(fg)
     objs = ndimage.find_objects(lab)
@@ -69,7 +76,7 @@ def parts(path, merge=40, min_frac=0.2):
         mean = px.mean(axis=0)
         # ...or, anti-aliased into the magenta, a dark purple with no green.
         purple = mean[1] < 15 and abs(mean[0] - mean[2]) < 25 and mean[0] < 120
-        text = (dark > 0.55 and sat < 30 or purple) and sizes[i - 1] < big_cut
+        text = (dark > 0.5 and sat < 45 or purple) and sizes[i - 1] < big_cut
         if text:
             continue
         if sizes[i - 1] >= big_cut:

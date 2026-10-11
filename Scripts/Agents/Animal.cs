@@ -50,8 +50,11 @@ public partial class Animal : Agent
         if (_sprite != null)
         {
             _sprite.SpriteFrames = GD.Load<SpriteFrames>(def.Frames);
-            _sprite.Scale = Vector2.One * (Species switch { Species.Caribou => 2.2f, Species.Wolf => 1.5f, Species.Goose => 1.1f, _ => 1.0f });
-            _sprite.Offset = Species switch { Species.Caribou => new Vector2(0, -19), Species.Wolf => new Vector2(0, -26), _ => new Vector2(0, -16) };
+            // The frames are cut to size (tools/sprites/animals.py) and stand
+            // on the bottom edge of their canvas: lift them so the feet are here.
+            _sprite.Scale = Vector2.One;
+            var first = _sprite.SpriteFrames.HasAnimation("idle_se") ? _sprite.SpriteFrames.GetFrameTexture("idle_se", 0) : null;
+            _sprite.Offset = first != null ? new Vector2(0, -first.GetHeight() / 2f + 2f) : new Vector2(0, -16);
             _sprite.Play(Anim("idle", Vector2.Down));
         }
         if (_label != null) _label.Text = def.Name;
@@ -276,14 +279,15 @@ public partial class Animal : Agent
         if (_sprite.Animation.ToString().StartsWith("attack") && _sprite.IsPlaying()) return;
         var v = Velocity;
         bool moving = v.LengthSquared() > 4f;
-        string name = Anim(moving ? "walk" : "idle", moving ? v : _lastDir);
+        string kind = !moving ? "idle" : IsSprinting && _sprite.SpriteFrames.HasAnimation("run_se") ? "run" : "walk";
+        string name = Anim(kind, moving ? v : _lastDir);
         if (moving) _lastDir = v;
         if (_sprite.SpriteFrames.HasAnimation("walk") && !_sprite.SpriteFrames.HasAnimation("walk_se"))
         {
             _sprite.FlipH = _lastDir.X < 0f;
         }
         if (_sprite.Animation != name) _sprite.Play(name);
-        _sprite.SpeedScale = IsSprinting ? 1.5f : moving ? 1f : 0.4f;
+        _sprite.SpeedScale = kind == "run" ? 1f : IsSprinting ? 1.5f : moving ? 1f : 0.4f;
     }
     private Vector2 _lastDir = Vector2.Down;
 
