@@ -160,6 +160,13 @@ Every agent is a full, real person (Section 11.1), but simulating people well do
 
 **Barks are how all of it reaches the player.** Agents say things out loud in passing (Section P.4): to whoever is beside them, player or NPC, built from what the speaker actually has — a memory shared with the listener, a dead relative, an empty belly, the post's books, what they want — and the listener may answer. The same line an NPC says to the player he can say to his brother, and the bond it builds works the same way. One speaker at a time in a group; a band person's speech reads as their own tongue to someone who hasn't learned it (Section 10.6).
 
+### P.8.1 Favours and Leverage (as built)
+**Favours.** A man's own trouble becomes a small request of the player standing beside him: fresh meat for scurvy, his turn at the woodpile when he has fever, a word to a girl's father, finding who robbed his traps, an elder's furs taken to the post. He calls you over; you hear him out and say yes or no. Done, it is a shared memory and a good turn owed; called in, he comes with you, gives you something, speaks for you to his master, or forgets what he saw you do. Left undone past its day, he remembers that too. Naming a trap thief is the lie system's door: name the wrong man and it is a story about him from then on.
+
+**Leverage.** What you saw is a weapon as surely as what you make up (Section P.10). A misdeed the player witnessed first hand can be put to the man in private - "I know you robbed the traps" - for goods, a word with his master, or an end to his stories about you. He pays and resents it; or, if he has the nerve and the thing would not ruin him, he goes to his master first with the truth about you.
+
+**The year, told.** When a year closes - the ship for the Company, the brigade for the Nor'Westers, break-up for the bands - the year's journal is told back as a short account, the things that touched the player most, in order. It is the payoff Section P.1's test asks for.
+
 ### P.9 Build Order — The First Milestone Is One River, One Year
 The scope of this document stands: the full map, every region, all three paths, the metropole, multiplayer. It gets built out in stages, and each stage has to pass Section 2.1 before the next is layered on.
 
@@ -396,6 +403,8 @@ Not a separate minigame — the moment a player supplies the seed values a perso
 - **Skill points**: a modest, freely-allocated pool layered on top of the personality-seeded baseline (Section 3.10), representing background rather than replacing the shared mechanism — "grew up trapping," "apprenticed as a clerk," and so on nudge specific skills further without giving the player a second stat system nobody else in the world uses.
 - **Name**: every agent is named (Section 11.1); the player is no exception.
 
+**As built (first cut).** The new-game page goes on to *Who you are*: a name; a road in - the Company off the ship, the North West Company up with the brigade, born to the Cree or Assiniboine bands by the Bay, or born to any band camp in the country (Ojibwe, Dene, Blackfoot, Sioux, the Plateau, Coast and Missouri peoples); three backgrounds per road (an Orkney labourer, an apprentice clerk or a country-born son; a voyageur, a Montreal clerk or a freeman's son; a hunter, a trapper-go-between, or the leading man's nephew); two of eight traits (keen eye, patient hands, silver tongue, bushwise, hardy, an ear for tongues, a bottle in the pack, something put by); and an ambition, or "decide later". Every choice sets ordinary agent state - skills, tongues, kit, standing, rank - and a band-born character has kin from the start: the camp's own people, bound by regard and two shared memories so they act as friends do (Section P.8).
+
 ### 5.5 Arrival & First Orders
 The first order a new arrival ever receives isn't a scripted intro — it's Section 3.9's delegation loop and Section 10.1.1's message object running for the first time on a brand-new agent. Because of that, the same mechanism also handles every ordinary replacement recruit (Section 13.2) arriving in later years, not only the player's own start.
 
@@ -406,6 +415,11 @@ The first order a new arrival ever receives isn't a scripted intro — it's Sect
 - High sociability, no relationship at the post yet (Section 11.4) → drifts toward the men's house or common area to meet people before reporting.
 
 Whenever the report actually happens, the Chief Factor's response draws from the same task-assignment machinery already built (Section 3.9 steps 2–4) rather than a fixed "here's your job": a real assignment, an order to idle at the post if nothing's currently needed, or a reassignment/order to leave for another posting.
+
+**As built: a prologue for each road in.** Each start opens on a short scene in the dialogue window with the people the character arrives among, who are real NPCs and stay real. It carries the three first-hour hooks (Section P.1): a face, a temptation with a cost, and a rumour that names the people who matter, all drawn from the live world.
+- *HBC* - the last day of the crossing: two Orkney lads who signed on with you (swear to stand by each other and they begin as friends), a sailor selling brandy on his own account (buy it and the people who saw are a risk at the ship's reckoning; or report him and make an enemy), the mate on the Factor, the clerk who wants the next place, and the Nor'Westers. The world opens on the ship's day at the wharf with the report-to-the-Factor order.
+- *NWC* - the last carrying place below the post: two voyageurs from your canoe, cards for real stakes, the guide on the partner's orders and the band the partners want turned from the Bay men. The world opens on the brigade's day at the Nor'Westers' landing; report to the partner.
+- *Born to a band* - a morning in the summer camp: your elder hands you the winter's furs to take to the post (your first favour, Section P.8), a cousin to make a friend of, a trader's man with a keg. A camp far out in the country points you at its own post.
 
 **NWC and Métis/freeman** *(proposed, not yet detailed to the same depth)*. NWC arrival is likely at the Fort William rendezvous or by direct recruitment from a wintering partner (Section 5.2) — reporting to a partner/bourgeois rather than a Chief Factor, with the company's kin-network hiring pattern (Section 5.2) making "an existing family connection at the post" a more central case than it is for HBC. Métis/freeman arrival has no company hierarchy to report to at all — more likely an introduction to family or a hunt captain (Section 16.1) than an order in the HBC sense. Both need the same worked-out detail as the HBC case above.
 
