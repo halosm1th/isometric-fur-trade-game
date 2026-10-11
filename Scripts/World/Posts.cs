@@ -12,7 +12,7 @@ namespace IsometricFurTradeGame.Scripts.World;
 public class TradingPost
 {
     public string Name, Company;
-    public int Year;
+    public int Year, Closed;   // Closed: the year it was given up (0 = still kept)
     public Vector2I Top;
     public BuildingDef House;
     public TradingPostLedger Ledger;
@@ -51,6 +51,7 @@ public static class Posts
             var p = new TradingPost
             {
                 Name = d["name"].AsString(), Company = d["company"].AsString(), Year = d["year"].AsInt32(), Top = top,
+                Closed = d.TryGetValue("closed", out var cl) ? cl.AsInt32() : 0,
                 House = new BuildingDef(BuildingKind.TradingPost, d["name"].AsString(), IsoGrid.Cell(top, 2, 2), 7, 5, 3),
             };
             list.Add(p);

@@ -219,7 +219,7 @@ public partial class StructurePainter : TileMapLayer
         }
         // In the editor the posts standing at the usual start are shown; in a
         // game Posts paints each one as it comes to stand.
-        if (Engine.IsEditorHint()) foreach (var p in Posts.All) if (p.Year <= 1811) PaintPost(p, false);
+        if (Engine.IsEditorHint()) foreach (var p in Posts.All) if (p.Year <= 1811 && (p.Closed == 0 || p.Closed > 1811)) PaintPost(p, false);
         // The forest is painted chunk by chunk as TerrainPainter streams the country in.
     }
 
@@ -621,10 +621,21 @@ public partial class StructurePainter : TileMapLayer
         return WorldLayout.ForestAt(cell) && !_felled.Contains(cell);
     }
 
-    // Ring by ring outward, nearest first.
+    // Ring by ring outward, nearest first. The answer for a starting cell is
+    // remembered until that tree is felled: woodcutters ask from their post's
+    // door again and again, and under fast-forward that was every few frames.
+    private readonly Dictionary<Vector2I, Vector2I> _nearestTree = new();
     public Vector2I? NearestTree(Vector2 worldPos, float maxDist = 4000f)
     {
         var c = LocalToMap(worldPos);
+        if (_nearestTree.TryGetValue(c, out var known) && IsTree(known) && MapToLocal(known).DistanceTo(worldPos) <= maxDist) return known;
+        var found = SearchNearestTree(worldPos, c, maxDist);
+        if (found.HasValue) { if (_nearestTree.Count > 2000) _nearestTree.Clear(); _nearestTree[c] = found.Value; }
+        return found;
+    }
+
+    private Vector2I? SearchNearestTree(Vector2 worldPos, Vector2I c, float maxDist)
+    {
         int rings = Mathf.CeilToInt(maxDist / IsoGrid.TileW);
         Vector2I? best = null;
         float bestD = maxDist;

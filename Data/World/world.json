@@ -1664,34 +1664,26 @@
   "portages": [
    {
     "name": "Rock Portage",
-    "fraction": 0.264,
+    "fraction": 0.404,
     "cell": [
-     682,
-     665
+     674,
+     719
     ]
    },
    {
-    "name": "Borrowick Falls",
-    "fraction": 0.399,
+    "name": "Borwick's Falls",
+    "fraction": 0.531,
     "cell": [
-     674,
-     717
+     670,
+     756
     ]
    },
    {
     "name": "Trout Falls",
-    "fraction": 0.571,
+    "fraction": 0.813,
     "cell": [
-     668,
-     771
-    ]
-   },
-   {
-    "name": "Hill Gates",
-    "fraction": 0.712,
-    "cell": [
-     663,
-     822
+     655,
+     873
     ]
    }
   ],
@@ -1847,6 +1839,7 @@
     "name": "Moose Factory",
     "company": "HBC",
     "year": 1673,
+    "closed": 0,
     "top": [
      967,
      1096
@@ -1856,6 +1849,7 @@
     "name": "Albany Fort",
     "company": "HBC",
     "year": 1679,
+    "closed": 0,
     "top": [
      944,
      1026
@@ -1865,6 +1859,7 @@
     "name": "Fort Severn",
     "company": "HBC",
     "year": 1689,
+    "closed": 0,
     "top": [
      795,
      715
@@ -1874,6 +1869,7 @@
     "name": "Churchill (Pr. of Wales Fort)",
     "company": "HBC",
     "year": 1717,
+    "closed": 0,
     "top": [
      645,
      341
@@ -1883,6 +1879,7 @@
     "name": "Michipicoten",
     "company": "HBC",
     "year": 1725,
+    "closed": 0,
     "top": [
      911,
      1645
@@ -1892,6 +1889,7 @@
     "name": "Henley House",
     "company": "HBC",
     "year": 1743,
+    "closed": 0,
     "top": [
      886,
      1239
@@ -1901,6 +1899,7 @@
     "name": "Cumberland House",
     "company": "HBC",
     "year": 1774,
+    "closed": 0,
     "top": [
      510,
      1023
@@ -1910,6 +1909,7 @@
     "name": "Gloucester House",
     "company": "HBC",
     "year": 1777,
+    "closed": 0,
     "top": [
      822,
      1324
@@ -1919,6 +1919,7 @@
     "name": "Grand Portage",
     "company": "NWC",
     "year": 1778,
+    "closed": 1803,
     "top": [
      798,
      1745
@@ -1928,6 +1929,7 @@
     "name": "Hudson House",
     "company": "HBC",
     "year": 1779,
+    "closed": 1787,
     "top": [
      412,
      1166
@@ -1937,6 +1939,7 @@
     "name": "Ile-a-la-Crosse",
     "company": "NWC",
     "year": 1779,
+    "closed": 0,
     "top": [
      408,
      825
@@ -1946,6 +1949,7 @@
     "name": "Michilimackinac",
     "company": "NWC",
     "year": 1780,
+    "closed": 0,
     "top": [
      936,
      1965
@@ -1955,6 +1959,7 @@
     "name": "Green Lake",
     "company": "HBC",
     "year": 1782,
+    "closed": 0,
     "top": [
      397,
      977
@@ -1964,6 +1969,7 @@
     "name": "Lac la Ronge",
     "company": "NWC",
     "year": 1782,
+    "closed": 0,
     "top": [
      460,
      904
@@ -1973,6 +1979,7 @@
     "name": "Sault Ste. Marie",
     "company": "NWC",
     "year": 1783,
+    "closed": 0,
     "top": [
      935,
      1868
@@ -1982,6 +1989,7 @@
     "name": "Pine Fort",
     "company": "NWC",
     "year": 1785,
+    "closed": 1811,
     "top": [
      563,
      1615
@@ -1991,6 +1999,7 @@
     "name": "Manchester House",
     "company": "HBC",
     "year": 1786,
+    "closed": 1793,
     "top": [
      374,
      1097
@@ -2000,6 +2009,7 @@
     "name": "South Branch House",
     "company": "HBC",
     "year": 1786,
+    "closed": 1794,
     "top": [
      436,
      1207
@@ -2009,6 +2019,7 @@
     "name": "Osnaburgh House",
     "company": "HBC",
     "year": 1786,
+    "closed": 0,
     "top": [
      767,
      1319
@@ -2018,6 +2029,7 @@
     "name": "Fort Esperance",
     "company": "NWC",
     "year": 1787,
+    "closed": 0,
     "top": [
      524,
      1540
@@ -2027,6 +2039,7 @@
     "name": "Rainy Lake House",
     "company": "NWC",
     "year": 1787,
+    "closed": 0,
     "top": [
      716,
      1740
@@ -2036,6 +2049,7 @@
     "name": "Fort Chipewyan",
     "company": "NWC",
     "year": 1788,
+    "closed": 0,
     "top": [
      353,
      295
@@ -2045,6 +2059,7 @@
     "name": "Brunswick House",
     "company": "HBC",
     "year": 1788,
+    "closed": 0,
     "top": [
      935,
      1412
@@ -2054,6 +2069,7 @@
     "name": "Nipawi",
     "company": "NWC",
     "year": 1790,
+    "closed": 0,
     "top": [
      476,
      1136
@@ -2063,6 +2079,7 @@
     "name": "Swan River House",
     "company": "NWC",
     "year": 1790,
+    "closed": 0,
     "top": [
      533,
      1292
@@ -2072,6 +2089,7 @@
     "name": "Montagne a la Bosse",
     "company": "NWC",
     "year": 1790,
+    "closed": 0,
     "top": [
      552,
      1595
@@ -2081,6 +2099,7 @@
     "name": "Red Lake Post",
     "company": "NWC",
     "year": 1790,
+    "closed": 0,
     "top": [
      690,
      1820
@@ -2090,6 +2109,7 @@
     "name": "La Cloche",
     "company": "HBC",
     "year": 1790,
+    "closed": 0,
     "top": [
      993,
      1817
@@ -2099,6 +2119,7 @@
     "name": "Fort George",
     "company": "NWC",
     "year": 1792,
+    "closed": 1800,
     "top": [
      321,
      993
@@ -2108,6 +2129,7 @@
     "name": "Buckingham House",
     "company": "HBC",
     "year": 1792,
+    "closed": 1800,
     "top": [
      321,
      1037
@@ -2117,6 +2139,7 @@
     "name": "Fort Bas de la Riviere",
     "company": "NWC",
     "year": 1792,
+    "closed": 0,
     "top": [
      647,
      1462
@@ -2126,6 +2149,7 @@
     "name": "Brandon House",
     "company": "HBC",
     "year": 1793,
+    "closed": 0,
     "top": [
      554,
      1635
@@ -2135,6 +2159,7 @@
     "name": "Martin Falls",
     "company": "HBC",
     "year": 1793,
+    "closed": 0,
     "top": [
      854,
      1213
@@ -2144,6 +2169,7 @@
     "name": "Fort Souris",
     "company": "NWC",
     "year": 1794,
+    "closed": 0,
     "top": [
      571,
      1645
@@ -2153,6 +2179,7 @@
     "name": "Edmonton House",
     "company": "HBC",
     "year": 1795,
+    "closed": 0,
     "top": [
      283,
      1043
@@ -2162,6 +2189,7 @@
     "name": "Fort Augustus",
     "company": "NWC",
     "year": 1795,
+    "closed": 0,
     "top": [
      292,
      1017
@@ -2171,6 +2199,7 @@
     "name": "Carlton House",
     "company": "HBC",
     "year": 1795,
+    "closed": 0,
     "top": [
      420,
      1139
@@ -2180,6 +2209,7 @@
     "name": "Fort Alexandria",
     "company": "NWC",
     "year": 1795,
+    "closed": 0,
     "top": [
      525,
      1389
@@ -2189,6 +2219,7 @@
     "name": "Portage la Prairie",
     "company": "NWC",
     "year": 1795,
+    "closed": 0,
     "top": [
      599,
      1570
@@ -2198,6 +2229,7 @@
     "name": "Manitoba House",
     "company": "HBC",
     "year": 1795,
+    "closed": 0,
     "top": [
      594,
      1445
@@ -2207,6 +2239,7 @@
     "name": "Fort Vermilion",
     "company": "NWC",
     "year": 1798,
+    "closed": 0,
     "top": [
      334,
      1033
@@ -2216,6 +2249,7 @@
     "name": "Turtle River House",
     "company": "NWC",
     "year": 1798,
+    "closed": 0,
     "top": [
      622,
      1802
@@ -2225,6 +2259,7 @@
     "name": "Rocky Mountain House",
     "company": "NWC",
     "year": 1799,
+    "closed": 0,
     "top": [
      245,
      1183
@@ -2234,6 +2269,7 @@
     "name": "Nut Lake",
     "company": "HBC",
     "year": 1799,
+    "closed": 0,
     "top": [
      488,
      1266
@@ -2243,6 +2279,7 @@
     "name": "Chesterfield House",
     "company": "HBC",
     "year": 1800,
+    "closed": 1802,
     "top": [
      339,
      1411
@@ -2252,6 +2289,7 @@
     "name": "Fort Nelson (BC)",
     "company": "NWC",
     "year": 1800,
+    "closed": 0,
     "top": [
      145,
      163
@@ -2261,6 +2299,7 @@
     "name": "Pembina Post",
     "company": "NWC",
     "year": 1801,
+    "closed": 0,
     "top": [
      619,
      1709
@@ -2270,6 +2309,7 @@
     "name": "Lesser Slave Lake Ho.",
     "company": "HBC",
     "year": 1802,
+    "closed": 0,
     "top": [
      249,
      745
@@ -2279,6 +2319,7 @@
     "name": "Fort William",
     "company": "NWC",
     "year": 1803,
+    "closed": 0,
     "top": [
      803,
      1691
@@ -2288,6 +2329,7 @@
     "name": "Dunvegan",
     "company": "NWC",
     "year": 1805,
+    "closed": 0,
     "top": [
      193,
      639
@@ -2297,6 +2339,7 @@
     "name": "Fort McLeod",
     "company": "NWC",
     "year": 1805,
+    "closed": 0,
     "top": [
      103,
      657
@@ -2306,6 +2349,7 @@
     "name": "Fort St. James",
     "company": "NWC",
     "year": 1806,
+    "closed": 0,
     "top": [
      73,
      709
@@ -2315,6 +2359,7 @@
     "name": "Fort Fraser",
     "company": "NWC",
     "year": 1806,
+    "closed": 0,
     "top": [
      64,
      752
@@ -2324,6 +2369,7 @@
     "name": "Kootenay House",
     "company": "NWC",
     "year": 1807,
+    "closed": 1812,
     "top": [
      215,
      1382
@@ -2333,6 +2379,7 @@
     "name": "Fort George (BC)",
     "company": "NWC",
     "year": 1807,
+    "closed": 0,
     "top": [
      93,
      795
@@ -2342,6 +2389,7 @@
     "name": "Fort Gibraltar",
     "company": "NWC",
     "year": 1809,
+    "closed": 0,
     "top": [
      617,
      1565
@@ -2351,6 +2399,7 @@
     "name": "Flathead House",
     "company": "NWC",
     "year": 1809,
+    "closed": 0,
     "top": [
      230,
      1830
@@ -2360,6 +2409,7 @@
     "name": "Island Lake House",
     "company": "HBC",
     "year": 1810,
+    "closed": 0,
     "top": [
      660,
      1035
@@ -2369,6 +2419,7 @@
     "name": "Spokane House",
     "company": "NWC",
     "year": 1810,
+    "closed": 0,
     "top": [
      158,
      1751
@@ -2378,6 +2429,7 @@
     "name": "Fort Kamloops",
     "company": "NWC",
     "year": 1812,
+    "closed": 0,
     "top": [
      117,
      1299
@@ -2387,6 +2439,7 @@
     "name": "Jasper House",
     "company": "HBC",
     "year": 1813,
+    "closed": 0,
     "top": [
      175,
      1026
@@ -2396,6 +2449,7 @@
     "name": "Norway House",
     "company": "HBC",
     "year": 1814,
+    "closed": 0,
     "top": [
      605,
      1024
@@ -2405,6 +2459,7 @@
     "name": "Fort Douglas",
     "company": "HBC",
     "year": 1815,
+    "closed": 0,
     "top": [
      633,
      1577
@@ -2414,6 +2469,7 @@
     "name": "Lac Seul House",
     "company": "HBC",
     "year": 1815,
+    "closed": 0,
     "top": [
      732,
      1473
@@ -2423,6 +2479,7 @@
     "name": "Fort Nez Perces",
     "company": "NWC",
     "year": 1818,
+    "closed": 0,
     "top": [
      113,
      1971
@@ -2432,6 +2489,7 @@
     "name": "Great Whale River",
     "company": "HBC",
     "year": 1820,
+    "closed": 0,
     "top": [
      986,
      523
@@ -2441,6 +2499,7 @@
     "name": "Fort Alexandria (BC)",
     "company": "NWC",
     "year": 1821,
+    "closed": 0,
     "top": [
      83,
      992
@@ -2450,6 +2509,7 @@
     "name": "Upper Fort Garry",
     "company": "HBC",
     "year": 1822,
+    "closed": 0,
     "top": [
      618,
      1606
@@ -2459,6 +2519,7 @@
     "name": "Fort Babine",
     "company": "HBC",
     "year": 1822,
+    "closed": 0,
     "top": [
      37,
      535
@@ -2468,6 +2529,7 @@
     "name": "Fort Pelly",
     "company": "HBC",
     "year": 1824,
+    "closed": 0,
     "top": [
      516,
      1342
@@ -2477,6 +2539,7 @@
     "name": "Fort Assiniboine",
     "company": "HBC",
     "year": 1824,
+    "closed": 0,
     "top": [
      258,
      885
@@ -2486,6 +2549,7 @@
     "name": "Fort Vancouver",
     "company": "HBC",
     "year": 1825,
+    "closed": 0,
     "top": [
      26,
      1914
@@ -2495,6 +2559,7 @@
     "name": "Fort Colvile",
     "company": "HBC",
     "year": 1825,
+    "closed": 0,
     "top": [
      155,
      1639
@@ -2504,6 +2569,7 @@
     "name": "Fort Connolly",
     "company": "HBC",
     "year": 1826,
+    "closed": 0,
     "top": [
      70,
      434
@@ -2513,6 +2579,7 @@
     "name": "Fort Langley",
     "company": "HBC",
     "year": 1827,
+    "closed": 0,
     "top": [
      57,
      1433
@@ -2522,6 +2589,7 @@
     "name": "Fort Pitt",
     "company": "HBC",
     "year": 1829,
+    "closed": 0,
     "top": [
      355,
      1043
@@ -2531,6 +2599,7 @@
     "name": "Fort Chilcotin",
     "company": "HBC",
     "year": 1829,
+    "closed": 0,
     "top": [
      64,
      1037
@@ -2540,6 +2609,7 @@
     "name": "Lower Fort Garry",
     "company": "HBC",
     "year": 1830,
+    "closed": 0,
     "top": [
      636,
      1536
@@ -2549,6 +2619,7 @@
     "name": "Fort Ellice",
     "company": "HBC",
     "year": 1831,
+    "closed": 0,
     "top": [
      533,
      1566
@@ -2558,6 +2629,7 @@
     "name": "Fort Nisqually",
     "company": "HBC",
     "year": 1833,
+    "closed": 0,
     "top": [
      36,
      1732
@@ -2567,6 +2639,7 @@
     "name": "Rat Portage",
     "company": "HBC",
     "year": 1836,
+    "closed": 0,
     "top": [
      690,
      1561
@@ -2576,6 +2649,7 @@
     "name": "Fort George (Chisasibi)",
     "company": "HBC",
     "year": 1837,
+    "closed": 0,
     "top": [
      981,
      710
@@ -2585,6 +2659,7 @@
     "name": "Dease Lake",
     "company": "HBC",
     "year": 1838,
+    "closed": 0,
     "top": [
      16,
      44
@@ -2594,6 +2669,7 @@
     "name": "Fort Victoria",
     "company": "HBC",
     "year": 1843,
+    "closed": 0,
     "top": [
      25,
      1517
@@ -2603,6 +2679,7 @@
     "name": "Touchwood Hills",
     "company": "HBC",
     "year": 1852,
+    "closed": 0,
     "top": [
      481,
      1405
@@ -2612,6 +2689,7 @@
     "name": "Fort Qu'Appelle",
     "company": "HBC",
     "year": 1864,
+    "closed": 0,
     "top": [
      477,
      1478

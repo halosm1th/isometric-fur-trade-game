@@ -234,27 +234,34 @@
       "radius": 380
     }
   ],
-  "portages_about": "Hayes River portages, positions APPROXIMATE (placed along the traced Hayes, upstream order) - correct them from a proper source. build_world.py publishes each as a fraction of the York Factory - Oxford House road.",
+  "portages_about": "Carrying places on the York Factory - Oxford House road, upstream order. Rock Portage is at Rock Depot, about 200 km upriver where the York boats gave way to canoes; Borwick's Falls is above it on the Hill River stretch; Trout Falls (and the Knife Portage) on the Trout River between Knee Lake and Oxford Lake. Hill's Gates and Robinson Portage are ABOVE Oxford House on the way to Norway House, so they are not on this road. Positions are approximate (Hayes River - Wikipedia; Nancy Marguerite Anderson, 'Landmarks on the Hayes River'): check against an HBC map.",
   "portages": [
     {
       "name": "Rock Portage",
-      "lon": -93.25,
-      "lat": 56.36
+      "lon": -93.75,
+      "lat": 56.0
     },
     {
-      "name": "Borrowick Falls",
-      "lon": -93.75,
-      "lat": 56.02
+      "name": "Borwick's Falls",
+      "lon": -94.05,
+      "lat": 55.75
     },
     {
       "name": "Trout Falls",
-      "lon": -94.15,
-      "lat": 55.65
-    },
-    {
-      "name": "Hill Gates",
-      "lon": -94.5,
-      "lat": 55.3
+      "lon": -94.95,
+      "lat": 54.97
     }
-  ]
+  ],
+  "post_closures_about": "Posts the atlas lists by founding year that were gone by the game's start. Hudson House 1787 (FortWiki; some sources 1789); Pine Fort abandoned several times, last 1811 (Manitoba Heritage Council). The rest are from memory and want checking: Manchester House 1793, South Branch House 1794, Buckingham House and the Saskatchewan Fort George 1800, Chesterfield House 1802, Grand Portage 1803 (the NWC moved to Kaministiquia), Kootenay House 1812.",
+  "post_closures": {
+    "Hudson House": 1787,
+    "Manchester House": 1793,
+    "South Branch House": 1794,
+    "Buckingham House": 1800,
+    "Fort George": 1800,
+    "Chesterfield House": 1802,
+    "Grand Portage": 1803,
+    "Pine Fort": 1811,
+    "Kootenay House": 1812
+  }
 }

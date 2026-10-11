@@ -31,7 +31,7 @@ public partial class TerrainPainter : TileMapLayer
     // A chunk is 16 columns by 64 rows: 2048 px square.
     public const int ChunkCols = 16, ChunkRows = 64;
     // Painted this far beyond what can be seen, so walking never shows an edge.
-    [Export] public float MarginPx = 1400f;
+    [Export] public float MarginPx = 2800f;
     [Export] public int ChunksPerFrame = 2;
     // A zoomed-out editor view stops filling in past this many.
     [Export] public int MaxChunks = 160;
@@ -92,7 +92,35 @@ public partial class TerrainPainter : TileMapLayer
 
     private void LoadAround() { Refocus(); while (_queue.Count > 0) LoadNext(); }
 
-    // Dev aid: `-- --perf` prints where the frame goes every few seconds.
+    // Dev aid: `-- --perf` prints where the frame goes every few seconds,
+    // with the local player's own physics step timed between two probes.
+    public partial class PhysicsProbe : Node
+    {
+        public static ulong Start, PlayerUsec, AllUsec, FrameStart, AnimalStart, AnimalUsec, LiveStart, LiveUsec;
+        public bool IsStart, IsFirst, IsAnimalStart, IsAnimalEnd, IsLiveStart, IsLiveEnd;
+        public override void _PhysicsProcess(double delta)
+        {
+            ulong now = Time.GetTicksUsec();
+            if (IsFirst) { FrameStart = now; return; }
+            if (IsAnimalStart) { AnimalStart = now; return; }
+            if (IsAnimalEnd) { AnimalUsec += now - AnimalStart; return; }
+            if (IsLiveStart) { LiveStart = now; return; }
+            if (IsLiveEnd) { LiveUsec += now - LiveStart; return; }
+            if (IsStart) Start = now; else { PlayerUsec += now - Start; AllUsec += now - FrameStart; }
+        }
+    }
+    public partial class NpcProbe : Node
+    {
+        public static readonly Dictionary<int, ulong> Start = new(), Usec = new();
+        public static readonly Dictionary<int, string> Who = new();
+        public int Slot; public bool End;
+        public override void _PhysicsProcess(double delta)
+        {
+            ulong now = Time.GetTicksUsec();
+            if (!End) Start[Slot] = now; else Usec[Slot] = Usec.GetValueOrDefault(Slot) + now - Start.GetValueOrDefault(Slot, now);
+        }
+    }
+    private bool _probes;
     private float _perfTimer = -1f;
     private void PerfReport(double delta)
     {
@@ -100,6 +128,34 @@ public partial class TerrainPainter : TileMapLayer
         _perfTimer -= (float)delta;
         if (_perfTimer > 0f) return;
         _perfTimer = 3f;
+        if (!_probes && Sim.Player is Node pl)
+        {
+            _probes = true;
+            pl.ProcessPhysicsPriority = 50;
+            AddChild(new PhysicsProbe { IsFirst = true, ProcessPhysicsPriority = -1000 });
+            AddChild(new PhysicsProbe { IsStart = true, ProcessPhysicsPriority = 49 });
+            AddChild(new PhysicsProbe { ProcessPhysicsPriority = 51 });
+        }
+        if (_probes)
+        {
+            foreach (var a in Sim.Animals) if (IsInstanceValid(a)) a.ProcessPhysicsPriority = 40;
+            foreach (var n in Sim.Npcs) if (IsInstanceValid(n)) n.ProcessPhysicsPriority = 0;
+            int slot = 0;
+            foreach (var n in Sim.Npcs)
+            {
+                if (!IsInstanceValid(n) || n.Tier != Tier.Live || slot >= 40) continue;
+                n.ProcessPhysicsPriority = 200 + slot * 3 + 1;
+                NpcProbe.Who[slot] = $"{n.DisplayName} [{n.GoalDescription}]";
+                if (GetNodeOrNull($"NpcProbe{slot}") == null) { AddChild(new NpcProbe { Name = $"NpcProbe{slot}", Slot = slot, ProcessPhysicsPriority = 200 + slot * 3 }); AddChild(new NpcProbe { Name = $"NpcProbeEnd{slot}", Slot = slot, End = true, ProcessPhysicsPriority = 200 + slot * 3 + 2 }); }
+                slot++;
+            }
+            foreach (var kv in NpcProbe.Usec) if (kv.Value > 20_000) GD.Print($"[probe] {NpcProbe.Who.GetValueOrDefault(kv.Key)}: {kv.Value / 1000.0:0} ms");
+            NpcProbe.Usec.Clear();
+            if (GetNodeOrNull("LiveProbeA") == null) { AddChild(new PhysicsProbe { Name = "LiveProbeA", IsLiveStart = true, ProcessPhysicsPriority = 19 }); AddChild(new PhysicsProbe { Name = "LiveProbeB", IsLiveEnd = true, ProcessPhysicsPriority = 21 }); }
+            if (GetNodeOrNull("AnimalProbeA") == null) { AddChild(new PhysicsProbe { Name = "AnimalProbeA", IsAnimalStart = true, ProcessPhysicsPriority = 39 }); AddChild(new PhysicsProbe { Name = "AnimalProbeB", IsAnimalEnd = true, ProcessPhysicsPriority = 41 }); }
+        }
+        GD.Print($"[probe] live npcs {PhysicsProbe.LiveUsec / 1000.0:0} ms, player {PhysicsProbe.PlayerUsec / 1000.0:0} ms, animals {PhysicsProbe.AnimalUsec / 1000.0:0} ms, everything before the player {PhysicsProbe.AllUsec / 1000.0:0} ms over 3 s; {Sim.Animals.Count} animals");
+        PhysicsProbe.PlayerUsec = 0; PhysicsProbe.AllUsec = 0; PhysicsProbe.AnimalUsec = 0; PhysicsProbe.LiveUsec = 0;
         GD.Print($"[perf] fps {Performance.GetMonitor(Performance.Monitor.TimeFps):0}  process {Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000:0.0} ms  physics {Performance.GetMonitor(Performance.Monitor.TimePhysicsProcess) * 1000:0.0} ms  " +
             $"bodies {Performance.GetMonitor(Performance.Monitor.Physics2DActiveObjects):0}  pairs {Performance.GetMonitor(Performance.Monitor.Physics2DCollisionPairs):0}  islands {Performance.GetMonitor(Performance.Monitor.Physics2DIslandCount):0}  " +
             $"nodes {Performance.GetMonitor(Performance.Monitor.ObjectNodeCount):0}  chunks {_loaded.Count}  npcs {Sim.Npcs.Count}  player {(Sim.Player as Node2D)?.GlobalPosition}  skip {GameCalendar.Instance?.SkipRemaining:0.0}h  live {Core.Tiers.LiveCount}  {GameCalendar.Instance?.DateString} {GameCalendar.Instance?.TimeString}");
@@ -405,9 +461,11 @@ public partial class TerrainPainter : TileMapLayer
         Points = new[] { new Vector2(0, -32), new Vector2(64, 0), new Vector2(0, 32), new Vector2(-64, 0) },
     };
 
+    // Dev aid: `-- --nowatercol` (measuring what streaming costs).
+    private static readonly bool _noWaterCollision = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--nowatercol") >= 0;
     private void BuildWaterCollision(Vector2I ch)
     {
-        if (Engine.IsEditorHint()) return;
+        if (Engine.IsEditorHint() || _noWaterCollision) return;
         var host = WaterCollisionPath == null || WaterCollisionPath.IsEmpty ? null : GetNodeOrNull<StaticBody2D>(WaterCollisionPath);
         if (host == null) return;
         if (_chunkBodies.Remove(ch, out var old) && IsInstanceValid(old)) old.QueueFree();

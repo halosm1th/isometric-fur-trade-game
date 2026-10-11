@@ -54,6 +54,8 @@ public static class Camps
     // Every peer, at world start: the camps are there from the beginning.
     public static void Begin(Node host)
     {
+        // Dev aid: `-- --nocamps` leaves the wider country empty of its peoples.
+        if (System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--nocamps") >= 0) return;
         foreach (var c in All)
         {
             c.Ledger = new CountryBand { Name = c.Name, Nation = c.Nation, Camp = c.Centre, WinterGround = c.Centre, SummerGround = c.Centre, Country = c };

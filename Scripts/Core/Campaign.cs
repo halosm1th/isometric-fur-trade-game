@@ -343,6 +343,8 @@ public static class Campaign
     // Does a post stand yet (design doc 6.1: only once the timeline reaches it)?
     public static bool PostExists(string name)
     {
+        // Given up before now (extras.json's post_closures): it isn't there.
+        if (World.Posts.Named(name) is { Closed: > 0 } gone && gone.Closed <= (GameCalendar.Instance?.Year ?? StartYear)) return false;
         if (_founded.Contains(name)) return true;
         return WorldMap.Place(name) is { } p && p.Year <= StartYear;
     }

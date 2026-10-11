@@ -387,7 +387,7 @@ def lay_out(G, places, extras, atlas):
         try: top = search(want, want, post_ok, 30)
         except SystemExit: print(f"  no room for {p['name']}"); continue
         placed.append(Cell(top, 6, 4)); forbid(top, 12, 9, 3)
-        posts.append(dict(name=p["name"], company=p["company"], year=p.get("year", 0), top=list(top)))
+        posts.append(dict(name=p["name"], company=p["company"], year=p.get("year", 0), closed=extras.get("post_closures", {}).get(p["name"], 0), top=list(top)))
     # The nations (design doc 7.2): a band camp for each of the atlas's
     # peoples at its place in 1811, and a family of the nearest nation
     # camped outside each post (the "homeguard" who lived by the posts).
