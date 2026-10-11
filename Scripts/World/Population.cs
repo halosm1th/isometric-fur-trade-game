@@ -82,6 +82,9 @@ public partial class Population : Node2D
 		// rob the traps right where the player stands (the player is a witness).
 		foreach (string arg in OS.GetCmdlineUserArgs())
 			if (arg.StartsWith("--misdeed=")) { string who = arg.Substring(10); GetTree().CreateTimer(5.0).Timeout += () => { foreach (var n in Sim.Npcs) if (n.DisplayName.Contains(who) && !n.IsDead && Sim.Player != null) { Chronicle.Event($"{n.DisplayName} robbed the traps at the beaver lodge.", Sim.Player.GlobalPosition, n, n.DisplayName, 1.5f); GD.Print($"[dev] you saw {n.DisplayName} rob the traps"); break; } }; }
+		// Dev aid: `-- --yearstory=S` writes the year as it will be told, S seconds in.
+		foreach (string arg in OS.GetCmdlineUserArgs())
+			if (arg.StartsWith("--yearstory=") && double.TryParse(arg.Substring(12), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double ys)) GetTree().CreateTimer(ys).Timeout += () => { if (Sim.Player is Player.PlayerController yp) Core.YearStory.Write(yp); };
 		// Dev aid: `-- --befriend=Name` - that person counts the local player a
 		// close friend from the start (rapport 60, a hard winter shared).
 		foreach (string arg in OS.GetCmdlineUserArgs())

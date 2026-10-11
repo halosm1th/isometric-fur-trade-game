@@ -42,8 +42,19 @@ public static class YearStory
         picked.Sort((a, b) => a.i.CompareTo(b.i));
         if (picked.Count == 0) return $"{p.DisplayName} kept his head down and his name out of the talk. A quiet year, and nobody's tale.";
         var parts = new List<string>();
-        foreach (var (_, line) in picked) parts.Add(Agents.Barks.YouForm(line, p.DisplayName));
-        return string.Join(" Then ", parts);
+        foreach (var (_, line) in picked)
+        {
+            string t = Agents.Barks.YouForm(line, p.DisplayName);
+            // Orders and instructions are not the story; keep what happened.
+            int cut = t.IndexOf(" Report to", System.StringComparison.Ordinal);
+            if (cut > 0) t = t.Substring(0, cut);
+            t = t.Trim().TrimEnd('.');
+            if (parts.Count > 0 && (t.StartsWith("You ") || t.StartsWith("A ") || t.StartsWith("The "))) t = char.ToLower(t[0]) + t.Substring(1);
+            parts.Add(t);
+        }
+        var cal = GameCalendar.Instance;
+        string standing = p.IsBandPerson ? "among your own people" : $"{p.Rank}, standing {p.Standing:0} with the {(p.Faction == Agents.Faction.NWC ? "partners" : "Company")}";
+        return $"{p.DisplayName}'s year to {cal?.DateString}: {string.Join(". Then ", parts)}. You end it {standing}.";
     }
 
     // What makes a line worth telling, besides the player's own name.
