@@ -318,6 +318,19 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--skip=") && float.TryParse(arg.Substring(7), out float skipH) && NetHub.IsServer) GetTree().CreateTimer(6.0).Timeout += () => { GD.Print($"[dev] skipping {skipH} h"); GameCalendar.Instance?.SkipHours(skipH); };
 			// Dev: `--standing=60` sets your standing with the Company at the start.
 			if (arg.StartsWith("--standing=") && float.TryParse(arg.Substring(11), out float st0) && NetHub.IsServer) { Standing = st0; GD.Print($"[dev] standing {st0:0}"); }
+			// Dev: `--census=8` prints what this machine can see of the world after
+			// eight seconds - the count of bodies, the local man, his mirrored needs
+			// and what the snapshots have given him. The way to check a client is
+			// actually being told about the world (design doc 21).
+			if (arg.StartsWith("--census=") && double.TryParse(arg.Substring(9), out double csecs)) GetTree().CreateTimer(csecs).Timeout += () =>
+			{
+				int live = 0, hidden = 0;
+				foreach (var n in Sim.Npcs) { if (n == null) continue; if (n.Visible) live++; else hidden++; }
+				GD.Print($"[census] {(NetHub.IsServer ? "server" : "client")} agents={Sim.Agents.Count} npcs={Sim.Npcs.Count} (visible {live}, hidden {hidden}) animals={Sim.Animals.Count} players={PlayerCount()}");
+				GD.Print($"[census] ground: water={Sim.Terrain?.IsWaterOrIce(Cell)} walkable={Sim.Paths?.IsWalkable(Cell)} map={World.WorldMap.At(Cell)}");
+				GD.Print($"[census] me={DisplayName} rank={Rank} at {Cell} h{Needs.Health:0} f{Needs.Hunger:0} w{Needs.Warmth:0} t{Needs.Thirst:0} standing={Standing:0} task=\"{(Task.Kind == TaskKind.None ? "none" : Task.Describe())}\" inv={Inventory.SlotCount} journal={Journal.Count}");
+				foreach (var o in Sim.Players()) if (o != this) GD.Print($"[census] also here: {o.DisplayName} at {o.Cell} h{o.Needs.Health:0}");
+			};
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
 			if (arg.StartsWith("--use=") && int.TryParse(arg.Substring(6), out int slot)) GetTree().CreateTimer(3.0).Timeout += () => NetHub.I?.Act("use", new Godot.Collections.Array { slot });
 			if (arg.StartsWith("--click=")) { _devClick = true; double when = 3.0; foreach (var part in arg.Substring(8).Split(',')) { if (!int.TryParse(part, out int cslot)) continue; GetTree().CreateTimer(when).Timeout += () => { var p = GlobalPosition + new Vector2(90, 40); NetHub.I?.Act("click", new Godot.Collections.Array { cslot, p.X, p.Y }); }; when += 3.0; } }
@@ -1290,6 +1303,14 @@ public partial class PlayerController : Agent
 		}
 		if (provisions && moved > 0) { Standing += Mathf.Min(4f, moved * 0.5f); Chronicle.Event($"{DisplayName} brought {moved} of meat to the stores.", GlobalPosition, this, weight: 0.5f); }
 		return moved;
+	}
+
+	// How many players this machine knows about (Sim.Players is a sequence).
+	private static int PlayerCount()
+	{
+		int n = 0;
+		foreach (var _ in Sim.Players()) n++;
+		return n;
 	}
 
 	private Npc NearestNpc(float reach)

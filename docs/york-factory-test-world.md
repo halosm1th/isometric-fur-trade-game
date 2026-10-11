@@ -226,6 +226,14 @@ Dev args `--quitafter=S` ends a run cleanly (a run killed from outside dies mid-
 
 The Assiniboine make pemmican to sell, so a camp sitting on more than its own winter's worth (thirty pieces, or three a mouth) takes up to twenty pieces down to whichever house will have it and takes goods for it - the Company's if they will deal with the Company, else the Canadians'; if neither will, the country hears that they have pemmican to spare and nobody to sell it to. A background house now fishes through the ice where it has a line (Oxford House is issued three), and a house with nothing in the store goes on **short commons** - thin over weeks rather than dead in days - with a headline out after eight days of it, so there is time for somebody to do something about it.
 
+## Coming to the post, not starting on its wharf
+
+The prologue used to be spoken while the new hand already stood on the Factory's wharf, which made a nonsense of six weeks at sea, and it put him down at a hand-picked pixel offset from `WharfEnd` - a number written two map rescales ago. Some river cells at the landing carry wharf decking and are walkable; others are open Hayes. Land on one of the latter and you cannot move a step, which is exactly what a player reported.
+
+Three changes. The HBC start now begins **aboard her**, out in the roads (the census reads `water=True walkable=False` while the prologue runs), and *"Step ashore"* is the first thing you actually do; the NWC start likewise begins in the canoe and steps out of it. Every start position goes through `Starts.Dry()`, which finds the nearest cell that is neither water nor blocked, so a hand-written offset can never again drop a man in the river. And because a man afloat for the length of a prologue would be stranded if that prologue ended any other way - a quit, a crash, a load, a dropped connection - the world checks every four seconds for a couple of minutes and puts him ashore if it finds him standing on water he cannot walk on.
+
+Verified: aboard during the prologue, then `water=False walkable=True` on the decking at York, and on dry Lowland at the Nor'Westers' house.
+
 ## The year's account (design doc P.3, P.4)
 
 Every man's year closes, but not all on the same day. A **Company** man's closes when the ship sails with the returns; a **Nor'Wester's** when the canoes take the furs off for Fort William and the council's minutes come north in their place; a **band** man's when the ice goes out and the geese come back, with the camp counted - how many came through the winter, how many days' food in the cache, how he stands with the Company and what of the band's debt is still on their books, and whether his people are at odds with their neighbours. All three then run the same reckoning (standing against last year's, work done and refused, the house, the ambitions measured, how things stand between the houses), hand off to the told account, and start the year's counters again.

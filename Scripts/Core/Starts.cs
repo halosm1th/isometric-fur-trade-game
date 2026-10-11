@@ -69,6 +69,7 @@ public static class Starts
             if (!GodotObject.IsInstanceValid(p)) return;
             var state = p.Conversation.StartScene(first);
             Net.Net.I?.PushDialogue(p, state);
+            Strand(p, 0);
         };
     }
 
@@ -89,7 +90,9 @@ public static class Starts
         if (dating && Sim.Ship != null && Sim.Ship.Current == World.Ship.State.Away) { Sim.Ship.Summon(); Sim.Ship.Position = WorldLayout.ShipBerth + new Vector2(300, -80); }
         bool bySloop = Sim.Ship == null || Sim.Ship.Current is not (World.Ship.State.Arriving or World.Ship.State.Docked);
         var land = IsoGrid.ToWorld(WorldLayout.WharfEnd);
-        Place(p, land + new Vector2(-30, 40));
+        // Aboard her, out in the roads, for as long as the prologue lasts.
+        var deck = Sim.Ship != null ? Sim.Ship.Position + new Vector2(0, 30) : land + new Vector2(600, -260);
+        p.SetStartPosition(deck);
         // Two lads who signed on with you at Stromness.
         var mates = new List<Npc>();
         string[] names = { "Hugh Rendall", "Andrew Flett" };
@@ -144,7 +147,13 @@ public static class Starts
         ScenePage Mate() => new ScenePage { Title = bySloop ? "The master" : "The mate", Text = $"\"{factor}'s the Factor - an old Bay man, hard but fair, and he'll want you the hour you land. Watch {rival}: he wants the next place going and he'll not thank a new man for crowding him. And keep off the Canadians across the river - {partner}'s people. There's been bad blood since the winter.\"" }
             .Add("Thank him", () => { Note(p, $"The mate's advice: report to {factor} at once; {rival} wants the next place going; keep clear of {partner}'s Nor'Westers."); return Hub(); });
         ScenePage Arrive() => new ScenePage { Title = "York Factory", Text = $"Morning. The {(bySloop ? "sloop" : "ship")} comes up the Hayes on the tide and makes fast at the Factory's wharf. Palisade, flag, smoke from the chimneys, and every soul in the place come down to the shore. Your first order is in your pocket: report to {factor}." }
-            .Add("Step ashore", () => { Note(p, $"You came ashore at York Factory with {a} and {b}. Report to {factor}."); return null; });
+            .Add("Step ashore", () =>
+            {
+                // Now he is ashore: on the planks, by his own act.
+                Place(p, land + new Vector2(-30, 40));
+                Note(p, $"You came ashore at York Factory with {a} and {b}. Report to {factor}.");
+                return null;
+            });
         return Hub();
     }
 
@@ -153,7 +162,8 @@ public static class Starts
     private static ScenePage Brigade(Player.PlayerController p, Population pop, bool dating)
     {
         var gate = IsoGrid.ToWorld(WorldLayout.NwcGateCell);
-        Place(p, gate + new Vector2(60, 90));
+        // In the canoe on the river until he steps out of it.
+        p.SetStartPosition(gate + new Vector2(340, 300));
         var mates = new List<Npc>();
         string[] names = { "Michel Allary", "Jean Paul" };
         var house = WorldLayout.NwcHouse;
@@ -199,7 +209,7 @@ public static class Starts
         ScenePage Guide() => new ScenePage { Title = "The guide", Text = $"\"{partner} winters at the house across from the Bay men. He'll want you the moment we land. The Bay men are under {factor}, and they have the band of {chief} trading with them more than with us. The partners at Fort William want that turned round this year.\"" }
             .Add("Thank him", () => { Note(p, $"The guide: report to {partner} on landing; the partners want {chief}'s band turned from {factor}'s Bay men to us this year."); return Hub(); });
         ScenePage Arrive() => new ScenePage { Title = $"{partner}'s house", Text = $"Noon. The brigade sweeps round the last bend singing, and the canoes run up on the landing below the North West Company's house. Across the river the Bay men's flag. Report to {partner}." }
-            .Add("Step ashore", () => { Note(p, $"You came up with the brigade to {partner}'s house, with {a} and {b}. Report to {partner}."); return null; });
+            .Add("Step ashore", () => { Place(p, gate + new Vector2(60, 90)); Note(p, $"You came up with the brigade to {partner}'s house, with {a} and {b}. Report to {partner}."); return null; });
         return Hub();
     }
 
@@ -260,7 +270,56 @@ public static class Starts
 
     // ---- helpers ------------------------------------------------------------------------
 
-    private static void Place(Player.PlayerController p, Vector2 at) => p.SetStartPosition(at);
+    // Put a man down on ground he can stand on. The map has been redrawn
+    // twice since these starts were written, and a hand-picked pixel offset
+    // from the wharf was dropping the Company's new hand into the Hayes: he
+    // began in the river, where he could not move at all.
+    private static void Place(Player.PlayerController p, Vector2 at)
+    {
+        p.SetStartPosition(Dry(at));
+    }
+
+    // Never leave a man standing on water he cannot walk on: if the prologue
+    // has closed and he is still afloat, put him ashore.
+    private static void Strand(Player.PlayerController p, int tries)
+    {
+        if (!GodotObject.IsInstanceValid(p) || tries > 30) return;
+        p.GetTree().CreateTimer(4.0).Timeout += () =>
+        {
+            if (!GodotObject.IsInstanceValid(p)) return;
+            bool afloat = Sim.Paths != null && !Sim.Paths.IsWalkable(p.Cell);
+            if (afloat && !p.Conversation.IsOpen && p.Aboard == null)
+            {
+                p.SetStartPosition(Dry(p.GlobalPosition));
+                p.Say("You step off onto the planks.");
+                return;
+            }
+            if (afloat || p.Conversation.IsOpen) Strand(p, tries + 1);
+        };
+    }
+
+    // The nearest cell that is neither water nor blocked, as a world point.
+    private static Vector2 Dry(Vector2 at)
+    {
+        var cell = IsoGrid.FromWorld(at);
+        bool wet = Sim.Terrain != null && Sim.Terrain.IsWaterOrIce(cell);
+        if (!wet && (Sim.Paths == null || Sim.Paths.IsWalkable(cell))) return at;
+        var found = Sim.Paths?.NearestWalkable(cell, 10);
+        if (found == null) return at;
+        // NearestWalkable does not care about water; keep looking if it is wet.
+        var c = found.Value;
+        if (Sim.Terrain != null && Sim.Terrain.IsWaterOrIce(c))
+            for (int r = 1; r <= 12 && Sim.Terrain.IsWaterOrIce(c); r++)
+                for (int dx = -r; dx <= r; dx++)
+                    for (int dy = -2 * r; dy <= 2 * r; dy++)
+                    {
+                        var n = new Vector2I(cell.X + dx, cell.Y + dy);
+                        if (Sim.Terrain.IsWaterOrIce(n)) continue;
+                        if (Sim.Paths != null && !Sim.Paths.IsWalkable(n)) continue;
+                        c = n; r = 99; dx = r; dy = 2 * r; break;
+                    }
+        return IsoGrid.ToWorld(c);
+    }
 
     // A firsthand memory two people share from before the game - the stuff
     // the friend system (and the bond) is made of.
