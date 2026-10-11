@@ -5,7 +5,7 @@ using Godot;
 namespace IsometricFurTradeGame.Scripts.World;
 
 // What the ground is, by ecozone (design doc 6) or water.
-public enum Ground : byte { Ocean, Lake, River, Ford, Boreal, Tundra, Shield, Parkland, Grassland, TallGrass, LakesForest, Cordillera }
+public enum Ground : byte { Ocean, Lake, River, Ford, Boreal, Tundra, Shield, Parkland, Grassland, TallGrass, LakesForest, Cordillera, Lowland }
 
 public readonly record struct WorldPlace(string Name, string Kind, string Company, int Year, Vector2I Cell, double Lon, double Lat, string Note);
 

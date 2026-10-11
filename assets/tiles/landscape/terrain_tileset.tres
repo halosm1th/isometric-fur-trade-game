@@ -62,6 +62,33 @@
 [ext_resource type="Texture2D" uid="uid://bxmjfk00ihrh8" path="res://assets/tiles/furniture/bed.png" id="tex_61"]
 [ext_resource type="Texture2D" uid="uid://hdspbdutg87d" path="res://assets/tiles/landscape/road.png" id="tex_road"]
 
+[ext_resource type="Texture2D" path="res://assets/tiles/landscape/prairie.png" id="tex_r70"]
+[ext_resource type="Texture2D" path="res://assets/tiles/landscape/tallgrass.png" id="tex_r71"]
+[ext_resource type="Texture2D" path="res://assets/tiles/landscape/parkland.png" id="tex_r72"]
+[ext_resource type="Texture2D" path="res://assets/tiles/landscape/tundra.png" id="tex_r73"]
+[ext_resource type="Texture2D" path="res://assets/tiles/landscape/shield.png" id="tex_r74"]
+[ext_resource type="Texture2D" path="res://assets/tiles/landscape/muskeg.png" id="tex_r75"]
+[ext_resource type="Texture2D" path="res://assets/tiles/landscape/mountain.png" id="tex_r76"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/tamarack.png" id="tex_r80"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/willow.png" id="tex_r81"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/rocks.png" id="tex_r82"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/boulder.png" id="tex_r83"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/reeds.png" id="tex_r84"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/muskeg_pool.png" id="tex_r85"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/dead_tree.png" id="tex_r86"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/beaver_lodge.png" id="tex_r87"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/beaver_dam.png" id="tex_r88"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/snowdrift.png" id="tex_r89"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/drying_rack.png" id="tex_r90"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/fish_trap.png" id="tex_r91"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/canoe_beached.png" id="tex_r92"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/flagstaff.png" id="tex_r93"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/grave.png" id="tex_r94"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/cache.png" id="tex_r95"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/willow_winter.png" id="tex_r96"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/aspen.png" id="tex_r97"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/jackpine.png" id="tex_r98"]
+
 [sub_resource type="TileSetAtlasSource" id="Atlas_grass"]
 texture = ExtResource("tex_1")
 texture_region_size = Vector2i(132, 99)
@@ -434,6 +461,162 @@ texture_region_size = Vector2i(128, 256)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, 86)
 
+[sub_resource type="TileSetAtlasSource" id="Atlas_r70_prairie"]
+texture = ExtResource("tex_r70")
+texture_region_size = Vector2i(132, 99)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, -16)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r71_tallgrass"]
+texture = ExtResource("tex_r71")
+texture_region_size = Vector2i(132, 99)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, -16)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r72_parkland"]
+texture = ExtResource("tex_r72")
+texture_region_size = Vector2i(132, 99)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, -16)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r73_tundra"]
+texture = ExtResource("tex_r73")
+texture_region_size = Vector2i(132, 99)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, -16)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r74_shield"]
+texture = ExtResource("tex_r74")
+texture_region_size = Vector2i(132, 99)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, -16)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r75_muskeg"]
+texture = ExtResource("tex_r75")
+texture_region_size = Vector2i(132, 99)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, -16)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r76_mountain"]
+texture = ExtResource("tex_r76")
+texture_region_size = Vector2i(132, 99)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, -16)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r80_tamarack"]
+texture = ExtResource("tex_r80")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r81_willow"]
+texture = ExtResource("tex_r81")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r82_rocks"]
+texture = ExtResource("tex_r82")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r83_boulder"]
+texture = ExtResource("tex_r83")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r84_reeds"]
+texture = ExtResource("tex_r84")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r85_muskeg_pool"]
+texture = ExtResource("tex_r85")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r86_dead_tree"]
+texture = ExtResource("tex_r86")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r87_beaver_lodge"]
+texture = ExtResource("tex_r87")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r88_beaver_dam"]
+texture = ExtResource("tex_r88")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r89_snowdrift"]
+texture = ExtResource("tex_r89")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r90_drying_rack"]
+texture = ExtResource("tex_r90")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r91_fish_trap"]
+texture = ExtResource("tex_r91")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r92_canoe_beached"]
+texture = ExtResource("tex_r92")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r93_flagstaff"]
+texture = ExtResource("tex_r93")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r94_grave"]
+texture = ExtResource("tex_r94")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r95_cache"]
+texture = ExtResource("tex_r95")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r96_willow_winter"]
+texture = ExtResource("tex_r96")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r97_aspen"]
+texture = ExtResource("tex_r97")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_r98_jackpine"]
+texture = ExtResource("tex_r98")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
 [resource]
 tile_shape = 1
 tile_size = Vector2i(128, 64)
@@ -499,3 +682,29 @@ sources/58 = SubResource("Atlas_fur_bale")
 sources/59 = SubResource("Atlas_roof")
 sources/60 = SubResource("Atlas_bed")
 sources/61 = SubResource("Atlas_road")
+sources/70 = SubResource("Atlas_r70_prairie")
+sources/71 = SubResource("Atlas_r71_tallgrass")
+sources/72 = SubResource("Atlas_r72_parkland")
+sources/73 = SubResource("Atlas_r73_tundra")
+sources/74 = SubResource("Atlas_r74_shield")
+sources/75 = SubResource("Atlas_r75_muskeg")
+sources/76 = SubResource("Atlas_r76_mountain")
+sources/80 = SubResource("Atlas_r80_tamarack")
+sources/81 = SubResource("Atlas_r81_willow")
+sources/82 = SubResource("Atlas_r82_rocks")
+sources/83 = SubResource("Atlas_r83_boulder")
+sources/84 = SubResource("Atlas_r84_reeds")
+sources/85 = SubResource("Atlas_r85_muskeg_pool")
+sources/86 = SubResource("Atlas_r86_dead_tree")
+sources/87 = SubResource("Atlas_r87_beaver_lodge")
+sources/88 = SubResource("Atlas_r88_beaver_dam")
+sources/89 = SubResource("Atlas_r89_snowdrift")
+sources/90 = SubResource("Atlas_r90_drying_rack")
+sources/91 = SubResource("Atlas_r91_fish_trap")
+sources/92 = SubResource("Atlas_r92_canoe_beached")
+sources/93 = SubResource("Atlas_r93_flagstaff")
+sources/94 = SubResource("Atlas_r94_grave")
+sources/95 = SubResource("Atlas_r95_cache")
+sources/96 = SubResource("Atlas_r96_willow_winter")
+sources/97 = SubResource("Atlas_r97_aspen")
+sources/98 = SubResource("Atlas_r98_jackpine")

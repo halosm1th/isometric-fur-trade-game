@@ -43,6 +43,7 @@ LEGEND = [
     ("TallGrass",      (205, 173, 60)),
     ("LakesForest",    (111, 143, 82)),
     ("Cordillera",     (154, 132, 103)),
+    ("Lowland",        (96, 112, 70)),      # Hudson Bay lowlands: muskeg and tamarack
 ]
 ECOZONE_CLASS = {
     "Tundra": "Tundra", "Boreal Forest": "Boreal", "Canadian Shield": "Shield", "Aspen Parkland": "Parkland",
@@ -168,6 +169,31 @@ def main():
     for p in extras.get("places", []):
         q = dict(p); n, lo, la = q.pop("name"), q.pop("lon"), q.pop("lat")
         add_place(n, lo, la, **q)
+
+    # The Hudson Bay lowlands: forest, Shield or parkland within about 150 km
+    # of the Bay or James Bay (not the Pacific, far to the west) is muskeg
+    # country - measured on 4 x 16 cell blocks (about 13 km square).
+    from collections import deque
+    bw, bh = (COLS + 3) // 4, (ROWS + 15) // 16
+    dist = [[-1] * bw for _ in range(bh)]
+    q = deque()
+    for by in range(bh):
+        for bx in range(bw):
+            if bx < bw * 0.45: continue
+            cx, cy = min(COLS - 1, bx * 4 + 2), min(ROWS - 1, by * 16 + 8)
+            if op[cx, cy] == COL["Ocean"]: dist[by][bx] = 0; q.append((bx, by))
+    while q:
+        bx, by = q.popleft()
+        if dist[by][bx] >= 12: continue
+        for nx, ny in ((bx + 1, by), (bx - 1, by), (bx, by + 1), (bx, by - 1)):
+            if 0 <= nx < bw and 0 <= ny < bh and dist[ny][nx] < 0:
+                dist[ny][nx] = dist[by][bx] + 1; q.append((nx, ny))
+    lowland_from = {COL["Boreal"], COL["Shield"], COL["Parkland"]}
+    for cy in range(ROWS):
+        for cx in range(COLS):
+            if op[cx, cy] in lowland_from:
+                d = dist[cy // 16][cx // 4]
+                if 0 < d <= 12: op[cx, cy] = COL["Lowland"]
 
     rgb2cls = {c: n for n, c in LEGEND}
     G = [[rgb2cls[op[cx, cy]] for cx in range(COLS)] for cy in range(ROWS)]

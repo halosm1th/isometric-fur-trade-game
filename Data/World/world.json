@@ -114,6 +114,14 @@
     132,
     103
    ]
+  },
+  {
+   "name": "Lowland",
+   "rgb": [
+    96,
+    112,
+    70
+   ]
   }
  ],
  "places": [
@@ -3048,6 +3056,36 @@
     "people": 8
    },
    {
+    "name": "Métis of the Forks",
+    "nation": "Metis",
+    "kind": "band",
+    "centre": [
+     633,
+     1638
+    ],
+    "people": 12
+   },
+   {
+    "name": "Métis at Pembina",
+    "nation": "Metis",
+    "kind": "band",
+    "centre": [
+     634,
+     1716
+    ],
+    "people": 8
+   },
+   {
+    "name": "Métis of the Qu'Appelle",
+    "nation": "Metis",
+    "kind": "band",
+    "centre": [
+     524,
+     1500
+    ],
+    "people": 8
+   },
+   {
     "name": "Nipissing family at Moose Factory",
     "nation": "Ojibwe",
     "kind": "family",
@@ -3213,8 +3251,8 @@
     "people": 4
    },
    {
-    "name": "Hidatsa family at Pine Fort",
-    "nation": "Missouri",
+    "name": "Métis of the Qu'Appelle family at Pine Fort",
+    "nation": "Metis",
     "kind": "family",
     "post": "Pine Fort",
     "centre": [
@@ -3257,8 +3295,8 @@
     "people": 4
    },
    {
-    "name": "Assiniboine family at Fort Esperance",
-    "nation": "Assiniboine",
+    "name": "Métis of the Qu'Appelle family at Fort Esperance",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Esperance",
     "centre": [
@@ -3312,8 +3350,8 @@
     "people": 4
    },
    {
-    "name": "Assiniboine family at Swan River House",
-    "nation": "Assiniboine",
+    "name": "Métis of the Qu'Appelle family at Swan River House",
+    "nation": "Metis",
     "kind": "family",
     "post": "Swan River House",
     "centre": [
@@ -3323,8 +3361,8 @@
     "people": 4
    },
    {
-    "name": "Assiniboine family at Montagne a la Bosse",
-    "nation": "Assiniboine",
+    "name": "Métis of the Qu'Appelle family at Montagne a la Bosse",
+    "nation": "Metis",
     "kind": "family",
     "post": "Montagne a la Bosse",
     "centre": [
@@ -3378,8 +3416,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Fort Bas de la Riviere",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Fort Bas de la Riviere",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Bas de la Riviere",
     "centre": [
@@ -3389,8 +3427,8 @@
     "people": 4
    },
    {
-    "name": "Hidatsa family at Brandon House",
-    "nation": "Missouri",
+    "name": "Métis of the Qu'Appelle family at Brandon House",
+    "nation": "Metis",
     "kind": "family",
     "post": "Brandon House",
     "centre": [
@@ -3411,8 +3449,8 @@
     "people": 4
    },
    {
-    "name": "Hidatsa family at Fort Souris",
-    "nation": "Missouri",
+    "name": "Métis of the Qu'Appelle family at Fort Souris",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Souris",
     "centre": [
@@ -3455,8 +3493,8 @@
     "people": 4
    },
    {
-    "name": "Assiniboine family at Fort Alexandria",
-    "nation": "Assiniboine",
+    "name": "Métis of the Qu'Appelle family at Fort Alexandria",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Alexandria",
     "centre": [
@@ -3466,8 +3504,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Portage la Prairie",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Portage la Prairie",
+    "nation": "Metis",
     "kind": "family",
     "post": "Portage la Prairie",
     "centre": [
@@ -3477,8 +3515,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Manitoba House",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Manitoba House",
+    "nation": "Metis",
     "kind": "family",
     "post": "Manitoba House",
     "centre": [
@@ -3499,8 +3537,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Turtle River House",
-    "nation": "Ojibwe",
+    "name": "Métis at Pembina family at Turtle River House",
+    "nation": "Metis",
     "kind": "family",
     "post": "Turtle River House",
     "centre": [
@@ -3554,8 +3592,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Pembina Post",
-    "nation": "Ojibwe",
+    "name": "Métis at Pembina family at Pembina Post",
+    "nation": "Metis",
     "kind": "family",
     "post": "Pembina Post",
     "centre": [
@@ -3653,8 +3691,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Fort Gibraltar",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Fort Gibraltar",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Gibraltar",
     "centre": [
@@ -3730,8 +3768,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Fort Douglas",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Fort Douglas",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Douglas",
     "centre": [
@@ -3785,8 +3823,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Upper Fort Garry",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Upper Fort Garry",
+    "nation": "Metis",
     "kind": "family",
     "post": "Upper Fort Garry",
     "centre": [
@@ -3807,8 +3845,8 @@
     "people": 4
    },
    {
-    "name": "Assiniboine family at Fort Pelly",
-    "nation": "Assiniboine",
+    "name": "Métis of the Qu'Appelle family at Fort Pelly",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Pelly",
     "centre": [
@@ -3895,8 +3933,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Lower Fort Garry",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Lower Fort Garry",
+    "nation": "Metis",
     "kind": "family",
     "post": "Lower Fort Garry",
     "centre": [
@@ -3906,8 +3944,8 @@
     "people": 4
    },
    {
-    "name": "Assiniboine family at Fort Ellice",
-    "nation": "Assiniboine",
+    "name": "Métis of the Qu'Appelle family at Fort Ellice",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Ellice",
     "centre": [
@@ -3992,36 +4030,6 @@
      1496
     ],
     "people": 4
-   },
-   {
-    "name": "Métis of the Forks",
-    "nation": "Metis",
-    "kind": "band",
-    "centre": [
-     600,
-     1631
-    ],
-    "people": 12
-   },
-   {
-    "name": "Métis at Pembina",
-    "nation": "Metis",
-    "kind": "band",
-    "centre": [
-     602,
-     1713
-    ],
-    "people": 8
-   },
-   {
-    "name": "Métis of the Qu'Appelle",
-    "nation": "Metis",
-    "kind": "band",
-    "centre": [
-     507,
-     1544
-    ],
-    "people": 8
    }
   ]
  }

@@ -569,9 +569,10 @@ public partial class StructurePainter : TileMapLayer
     {
         foreach (var cell in cells)
         {
-            if (!WorldLayout.ForestAt(cell) || _felled.Contains(cell)) continue;
+            int flora = WorldLayout.Flora(cell);
+            if (flora < 0 || _felled.Contains(cell)) continue;
             if (GetCellSourceId(cell) != -1) continue;
-            SetBack(cell, SourceSpruce0 + (int)(IsoGrid.Hash(cell, 12) * 3f));
+            SetBack(cell, flora);
         }
     }
 
@@ -579,7 +580,7 @@ public partial class StructurePainter : TileMapLayer
     // IsTree answers from the layout).
     public void ClearForest(IEnumerable<Vector2I> cells)
     {
-        foreach (var cell in cells) if (IsTreeSource(GetCellSourceId(cell))) EraseCell(cell);
+        foreach (var cell in cells) if (WorldLayout.IsFloraSource(GetCellSourceId(cell))) EraseCell(cell);
     }
 
     // A hearth object for a fire cell that hasn't got one (a campfire built
@@ -878,7 +879,7 @@ public partial class StructurePainter : TileMapLayer
         return false;
     }
 
-    public static bool IsTreeSource(int s) => s >= SourceSpruce0 && s <= SourceSpruce0 + 2;
+    public static bool IsTreeSource(int s) => WorldLayout.IsTreeSource(s);
 
     // Is there a wall/fence/closed door on the edge between two edge-adjacent
     // cells? Closed doors count as passable-with-effort: the caller opens them.

@@ -27,6 +27,8 @@ public partial class TerrainPainter : TileMapLayer
     public const int SourceRoad = 61;   // trodden dirt with footprints: the river road
     public const int SourceIce = 44;
     public const int SourceWharf = 51;
+    // The regional grounds (make_region_tiles.py).
+    public const int SourcePrairie = 70, SourceTallGrass = 71, SourceParkland = 72, SourceTundra = 73, SourceShield = 74, SourceMuskeg = 75, SourceMountain = 76;
 
     // A chunk is 16 columns by 64 rows: 2048 px square.
     public const int ChunkCols = 16, ChunkRows = 64;
@@ -311,15 +313,24 @@ public partial class TerrainPainter : TileMapLayer
             if (WorldLayout.RoadDistance(p) < 60f) return SourceRoad;
             if (WorldLayout.TrailDistance(p) < 70f) return SourceDirt;
         }
-        if (g == Ground.Cordillera) return IsoGrid.Hash(cell, 7) < 0.7f ? SourceHill : SourceGrass;
-        if (g == Ground.Shield) return IsoGrid.Hash(cell, 7) < 0.12f ? SourceHill : SourceGrass;
-        return SourceGrass;
+        return g switch
+        {
+            Ground.Grassland => SourcePrairie,
+            Ground.TallGrass => SourceTallGrass,
+            Ground.Parkland => SourceParkland,
+            Ground.Tundra => SourceTundra,
+            Ground.Shield => IsoGrid.Hash(new Vector2I(cell.X / 2, cell.Y / 4), 7) < 0.12f ? SourceHill : SourceShield,
+            Ground.Lowland => SourceMuskeg,
+            // Bare rock with green slopes between, in patches rather than a checkerboard.
+            Ground.Cordillera => IsoGrid.Hash(new Vector2I(cell.X / 3, cell.Y / 6), 7) < 0.65f ? SourceMountain : SourceHill,
+            _ => SourceGrass,
+        };
     }
 
     // Winter buries the land in snow and freezes the water solid.
     private static int Winter(int src) => src switch
     {
-        SourceGrass or SourceSand or SourceDirt => SourceSnow,
+        SourceGrass or SourceSand or SourceDirt or >= SourcePrairie and <= SourceMuskeg => SourceSnow,
         SourceWater or SourceWaterIce => SourceIce,
         _ => src,
     };
@@ -368,7 +379,8 @@ public partial class TerrainPainter : TileMapLayer
         if (src == SourceDirt) return 1.05f;
         if (src == SourceRoad) return 1.1f;
         if (src == SourceSand) return 0.9f;
-        if (src == SourceHill) return 0.8f;
+        if (src == SourceHill || src == SourceMountain) return 0.8f;
+        if (src == SourceMuskeg) return 0.75f;   // the muskeg in summer: knee-deep moss and water
         // The goose marsh is a swamp in summer.
         foreach (var s in WorldLayout.Sites)
             if (s.Species == Ecology.Species.Goose && worldPos.DistanceTo(IsoGrid.ToWorld(s.Cell)) < s.RadiusPx * 0.8f && !_frozen) return 0.6f;
