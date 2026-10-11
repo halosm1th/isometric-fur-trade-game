@@ -148,16 +148,14 @@ public static class Items
         { ItemId.Pemmican, "pemmican" }, { ItemId.DriedGoose, "dried geese" }, { ItemId.Goose, "geese" },
         { ItemId.SaltGeese, "casks of salt geese" },
         { ItemId.Berries, "berries" }, { ItemId.SpruceBeer, "spruce beer" }, { ItemId.Corn, "corn" },
-        { ItemId.Ptarmigan, "ptarmigan" }, { ItemId.Tobacco, "twists of tobacco" }, { ItemId.Beads, "beads" },
-        { ItemId.Awl, "awls" }, { ItemId.Stroud, "fathoms of stroud" }, { ItemId.MbToken, "made-beaver tokens" },
-        { ItemId.Powder, "powder" }, { ItemId.IceChisel, "ice chisels" }, { ItemId.FishingNet, "fishing nets" },
+        { ItemId.Ptarmigan, "ptarmigan" }, { ItemId.Tobacco, "twists of tobacco" }, { ItemId.Beads, "bunches of beads" },
+        { ItemId.Awl, "awls" }, { ItemId.Stroud, "yards of stroud" }, { ItemId.MbToken, "made-beaver tokens" },
+        { ItemId.Powder, "powder and ball" }, { ItemId.IceChisel, "ice chisels" }, { ItemId.FishingNet, "fishing nets" },
         { ItemId.Bread, "loaves of bread" }, { ItemId.Ale, "tankards of ale" }, { ItemId.Rum, "drams of rum" },
         { ItemId.Water, "water" }, { ItemId.Venison, "fresh meat" }, { ItemId.DriedMeat, "dried meat" },
         { ItemId.Firewood, "firewood" }, { ItemId.TradeGoods, "trade goods" }, { ItemId.Fish, "fish" },
         { ItemId.Knife, "knives" }, { ItemId.Flint, "flints and steels" }, { ItemId.FishingLine, "fishing line" },
         { ItemId.Snowshoes, "pairs of snowshoes" }, { ItemId.ShotPelt, "shot-through pelts" },
-        { ItemId.Tobacco, "twists of tobacco" }, { ItemId.Beads, "bunches of beads" }, { ItemId.Stroud, "yards of stroud" },
-        { ItemId.Powder, "horns of powder and ball" },
     };
 
     // "a beaver pelt" / "8 beaver pelts" / "5 dried geese", lower case.
