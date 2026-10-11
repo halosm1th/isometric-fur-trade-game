@@ -47,6 +47,11 @@ public partial class CountryBand : BandLedger
         // lean in late winter, fat in the autumn.
         int lean = cal.Month is 2 or 3 or 4 ? 4 : cal.Month is 9 or 10 ? 8 : 6;
         Stores.Add(ItemId.DriedMeat, mouths * lean);
+        // Part of the week's take is eaten fresh off the hunt and the nets.
+        // Without it the camp has nothing but dried meat and the whole country
+        // dies of the scurvy over a winter (design doc 13.5).
+        Stores.Add(ItemId.Venison, mouths * 2);
+        Stores.Add(ItemId.Fish, mouths);
         if (Stores.Count(ItemId.Firewood) < 20) Stores.Add(ItemId.Firewood, 6);
         if (cal.Month is >= 10 or <= 4) Stores.Add(ItemId.BeaverPelt, (int)GD.RandRange(0, Country.IsFamily ? 1 : 3));
     }

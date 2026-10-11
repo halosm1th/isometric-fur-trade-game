@@ -188,6 +188,9 @@ public static class Tiers
             }
 
             if (foul) continue;   // nobody works in a blizzard
+            // A camp of the wider country feeds itself in its own weekly sum
+            // (Economy/CountryBand): its people are not at York's grounds.
+            if (home is Economy.CountryBand) continue;
 
             // A day's work, by what the man is for.
             switch (n.Role)
