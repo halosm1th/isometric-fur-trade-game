@@ -313,6 +313,9 @@ public partial class PlayerController : Agent
 			// Dev: `--ambition=RiseAtThePost` declares one at the start, so the
 			// systems that hang off a declared ambition can be watched.
 			if (arg.StartsWith("--ambition=") && NetHub.IsServer) { if (System.Enum.TryParse<Agents.AmbitionKind>(arg.Substring(11), true, out var ak)) { var cal = GameCalendar.Instance; Ambitions.Add(new Agents.Ambition { Kind = ak, DeclaredDay = cal?.Day ?? 0, DeclaredYear = cal?.Year ?? 1811 }); AmbitionsDeclared = true; GD.Print($"[dev] you have set yourself {ak}"); } }
+			// Dev: `--skip=12` skips twelve game hours a few seconds in, to measure
+			// what a night of sleeping or travelling costs a frame.
+			if (arg.StartsWith("--skip=") && float.TryParse(arg.Substring(7), out float skipH) && NetHub.IsServer) GetTree().CreateTimer(6.0).Timeout += () => { GD.Print($"[dev] skipping {skipH} h"); GameCalendar.Instance?.SkipHours(skipH); };
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
 			if (arg.StartsWith("--use=") && int.TryParse(arg.Substring(6), out int slot)) GetTree().CreateTimer(3.0).Timeout += () => NetHub.I?.Act("use", new Godot.Collections.Array { slot });
 			if (arg.StartsWith("--click=")) { _devClick = true; double when = 3.0; foreach (var part in arg.Substring(8).Split(',')) { if (!int.TryParse(part, out int cslot)) continue; GetTree().CreateTimer(when).Timeout += () => { var p = GlobalPosition + new Vector2(90, 40); NetHub.I?.Act("click", new Godot.Collections.Array { cslot, p.X, p.Y }); }; when += 3.0; } }
