@@ -66,8 +66,14 @@ public static class GooseHunt
 	// with the deer that pass, what comes through the ice, and the bands'
 	// provisions expected to make up the rest. A post never did live on geese
 	// alone, and a target it could not reach would only read as failure.
+	// Has this house a goose ground it knows and can reach? An inland post has
+	// none, and must not be judged against a flight it never sees.
+	public static bool HasAMarsh(Household home) =>
+		home != null && Sim.Ecology?.BestSite(Ecology.Species.Goose, home) != null;
+
 	public static int Wanted(Household home)
 	{
+		if (!HasAMarsh(home)) return 0;
 		int mouths = 0;
 		foreach (var n in Sim.Npcs) if (n.HomeStores == home && !n.IsDead) mouths++;
 		return Mathf.Max(4, Mathf.RoundToInt(mouths * 90f * 33.6f / Items.Items.Of(ItemId.SaltGeese).Nutrition));
@@ -147,6 +153,13 @@ public static class GooseHunt
 			int got = CasksThisSeason(post);
 			int want = Wanted(post);
 			float weeks = WeeksInHand(post);
+			if (want <= 0)
+			{
+				// No goose ground of its own: it goes into the winter on what
+				// the brigade brought and what the country will sell it.
+				Sim.Notice($"{post.Title} has no goose ground: {weeks:0} weeks' food in hand, and the winter to get through on the brigade's provisions and what the bands will sell.");
+				continue;
+			}
 			string verdict = got >= want ? "a good autumn"
 				: got >= want / 2 ? "a thin autumn"
 				: got > 0 ? "a bad autumn" : "no autumn at all";
