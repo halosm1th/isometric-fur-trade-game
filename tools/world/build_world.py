@@ -12,7 +12,7 @@ Writes Data/World/ground.png        (one pixel per map cell, colour = ground)
 ground.png is meant to be hand-editable: paint with the legend colours below
 (the game matches each pixel to the nearest one).
 
-Half scale (design discussion, Oct 2026): 20 world px per km, Lambert
+Scale (Oct 2026, the old York-Oxford scale): 40 world px per km, Lambert
 conformal conic so distances hold across the whole play area (design doc 6.1:
 Pacific coast to Sault Ste. Marie and Moose Factory).
 """
@@ -22,12 +22,12 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-PX_PER_KM = 20.0
+PX_PER_KM = 40.0
 TILE_W, TILE_H = 128, 64          # IsoGrid: columns 128 px, rows 32 px
 R_EARTH = 6371.0
 LAT1, LAT2, LAT0, LON0 = 49.0, 59.0, 52.5, -102.75
 WEST, EAST, SOUTH, NORTH = -127.0, -78.5, 44.5, 61.5
-RES = 16                          # world px per raster pixel while drawing
+RES = 32                          # world px per raster pixel while drawing
 
 # Ground classes, in the order the game's WorldMap.Ground enum uses.
 LEGEND = [
@@ -171,7 +171,7 @@ def main():
 
     rgb2cls = {c: n for n, c in LEGEND}
     G = [[rgb2cls[op[cx, cy]] for cx in range(COLS)] for cy in range(ROWS)]
-    layout = lay_out(G, places, extras)
+    layout = lay_out(G, places, extras, atlas)
 
     os.makedirs(os.path.join(ROOT, "Data", "World"), exist_ok=True)
     out.save(os.path.join(ROOT, "Data", "World", "ground.png"))
@@ -198,7 +198,21 @@ def main():
         if p["name"] in ("York Factory", "Oxford House", "Fort William", "Moose Factory", "Cumberland House", "Fort Chipewyan", "Edmonton House", "Fort Astoria", "Fort Gibraltar", "Norway House", "Sault Ste. Marie"):
             d.text((x + 4, y - 6), p["name"], fill=(0, 0, 0), font=font)
     pv.save(os.path.join(ROOT, "docs", "world-ground-preview.png"))
+    print("Now re-import so Godot sees the new ground.png:  godot --headless --path . --import")
     print(f"{COLS} x {ROWS} cells ({COLS * ROWS:,}), world {WORLD_W:.0f} x {WORLD_H:.0f} px, {len(places)} places, {len(fords)} fords")
+
+NATION_OF = {
+    "Blackfoot": "Blackfoot", "Blood (Kainai)": "Blackfoot", "Peigan (Piikani)": "Blackfoot", "Sarcee (Tsuut'ina)": "Blackfoot", "Gros Ventre": "Blackfoot",
+    "Plains Cree": "Cree", "Woodland Cree": "Cree", "Swampy Cree": "Cree", "James Bay Cree (Eeyou)": "Cree", "Oji-Cree": "Cree",
+    "Assiniboine": "Assiniboine", "Nakoda (Stoney)": "Assiniboine",
+    "Plains Ojibwa (Saulteaux)": "Ojibwe", "Ojibwa (Anishinaabe)": "Ojibwe", "Odawa (Ottawa)": "Ojibwe", "Anishinaabe (Mississauga)": "Ojibwe",
+    "Nipissing": "Ojibwe", "Menominee": "Ojibwe", "Potawatomi": "Ojibwe",
+    "Dakota (Santee Sioux)": "Sioux", "Yankton (Nakota)": "Sioux", "Lakota (Teton Sioux)": "Sioux",
+    "Mandan": "Missouri", "Hidatsa": "Missouri", "Arikara": "Missouri", "Crow": "Missouri", "Cheyenne": "Missouri", "Arapaho": "Missouri", "Shoshone": "Missouri", "Ho-Chunk (Winnebago)": "Missouri",
+    "Chipewyan": "Dene", "Dene (Beaver)": "Dene", "Slavey (Dene)": "Dene", "Dakelh (Carrier)": "Dene", "Tsilhqot'in": "Dene", "Sekani": "Dene", "Tahltan": "Dene", "Kaska": "Dene",
+    "Kootenay (Ktunaxa)": "Plateau", "Salish (Flathead)": "Plateau", "Secwépemc (Shuswap)": "Plateau", "Syilx (Okanagan)": "Plateau", "Nlaka'pamux": "Plateau",
+    "Haida": "Coast", "Tsimshian": "Coast", "Nisga'a": "Coast", "Kwakwaka'wakw": "Coast", "Nuu-chah-nulth": "Coast", "Coast Salish": "Coast", "Tlingit": "Coast",
+}
 
 # ---- the York Factory country: where the hand-built places fit -------------------
 # The game's posts are built from WorldLayout's shapes (a 22 x 18 fort with a
@@ -220,7 +234,7 @@ def Rhombus(t, w, d):
     for i in range(w):
         for j in range(d): yield Cell(t, i, j)
 
-def lay_out(G, places, extras):
+def lay_out(G, places, extras, atlas):
     rows, cols = len(G), len(G[0])
     def g(c):
         x, y = c
@@ -230,7 +244,7 @@ def lay_out(G, places, extras):
     byname = {p["name"]: p for p in places}
     def near(name): return tuple(byname[name]["cell"])
 
-    def search(target, old_anchor, ok, radius=60):
+    def search(target, old_anchor, ok, radius=110):
         best, bd = None, 1e18
         tx, ty = target
         for dy in range(-radius * 2, radius * 2 + 1):
@@ -366,11 +380,43 @@ def lay_out(G, places, extras):
         except SystemExit: print(f"  no room for {p['name']}"); continue
         placed.append(Cell(top, 6, 4))
         posts.append(dict(name=p["name"], company=p["company"], year=p.get("year", 0), top=list(top)))
+    # The nations (design doc 7.2): a band camp for each of the atlas's
+    # peoples at its place in 1811, and a family of the nearest nation
+    # camped outside each post (the "homeguard" who lived by the posts).
+    peoples = []
+    for pe in atlas["peoples"]:
+        nation = NATION_OF.get(pe["name"])
+        if nation is None: continue
+        lon, lat = pe["lon"], pe["lat"]
+        kf = [k for k in pe.get("kf", []) if k[0] <= 1811]
+        if kf: _, lon, lat = kf[-1]
+        if not (WEST <= lon <= EAST and SOUTH - 1 <= lat <= NORTH): continue
+        peoples.append((pe["name"], nation, lon, lat, pe.get("maj", 0)))
+    camps = []
+    for name, nation, lon, lat, maj in peoples:
+        c = world_cell(*world(lon, lat))
+        if not (0 <= c[0] < cols and 0 <= c[1] < rows): continue
+        try: centre = search(c, c, lambda x: clear_of_all(x, 1600) and camp_ok(x), 60)
+        except SystemExit: print(f"  no room for {name}"); continue
+        placed.append(centre)
+        camps.append(dict(name=name, nation=nation, kind="band", centre=list(centre), people=12 if maj else 8))
+    def nearest_people(cell):
+        w = cell_world(*cell)
+        return min(peoples, key=lambda q: math.dist(w, world(q[2], q[3])))
+    def family_ok(x): return all(dry(y) for y in Rhombus(Cell(x, -2, -2), 5, 5))
+    for post in posts:
+        gate = Cell(tuple(post["top"]), 5, 8)
+        out_of_gate = Cell(gate, -1, 6)
+        try: centre = search(out_of_gate, out_of_gate, lambda x: clear_of_all(x, 700) and family_ok(x), 25)
+        except SystemExit: continue
+        placed.append(centre)
+        nm, nation, *_ = nearest_people(centre)
+        camps.append(dict(name=f"{nm} family at {post['name']}", nation=nation, kind="family", post=post["name"], centre=list(centre), people=4))
     km = lambda a, b: math.dist(cell_world(*a), cell_world(*b)) / PX_PER_KM
-    print(f"{len(posts)} other posts fitted; {len(crossings)} river cells forded; fort {fort}, nwc {nwc} ({km(fort, nwc):.0f} km), oxford {outpost} ({km(fort, outpost):.0f} km), road {len(road)} pts")
+    print(f"{len(camps)} camps ({sum(1 for c in camps if c['kind'] == 'band')} bands); {len(posts)} other posts fitted; {len(crossings)} river cells forded; fort {fort}, nwc {nwc} ({km(fort, nwc):.0f} km), oxford {outpost} ({km(fort, outpost):.0f} km), road {len(road)} pts")
     return dict(fort_top=list(fort), nwc_top=list(nwc), outpost_top=list(outpost),
                 cree_winter=list(winter), cree_summer=list(summer), assiniboine_winter=list(a_winter), assiniboine_summer=list(a_summer),
-                road=road, trail=trail, crossings=crossings, portages=portages, sites=sites, posts=posts)
+                road=road, trail=trail, crossings=crossings, portages=portages, sites=sites, posts=posts, camps=camps)
 
 if __name__ == "__main__":
     main()

@@ -206,6 +206,14 @@ public partial class StructurePainter : TileMapLayer
         foreach (var b in WorldLayout.Buildings) PaintBuilding(b, floor);
         PaintYard();
         PaintCamp();
+        // The camps of the wider country: a band's ring of tipis, or one
+        // family's lodge and fire outside a post.
+        foreach (var c in Camps.All)
+        {
+            if (!c.IsFamily) { PaintCampAt(c.Centre); continue; }
+            SetBack(c.Centre, SourceCampfire);
+            foreach (var t in c.Tipis()) SetBack(t, SourceTipi);
+        }
         // In the editor the posts standing at the usual start are shown; in a
         // game Posts paints each one as it comes to stand.
         if (Engine.IsEditorHint()) foreach (var p in Posts.All) if (p.Year <= 1811) PaintPost(p, false);

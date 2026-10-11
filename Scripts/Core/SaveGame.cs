@@ -220,8 +220,8 @@ public static class SaveGame
         }
     }
 
-    private static string HomeKey(Household h) => h == Sim.Fort ? "fort" : h == Sim.Nwc ? "nwc" : h == Sim.Band ? "band" : h == Sim.Outpost ? "outpost" : h == Sim.Assiniboine ? "assiniboine" : h is TradingPostLedger tp ? "post:" + tp.Post.Name : "";
-    private static Household HomeOf(string k) => k switch { "fort" => Sim.Fort, "nwc" => Sim.Nwc, "band" => Sim.Band, "outpost" => Sim.Outpost, "assiniboine" => Sim.Assiniboine, _ when k.StartsWith("post:") => Posts.Named(k[5..])?.Ledger, _ => null };
+    private static string HomeKey(Household h) => h == Sim.Fort ? "fort" : h == Sim.Nwc ? "nwc" : h == Sim.Band ? "band" : h == Sim.Outpost ? "outpost" : h == Sim.Assiniboine ? "assiniboine" : h is TradingPostLedger tp ? "post:" + tp.Post.Name : h is CountryBand cb ? "camp:" + cb.Country.Name : "";
+    private static Household HomeOf(string k) => k switch { "fort" => Sim.Fort, "nwc" => Sim.Nwc, "band" => Sim.Band, "outpost" => Sim.Outpost, "assiniboine" => Sim.Assiniboine, _ when k.StartsWith("post:") => Posts.Named(k[5..])?.Ledger, _ when k.StartsWith("camp:") => Camps.Named(k[5..])?.Ledger, _ => null };
 
     private static GDict CouncilState()
     {

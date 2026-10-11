@@ -5,7 +5,8 @@ using IsometricFurTradeGame.Scripts.World;
 
 namespace IsometricFurTradeGame.Scripts.Agents;
 
-public enum Faction { HBC, Cree, ShipsCrew, Wild, NWC, Assiniboine }
+// New nations go on the end: saves store the number.
+public enum Faction { HBC, Cree, ShipsCrew, Wild, NWC, Assiniboine, Ojibwe, Dene, Blackfoot, Sioux, Plateau, Coast, Missouri }
 
 // Every person (and animal) in the world is one of these - the player
 // included (design doc 11.1). Needs, inventory, health and the shared action
@@ -409,5 +410,5 @@ public partial class Agent : CharacterBody2D
 
     public string Describe() => string.IsNullOrEmpty(DisplayName) ? Name : DisplayName;
     // One of the nations (design doc 7.2), as against a company man or a sailor.
-    public bool IsBandPerson => Faction == Faction.Cree || Faction == Faction.Assiniboine;
+    public bool IsBandPerson => Faction is not (Faction.HBC or Faction.NWC or Faction.ShipsCrew or Faction.Wild);
 }
