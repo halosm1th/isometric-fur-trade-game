@@ -143,20 +143,27 @@ public static class Items
 
     // Many of these are mass nouns or have an odd plural, and "5 dried gooses"
     // reads like a machine wrote it.
-    private static readonly Dictionary<ItemId, string> PluralNames = new()
+    private static readonly Dictionary<ItemId, string> PluralNames = Plurals(new (ItemId, string)[]
     {
-        { ItemId.Pemmican, "pemmican" }, { ItemId.DriedGoose, "dried geese" }, { ItemId.Goose, "geese" },
-        { ItemId.SaltGeese, "casks of salt geese" },
-        { ItemId.Berries, "berries" }, { ItemId.SpruceBeer, "spruce beer" }, { ItemId.Corn, "corn" },
-        { ItemId.Ptarmigan, "ptarmigan" }, { ItemId.Tobacco, "twists of tobacco" }, { ItemId.Beads, "bunches of beads" },
-        { ItemId.Awl, "awls" }, { ItemId.Stroud, "yards of stroud" }, { ItemId.MbToken, "made-beaver tokens" },
-        { ItemId.Powder, "powder and ball" }, { ItemId.IceChisel, "ice chisels" }, { ItemId.FishingNet, "fishing nets" },
-        { ItemId.Bread, "loaves of bread" }, { ItemId.Ale, "tankards of ale" }, { ItemId.Rum, "drams of rum" },
-        { ItemId.Water, "water" }, { ItemId.Venison, "fresh meat" }, { ItemId.DriedMeat, "dried meat" },
-        { ItemId.Firewood, "firewood" }, { ItemId.TradeGoods, "trade goods" }, { ItemId.Fish, "fish" },
-        { ItemId.Knife, "knives" }, { ItemId.Flint, "flints and steels" }, { ItemId.FishingLine, "fishing line" },
-        { ItemId.Snowshoes, "pairs of snowshoes" }, { ItemId.ShotPelt, "shot-through pelts" },
-    };
+        (ItemId.Pemmican, "pemmican"), (ItemId.DriedGoose, "dried geese"), (ItemId.Goose, "geese"),
+        (ItemId.SaltGeese, "casks of salt geese"),
+        (ItemId.Berries, "berries"), (ItemId.SpruceBeer, "spruce beer"), (ItemId.Corn, "corn"),
+        (ItemId.Ptarmigan, "ptarmigan"), (ItemId.Tobacco, "twists of tobacco"), (ItemId.Beads, "bunches of beads"),
+        (ItemId.Awl, "awls"), (ItemId.Stroud, "yards of stroud"), (ItemId.MbToken, "made-beaver tokens"),
+        (ItemId.Powder, "powder and ball"), (ItemId.IceChisel, "ice chisels"), (ItemId.FishingNet, "fishing nets"),
+        (ItemId.Bread, "loaves of bread"), (ItemId.Ale, "tankards of ale"), (ItemId.Rum, "drams of rum"),
+        (ItemId.Water, "water"), (ItemId.Venison, "fresh meat"), (ItemId.DriedMeat, "dried meat"),
+        (ItemId.Firewood, "firewood"), (ItemId.TradeGoods, "trade goods"), (ItemId.Fish, "fish"),
+        (ItemId.Knife, "knives"), (ItemId.Flint, "flints and steels"), (ItemId.FishingLine, "fishing line"),
+        (ItemId.Snowshoes, "pairs of snowshoes"), (ItemId.ShotPelt, "shot-through pelts"),
+    });
+
+    private static Dictionary<ItemId, string> Plurals((ItemId Id, string Many)[] rows)
+    {
+        var d = new Dictionary<ItemId, string>();
+        foreach (var (id, many) in rows) d[id] = many;   // a repeat wins; it does not throw
+        return d;
+    }
 
     // "a beaver pelt" / "8 beaver pelts" / "5 dried geese", lower case.
     public static string Lot(ItemId id, int n)
