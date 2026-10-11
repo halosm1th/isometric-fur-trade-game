@@ -77,6 +77,7 @@ public static class SaveGame
             ["calendar"] = new GDict { ["year"] = cal.Year, ["month"] = cal.Month, ["day"] = cal.Day, ["hour"] = cal.Hour, ["sky"] = (int)cal.Weather.Current, ["skyHours"] = cal.Weather.HoursLeft },
             ["tension"] = Rivalry.Tension,
             ["campaign"] = Campaign.Save(),
+            ["posts"] = PostLedgers(),
             ["camp"] = new GArr { WorldLayout.CampCentre.X, WorldLayout.CampCentre.Y },
             ["abroad"] = MailOf(Mail.Abroad),
             ["council"] = CouncilState(),
@@ -106,6 +107,13 @@ public static class SaveGame
         var d = new GDict();
         if (inv == null) return d;
         foreach (var (id, n) in inv.All()) d[id.ToString()] = n;
+        return d;
+    }
+
+    private static GDict PostLedgers()
+    {
+        var d = new GDict();
+        foreach (var p in Posts.Standing()) d[p.Name] = Ledger(p.Ledger);
         return d;
     }
 
@@ -212,8 +220,8 @@ public static class SaveGame
         }
     }
 
-    private static string HomeKey(Household h) => h == Sim.Fort ? "fort" : h == Sim.Nwc ? "nwc" : h == Sim.Band ? "band" : h == Sim.Outpost ? "outpost" : h == Sim.Assiniboine ? "assiniboine" : "";
-    private static Household HomeOf(string k) => k switch { "fort" => Sim.Fort, "nwc" => Sim.Nwc, "band" => Sim.Band, "outpost" => Sim.Outpost, "assiniboine" => Sim.Assiniboine, _ => null };
+    private static string HomeKey(Household h) => h == Sim.Fort ? "fort" : h == Sim.Nwc ? "nwc" : h == Sim.Band ? "band" : h == Sim.Outpost ? "outpost" : h == Sim.Assiniboine ? "assiniboine" : h is TradingPostLedger tp ? "post:" + tp.Post.Name : "";
+    private static Household HomeOf(string k) => k switch { "fort" => Sim.Fort, "nwc" => Sim.Nwc, "band" => Sim.Band, "outpost" => Sim.Outpost, "assiniboine" => Sim.Assiniboine, _ when k.StartsWith("post:") => Posts.Named(k[5..])?.Ledger, _ => null };
 
     private static GDict CouncilState()
     {
@@ -405,6 +413,10 @@ public static class SaveGame
             cal.Weather.Force((SkyState)I(c, "sky"), F(c, "skyHours", 6f));
             Rivalry.Tension = F(d, "tension", 20f);
             Campaign.Restore(d.ContainsKey("campaign") ? d["campaign"].AsGodotDictionary() : null);
+            Posts.Sync(false);
+            if (d.ContainsKey("posts"))
+                foreach (var kv in d["posts"].AsGodotDictionary())
+                    if (Posts.Named(kv.Key.AsString())?.Ledger is { } pl) LoadLedger(pl, kv.Value.AsGodotDictionary());
             if (d.ContainsKey("camp")) Sim.Band?.MoveCamp(CellOf(d["camp"].AsGodotArray()));
             Mail.Abroad.Clear();
             if (d.ContainsKey("abroad")) foreach (var mv in d["abroad"].AsGodotArray()) Mail.Abroad.Add(MailFrom(mv.AsGodotDictionary()));

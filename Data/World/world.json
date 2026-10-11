@@ -1789,6 +1789,782 @@
     "radius": 380,
     "route": null
    }
+  ],
+  "posts": [
+   {
+    "name": "Moose Factory",
+    "company": "HBC",
+    "year": 1673,
+    "top": [
+     488,
+     569
+    ]
+   },
+   {
+    "name": "Albany Fort",
+    "company": "HBC",
+    "year": 1679,
+    "top": [
+     472,
+     522
+    ]
+   },
+   {
+    "name": "Fort Severn",
+    "company": "HBC",
+    "year": 1689,
+    "top": [
+     397,
+     352
+    ]
+   },
+   {
+    "name": "Churchill (Pr. of Wales Fort)",
+    "company": "HBC",
+    "year": 1717,
+    "top": [
+     323,
+     186
+    ]
+   },
+   {
+    "name": "Michipicoten",
+    "company": "HBC",
+    "year": 1725,
+    "top": [
+     456,
+     812
+    ]
+   },
+   {
+    "name": "Henley House",
+    "company": "HBC",
+    "year": 1743,
+    "top": [
+     442,
+     623
+    ]
+   },
+   {
+    "name": "Cumberland House",
+    "company": "HBC",
+    "year": 1774,
+    "top": [
+     256,
+     500
+    ]
+   },
+   {
+    "name": "Gloucester House",
+    "company": "HBC",
+    "year": 1777,
+    "top": [
+     410,
+     657
+    ]
+   },
+   {
+    "name": "Grand Portage",
+    "company": "NWC",
+    "year": 1778,
+    "top": [
+     396,
+     859
+    ]
+   },
+   {
+    "name": "Hudson House",
+    "company": "HBC",
+    "year": 1779,
+    "top": [
+     203,
+     573
+    ]
+   },
+   {
+    "name": "Ile-a-la-Crosse",
+    "company": "NWC",
+    "year": 1779,
+    "top": [
+     196,
+     425
+    ]
+   },
+   {
+    "name": "Michilimackinac",
+    "company": "NWC",
+    "year": 1780,
+    "top": [
+     464,
+     939
+    ]
+   },
+   {
+    "name": "Green Lake",
+    "company": "HBC",
+    "year": 1782,
+    "top": [
+     198,
+     484
+    ]
+   },
+   {
+    "name": "Lac la Ronge",
+    "company": "NWC",
+    "year": 1782,
+    "top": [
+     231,
+     452
+    ]
+   },
+   {
+    "name": "Sault Ste. Marie",
+    "company": "NWC",
+    "year": 1783,
+    "top": [
+     471,
+     901
+    ]
+   },
+   {
+    "name": "Pine Fort",
+    "company": "NWC",
+    "year": 1785,
+    "top": [
+     277,
+     802
+    ]
+   },
+   {
+    "name": "Manchester House",
+    "company": "HBC",
+    "year": 1786,
+    "top": [
+     187,
+     535
+    ]
+   },
+   {
+    "name": "South Branch House",
+    "company": "HBC",
+    "year": 1786,
+    "top": [
+     221,
+     608
+    ]
+   },
+   {
+    "name": "Osnaburgh House",
+    "company": "HBC",
+    "year": 1786,
+    "top": [
+     381,
+     645
+    ]
+   },
+   {
+    "name": "Fort Esperance",
+    "company": "NWC",
+    "year": 1787,
+    "top": [
+     259,
+     771
+    ]
+   },
+   {
+    "name": "Rainy Lake House",
+    "company": "NWC",
+    "year": 1787,
+    "top": [
+     358,
+     873
+    ]
+   },
+   {
+    "name": "Fort Chipewyan",
+    "company": "NWC",
+    "year": 1788,
+    "top": [
+     178,
+     196
+    ]
+   },
+   {
+    "name": "Brunswick House",
+    "company": "HBC",
+    "year": 1788,
+    "top": [
+     467,
+     700
+    ]
+   },
+   {
+    "name": "Nipawi",
+    "company": "NWC",
+    "year": 1790,
+    "top": [
+     238,
+     571
+    ]
+   },
+   {
+    "name": "Swan River House",
+    "company": "NWC",
+    "year": 1790,
+    "top": [
+     265,
+     641
+    ]
+   },
+   {
+    "name": "Montagne a la Bosse",
+    "company": "NWC",
+    "year": 1790,
+    "top": [
+     278,
+     761
+    ]
+   },
+   {
+    "name": "Red Lake Post",
+    "company": "NWC",
+    "year": 1790,
+    "top": [
+     343,
+     925
+    ]
+   },
+   {
+    "name": "La Cloche",
+    "company": "HBC",
+    "year": 1790,
+    "top": [
+     493,
+     898
+    ]
+   },
+   {
+    "name": "Fort George",
+    "company": "NWC",
+    "year": 1792,
+    "top": [
+     161,
+     483
+    ]
+   },
+   {
+    "name": "Buckingham House",
+    "company": "HBC",
+    "year": 1792,
+    "top": [
+     157,
+     520
+    ]
+   },
+   {
+    "name": "Fort Bas de la Riviere",
+    "company": "NWC",
+    "year": 1792,
+    "top": [
+     326,
+     720
+    ]
+   },
+   {
+    "name": "Brandon House",
+    "company": "HBC",
+    "year": 1793,
+    "top": [
+     285,
+     827
+    ]
+   },
+   {
+    "name": "Martin Falls",
+    "company": "HBC",
+    "year": 1793,
+    "top": [
+     429,
+     609
+    ]
+   },
+   {
+    "name": "Fort Souris",
+    "company": "NWC",
+    "year": 1794,
+    "top": [
+     294,
+     807
+    ]
+   },
+   {
+    "name": "Edmonton House",
+    "company": "HBC",
+    "year": 1795,
+    "top": [
+     141,
+     529
+    ]
+   },
+   {
+    "name": "Fort Augustus",
+    "company": "NWC",
+    "year": 1795,
+    "top": [
+     138,
+     479
+    ]
+   },
+   {
+    "name": "Carlton House",
+    "company": "HBC",
+    "year": 1795,
+    "top": [
+     211,
+     547
+    ]
+   },
+   {
+    "name": "Fort Alexandria",
+    "company": "NWC",
+    "year": 1795,
+    "top": [
+     263,
+     686
+    ]
+   },
+   {
+    "name": "Portage la Prairie",
+    "company": "NWC",
+    "year": 1795,
+    "top": [
+     291,
+     768
+    ]
+   },
+   {
+    "name": "Manitoba House",
+    "company": "HBC",
+    "year": 1795,
+    "top": [
+     300,
+     719
+    ]
+   },
+   {
+    "name": "Fort Vermilion",
+    "company": "NWC",
+    "year": 1798,
+    "top": [
+     167,
+     527
+    ]
+   },
+   {
+    "name": "Turtle River House",
+    "company": "NWC",
+    "year": 1798,
+    "top": [
+     307,
+     906
+    ]
+   },
+   {
+    "name": "Rocky Mountain House",
+    "company": "NWC",
+    "year": 1799,
+    "top": [
+     123,
+     594
+    ]
+   },
+   {
+    "name": "Nut Lake",
+    "company": "HBC",
+    "year": 1799,
+    "top": [
+     243,
+     627
+    ]
+   },
+   {
+    "name": "Chesterfield House",
+    "company": "HBC",
+    "year": 1800,
+    "top": [
+     168,
+     692
+    ]
+   },
+   {
+    "name": "Fort Nelson (BC)",
+    "company": "NWC",
+    "year": 1800,
+    "top": [
+     72,
+     76
+    ]
+   },
+   {
+    "name": "Pembina Post",
+    "company": "NWC",
+    "year": 1801,
+    "top": [
+     305,
+     848
+    ]
+   },
+   {
+    "name": "Lesser Slave Lake Ho.",
+    "company": "HBC",
+    "year": 1802,
+    "top": [
+     124,
+     368
+    ]
+   },
+   {
+    "name": "Fort William",
+    "company": "NWC",
+    "year": 1803,
+    "top": [
+     402,
+     820
+    ]
+   },
+   {
+    "name": "Dunvegan",
+    "company": "NWC",
+    "year": 1805,
+    "top": [
+     95,
+     321
+    ]
+   },
+   {
+    "name": "Fort McLeod",
+    "company": "NWC",
+    "year": 1805,
+    "top": [
+     51,
+     322
+    ]
+   },
+   {
+    "name": "Fort St. James",
+    "company": "NWC",
+    "year": 1806,
+    "top": [
+     36,
+     348
+    ]
+   },
+   {
+    "name": "Fort Fraser",
+    "company": "NWC",
+    "year": 1806,
+    "top": [
+     29,
+     378
+    ]
+   },
+   {
+    "name": "Kootenay House",
+    "company": "NWC",
+    "year": 1807,
+    "top": [
+     109,
+     673
+    ]
+   },
+   {
+    "name": "Fort George (BC)",
+    "company": "NWC",
+    "year": 1807,
+    "top": [
+     43,
+     388
+    ]
+   },
+   {
+    "name": "Fort Gibraltar",
+    "company": "NWC",
+    "year": 1809,
+    "top": [
+     320,
+     785
+    ]
+   },
+   {
+    "name": "Flathead House",
+    "company": "NWC",
+    "year": 1809,
+    "top": [
+     114,
+     910
+    ]
+   },
+   {
+    "name": "Island Lake House",
+    "company": "HBC",
+    "year": 1810,
+    "top": [
+     329,
+     518
+    ]
+   },
+   {
+    "name": "Spokane House",
+    "company": "NWC",
+    "year": 1810,
+    "top": [
+     78,
+     871
+    ]
+   },
+   {
+    "name": "Fort Kamloops",
+    "company": "NWC",
+    "year": 1812,
+    "top": [
+     58,
+     644
+    ]
+   },
+   {
+    "name": "Jasper House",
+    "company": "HBC",
+    "year": 1813,
+    "top": [
+     98,
+     521
+    ]
+   },
+   {
+    "name": "Norway House",
+    "company": "HBC",
+    "year": 1814,
+    "top": [
+     306,
+     508
+    ]
+   },
+   {
+    "name": "Fort Douglas",
+    "company": "HBC",
+    "year": 1815,
+    "top": [
+     321,
+     826
+    ]
+   },
+   {
+    "name": "Lac Seul House",
+    "company": "HBC",
+    "year": 1815,
+    "top": [
+     365,
+     731
+    ]
+   },
+   {
+    "name": "Fort Nez Perces",
+    "company": "NWC",
+    "year": 1818,
+    "top": [
+     57,
+     988
+    ]
+   },
+   {
+    "name": "Great Whale River",
+    "company": "HBC",
+    "year": 1820,
+    "top": [
+     492,
+     277
+    ]
+   },
+   {
+    "name": "Fort Alexandria (BC)",
+    "company": "NWC",
+    "year": 1821,
+    "top": [
+     53,
+     490
+    ]
+   },
+   {
+    "name": "Upper Fort Garry",
+    "company": "HBC",
+    "year": 1822,
+    "top": [
+     331,
+     784
+    ]
+   },
+   {
+    "name": "Fort Babine",
+    "company": "HBC",
+    "year": 1822,
+    "top": [
+     18,
+     262
+    ]
+   },
+   {
+    "name": "Fort Pelly",
+    "company": "HBC",
+    "year": 1824,
+    "top": [
+     255,
+     660
+    ]
+   },
+   {
+    "name": "Fort Assiniboine",
+    "company": "HBC",
+    "year": 1824,
+    "top": [
+     125,
+     429
+    ]
+   },
+   {
+    "name": "Fort Vancouver",
+    "company": "HBC",
+    "year": 1825,
+    "top": [
+     12,
+     983
+    ]
+   },
+   {
+    "name": "Fort Colvile",
+    "company": "HBC",
+    "year": 1825,
+    "top": [
+     70,
+     788
+    ]
+   },
+   {
+    "name": "Fort Connolly",
+    "company": "HBC",
+    "year": 1826,
+    "top": [
+     34,
+     211
+    ]
+   },
+   {
+    "name": "Fort Langley",
+    "company": "HBC",
+    "year": 1827,
+    "top": [
+     31,
+     708
+    ]
+   },
+   {
+    "name": "Fort Pitt",
+    "company": "HBC",
+    "year": 1829,
+    "top": [
+     179,
+     510
+    ]
+   },
+   {
+    "name": "Fort Chilcotin",
+    "company": "HBC",
+    "year": 1829,
+    "top": [
+     31,
+     513
+    ]
+   },
+   {
+    "name": "Lower Fort Garry",
+    "company": "HBC",
+    "year": 1830,
+    "top": [
+     335,
+     735
+    ]
+   },
+   {
+    "name": "Fort Ellice",
+    "company": "HBC",
+    "year": 1831,
+    "top": [
+     271,
+     728
+    ]
+   },
+   {
+    "name": "Fort Nisqually",
+    "company": "HBC",
+    "year": 1833,
+    "top": [
+     15,
+     867
+    ]
+   },
+   {
+    "name": "Rat Portage",
+    "company": "HBC",
+    "year": 1836,
+    "top": [
+     347,
+     767
+    ]
+   },
+   {
+    "name": "Fort George (Chisasibi)",
+    "company": "HBC",
+    "year": 1837,
+    "top": [
+     490,
+     340
+    ]
+   },
+   {
+    "name": "Dease Lake",
+    "company": "HBC",
+    "year": 1838,
+    "top": [
+     7,
+     17
+    ]
+   },
+   {
+    "name": "Fort Victoria",
+    "company": "HBC",
+    "year": 1843,
+    "top": [
+     10,
+     787
+    ]
+   },
+   {
+    "name": "Touchwood Hills",
+    "company": "HBC",
+    "year": 1852,
+    "top": [
+     240,
+     696
+    ]
+   },
+   {
+    "name": "Fort Qu'Appelle",
+    "company": "HBC",
+    "year": 1864,
+    "top": [
+     232,
+     725
+    ]
+   }
   ]
  }
 }

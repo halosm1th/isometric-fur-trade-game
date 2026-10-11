@@ -289,6 +289,9 @@ public partial class PlayerController : Agent
 			// Dev: `--quitafter=S` closes the game cleanly after S seconds, so a
 			// test run ends without the runtime being killed mid-print.
 			if (arg.StartsWith("--quitafter=") && double.TryParse(arg.Substring(12), out double qsecs)) GetTree().CreateTimer(qsecs).Timeout += () => { GD.Print("[dev] quitting after " + qsecs + "s"); GetTree().Quit(); };
+			// Dev: `--ambition=RiseAtThePost` declares one at the start, so the
+			// systems that hang off a declared ambition can be watched.
+			if (arg.StartsWith("--ambition=") && NetHub.IsServer) { if (System.Enum.TryParse<Agents.AmbitionKind>(arg.Substring(11), true, out var ak)) { var cal = GameCalendar.Instance; Ambitions.Add(new Agents.Ambition { Kind = ak, DeclaredDay = cal?.Day ?? 0, DeclaredYear = cal?.Year ?? 1811 }); AmbitionsDeclared = true; GD.Print($"[dev] you have set yourself {ak}"); } }
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
 			if (arg.StartsWith("--use=") && int.TryParse(arg.Substring(6), out int slot)) GetTree().CreateTimer(3.0).Timeout += () => NetHub.I?.Act("use", new Godot.Collections.Array { slot });
 			if (arg.StartsWith("--click=")) { _devClick = true; double when = 3.0; foreach (var part in arg.Substring(8).Split(',')) { if (!int.TryParse(part, out int cslot)) continue; GetTree().CreateTimer(when).Timeout += () => { var p = GlobalPosition + new Vector2(90, 40); NetHub.I?.Act("click", new Godot.Collections.Array { cslot, p.X, p.Y }); }; when += 3.0; } }
@@ -1253,6 +1256,7 @@ public partial class PlayerController : Agent
 			if (take <= 0) continue;
 			Inventory.Remove(id, take); fort.Stores.Add(id, take); moved += take;
 			if (kind == ItemKind.Goods) { Task.Progress(TaskKind.CarryCargo, take); if (fort == Sim.Outpost) Task.Progress(TaskKind.Courier, take); }
+			if (id == ItemId.Goose) Task.Progress(TaskKind.Geese, take);
 			// Leave to do it your way: anything of worth put into the stores counts.
 			if (Task.OwnWay && !Task.IsComplete && (kind == ItemKind.Fur || kind == ItemKind.Goods)) Task.Progress(Task.Kind, Mathf.Max(1, Mathf.RoundToInt(Items.Items.Of(id).ValueMb * take)));
 		}

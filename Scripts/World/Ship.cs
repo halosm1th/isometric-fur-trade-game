@@ -147,84 +147,84 @@ public partial class Ship : Node2D
                 {
                     float hit = Mathf.Min(20f, 4f + onHisOwn * 3f);
                     pc.Standing -= hit;
-                    Core.Reveal.Lands(pc, $"Your standing falls by {hit:0}: the Factor's report says you have been trading on your own account.", "on his own account", 1.5f);
-                    factor.Memories.RemoveAll(m => m.Subject == pc.DisplayName && m.Text.Contains("on his own account"));
+					Core.Reveal.Lands(pc, $"Your standing falls by {hit:0}: the Factor's report says you have been trading on your own account.", "on his own account", 1.5f);
+					factor.Memories.RemoveAll(m => m.Subject == pc.DisplayName && m.Text.Contains("on his own account"));
                 }
             }
             if (pc.ParoleUntilDay > 0 && !pc.ParoleConfessed && factor != null)
             {
                 pc.ParoleConfessed = true;
                 pc.Standing -= 12f;
-                pc.Say("The Factor has learned you gave the Canadians your parole and said nothing of it. It goes into his report. (standing -12)");
+				pc.Say("The Factor has learned you gave the Canadians your parole and said nothing of it. It goes into his report. (standing -12)");
             }
             string was = pc.Rank;
 			pc.Rank = pc.Standing >= 60f ? "postmaster" : pc.Standing >= 35f ? "clerk" : pc.Standing >= 15f ? "labourer" : "on notice";
 			if (pc.Rank != was) pc.Say(pc.Standing >= 35f ? $"The Factor writes well of you in the accounts that sail today. You are rated {pc.Rank}." : $"The Factor's report on you is cool. You are rated {pc.Rank}.");
             if (pc.Rank == "clerk" || pc.Rank == "postmaster") pc.Inventory.Add(Items.ItemId.TradeGoods, pc.Rank == "postmaster" ? 12 : 6);
-            // The trade year closes with her: the player's own account of it
-            // goes into his book (design doc P.3).
-            Core.Reckoning.AtShipSailing(pc, mb, Sim.Fort);
-        }
-        if (factor != null) Agents.Delegation.OrderSupply(factor);
-        if (Sim.Fort != null)
-        {
-            // The books go home with her; London reads them in the autumn (design doc 10.1.2).
-            Mail.Send(Letters.Accounts(mb, Sim.Fort.QuotaMb), 24f * 75f);
-            Sim.Fort.FursTakenMb = 0f; Sim.Fort.GoodsPaidMb = 0f;
-        }
-    }
+			// The trade year closes with her: the player's own account of it
+			// goes into his book (design doc P.3).
+			Core.Reckoning.AtShipSailing(pc, mb, Sim.Fort);
+		}
+		if (factor != null) Agents.Delegation.OrderSupply(factor);
+		if (Sim.Fort != null)
+		{
+			// The books go home with her; London reads them in the autumn (design doc 10.1.2).
+			Mail.Send(Letters.Accounts(mb, Sim.Fort.QuotaMb), 24f * 75f);
+			Sim.Fort.FursTakenMb = 0f; Sim.Fort.GoodsPaidMb = 0f;
+		}
+	}
 
-    public void ClientSync(Vector2 pos, State state)
-    {
-        if (Net.Net.IsServer) return;
-        Current = state;
-        Position = pos;
-        Visible = state != State.Away;
-    }
+	public void ClientSync(Vector2 pos, State state)
+	{
+		if (Net.Net.IsServer) return;
+		Current = state;
+		Position = pos;
+		Visible = state != State.Away;
+	}
 
-    public override void _Process(double delta)
-    {
-        var cal = GameCalendar.Instance;
-        if (cal == null || !Net.Net.IsServer) return;
-        // Sailing speed follows game time so a skip still brings her in.
-        float step = SailSpeed * cal.DeltaGameHours * cal.SecondsPerGameHour;
+	public override void _Process(double delta)
+	{
+		var cal = GameCalendar.Instance;
+		if (cal == null || !Net.Net.IsServer) return;
+		// Sailing speed follows game time so a skip still brings her in.
+		float step = SailSpeed * cal.DeltaGameHours * cal.SecondsPerGameHour;
 
-        switch (Current)
-        {
-            case State.Arriving:
-                Position = Position.MoveToward(WorldLayout.ShipBerth, step);
-                if (Position.DistanceTo(WorldLayout.ShipBerth) < 1f) Dock();
-                break;
-            case State.Departing:
-                Position = Position.MoveToward(WorldLayout.ShipOffscreen, step);
-                if (Position.DistanceTo(WorldLayout.ShipOffscreen) < 1f) { Current = State.Away; Visible = false; }
-                break;
-            case State.Docked:
-                _dockedHours += cal.DeltaGameHours;
-                _ordersRead = true;
-                break;
-        }
-    }
+		switch (Current)
+		{
+			case State.Arriving:
+				Position = Position.MoveToward(WorldLayout.ShipBerth, step);
+				if (Position.DistanceTo(WorldLayout.ShipBerth) < 1f) Dock();
+				break;
+			case State.Departing:
+				Position = Position.MoveToward(WorldLayout.ShipOffscreen, step);
+				if (Position.DistanceTo(WorldLayout.ShipOffscreen) < 1f) { Current = State.Away; Visible = false; }
+				break;
+			case State.Docked:
+				_dockedHours += cal.DeltaGameHours;
+				_ordersRead = true;
+				break;
+		}
+	}
 
-    private void Dock()
-    {
-        _population?.LandRecruits(6);
-        Current = State.Docked;
-        _dockedHours = 0f;
-        Sim.Notice("The ship is alongside the wharf. All hands to the landing.");
-        Agents.Chronicle.Shared(Sim.Fort, "the ship came in to the wharf, and everyone ran to the shore", 1.3f);
-        if (_population != null)
-        {
-            Crew.Clear();
-            Crew.AddRange(_population.SpawnCrew(8));
-            // The ship is how the fever comes to the Bay (design doc 13.5).
-            if (GD.Randf() < 0.35f && Crew.Count > 0)
-            {
-                var sick = Crew[(int)(GD.Randi() % (uint)Crew.Count)];
-                sick.CatchFever();
-                Sim.Notice("There is fever aboard, the mate says. Keep the men off her if you can.");
-            }
-        }
+	private void Dock()
+	{
+		_population?.LandRecruits(6);
+		Current = State.Docked;
+		_dockedHours = 0f;
+		Sim.Notice("The ship is alongside the wharf. All hands to the landing.");
+		Agents.Chronicle.Shared(Sim.Fort, "the ship came in to the wharf, and everyone ran to the shore", 1.3f);
+		if (_population != null)
+		{
+			Crew.Clear();
+			Crew.AddRange(_population.SpawnCrew(8));
+			// The ship is how the fever comes to the Bay (design doc 13.5).
+			if (GD.Randf() < 0.35f && Crew.Count > 0)
+			{
+				var sick = Crew[(int)(GD.Randi() % (uint)Crew.Count)];
+				sick.CatchFever();
+				Sim.Notice("There is fever aboard, the mate says. Keep the men off her if you can.");
+			}
+		}
 		// The bos'n carries the Committee's packet up to the Factor; it is
 		// inert until he opens it (design doc 10.1.1). Kill the bos'n on the
 		// way and the packet is on his body.

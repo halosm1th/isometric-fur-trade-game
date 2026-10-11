@@ -87,7 +87,7 @@ Layout rules - follow them strictly:
 - **Attach:** `assets/external/pioneerpixel_hbc_trader/Man WALking.jpg` (layout and scale) and `assets/sprites/rival/idle_front.png` (scale).
 - **Two sheets.** Paste the CHARACTER HEADER, then:
 
-**Sheet A: movement**
+**Sheet A: movement: DONE**
 ```
 The character: a French-Canadian voyageur of the North West Company, about 30, short (a head shorter than the HBC men) but very broad-shouldered and thick-armed from paddling, bow-legged, weather-darkened skin, black moustache, black hair to the collar. He wears a red knitted wool tuque with a tassel falling to one side; a loose blue-and-white checked cotton shirt open at the throat with sleeves pushed up; a long woven L'Assomption sash (ceinture flechee) in red, blue and yellow arrow patterns wound twice round his waist with the fringed ends hanging at his left hip; a short dark-blue wool breechclout over tight leggings of red stroud cloth gartered below the knee with beaded garters; smoke-tanned moccasins. A beaded black fire bag (tobacco pouch) hangs from the sash on his right hip, a knife in a sheath tucked in the sash in front, a short white clay pipe clenched in his teeth in every frame. He moves with a quick, short, rolling stride.
 
@@ -99,7 +99,7 @@ Rows:
 5. DEATH - 4 frames, seen from the front: struck and staggering, dropping to his knees, falling forward, lying face down on the ground (last frame lying flat, seen from above at the same three-quarter angle).
 ```
 
-**Sheet B: work and fighting**
+**Sheet B: work and fighting: DONE**
 ```
 The same voyageur as in the attached sheet, identical in every detail.
 
@@ -133,14 +133,14 @@ Rows:
 9. DEATH - 4 frames from the front: hit, staggering back, falling, lying on his back with the hat fallen beside him.
 ```
 
-### 1.3 HBC woman / country wife
+### 1.3 HBC woman / country wife:DONE
 
 - **Replaces:** every woman at the fort (`Role.Woman`, `Role.Wife`), who are currently the player's man sprite tinted pink and shrunk.
 - **Attach:** `assets/external/pioneerpixel_hbc_trader/Cree WOman.jpg` (style and scale for a woman) and `assets/sprites/cree_woman/idle_front.png`.
 - These are the fort's own families: Cree and Orkney-Cree women married to the Company's men "after the custom of the country".
 - **Two sheets.** CHARACTER HEADER, then:
 
-**Sheet A: movement**
+**Sheet A: movement: DONE**
 ```
 The character: a woman of mixed Cree and Orkney descent, about 30, married to a Company servant at York Factory; a broad calm face, brown skin, black hair parted in the middle in two long braids wrapped at the ends with red cloth. She wears a mid-calf gown of dark-blue printed cotton with a small white flower print, long sleeves and a plain white collar; under it, leggings of dark-blue stroud cloth edged with a band of white and red beadwork; smoke-tanned moccasins with floral quillwork on the toe; a red-and-black tartan wool shawl round her shoulders and crossed over her chest; a small beaded bag hanging at her waist from a woven belt. She is about 95 pixels tall at the stated scale (shorter than the men). She walks with short, steady steps.
 
@@ -166,7 +166,7 @@ Rows:
 7. CARRY BABY FRONT - 4 frames walking toward the viewer with an infant laced in a moss bag on a wooden cradleboard (tikinagan) carried on her back, the baby's face visible over her shoulder.
 ```
 
-### 1.4 Sailor (crew of the annual supply ship)
+### 1.4 Sailor (crew of the annual supply ship): DONE
 
 - **Replaces:** the ship's crew (`Role.Sailor`), currently the player tinted blue-grey.
 - **Attach:** `assets/external/pioneerpixel_hbc_trader/source_sheet.jpg` and `assets/sprites/player/idle_front.png`.
@@ -186,7 +186,7 @@ Rows:
 8. DEATH - 4 frames from the front: hit, staggering, falling, lying face down.
 ```
 
-### 1.5 HBC clerk / writer
+### 1.5 HBC clerk / writer:DONE
 
 - **Replaces:** the clerks (`Role.Clerk`, `Role.Postmaster`), currently the player tinted blue.
 - **Attach:** `assets/external/pioneerpixel_hbc_trader/source_sheet.jpg` and `assets/sprites/player/idle_front.png`.
@@ -206,7 +206,7 @@ Rows:
 8. DEATH - 4 frames from the front: hit, the ledger falling from his arm, collapsing, lying on his side.
 ```
 
-### 1.6 Cree trading captain (the band's leader)
+### 1.6 Cree trading captain (the band's leader):Done
 
 - **Replaces:** Maskwa, the Cree chief (`Role.CreeChief`), currently the hunter sprite.
 - **Attach:** `assets/external/pioneerpixel_hbc_trader/cree_trader.jpg` and `assets/sprites/cree/idle_front.png`.
@@ -361,11 +361,11 @@ Use the exact character in the attached sheets: the Assiniboine man with the mus
 
 ---
 
-## Priority 3: animals (all four in the game are stand-ins)
+## Priority 3: animals (all four in the game are stand-ins): Done
 
 The wolf and caribou are a stock pack in a different style; the beaver and goose are two-frame placeholders. For every animal, **attach `assets/external/pioneerpixel_hbc_trader/Cree man with bow.jpg`** (to carry the style across from the people), plus the current sprite named below so Gemini sees what it is replacing. Paste the ANIMAL HEADER, then the prompt.
 
-### 3.1 Barren-ground caribou
+### 3.1 Barren-ground caribou:Done
 
 - **Replaces:** `assets/sprites/animals/caribou_*` (a red stag). The migrating herd is the York Factory hunters' main meat.
 - **Also attach:** `assets/sprites/animals/caribou_SE_walk.png`.
@@ -417,7 +417,7 @@ Rows (each in DOWN-RIGHT, then UP-RIGHT):
 6. DEATH - 3 frames: struck, rolling onto its side, lying still.
 ```
 
-### 3.4 Grey wolf
+### 3.4 Grey wolf: Done
 
 - **Replaces:** `assets/sprites/animals/wolf_*` (stock pack, works mechanically but wrong style).
 - **Also attach:** `assets/sprites/animals/wolf_idle.png`.
@@ -449,7 +449,7 @@ Rows for the WINTER hare (each in DOWN-RIGHT, then UP-RIGHT), then the same rows
 4. SNARED - 2 frames, DOWN-RIGHT only: caught by the neck in a brass-wire snare tied to a stake (draw the stake), then lying dead beside it.
 ```
 
-### 3.6 Willow ptarmigan
+### 3.6 Willow ptarmigan: Done
 
 - **New.** Named in the design doc for the Hudson Bay lowlands (16.2): winter food when the geese are gone.
 
@@ -463,17 +463,17 @@ Rows for the WINTER bird (each in DOWN-RIGHT, then UP-RIGHT), then the same rows
 4. DEAD - 1 frame: lying on the snow on its side.
 ```
 
-### 3.7 Later: animals the design doc names but the code does not have yet
+### 3.7 Later: animals the design doc names but the code does not have yet: Not DONE
 
 Only when they are built: moose, black bear, polar bear (it walks the shore at York Factory in autumn), red fox, arctic fox, marten, mink, muskrat, otter, lynx, wolverine, bison and pronghorn (plains), sled dogs. Use the same ANIMAL HEADER and the same row set as the wolf (IDLE, WALK, RUN, ATTACK if it fights, DEATH), and give its size against a 110-pixel man.
 
 ---
 
-## Priority 4: inventory icons
+## Priority 4: inventory icons: Done
 
 The current icons (`assets/sprites/items/*.png`, 64×64) are flat, simple shapes and don't match the hand-painted people. These four sheets redo the whole set in the characters' style and add the missing ones. **Attach `assets/external/pioneerpixel_hbc_trader/Cree WOman.jpg`** (its "Hudson's Bay Blanket Pelt" and "Beaded Medicine Bag" vignettes are the exact item style wanted) and `assets/external/pioneerpixel_hbc_trader/hbc_eating_variants.jpg` (its loaf and bread-on-plate). Paste the ITEM HEADER, then the list.
 
-### 4.1 Food and drink
+### 4.1 Food and drink: DONE
 
 ```
 The objects, in this order:
@@ -491,7 +491,7 @@ The objects, in this order:
 12. Hare - a dead snowshoe hare in white winter coat, hung by its hind feet from a loop of cord.
 ```
 
-### 4.2 Furs and clothing
+### 4.2 Furs and clothing: DONE
 
 ```
 The objects, in this order:
@@ -509,7 +509,7 @@ The objects, in this order:
 12. Tumpline - a long carrying strap of braided leather with a wide woven head band in red and black.
 ```
 
-### 4.3 Tools and weapons
+### 4.3 Tools and weapons: DONE
 
 ```
 The objects, in this order:
@@ -527,7 +527,7 @@ The objects, in this order:
 12. Fishing net - a folded twine gill net with wooden floats and stone sinkers.
 ```
 
-### 4.4 Things the design doc names that have no icon yet
+### 4.4 Things the design doc names that have no icon yet: DONE
 
 ```
 The objects, in this order:
@@ -547,7 +547,7 @@ The objects, in this order:
 
 ---
 
-## Priority 5: world props
+## Priority 5: world props" DONE
 
 Missing from the world (see `asset-inventory.md` section 4). **Attach `assets/tiles/props/tipi.png` and `assets/tiles/props/spruce_0.png`** (the two props drawn for this game, which fix the isometric angle and the 128×256 box), and one PioneerPixel character sheet so the scale is right. Paste the PROP HEADER, then the list. Split across sheets if Gemini crowds them.
 
@@ -605,7 +605,7 @@ The objects (a man is 110 pixels tall at this scale), in this order:
 
 ---
 
-## Priority 6: vehicles
+## Priority 6: vehicles: DONE
 
 **Attach `assets/sprites/canoe.png`, `assets/sprites/ship.png`** and one PioneerPixel character sheet. Use the PROP HEADER, then:
 
@@ -620,7 +620,7 @@ The vehicles (a man is 110 pixels tall at this scale), each drawn twice: heading
 
 ---
 
-## Priority 7: buildings (hard; expect cleanup)
+## Priority 7: buildings (hard; expect cleanup): TEMP DONE
 
 The buildings are built from wall tiles by `StructurePainter` (each wall piece is a 128×256 image standing on one edge of a 128×64 ground diamond). They are still Kenney's European stone set. Gemini is not good at exact tiles, so ask for a **reference painting first** and only then for tiles; I will probably have to redraw the tiles to fit, but the painting fixes the look.
 
@@ -653,9 +653,9 @@ Then, once:
 
 ---
 
-## Priority 8: menu and UI art
+## Priority 8: menu and UI art: DONE
 
-### 8.1 Main menu painting
+### 8.1 Main menu painting:MDONE
 
 The new main menu draws the ship and the player in front of a gradient. A real painting behind it would do more. No header; attach `assets/external/pioneerpixel_hbc_trader/source_sheet.jpg`:
 
@@ -663,7 +663,7 @@ The new main menu draws the ship and the player in front of a gradient. A real p
 A wide 16:9 hand-painted pixel art landscape, 1920x1080, in the style of the attached sheet: the mouth of the Hayes River at York Factory, Hudson Bay, at dusk in late August 1811. The Company's annual supply ship, a three-masted merchant ship with a black hull, rides at anchor in the grey bay on the right; a birchbark canoe with two men paddles toward the shore; on the low flat shore on the right, the wooden buildings of the fort behind a palisade, a white flagstaff with the red HBC ensign, smoke rising from chimneys, a few tipis of the Home Guard Cree beyond. Flat marsh, black spruce, an enormous sky going from deep blue overhead to a band of orange and rose low over the water, the first stars. The left third of the picture is quiet: dark water and sky only, so a menu can sit over it. No text, no people close up.
 ```
 
-### 8.2 Needs and status icons
+### 8.2 Needs and status icons: DONE
 
 ITEM HEADER (it suits small icons too), attach `assets/sprites/items/water.png` and `Cree WOman.jpg`:
 
@@ -683,7 +683,7 @@ Small status icons for the HUD, each drawn to read clearly at 24x24 pixels, in t
 12. Standing with the Company - a small HBC ensign.
 ```
 
-### 8.3 Faction crests and the window icon
+### 8.3 Faction crests and the window icon: DOne
 
 ITEM HEADER, attach `source_sheet.jpg` (its HBC crest vignette):
 

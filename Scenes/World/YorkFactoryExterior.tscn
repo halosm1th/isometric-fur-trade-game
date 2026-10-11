@@ -703,6 +703,4038 @@ Inventory = "PointBlanket, Knife"
 [node name="Work" type="Marker2D" parent="Cast/Oxford House/Mary Linklater"]
 position = Vector2(0, -64)
 
+[node name="Posts" type="Node2D" parent="Cast"]
+
+[node name="Moose Factory" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Magnus McKay" type="Node2D" parent="Cast/Posts/Moose Factory"]
+position = Vector2(62720, 18496)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Magnus McKay"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Moose Factory"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Mr Magnus McKay"]
+position = Vector2(-128, 0)
+
+[node name="James Slater" type="Node2D" parent="Cast/Posts/Moose Factory"]
+position = Vector2(62528, 18528)
+script = ExtResource("30_npcspawn")
+DisplayName = "James Slater"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Moose Factory"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/James Slater"]
+position = Vector2(64, 96)
+
+[node name="George Linklater" type="Node2D" parent="Cast/Posts/Moose Factory"]
+position = Vector2(62592, 18560)
+script = ExtResource("30_npcspawn")
+DisplayName = "George Linklater"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Moose Factory"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/George Linklater"]
+position = Vector2(64, 96)
+
+[node name="Albany Fort" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Charles Hodgson" type="Node2D" parent="Cast/Posts/Albany Fort"]
+position = Vector2(60608, 16992)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Charles Hodgson"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Albany Fort"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Albany Fort/Mr Charles Hodgson"]
+position = Vector2(-128, 0)
+
+[node name="James Halcro" type="Node2D" parent="Cast/Posts/Albany Fort"]
+position = Vector2(60416, 17024)
+script = ExtResource("30_npcspawn")
+DisplayName = "James Halcro"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Albany Fort"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Albany Fort/James Halcro"]
+position = Vector2(64, 96)
+
+[node name="George Clouston" type="Node2D" parent="Cast/Posts/Albany Fort"]
+position = Vector2(60480, 17056)
+script = ExtResource("30_npcspawn")
+DisplayName = "George Clouston"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Albany Fort"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Albany Fort/George Clouston"]
+position = Vector2(64, 96)
+
+[node name="Fort Severn" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Donald Corrigal" type="Node2D" parent="Cast/Posts/Fort Severn"]
+position = Vector2(51008, 11552)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Donald Corrigal"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Severn"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Severn/Mr Donald Corrigal"]
+position = Vector2(-128, 0)
+
+[node name="Peter Mowat" type="Node2D" parent="Cast/Posts/Fort Severn"]
+position = Vector2(50816, 11584)
+script = ExtResource("30_npcspawn")
+DisplayName = "Peter Mowat"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Severn"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Severn/Peter Mowat"]
+position = Vector2(64, 96)
+
+[node name="James Clouston" type="Node2D" parent="Cast/Posts/Fort Severn"]
+position = Vector2(50880, 11616)
+script = ExtResource("30_npcspawn")
+DisplayName = "James Clouston"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Severn"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Severn/James Clouston"]
+position = Vector2(64, 96)
+
+[node name="Churchill Pr of Wales Fort" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr John Heron" type="Node2D" parent="Cast/Posts/Churchill Pr of Wales Fort"]
+position = Vector2(41536, 6240)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. John Heron"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Churchill (Pr. of Wales Fort)"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Churchill Pr of Wales Fort/Mr John Heron"]
+position = Vector2(-128, 0)
+
+[node name="Adam Sabiston" type="Node2D" parent="Cast/Posts/Churchill Pr of Wales Fort"]
+position = Vector2(41344, 6272)
+script = ExtResource("30_npcspawn")
+DisplayName = "Adam Sabiston"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Churchill (Pr. of Wales Fort)"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Churchill Pr of Wales Fort/Adam Sabiston"]
+position = Vector2(64, 96)
+
+[node name="Magnus Sabiston" type="Node2D" parent="Cast/Posts/Churchill Pr of Wales Fort"]
+position = Vector2(41408, 6304)
+script = ExtResource("30_npcspawn")
+DisplayName = "Magnus Sabiston"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Churchill (Pr. of Wales Fort)"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Churchill Pr of Wales Fort/Magnus Sabiston"]
+position = Vector2(64, 96)
+
+[node name="Michipicoten" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Hugh Robertson" type="Node2D" parent="Cast/Posts/Michipicoten"]
+position = Vector2(58560, 26272)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Hugh Robertson"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Michipicoten"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Michipicoten/Mr Hugh Robertson"]
+position = Vector2(-128, 0)
+
+[node name="George Sabiston" type="Node2D" parent="Cast/Posts/Michipicoten"]
+position = Vector2(58368, 26304)
+script = ExtResource("30_npcspawn")
+DisplayName = "George Sabiston"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Michipicoten"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Michipicoten/George Sabiston"]
+position = Vector2(64, 96)
+
+[node name="James Sinclair" type="Node2D" parent="Cast/Posts/Michipicoten"]
+position = Vector2(58432, 26336)
+script = ExtResource("30_npcspawn")
+DisplayName = "James Sinclair"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Michipicoten"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Michipicoten/James Sinclair"]
+position = Vector2(64, 96)
+
+[node name="Henley House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Hugh Hughes" type="Node2D" parent="Cast/Posts/Henley House"]
+position = Vector2(56832, 20224)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Hugh Hughes"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Henley House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Henley House/Mr Hugh Hughes"]
+position = Vector2(-128, 0)
+
+[node name="George Isbister" type="Node2D" parent="Cast/Posts/Henley House"]
+position = Vector2(56640, 20256)
+script = ExtResource("30_npcspawn")
+DisplayName = "George Isbister"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Henley House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Henley House/George Isbister"]
+position = Vector2(64, 96)
+
+[node name="Thomas Spence" type="Node2D" parent="Cast/Posts/Henley House"]
+position = Vector2(56704, 20288)
+script = ExtResource("30_npcspawn")
+DisplayName = "Thomas Spence"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Henley House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Henley House/Thomas Spence"]
+position = Vector2(64, 96)
+
+[node name="Cumberland House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Alexander McKay" type="Node2D" parent="Cast/Posts/Cumberland House"]
+position = Vector2(32960, 16288)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Alexander McKay"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Cumberland House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Mr Alexander McKay"]
+position = Vector2(-128, 0)
+
+[node name="Robert Tait" type="Node2D" parent="Cast/Posts/Cumberland House"]
+position = Vector2(32768, 16320)
+script = ExtResource("30_npcspawn")
+DisplayName = "Robert Tait"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Cumberland House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Robert Tait"]
+position = Vector2(64, 96)
+
+[node name="Hugh Spence" type="Node2D" parent="Cast/Posts/Cumberland House"]
+position = Vector2(32832, 16352)
+script = ExtResource("30_npcspawn")
+DisplayName = "Hugh Spence"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Cumberland House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Hugh Spence"]
+position = Vector2(64, 96)
+
+[node name="Gloucester House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Thomas McKay" type="Node2D" parent="Cast/Posts/Gloucester House"]
+position = Vector2(52736, 21312)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Thomas McKay"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Gloucester House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Gloucester House/Mr Thomas McKay"]
+position = Vector2(-128, 0)
+
+[node name="Joseph Tait" type="Node2D" parent="Cast/Posts/Gloucester House"]
+position = Vector2(52544, 21344)
+script = ExtResource("30_npcspawn")
+DisplayName = "Joseph Tait"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Gloucester House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Gloucester House/Joseph Tait"]
+position = Vector2(64, 96)
+
+[node name="John Isbister" type="Node2D" parent="Cast/Posts/Gloucester House"]
+position = Vector2(52608, 21376)
+script = ExtResource("30_npcspawn")
+DisplayName = "John Isbister"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Gloucester House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Gloucester House/John Isbister"]
+position = Vector2(64, 96)
+
+[node name="Grand Portage" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr James Leith" type="Node2D" parent="Cast/Posts/Grand Portage"]
+position = Vector2(50944, 27776)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. James Leith"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Grand Portage"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Grand Portage/Mr James Leith"]
+position = Vector2(-128, 0)
+
+[node name="Joseph Boucher" type="Node2D" parent="Cast/Posts/Grand Portage"]
+position = Vector2(50752, 27808)
+script = ExtResource("30_npcspawn")
+DisplayName = "Joseph Boucher"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Grand Portage"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Grand Portage/Joseph Boucher"]
+position = Vector2(64, 96)
+
+[node name="Michel Lafleur" type="Node2D" parent="Cast/Posts/Grand Portage"]
+position = Vector2(50816, 27840)
+script = ExtResource("30_npcspawn")
+DisplayName = "Michel Lafleur"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Grand Portage"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Grand Portage/Michel Lafleur"]
+position = Vector2(64, 96)
+
+[node name="Hudson House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Robert Charles" type="Node2D" parent="Cast/Posts/Hudson House"]
+position = Vector2(26240, 18624)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Robert Charles"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Hudson House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Hudson House/Mr Robert Charles"]
+position = Vector2(-128, 0)
+
+[node name="George Corrigal" type="Node2D" parent="Cast/Posts/Hudson House"]
+position = Vector2(26048, 18656)
+script = ExtResource("30_npcspawn")
+DisplayName = "George Corrigal"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Hudson House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Hudson House/George Corrigal"]
+position = Vector2(64, 96)
+
+[node name="David Garrick" type="Node2D" parent="Cast/Posts/Hudson House"]
+position = Vector2(26112, 18688)
+script = ExtResource("30_npcspawn")
+DisplayName = "David Garrick"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Hudson House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Hudson House/David Garrick"]
+position = Vector2(64, 96)
+
+[node name="Ile-a-la-Crosse" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Adam Fraser" type="Node2D" parent="Cast/Posts/Ile-a-la-Crosse"]
+position = Vector2(25344, 13888)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Adam Fraser"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Ile-a-la-Crosse"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Ile-a-la-Crosse/Mr Adam Fraser"]
+position = Vector2(-128, 0)
+
+[node name="Charles Trottier" type="Node2D" parent="Cast/Posts/Ile-a-la-Crosse"]
+position = Vector2(25152, 13920)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Trottier"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Ile-a-la-Crosse"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Ile-a-la-Crosse/Charles Trottier"]
+position = Vector2(64, 96)
+
+[node name="Augustin Beaulieu" type="Node2D" parent="Cast/Posts/Ile-a-la-Crosse"]
+position = Vector2(25216, 13952)
+script = ExtResource("30_npcspawn")
+DisplayName = "Augustin Beaulieu"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Ile-a-la-Crosse"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Ile-a-la-Crosse/Augustin Beaulieu"]
+position = Vector2(64, 96)
+
+[node name="Michilimackinac" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr John McIntosh" type="Node2D" parent="Cast/Posts/Michilimackinac"]
+position = Vector2(59648, 30336)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. John McIntosh"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Michilimackinac"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Michilimackinac/Mr John McIntosh"]
+position = Vector2(-128, 0)
+
+[node name="Toussaint Sauve" type="Node2D" parent="Cast/Posts/Michilimackinac"]
+position = Vector2(59456, 30368)
+script = ExtResource("30_npcspawn")
+DisplayName = "Toussaint Sauve"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Michilimackinac"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Michilimackinac/Toussaint Sauve"]
+position = Vector2(64, 96)
+
+[node name="Joseph Trottier" type="Node2D" parent="Cast/Posts/Michilimackinac"]
+position = Vector2(59520, 30400)
+script = ExtResource("30_npcspawn")
+DisplayName = "Joseph Trottier"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Michilimackinac"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Michilimackinac/Joseph Trottier"]
+position = Vector2(64, 96)
+
+[node name="Green Lake" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Donald Kennedy" type="Node2D" parent="Cast/Posts/Green Lake"]
+position = Vector2(25536, 15776)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Donald Kennedy"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Green Lake"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Green Lake/Mr Donald Kennedy"]
+position = Vector2(-128, 0)
+
+[node name="Thomas Corrigal" type="Node2D" parent="Cast/Posts/Green Lake"]
+position = Vector2(25344, 15808)
+script = ExtResource("30_npcspawn")
+DisplayName = "Thomas Corrigal"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Green Lake"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Green Lake/Thomas Corrigal"]
+position = Vector2(64, 96)
+
+[node name="Adam Gibson" type="Node2D" parent="Cast/Posts/Green Lake"]
+position = Vector2(25408, 15840)
+script = ExtResource("30_npcspawn")
+DisplayName = "Adam Gibson"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Green Lake"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Green Lake/Adam Gibson"]
+position = Vector2(64, 96)
+
+[node name="Lac la Ronge" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Peter Stuart" type="Node2D" parent="Cast/Posts/Lac la Ronge"]
+position = Vector2(29760, 14752)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Peter Stuart"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Lac la Ronge"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Lac la Ronge/Mr Peter Stuart"]
+position = Vector2(-128, 0)
+
+[node name="Francois Desjarlais" type="Node2D" parent="Cast/Posts/Lac la Ronge"]
+position = Vector2(29568, 14784)
+script = ExtResource("30_npcspawn")
+DisplayName = "Francois Desjarlais"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Lac la Ronge"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Lac la Ronge/Francois Desjarlais"]
+position = Vector2(64, 96)
+
+[node name="Louis Riel" type="Node2D" parent="Cast/Posts/Lac la Ronge"]
+position = Vector2(29632, 14816)
+script = ExtResource("30_npcspawn")
+DisplayName = "Louis Riel"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Lac la Ronge"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Lac la Ronge/Louis Riel"]
+position = Vector2(64, 96)
+
+[node name="Sault Ste Marie" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Peter Campbell" type="Node2D" parent="Cast/Posts/Sault Ste Marie"]
+position = Vector2(60544, 29120)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Peter Campbell"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Sault Ste. Marie"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Sault Ste Marie/Mr Peter Campbell"]
+position = Vector2(-128, 0)
+
+[node name="Joseph Cadotte" type="Node2D" parent="Cast/Posts/Sault Ste Marie"]
+position = Vector2(60352, 29152)
+script = ExtResource("30_npcspawn")
+DisplayName = "Joseph Cadotte"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Sault Ste. Marie"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Sault Ste Marie/Joseph Cadotte"]
+position = Vector2(64, 96)
+
+[node name="Charles Plante" type="Node2D" parent="Cast/Posts/Sault Ste Marie"]
+position = Vector2(60416, 29184)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Plante"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Sault Ste. Marie"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Sault Ste Marie/Charles Plante"]
+position = Vector2(64, 96)
+
+[node name="Pine Fort" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Robert Cameron" type="Node2D" parent="Cast/Posts/Pine Fort"]
+position = Vector2(35648, 25952)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Robert Cameron"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Pine Fort"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Pine Fort/Mr Robert Cameron"]
+position = Vector2(-128, 0)
+
+[node name="Antoine Plante" type="Node2D" parent="Cast/Posts/Pine Fort"]
+position = Vector2(35456, 25984)
+script = ExtResource("30_npcspawn")
+DisplayName = "Antoine Plante"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Pine Fort"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Pine Fort/Antoine Plante"]
+position = Vector2(64, 96)
+
+[node name="Jean-Baptiste Primeau" type="Node2D" parent="Cast/Posts/Pine Fort"]
+position = Vector2(35520, 26016)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jean-Baptiste Primeau"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Pine Fort"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Pine Fort/Jean-Baptiste Primeau"]
+position = Vector2(64, 96)
+
+[node name="Manchester House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Charles Fidler" type="Node2D" parent="Cast/Posts/Manchester House"]
+position = Vector2(24192, 17408)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Charles Fidler"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Manchester House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Manchester House/Mr Charles Fidler"]
+position = Vector2(-128, 0)
+
+[node name="Donald Omand" type="Node2D" parent="Cast/Posts/Manchester House"]
+position = Vector2(24000, 17440)
+script = ExtResource("30_npcspawn")
+DisplayName = "Donald Omand"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Manchester House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Manchester House/Donald Omand"]
+position = Vector2(64, 96)
+
+[node name="Alexander Rendall" type="Node2D" parent="Cast/Posts/Manchester House"]
+position = Vector2(24064, 17472)
+script = ExtResource("30_npcspawn")
+DisplayName = "Alexander Rendall"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Manchester House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Manchester House/Alexander Rendall"]
+position = Vector2(64, 96)
+
+[node name="South Branch House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr John Hodgson" type="Node2D" parent="Cast/Posts/South Branch House"]
+position = Vector2(28480, 19744)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. John Hodgson"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "South Branch House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/South Branch House/Mr John Hodgson"]
+position = Vector2(-128, 0)
+
+[node name="James Inkster" type="Node2D" parent="Cast/Posts/South Branch House"]
+position = Vector2(28288, 19776)
+script = ExtResource("30_npcspawn")
+DisplayName = "James Inkster"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "South Branch House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/South Branch House/James Inkster"]
+position = Vector2(64, 96)
+
+[node name="David Budge" type="Node2D" parent="Cast/Posts/South Branch House"]
+position = Vector2(28352, 19808)
+script = ExtResource("30_npcspawn")
+DisplayName = "David Budge"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "South Branch House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/South Branch House/David Budge"]
+position = Vector2(64, 96)
+
+[node name="Osnaburgh House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr David Corrigal" type="Node2D" parent="Cast/Posts/Osnaburgh House"]
+position = Vector2(49024, 20928)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. David Corrigal"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Osnaburgh House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Osnaburgh House/Mr David Corrigal"]
+position = Vector2(-128, 0)
+
+[node name="Thomas Isbister" type="Node2D" parent="Cast/Posts/Osnaburgh House"]
+position = Vector2(48832, 20960)
+script = ExtResource("30_npcspawn")
+DisplayName = "Thomas Isbister"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Osnaburgh House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Osnaburgh House/Thomas Isbister"]
+position = Vector2(64, 96)
+
+[node name="Donald Bird" type="Node2D" parent="Cast/Posts/Osnaburgh House"]
+position = Vector2(48896, 20992)
+script = ExtResource("30_npcspawn")
+DisplayName = "Donald Bird"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Osnaburgh House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Osnaburgh House/Donald Bird"]
+position = Vector2(64, 96)
+
+[node name="Fort Esperance" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Andrew Wentzel" type="Node2D" parent="Cast/Posts/Fort Esperance"]
+position = Vector2(33408, 24960)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Andrew Wentzel"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Esperance"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Esperance/Mr Andrew Wentzel"]
+position = Vector2(-128, 0)
+
+[node name="Etienne Trottier" type="Node2D" parent="Cast/Posts/Fort Esperance"]
+position = Vector2(33216, 24992)
+script = ExtResource("30_npcspawn")
+DisplayName = "Etienne Trottier"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Esperance"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Esperance/Etienne Trottier"]
+position = Vector2(64, 96)
+
+[node name="Augustin Morin" type="Node2D" parent="Cast/Posts/Fort Esperance"]
+position = Vector2(33280, 25024)
+script = ExtResource("30_npcspawn")
+DisplayName = "Augustin Morin"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Esperance"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Esperance/Augustin Morin"]
+position = Vector2(64, 96)
+
+[node name="Rainy Lake House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Thomas Shaw" type="Node2D" parent="Cast/Posts/Rainy Lake House"]
+position = Vector2(46080, 28224)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Thomas Shaw"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Rainy Lake House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Rainy Lake House/Mr Thomas Shaw"]
+position = Vector2(-128, 0)
+
+[node name="Basile Boucher" type="Node2D" parent="Cast/Posts/Rainy Lake House"]
+position = Vector2(45888, 28256)
+script = ExtResource("30_npcspawn")
+DisplayName = "Basile Boucher"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Rainy Lake House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Rainy Lake House/Basile Boucher"]
+position = Vector2(64, 96)
+
+[node name="Toussaint Allard" type="Node2D" parent="Cast/Posts/Rainy Lake House"]
+position = Vector2(45952, 28288)
+script = ExtResource("30_npcspawn")
+DisplayName = "Toussaint Allard"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Rainy Lake House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Rainy Lake House/Toussaint Allard"]
+position = Vector2(64, 96)
+
+[node name="Fort Chipewyan" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr John Shaw" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
+position = Vector2(22976, 6560)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. John Shaw"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Chipewyan"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Mr John Shaw"]
+position = Vector2(-128, 0)
+
+[node name="Etienne Sauve" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
+position = Vector2(22784, 6592)
+script = ExtResource("30_npcspawn")
+DisplayName = "Etienne Sauve"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Chipewyan"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Etienne Sauve"]
+position = Vector2(64, 96)
+
+[node name="Charles Desjarlais" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
+position = Vector2(22848, 6624)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Desjarlais"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Chipewyan"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Charles Desjarlais"]
+position = Vector2(64, 96)
+
+[node name="Brunswick House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr David Fidler" type="Node2D" parent="Cast/Posts/Brunswick House"]
+position = Vector2(59968, 22688)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. David Fidler"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Brunswick House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Brunswick House/Mr David Fidler"]
+position = Vector2(-128, 0)
+
+[node name="Joseph Leask" type="Node2D" parent="Cast/Posts/Brunswick House"]
+position = Vector2(59776, 22720)
+script = ExtResource("30_npcspawn")
+DisplayName = "Joseph Leask"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Brunswick House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Brunswick House/Joseph Leask"]
+position = Vector2(64, 96)
+
+[node name="Alexander Tait" type="Node2D" parent="Cast/Posts/Brunswick House"]
+position = Vector2(59840, 22752)
+script = ExtResource("30_npcspawn")
+DisplayName = "Alexander Tait"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Brunswick House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Brunswick House/Alexander Tait"]
+position = Vector2(64, 96)
+
+[node name="Nipawi" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Peter McTavish" type="Node2D" parent="Cast/Posts/Nipawi"]
+position = Vector2(30720, 18560)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Peter McTavish"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Nipawi"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Nipawi/Mr Peter McTavish"]
+position = Vector2(-128, 0)
+
+[node name="Joseph Nolin" type="Node2D" parent="Cast/Posts/Nipawi"]
+position = Vector2(30528, 18592)
+script = ExtResource("30_npcspawn")
+DisplayName = "Joseph Nolin"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Nipawi"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Nipawi/Joseph Nolin"]
+position = Vector2(64, 96)
+
+[node name="Michel Vandal" type="Node2D" parent="Cast/Posts/Nipawi"]
+position = Vector2(30592, 18624)
+script = ExtResource("30_npcspawn")
+DisplayName = "Michel Vandal"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Nipawi"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Nipawi/Michel Vandal"]
+position = Vector2(64, 96)
+
+[node name="Swan River House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr George Wentzel" type="Node2D" parent="Cast/Posts/Swan River House"]
+position = Vector2(34176, 20800)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. George Wentzel"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Swan River House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Swan River House/Mr George Wentzel"]
+position = Vector2(-128, 0)
+
+[node name="Etienne Primeau" type="Node2D" parent="Cast/Posts/Swan River House"]
+position = Vector2(33984, 20832)
+script = ExtResource("30_npcspawn")
+DisplayName = "Etienne Primeau"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Swan River House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Swan River House/Etienne Primeau"]
+position = Vector2(64, 96)
+
+[node name="Pierre Trottier" type="Node2D" parent="Cast/Posts/Swan River House"]
+position = Vector2(34048, 20864)
+script = ExtResource("30_npcspawn")
+DisplayName = "Pierre Trottier"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Swan River House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Swan River House/Pierre Trottier"]
+position = Vector2(64, 96)
+
+[node name="Montagne a la Bosse" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr John Fraser" type="Node2D" parent="Cast/Posts/Montagne a la Bosse"]
+position = Vector2(35840, 24640)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. John Fraser"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Montagne a la Bosse"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Montagne a la Bosse/Mr John Fraser"]
+position = Vector2(-128, 0)
+
+[node name="Basile Gingras" type="Node2D" parent="Cast/Posts/Montagne a la Bosse"]
+position = Vector2(35648, 24672)
+script = ExtResource("30_npcspawn")
+DisplayName = "Basile Gingras"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Montagne a la Bosse"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Montagne a la Bosse/Basile Gingras"]
+position = Vector2(64, 96)
+
+[node name="Antoine Trottier" type="Node2D" parent="Cast/Posts/Montagne a la Bosse"]
+position = Vector2(35712, 24704)
+script = ExtResource("30_npcspawn")
+DisplayName = "Antoine Trottier"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Montagne a la Bosse"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Montagne a la Bosse/Antoine Trottier"]
+position = Vector2(64, 96)
+
+[node name="Red Lake Post" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Peter Henry" type="Node2D" parent="Cast/Posts/Red Lake Post"]
+position = Vector2(44160, 29888)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Peter Henry"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Red Lake Post"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Red Lake Post/Mr Peter Henry"]
+position = Vector2(-128, 0)
+
+[node name="Augustin Delorme" type="Node2D" parent="Cast/Posts/Red Lake Post"]
+position = Vector2(43968, 29920)
+script = ExtResource("30_npcspawn")
+DisplayName = "Augustin Delorme"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Red Lake Post"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Red Lake Post/Augustin Delorme"]
+position = Vector2(64, 96)
+
+[node name="Jean-Baptiste Delorme" type="Node2D" parent="Cast/Posts/Red Lake Post"]
+position = Vector2(44032, 29952)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jean-Baptiste Delorme"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Red Lake Post"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Red Lake Post/Jean-Baptiste Delorme"]
+position = Vector2(64, 96)
+
+[node name="La Cloche" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Joseph Robertson" type="Node2D" parent="Cast/Posts/La Cloche"]
+position = Vector2(63296, 29024)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Joseph Robertson"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "La Cloche"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/La Cloche/Mr Joseph Robertson"]
+position = Vector2(-128, 0)
+
+[node name="Joseph Flett" type="Node2D" parent="Cast/Posts/La Cloche"]
+position = Vector2(63104, 29056)
+script = ExtResource("30_npcspawn")
+DisplayName = "Joseph Flett"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "La Cloche"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/La Cloche/Joseph Flett"]
+position = Vector2(64, 96)
+
+[node name="Thomas Tait" type="Node2D" parent="Cast/Posts/La Cloche"]
+position = Vector2(63168, 29088)
+script = ExtResource("30_npcspawn")
+DisplayName = "Thomas Tait"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "La Cloche"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/La Cloche/Thomas Tait"]
+position = Vector2(64, 96)
+
+[node name="Fort George" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Donald Henry" type="Node2D" parent="Cast/Posts/Fort George"]
+position = Vector2(20864, 15744)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Donald Henry"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort George"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort George/Mr Donald Henry"]
+position = Vector2(-128, 0)
+
+[node name="Antoine Dumas" type="Node2D" parent="Cast/Posts/Fort George"]
+position = Vector2(20672, 15776)
+script = ExtResource("30_npcspawn")
+DisplayName = "Antoine Dumas"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort George"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort George/Antoine Dumas"]
+position = Vector2(64, 96)
+
+[node name="Jean-Baptiste Desjarlais" type="Node2D" parent="Cast/Posts/Fort George"]
+position = Vector2(20736, 15808)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jean-Baptiste Desjarlais"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort George"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort George/Jean-Baptiste Desjarlais"]
+position = Vector2(64, 96)
+
+[node name="Buckingham House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Joseph Sutherland" type="Node2D" parent="Cast/Posts/Buckingham House"]
+position = Vector2(20288, 16928)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Joseph Sutherland"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Buckingham House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Buckingham House/Mr Joseph Sutherland"]
+position = Vector2(-128, 0)
+
+[node name="Robert Isbister" type="Node2D" parent="Cast/Posts/Buckingham House"]
+position = Vector2(20096, 16960)
+script = ExtResource("30_npcspawn")
+DisplayName = "Robert Isbister"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Buckingham House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Buckingham House/Robert Isbister"]
+position = Vector2(64, 96)
+
+[node name="Robert Corrigal" type="Node2D" parent="Cast/Posts/Buckingham House"]
+position = Vector2(20160, 16992)
+script = ExtResource("30_npcspawn")
+DisplayName = "Robert Corrigal"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Buckingham House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Buckingham House/Robert Corrigal"]
+position = Vector2(64, 96)
+
+[node name="Fort Bas de la Riviere" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr David McTavish" type="Node2D" parent="Cast/Posts/Fort Bas de la Riviere"]
+position = Vector2(41920, 23328)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. David McTavish"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Bas de la Riviere"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Bas de la Riviere/Mr David McTavish"]
+position = Vector2(-128, 0)
+
+[node name="Charles Paradis" type="Node2D" parent="Cast/Posts/Fort Bas de la Riviere"]
+position = Vector2(41728, 23360)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Paradis"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Bas de la Riviere"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Bas de la Riviere/Charles Paradis"]
+position = Vector2(64, 96)
+
+[node name="Michel Trottier" type="Node2D" parent="Cast/Posts/Fort Bas de la Riviere"]
+position = Vector2(41792, 23392)
+script = ExtResource("30_npcspawn")
+DisplayName = "Michel Trottier"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Bas de la Riviere"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Bas de la Riviere/Michel Trottier"]
+position = Vector2(64, 96)
+
+[node name="Brandon House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr James Robertson" type="Node2D" parent="Cast/Posts/Brandon House"]
+position = Vector2(36736, 26752)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. James Robertson"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Brandon House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Brandon House/Mr James Robertson"]
+position = Vector2(-128, 0)
+
+[node name="David Moar" type="Node2D" parent="Cast/Posts/Brandon House"]
+position = Vector2(36544, 26784)
+script = ExtResource("30_npcspawn")
+DisplayName = "David Moar"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Brandon House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Brandon House/David Moar"]
+position = Vector2(64, 96)
+
+[node name="George Groat" type="Node2D" parent="Cast/Posts/Brandon House"]
+position = Vector2(36608, 26816)
+script = ExtResource("30_npcspawn")
+DisplayName = "George Groat"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Brandon House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Brandon House/George Groat"]
+position = Vector2(64, 96)
+
+[node name="Martin Falls" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr John Charles" type="Node2D" parent="Cast/Posts/Martin Falls"]
+position = Vector2(55168, 19776)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. John Charles"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Martin Falls"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Martin Falls/Mr John Charles"]
+position = Vector2(-128, 0)
+
+[node name="Andrew Sinclair" type="Node2D" parent="Cast/Posts/Martin Falls"]
+position = Vector2(54976, 19808)
+script = ExtResource("30_npcspawn")
+DisplayName = "Andrew Sinclair"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Martin Falls"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Martin Falls/Andrew Sinclair"]
+position = Vector2(64, 96)
+
+[node name="Peter Folster" type="Node2D" parent="Cast/Posts/Martin Falls"]
+position = Vector2(55040, 19840)
+script = ExtResource("30_npcspawn")
+DisplayName = "Peter Folster"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Martin Falls"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Martin Falls/Peter Folster"]
+position = Vector2(64, 96)
+
+[node name="Fort Souris" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Andrew McTavish" type="Node2D" parent="Cast/Posts/Fort Souris"]
+position = Vector2(37888, 26112)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Andrew McTavish"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Souris"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Souris/Mr Andrew McTavish"]
+position = Vector2(-128, 0)
+
+[node name="Charles Cadotte" type="Node2D" parent="Cast/Posts/Fort Souris"]
+position = Vector2(37696, 26144)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Cadotte"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Souris"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Souris/Charles Cadotte"]
+position = Vector2(64, 96)
+
+[node name="Pierre Dumas" type="Node2D" parent="Cast/Posts/Fort Souris"]
+position = Vector2(37760, 26176)
+script = ExtResource("30_npcspawn")
+DisplayName = "Pierre Dumas"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Souris"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Souris/Pierre Dumas"]
+position = Vector2(64, 96)
+
+[node name="Edmonton House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr James Spencer" type="Node2D" parent="Cast/Posts/Edmonton House"]
+position = Vector2(18304, 17216)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. James Spencer"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Edmonton House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Mr James Spencer"]
+position = Vector2(-128, 0)
+
+[node name="George Inkster" type="Node2D" parent="Cast/Posts/Edmonton House"]
+position = Vector2(18112, 17248)
+script = ExtResource("30_npcspawn")
+DisplayName = "George Inkster"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Edmonton House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/George Inkster"]
+position = Vector2(64, 96)
+
+[node name="David Sinclair" type="Node2D" parent="Cast/Posts/Edmonton House"]
+position = Vector2(18176, 17280)
+script = ExtResource("30_npcspawn")
+DisplayName = "David Sinclair"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Edmonton House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/David Sinclair"]
+position = Vector2(64, 96)
+
+[node name="Fort Augustus" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Hugh Grant" type="Node2D" parent="Cast/Posts/Fort Augustus"]
+position = Vector2(17920, 15616)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Hugh Grant"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Augustus"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Augustus/Mr Hugh Grant"]
+position = Vector2(-128, 0)
+
+[node name="Michel Morin" type="Node2D" parent="Cast/Posts/Fort Augustus"]
+position = Vector2(17728, 15648)
+script = ExtResource("30_npcspawn")
+DisplayName = "Michel Morin"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Augustus"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Augustus/Michel Morin"]
+position = Vector2(64, 96)
+
+[node name="Toussaint Delorme" type="Node2D" parent="Cast/Posts/Fort Augustus"]
+position = Vector2(17792, 15680)
+script = ExtResource("30_npcspawn")
+DisplayName = "Toussaint Delorme"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Augustus"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Augustus/Toussaint Delorme"]
+position = Vector2(64, 96)
+
+[node name="Carlton House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Adam Vincent" type="Node2D" parent="Cast/Posts/Carlton House"]
+position = Vector2(27264, 17792)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Adam Vincent"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Carlton House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Carlton House/Mr Adam Vincent"]
+position = Vector2(-128, 0)
+
+[node name="James Spence" type="Node2D" parent="Cast/Posts/Carlton House"]
+position = Vector2(27072, 17824)
+script = ExtResource("30_npcspawn")
+DisplayName = "James Spence"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Carlton House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Carlton House/James Spence"]
+position = Vector2(64, 96)
+
+[node name="David Clouston" type="Node2D" parent="Cast/Posts/Carlton House"]
+position = Vector2(27136, 17856)
+script = ExtResource("30_npcspawn")
+DisplayName = "David Clouston"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Carlton House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Carlton House/David Clouston"]
+position = Vector2(64, 96)
+
+[node name="Fort Alexandria" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr David Cameron" type="Node2D" parent="Cast/Posts/Fort Alexandria"]
+position = Vector2(33856, 22240)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. David Cameron"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Alexandria"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Alexandria/Mr David Cameron"]
+position = Vector2(-128, 0)
+
+[node name="Francois Plante" type="Node2D" parent="Cast/Posts/Fort Alexandria"]
+position = Vector2(33664, 22272)
+script = ExtResource("30_npcspawn")
+DisplayName = "Francois Plante"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Alexandria"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Alexandria/Francois Plante"]
+position = Vector2(64, 96)
+
+[node name="Antoine Gingras" type="Node2D" parent="Cast/Posts/Fort Alexandria"]
+position = Vector2(33728, 22304)
+script = ExtResource("30_npcspawn")
+DisplayName = "Antoine Gingras"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Alexandria"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Alexandria/Antoine Gingras"]
+position = Vector2(64, 96)
+
+[node name="Portage la Prairie" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr James Henry" type="Node2D" parent="Cast/Posts/Portage la Prairie"]
+position = Vector2(37440, 24864)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. James Henry"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Portage la Prairie"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Portage la Prairie/Mr James Henry"]
+position = Vector2(-128, 0)
+
+[node name="Augustin Primeau" type="Node2D" parent="Cast/Posts/Portage la Prairie"]
+position = Vector2(37248, 24896)
+script = ExtResource("30_npcspawn")
+DisplayName = "Augustin Primeau"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Portage la Prairie"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Portage la Prairie/Augustin Primeau"]
+position = Vector2(64, 96)
+
+[node name="Toussaint Nolin" type="Node2D" parent="Cast/Posts/Portage la Prairie"]
+position = Vector2(37312, 24928)
+script = ExtResource("30_npcspawn")
+DisplayName = "Toussaint Nolin"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Portage la Prairie"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Portage la Prairie/Toussaint Nolin"]
+position = Vector2(64, 96)
+
+[node name="Manitoba House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr John Fidler" type="Node2D" parent="Cast/Posts/Manitoba House"]
+position = Vector2(38656, 23296)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. John Fidler"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Manitoba House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Manitoba House/Mr John Fidler"]
+position = Vector2(-128, 0)
+
+[node name="William Leask" type="Node2D" parent="Cast/Posts/Manitoba House"]
+position = Vector2(38464, 23328)
+script = ExtResource("30_npcspawn")
+DisplayName = "William Leask"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Manitoba House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Manitoba House/William Leask"]
+position = Vector2(64, 96)
+
+[node name="Robert Linklater" type="Node2D" parent="Cast/Posts/Manitoba House"]
+position = Vector2(38528, 23360)
+script = ExtResource("30_npcspawn")
+DisplayName = "Robert Linklater"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Manitoba House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Manitoba House/Robert Linklater"]
+position = Vector2(64, 96)
+
+[node name="Fort Vermilion" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Thomas McTavish" type="Node2D" parent="Cast/Posts/Fort Vermilion"]
+position = Vector2(21632, 17152)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Thomas McTavish"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Vermilion"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Vermilion/Mr Thomas McTavish"]
+position = Vector2(-128, 0)
+
+[node name="Jean-Baptiste Boucher" type="Node2D" parent="Cast/Posts/Fort Vermilion"]
+position = Vector2(21440, 17184)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jean-Baptiste Boucher"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Vermilion"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Vermilion/Jean-Baptiste Boucher"]
+position = Vector2(64, 96)
+
+[node name="Charles Charbonneau" type="Node2D" parent="Cast/Posts/Fort Vermilion"]
+position = Vector2(21504, 17216)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Charbonneau"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Vermilion"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Vermilion/Charles Charbonneau"]
+position = Vector2(64, 96)
+
+[node name="Turtle River House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr John Stuart" type="Node2D" parent="Cast/Posts/Turtle River House"]
+position = Vector2(39488, 29280)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. John Stuart"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Turtle River House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Turtle River House/Mr John Stuart"]
+position = Vector2(-128, 0)
+
+[node name="Pierre Nolin" type="Node2D" parent="Cast/Posts/Turtle River House"]
+position = Vector2(39296, 29312)
+script = ExtResource("30_npcspawn")
+DisplayName = "Pierre Nolin"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Turtle River House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Turtle River House/Pierre Nolin"]
+position = Vector2(64, 96)
+
+[node name="Toussaint Morin" type="Node2D" parent="Cast/Posts/Turtle River House"]
+position = Vector2(39360, 29344)
+script = ExtResource("30_npcspawn")
+DisplayName = "Toussaint Morin"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Turtle River House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Turtle River House/Toussaint Morin"]
+position = Vector2(64, 96)
+
+[node name="Rocky Mountain House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Alexander McLeod" type="Node2D" parent="Cast/Posts/Rocky Mountain House"]
+position = Vector2(15936, 19296)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Alexander McLeod"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Rocky Mountain House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Rocky Mountain House/Mr Alexander McLeod"]
+position = Vector2(-128, 0)
+
+[node name="Louis Belanger" type="Node2D" parent="Cast/Posts/Rocky Mountain House"]
+position = Vector2(15744, 19328)
+script = ExtResource("30_npcspawn")
+DisplayName = "Louis Belanger"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Rocky Mountain House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Rocky Mountain House/Louis Belanger"]
+position = Vector2(64, 96)
+
+[node name="Charles Lafleur" type="Node2D" parent="Cast/Posts/Rocky Mountain House"]
+position = Vector2(15808, 19360)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Lafleur"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Rocky Mountain House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Rocky Mountain House/Charles Lafleur"]
+position = Vector2(64, 96)
+
+[node name="Nut Lake" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr George Hughes" type="Node2D" parent="Cast/Posts/Nut Lake"]
+position = Vector2(31360, 20352)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. George Hughes"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Nut Lake"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Nut Lake/Mr George Hughes"]
+position = Vector2(-128, 0)
+
+[node name="John Kirkness" type="Node2D" parent="Cast/Posts/Nut Lake"]
+position = Vector2(31168, 20384)
+script = ExtResource("30_npcspawn")
+DisplayName = "John Kirkness"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Nut Lake"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Nut Lake/John Kirkness"]
+position = Vector2(64, 96)
+
+[node name="Hugh Kirkness" type="Node2D" parent="Cast/Posts/Nut Lake"]
+position = Vector2(31232, 20416)
+script = ExtResource("30_npcspawn")
+DisplayName = "Hugh Kirkness"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Nut Lake"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Nut Lake/Hugh Kirkness"]
+position = Vector2(64, 96)
+
+[node name="Chesterfield House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Peter Bird" type="Node2D" parent="Cast/Posts/Chesterfield House"]
+position = Vector2(21696, 22432)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Peter Bird"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Chesterfield House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Chesterfield House/Mr Peter Bird"]
+position = Vector2(-128, 0)
+
+[node name="Thomas Halcro" type="Node2D" parent="Cast/Posts/Chesterfield House"]
+position = Vector2(21504, 22464)
+script = ExtResource("30_npcspawn")
+DisplayName = "Thomas Halcro"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Chesterfield House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Chesterfield House/Thomas Halcro"]
+position = Vector2(64, 96)
+
+[node name="James Harper" type="Node2D" parent="Cast/Posts/Chesterfield House"]
+position = Vector2(21568, 22496)
+script = ExtResource("30_npcspawn")
+DisplayName = "James Harper"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Chesterfield House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Chesterfield House/James Harper"]
+position = Vector2(64, 96)
+
+[node name="Fort Nelson BC" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr James Thomson" type="Node2D" parent="Cast/Posts/Fort Nelson BC"]
+position = Vector2(9408, 2720)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. James Thomson"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Nelson (BC)"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Nelson BC/Mr James Thomson"]
+position = Vector2(-128, 0)
+
+[node name="Augustin Cadotte" type="Node2D" parent="Cast/Posts/Fort Nelson BC"]
+position = Vector2(9216, 2752)
+script = ExtResource("30_npcspawn")
+DisplayName = "Augustin Cadotte"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Nelson (BC)"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Nelson BC/Augustin Cadotte"]
+position = Vector2(64, 96)
+
+[node name="Jean-Baptiste Paradis" type="Node2D" parent="Cast/Posts/Fort Nelson BC"]
+position = Vector2(9280, 2784)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jean-Baptiste Paradis"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Nelson (BC)"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Nelson BC/Jean-Baptiste Paradis"]
+position = Vector2(64, 96)
+
+[node name="Pembina Post" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Peter McLeod" type="Node2D" parent="Cast/Posts/Pembina Post"]
+position = Vector2(39232, 27424)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Peter McLeod"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Pembina Post"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Pembina Post/Mr Peter McLeod"]
+position = Vector2(-128, 0)
+
+[node name="Antoine Desjarlais" type="Node2D" parent="Cast/Posts/Pembina Post"]
+position = Vector2(39040, 27456)
+script = ExtResource("30_npcspawn")
+DisplayName = "Antoine Desjarlais"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Pembina Post"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Pembina Post/Antoine Desjarlais"]
+position = Vector2(64, 96)
+
+[node name="Jacques Boucher" type="Node2D" parent="Cast/Posts/Pembina Post"]
+position = Vector2(39104, 27488)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jacques Boucher"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Pembina Post"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Pembina Post/Jacques Boucher"]
+position = Vector2(64, 96)
+
+[node name="Lesser Slave Lake Ho" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Magnus Fidler" type="Node2D" parent="Cast/Posts/Lesser Slave Lake Ho"]
+position = Vector2(16064, 12064)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Magnus Fidler"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Lesser Slave Lake Ho."
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Lesser Slave Lake Ho/Mr Magnus Fidler"]
+position = Vector2(-128, 0)
+
+[node name="William Garrick" type="Node2D" parent="Cast/Posts/Lesser Slave Lake Ho"]
+position = Vector2(15872, 12096)
+script = ExtResource("30_npcspawn")
+DisplayName = "William Garrick"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Lesser Slave Lake Ho."
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Lesser Slave Lake Ho/William Garrick"]
+position = Vector2(64, 96)
+
+[node name="Andrew Harper" type="Node2D" parent="Cast/Posts/Lesser Slave Lake Ho"]
+position = Vector2(15936, 12128)
+script = ExtResource("30_npcspawn")
+DisplayName = "Andrew Harper"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Lesser Slave Lake Ho."
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Lesser Slave Lake Ho/Andrew Harper"]
+position = Vector2(64, 96)
+
+[node name="Fort William" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Charles McGillivray" type="Node2D" parent="Cast/Posts/Fort William"]
+position = Vector2(51648, 26528)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Charles McGillivray"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort William"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Mr Charles McGillivray"]
+position = Vector2(-128, 0)
+
+[node name="Jacques Delorme" type="Node2D" parent="Cast/Posts/Fort William"]
+position = Vector2(51456, 26560)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jacques Delorme"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort William"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Jacques Delorme"]
+position = Vector2(64, 96)
+
+[node name="Pierre Laroque" type="Node2D" parent="Cast/Posts/Fort William"]
+position = Vector2(51520, 26592)
+script = ExtResource("30_npcspawn")
+DisplayName = "Pierre Laroque"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort William"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Pierre Laroque"]
+position = Vector2(64, 96)
+
+[node name="Dunvegan" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Donald McDonald" type="Node2D" parent="Cast/Posts/Dunvegan"]
+position = Vector2(12416, 10560)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Donald McDonald"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Dunvegan"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Dunvegan/Mr Donald McDonald"]
+position = Vector2(-128, 0)
+
+[node name="Louis Trottier" type="Node2D" parent="Cast/Posts/Dunvegan"]
+position = Vector2(12224, 10592)
+script = ExtResource("30_npcspawn")
+DisplayName = "Louis Trottier"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Dunvegan"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Dunvegan/Louis Trottier"]
+position = Vector2(64, 96)
+
+[node name="Francois Boucher" type="Node2D" parent="Cast/Posts/Dunvegan"]
+position = Vector2(12288, 10624)
+script = ExtResource("30_npcspawn")
+DisplayName = "Francois Boucher"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Dunvegan"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Dunvegan/Francois Boucher"]
+position = Vector2(64, 96)
+
+[node name="Fort McLeod" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Charles Henry" type="Node2D" parent="Cast/Posts/Fort McLeod"]
+position = Vector2(6720, 10592)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Charles Henry"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort McLeod"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort McLeod/Mr Charles Henry"]
+position = Vector2(-128, 0)
+
+[node name="Louis Boucher" type="Node2D" parent="Cast/Posts/Fort McLeod"]
+position = Vector2(6528, 10624)
+script = ExtResource("30_npcspawn")
+DisplayName = "Louis Boucher"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort McLeod"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort McLeod/Louis Boucher"]
+position = Vector2(64, 96)
+
+[node name="Pierre Morin" type="Node2D" parent="Cast/Posts/Fort McLeod"]
+position = Vector2(6592, 10656)
+script = ExtResource("30_npcspawn")
+DisplayName = "Pierre Morin"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort McLeod"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort McLeod/Pierre Morin"]
+position = Vector2(64, 96)
+
+[node name="Fort St James" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr John McTavish" type="Node2D" parent="Cast/Posts/Fort St James"]
+position = Vector2(4800, 11424)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. John McTavish"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort St. James"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort St James/Mr John McTavish"]
+position = Vector2(-128, 0)
+
+[node name="Jean-Baptiste Beaulieu" type="Node2D" parent="Cast/Posts/Fort St James"]
+position = Vector2(4608, 11456)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jean-Baptiste Beaulieu"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort St. James"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort St James/Jean-Baptiste Beaulieu"]
+position = Vector2(64, 96)
+
+[node name="Charles Lambert" type="Node2D" parent="Cast/Posts/Fort St James"]
+position = Vector2(4672, 11488)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Lambert"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort St. James"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort St James/Charles Lambert"]
+position = Vector2(64, 96)
+
+[node name="Fort Fraser" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr James Campbell" type="Node2D" parent="Cast/Posts/Fort Fraser"]
+position = Vector2(3904, 12384)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. James Campbell"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Fraser"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Fraser/Mr James Campbell"]
+position = Vector2(-128, 0)
+
+[node name="Joseph Plante" type="Node2D" parent="Cast/Posts/Fort Fraser"]
+position = Vector2(3712, 12416)
+script = ExtResource("30_npcspawn")
+DisplayName = "Joseph Plante"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Fraser"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Fraser/Joseph Plante"]
+position = Vector2(64, 96)
+
+[node name="Francois Vandal" type="Node2D" parent="Cast/Posts/Fort Fraser"]
+position = Vector2(3776, 12448)
+script = ExtResource("30_npcspawn")
+DisplayName = "Francois Vandal"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Fraser"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Fraser/Francois Vandal"]
+position = Vector2(64, 96)
+
+[node name="Kootenay House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr William Shaw" type="Node2D" parent="Cast/Posts/Kootenay House"]
+position = Vector2(14208, 21824)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. William Shaw"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Kootenay House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Kootenay House/Mr William Shaw"]
+position = Vector2(-128, 0)
+
+[node name="Charles Boucher" type="Node2D" parent="Cast/Posts/Kootenay House"]
+position = Vector2(14016, 21856)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Boucher"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Kootenay House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Kootenay House/Charles Boucher"]
+position = Vector2(64, 96)
+
+[node name="Jacques Beaulieu" type="Node2D" parent="Cast/Posts/Kootenay House"]
+position = Vector2(14080, 21888)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jacques Beaulieu"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Kootenay House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Kootenay House/Jacques Beaulieu"]
+position = Vector2(64, 96)
+
+[node name="Fort George BC" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Robert Stuart" type="Node2D" parent="Cast/Posts/Fort George BC"]
+position = Vector2(5696, 12704)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Robert Stuart"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort George (BC)"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort George BC/Mr Robert Stuart"]
+position = Vector2(-128, 0)
+
+[node name="Francois Trottier" type="Node2D" parent="Cast/Posts/Fort George BC"]
+position = Vector2(5504, 12736)
+script = ExtResource("30_npcspawn")
+DisplayName = "Francois Trottier"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort George (BC)"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort George BC/Francois Trottier"]
+position = Vector2(64, 96)
+
+[node name="Jacques Morin" type="Node2D" parent="Cast/Posts/Fort George BC"]
+position = Vector2(5568, 12768)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jacques Morin"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort George (BC)"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort George BC/Jacques Morin"]
+position = Vector2(64, 96)
+
+[node name="Fort Gibraltar" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Donald Leith" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
+position = Vector2(41216, 25408)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Donald Leith"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Gibraltar"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Mr Donald Leith"]
+position = Vector2(-128, 0)
+
+[node name="Etienne Desjarlais" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
+position = Vector2(41024, 25440)
+script = ExtResource("30_npcspawn")
+DisplayName = "Etienne Desjarlais"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Gibraltar"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Etienne Desjarlais"]
+position = Vector2(64, 96)
+
+[node name="Etienne Gingras" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
+position = Vector2(41088, 25472)
+script = ExtResource("30_npcspawn")
+DisplayName = "Etienne Gingras"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Gibraltar"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Etienne Gingras"]
+position = Vector2(64, 96)
+
+[node name="Flathead House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr George Shaw" type="Node2D" parent="Cast/Posts/Flathead House"]
+position = Vector2(14784, 29408)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. George Shaw"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Flathead House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Flathead House/Mr George Shaw"]
+position = Vector2(-128, 0)
+
+[node name="Toussaint Belanger" type="Node2D" parent="Cast/Posts/Flathead House"]
+position = Vector2(14592, 29440)
+script = ExtResource("30_npcspawn")
+DisplayName = "Toussaint Belanger"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Flathead House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Flathead House/Toussaint Belanger"]
+position = Vector2(64, 96)
+
+[node name="Jacques Lafleur" type="Node2D" parent="Cast/Posts/Flathead House"]
+position = Vector2(14656, 29472)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jacques Lafleur"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Flathead House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Flathead House/Jacques Lafleur"]
+position = Vector2(64, 96)
+
+[node name="Island Lake House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Donald Spencer" type="Node2D" parent="Cast/Posts/Island Lake House"]
+position = Vector2(42304, 16864)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Donald Spencer"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Island Lake House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Island Lake House/Mr Donald Spencer"]
+position = Vector2(-128, 0)
+
+[node name="David Leask" type="Node2D" parent="Cast/Posts/Island Lake House"]
+position = Vector2(42112, 16896)
+script = ExtResource("30_npcspawn")
+DisplayName = "David Leask"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Island Lake House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Island Lake House/David Leask"]
+position = Vector2(64, 96)
+
+[node name="Thomas Sinclair" type="Node2D" parent="Cast/Posts/Island Lake House"]
+position = Vector2(42176, 16928)
+script = ExtResource("30_npcspawn")
+DisplayName = "Thomas Sinclair"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Island Lake House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Island Lake House/Thomas Sinclair"]
+position = Vector2(64, 96)
+
+[node name="Spokane House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Adam Grant" type="Node2D" parent="Cast/Posts/Spokane House"]
+position = Vector2(10240, 28160)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Adam Grant"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Spokane House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Spokane House/Mr Adam Grant"]
+position = Vector2(-128, 0)
+
+[node name="Jean-Baptiste Lafleur" type="Node2D" parent="Cast/Posts/Spokane House"]
+position = Vector2(10048, 28192)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jean-Baptiste Lafleur"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Spokane House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Spokane House/Jean-Baptiste Lafleur"]
+position = Vector2(64, 96)
+
+[node name="Etienne Belanger" type="Node2D" parent="Cast/Posts/Spokane House"]
+position = Vector2(10112, 28224)
+script = ExtResource("30_npcspawn")
+DisplayName = "Etienne Belanger"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Spokane House"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Spokane House/Etienne Belanger"]
+position = Vector2(64, 96)
+
+[node name="Fort Kamloops" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr William McDonald" type="Node2D" parent="Cast/Posts/Fort Kamloops"]
+position = Vector2(7616, 20896)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. William McDonald"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Kamloops"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Kamloops/Mr William McDonald"]
+position = Vector2(-128, 0)
+
+[node name="Alexis Morin" type="Node2D" parent="Cast/Posts/Fort Kamloops"]
+position = Vector2(7424, 20928)
+script = ExtResource("30_npcspawn")
+DisplayName = "Alexis Morin"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Kamloops"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Kamloops/Alexis Morin"]
+position = Vector2(64, 96)
+
+[node name="Louis Allard" type="Node2D" parent="Cast/Posts/Fort Kamloops"]
+position = Vector2(7488, 20960)
+script = ExtResource("30_npcspawn")
+DisplayName = "Louis Allard"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Kamloops"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Kamloops/Louis Allard"]
+position = Vector2(64, 96)
+
+[node name="Jasper House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr James Fidler" type="Node2D" parent="Cast/Posts/Jasper House"]
+position = Vector2(12800, 16960)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. James Fidler"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Jasper House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Jasper House/Mr James Fidler"]
+position = Vector2(-128, 0)
+
+[node name="James Taylor" type="Node2D" parent="Cast/Posts/Jasper House"]
+position = Vector2(12608, 16992)
+script = ExtResource("30_npcspawn")
+DisplayName = "James Taylor"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Jasper House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Jasper House/James Taylor"]
+position = Vector2(64, 96)
+
+[node name="Donald Inkster" type="Node2D" parent="Cast/Posts/Jasper House"]
+position = Vector2(12672, 17024)
+script = ExtResource("30_npcspawn")
+DisplayName = "Donald Inkster"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Jasper House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Jasper House/Donald Inkster"]
+position = Vector2(64, 96)
+
+[node name="Norway House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Charles Davey" type="Node2D" parent="Cast/Posts/Norway House"]
+position = Vector2(39360, 16544)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Charles Davey"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Norway House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Norway House/Mr Charles Davey"]
+position = Vector2(-128, 0)
+
+[node name="Thomas Taylor" type="Node2D" parent="Cast/Posts/Norway House"]
+position = Vector2(39168, 16576)
+script = ExtResource("30_npcspawn")
+DisplayName = "Thomas Taylor"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Norway House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Norway House/Thomas Taylor"]
+position = Vector2(64, 96)
+
+[node name="Robert Gibson" type="Node2D" parent="Cast/Posts/Norway House"]
+position = Vector2(39232, 16608)
+script = ExtResource("30_npcspawn")
+DisplayName = "Robert Gibson"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Norway House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Norway House/Robert Gibson"]
+position = Vector2(64, 96)
+
+[node name="Fort Douglas" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Hugh Thomas" type="Node2D" parent="Cast/Posts/Fort Douglas"]
+position = Vector2(41280, 26720)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Hugh Thomas"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Douglas"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Douglas/Mr Hugh Thomas"]
+position = Vector2(-128, 0)
+
+[node name="Thomas Slater" type="Node2D" parent="Cast/Posts/Fort Douglas"]
+position = Vector2(41088, 26752)
+script = ExtResource("30_npcspawn")
+DisplayName = "Thomas Slater"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Douglas"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Douglas/Thomas Slater"]
+position = Vector2(64, 96)
+
+[node name="Adam Bichan" type="Node2D" parent="Cast/Posts/Fort Douglas"]
+position = Vector2(41152, 26784)
+script = ExtResource("30_npcspawn")
+DisplayName = "Adam Bichan"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Douglas"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Douglas/Adam Bichan"]
+position = Vector2(64, 96)
+
+[node name="Lac Seul House" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Andrew Heron" type="Node2D" parent="Cast/Posts/Lac Seul House"]
+position = Vector2(46976, 23680)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Andrew Heron"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Lac Seul House"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Lac Seul House/Mr Andrew Heron"]
+position = Vector2(-128, 0)
+
+[node name="George Flett" type="Node2D" parent="Cast/Posts/Lac Seul House"]
+position = Vector2(46784, 23712)
+script = ExtResource("30_npcspawn")
+DisplayName = "George Flett"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Lac Seul House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Lac Seul House/George Flett"]
+position = Vector2(64, 96)
+
+[node name="Alexander Isbister" type="Node2D" parent="Cast/Posts/Lac Seul House"]
+position = Vector2(46848, 23744)
+script = ExtResource("30_npcspawn")
+DisplayName = "Alexander Isbister"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Lac Seul House"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Lac Seul House/Alexander Isbister"]
+position = Vector2(64, 96)
+
+[node name="Fort Nez Perces" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr William Stuart" type="Node2D" parent="Cast/Posts/Fort Nez Perces"]
+position = Vector2(7488, 31904)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. William Stuart"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Nez Perces"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Nez Perces/Mr William Stuart"]
+position = Vector2(-128, 0)
+
+[node name="Antoine Belanger" type="Node2D" parent="Cast/Posts/Fort Nez Perces"]
+position = Vector2(7296, 31936)
+script = ExtResource("30_npcspawn")
+DisplayName = "Antoine Belanger"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Nez Perces"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Nez Perces/Antoine Belanger"]
+position = Vector2(64, 96)
+
+[node name="Alexis Cadotte" type="Node2D" parent="Cast/Posts/Fort Nez Perces"]
+position = Vector2(7360, 31968)
+script = ExtResource("30_npcspawn")
+DisplayName = "Alexis Cadotte"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Nez Perces"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Nez Perces/Alexis Cadotte"]
+position = Vector2(64, 96)
+
+[node name="Great Whale River" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr George Kennedy" type="Node2D" parent="Cast/Posts/Great Whale River"]
+position = Vector2(63232, 9152)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. George Kennedy"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Great Whale River"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Great Whale River/Mr George Kennedy"]
+position = Vector2(-128, 0)
+
+[node name="Adam Isbister" type="Node2D" parent="Cast/Posts/Great Whale River"]
+position = Vector2(63040, 9184)
+script = ExtResource("30_npcspawn")
+DisplayName = "Adam Isbister"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Great Whale River"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Great Whale River/Adam Isbister"]
+position = Vector2(64, 96)
+
+[node name="Peter Isbister" type="Node2D" parent="Cast/Posts/Great Whale River"]
+position = Vector2(63104, 9216)
+script = ExtResource("30_npcspawn")
+DisplayName = "Peter Isbister"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Great Whale River"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Great Whale River/Peter Isbister"]
+position = Vector2(64, 96)
+
+[node name="Fort Alexandria BC" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Thomas Grant" type="Node2D" parent="Cast/Posts/Fort Alexandria BC"]
+position = Vector2(6976, 15968)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Thomas Grant"
+Role = 4
+Faction = 4
+Home = 5
+PostName = "Fort Alexandria (BC)"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(1, 0.92, 0.9, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Alexandria BC/Mr Thomas Grant"]
+position = Vector2(-128, 0)
+
+[node name="Etienne Delorme" type="Node2D" parent="Cast/Posts/Fort Alexandria BC"]
+position = Vector2(6784, 16000)
+script = ExtResource("30_npcspawn")
+DisplayName = "Etienne Delorme"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Alexandria (BC)"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Alexandria BC/Etienne Delorme"]
+position = Vector2(64, 96)
+
+[node name="Etienne Riel" type="Node2D" parent="Cast/Posts/Fort Alexandria BC"]
+position = Vector2(6848, 16032)
+script = ExtResource("30_npcspawn")
+DisplayName = "Etienne Riel"
+Role = 12
+Faction = 4
+Home = 5
+PostName = "Fort Alexandria (BC)"
+Frames = ExtResource("32_factor")
+Tint = Color(0.85, 0.75, 0.75, 1)
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Alexandria BC/Etienne Riel"]
+position = Vector2(64, 96)
+
+[node name="Upper Fort Garry" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Joseph Hughes" type="Node2D" parent="Cast/Posts/Upper Fort Garry"]
+position = Vector2(42560, 25376)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Joseph Hughes"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Upper Fort Garry"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Upper Fort Garry/Mr Joseph Hughes"]
+position = Vector2(-128, 0)
+
+[node name="Charles Spence" type="Node2D" parent="Cast/Posts/Upper Fort Garry"]
+position = Vector2(42368, 25408)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Spence"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Upper Fort Garry"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Upper Fort Garry/Charles Spence"]
+position = Vector2(64, 96)
+
+[node name="Charles Moar" type="Node2D" parent="Cast/Posts/Upper Fort Garry"]
+position = Vector2(42432, 25440)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Moar"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Upper Fort Garry"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Upper Fort Garry/Charles Moar"]
+position = Vector2(64, 96)
+
+[node name="Fort Babine" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Adam Corrigal" type="Node2D" parent="Cast/Posts/Fort Babine"]
+position = Vector2(2496, 8672)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Adam Corrigal"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Babine"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Babine/Mr Adam Corrigal"]
+position = Vector2(-128, 0)
+
+[node name="Peter Clouston" type="Node2D" parent="Cast/Posts/Fort Babine"]
+position = Vector2(2304, 8704)
+script = ExtResource("30_npcspawn")
+DisplayName = "Peter Clouston"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Babine"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Babine/Peter Clouston"]
+position = Vector2(64, 96)
+
+[node name="Andrew Petrie" type="Node2D" parent="Cast/Posts/Fort Babine"]
+position = Vector2(2368, 8736)
+script = ExtResource("30_npcspawn")
+DisplayName = "Andrew Petrie"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Babine"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Babine/Andrew Petrie"]
+position = Vector2(64, 96)
+
+[node name="Fort Pelly" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Alexander Hughes" type="Node2D" parent="Cast/Posts/Fort Pelly"]
+position = Vector2(32832, 21408)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Alexander Hughes"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Pelly"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Pelly/Mr Alexander Hughes"]
+position = Vector2(-128, 0)
+
+[node name="James Budge" type="Node2D" parent="Cast/Posts/Fort Pelly"]
+position = Vector2(32640, 21440)
+script = ExtResource("30_npcspawn")
+DisplayName = "James Budge"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Pelly"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Pelly/James Budge"]
+position = Vector2(64, 96)
+
+[node name="Donald Slater" type="Node2D" parent="Cast/Posts/Fort Pelly"]
+position = Vector2(32704, 21472)
+script = ExtResource("30_npcspawn")
+DisplayName = "Donald Slater"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Pelly"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Pelly/Donald Slater"]
+position = Vector2(64, 96)
+
+[node name="Fort Assiniboine" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr George Clarke" type="Node2D" parent="Cast/Posts/Fort Assiniboine"]
+position = Vector2(16256, 14016)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. George Clarke"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Assiniboine"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Assiniboine/Mr George Clarke"]
+position = Vector2(-128, 0)
+
+[node name="James Petrie" type="Node2D" parent="Cast/Posts/Fort Assiniboine"]
+position = Vector2(16064, 14048)
+script = ExtResource("30_npcspawn")
+DisplayName = "James Petrie"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Assiniboine"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Assiniboine/James Petrie"]
+position = Vector2(64, 96)
+
+[node name="Joseph Corrigal" type="Node2D" parent="Cast/Posts/Fort Assiniboine"]
+position = Vector2(16128, 14080)
+script = ExtResource("30_npcspawn")
+DisplayName = "Joseph Corrigal"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Assiniboine"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Assiniboine/Joseph Corrigal"]
+position = Vector2(64, 96)
+
+[node name="Fort Vancouver" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Alexander Clarke" type="Node2D" parent="Cast/Posts/Fort Vancouver"]
+position = Vector2(1792, 31744)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Alexander Clarke"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Vancouver"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Vancouver/Mr Alexander Clarke"]
+position = Vector2(-128, 0)
+
+[node name="Robert Slater" type="Node2D" parent="Cast/Posts/Fort Vancouver"]
+position = Vector2(1600, 31776)
+script = ExtResource("30_npcspawn")
+DisplayName = "Robert Slater"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Vancouver"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Vancouver/Robert Slater"]
+position = Vector2(64, 96)
+
+[node name="Robert Bichan" type="Node2D" parent="Cast/Posts/Fort Vancouver"]
+position = Vector2(1664, 31808)
+script = ExtResource("30_npcspawn")
+DisplayName = "Robert Bichan"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Vancouver"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Vancouver/Robert Bichan"]
+position = Vector2(64, 96)
+
+[node name="Fort Colvile" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Andrew McKay" type="Node2D" parent="Cast/Posts/Fort Colvile"]
+position = Vector2(9152, 25504)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Andrew McKay"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Colvile"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Colvile/Mr Andrew McKay"]
+position = Vector2(-128, 0)
+
+[node name="William Moar" type="Node2D" parent="Cast/Posts/Fort Colvile"]
+position = Vector2(8960, 25536)
+script = ExtResource("30_npcspawn")
+DisplayName = "William Moar"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Colvile"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Colvile/William Moar"]
+position = Vector2(64, 96)
+
+[node name="Donald Bichan" type="Node2D" parent="Cast/Posts/Fort Colvile"]
+position = Vector2(9024, 25568)
+script = ExtResource("30_npcspawn")
+DisplayName = "Donald Bichan"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Colvile"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Colvile/Donald Bichan"]
+position = Vector2(64, 96)
+
+[node name="Fort Connolly" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Robert Swain" type="Node2D" parent="Cast/Posts/Fort Connolly"]
+position = Vector2(4608, 7040)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Robert Swain"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Connolly"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Connolly/Mr Robert Swain"]
+position = Vector2(-128, 0)
+
+[node name="Hugh Slater" type="Node2D" parent="Cast/Posts/Fort Connolly"]
+position = Vector2(4416, 7072)
+script = ExtResource("30_npcspawn")
+DisplayName = "Hugh Slater"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Connolly"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Connolly/Hugh Slater"]
+position = Vector2(64, 96)
+
+[node name="Alexander Bichan" type="Node2D" parent="Cast/Posts/Fort Connolly"]
+position = Vector2(4480, 7104)
+script = ExtResource("30_npcspawn")
+DisplayName = "Alexander Bichan"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Connolly"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Connolly/Alexander Bichan"]
+position = Vector2(64, 96)
+
+[node name="Fort Langley" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Adam Sinclair" type="Node2D" parent="Cast/Posts/Fort Langley"]
+position = Vector2(4160, 22944)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Adam Sinclair"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Langley"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Langley/Mr Adam Sinclair"]
+position = Vector2(-128, 0)
+
+[node name="Hugh Taylor" type="Node2D" parent="Cast/Posts/Fort Langley"]
+position = Vector2(3968, 22976)
+script = ExtResource("30_npcspawn")
+DisplayName = "Hugh Taylor"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Langley"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Langley/Hugh Taylor"]
+position = Vector2(64, 96)
+
+[node name="Robert Taylor" type="Node2D" parent="Cast/Posts/Fort Langley"]
+position = Vector2(4032, 23008)
+script = ExtResource("30_npcspawn")
+DisplayName = "Robert Taylor"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Langley"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Langley/Robert Taylor"]
+position = Vector2(64, 96)
+
+[node name="Fort Pitt" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Joseph Davey" type="Node2D" parent="Cast/Posts/Fort Pitt"]
+position = Vector2(23104, 16608)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Joseph Davey"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Pitt"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Pitt/Mr Joseph Davey"]
+position = Vector2(-128, 0)
+
+[node name="Andrew Corrigal" type="Node2D" parent="Cast/Posts/Fort Pitt"]
+position = Vector2(22912, 16640)
+script = ExtResource("30_npcspawn")
+DisplayName = "Andrew Corrigal"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Pitt"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Pitt/Andrew Corrigal"]
+position = Vector2(64, 96)
+
+[node name="Charles Omand" type="Node2D" parent="Cast/Posts/Fort Pitt"]
+position = Vector2(22976, 16672)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Omand"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Pitt"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Pitt/Charles Omand"]
+position = Vector2(64, 96)
+
+[node name="Fort Chilcotin" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr John Corrigal" type="Node2D" parent="Cast/Posts/Fort Chilcotin"]
+position = Vector2(4224, 16704)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. John Corrigal"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Chilcotin"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chilcotin/Mr John Corrigal"]
+position = Vector2(-128, 0)
+
+[node name="Alexander Petrie" type="Node2D" parent="Cast/Posts/Fort Chilcotin"]
+position = Vector2(4032, 16736)
+script = ExtResource("30_npcspawn")
+DisplayName = "Alexander Petrie"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Chilcotin"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chilcotin/Alexander Petrie"]
+position = Vector2(64, 96)
+
+[node name="John Gibson" type="Node2D" parent="Cast/Posts/Fort Chilcotin"]
+position = Vector2(4096, 16768)
+script = ExtResource("30_npcspawn")
+DisplayName = "John Gibson"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Chilcotin"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chilcotin/John Gibson"]
+position = Vector2(64, 96)
+
+[node name="Lower Fort Garry" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Robert Kennedy" type="Node2D" parent="Cast/Posts/Lower Fort Garry"]
+position = Vector2(43136, 23808)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Robert Kennedy"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Lower Fort Garry"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Lower Fort Garry/Mr Robert Kennedy"]
+position = Vector2(-128, 0)
+
+[node name="John Leask" type="Node2D" parent="Cast/Posts/Lower Fort Garry"]
+position = Vector2(42944, 23840)
+script = ExtResource("30_npcspawn")
+DisplayName = "John Leask"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Lower Fort Garry"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Lower Fort Garry/John Leask"]
+position = Vector2(64, 96)
+
+[node name="Donald Ballenden" type="Node2D" parent="Cast/Posts/Lower Fort Garry"]
+position = Vector2(43008, 23872)
+script = ExtResource("30_npcspawn")
+DisplayName = "Donald Ballenden"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Lower Fort Garry"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Lower Fort Garry/Donald Ballenden"]
+position = Vector2(64, 96)
+
+[node name="Fort Ellice" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Alexander Heron" type="Node2D" parent="Cast/Posts/Fort Ellice"]
+position = Vector2(34880, 23584)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Alexander Heron"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Ellice"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Ellice/Mr Alexander Heron"]
+position = Vector2(-128, 0)
+
+[node name="George Bird" type="Node2D" parent="Cast/Posts/Fort Ellice"]
+position = Vector2(34688, 23616)
+script = ExtResource("30_npcspawn")
+DisplayName = "George Bird"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Ellice"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Ellice/George Bird"]
+position = Vector2(64, 96)
+
+[node name="John Cromartie" type="Node2D" parent="Cast/Posts/Fort Ellice"]
+position = Vector2(34752, 23648)
+script = ExtResource("30_npcspawn")
+DisplayName = "John Cromartie"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Ellice"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Ellice/John Cromartie"]
+position = Vector2(64, 96)
+
+[node name="Fort Nisqually" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Donald Sinclair" type="Node2D" parent="Cast/Posts/Fort Nisqually"]
+position = Vector2(2176, 28032)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Donald Sinclair"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Nisqually"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Nisqually/Mr Donald Sinclair"]
+position = Vector2(-128, 0)
+
+[node name="Charles Budge" type="Node2D" parent="Cast/Posts/Fort Nisqually"]
+position = Vector2(1984, 28064)
+script = ExtResource("30_npcspawn")
+DisplayName = "Charles Budge"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Nisqually"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Nisqually/Charles Budge"]
+position = Vector2(64, 96)
+
+[node name="Alexander Kirkness" type="Node2D" parent="Cast/Posts/Fort Nisqually"]
+position = Vector2(2048, 28096)
+script = ExtResource("30_npcspawn")
+DisplayName = "Alexander Kirkness"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Nisqually"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Nisqually/Alexander Kirkness"]
+position = Vector2(64, 96)
+
+[node name="Rat Portage" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Donald Hughes" type="Node2D" parent="Cast/Posts/Rat Portage"]
+position = Vector2(44672, 24832)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Donald Hughes"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Rat Portage"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Rat Portage/Mr Donald Hughes"]
+position = Vector2(-128, 0)
+
+[node name="Adam Sinclair" type="Node2D" parent="Cast/Posts/Rat Portage"]
+position = Vector2(44480, 24864)
+script = ExtResource("30_npcspawn")
+DisplayName = "Adam Sinclair"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Rat Portage"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Rat Portage/Adam Sinclair"]
+position = Vector2(64, 96)
+
+[node name="Robert Flett" type="Node2D" parent="Cast/Posts/Rat Portage"]
+position = Vector2(44544, 24896)
+script = ExtResource("30_npcspawn")
+DisplayName = "Robert Flett"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Rat Portage"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Rat Portage/Robert Flett"]
+position = Vector2(64, 96)
+
+[node name="Fort George Chisasibi" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Andrew Bird" type="Node2D" parent="Cast/Posts/Fort George Chisasibi"]
+position = Vector2(62912, 11168)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Andrew Bird"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort George (Chisasibi)"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort George Chisasibi/Mr Andrew Bird"]
+position = Vector2(-128, 0)
+
+[node name="Andrew Clouston" type="Node2D" parent="Cast/Posts/Fort George Chisasibi"]
+position = Vector2(62720, 11200)
+script = ExtResource("30_npcspawn")
+DisplayName = "Andrew Clouston"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort George (Chisasibi)"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort George Chisasibi/Andrew Clouston"]
+position = Vector2(64, 96)
+
+[node name="Thomas Gibson" type="Node2D" parent="Cast/Posts/Fort George Chisasibi"]
+position = Vector2(62784, 11232)
+script = ExtResource("30_npcspawn")
+DisplayName = "Thomas Gibson"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort George (Chisasibi)"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort George Chisasibi/Thomas Gibson"]
+position = Vector2(64, 96)
+
+[node name="Dease Lake" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Charles Charles" type="Node2D" parent="Cast/Posts/Dease Lake"]
+position = Vector2(1152, 832)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Charles Charles"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Dease Lake"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Dease Lake/Mr Charles Charles"]
+position = Vector2(-128, 0)
+
+[node name="James Rendall" type="Node2D" parent="Cast/Posts/Dease Lake"]
+position = Vector2(960, 864)
+script = ExtResource("30_npcspawn")
+DisplayName = "James Rendall"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Dease Lake"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Dease Lake/James Rendall"]
+position = Vector2(64, 96)
+
+[node name="John Bichan" type="Node2D" parent="Cast/Posts/Dease Lake"]
+position = Vector2(1024, 896)
+script = ExtResource("30_npcspawn")
+DisplayName = "John Bichan"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Dease Lake"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Dease Lake/John Bichan"]
+position = Vector2(64, 96)
+
+[node name="Fort Victoria" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Andrew Charles" type="Node2D" parent="Cast/Posts/Fort Victoria"]
+position = Vector2(1536, 25472)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Andrew Charles"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Victoria"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Victoria/Mr Andrew Charles"]
+position = Vector2(-128, 0)
+
+[node name="Magnus Omand" type="Node2D" parent="Cast/Posts/Fort Victoria"]
+position = Vector2(1344, 25504)
+script = ExtResource("30_npcspawn")
+DisplayName = "Magnus Omand"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Victoria"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Victoria/Magnus Omand"]
+position = Vector2(64, 96)
+
+[node name="George Sinclair" type="Node2D" parent="Cast/Posts/Fort Victoria"]
+position = Vector2(1408, 25536)
+script = ExtResource("30_npcspawn")
+DisplayName = "George Sinclair"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Victoria"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Victoria/George Sinclair"]
+position = Vector2(64, 96)
+
+[node name="Touchwood Hills" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Thomas Heron" type="Node2D" parent="Cast/Posts/Touchwood Hills"]
+position = Vector2(30912, 22560)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Thomas Heron"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Touchwood Hills"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Touchwood Hills/Mr Thomas Heron"]
+position = Vector2(-128, 0)
+
+[node name="Magnus Bichan" type="Node2D" parent="Cast/Posts/Touchwood Hills"]
+position = Vector2(30720, 22592)
+script = ExtResource("30_npcspawn")
+DisplayName = "Magnus Bichan"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Touchwood Hills"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Touchwood Hills/Magnus Bichan"]
+position = Vector2(64, 96)
+
+[node name="Adam Slater" type="Node2D" parent="Cast/Posts/Touchwood Hills"]
+position = Vector2(30784, 22624)
+script = ExtResource("30_npcspawn")
+DisplayName = "Adam Slater"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Touchwood Hills"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Touchwood Hills/Adam Slater"]
+position = Vector2(64, 96)
+
+[node name="Fort QuAppelle" type="Node2D" parent="Cast/Posts"]
+
+[node name="Mr Hugh Heron" type="Node2D" parent="Cast/Posts/Fort QuAppelle"]
+position = Vector2(29952, 23488)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mr. Hugh Heron"
+Role = 4
+Faction = 0
+Home = 5
+PostName = "Fort Qu'Appelle"
+Leader = true
+Frames = ExtResource("32_factor")
+Tint = Color(0.95, 0.95, 1, 1)
+Inventory = "Musket, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort QuAppelle/Mr Hugh Heron"]
+position = Vector2(-128, 0)
+
+[node name="Robert Moar" type="Node2D" parent="Cast/Posts/Fort QuAppelle"]
+position = Vector2(29760, 23520)
+script = ExtResource("30_npcspawn")
+DisplayName = "Robert Moar"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Qu'Appelle"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort QuAppelle/Robert Moar"]
+position = Vector2(64, 96)
+
+[node name="George Harper" type="Node2D" parent="Cast/Posts/Fort QuAppelle"]
+position = Vector2(29824, 23552)
+script = ExtResource("30_npcspawn")
+DisplayName = "George Harper"
+Role = 2
+Faction = 0
+Home = 5
+PostName = "Fort Qu'Appelle"
+Frames = ExtResource("32_lab")
+Inventory = "Capote, Knife, Fish:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort QuAppelle/George Harper"]
+position = Vector2(64, 96)
+
 [node name="Wildlife" type="Node2D" parent="."]
 
 [node name="Caribou herd" type="Node2D" parent="Wildlife"]

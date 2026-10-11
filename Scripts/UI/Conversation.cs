@@ -520,6 +520,12 @@ public class Conversation
             if (_player.Task.Kind != TaskKind.None && !_player.Task.IsComplete && _player.Task.Kind != TaskKind.Report)
                 AddOption("About this task...", () => ShowBargain(npc));
             AddOption("Volunteer for something...", () => ShowVolunteer(npc));
+            if (Rivals.Current is Rivals.Contest race && race.Him != null && !race.Him.IsDead)
+            {
+                AddOption($"Ask him for {race.Seat}", () => ShowWork(npc, Rivals.AskForTheSeat(_player, npc)));
+                if (Rivals.DirtOn(_player, race.Him) != "")
+                    AddOption($"Tell him what {race.Him.DisplayName} did", () => ShowWork(npc, Rivals.SpeakAgainst(_player, npc)));
+            }
             if (npc.Role == Role.Factor && Sim.Nwc != null) AddOption("\"I'll be across the river a few days.\"", () => ShowWork(npc, Authorize(npc)));
         }
         if (ownMan && canCommand) AddOption("Give orders...", () => ShowOrders(npc));

@@ -82,7 +82,7 @@ public static class Mail
     public static string RoleName(Npc n) => n.Role switch
     {
         Role.Factor => "the Factor at York Factory",
-        Role.Postmaster => "the postmaster at Oxford House",
+        Role.Postmaster => n.HomeStores == Sim.Outpost ? "the postmaster at Oxford House" : $"the master at {n.HomeStores?.Title.Replace(" stores", "") ?? "his post"}",
         Role.NwcPartner => "the wintering partner",
         Role.CreeChief => "the chief of the band",
         _ => n.DisplayName,

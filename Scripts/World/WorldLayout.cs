@@ -4,7 +4,7 @@ using IsometricFurTradeGame.Scripts.Ecology;
 
 namespace IsometricFurTradeGame.Scripts.World;
 
-public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse, FactorsHouse, ClerksHouse, ProvisionStore, SummerMess, GuestHouse, BoatShed, PowderMagazine }
+public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse, FactorsHouse, ClerksHouse, ProvisionStore, SummerMess, GuestHouse, BoatShed, PowderMagazine, TradingPost }
 
 public readonly record struct BuildingDef(BuildingKind Kind, string Name, Vector2I Top, int Width, int Depth, int DoorOffset)
 {
@@ -266,6 +266,8 @@ public static class WorldLayout
         density *= 0.55f + 0.9f * IsoGrid.Hash(new Vector2I(c.X / 6, c.Y / 12), 31);
         if (IsRiverBank(c) || IsBeach(c)) return 0f;
         var p = IsoGrid.ToWorld(c);
+        // The ground round any post of the wider country is cleared.
+        if (Posts.NearAny(p, 900f)) return 0f;
         // Far from anything that's been cleared: no need to measure.
         float fortDist = p.DistanceTo(FortCentre);
         if (fortDist > 30000f && p.DistanceTo(IsoGrid.ToWorld(OutpostTop)) > 8000f) return Mathf.Clamp(density, 0f, 0.5f);

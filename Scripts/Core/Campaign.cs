@@ -216,7 +216,7 @@ public static class Campaign
         if (_postsByYear && cal.Month == 1 && cal.Day == 1)
             foreach (var p in WorldMap.Places)
                 if (p.Kind == "post" && p.Year == cal.Year && p.Year > StartYear && _founded.Add(p.Name))
-                    Note($"{p.Name} is founded ({p.Company}).");
+                { Note($"{p.Name} is founded ({p.Company})."); World.Posts.Sync(true); }
 
         foreach (var b in _beats)
         {
@@ -288,7 +288,7 @@ public static class Campaign
                         Sim.Fort.QuotaNextMb = Mathf.Clamp(Sim.Fort.QuotaNextMb * (float)Num(a, "quota", 1), 10f, 400f);
                     }
                     break;
-                case "found_post": if (_founded.Add(Str(a, "place", ""))) Note($"{Str(a, "place", "")} is founded."); break;
+                case "found_post": if (_founded.Add(Str(a, "place", ""))) { Note($"{Str(a, "place", "")} is founded."); World.Posts.Sync(true); } break;
                 case "news":
                     var news = new Godot.Collections.Dictionary
                     {

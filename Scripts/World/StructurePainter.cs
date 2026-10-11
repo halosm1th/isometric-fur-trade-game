@@ -204,7 +204,31 @@ public partial class StructurePainter : TileMapLayer
         foreach (var b in WorldLayout.Buildings) PaintBuilding(b, floor);
         PaintYard();
         PaintCamp();
+        // In the editor the posts standing at the usual start are shown; in a
+        // game Posts paints each one as it comes to stand.
+        if (Engine.IsEditorHint()) foreach (var p in Posts.All) if (p.Year <= 1811) PaintPost(p, false);
         // The forest is painted chunk by chunk as TerrainPainter streams the country in.
+    }
+
+    // One of the wider country's posts: palisade, house, woodpile. In a game
+    // it gets its hearth and roof too; in the editor just the tiles.
+    public void PaintPost(TradingPost p, bool live)
+    {
+        PaintPalisadeAt(p.Top, TradingPost.Width, TradingPost.Depth, TradingPost.GateOffset);
+        PaintBuilding(p.House, _floor ?? this);
+        SetBack(p.WoodpileCell, SourceWoodpile);
+        SetBack(IsoGrid.Cell(p.Top, 10, 3), SourceCrate);
+        if (!live) return;
+        EnsureHearth(p.HearthCell, 6f);
+        var host = GetParent()?.GetParent();
+        if (host != null && !Engine.IsEditorHint())
+        {
+            var roof = new TileMapLayer { TileSet = TileSet, ZIndex = 5, ZAsRelative = false, Name = $"Roof_{p.Name.Replace(' ', '_').Replace('.', '_').Replace('\'', '_')}", Position = new Vector2(0, -RoofLift) };
+            foreach (var cell in IsoGrid.Rhombus(p.House.Top, p.House.Width, p.House.Depth)) roof.SetCell(cell, SourceRoof, Vector2I.Zero);
+            host.AddChild(roof);
+            _roofs.Add((p.House, roof));
+        }
+        RebuildCollision();
     }
 
     // Around an editor save: the scene file keeps none of the painted tiles.
@@ -348,7 +372,7 @@ public partial class StructurePainter : TileMapLayer
                 for (int i = 2; i <= 5; i++) SetBack(IsoGrid.Cell(top, i, 3), SourceBed);
                 SetBack(IsoGrid.Cell(top, 3, 1), SourceBed);
                 break;
-            case BuildingKind.OutpostHouse:
+            case BuildingKind.OutpostHouse or BuildingKind.TradingPost:
                 // One room does for everything inland: hearth, counter, bunks, the bales.
                 SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
                 SetBack(IsoGrid.Cell(top, 1, 2), SourceShelf);

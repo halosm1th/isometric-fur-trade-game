@@ -202,6 +202,11 @@ public partial class Net : Node
         _names.Remove((int)id);
     }
 
+    // Which of the wider country's posts stand (World/Posts.cs).
+    public void BroadcastPosts(string[] names) { if (IsServer && Multiplayer.HasMultiplayerPeer() && Multiplayer.GetPeers().Length > 0) Rpc(nameof(PostsRpc), names); }
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void PostsRpc(string[] names) => World.Posts.ApplyStanding(names);
+
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void Hello(string name)
     {
@@ -220,6 +225,7 @@ public partial class Net : Node
         foreach (var a in Agents.Values) if (a is Npc bgn && bgn.Tier == Core.Tier.Background) RpcId(peer, nameof(TierState), bgn.NetId, true);
         foreach (var kv in Players) RpcId(peer, nameof(BindPlayer), kv.Key, kv.Value.NetId, kv.Value.DisplayName);
         Sim.Structures?.SendCellStateTo(peer);
+        RpcId(peer, nameof(PostsRpc), World.Posts.StandingNames());
         RpcId(peer, nameof(ClockState), HostPaused, GameCalendar.Instance?.SecondsPerGameHour ?? 10f);
         SpawnPlayer(peer, name);
         Sim.Notice($"{name} has joined.");

@@ -350,11 +350,27 @@ def lay_out(G, places, extras):
             if dd < bd: bd, best = dd, (run + t * L) / total
             run += L
         portages.append(dict(name=pt["name"], fraction=round(best, 3), cell=list(world_cell(*p))))
+    # Every other HBC and NWC post in the atlas, as a small palisaded post
+    # (Oxford House's 12 x 9 shape) on dry ground near its real position.
+    # Older posts choose first; each keeps clear of everything already set down.
+    hand_built = {"York Factory", "Oxford House"}
+    posts = []
+    for p in sorted(places, key=lambda q: q.get("year", 0)):
+        if p.get("kind") != "post" or p["name"] in hand_built or p.get("company") not in ("HBC", "NWC"): continue
+        want = Cell(tuple(p["cell"]), -6, -4)
+        def post_ok(t):
+            c = cell_world(*Cell(t, 6, 4))
+            if any(math.dist(c, cell_world(*o)) < 1300 for o in placed): return False
+            return footprint_dry(t, 12, 9)
+        try: top = search(want, want, post_ok, 30)
+        except SystemExit: print(f"  no room for {p['name']}"); continue
+        placed.append(Cell(top, 6, 4))
+        posts.append(dict(name=p["name"], company=p["company"], year=p.get("year", 0), top=list(top)))
     km = lambda a, b: math.dist(cell_world(*a), cell_world(*b)) / PX_PER_KM
-    print(f"{len(crossings)} river cells forded; fort {fort}, nwc {nwc} ({km(fort, nwc):.0f} km), oxford {outpost} ({km(fort, outpost):.0f} km), road {len(road)} pts")
+    print(f"{len(posts)} other posts fitted; {len(crossings)} river cells forded; fort {fort}, nwc {nwc} ({km(fort, nwc):.0f} km), oxford {outpost} ({km(fort, outpost):.0f} km), road {len(road)} pts")
     return dict(fort_top=list(fort), nwc_top=list(nwc), outpost_top=list(outpost),
                 cree_winter=list(winter), cree_summer=list(summer), assiniboine_winter=list(a_winter), assiniboine_summer=list(a_summer),
-                road=road, trail=trail, crossings=crossings, portages=portages, sites=sites)
+                road=road, trail=trail, crossings=crossings, portages=portages, sites=sites, posts=posts)
 
 if __name__ == "__main__":
     main()
