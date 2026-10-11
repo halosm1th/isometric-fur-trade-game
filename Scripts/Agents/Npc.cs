@@ -769,12 +769,14 @@ public partial class Npc : Agent
         }
         else if (Role == Role.Postmaster)
         {
-            // Oxford House has lost its master: the men carry on under the
-            // steadiest of them till the Bay sends someone (Delegation posts a clerk).
+            // A post has lost its master: the men carry on under the steadiest
+            // of them till the Bay sends someone (Delegation posts a clerk).
+            // Whichever post it was - there are more than Oxford House now.
             Npc heir = null;
             foreach (var n in Sim.Npcs) if (n.Role == Role.Labourer && n.HomeStores == HomeStores && !n.IsDead && (heir == null || n.Standing > heir.Standing)) heir = n;
+            string where = HomeStores == Sim.Outpost ? "Oxford House" : (HomeStores?.Title ?? "the post").Replace(" stores", "").Replace("the ", "");
             if (HomeStores != null) HomeStores.Leader = null;
-            Sim.Notice($"{DisplayName} is dead. Oxford House is without a master{(heir != null ? $"; {heir.DisplayName} keeps the men together" : "")}.");
+            Sim.Notice($"{DisplayName} is dead. {char.ToUpper(where[0])}{where.Substring(1)} is without a master{(heir != null ? $"; {heir.DisplayName} keeps the men together" : "")}.");
         }
         else if (Role == Role.CreeChief)
         {
