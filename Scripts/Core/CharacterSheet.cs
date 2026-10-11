@@ -145,6 +145,14 @@ public static class CharacterSheet
     public static IEnumerable<string> KinOf(Agent player) => player != null && _kin.TryGetValue(player.DisplayName, out var k) ? k : Array.Empty<string>();
     public static void ResetKin() => _kin.Clear();
 
+    // After a load: the kin list comes back with the player; rebuild the index.
+    public static void RestoreKin(Player.PlayerController pc)
+    {
+        if (pc.KinNames.Count == 0) return;
+        if (!_kin.TryGetValue(pc.DisplayName, out var k)) _kin[pc.DisplayName] = k = new HashSet<string>();
+        foreach (var n in pc.KinNames) k.Add(n);
+    }
+
     public static Economy.BandLedger BandOf(Player.PlayerController pc) => pc.Faction == Faction.Assiniboine ? Sim.Assiniboine : Sim.Band;
 
     private static void Kin(Player.PlayerController pc, Economy.Household home, int count, float regard)

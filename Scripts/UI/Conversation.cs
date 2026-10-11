@@ -21,7 +21,7 @@ public class Conversation
 
     public Conversation(PlayerController player) { _player = player; }
 
-    public bool IsOpen => !_closed && (_stores != null || _pile != null || _canoe != null || _npc != null && GodotObject.IsInstanceValid(_npc));
+    public bool IsOpen => !_closed && (_scene != null || _stores != null || _pile != null || _canoe != null || _npc != null && GodotObject.IsInstanceValid(_npc));
 
     // The storeroom chest as a counterpart with no face (design doc 12.5).
     private Economy.FortLedger _stores;
@@ -55,7 +55,7 @@ public class Conversation
         {
             _player.Inventory.Remove(ItemId.Firewood, have); pile.Stores.Add(ItemId.Firewood, have);
             if (mine) _player.Task.Progress(TaskKind.Firewood, have);
-            else { foreach (var a in Sim.AgentsWithin(_player.GlobalPosition, 650f)) if (a is Npc w && w.HomeStores == pile) w.ChangeRapport(_player, 3f); Chronicle.Event($"{_player.DisplayName} brought wood to {pile.Title}'s pile.", _player.GlobalPosition, _player, weight: 0.5f); }
+            else { Favours.StackedWood(_player, pile, have); foreach (var a in Sim.AgentsWithin(_player.GlobalPosition, 650f)) if (a is Npc w && w.HomeStores == pile) w.ChangeRapport(_player, 3f); Chronicle.Event($"{_player.DisplayName} brought wood to {pile.Title}'s pile.", _player.GlobalPosition, _player, weight: 0.5f); }
             _text = $"You stack {have} firewood ({pile.Stores.Count(ItemId.Firewood)} there now)."; ShowWoodpile();
         });
         AddOption(mine ? "Take 2 firewood" : "Take 2 firewood (theft)", () =>
@@ -77,6 +77,29 @@ public class Conversation
     // A canoe drawn up on the bank (design doc 12): take her, or load her.
     private World.Canoe _canoe;
     public const int CanoeId = -5;
+
+    // A scene with no one face: the prologue of a new character (Core/Starts).
+    private Core.ScenePage _scene;
+    public const int SceneId = -6;
+    public Godot.Collections.Dictionary StartScene(Core.ScenePage page)
+    {
+        if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
+        _npc = null; _stores = null; _pile = null; _canoe = null; _scene = page; _closed = page == null;
+        ShowScene();
+        return State();
+    }
+
+    private void ShowScene()
+    {
+        ClearOptions();
+        if (_scene == null) { Close(); return; }
+        _text = _scene.Text;
+        foreach (var (label, next) in _scene.Options)
+        {
+            var go = next;
+            AddOption(label, () => { _scene = go(); if (_scene == null) Close(); else ShowScene(); });
+        }
+    }
     public Godot.Collections.Dictionary StartCanoe(World.Canoe canoe)
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
@@ -144,6 +167,12 @@ public class Conversation
     // The player picked option i (or -1 to walk away).
     public Godot.Collections.Dictionary Step(int npcId, int option)
     {
+        if (_scene != null && npcId == SceneId && !_closed)
+        {
+            if (option < 0 || option >= _options.Count) return State();   // a prologue isn't walked away from
+            _options[option].action();
+            return State();
+        }
         if (_canoe != null && npcId == CanoeId && !_closed)
         {
             if (option < 0 || option >= _options.Count) { Close(); return State(); }
@@ -182,7 +211,7 @@ public class Conversation
     private void Close()
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
-        _stores = null; _pile = null; _canoe = null;
+        _stores = null; _pile = null; _canoe = null; _scene = null;
         _closed = true;
     }
 
@@ -192,8 +221,8 @@ public class Conversation
         foreach (var (label, _) in _options) opts.Add(label);
         return new Godot.Collections.Dictionary
         {
-            ["closed"] = _closed, ["npc"] = _canoe != null ? CanoeId : _pile != null ? PileId : _stores != null ? StoresId : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.NetId : -1,
-            ["title"] = _canoe != null ? "The canoe" : _pile != null ? "The woodpile" : _stores != null ? _stores.Title : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.DisplayName : "", ["text"] = _text, ["options"] = opts,
+            ["closed"] = _closed, ["npc"] = _scene != null ? SceneId : _canoe != null ? CanoeId : _pile != null ? PileId : _stores != null ? StoresId : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.NetId : -1,
+            ["title"] = _scene != null ? _scene.Title : _canoe != null ? "The canoe" : _pile != null ? "The woodpile" : _stores != null ? _stores.Title : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.DisplayName : "", ["text"] = _text, ["options"] = opts,
         };
     }
 
@@ -265,6 +294,17 @@ public class Conversation
         // An evening at the fire: tell them something you saw.
         if (npc.AtHearth != null && _player.GlobalPosition.DistanceTo(npc.AtHearth.GlobalPosition) < 300f)
             AddOption("Tell a story at the fire...", () => ShowStories(npc));
+        // Favours (design doc P.8): what he wants of you, what you can hand him, what he owes.
+        var favour = Favours.Open(npc, _player);
+        if (favour != null && !favour.Accepted) AddOption($"Hear what {npc.DisplayName} wants of you", () => ShowFavour(npc, favour));
+        if (favour != null && favour.Accepted && Favours.CanDeliver(favour, _player)) AddOption($"Give him what he asked ({favour.Short})", () => ShowTopics(Favours.Deliver(favour, _player)));
+        if (favour != null && favour.Accepted && favour.Kind == FavourKind.FindTrapThief) AddOption("Tell him who robbed his traps...", () => ShowThief(npc, favour));
+        foreach (var f in new List<Favour>(Favours.OpenFor(_player)))
+            if (f.Kind == FavourKind.SpeakForCourting && f.Target == npc.DisplayName) { var ff = f; AddOption($"Speak for {ff.Asker.DisplayName}, who wants to marry your daughter", () => ShowTopics(Favours.SpeakFor(ff, _player, npc))); }
+        if (Favours.Owed(npc, _player) > 0) AddOption("Call in the good turn he owes you...", () => ShowCallIn(npc));
+        // Leverage: something you saw him do.
+        var holds = Leverage.Holds(_player, npc).FindAll(m => !Leverage.Pressed(_player, m));
+        if (holds.Count > 0) AddOption("Take him aside: \"I saw what you did...\"", () => ShowLeverage(npc));
         AddOption("Talk...", () => ShowTalk(npc));
         if (ownLeader || (ownMan && canCommand) || npc.Following == _player || CanAskAlong(npc)) AddOption("Work and orders...", () => ShowWork(npc));
         if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster)
@@ -427,6 +467,68 @@ public class Conversation
             if (liar != null) AddOption($"   ...and say {Barks.CallName(liar)} started it", () => ShowDeny(npc, Lies.Deny(npc, _player, story, true)));
         }
         AddOption("Back", () => ShowTalk(npc));
+    }
+
+    // ---- favours -------------------------------------------------------------------------
+
+    private void ShowFavour(Npc npc, Favour f)
+    {
+        _text = $"\"{f.Ask}\"";
+        ClearOptions();
+        AddOption("\"I'll do it.\"", () => { f.Accepted = true; _player.Journal.Add($"{GameCalendar.Instance?.DateString}: {npc.DisplayName} asked you to {f.Short}. You said you would."); ShowTopics($"{npc.DisplayName} nods. \"I'll not forget it.\""); });
+        AddOption("\"Not this time.\"", () => { f.Lapsed = true; npc.ChangeRapport(_player, -3f); ShowTopics($"{npc.DisplayName} shrugs. \"No matter.\" It matters a little."); });
+    }
+
+    private void ShowThief(Npc npc, Favour f)
+    {
+        _text = "Whose name do you give him?";
+        ClearOptions();
+        int shown = 0;
+        foreach (var n in Sim.Npcs)
+        {
+            if (n.IsDead || n == npc || shown >= 6 || n.IsFemale || n.HomeStores == null) continue;
+            if (n.HomeStores != npc.HomeStores && !Economy.Rivalry.AreRivals(n.Faction, _player.Faction) && !n.IsBandPerson) continue;
+            var who = n; shown++;
+            AddOption(who.DisplayName, () => ShowTopics(Favours.NameThief(f, _player, who)));
+        }
+        AddOption("\"I haven't found out yet.\"", () => ShowTopics(Greeting(npc)));
+    }
+
+    private void ShowCallIn(Npc npc)
+    {
+        _text = $"{npc.DisplayName} owes you {Favours.Owed(npc, _player)} good turn{(Favours.Owed(npc, _player) > 1 ? "s" : "")}. What do you want of him?";
+        ClearOptions();
+        AddOption("\"Come with me.\"", () => ShowTopics(Favours.CallIn(npc, _player, "follow")));
+        AddOption("\"Something for my trouble.\"", () => ShowTopics(Favours.CallIn(npc, _player, "goods")));
+        AddOption("\"Put in a word for me with your master.\"", () => ShowTopics(Favours.CallIn(npc, _player, "speak")));
+        AddOption("\"Forget anything you've seen me do.\"", () => ShowTopics(Favours.CallIn(npc, _player, "quiet")));
+        AddOption("Not now", () => ShowTopics(Greeting(npc)));
+    }
+
+    // ---- leverage -------------------------------------------------------------------------
+
+    private void ShowLeverage(Npc npc)
+    {
+        _text = $"You lower your voice. {npc.DisplayName} goes still.";
+        ClearOptions();
+        foreach (var m in Leverage.Holds(_player, npc))
+        {
+            if (Leverage.Pressed(_player, m)) continue;
+            var held = m;
+            string label = Leverage.Label(held, npc);
+            AddOption($"\"I saw {(label.Length > 55 ? label.Substring(0, 52) + "..." : label)}.\"", () => ShowPrice(npc, held));
+        }
+        AddOption("Think better of it", () => ShowTopics(Greeting(npc)));
+    }
+
+    private void ShowPrice(Npc npc, MemoryEntry m)
+    {
+        _text = $"\"I saw {Leverage.Label(m, npc)}. Nobody else need know. That depends on you.\"";
+        ClearOptions();
+        AddOption("\"Make it worth my while.\" (goods)", () => ShowTopics(Leverage.Press(_player, npc, m, "goods")));
+        AddOption("\"Speak for me to your master.\"", () => ShowTopics(Leverage.Press(_player, npc, m, "speak")));
+        AddOption("\"No more stories about me.\"", () => ShowTopics(Leverage.Press(_player, npc, m, "stop")));
+        AddOption("Let it go", () => ShowTopics(Greeting(npc)));
     }
 
     private void ShowLieWhat(Npc npc, Npc accused, bool atFire)

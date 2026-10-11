@@ -77,9 +77,9 @@ public static class Items
         { ItemId.DriedMeat,    new("Dried meat",     ItemKind.Food,     0.8f, IconDir + "dried_meat.png",  Nutrition: 35f, ValueMb: 0.25f) },
         { ItemId.Goose,        new("Goose",          ItemKind.Food,     1.5f, IconDir + "goose_item.png",   Nutrition: 35f, ValueMb: 0.15f) },
         { ItemId.Firewood,     new("Firewood",       ItemKind.Fuel,     5.0f, IconDir + "firewood.png",     FuelHours: 3f) },
-        { ItemId.Capote,       new("Capote",         ItemKind.Clothing, 4.0f, IconDir + "capote.png",       Warmth: 3f, ValueMb: 3f) },
-        { ItemId.PointBlanket, new("Point blanket",  ItemKind.Clothing, 5.0f, IconDir + "blanket_pelt.png", Warmth: 4f, ValueMb: 4f) },
-        { ItemId.HideCoat,     new("Hide coat",      ItemKind.Clothing, 5.0f, IconDir + "hide_coat.png",    Warmth: 6f, ValueMb: 2f) },
+        { ItemId.Capote,       new("Capote",         ItemKind.Clothing, 4.0f, IconDir + "capote.png",       Warmth: 4.5f, ValueMb: 3f) },
+        { ItemId.PointBlanket, new("Point blanket",  ItemKind.Clothing, 5.0f, IconDir + "blanket_pelt.png", Warmth: 5f, ValueMb: 4f) },
+        { ItemId.HideCoat,     new("Hide coat",      ItemKind.Clothing, 5.0f, IconDir + "hide_coat.png",    Warmth: 7f, ValueMb: 2f) },
         { ItemId.BeaverPelt,   new("Beaver pelt",    ItemKind.Fur,      1.5f, IconDir + "beaver_pelt.png",  ValueMb: 1f) },
         { ItemId.ThinPelt,     new("Summer pelt",    ItemKind.Fur,      1.2f, IconDir + "thin_pelt.png",  ValueMb: 0.45f) },
         // A ball tears a pelt; the graders in London pay a fraction (design doc 13.6, 14.4).

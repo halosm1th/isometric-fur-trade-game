@@ -179,7 +179,8 @@ public static class Barks
     public static string YouForm(string text, string name)
     {
         if (string.IsNullOrEmpty(name)) return text;
-        return text.Replace(name + " has ", "you have ").Replace(name + " was ", "you were ").Replace(name + " is ", "you are ").Replace(name + "'s", "your").Replace(name, "you");
+        if (!text.Contains(name)) return text;
+        return text.Replace(name + " has ", "you have ").Replace(name + " was ", "you were ").Replace(name + " is ", "you are ").Replace(name + "'s", "your").Replace(name, "you").Replace("on his own account", "on your own account");
     }
 
     public static string Personalise(string text, Agent s, Agent listener)

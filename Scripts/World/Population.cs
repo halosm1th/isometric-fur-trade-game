@@ -252,6 +252,24 @@ public partial class Population : Node2D
 	private static bool Converse(string script)
 	{
 		var steps = script.Split('>');
+		// "*scene": the prologue now open (Core/Starts); waits until it is.
+		if (steps[0] == "*scene")
+		{
+			if (Sim.Player is not Player.PlayerController sp || !sp.Conversation.IsOpen) return false;
+			var st = sp.Conversation.State();
+			PrintTalk(st);
+			for (int i = 1; i < steps.Length; i++)
+			{
+				var opts = st["options"].AsGodotArray();
+				int pick = -1;
+				for (int o = 0; o < opts.Count; o++) if (opts[o].AsString().Contains(steps[i], System.StringComparison.OrdinalIgnoreCase)) { pick = o; break; }
+				if (pick < 0) { GD.Print($"[talk] no option like '{steps[i]}'"); break; }
+				GD.Print($"[talk] > {opts[pick].AsString()}");
+				st = sp.Conversation.Step(UI.Conversation.SceneId, pick);
+				PrintTalk(st);
+			}
+			return true;
+		}
 		Npc who = null;
 		// "*about-me": whoever is holding a story about the player's misdeeds.
 		if (steps[0] == "*about-me" && Sim.Player is Player.PlayerController me)

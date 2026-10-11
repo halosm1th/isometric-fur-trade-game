@@ -52,7 +52,7 @@ public partial class Net : Node
         _animalScene = GD.Load<PackedScene>("res://Scenes/Animals/Animal.tscn");
         Multiplayer.PeerConnected += OnPeerConnected;
         Multiplayer.PeerDisconnected += OnPeerDisconnected;
-        Multiplayer.ConnectedToServer += () => { RpcId(1, nameof(Hello), LocalName); Sim.Notice("Connected to the host."); };
+        Multiplayer.ConnectedToServer += () => { RpcId(1, nameof(Hello), LocalName, LocalSheet); Sim.Notice("Connected to the host."); };
         Multiplayer.ConnectionFailed += () => Sim.Notice("Could not reach the host.");
         Multiplayer.ServerDisconnected += () => Sim.Notice("The host has gone. You are on your own now.");
     }
@@ -177,7 +177,7 @@ public partial class Net : Node
     {
         if (IsServer || !_rehello) return;
         _rehello = false;
-        GetTree().CreateTimer(1.5).Timeout += () => RpcId(1, nameof(Hello), LocalName);
+        GetTree().CreateTimer(1.5).Timeout += () => RpcId(1, nameof(Hello), LocalName, LocalSheet);
     }
 
     public int PlayerCount => Players.Count;
@@ -208,13 +208,19 @@ public partial class Net : Node
     private void PostsRpc(string[] names) => World.Posts.ApplyStanding(names);
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void Hello(string name)
+    private void Hello(string name, string sheet)
     {
         if (!IsServer) return;
         int peer = Multiplayer.GetRemoteSenderId();
+        _sheets[peer] = sheet ?? "";
         if (_spawnParent == null) { GetTree().CreateTimer(1.0).Timeout += () => { if (_spawnParent != null && !Players.ContainsKey(peer)) Hello_Seat(peer, name); }; return; }
         Hello_Seat(peer, name);
     }
+
+    // Who each player made on the new-game page (Core/CharacterSheet), as
+    // sent with their name; empty = the old default.
+    public string LocalSheet = "";
+    private readonly Dictionary<int, string> _sheets = new();
 
     private void Hello_Seat(int peer, string name)
     {
@@ -367,6 +373,10 @@ public partial class Net : Node
         _spawnParent.AddChild(p);
         Players[peer] = p;
         SaveGame.ApplyPlayer(p);
+        // A new character: who they are and how they come into the world (design doc 5.4, 5.5).
+        string sheet = peer == LocalPeerId ? LocalSheet : _sheets.GetValueOrDefault(peer, "");
+        if (SaveGame.HasSavedPlayer(name)) Core.CharacterSheet.RestoreKin(p);
+        else if (sheet != "") { Core.CharacterSheet.Apply(p, sheet); Core.Starts.Begin(p, true, Players.Count == 1); }
         if (p.Task.Kind == Player.TaskKind.None && p.Faction == Faction.HBC) p.AssignTask(Player.TaskKind.Report, 1, "you are the Company's new hand");
         if (peer == LocalPeerId) SetLocal(p);
         if (Current != Mode.Offline)

@@ -325,7 +325,7 @@ public partial class Npc : Agent
         if (_friendTimer <= 0f)
         {
             _friendTimer = 3f;
-            if (!Sleeping && Tier == Core.Tier.Live && HeldBy == null) { Friends.Act(this); Lies.Consider(this); }   // talking to you is when he'd tell you
+            if (!Sleeping && Tier == Core.Tier.Live && HeldBy == null) { Friends.Act(this); Lies.Consider(this); Favours.Consider(this); }   // talking to you is when he'd tell you
         }
     }
 

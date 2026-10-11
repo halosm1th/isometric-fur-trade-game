@@ -105,9 +105,27 @@ public partial class TerrainPainter : TileMapLayer
             $"nodes {Performance.GetMonitor(Performance.Monitor.ObjectNodeCount):0}  chunks {_loaded.Count}  npcs {Sim.Npcs.Count}  player {(Sim.Player as Node2D)?.GlobalPosition}");
     }
 
+    // Dev aid: `-- --jumps` reports anyone who moves further in one frame
+    // than walking could take him (a teleport), with what he was doing.
+    private readonly Dictionary<Agents.Npc, (Vector2 Pos, string Goal)> _lastSeen = new();
+    private int _jumpsOn = -1;
+    private void JumpReport()
+    {
+        if (_jumpsOn < 0) { _jumpsOn = 0; foreach (string a in OS.GetCmdlineUserArgs()) if (a == "--jumps") _jumpsOn = 1; }
+        if (_jumpsOn == 0) return;
+        foreach (var n in Sim.Npcs)
+        {
+            if (n == null || !IsInstanceValid(n)) continue;
+            string goal = n.GoalDescription;
+            if (_lastSeen.TryGetValue(n, out var last) && last.Pos.DistanceTo(n.GlobalPosition) > 300f)
+                GD.Print($"[jump] {n.DisplayName} {last.Pos.DistanceTo(n.GlobalPosition):0} px, tier {n.Tier}, was '{last.Goal}', now '{goal}' at {GameCalendar.Instance?.TimeString}");
+            _lastSeen[n] = (n.GlobalPosition, goal);
+        }
+    }
+
     public override void _Process(double delta)
     {
-        if (!Engine.IsEditorHint()) PerfReport(delta);
+        if (!Engine.IsEditorHint()) { PerfReport(delta); JumpReport(); }
         if (!AutoGenerate) return;
         _focusTimer -= (float)delta;
         if (_focusTimer <= 0f) { _focusTimer = 0.25f; Refocus(); }

@@ -42,9 +42,19 @@ public class Needs
 
     public bool Invulnerable;
 
+    // Test console: the bars stop moving altogether, which is what you want
+    // when you are trying to look at something else.
+    public bool GodMode;
+
     public void Tick(float gameHours, float activity, bool sheltered, float heat, float clothingWarmth, Season season, float daylight, bool fireEnclosed = false)
     {
         if (gameHours <= 0f || IsDead) return;
+        if (GodMode)
+        {
+            Hunger = Thirst = Warmth = 100f;
+            Health = 100f;
+            return;
+        }
 
         float hungerRate = HungerBase * activity * (season == Season.Winter ? 1.3f : 1f);
         Hunger = Mathf.Max(0f, Hunger - hungerRate * gameHours);
@@ -59,7 +69,7 @@ public class Needs
         Warmth = Mathf.Clamp(Warmth + (gain - loss) * gameHours, 0f, 100f);
 
         float damage = 0f;
-        if (Warmth <= 0f) damage += 6f;
+        if (Warmth <= 0f) damage += 3f;
         if (Thirst <= 0f) damage += 5f;
         if (Hunger <= 0f) damage += 3f;
         if (!Invulnerable) Health = Mathf.Clamp(Health - damage * gameHours, 0f, 100f);
@@ -90,9 +100,9 @@ public static class Climate
     {
         (float day, float night) = season switch
         {
-            Season.Winter => (5f, 10f),
-            Season.OpenWater => (0f, 2f),
-            _ => (1.5f, 4f),
+            Season.Winter => (3f, 6f),
+            Season.OpenWater => (0f, 1f),
+            _ => (1f, 2.5f),
         };
         return Mathf.Lerp(night, day, daylight);
     }

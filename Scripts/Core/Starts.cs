@@ -1,0 +1,266 @@
+using System;
+using System.Collections.Generic;
+using Godot;
+using IsometricFurTradeGame.Scripts.Agents;
+using IsometricFurTradeGame.Scripts.Items;
+using IsometricFurTradeGame.Scripts.World;
+
+namespace IsometricFurTradeGame.Scripts.Core;
+
+// How a new character comes into the world (design doc 5.5, P.1's first
+// hour). Each road in has a short prologue - the last day of the crossing,
+// the last carrying place below the post, a morning in the camp - with the
+// people you arrive among, who are real and stay real: a face you can make a
+// friend of, a temptation with a cost, and a rumour that names the men who
+// matter. Then you're set down where you belong with your first instruction.
+// Only for a character made on the new-game page; dev-arg starts are as before.
+public class ScenePage
+{
+    public string Title = "", Text = "";
+    public readonly List<(string label, Func<ScenePage> next)> Options = new();
+    public ScenePage Add(string label, Func<ScenePage> next) { Options.Add((label, next)); return this; }
+}
+
+public static class Starts
+{
+    private static bool _worldDated;
+    public static void Reset() => _worldDated = false;
+
+    // The first line a player sees, by the road they came in on.
+    public static string Intro(Player.PlayerController p) => p.StartPath switch
+    {
+        StartPath.NWC => "The North West Company's house, across from the Bay men. You are the partner's new man.",
+        StartPath.Cree => "The Cree summer camp by the Bay men's house. These are your people.",
+        StartPath.Assiniboine => "The Assiniboine camp. These are your people.",
+        _ => "York Factory, Hudson's Bay. You are the Company's new hand.",
+    };
+
+    // On the host, for a player new to this world, after the sheet is applied.
+    public static void Begin(Player.PlayerController p, bool chosen, bool firstInWorld)
+    {
+        if (!chosen) return;
+        var pop = p.GetTree().GetFirstNodeInGroup("population") as Population;
+        // The first character of a new world sets the season he arrives in.
+        if (firstInWorld && !_worldDated)
+        {
+            _worldDated = true;
+            var cal = GameCalendar.Instance;
+            int year = cal?.Year ?? 1811;
+            switch (p.StartPath)
+            {
+                case StartPath.HBC: cal?.SetDate(year, 8, 20, 7f); break;           // the ship's day
+                case StartPath.NWC: cal?.SetDate(year, 7, 12, 7f); break;           // the brigade's day
+                default: cal?.SetDate(year, 6, 10, 7f); Sim.Band?.MoveCamp(WorldLayout.SummerCamp); break;   // the summer camp by the post
+            }
+        }
+        ScenePage first = p.StartPath switch
+        {
+            StartPath.HBC => Ship(p, pop),
+            StartPath.NWC => Brigade(p, pop),
+            _ => Camp(p),
+        };
+        // Open the prologue a moment after the world settles.
+        p.GetTree().CreateTimer(2.0).Timeout += () =>
+        {
+            if (!GodotObject.IsInstanceValid(p)) return;
+            var state = p.Conversation.StartScene(first);
+            Net.Net.I?.PushDialogue(p, state);
+        };
+    }
+
+    // ---- the ship ---------------------------------------------------------------------
+
+    private static ScenePage Ship(Player.PlayerController p, Population pop)
+    {
+        // The ship comes in: she ties up this morning with you aboard.
+        if (Sim.Ship != null && Sim.Ship.Current == World.Ship.State.Away) { Sim.Ship.Summon(); Sim.Ship.Position = WorldLayout.ShipBerth + new Vector2(300, -80); }
+        var land = IsoGrid.ToWorld(WorldLayout.WharfEnd);
+        Place(p, land + new Vector2(-30, 40));
+        // Two lads who signed on with you at Stromness.
+        var mates = new List<Npc>();
+        string[] names = { "Hugh Rendall", "Andrew Flett" };
+        var mens = WorldLayout.MensHouse;
+        for (int i = 0; i < names.Length && pop != null && Sim.Fort != null; i++)
+        {
+            var m = pop.Spawn(names[i], Role.Labourer, Faction.HBC, IsoGrid.Cell(mens.Top, 1 + i, 4), IsoGrid.Cell(WorldLayout.FortTop, 10 + i, 9), Sim.Fort, GD.Load<SpriteFrames>("res://Scenes/Npc/LabourerFrames.tres"), Colors.White);
+            m.Inventory.Add(ItemId.Capote); m.Inventory.Add(ItemId.Knife); m.Inventory.Add(ItemId.Bread, 2);
+            m.Age = GD.RandRange(17, 23);
+            m.GlobalPosition = land + new Vector2(10 + i * 30, 60);
+            m.Brain.Push(m, new Agents.Goals.ReportForDutyGoal());
+            Shared(m, p, $"{m.DisplayName} and {p.DisplayName} crossed from Stromness together on the Company's ship.");
+            mates.Add(m);
+        }
+        p.AssignTask(Player.TaskKind.Report, 1, "you are the Company's new hand");
+        string factor = Clean(Sim.Fort?.Leader?.DisplayName) ?? "the Factor";
+        string rival = RivalClerk(Sim.Fort);
+        string partner = Clean(Sim.Nwc?.Leader?.DisplayName) ?? "the Canadian partner";
+        string sailor = "Davy Gunn";
+        string a = mates.Count > 0 ? Agents.Barks.CallName(mates[0]) : "Hugh", b = mates.Count > 1 ? Agents.Barks.CallName(mates[1]) : "Andrew";
+        var seen = new HashSet<string>();
+
+        ScenePage hub = null;
+        ScenePage Hub()
+        {
+            hub = new ScenePage { Title = "The last day of the crossing", Text = seen.Count == 0
+                ? $"Hudson's Bay, August. Six weeks out of Stromness the Company's ship beats down the low grey coast toward the mouth of the Hayes. {a} and {b}, who signed on with you, lean on the rail beside you. A sailor, {sailor}, has been watching you since breakfast. The mate is on the quarterdeck with his glass."
+                : "The coast is closer. The afternoon wears on." };
+            if (!seen.Contains("mates")) hub.Add($"Talk with {a} and {b}", () => { seen.Add("mates"); return Mates(); });
+            if (!seen.Contains("sailor")) hub.Add($"See what {sailor} wants", () => { seen.Add("sailor"); return Sailor(); });
+            if (!seen.Contains("mate")) hub.Add("Ask the mate about the Factory", () => { seen.Add("mate"); return Mate(); });
+            hub.Add("Turn in. The ship will be in by morning.", () => Arrive());
+            return hub;
+        }
+        ScenePage Mates() => new ScenePage { Title = "At the rail", Text = $"{a} talks of his mother's croft on Sanday and the five years ahead of him. {b} says little, but he shares his tobacco. \"We'll stick together over there,\" {a} says. \"Whatever they set us to.\"" }
+            .Add("\"We will.\" Shake on it.", () => { foreach (var m in mates) { m.ChangeRapport(p, 15f); Shared(m, p, $"{m.DisplayName} and {p.DisplayName} swore on the ship to stand by each other."); } Note(p, $"You swore with {a} and {b} to stand by each other."); return Hub(); })
+            .Add("Keep your own counsel.", () => Hub());
+        ScenePage Sailor() => new ScenePage { Title = sailor, Text = $"\"I've brandy of my own below,\" {sailor} says low. \"The Indians pay three beaver a keg and the Company need never know. Two pieces of your goods for each of my kegs - that's a fortune for a lad like you.\"" }
+            .Add("Buy two kegs (4 pieces of goods)", () =>
+            {
+                if (p.Inventory.Count(ItemId.TradeGoods) < 4) return new ScenePage { Title = sailor, Text = "\"Not enough goods? Then you're not the man I took you for.\" He spits over the side." }.Add("Back", Hub);
+                p.Inventory.Remove(ItemId.TradeGoods, 4); p.Inventory.Add(ItemId.Rum, 6);
+                Note(p, $"You bought brandy from {sailor} aboard ship, to trade on your own account.");
+                // The crew know. Whoever of them lands may say so.
+                Remembered(p, $"{p.DisplayName} traded on his own account aboard the ship.", mates, 1.2f);
+                return new ScenePage { Title = sailor, Text = "\"Keep it dry and keep it quiet.\" You stow six drams' worth among your things. If the Factor ever hears you've been trading on your own account, it will be in his report." }.Add("Back", Hub);
+            })
+            .Add("No.", () => Hub())
+            .Add("Tell the mate.", () => { p.Standing += 3f; Note(p, $"You told the mate {sailor} was trading brandy on his own account. The Company will think well of it; the crew will not."); return new ScenePage { Title = "The mate", Text = $"The mate takes it down. {sailor} looks at you across the deck for the rest of the day." }.Add("Back", Hub); });
+        ScenePage Mate() => new ScenePage { Title = "The mate", Text = $"\"{factor}'s the Factor - an old Bay man, hard but fair, and he'll want you the hour you land. Watch {rival}: he wants the next place going and he'll not thank a new man for crowding him. And keep off the Canadians across the river - {partner}'s people. There's been bad blood since the winter.\"" }
+            .Add("Thank him", () => { Note(p, $"The mate's advice: report to {factor} at once; {rival} wants the next place going; keep clear of {partner}'s Nor'Westers."); return Hub(); });
+        ScenePage Arrive() => new ScenePage { Title = "York Factory", Text = $"Morning. The ship comes up the Hayes on the tide and makes fast at the Factory's wharf. Palisade, flag, smoke from the chimneys, and every soul in the place come down to the shore. Your first order is in your pocket: report to {factor}." }
+            .Add("Step ashore", () => { Note(p, $"You came ashore at York Factory with {a} and {b}. Report to {factor}."); return null; });
+        return Hub();
+    }
+
+    // ---- the brigade ------------------------------------------------------------------
+
+    private static ScenePage Brigade(Player.PlayerController p, Population pop)
+    {
+        var gate = IsoGrid.ToWorld(WorldLayout.NwcGateCell);
+        Place(p, gate + new Vector2(60, 90));
+        var mates = new List<Npc>();
+        string[] names = { "Michel Allary", "Jean Paul" };
+        var house = WorldLayout.NwcHouse;
+        for (int i = 0; i < names.Length && pop != null && Sim.Nwc != null; i++)
+        {
+            var v = pop.Spawn(names[i], Role.Voyageur, Faction.NWC, IsoGrid.Cell(house.Top, 1 + i, 4), IsoGrid.Cell(WorldLayout.NwcTop, 6, 6), Sim.Nwc, GD.Load<SpriteFrames>("res://Scenes/Npc/RivalFrames.tres"), new Color(0.85f, 0.75f, 0.75f));
+            v.Inventory.Add(ItemId.Capote); v.Inventory.Add(ItemId.Knife); v.Inventory.Add(ItemId.Pemmican, 2);
+            v.GlobalPosition = gate + new Vector2(90 + i * 30, 110);
+            v.Brain.Push(v, new Agents.Goals.ReportForDutyGoal());
+            Shared(v, p, $"{v.DisplayName} and {p.DisplayName} came up from Fort William in the same canoe.");
+            mates.Add(v);
+        }
+        p.AssignTask(Player.TaskKind.Report, 1, $"you are the North West Company's new man");
+        string partner = Clean(Sim.Nwc?.Leader?.DisplayName) ?? "the partner";
+        string factor = Clean(Sim.Fort?.Leader?.DisplayName) ?? "the Factor";
+        string chief = Clean(Sim.Band?.Leader?.DisplayName) ?? "the leading man";
+        string a = mates.Count > 0 ? Agents.Barks.CallName(mates[0]) : "Michel", b = mates.Count > 1 ? Agents.Barks.CallName(mates[1]) : "Jean";
+        var seen = new HashSet<string>();
+        ScenePage Hub()
+        {
+            var hub = new ScenePage { Title = "Above the last carrying place", Text = seen.Count == 0
+                ? $"July. The brigade from Fort William is camped above the last portage, a day's paddle from {partner}'s house. The canoes are turned over for the night; the kettle is on. {a} is mending a paddle. {b} has the cards out. The guide is broaching the keg for a regale."
+                : "The fire burns down. The river talks to itself in the dark." };
+            if (!seen.Contains("mates")) hub.Add($"Sit with {a}", () => { seen.Add("mates"); return Mates(); });
+            if (!seen.Contains("cards")) hub.Add($"Play cards with {b}", () => { seen.Add("cards"); return Cards(); });
+            if (!seen.Contains("guide")) hub.Add("Ask the guide about the post", () => { seen.Add("guide"); return Guide(); });
+            hub.Add("Sleep. You'll be at the post tomorrow.", () => Arrive());
+            return hub;
+        }
+        ScenePage Mates() => new ScenePage { Title = a, Text = $"{a} shows you how to wrap a cracked blade with spruce root. \"Two winters I've done for the Company. A third and I'll have enough for a farm at Sorel - if the partners pay what they promise.\"" }
+            .Add("Help him with the paddle", () => { foreach (var m in mates) m.ChangeRapport(p, 12f); Shared(mates.Count > 0 ? mates[0] : null, p, $"{a} taught {p.DisplayName} to mend a paddle on the brigade."); Note(p, $"You sat with {a} on the brigade; he means to buy a farm at Sorel."); return Hub(); })
+            .Add("Back", Hub);
+        ScenePage Cards() => new ScenePage { Title = "Cards", Text = $"\"A game, bourgeois?\" {b} grins. \"Three pieces a hand. The winner buys the next regale.\"" }
+            .Add("Stake three pieces", () =>
+            {
+                if (p.Inventory.Count(ItemId.TradeGoods) < 3) return new ScenePage { Title = "Cards", Text = "You haven't three pieces to your name. He laughs and deals you out." }.Add("Back", Hub);
+                bool win = GD.Randf() < 0.45f + p.Skills.Trade * 0.2f;
+                if (win) { p.Inventory.Add(ItemId.TradeGoods, 3); if (mates.Count > 1) mates[1].ChangeRapport(p, -3f); Note(p, $"You won three pieces from {b} at cards."); }
+                else { p.Inventory.Remove(ItemId.TradeGoods, 3); if (mates.Count > 1) { mates[1].ChangeRapport(p, 8f); mates[1].Inventory.Add(ItemId.TradeGoods, 3); } Note(p, $"You lost three pieces to {b} at cards."); }
+                return new ScenePage { Title = "Cards", Text = win ? $"You take the pot. {b} laughs, but not much." : $"{b} sweeps the pot. \"You're a good loser, bourgeois. I like a good loser.\"" }.Add("Back", Hub);
+            })
+            .Add("Not tonight", Hub);
+        ScenePage Guide() => new ScenePage { Title = "The guide", Text = $"\"{partner} winters at the house across from the Bay men. He'll want you the moment we land. The Bay men are under {factor}, and they have the band of {chief} trading with them more than with us. The partners at Fort William want that turned round this year.\"" }
+            .Add("Thank him", () => { Note(p, $"The guide: report to {partner} on landing; the partners want {chief}'s band turned from {factor}'s Bay men to us this year."); return Hub(); });
+        ScenePage Arrive() => new ScenePage { Title = $"{partner}'s house", Text = $"Noon. The brigade sweeps round the last bend singing, and the canoes run up on the landing below the North West Company's house. Across the river the Bay men's flag. Report to {partner}." }
+            .Add("Step ashore", () => { Note(p, $"You came up with the brigade to {partner}'s house, with {a} and {b}. Report to {partner}."); return null; });
+        return Hub();
+    }
+
+    // ---- the camp ---------------------------------------------------------------------
+
+    private static ScenePage Camp(Player.PlayerController p)
+    {
+        var band = CharacterSheet.BandOf(p);
+        var centre = band != null ? band.AccessCell : WorldLayout.CampCentre;
+        Place(p, IsoGrid.ToWorld(centre) + new Vector2(50, 40));
+        Npc elder = null, cousin = null;
+        foreach (var n in Sim.Npcs) if (!n.IsDead && p.KinNames.Contains(n.DisplayName)) { if (elder == null && !n.IsFemale) elder = n; else if (cousin == null) cousin = n; }
+        elder ??= band?.Leader;
+        string e = elder != null ? Agents.Barks.CallName(elder) : "your uncle", c = cousin != null ? Agents.Barks.CallName(cousin) : "your cousin";
+        string factor = Clean(Sim.Fort?.Leader?.DisplayName) ?? "the Bay men's master";
+        string partner = Clean(Sim.Nwc?.Leader?.DisplayName) ?? "the Canadian";
+        string people = p.Faction == Faction.Assiniboine ? "Assiniboine" : "Cree";
+        var seen = new HashSet<string>();
+        ScenePage Hub()
+        {
+            var hub = new ScenePage { Title = "Morning in the summer camp", Text = seen.Count == 0
+                ? $"June. The {people} lodges stand on the trail by the Bay men's house for the trading. Smoke, dogs, children at the river. {e} is sitting outside his lodge with the winter's furs bundled at his feet. {c} is restringing a bow. A Canadian from across the river has come into the camp with a keg."
+                : "The camp goes about its morning." };
+            if (!seen.Contains("elder")) hub.Add($"Sit with {e}", () => { seen.Add("elder"); return Elder(); });
+            if (!seen.Contains("cousin")) hub.Add($"Go with {c} to look at the snares", () => { seen.Add("cousin"); return Cousin(); });
+            if (!seen.Contains("keg")) hub.Add("See what the Canadian wants", () => { seen.Add("keg"); return Keg(); });
+            hub.Add("Go about the day", () => Arrive());
+            return hub;
+        }
+        ScenePage Elder() => new ScenePage { Title = e, Text = $"\"Take these down to the Bay house,\" {e} says, pushing the bundle toward you. \"Four good beaver. Bring back powder and a kettle. {factor} will try to give you less than they're worth, and the Canadians will try to give you rum. Don't let either of them make a fool of you.\"" }
+            .Add("Take the furs", () =>
+            {
+                p.Inventory.Add(ItemId.BeaverPelt, 4);
+                if (elder != null) { elder.ChangeRapport(p, 5f); Favours.Ask(elder, p, FavourKind.TradeForKin, 1); }
+                Note(p, $"{e} gave you four beaver to trade at the Bay house for powder and a kettle.");
+                return Hub();
+            });
+        ScenePage Cousin() => new ScenePage { Title = c, Text = $"Two hares in the snares and a third torn loose by a fox. {c} talks about a girl in the other band and whether her father would ever look at him." }
+            .Add("Promise to speak for him", () => { if (cousin != null) { cousin.ChangeRapport(p, 10f); Shared(cousin, p, $"{cousin.DisplayName} and {p.DisplayName} checked the snares together and talked of marriage."); } Note(p, $"You promised {c} you'd speak for him to the girl's father."); return Hub(); })
+            .Add("Tease him", () => { if (cousin != null) cousin.ChangeRapport(p, 3f); return Hub(); });
+        ScenePage Keg() => new ScenePage { Title = "The Canadian", Text = $"\"{partner} sends his compliments,\" the Canadian says, and pours a cup from the keg. \"There's more where this came from for a man who brings his furs across the river instead of to the Bay house.\"" }
+            .Add("Drink with him", () => { p.Inventory.Add(ItemId.Rum, 1); p.Consume(ItemId.Rum); Note(p, $"A Nor'Wester came into the camp with rum from {partner}, for whoever takes their furs across the river."); return Hub(); })
+            .Add("Send him away", () => { if (elder != null) elder.ChangeRapport(p, 4f); Note(p, $"You sent {partner}'s man and his keg out of the camp."); return Hub(); });
+        ScenePage Arrive() => new ScenePage { Title = "The summer camp", Text = $"The day is yours. The Bay men's house is a short walk down the trail; the Canadians' across the river." }
+            .Add("Go", () => null);
+        return Hub();
+    }
+
+    // ---- helpers ------------------------------------------------------------------------
+
+    private static void Place(Player.PlayerController p, Vector2 at) => p.SetStartPosition(at);
+
+    // A firsthand memory two people share from before the game - the stuff
+    // the friend system (and the bond) is made of.
+    private static void Shared(Npc n, Agent p, string text)
+    {
+        if (n == null) return;
+        n.Memories.Add(new MemoryEntry { Text = text, Subject = p.DisplayName, Day = Mathf.PosMod((GameCalendar.Instance?.DayOfYear ?? 0f) - 1f, 365f), Directness = 1, Weight = 1.2f, Key = $"start{n.DisplayName}{text.GetHashCode()}", Witnesses = new List<string> { n.DisplayName, p.DisplayName } });
+        n.ChangeRapport(p, 12f);
+    }
+
+    // Something the people around you saw you do before you landed.
+    private static void Remembered(Agent p, string text, List<Npc> by, float weight)
+    {
+        var e = new MemoryEntry { Text = text, Actor = p, Subject = p.DisplayName, Day = Mathf.PosMod((GameCalendar.Instance?.DayOfYear ?? 0f) - 1f, 365f), Directness = 1, Weight = weight, Key = $"start{text.GetHashCode()}", Witnesses = new List<string> { p.DisplayName } };
+        foreach (var n in by) { e.Witnesses.Add(n.DisplayName); n.Remember(e); }
+    }
+
+    private static void Note(Player.PlayerController p, string line) => p.Journal.Add($"{GameCalendar.Instance?.DateString}: {line}");
+
+    // "Alex Kennedy (clerk)" reads as "Alex Kennedy" in a sentence.
+    private static string Clean(string name) => name == null ? null : System.Text.RegularExpressions.Regex.Replace(name, @"\s*\([^)]*\)", "");
+
+    private static string RivalClerk(Economy.Household h)
+    {
+        Npc best = null;
+        foreach (var n in Sim.Npcs) if (!n.IsDead && n.HomeStores == h && n.Role == Role.Clerk && (best == null || n.Personality.Ambition > best.Personality.Ambition)) best = n;
+        return Clean(best?.DisplayName) ?? "the senior clerk";
+    }
+}

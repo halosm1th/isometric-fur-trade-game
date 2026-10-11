@@ -27,6 +27,9 @@ public partial class MainMenu : Control
             else if (arg.StartsWith("--join=")) join = arg.Substring(7);
             else if (arg.StartsWith("--name=")) autoName = arg.Substring(7);
             else if (arg.StartsWith("--menu=")) page = arg.Substring(7);
+            // Dev: `--start=HBC|NWC|Cree|Assiniboine[:background:trait,trait:ambition]` makes
+            // that character, as the new-game page would, and starts alone.
+            else if (arg.StartsWith("--start=")) { net.LocalSheet = StartSheet(arg.Substring(8)); solo = solo || (!host && !server && join == null); }
             else if (arg == "--load") { Core.SaveGame.Pending = Core.SaveGame.Read(Core.SaveGame.QuickPath); solo = solo || (!host && !server && join == null); }
             else if (arg.StartsWith("--spawn=") || arg.StartsWith("--hour=") || arg.StartsWith("--date=")) solo = solo || (!host && !server && join == null);
         }
@@ -302,6 +305,17 @@ public partial class MainMenu : Control
         var e = NetHub.I.StartClient(host, port);
         if (e != Error.Ok) { if (_status != null) Fail($"Could not connect: {e}"); return; }
         Go();
+    }
+
+    private static string StartSheet(string spec)
+    {
+        var bits = spec.Split(':');
+        Core.CharacterSheet.Path = System.Enum.TryParse<Core.StartPath>(bits[0], true, out var path) ? path : Core.StartPath.HBC;
+        Core.CharacterSheet.Background = bits.Length > 1 && int.TryParse(bits[1], out int bg) ? bg : 0;
+        Core.CharacterSheet.Traits.Clear();
+        if (bits.Length > 2) foreach (var t in bits[2].Split(',', System.StringSplitOptions.RemoveEmptyEntries)) Core.CharacterSheet.Traits.Add(t);
+        Core.CharacterSheet.Ambition = bits.Length > 3 && System.Enum.TryParse<Agents.AmbitionKind>(bits[3], true, out var a) ? a : Agents.AmbitionKind.None;
+        return Core.CharacterSheet.Encode();
     }
 
     private void Go() => GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, WorldScene);

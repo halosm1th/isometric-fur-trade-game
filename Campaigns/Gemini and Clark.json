@@ -1,0 +1,543 @@
+{
+  "title": "The Plains Ablaze (1801–1821)",
+  "description": "A campaign spanning the turn of the 19th century through the fur trade wars and the merger. Features the Lewis and Clark expedition and potential escalation into full-scale U.S. military retaliation across the Plains.",
+  "posts_by_founding_year": true,
+  "beats": [
+    {
+      "date": "1804-05-14",
+      "happens": [
+        {
+          "do": "flag",
+          "name": "lewis_clark_expedition_begins"
+        },
+        {
+          "company": "NWC",
+          "days": 60.0,
+          "do": "news",
+          "from": "Montreal",
+          "subject": "American expedition on the Missouri",
+          "text": "Captains Lewis and Clark have set out from St. Louis with an armed Corps of Discovery. They aim for the Pacific. Keep your traders watchful; their presence threatens our western posts.",
+          "to": "the wintering partner"
+        },
+        {
+          "days": 120.0,
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "subject": "American activity in the west",
+          "text": "Word from Washington indicates an American overland party is ascending the Missouri. Protect the Company's interests and trade routes.",
+          "to": "the Factor at York Factory"
+        }
+      ],
+      "id": "lewis-clark-sets-out",
+      "keywords": [
+        "Lewis",
+        "Clark",
+        "Missouri",
+        "Americans"
+      ],
+      "kind": "fixed",
+      "title": "The Lewis and Clark Expedition departs St. Louis"
+    },
+    {
+      "date": "1805-09-15",
+      "done_when": [
+        "flag:lewis_clark_killed"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "lewis_clark_killed"
+        },
+        {
+          "add": 20.0,
+          "do": "tension",
+          "why": "rumors of the Lewis and Clark massacre"
+        },
+        {
+          "company": "NWC",
+          "days": 40.0,
+          "do": "news",
+          "from": "Fort Mandan",
+          "subject": "The Corps of Discovery wiped out",
+          "text": "Disaster on the upper river: Captains Lewis and Clark and their entire command have been ambushed and slaughtered. Rumors are spreading that British traders supplied the weapons.",
+          "to": "the wintering partner"
+        },
+        {
+          "days": 90.0,
+          "do": "news",
+          "from": "Red River",
+          "subject": "Massacre of the American expedition",
+          "text": "Word has arrived that the American officers Lewis and Clark are dead along with their men. The Plains nations are in total upheaval.",
+          "to": "the Factor at York Factory"
+        }
+      ],
+      "id": "lewis-clark-slain",
+      "keywords": [
+        "massacre",
+        "Lewis",
+        "Clark",
+        "killed",
+        "Plains"
+      ],
+      "kind": "event",
+      "lead_days": 60.0,
+      "requires": [
+        "lewis-clark-sets-out"
+      ],
+      "title": "The Lewis and Clark Expedition is destroyed",
+      "window_days": 60.0
+    },
+    {
+      "delay_days": 90.0,
+      "happens": [
+        {
+          "do": "flag",
+          "name": "us_military_retaliation"
+        },
+        {
+          "add": 40.0,
+          "do": "tension",
+          "why": "US Army punitive invasion of the Plains"
+        },
+        {
+          "do": "london",
+          "price": 0.6,
+          "quota": 0.6
+        },
+        {
+          "company": "NWC",
+          "days": 30.0,
+          "do": "news",
+          "from": "Montreal",
+          "subject": "American invasion of the interior",
+          "text": "Washington is outraged over the slaughter of Lewis and Clark. A massive U.S. Army force under General Wilkinson has entered the Missouri basin with orders to show no mercy. They are burning camps, hanging suspect traders, and commandeering all pemmican and horses across the Plains.",
+          "to": "the wintering partner"
+        },
+        {
+          "days": 60.0,
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "subject": "American War on the Plains",
+          "text": "American troops have turned the Western Plains into a warzone in revenge for their lost officers. They attack all indigenous groups without distinction and confiscate British trade goods. Protect our posts and avoid engagement.",
+          "to": "the Factor at York Factory"
+        }
+      ],
+      "id": "us-punitive-expedition",
+      "keywords": [
+        "invasion",
+        "army",
+        "retaliation",
+        "pillage",
+        "warzone"
+      ],
+      "kind": "conditional",
+      "lead_days": 0.0,
+      "requires": [
+        "lewis-clark-slain"
+      ],
+      "title": "U.S. Army launches a scorched-earth punitive invasion on the Plains",
+      "when": [
+        "flag:lewis_clark_killed"
+      ]
+    },
+    {
+      "delay_days": 180.0,
+      "happens": [
+        {
+          "do": "flag",
+          "name": "plains_warzone_crisis"
+        },
+        {
+          "add": 25.0,
+          "do": "tension",
+          "why": "plundering army drives trade to collapse"
+        },
+        {
+          "company": "NWC",
+          "days": 30.0,
+          "do": "news",
+          "from": "Fort Assiniboine",
+          "subject": "Plains trade destroyed by U.S. Dragoons",
+          "text": "American columns are pillaging every village and brigade in sight to supply their campaign. Native fur hunters have been scattered or killed, and our provision supply lines are completely severed.",
+          "to": "the wintering partner"
+        },
+        {
+          "days": 50.0,
+          "do": "news",
+          "from": "Red River",
+          "subject": "Desperate refugees and military raids",
+          "text": "Thousands of displaced people are fleeing North from the U.S. army's war on the Missouri. American patrols cross into northern river routes at will to seize supplies.",
+          "to": "the Factor at York Factory"
+        }
+      ],
+      "id": "plains-warzone-fallout",
+      "keywords": [
+        "pillage",
+        "plunder",
+        "dragoons",
+        "refugees",
+        "supplies"
+      ],
+      "kind": "conditional",
+      "lead_days": 0.0,
+      "requires": [
+        "us-punitive-expedition"
+      ],
+      "title": "The Plains warzone halts trade and provision supplies",
+      "when": [
+        "flag:us_military_retaliation"
+      ]
+    },
+    {
+      "date": "1811-06-01",
+      "happens": [
+        {
+          "do": "london",
+          "price": 0.85,
+          "quota": 0.85
+        },
+        {
+          "do": "flag",
+          "name": "blockade"
+        }
+      ],
+      "id": "blockade",
+      "kind": "fixed",
+      "title": "The Continental Blockade holds the fur market down"
+    },
+    {
+      "date": "1811-06-12",
+      "happens": [
+        {
+          "do": "flag",
+          "name": "red_river_colony"
+        },
+        {
+          "days": 70.0,
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "subject": "Lord Selkirk's grant",
+          "text": "The Committee has granted Lord Selkirk a hundred and sixteen thousand square miles on the Red River for a settlement. Settlers will come out by the Bay. Give them every assistance; the Canadians will not like it.",
+          "to": "the Factor at York Factory"
+        }
+      ],
+      "id": "red-river-grant",
+      "keywords": [
+        "Selkirk",
+        "Red River",
+        "colony",
+        "Assiniboia"
+      ],
+      "kind": "fixed",
+      "title": "Lord Selkirk's grant of Assiniboia (the Red River Colony)"
+    },
+    {
+      "date": "1812-06-18",
+      "happens": [
+        {
+          "company": "NWC",
+          "days": 75.0,
+          "do": "news",
+          "from": "Montreal",
+          "subject": "war with the Americans",
+          "text": "The Americans have declared war. Michilimackinac is in danger and the canoes may be wanted for the King's service.",
+          "to": "the wintering partner"
+        },
+        {
+          "days": 400.0,
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "subject": "the American war",
+          "text": "Britain is at war with the United States. The ship may be late; ration accordingly.",
+          "to": "the Factor at York Factory"
+        }
+      ],
+      "id": "war-of-1812",
+      "keywords": [
+        "war",
+        "Americans",
+        "Montreal"
+      ],
+      "kind": "fixed",
+      "title": "War between Britain and the United States"
+    },
+    {
+      "date": "1813-10-16",
+      "happens": [
+        {
+          "do": "flag",
+          "name": "fort_george"
+        },
+        {
+          "company": "NWC",
+          "days": 250.0,
+          "do": "news",
+          "from": "Fort William",
+          "subject": "Astoria is ours",
+          "text": "Astor's men on the Columbia have sold out to us. Fort Astoria is Fort George now, and many of his clerks are Nor'Westers.",
+          "to": "the wintering partner"
+        }
+      ],
+      "id": "astoria-sold",
+      "keywords": [
+        "Astoria",
+        "Columbia",
+        "Fort George"
+      ],
+      "kind": "fixed",
+      "title": "Astor's Fort Astoria sold to the North West Company (Fort George)"
+    },
+    {
+      "date": "1814-01-08",
+      "done_when": [
+        "flag:pemmican_proclamation"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "pemmican_proclamation"
+        },
+        {
+          "add": 20.0,
+          "do": "tension",
+          "why": "the Pemmican Proclamation"
+        },
+        {
+          "company": "NWC",
+          "days": 45.0,
+          "do": "news",
+          "from": "Fort Gibraltar",
+          "subject": "the Pemmican Proclamation",
+          "text": "Macdonell has forbidden any provisions to leave the colony's lands. Our brigades eat pemmican or they do not run. The partners will not stand it.",
+          "to": "the wintering partner"
+        },
+        {
+          "days": 120.0,
+          "do": "news",
+          "from": "Red River",
+          "subject": "the governor's proclamation",
+          "text": "Governor Macdonell has proclaimed that no pemmican may be taken out of Assiniboia. The Nor'Westers are furious; keep your people close.",
+          "to": "the Factor at York Factory"
+        }
+      ],
+      "id": "pemmican-proclamation",
+      "keywords": [
+        "pemmican",
+        "Red River",
+        "Macdonell",
+        "proclamation",
+        "provisions"
+      ],
+      "kind": "event",
+      "lead_days": 120.0,
+      "pressure": [
+        {
+          "add": 10.0,
+          "do": "tension",
+          "why": "word that the colony's governor means to stop the pemmican"
+        }
+      ],
+      "requires": [
+        "red-river-grant"
+      ],
+      "title": "Governor Macdonell's Pemmican Proclamation",
+      "window_days": 60.0
+    },
+    {
+      "date": "1815-06-25",
+      "done_when": [
+        "flag:colony_dispersed"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "colony_dispersed"
+        },
+        {
+          "add": 15.0,
+          "do": "tension",
+          "why": "the colony burned out"
+        },
+        {
+          "days": 40.0,
+          "do": "news",
+          "from": "Norway House",
+          "subject": "the colony broken up",
+          "text": "The settlers at Red River have been driven off and their houses burned. Some are coming down to the Bay.",
+          "to": "the Factor at York Factory"
+        }
+      ],
+      "id": "colony-dispersed",
+      "keywords": [
+        "Red River",
+        "colony",
+        "settlers",
+        "burned"
+      ],
+      "kind": "event",
+      "pressure": [
+        {
+          "add": 8.0,
+          "do": "tension",
+          "why": "the Métis gathering against the colony"
+        }
+      ],
+      "requires": [
+        "pemmican-proclamation"
+      ],
+      "title": "The Red River Colony attacked and dispersed",
+      "window_days": 60.0
+    },
+    {
+      "date": "1816-06-19",
+      "done_when": [
+        "flag:seven_oaks"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "seven_oaks"
+        },
+        {
+          "do": "flag",
+          "name": "governor_killed"
+        },
+        {
+          "add": 25.0,
+          "do": "tension",
+          "why": "Seven Oaks"
+        },
+        {
+          "days": 35.0,
+          "do": "news",
+          "from": "Norway House",
+          "subject": "Seven Oaks",
+          "text": "Governor Semple is dead with twenty of the colonists, shot down at Seven Oaks by Grant's half-breeds. The colony is gone.",
+          "to": "the Factor at York Factory"
+        },
+        {
+          "company": "NWC",
+          "days": 60.0,
+          "do": "news",
+          "from": "Fort William",
+          "subject": "Seven Oaks",
+          "text": "Grant's people met Semple at Seven Oaks. Semple is dead and the colony scattered. There will be a reckoning for this in Montreal.",
+          "to": "the wintering partner"
+        }
+      ],
+      "id": "seven-oaks",
+      "keywords": [
+        "Seven Oaks",
+        "Semple",
+        "Grant",
+        "Métis",
+        "Red River"
+      ],
+      "kind": "event",
+      "pressure": [
+        {
+          "add": 15.0,
+          "do": "tension",
+          "why": "Cuthbert Grant's riders on the Assiniboine"
+        }
+      ],
+      "requires": [
+        "pemmican-proclamation"
+      ],
+      "title": "The Battle of Seven Oaks: Governor Semple and twenty colonists killed",
+      "window_days": 45.0
+    },
+    {
+      "delay_days": 420.0,
+      "happens": [
+        {
+          "do": "flag",
+          "name": "fort_william_seized"
+        },
+        {
+          "add": 10.0,
+          "do": "tension",
+          "why": "Fort William taken"
+        },
+        {
+          "company": "NWC",
+          "days": 70.0,
+          "do": "news",
+          "from": "Fort William",
+          "subject": "Fort William taken",
+          "text": "Selkirk came up the lakes with his de Meurons and took Fort William. McGillivray and the partners are under arrest.",
+          "to": "the wintering partner"
+        }
+      ],
+      "id": "selkirk-fort-william",
+      "keywords": [
+        "Selkirk",
+        "Fort William",
+        "de Meurons",
+        "soldiers"
+      ],
+      "kind": "conditional",
+      "lead_days": 0.0,
+      "requires": [
+        "seven-oaks"
+      ],
+      "title": "Lord Selkirk marches on Fort William and arrests the partners",
+      "when": [
+        "flag:governor_killed"
+      ]
+    },
+    {
+      "date": "1821-03-26",
+      "done_when": [
+        "flag:merger"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "merger"
+        },
+        {
+          "add": -70.0,
+          "do": "tension",
+          "why": "the companies made one"
+        },
+        {
+          "days": 90.0,
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "subject": "the union of the companies",
+          "text": "The Company and the North West Company are joined under the Company's charter. Mr. George Simpson will govern the Northern Department. Expect economies.",
+          "to": "the Factor at York Factory"
+        },
+        {
+          "company": "NWC",
+          "days": 75.0,
+          "do": "news",
+          "from": "Montreal",
+          "subject": "the coalition",
+          "text": "It is done: the North West Company goes into the Hudson's Bay Company. The wintering partners are to be chief factors and chief traders. Many of the men will be let go.",
+          "to": "the wintering partner"
+        }
+      ],
+      "id": "merger",
+      "keywords": [
+        "union",
+        "merger",
+        "coalition",
+        "Simpson",
+        "the new company"
+      ],
+      "kind": "event",
+      "lead_days": 365.0,
+      "pressure": [
+        {
+          "do": "london",
+          "price": 0.9,
+          "quota": 0.9
+        }
+      ],
+      "title": "The union of the Hudson's Bay and North West Companies",
+      "window_days": 120.0
+    }
+  ]
+}

@@ -232,7 +232,10 @@ public static class Losses
         l.Home.Stores.Add(ItemId.TradeGoods, goods);
     }
 
-    // What nobody bought goes to whoever was closest to him, as a keepsake.
+    private static int _putBy;
+
+    // What nobody bought goes to whoever was closest to him, as a keepsake -
+    // if he is there to take it.
     private static void Settle(Loss l)
     {
         l.AuctionOpen = false; l.EffectsSettled = true;
@@ -244,16 +247,24 @@ public static class Losses
             foreach (var m in Sim.Npcs)
             {
                 if (m.IsDead || m.HomeStores != l.Home || m.DisplayName == l.Name) continue;
+                // He has to be there to take it. A man away with a brigade or
+                // held at the other house gets nothing, and a man out in the
+                // country is not at the division of a dead man's kit.
+                if (m.Away || m.HeldBy != null) continue;
+                if (m.Tier == Core.Tier.Live && m.GlobalPosition.DistanceTo(World.IsoGrid.ToWorld(l.Home.AccessCell)) > 1200f) continue;
                 float b = Bond(m, l) + GD.Randf() * 0.3f;
                 if (b > bestBond) { best = m; bestBond = b; }
             }
-            if (best == null) { l.Home.Stores.Add(id, n); continue; }
+            if (best == null) { l.Home.Stores.Add(id, n); _putBy++; continue; }
             best.Inventory.Add(id, n);
             best.Keepsakes.Add((id, l.Name));
             given.Add($"his {ItemName(id, n)} to {best.DisplayName}");
         }
         l.Lots.Clear();
-        if (given.Count == 0) { if (l.Home is FortLedger) Sim.Notice($"The sale of {l.Name}'s effects is over."); return; }
+        if (_putBy > 0)
+            Sim.Notice($"{_putBy} of {l.Name}'s things went into the store: there was nobody at the house to take them.");
+        int putBy = _putBy; _putBy = 0;
+        if (given.Count == 0) { if (l.Home is FortLedger && putBy == 0) Sim.Notice($"The sale of {l.Name}'s effects is over."); return; }
         string what = l.Home is FortLedger ? $"what nobody bought of {l.Name}'s went to those closest to him: {string.Join(", ", given)}" : $"{l.Name}'s family gave away his things: {string.Join(", ", given)}";
         Chronicle.Shared(l.Home, what, 0.9f);   // told at the fire, not mooned over
         Sim.Notice(char.ToUpper(what[0]) + what.Substring(1) + ".");

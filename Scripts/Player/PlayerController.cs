@@ -116,6 +116,10 @@ public partial class PlayerController : Agent
 	public string BackgroundTitle = "";
 	public readonly List<string> KinNames = new();
 	public string LastYearStory = "";   // Core/YearStory: the last year as it will be told
+
+	// Set down somewhere by the host (a new character's start, Core/Starts):
+	// the owner's copy is told to jump there rather than glide.
+	public void SetStartPosition(Vector2 at) { GlobalPosition = at; _netTarget = at; _teleported = true; }
 	// Those of your house who went before (design doc P.6): the family is
 	// the save file, and the journal keeps the line.
 	public readonly List<Forebear> House = new();
@@ -274,7 +278,7 @@ public partial class PlayerController : Agent
 		GetTree().CreateTimer(1.5).Timeout += () =>
 		{
 			if (!IsInstanceValid(this)) return;
-			EmitSignal(SignalName.Notice, $"York Factory, Hudson's Bay. You are the Company's new hand. {Core.Keybinds.KeyFor("interact")} talks, {Core.Keybinds.HotbarKeys()} uses, left click strikes, {Core.Keybinds.KeyFor("chat")} chats, {Core.Keybinds.KeyFor("debug_menu")} opens the test console.");
+			EmitSignal(SignalName.Notice, $"{Core.Starts.Intro(this)} {Core.Keybinds.KeyFor("interact")} talks, {Core.Keybinds.HotbarKeys()} uses, left click strikes, {Core.Keybinds.KeyFor("chat")} chats, {Core.Keybinds.KeyFor("debug_menu")} opens the test console.");
 			if (!AmbitionsDeclared) EmitSignal(SignalName.Notice, "A man wants something of a country like this. Esc - What you mean to do.");
 		};
 		// Dev aids: `--spawn=depot` moves you there (server permitting), `--provoke`
@@ -895,8 +899,10 @@ public partial class PlayerController : Agent
 				if (Sim.Terrain?.IsWaterOrIce(cell) ?? true) return "Not on the water.";
 				var built = structures?.BuildCampfire(cell);
 				if (built == null) return "The ground here won't take a fire.";
-				built.Lit = false; Inventory.Remove(id); built.Feed(def.FuelHours);
-				return "You lay a fire ring and wood. Strike a spark to it with flint and steel.";
+				Inventory.Remove(id); built.Feed(def.FuelHours);
+				if (Inventory.Has(ItemId.Flint)) { built.Light(); return "You lay a fire and strike a spark into it. It catches."; }
+				built.Lit = false;
+				return "You lay a fire ring and wood - but you have no flint and steel to strike a spark, and laid wood gives no heat.";
 			}
 			case ItemId.Flint:
 			{

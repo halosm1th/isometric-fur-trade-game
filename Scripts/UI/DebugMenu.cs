@@ -18,6 +18,7 @@ public partial class DebugMenu : Control
     private PlayerController _player;
     private PanelContainer _panel;
     private VBoxContainer _body;
+    private TabContainer _tabs;
     private readonly Dictionary<string, VBoxContainer> _sections = new();
     private Label _status;
     private readonly List<Action> _refreshers = new();
@@ -43,18 +44,21 @@ public partial class DebugMenu : Control
         _panel.AddThemeStyleboxOverride("panel", style);
         AddChild(_panel);
 
-        var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(380, 660), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
-        _panel.AddChild(scroll);
+        // Title and status stay put; everything else lives in its own tab,
+        // because the console had grown into one long scroll.
         _body = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         _body.AddThemeConstantOverride("separation", 6);
-        scroll.AddChild(_body);
+        _panel.AddChild(_body);
 
-        var title = new Label { Text = "Test console (F1)" };
+        var title = new Label { Text = $"Test console ({Core.Keybinds.KeyFor("debug_menu")})" };
         title.AddThemeFontSizeOverride("font_size", 16);
         _body.AddChild(title);
-        _status = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        _status = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(380, 0) };
         _status.AddThemeFontSizeOverride("font_size", 12);
         _body.AddChild(_status);
+        _tabs = new TabContainer { CustomMinimumSize = new Vector2(400, 620), SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        _tabs.AddThemeFontSizeOverride("font_size", 12);
+        _body.AddChild(_tabs);
 
         if (!Net.Net.IsServer)
         {
@@ -201,16 +205,29 @@ public partial class DebugMenu : Control
     public VBoxContainer Section(string name)
     {
         if (_sections.TryGetValue(name, out var box)) return box;
-        var header = new Label { Text = name.ToUpper() };
-        header.AddThemeFontSizeOverride("font_size", 12);
-        header.Modulate = new Color(0.9f, 0.75f, 0.45f);
-        _body.AddChild(new HSeparator());
-        _body.AddChild(header);
-        box = new VBoxContainer();
+        if (_tabs == null)
+        {
+            box = new VBoxContainer();
+            _body.AddChild(box);
+            _sections[name] = box;
+            return box;
+        }
+        var scroll = new ScrollContainer { Name = Tab(name), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        _tabs.AddChild(scroll);
+        box = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         box.AddThemeConstantOverride("separation", 3);
-        _body.AddChild(box);
+        scroll.AddChild(box);
         _sections[name] = box;
+        // The player's own tab is the one you want open when you press the key.
+        if (name == "Player") _tabs.CurrentTab = _tabs.GetTabIdxFromControl(scroll);
         return box;
+    }
+
+    // Tab headings want to be short: "London & the post" becomes "London".
+    private static string Tab(string name)
+    {
+        string t = name.Split('&')[0].Trim();
+        return t.Length > 14 ? t.Substring(0, 14) : t;
     }
 
     public void AddButton(string section, string label, Action onPressed)
@@ -308,6 +325,15 @@ public partial class DebugMenu : Control
         if (_player == null) return;
         const string S = "Player";
         var n = _player.Needs;
+        AddButton(S, "GOD MODE: no need ever drains, nothing hurts you (off)", () =>
+        {
+            n.GodMode = !n.GodMode;
+            n.Invulnerable = n.GodMode;
+            _player.Invulnerable = n.GodMode;
+            if (n.GodMode) { n.Hunger = n.Thirst = n.Warmth = n.Health = 100f; }
+            Sim.Notice(n.GodMode ? "God mode on: the bars are held full and nothing can hurt you." : "God mode off: you are a man again.");
+        });
+        AddReadout(S, () => n.GodMode ? "GOD MODE ON - needs held, damage ignored" : "God mode off");
         AddButtonRow(S,
             ("Fill needs", () => { n.Hunger = n.Thirst = n.Warmth = n.Health = 100f; }),
             ("Starve", () => n.Hunger = 5f),

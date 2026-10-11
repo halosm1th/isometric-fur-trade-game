@@ -18,7 +18,7 @@ public static class Friends
         if (n == null || a == null || a == n) return 0f;
         float b = n.RapportWith(a) / 25f;
         foreach (var m in n.Memories) if (m.Directness == 1 && m.Weight >= 1f && m.Witnessed(a)) b += 1f;
-        if (n.Spouse == a || n.Father == a || a is Npc k && n.Children.Contains(k)) b += 3f;
+        if (n.Spouse == a || n.Father == a || a is Npc k && n.Children.Contains(k) || Core.CharacterSheet.IsKin(a, n)) b += 3f;
         return b;
     }
 
@@ -65,6 +65,7 @@ public static class Friends
     public static void Heard(Npc n, MemoryEntry e)
     {
         if (e.Actor == null || e.Actor == n || !Lies.IsMisdeed(e.Text)) return;
+        if (e.Witnessed(e.Actor) && e.Witnessed(n) && e.Directness == 1) return;   // he was there with you: nothing to tell you
         Agent friend = e.Actor;
         if (!IsFriend(n, friend)) return;
         if (!_toTell.TryGetValue(n, out var list)) _toTell[n] = list = new Dictionary<string, string>();
