@@ -222,7 +222,13 @@ public partial class Agent : CharacterBody2D
         if (!Inventory.Remove(id)) return false;
         Needs.Hunger = Mathf.Min(100f, Needs.Hunger + def.Nutrition);
         Needs.Thirst = Mathf.Min(100f, Needs.Thirst + def.Thirst);
-        if (id == ItemId.Venison || id == ItemId.Goose || id == ItemId.Fish || id == ItemId.Hare) { if (HasScurvy) Sim.Notice($"{Describe()} is mending: fresh meat at last."); DaysSinceFresh = 0f; _scurvyTold = false; }
+        // Fresh meat, and the things that actually answered the scurvy in this
+        // country: berries in their season and spruce beer out of it.
+        if (id == ItemId.Venison || id == ItemId.Goose || id == ItemId.Fish || id == ItemId.Hare || id == ItemId.Berries || id == ItemId.SpruceBeer)
+        {
+            if (HasScurvy) Sim.Notice($"{Describe()} is mending: {(id == ItemId.Berries ? "berries at last" : id == ItemId.SpruceBeer ? "spruce beer at last" : "fresh meat at last")}.");
+            DaysSinceFresh = 0f; _scurvyTold = false;
+        }
         if (def.Kind == ItemKind.Drink) Needs.Warmth = Mathf.Min(100f, Needs.Warmth + def.Warmth);
         Intoxication = Mathf.Min(100f, Intoxication + def.Intoxication);
         return true;

@@ -44,6 +44,7 @@ public static class Tiers
             _lastBatchDay = cal.Day;
             World.GooseHunt.Tick();
             Reckoning.Spring();
+            Economy.Gardens.Tick();
             Agents.Rivals.Tick();
             World.Brigades.Season();
             World.Brigades.Tick();

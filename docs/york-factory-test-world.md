@@ -169,6 +169,15 @@ The cold was killing a man in about half a minute of play: a winter night cost s
 
 Sections are tabs now rather than one long scroll, and the Player tab opens first. It leads with **god mode**: no need ever drains, nothing hurts you, the bars are held full - for when you are trying to look at something other than your own survival.
 
+## Berries, spruce beer and the gardens of the Missouri (design doc 13.1, 13.5)
+
+Dried meat does not answer the scurvy, and a country that eats nothing else dies of it - 329 of the country's people did in one simulated winter. What actually answered it here was **berries** in their season and **spruce beer** out of it, and what moved vegetable food across the plains was the **corn of the Missouri towns**.
+
+- **Berries** (`ItemId.Berries`): gathered by every camp and post through July, August and September, eaten first of anything on the shelf, and they spoil with the fresh meat. Eating them resets a man's days-without-fresh - "he is mending: berries at last".
+- **Spruce beer** (`ItemId.SpruceBeer`): a post with a kettle and firewood brews it when its men have gone a fortnight without anything fresh, which is what the Company actually did all winter. A tankard answers the scurvy the same way berries do.
+- **The gardens** (`Economy/Gardens.cs`): the Mandan, Hidatsa and Arikara camps are farming towns, not hunting bands. Their corn comes in through September and October at thirty a mouth - a harvest far beyond their own eating, which is what made them the market of the plains - and green corn and squash in July and August keep them out of the scurvy their neighbours get.
+- **The market**: through the summer every camp within about a fortnight's travel of a town brings dried meat and takes corn away at two for one. The **Assiniboine were the middlemen** between the Missouri towns and the Bay, so what they carry north (up to forty of corn a week, paid for in pemmican) reaches the posts through the provisions purchase that was already there. `ItemId.Corn` is food and trade, not physic - the distinction is the honest one.
+
 ## Fishing through the ice (design doc 14.4, 16.1, 13.5)
 
 Between the deer passing in October and the geese coming back in May there is no fresh food in the country but hares, the beaver lodges and what comes through the ice - and dried goose and pemmican do not answer the scurvy. So the houses now fish in winter: a hole, a line (every house is issued them, and no line means no winter fish), about four hours for nought to two fish where open water gives nought to four. The women go not only when the store is low but when anybody **in the house** has gone a fortnight without anything fresh - the fisher's own belly is not the point, and a woman who had eaten fish herself used to stop going while the men went without. A hole yields one to three fish where open water gives nought to four. The post's own reckoning of its scorbutic men now counts anyone eighteen days without fresh meat rather than twenty-eight, because a house that waits a month is already too late: the disease is on a man at six weeks.

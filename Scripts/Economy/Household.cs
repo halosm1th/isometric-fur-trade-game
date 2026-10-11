@@ -65,8 +65,8 @@ public partial class Household : Node
         if (Stores.FoodNutritionTotal > 0f && Stores.Has(ItemId.SaltGeese) && !HasLooseFood() && Stores.Remove(ItemId.SaltGeese))
             Stores.Add(ItemId.DriedGoose, 8);
         var order = World.GooseHunt.Autumn
-            ? new[] { ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Bread, ItemId.Pemmican, ItemId.Goose }
-            : new[] { ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Bread, ItemId.Pemmican };
+            ? new[] { ItemId.Berries, ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican, ItemId.Goose }
+            : new[] { ItemId.Berries, ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican };
         foreach (var id in order)
         {
             while (taken < n && Stores.Remove(id)) { agent.Inventory.Add(id); taken++; }
@@ -77,7 +77,7 @@ public partial class Household : Node
 
     private bool HasLooseFood()
     {
-        foreach (var id in new[] { ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Bread, ItemId.Pemmican })
+        foreach (var id in new[] { ItemId.Berries, ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican })
             if (Stores.Has(id)) return true;
         return false;
     }
@@ -90,14 +90,15 @@ public partial class Household : Node
         var cal = GameCalendar.Instance;
         if (cal == null || cal.Day == _spoilDay || !Net.Net.IsServer) return;
         _spoilDay = cal.Day;
-        int fresh = Stores.Count(ItemId.Venison) + Stores.Count(ItemId.Goose) + Stores.Count(ItemId.Fish) + Stores.Count(ItemId.Hare);
+        int fresh = Stores.Count(ItemId.Venison) + Stores.Count(ItemId.Goose) + Stores.Count(ItemId.Fish) + Stores.Count(ItemId.Hare) + Stores.Count(ItemId.Berries);
         if (fresh == 0) return;
         float rate = cal.IsFrozen ? 0.05f : 0.12f;
         int lost = Mathf.FloorToInt(fresh * rate + (GD.Randf() < (fresh * rate) % 1f ? 1 : 0));
         int v = Stores.TakeUpTo(ItemId.Venison, lost);
         if (v < lost) v += Stores.TakeUpTo(ItemId.Goose, lost - v);
         if (v < lost) v += Stores.TakeUpTo(ItemId.Fish, lost - v);
-        if (v < lost) Stores.TakeUpTo(ItemId.Hare, lost - v);
+        if (v < lost) v += Stores.TakeUpTo(ItemId.Hare, lost - v);
+        if (v < lost) Stores.TakeUpTo(ItemId.Berries, lost - v);
         if (lost > 0) Sim.Notice($"{Title}: {lost} pieces of fresh meat have gone bad.");
     }
 
