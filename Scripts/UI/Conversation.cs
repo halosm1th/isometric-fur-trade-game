@@ -1445,13 +1445,19 @@ public class Conversation
             : "A small thing across the counter does no harm. What?";
         ClearOptions();
         int shown = 0;
-        foreach (var (id, n) in new List<(ItemId, int)>(_player.Inventory.All()))
+        // Tobacco first, whatever else is in the pack: the pipe was the
+        // opening of every trade and council in this country.
+        var giftable = new List<(ItemId, int)>();
+        if (_player.Inventory.Has(ItemId.Tobacco)) giftable.Add((ItemId.Tobacco, _player.Inventory.Count(ItemId.Tobacco)));
+        foreach (var pair in _player.Inventory.All()) if (pair.Item1 != ItemId.Tobacco) giftable.Add(pair);
+        foreach (var (id, n) in giftable)
         {
             var def = Items.Items.Of(id);
             if (def.Kind is not (ItemKind.Drink or ItemKind.Food or ItemKind.Goods or ItemKind.Tool or ItemKind.Clothing)) continue;
             if (shown++ >= 5) break;
             var give = id;
-            AddOption($"Give {def.Name.ToLower()} ({def.ValueMb:0.0#} MB)", () => ShowTrade(npc, _barter?.Gift(give)));
+            AddOption(id == ItemId.Tobacco ? "Fill a pipe and pass it (a twist of tobacco)" : $"Give {def.Name.ToLower()} ({def.ValueMb:0.0#} MB)",
+                () => ShowTrade(npc, _barter?.Gift(give)));
         }
         if (shown == 0) _text += "\n\nYou have nothing to give that he would take as a gift.";
         AddOption("Go straight to the goods", () => ShowTrade(npc, null));

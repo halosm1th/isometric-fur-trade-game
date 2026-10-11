@@ -20,6 +20,7 @@ config/icon="res://assets/ui/icon.png"
 GameManager="*res://Scripts/Core/GameManager.cs"
 GameCalendar="*res://Scripts/Core/GameCalendar.cs"
 Net="*res://Scripts/Net/Net.cs"
+Audio="*res://Scripts/Core/Audio.cs"
 
 [display]
 

@@ -143,7 +143,7 @@ public partial class BandLedger : Household
 		{
 			Stores.Add(ItemId.Pemmican, 40); Stores.Add(ItemId.CaribouHide, 6); Stores.Add(ItemId.Firewood, 20); Stores.Add(ItemId.BeaverPelt, 4);
 			Stores.Add(ItemId.WolfPelt, 3); Stores.Add(ItemId.Kettle, 1); Stores.Add(ItemId.Water, 10); Stores.Add(ItemId.TradeGoods, 6);
-			foreach (var st in WorldLayout.Sites) KnownSites.Add(st.Name);
+			foreach (var st in WorldLayout.SitesNear(Camp, WorldLayout.HomeCountryPx)) KnownSites.Add(st.Name);
 			KnowsTheCountry = true;
 			StandingWithCompany = 40f; StandingWithNwc = 45f;
 			return;
@@ -158,7 +158,7 @@ public partial class BandLedger : Household
 		Stores.Add(ItemId.Kettle, 2);
 		Stores.Add(ItemId.Water, 12);
 		Stores.Add(ItemId.FishingLine, 4);   // the camp's winter fishery
-		foreach (var s in WorldLayout.Sites) KnownSites.Add(s.Name);   // it's their country
+		foreach (var s in WorldLayout.SitesNear(Camp, WorldLayout.HomeCountryPx)) KnownSites.Add(s.Name);   // it's their country
 		KnowsTheCountry = true;
 		var cal = GameCalendar.Instance;
 		if (cal != null) cal.CalendarEvent += OnEvent;

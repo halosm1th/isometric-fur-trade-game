@@ -43,6 +43,7 @@ LEGEND = [
     ("TallGrass",      (205, 173, 60)),
     ("LakesForest",    (111, 143, 82)),
     ("Cordillera",     (154, 132, 103)),
+    ("Lowland",        (96, 112, 70)),      # Hudson Bay lowlands: muskeg and tamarack
 ]
 ECOZONE_CLASS = {
     "Tundra": "Tundra", "Boreal Forest": "Boreal", "Canadian Shield": "Shield", "Aspen Parkland": "Parkland",
@@ -169,6 +170,31 @@ def main():
         q = dict(p); n, lo, la = q.pop("name"), q.pop("lon"), q.pop("lat")
         add_place(n, lo, la, **q)
 
+    # The Hudson Bay lowlands: forest, Shield or parkland within about 150 km
+    # of the Bay or James Bay (not the Pacific, far to the west) is muskeg
+    # country - measured on 4 x 16 cell blocks (about 13 km square).
+    from collections import deque
+    bw, bh = (COLS + 3) // 4, (ROWS + 15) // 16
+    dist = [[-1] * bw for _ in range(bh)]
+    q = deque()
+    for by in range(bh):
+        for bx in range(bw):
+            if bx < bw * 0.45: continue
+            cx, cy = min(COLS - 1, bx * 4 + 2), min(ROWS - 1, by * 16 + 8)
+            if op[cx, cy] == COL["Ocean"]: dist[by][bx] = 0; q.append((bx, by))
+    while q:
+        bx, by = q.popleft()
+        if dist[by][bx] >= 12: continue
+        for nx, ny in ((bx + 1, by), (bx - 1, by), (bx, by + 1), (bx, by - 1)):
+            if 0 <= nx < bw and 0 <= ny < bh and dist[ny][nx] < 0:
+                dist[ny][nx] = dist[by][bx] + 1; q.append((nx, ny))
+    lowland_from = {COL["Boreal"], COL["Shield"], COL["Parkland"]}
+    for cy in range(ROWS):
+        for cx in range(COLS):
+            if op[cx, cy] in lowland_from:
+                d = dist[cy // 16][cx // 4]
+                if 0 < d <= 12: op[cx, cy] = COL["Lowland"]
+
     rgb2cls = {c: n for n, c in LEGEND}
     G = [[rgb2cls[op[cx, cy]] for cx in range(COLS)] for cy in range(ROWS)]
     layout = lay_out(G, places, extras, atlas)
@@ -280,7 +306,15 @@ def lay_out(G, places, extras, atlas):
     far = lambda c, px: math.dist(cell_world(*c), cell_world(*fort)) >= px
     nwc = search(centred(near("Nor'Westers' house (York)"), 12, 10), (66, 150), lambda t: far(t, 3500) and footprint_dry(t, 12, 10))
     outpost = search(centred(near("Oxford House"), 12, 9), (36, 396), lambda t: footprint_dry(t, 12, 9))
-    def camp_ok(c): return all(dry(x) for x in Rhombus(Cell(c, -4, -4), 9, 9))
+    # Ground no camp may stand on: each post's footprint and a margin round
+    # it (York's palisade is huge, and its creek, sheds and landing too).
+    forbidden = set()
+    def forbid(top, w, d, m): forbidden.update(Rhombus(Cell(top, -m, -m), w + 2 * m, d + 2 * m))
+    forbid(fort, 22 + 14, 34, 9)      # the palisade, the boat shed beyond it, Sloops Creek behind
+    forbid(nwc, 12, 10, 5); forbid(outpost, 12, 9, 5)
+    def camp_ok(c):
+        cells = list(Rhombus(Cell(c, -4, -4), 9, 9))
+        return all(dry(x) and x not in forbidden for x in cells)
     placed = [fort, nwc, outpost]
     def clear_of_all(c, px=1500): return all(math.dist(cell_world(*c), cell_world(*o)) >= px for o in placed)
     def camp(name, old, extra=lambda c: True):
@@ -378,14 +412,14 @@ def lay_out(G, places, extras, atlas):
             return footprint_dry(t, 12, 9)
         try: top = search(want, want, post_ok, 30)
         except SystemExit: print(f"  no room for {p['name']}"); continue
-        placed.append(Cell(top, 6, 4))
-        posts.append(dict(name=p["name"], company=p["company"], year=p.get("year", 0), top=list(top)))
+        placed.append(Cell(top, 6, 4)); forbid(top, 12, 9, 3)
+        posts.append(dict(name=p["name"], company=p["company"], year=p.get("year", 0), closed=extras.get("post_closures", {}).get(p["name"], 0), top=list(top)))
     # The nations (design doc 7.2): a band camp for each of the atlas's
     # peoples at its place in 1811, and a family of the nearest nation
     # camped outside each post (the "homeguard" who lived by the posts).
     peoples = []
-    for pe in atlas["peoples"]:
-        nation = NATION_OF.get(pe["name"])
+    for pe in atlas["peoples"] + extras.get("peoples", []):
+        nation = pe.get("nation") or NATION_OF.get(pe["name"])
         if nation is None: continue
         lon, lat = pe["lon"], pe["lat"]
         kf = [k for k in pe.get("kf", []) if k[0] <= 1811]
@@ -403,7 +437,7 @@ def lay_out(G, places, extras, atlas):
     def nearest_people(cell):
         w = cell_world(*cell)
         return min(peoples, key=lambda q: math.dist(w, world(q[2], q[3])))
-    def family_ok(x): return all(dry(y) for y in Rhombus(Cell(x, -2, -2), 5, 5))
+    def family_ok(x): return all(dry(y) and y not in forbidden for y in Rhombus(Cell(x, -2, -2), 5, 5))
     for post in posts:
         gate = Cell(tuple(post["top"]), 5, 8)
         out_of_gate = Cell(gate, -1, 6)
@@ -412,11 +446,126 @@ def lay_out(G, places, extras, atlas):
         placed.append(centre)
         nm, nation, *_ = nearest_people(centre)
         camps.append(dict(name=f"{nm} family at {post['name']}", nation=nation, kind="family", post=post["name"], centre=list(centre), people=4))
+    # ---- the game of the wider country (design doc 16.2, 16.4) ----------------
+    # Sites are cheap until someone is near (animals are drawn out of a
+    # site's count only round a player), so the whole country has them:
+    # beaver along the rivers and lakeshores of the forest, geese on the Bay
+    # coast and the lowland lakes, barren-ground caribou crossing between the
+    # tundra and the forest edge, woodland caribou in the boreal, wolves,
+    # hare in the willow flats by every post and camp, ptarmigan in the north.
+    import random as _random
+    rng = _random.Random(1811)
+    named = [(p["name"], cell_world(*p["cell"])) for p in places if p.get("kind") == "post"] + [(c["name"], cell_world(*c["centre"])) for c in camps if c["kind"] == "band"]
+    used_names = set(x["name"] for x in sites)
+    def site_name(kind, c):
+        w = cell_world(*c)
+        near = min(named, key=lambda q: math.dist(q[1], w))
+        km_away = math.dist(near[1], w) / PX_PER_KM
+        where = near[0] if km_away < 60 else f"{near[0]} country"
+        base = f"{kind} ({where})"; n = base; k = 2
+        while n in used_names: n = f"{base} {k}"; k += 1
+        used_names.add(n); return n
+    def shore(c): return dry(c) and any(g(n) in ("River", "Lake") for n in (DR(c), DL(c), UL(c), UR(c)))
+    def inside(c): return 0 <= c[0] < cols and 0 <= c[1] < rows
+    def sea_shore(c): return dry(c) and any(inside(n) and g(n) == "Ocean" for n in (DR(c), DL(c), UL(c), UR(c), DR(DR(c)), UL(UL(c))))
+    country = []
+    def add(kind, species, c, count, cap, radius, route=None):
+        country.append(dict(name=site_name(kind, c), species=species, cell=list(c), count=count, capacity=cap, radius=radius, route=route))
+    BW, BH = 24, 96   # one candidate block: about 77 x 77 km
+    for by in range(0, rows, BH):
+        for bx in range(0, cols, BW):
+            cells = [(x, y) for x in range(bx, min(cols, bx + BW), 3) for y in range(by, min(rows, by + BH), 6)]
+            rng.shuffle(cells)
+            land = [c for c in cells if dry(c) and c not in forbidden]
+            if not land: continue
+            kinds = {}
+            for c in land: kinds[g(c)] = kinds.get(g(c), 0) + 1
+            main = max(kinds, key=kinds.get)
+            if main in ("Boreal", "Shield", "LakesForest", "Lowland", "Parkland", "Cordillera"):
+                lodge = next((c for c in land if shore(c)), None)
+                if lodge and rng.random() < 0.75: add("Beaver lodge", "Beaver", lodge, rng.randint(25, 55), rng.randint(45, 80), 350)
+            if main in ("Lowland",) or any(sea_shore(c) for c in land[:40]):
+                marsh = next((c for c in land if sea_shore(c) or g(c) == "Lowland" and shore(c)), None)
+                if marsh and rng.random() < 0.45: add("Goose marsh", "Goose", marsh, rng.randint(80, 180), 300, 700)
+            if main in ("Tundra", "Lowland") and rng.random() < 0.35:
+                add("Ptarmigan flats", "Ptarmigan", land[0], rng.randint(60, 140), 200, 600)
+            if main in ("Boreal", "Shield", "Lowland") and rng.random() < 0.12:
+                add("Woodland caribou", "Caribou", land[-1], rng.randint(15, 35), 50, 700)
+            if rng.random() < 0.08 and main not in ("Coast",):
+                add("Wolf den", "Wolf", land[len(land) // 2], rng.randint(4, 8), 10, 800)
+    # Barren-ground herds: summer on the tundra, winter in the forest edge to the south.
+    for c in [c for c in ((x, y) for x in range(0, cols, 60) for y in range(0, rows // 4, 40)) if g(c) == "Tundra"][::3][:6]:
+        south = c
+        for _ in range(60):
+            n = (south[0], south[1] + 8)
+            if not (0 <= n[1] < rows): break
+            south = n
+            if g(south) in ("Boreal", "Lowland", "Shield") and dry(south): break
+        if not dry(south): continue
+        path = []
+        for m in range(12):
+            # Jan-Mar wintering south, Apr-Jun north, Jul-Sep on the tundra, Oct-Dec back south.
+            t = [0, 0, 0.1, 0.4, 0.8, 1, 1, 1, 0.9, 0.6, 0.3, 0][m]
+            cell = (round(south[0] + (c[0] - south[0]) * t), round(south[1] + (c[1] - south[1]) * t))
+            if cell[1] % 2 != south[1] % 2: cell = (cell[0], cell[1] + 1)
+            path.append(list(cell if dry(cell) else south))
+        add("Caribou herd", "Caribou", south, rng.randint(150, 300), 400, 1200, path)
+    # Hare in the willow flats beside every post and camp.
+    for name, w in named:
+        c = world_cell(w[0] + rng.uniform(-1500, 1500), w[1] + rng.uniform(900, 1800))
+        if 0 <= c[0] < cols and 0 <= c[1] < rows and dry(c): add("Hare flats", "Hare", c, rng.randint(40, 90), 140, 500)
+    sites.extend(country)
+    print(f"  {len(country)} country wildlife sites")
+    # ---- routes and landmarks: the brigade roads, the great carrying places,
+    # the named waters, hills and ranges (for the map, and boards on the ground).
+    def in_world(x, y): return 0 <= x < WORLD_W and 0 <= y < WORLD_H
+    routes = []
+    for r in atlas.get("routes", []):
+        pts = [world(lon, lat) for lon, lat in r["pts"]]
+        pts = [[round(x), round(y)] for x, y in pts if in_world(x, y)]
+        if len(pts) >= 2: routes.append(dict(name=r["name"], pts=pts))
+    landmarks = []; seen_marks = set()
+    def tidy(n):
+        n = " ".join(n.split())
+        if n.isupper(): n = n.title()
+        if n.startswith("L. "): n = "Lake " + n[3:]
+        if n.endswith(" L."): n = n[:-3] + " Lake"
+        return n.replace("Mts.", "Mountains").replace("Mtn.", "Mountain")
+    def mark(name, kind, lon, lat, note=""):
+        name = tidy(name)
+        if name.lower() in seen_marks: return
+        x, y = world(lon, lat)
+        if in_world(x, y): seen_marks.add(name.lower()); landmarks.append(dict(name=name, kind=kind, at=[round(x), round(y)], note=note))
+    for q in atlas.get("portages", []): mark(q["name"], "portage", q["lon"], q["lat"], q.get("note", ""))
+    for q in extras.get("portages", []): mark(q["name"], "portage", q["lon"], q["lat"], "On the York Factory - Oxford House road.")
+    for name, q in atlas.get("mountain_ranges", {}).items():
+        lon, lat = q.get("label", q["line"][len(q["line"]) // 2]); mark(name, "mountains", lon, lat)
+    for q in atlas.get("water_labels", []): mark(q["name"], "water", q["lon"], q["lat"])
+    for q in atlas.get("phys_labels", []): mark(q["name"], "hills", q["lon"], q["lat"])
+    # The bigger named lakes, at the middle of their outline.
+    for f in atlas["base"]["lakes"]:
+        n = f.get("n", "")
+        if not n: continue
+        rs = rings(f)
+        if not rs: continue
+        ring = max(rs, key=len)
+        if len(ring) < 12: continue
+        lon = sum(q[0] for q in ring) / len(ring); lat = sum(q[1] for q in ring) / len(ring)
+        mark(n, "lake", lon, lat)
+    # The named rivers, half way along their longest reach.
+    named_rivers = set(atlas.get("rivers_to_label", [])) | {"Hayes"}
+    best = {}
+    all_rivers = [(f["n"], r) for f in atlas["base"]["rivers"] for r in rings(f)] + [(x["name"], x["pts"]) for x in extras.get("rivers", [])]
+    for name, r in all_rivers:
+        if name in named_rivers and len(r) > len(best.get(name, [])): best[name] = r
+    for name, r in best.items():
+        lon, lat = r[len(r) // 2]; mark(f"{name} River" if "River" not in name else name, "river", lon, lat)
+    print(f"  {len(routes)} routes, {len(landmarks)} landmarks")
     km = lambda a, b: math.dist(cell_world(*a), cell_world(*b)) / PX_PER_KM
     print(f"{len(camps)} camps ({sum(1 for c in camps if c['kind'] == 'band')} bands); {len(posts)} other posts fitted; {len(crossings)} river cells forded; fort {fort}, nwc {nwc} ({km(fort, nwc):.0f} km), oxford {outpost} ({km(fort, outpost):.0f} km), road {len(road)} pts")
     return dict(fort_top=list(fort), nwc_top=list(nwc), outpost_top=list(outpost),
                 cree_winter=list(winter), cree_summer=list(summer), assiniboine_winter=list(a_winter), assiniboine_summer=list(a_summer),
-                road=road, trail=trail, crossings=crossings, portages=portages, sites=sites, posts=posts, camps=camps)
+                road=road, trail=trail, crossings=crossings, portages=portages, sites=sites, posts=posts, camps=camps, routes=routes, landmarks=landmarks)
 
 if __name__ == "__main__":
     main()

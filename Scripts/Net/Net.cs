@@ -276,7 +276,7 @@ public partial class Net : Node
         };
         switch (a)
         {
-            case PlayerController p: d["kind"] = "player"; break;
+            case PlayerController p: d["kind"] = "player"; d["frames"] = p.FramesPath; break;
             case Animal an: d["kind"] = "animal"; d["species"] = (int)an.Species; break;
             case Npc n: d["kind"] = "npc"; d["frames"] = n.FramesPath; d["tint"] = n.Tint; d["scale"] = n.SpriteScale; d["role"] = (int)n.Role; break;
         }
@@ -296,6 +296,7 @@ public partial class Net : Node
             case "player":
                 var p = _playerScene.Instantiate<PlayerController>();
                 p.IsPuppet = true;
+                if (d.ContainsKey("frames")) p.FramesPath = (string)d["frames"];
                 a = p;
                 break;
             case "animal":
@@ -661,7 +662,13 @@ public partial class Net : Node
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void DialogueState(Godot.Collections.Dictionary state) => UI.DialogueMenu.Instance?.ShowState(state);
+    private void DialogueState(Godot.Collections.Dictionary state)
+    {
+        // A joiner's prologue can land before his world scene has its menu: hold it.
+        if (UI.DialogueMenu.Instance == null || !IsInstanceValid(UI.DialogueMenu.Instance)) { PendingDialogue = state; return; }
+        UI.DialogueMenu.Instance.ShowState(state);
+    }
+    public static Godot.Collections.Dictionary PendingDialogue;
 
     // ---- agreed time skips -------------------------------------------------------
 

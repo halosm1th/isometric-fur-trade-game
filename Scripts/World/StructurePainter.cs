@@ -135,6 +135,9 @@ public partial class StructurePainter : TileMapLayer
     // roofed floor, or a tipi's footprint.
     public bool IsSheltered(Vector2 localPos) => IsShelteredCell(LocalToMap(localPos));
 
+    // A plank floor underfoot (Core/Audio.cs picks the footstep by it).
+    public bool IsPlankFloor(Vector2 localPos) => (_floor ?? this).GetCellSourceId(LocalToMap(localPos)) == SourceFloorPlanks;
+
     public bool IsShelteredCell(Vector2I cell)
     {
         var floor = _floor ?? this;
@@ -209,6 +212,32 @@ public partial class StructurePainter : TileMapLayer
         PlaceSign(WorldLayout.GateOutside, "York Factory", "Hudson's Bay Company");
         PlaceSign(IsoGrid.DownLeft(IsoGrid.DownLeft(WorldLayout.NwcGateCell)), "Nor'Westers' House", "North West Company");
         PlaceSign(WorldLayout.OutpostGateOutside, "Oxford House", "Hudson's Bay Company");
+        // Each great carrying place: a board, a canoe drawn up and a cache at the landing.
+        foreach (var lm in WorldMap.Landmarks())
+        {
+            if (lm.Kind != "portage") continue;
+            var at = IsoGrid.FromWorld(lm.At);
+            Vector2I? land = null;
+            for (int r = 0; r <= 8 && land == null; r++)
+                for (int dx = -r; dx <= r && land == null; dx++)
+                    for (int dy = -2 * r; dy <= 2 * r && land == null; dy++)
+                    {
+                        var n = new Vector2I(at.X + dx, at.Y + dy);
+                        if (!WorldMap.IsWater(n) && WorldMap.InBounds(n)) land = n;
+                    }
+            if (land == null) continue;
+            PlaceSign(land.Value, lm.Name, "Portage");
+            var canoe = IsoGrid.Cell(land.Value, 2, 1); var cache = IsoGrid.Cell(land.Value, -1, 2);
+            if (!WorldMap.IsWater(canoe) && GetCellSourceId(canoe) == -1) SetBack(canoe, WorldLayout.CanoeBeached);
+            if (!WorldMap.IsWater(cache) && GetCellSourceId(cache) == -1) SetBack(cache, WorldLayout.Cache);
+        }
+        // A beaver lodge in the water by each beaver ground, so you can see it.
+        foreach (var site in WorldLayout.Sites)
+        {
+            if (site.Species != Ecology.Species.Beaver) continue;
+            var lodge = WaterBeside(site.Cell);
+            if (lodge.HasValue && GetCellSourceId(lodge.Value) == -1) SetBack(lodge.Value, WorldLayout.BeaverLodge);
+        }
         // The camps of the wider country: a band's ring of tipis, or one
         // family's lodge and fire outside a post.
         foreach (var c in Camps.All)
@@ -219,7 +248,7 @@ public partial class StructurePainter : TileMapLayer
         }
         // In the editor the posts standing at the usual start are shown; in a
         // game Posts paints each one as it comes to stand.
-        if (Engine.IsEditorHint()) foreach (var p in Posts.All) if (p.Year <= 1811) PaintPost(p, false);
+        if (Engine.IsEditorHint()) foreach (var p in Posts.All) if (p.Year <= 1811 && (p.Closed == 0 || p.Closed > 1811)) PaintPost(p, false);
         // The forest is painted chunk by chunk as TerrainPainter streams the country in.
     }
 
@@ -227,22 +256,42 @@ public partial class StructurePainter : TileMapLayer
     // it gets its hearth and roof too; in the editor just the tiles.
     public void PaintPost(TradingPost p, bool live)
     {
-        PaintPalisadeAt(p.Top, TradingPost.Width, TradingPost.Depth, TradingPost.GateOffset);
+        PaintPalisadeAt(p.Top, p.Width, p.Depth, p.GateOffset);
         PaintBuilding(p.House, _floor ?? this);
+        foreach (var b in p.Extra) PaintBuilding(b, _floor ?? this);
         SetBack(p.WoodpileCell, SourceWoodpile);
-        SetBack(IsoGrid.Cell(p.Top, 10, 3), SourceCrate);
+        SetBack(p.CrateCell, SourceCrate);
         PlaceSign(p.GateOutside, p.Name, p.Company == "NWC" ? "North West Company" : "Hudson's Bay Company");
         if (!live) return;
         EnsureHearth(p.HearthCell, 6f);
+        foreach (var b in p.Extra) EnsureHearth(IsoGrid.Cell(b.Top, 1, 1), 6f);
         var host = GetParent()?.GetParent();
         if (host != null && !Engine.IsEditorHint())
         {
-            var roof = new TileMapLayer { TileSet = TileSet, ZIndex = 5, ZAsRelative = false, Name = $"Roof_{p.Name.Replace(' ', '_').Replace('.', '_').Replace('\'', '_')}", Position = new Vector2(0, -RoofLift) };
-            foreach (var cell in IsoGrid.Rhombus(p.House.Top, p.House.Width, p.House.Depth)) roof.SetCell(cell, SourceRoof, Vector2I.Zero);
-            host.AddChild(roof);
-            _roofs.Add((p.House, roof));
+            var roofed = new List<BuildingDef> { p.House };
+            roofed.AddRange(p.Extra);
+            foreach (var b in roofed)
+            {
+                var roof = new TileMapLayer { TileSet = TileSet, ZIndex = 5, ZAsRelative = false, Name = $"Roof_{(p.Name + "_" + b.Name).Replace(' ', '_').Replace('.', '_').Replace('\'', '_')}", Position = new Vector2(0, -RoofLift) };
+                foreach (var cell in IsoGrid.Rhombus(b.Top, b.Width, b.Depth)) roof.SetCell(cell, SourceRoof, Vector2I.Zero);
+                host.AddChild(roof);
+                _roofs.Add((b, roof));
+            }
         }
         RebuildCollision();
+    }
+
+    // The nearest open water to a cell (a beaver lodge stands in it).
+    private static Vector2I? WaterBeside(Vector2I c)
+    {
+        for (int r = 0; r <= 4; r++)
+            for (int dx = -r; dx <= r; dx++)
+                for (int dy = -2 * r; dy <= 2 * r; dy++)
+                {
+                    var n = new Vector2I(c.X + dx, c.Y + dy);
+                    if (WorldMap.At(n) is Ground.River or Ground.Lake) return n;
+                }
+        return null;
     }
 
     // A name board outside a gate (never saved with the scene: no owner).
@@ -455,6 +504,22 @@ public partial class StructurePainter : TileMapLayer
             case BuildingKind.PowderMagazine:
                 SetBack(IsoGrid.Cell(top, 1, 1), SourceCrate);
                 break;
+            case BuildingKind.GreatHall:
+                // Where the partners dine and sit in council each July: a
+                // long table down the room, the hearth at the end, candles.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                for (int i = 2; i <= 5; i++) SetBack(IsoGrid.Cell(top, i, 2), SourceTableChairs);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceRug);
+                SetBack(IsoGrid.Cell(top, 5, 1), SourceShelfTall);
+                SetBack(IsoGrid.Cell(top, 1, 2), SourceCandleStand);
+                SetBack(IsoGrid.Cell(top, 4, 1), SourceCandleStand);
+                break;
+            case BuildingKind.PartnersHouse:
+                // The wintering partners' quarters while they're down for the rendezvous.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                SetBack(IsoGrid.Cell(top, 2, 1), SourceBed);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceBed);
+                break;
             case BuildingKind.MensHouse:
                 // Where the labourers sleep: a big hearth, benches, a table.
                 SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
@@ -543,9 +608,10 @@ public partial class StructurePainter : TileMapLayer
     {
         foreach (var cell in cells)
         {
-            if (!WorldLayout.ForestAt(cell) || _felled.Contains(cell)) continue;
+            int flora = WorldLayout.Flora(cell);
+            if (flora < 0 || _felled.Contains(cell)) continue;
             if (GetCellSourceId(cell) != -1) continue;
-            SetBack(cell, SourceSpruce0 + (int)(IsoGrid.Hash(cell, 12) * 3f));
+            SetBack(cell, flora);
         }
     }
 
@@ -553,7 +619,7 @@ public partial class StructurePainter : TileMapLayer
     // IsTree answers from the layout).
     public void ClearForest(IEnumerable<Vector2I> cells)
     {
-        foreach (var cell in cells) if (IsTreeSource(GetCellSourceId(cell))) EraseCell(cell);
+        foreach (var cell in cells) if (WorldLayout.IsFloraSource(GetCellSourceId(cell))) EraseCell(cell);
     }
 
     // A hearth object for a fire cell that hasn't got one (a campfire built
@@ -621,10 +687,21 @@ public partial class StructurePainter : TileMapLayer
         return WorldLayout.ForestAt(cell) && !_felled.Contains(cell);
     }
 
-    // Ring by ring outward, nearest first.
+    // Ring by ring outward, nearest first. The answer for a starting cell is
+    // remembered until that tree is felled: woodcutters ask from their post's
+    // door again and again, and under fast-forward that was every few frames.
+    private readonly Dictionary<Vector2I, Vector2I> _nearestTree = new();
     public Vector2I? NearestTree(Vector2 worldPos, float maxDist = 4000f)
     {
         var c = LocalToMap(worldPos);
+        if (_nearestTree.TryGetValue(c, out var known) && IsTree(known) && MapToLocal(known).DistanceTo(worldPos) <= maxDist) return known;
+        var found = SearchNearestTree(worldPos, c, maxDist);
+        if (found.HasValue) { if (_nearestTree.Count > 2000) _nearestTree.Clear(); _nearestTree[c] = found.Value; }
+        return found;
+    }
+
+    private Vector2I? SearchNearestTree(Vector2 worldPos, Vector2I c, float maxDist)
+    {
         int rings = Mathf.CeilToInt(maxDist / IsoGrid.TileW);
         Vector2I? best = null;
         float bestD = maxDist;
@@ -841,7 +918,7 @@ public partial class StructurePainter : TileMapLayer
         return false;
     }
 
-    public static bool IsTreeSource(int s) => s >= SourceSpruce0 && s <= SourceSpruce0 + 2;
+    public static bool IsTreeSource(int s) => WorldLayout.IsTreeSource(s);
 
     // Is there a wall/fence/closed door on the edge between two edge-adjacent
     // cells? Closed doors count as passable-with-effort: the caller opens them.

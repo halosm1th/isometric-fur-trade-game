@@ -1,6 +1,6 @@
 # Audio Prompts for Gemini
 
-Music, ambience and sound effects the game needs, written as prompts to paste into Gemini. It's the sound version of `asset-prompts.md`. Written 2026-10-10. Right now the game has **no audio at all**: no `AudioStreamPlayer` in `Scripts/` or `Scenes/` and no sound files (see `asset-inventory.md` section 8). Everything below is new.
+Music, ambience and sound effects the game needs, written as prompts to paste into Gemini. It's the sound version of `asset-prompts.md`. Written 2026-10-10. **Updated 2026-10-11:** the first batch is in the game: six Gemini music tracks and 27 Freesound effects, played by the `Audio` autoload in `Scripts/Core/Audio.cs`. The section **In the game now** below says what exists and when it plays. Everything else in this file is still wanted.
 
 The game hooks each prompt is meant for are named where they exist: `SkyState` (Clear, Overcast, Snow, Blizzard, Rain, Storm) in `Core/Weather.cs`, `Season` (Winter, Breakup, OpenWater, FreezeUp) in `Core/GameCalendar.cs`, the four `Species` in `Ecology/Species.cs`, and the campaign beats in `Campaigns/historical.json`.
 
@@ -18,6 +18,72 @@ The game hooks each prompt is meant for are named where they exist: `SkyState` (
 ### A note on Indigenous music
 
 Cree, Assiniboine, Ojibwe and other nations' songs belong to those communities. Many are ceremonial and must not be imitated, and a generated "native chant" is the most worn cliché in frontier games. So the prompts below **never ask for imitation singing or ceremonial music**. Drums at the camp are written as plain hand-drum rhythm with no vocals and no sacred context. Before release, the better path is to license or commission real recordings from Cree or Métis musicians for the camp cues and the Métis fiddle. Treat those generated tracks as placeholders until then.
+
+---
+
+## In the game now (2026-10-11)
+
+**How it works.** `Core/Audio.cs` is an autoload with three buses under Master (**Music**, **Ambience**, **Effects**), each with a slider in Settings > Sound.
+- Sounds the simulation already makes reach it through `Sim.ShowNoise`, which runs on every machine in co-op: footsteps, shots, blows, axes, a fire being lit.
+- Everything else it reads off the world each frame: weather, season, hour, the ship, fires, and whether you're indoors. Ambience goes muffled through a log wall, and a door sounds as you cross it.
+- A sound is asked for by name: `step_snow` picks one of `step_snow_01..09` at random. **Dropping in more numbered takes needs no code.**
+- Run with `-- --audiotrace` to print every sound as it starts.
+
+The raw downloads stay in `assets/external/soundFX/` (git-ignored, and hidden from Godot by a `.gdignore`). The cut clips are in `assets/audio/`. Credits and licences are in `assets/audio/CREDITS.md`.
+
+| Doc ID | File(s) in `assets/audio/` | When it plays |
+|---|---|---|
+| `mus_main_menu` | `music/claim_the_north.mp3` | Main menu, on repeat. |
+| `mus_winter` | `music/the_long_winter_at_the_bay.mp3`, `music/planks_beneath_the_frost.mp3` | Winter, now and then: 20 to 45 s after you arrive, then 2 to 4 min of quiet between pieces. |
+| `mus_breakup`, `mus_freezeup` | `music/waiting_on_the_ice.mp3` (freeze-up also draws on the winter tracks) | Breakup and freeze-up, same rhythm. |
+| `mus_summer` | `music/boots_on_the_pine_floor.mp3` | Open water, same rhythm. |
+| `mus_mens_house_reel`, `mus_mens_house_jig` | `music/mens_house_reel.mp3`, `music/boots_on_the_pine_floor.mp3` | Inside the men's house, 19:00 to 23:30. |
+| `step_snow`, `step_snow_crust` | `sfx/step_snow_01..05.wav`, `sfx/step_snow_crust_01..05.wav` | Footsteps in winter (crust on clear days), early May and late October. Loudness follows how far the step carries, so sneaking is near silent. Your own steps always; other people's within earshot, a few a second at most. |
+| `step_mud` | `sfx/step_mud_01..05.wav` | Footsteps the rest of the year. |
+| `step_planks`, `step_boardwalk` (synth) | `sfx/step_planks_01..05.wav` | Any plank floor (indoors) and the wharf, all year. |
+| `amb_rain` (synth) | `ambient/amb_rain.wav` | Rain and storms; louder under a roof. |
+| `wolf_howl_01..03`, `wolf_pack_howl` (synth) | `sfx/wolf_howl_01..03.wav`, `sfx/wolf_pack_howl.wav` | At night (20:00 to 06:00), from the nearest wolf within 3,500 px, every 35 to 90 s (more often in winter); the pack howl when three or more are about. |
+| `wolf_growl`, `wolf_bite` (synth) | `sfx/wolf_growl_01..02.wav`, `sfx/wolf_bite.wav` | A wolf within 420 px growls every 5 to 10 s; its bite landing. |
+| `body_fall` (synth) | `sfx/body_fall_01..02.wav` | A person dying. |
+| `musket_reload` (synth) | `sfx/musket_reload.wav` | 1.4 s after a shot, heard only close by. |
+| `amb_winter_wind` | `ambient/amb_winter_wind.wav` | Always some wind: most in winter, more under cloud, snow or rain. |
+| `amb_blizzard` | `ambient/amb_blizzard.wav` | Blizzard, and (softer) Storm. |
+| `amb_river` | `ambient/amb_river.wav` | Open water within about 640 px, louder closer. Silent when frozen. |
+| `mosquitoes_close` | `ambient/amb_mosquitoes.wav` | Open water and June, by day, outdoors, clear or cloudy. |
+| `amb_fort_yard_day` (stand-in) | `ambient/amb_fort_chatter.wav` | A murmur of voices at a post, louder the more waking people are near you. |
+| `amb_camp_cree` (part) | `ambient/amb_kids_playing.wav` | Children at play round the nearest band camp, 08:00 to 20:00, not in rain or worse. |
+| `fire_hearth_loop` | `ambient/fire_hearth_loop.wav` | The three nearest burning hearths, at their places, louder with more fuel. |
+| `fire_building_loop` (stand-in) | same file, louder | A building on fire (`World/Fire.cs`). |
+| `fire_light` | `sfx/flint_strike.mp3` | A fire lit with flint (`Hearth.Light`). |
+| `brigade_paddling_loop` (stand-in) | `ambient/canoe_paddling_loop.wav` | You paddling a canoe. |
+| `ship_creak_loop` | `ambient/ship_creak_loop.mp3` | Near the ship while it's in. |
+| `ship_cannon_salute`, `ship_bell` | `sfx/cannon_distant.wav` twice, `sfx/fort_bell_work.wav` | The ship standing in: her gun, the fort's answer, the bell. The bell again when she sails. |
+| `fort_bell_work` | `sfx/fort_bell_work.wav` | 07:00 and 18:00 near the fort, unless the weather is foul. |
+| `fort_bell_alarm` | `sfx/fort_bell_alarm.wav` | A fire starting near the fort. |
+| `musket_fire_01..03` | `sfx/musket_fire.wav` | Any musket shot. |
+| `musket_distant` | `sfx/cannon_distant.wav` | Added under a shot more than 1,400 px away. |
+| `punch_01..05` | `sfx/punch_01..02.wav` | A melee blow landing (fists, knife, tomahawk), from people, not animals. |
+| `axe_chop_01..05` | `sfx/axe_chop_01..05.wav` | Someone cutting firewood (`ChopWoodGoal`): four strokes. |
+| `tree_fall` | `sfx/tree_fall.wav` | The tree coming down. |
+| `ice_crack_boom` | `sfx/ice_crack_01..03.wav` | Three booms when winter sets in and when breakup starts. |
+| `door_open_01..03` | `sfx/door_open.mp3` | Going indoors or out. |
+| `dogs_*`, `sled_run_loop` (part) | `sfx/dogsled_pass.wav` | Now and then on winter days near the fort. |
+| `geese_flock_overhead` | `sfx/goose_honk.mp3` (2 to 5 voices) | Breakup and freeze-up days. |
+| `raven_croak_01..03` | `sfx/raven_croak.ogg` | Winter and freeze-up days. |
+| `loon_call` | `sfx/loon_call.ogg` (a 7 s stretch) | Summer evenings and nights near water. |
+| `ui_page_turn_01..03` | `ui/ui_page_turn.ogg` | Opening or closing the journal, log or pack. |
+| (unused yet) | `ui/ui_quill_write.mp3`, `sfx/wood_creak.wav` | On disk but nothing calls them yet. The quill wants a letter-writing screen; the creak could be a bunk or a shutter. |
+
+Rows marked **(synth)** are stand-ins generated in code; a real recording under the same name replaces them.
+
+**Most wanted next**, in order:
+1. Real recordings for the synth rows, wolves first: they're the weakest imitation.
+2. More takes of the sounds that have only one: musket, punch, door, goose, raven.
+3. Footsteps on dirt and river ice.
+4. `amb_summer_day` and `amb_freezeup` beds.
+5. `grunt_hurt`, so a blow lands with a voice.
+6. UI clicks and `ui_notice`.
+7. The tension cues and stingers in 6.4.
 
 ---
 
@@ -151,6 +217,12 @@ Muskets are one-shot weapons (design doc 15.3): the shot must sound heavy and fi
 | `pipe_puff` | 2 s | Drawing on a clay tobacco pipe and puffing out smoke. |
 | `shiver` | 1.5 s | A man shivering hard in the cold, teeth chattering, a shaky breath. No words. |
 | `cough_sick_01..03` | 1.5 s | A deep, wet, sick cough. |
+| `berry_pick_01..03` | 1.5 s | Picking handfuls of berries off a bush and dropping them into a birchbark basket: leaves rustling, soft patter of fruit on bark. |
+| `salt_cask_pack` | 4 s | Packing plucked geese down into a wooden cask with coarse salt: dull thumps of birds, salt poured and crunching, then a lid tapped on with a mallet. |
+| `spruce_beer_brew_loop` | 20 s (LOOP) | A copper kettle of spruce tips boiling over a hearth: a steady rolling boil, the odd spit against hot iron, no voices. |
+| `corn_mortar_01..03` | 1.2 s | Pounding dried corn in a hollowed log mortar with a long wooden pestle: a deep woody thud and the rattle of kernels. |
+| `corn_shell_01..03` | 2 s | Shelling a dried ear of Indian corn by hand: kernels rasping off the cob and falling into a bark tray. |
+| `gum_patch` | 4 s | Patching a birchbark canoe: spruce gum melted in a small pot, smeared on with a hot iron, hissing as it sets. |
 
 ### 2.3 Travel (SFX / LOOP)
 
@@ -178,6 +250,7 @@ All of these are SFX HEADER, mono. Animals in the code now: caribou, goose, beav
 | `goose_honk_01..05` | (2 s) A single Canada goose honking on the ground. |
 | `geese_flock_overhead` | (8 s) A big V of Canada geese flying low overhead, many honking, wingbeats audible as they pass. |
 | `geese_takeoff` | (3 s) A flock of geese bursting up off a marsh in alarm: wings beating, splashing, honking. |
+| `geese_flight_marsh_loop` | (AMBIENT, 60 s, LOOP) The autumn passage on a Hudson Bay marsh: thousands of geese on the water and in the air at once, a continuous wash of honking with nearer birds over it and wingbeats passing. Not a single flock - the whole flight, heard from a goose tent at the edge of the marsh. |
 | `caribou_grunt_01..03` | (1.5 s) A caribou's low snorting grunt. |
 | `caribou_herd_loop` | (AMBIENT, 30 s) A herd of caribou passing: many hooves clicking (caribou ankle tendons click when they walk), grunting, snow crunching. |
 | `beaver_tail_slap` | (1.5 s) A beaver slapping its tail on still pond water in alarm: a loud flat crack and splash. |
@@ -219,6 +292,11 @@ All of these are SFX HEADER, mono. Animals in the code now: caribou, goose, beav
 | `death_sting` | — | A death | (Use music cue `stinger_death` below.) |
 | `news_letter` | 2 s | A message arrives (`Core/Message.cs`) | A folded, wax-sealed letter being broken open: the seal cracking, stiff paper unfolding. |
 | `trade_coins` | 1 s | A trade closes (`Economy/Barter.cs`) | Small wooden made-beaver tokens and a few metal trade goods set down on a counter. |
+| `musket_volley_geese` | 4 s | A goose hunt kills (`World/GooseHunt.cs`) | Three or four muskets fired almost together into a settled flock, then the roar of several hundred geese getting up off water. |
+| `portage_shoulder_01..03` | 2 s | A brigade at a carrying place (`World/Brigade.cs`) | A man hoisting two ninety-pound packs onto his back with a tumpline across his forehead: cords creaking, a hard breath out, canvas shifting. |
+| `canoe_haul_out` | 5 s | Arriving at a portage | A loaded freight canoe dragged up a rocky landing: bark grating on stone, water running off, men grunting. |
+| `trade_fair_loop` | (AMBIENT, 60 s, LOOP) | The Missouri towns' market (`Economy/Gardens.cs`) | A big summer trade fair outside an earth-lodge village: many voices bargaining in several languages at once, horses stamping and whinnying, dogs, corn being poured, no music. |
+| `herd_passing_distant` | 20 s | The deer pass (`Ecology/EcologyManager.cs`) | A barren-ground caribou herd crossing a mile off: a low continuous rumble of hooves and clicking tendons carried on the wind, thin grunts. |
 | `scurvy_groan` | 2 s | Illness | A sick man groaning quietly in a bunk. |
 
 ---
@@ -314,24 +392,26 @@ assets/audio/
   ui/        ui_*.ogg
 ```
 
-Lower-case, underscores, numbered takes `_01`. Tell me what's landed and I'll add an `Audio` autoload with music and ambience buses, a crossfader keyed to `Season`/`SkyState`, and positional SFX players on agents and props.
+Lower-case, underscores, numbered takes `_01`. WAV, OGG and MP3 all load, and music can stay MP3. A new numbered take of an existing sound is picked up automatically. A new *kind* of sound needs a line in `Core/Audio.cs` saying when it plays. After adding files, run Godot's import once (`--headless --path . --import`) or open the editor.
 
 ---
 
 ## Summary checklist
 
-- [ ] 1.1 Footsteps (9 surfaces x 5)
-- [ ] 1.2 Ambient beds (13)
-- [ ] 1.3 Fort interiors and camp (4)
-- [ ] 1.4 Fire (6)
-- [ ] 2.1 Weapons and fighting (15)
-- [ ] 2.2 Work and survival (20)
-- [ ] 2.3 Travel (10)
-- [ ] 3 Animals (24)
-- [ ] 4 Events (14)
-- [ ] 5 UI (13)
-- [ ] 6.1 Menu music (3)
-- [ ] 6.2 Season music (4)
-- [ ] 6.3 Places and people (11)
+"Partial" means some of the section is in the game; see **In the game now**.
+
+- [ ] 1.1 Footsteps (9 surfaces x 5): partial (snow, snow crust, mud, planks)
+- [ ] 1.2 Ambient beds (13): partial (winter wind, blizzard, river, rain)
+- [ ] 1.3 Fort interiors and camp (4): partial (fort chatter, children at camp)
+- [ ] 1.4 Fire (6): partial (hearth loop, flint)
+- [ ] 2.1 Weapons and fighting (15): partial (musket, distant shot, punch, reload, body fall)
+- [ ] 2.2 Work and survival (20): partial (axe chops)
+- [ ] 2.3 Travel (10): partial (paddling, dog sled, ship creak)
+- [ ] 3 Animals (24): partial (geese, raven, loon, mosquitoes, wolves)
+- [ ] 4 Events (14): partial (ship salute, work bell, alarm bell, door, ice, tree fall)
+- [ ] 5 UI (13): partial (page turn; quill on disk)
+- [ ] 6.1 Menu music (3): partial (main menu done; new-game and credits still wanted)
+- [x] 6.2 Season music (4)
+- [ ] 6.3 Places and people (11): partial (men's house reel and jig)
 - [ ] 6.4 Tension and stingers (9)
 - [ ] 6.5 Campaign set-pieces (4)

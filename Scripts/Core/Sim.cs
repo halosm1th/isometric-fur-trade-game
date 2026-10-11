@@ -83,6 +83,7 @@ public static class Sim
 
     public static void ShowNoise(Vector2 pos, float radius, string kind)
     {
+        Audio.Noise(pos, radius, kind);
         var parent = Player?.GetParent() as Node2D;
         if (parent == null) return;
         var ring = new World.NoiseRing { Position = pos, Radius = radius, ZIndex = 5 };
@@ -127,13 +128,55 @@ public static class Sim
         foreach (var p in Net.Net.I.Players.Values) if (p != null && GodotObject.IsInstanceValid(p)) yield return p;
     }
 
-    public static IEnumerable<Agent> AgentsWithin(Vector2 pos, float radius)
+    // Who is near a point. This is the most-called question in the game -
+    // hearths, barks, witnesses, noise, a fight's odds - and it used to be a
+    // scan of every agent in the world. With the country's own peoples in it
+    // that is some nine hundred bodies, so the evening systems at a populated
+    // place cost a frame each. The agents are bucketed into a coarse grid
+    // instead, rebuilt once a frame (nine hundred cheap writes), and the
+    // question only looks at the buckets it has to.
+    private const float Bucket = 512f;
+    private static readonly Dictionary<long, List<Agent>> _grid = new();
+    private static ulong _gridFrame = ulong.MaxValue;
+
+    private static long Key(int bx, int by) => ((long)bx << 32) ^ (uint)by;
+
+    private static void BuildGrid()
     {
-        float r2 = radius * radius;
+        ulong frame = Engine.GetProcessFrames();
+        if (frame == _gridFrame) return;
+        _gridFrame = frame;
+        foreach (var list in _grid.Values) list.Clear();
         foreach (var a in Agents)
         {
             if (a == null || !GodotObject.IsInstanceValid(a) || a.IsDead) continue;
-            if (a.GlobalPosition.DistanceSquaredTo(pos) <= r2) yield return a;
+            var p = a.GlobalPosition;
+            long k = Key(Mathf.FloorToInt(p.X / Bucket), Mathf.FloorToInt(p.Y / Bucket));
+            if (!_grid.TryGetValue(k, out var list)) _grid[k] = list = new List<Agent>(8);
+            list.Add(a);
+        }
+    }
+
+    public static IEnumerable<Agent> AgentsWithin(Vector2 pos, float radius)
+    {
+        BuildGrid();
+        float r2 = radius * radius;
+        int x0 = Mathf.FloorToInt((pos.X - radius) / Bucket), x1 = Mathf.FloorToInt((pos.X + radius) / Bucket);
+        int y0 = Mathf.FloorToInt((pos.Y - radius) / Bucket), y1 = Mathf.FloorToInt((pos.Y + radius) / Bucket);
+        for (int bx = x0; bx <= x1; bx++)
+        {
+            for (int by = y0; by <= y1; by++)
+            {
+                if (!_grid.TryGetValue(Key(bx, by), out var list)) continue;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    var a = list[i];
+                    // The bucket was filled this frame, but a caller may have
+                    // killed somebody since.
+                    if (a == null || !GodotObject.IsInstanceValid(a) || a.IsDead) continue;
+                    if (a.GlobalPosition.DistanceSquaredTo(pos) <= r2) yield return a;
+                }
+            }
         }
     }
 }

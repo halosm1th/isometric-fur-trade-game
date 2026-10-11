@@ -38,12 +38,13 @@ public partial class MapPanel : Control
         box.AddChild(title);
         _canvas = new MapCanvas { Player = _player, SizeFlagsVertical = SizeFlags.ExpandFill, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         box.AddChild(_canvas);
-        var legend = new Label { Text = "you ●   posts ■ (HBC red, NWC blue)   camps ▲   sites ○   waypoint ◆ gold   your task ◆ blue      click: set a waypoint   right-click: clear it   drag: pan   wheel: zoom", HorizontalAlignment = HorizontalAlignment.Center };
+        var legend = new Label { Text = "you ●   posts ■ (HBC red, NWC blue)   camps ▲   sites ○   waypoint ◆ gold   your task ◆ blue      click: set a waypoint   right-click: clear it   G: set out for it   drag: pan   wheel: zoom", HorizontalAlignment = HorizontalAlignment.Center };
         legend.AddThemeFontSizeOverride("font_size", 11);
         legend.AddThemeColorOverride("font_color", new Color(0.25f, 0.17f, 0.08f));
         box.AddChild(legend);
         foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--map") GetTree().CreateTimer(2.5).Timeout += () => { _panel.Visible = true; if (_player != null) _canvas.CentreOn(_player.GlobalPosition); };
         GetParent()?.CallDeferred(Node.MethodName.AddChild, new WayfindingHud { Name = "Wayfinding" });
+        GetParent()?.CallDeferred(Node.MethodName.AddChild, new TravelMode { Name = "TravelMode" });
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -181,6 +182,30 @@ public partial class MapCanvas : Control
         var font = ThemeDB.FallbackFont;
         if (_fogVersion != Exploration.Version) BuildFog();
         if (_fog != null) DrawTextureRect(_fog, new Rect2(Pan, new Vector2(Exploration.Width, Exploration.Height) * Exploration.CellPx * S * Zoom), false);
+
+        // The brigade roads and the named country, where you have been (design
+        // doc 10.8: geography is knowledge).
+        var route = new Color(0.55f, 0.18f, 0.12f, 0.8f);
+        foreach (var (_, pts) in WorldMap.BrigadeRoutes())
+            for (int i = 0; i + 1 < pts.Length; i++)
+                if (Exploration.IsSeen(pts[i]) || Exploration.IsSeen(pts[i + 1])) DrawDashedLine(M(pts[i]), M(pts[i + 1]), route, 2f, 8f);
+        foreach (var lm in WorldMap.Landmarks())
+        {
+            if (!Exploration.IsSeen(lm.At)) continue;
+            var c = M(lm.At);
+            switch (lm.Kind)
+            {
+                case "portage":
+                    DrawLine(c + new Vector2(-4, -4), c + new Vector2(4, 4), route, 2f); DrawLine(c + new Vector2(-4, 4), c + new Vector2(4, -4), route, 2f);
+                    if (Zoom >= 1.6f) DrawString(font, c + new Vector2(7, 4), lm.Name, HorizontalAlignment.Left, -1, 11, route);
+                    break;
+                case "water": DrawString(font, c + new Vector2(-150, 0), lm.Name, HorizontalAlignment.Center, 300, 16, new Color(0.15f, 0.25f, 0.45f, 0.85f)); break;
+                case "mountains": DrawString(font, c + new Vector2(-150, 0), lm.Name, HorizontalAlignment.Center, 300, 15, new Color(0.3f, 0.22f, 0.15f, 0.8f)); break;
+                case "lake": if (Zoom >= 1.2f) DrawString(font, c + new Vector2(-100, 0), lm.Name, HorizontalAlignment.Center, 200, 12, new Color(0.15f, 0.25f, 0.45f, 0.85f)); break;
+                case "river": if (Zoom >= 1.6f) DrawString(font, c + new Vector2(-100, 0), lm.Name, HorizontalAlignment.Center, 200, 11, new Color(0.15f, 0.3f, 0.5f, 0.8f)); break;
+                default: if (Zoom >= 1.2f) DrawString(font, c + new Vector2(-100, 0), lm.Name, HorizontalAlignment.Center, 200, 12, new Color(0.3f, 0.22f, 0.15f, 0.8f)); break;
+            }
+        }
 
         // The posts and camps of the wider country, where you have been.
         foreach (var post in Posts.Standing())

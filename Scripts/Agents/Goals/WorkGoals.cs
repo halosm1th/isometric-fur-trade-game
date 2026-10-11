@@ -417,11 +417,17 @@ public class TradeTripGoal : Goal
             case 3:
             {
                 if (!ChildFinished(out _)) return GoalStatus.Running;
+                // Nothing is traded before the pipe is smoked: the post gives
+                // tobacco, and a post with none to give is a poor host.
+                bool pipe = fort.Stores.Remove(ItemId.Tobacco);
+                if (fort is Economy.NwcLedger) band.StandingWithNwc = Mathf.Clamp(band.StandingWithNwc + (pipe ? 1.5f : -1f), 0f, 100f);
+                else band.StandingWithCompany = Mathf.Clamp(band.StandingWithCompany + (pipe ? 1.5f : -1f), 0f, 100f);
+                if (pipe) npc.Inventory.Add(ItemId.Tobacco, fort.Stores.TakeUpTo(ItemId.Tobacco, 1));   // and a twist to take home
                 float paid = fort.BuyFurs(npc.Inventory, npc.Inventory, band);
                 int bought = 0, soldFood = 0;
                 if (_buyFood) bought = fort.SellFood(npc.Inventory, npc.Inventory.Count(ItemId.TradeGoods), band);
                 if (_sellProvisions && npc.Inventory.Count(ItemId.Pemmican) >= 4) { int m = 0; foreach (var x in Sim.Npcs) if (x.HomeStores == fort && !x.IsDead) m++; soldFood = fort.BuyProvisions(npc.Inventory, npc.Inventory, m); }
-                Sim.Notice($"{npc.DisplayName} traded at {fort.Title}: {paid:0} MB in goods{(bought > 0 ? $", bought {bought} of food" : "")}{(soldFood > 0 ? $", sold {soldFood} pemmican" : "")}{(fort.DebtOf(band) > 0 ? $" (owes {fort.DebtOf(band):0.#} MB)" : "")}.");
+                Sim.Notice($"{npc.DisplayName} traded at {fort.Title}{(pipe ? "" : " (no tobacco for the pipe)")}: {paid:0} MB in goods{(bought > 0 ? $", bought {bought} of food" : "")}{(soldFood > 0 ? $", sold {soldFood} pemmican" : "")}{(fort.DebtOf(band) > 0 ? $" (owes {fort.DebtOf(band):0.#} MB)" : "")}.");
                 Chronicle.Event($"{npc.DisplayName} traded furs at {fort.Title}.", npc.GlobalPosition, npc, weight: 0.4f);
                 if (fort is Economy.NwcLedger && Sim.Fort != null) { Sim.Fort.LostToRivalMb += paid; Economy.Rivalry.Raise(paid * 0.25f, "furs going to the Nor'Westers"); }
                 band.InvitedToTrade = false;
@@ -552,7 +558,14 @@ public class ForageGoal : Goal
                 {
                     _tryTimer = 0.75f;
                     float chance = GameCalendar.Instance.CurrentSeason == Season.Winter ? 0.3f : 0.4f;
-                    if (GD.Randf() < chance) { npc.Inventory.Add(ItemId.Hare); _got++; }
+                    // Snares take hares out of the country's hares: a thicket
+                    // snared out stays thin until they breed back (design doc 16.4).
+                    var hares = Sim.Ecology?.SiteNear(npc.GlobalPosition, Species.Hare);
+                    if (hares != null) chance *= Mathf.Clamp(hares.Count / (float)hares.Capacity, 0.1f, 1.3f);
+                    if (GD.Randf() < chance && (hares == null || hares.Count >= 1f)) { npc.Inventory.Add(ItemId.Hare); hares?.Take(1); _got++; }
+                    // In winter the ptarmigan are down in the willows.
+                    else if (GameCalendar.Instance.CurrentSeason == Season.Winter && Sim.Ecology?.SiteNear(npc.GlobalPosition, Species.Ptarmigan) is { } birds && birds.Count >= 1f && GD.Randf() < 0.25f * birds.Count / birds.Capacity)
+                    { npc.Inventory.Add(ItemId.Ptarmigan); birds.Take(1); _got++; }
                     var c = npc.Cell;
                     npc.SetDestination(new Vector2I(c.X + GD.RandRange(-3, 3), c.Y + GD.RandRange(-6, 6)));
                 }

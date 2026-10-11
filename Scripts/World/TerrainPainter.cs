@@ -27,11 +27,13 @@ public partial class TerrainPainter : TileMapLayer
     public const int SourceRoad = 61;   // trodden dirt with footprints: the river road
     public const int SourceIce = 44;
     public const int SourceWharf = 51;
+    // The regional grounds (make_region_tiles.py).
+    public const int SourcePrairie = 70, SourceTallGrass = 71, SourceParkland = 72, SourceTundra = 73, SourceShield = 74, SourceMuskeg = 75, SourceMountain = 76;
 
     // A chunk is 16 columns by 64 rows: 2048 px square.
     public const int ChunkCols = 16, ChunkRows = 64;
     // Painted this far beyond what can be seen, so walking never shows an edge.
-    [Export] public float MarginPx = 1400f;
+    [Export] public float MarginPx = 2800f;
     [Export] public int ChunksPerFrame = 2;
     // A zoomed-out editor view stops filling in past this many.
     [Export] public int MaxChunks = 160;
@@ -92,7 +94,40 @@ public partial class TerrainPainter : TileMapLayer
 
     private void LoadAround() { Refocus(); while (_queue.Count > 0) LoadNext(); }
 
-    // Dev aid: `-- --perf` prints where the frame goes every few seconds.
+    // Dev aid: `-- --perf` prints where the frame goes every few seconds,
+    // with the local player's own physics step timed between two probes.
+    public partial class PhysicsProbe : Node
+    {
+        public static ulong Start, PlayerUsec, AllUsec, FrameStart, AnimalStart, AnimalUsec, LiveStart, LiveUsec;
+        public bool IsStart, IsFirst, IsAnimalStart, IsAnimalEnd, IsLiveStart, IsLiveEnd;
+        public override void _PhysicsProcess(double delta)
+        {
+            ulong now = Time.GetTicksUsec();
+            if (IsFirst) { FrameStart = now; return; }
+            if (IsAnimalStart) { AnimalStart = now; return; }
+            if (IsAnimalEnd) { AnimalUsec += now - AnimalStart; return; }
+            if (IsLiveStart) { LiveStart = now; return; }
+            if (IsLiveEnd) { LiveUsec += now - LiveStart; return; }
+            if (IsStart) Start = now; else { PlayerUsec += now - Start; AllUsec += now - FrameStart; }
+        }
+    }
+    public partial class NpcProbe : Node
+    {
+        public static readonly Dictionary<int, ulong> Start = new(), Usec = new();
+        public static readonly Dictionary<int, string> Who = new();
+        public int Slot; public bool End;
+        public override void _PhysicsProcess(double delta)
+        {
+            ulong now = Time.GetTicksUsec();
+            if (!End) Start[Slot] = now; else Usec[Slot] = Usec.GetValueOrDefault(Slot) + now - Start.GetValueOrDefault(Slot, now);
+        }
+    }
+    public partial class ProcessProbe : Node
+    {
+        public static ulong Start, EcoUsec; public bool End;
+        public override void _Process(double delta) { ulong now = Time.GetTicksUsec(); if (!End) Start = now; else EcoUsec += now - Start; }
+    }
+    private bool _probes;
     private float _perfTimer = -1f;
     private void PerfReport(double delta)
     {
@@ -100,9 +135,39 @@ public partial class TerrainPainter : TileMapLayer
         _perfTimer -= (float)delta;
         if (_perfTimer > 0f) return;
         _perfTimer = 3f;
+        if (!_probes && Sim.Player is Node pl)
+        {
+            _probes = true;
+            pl.ProcessPhysicsPriority = 50;
+            AddChild(new PhysicsProbe { IsFirst = true, ProcessPhysicsPriority = -1000 });
+            if (Sim.Ecology is Node eco) { eco.ProcessPriority = 500; AddChild(new ProcessProbe { ProcessPriority = 499 }); AddChild(new ProcessProbe { End = true, ProcessPriority = 501 }); }
+            AddChild(new PhysicsProbe { IsStart = true, ProcessPhysicsPriority = 49 });
+            AddChild(new PhysicsProbe { ProcessPhysicsPriority = 51 });
+        }
+        if (_probes)
+        {
+            foreach (var a in Sim.Animals) if (IsInstanceValid(a)) a.ProcessPhysicsPriority = 40;
+            foreach (var n in Sim.Npcs) if (IsInstanceValid(n)) n.ProcessPhysicsPriority = 0;
+            int slot = 0;
+            foreach (var n in Sim.Npcs)
+            {
+                if (!IsInstanceValid(n) || n.Tier != Tier.Live || slot >= 40) continue;
+                n.ProcessPhysicsPriority = 200 + slot * 3 + 1;
+                NpcProbe.Who[slot] = $"{n.DisplayName} [{n.GoalDescription}]";
+                if (GetNodeOrNull($"NpcProbe{slot}") == null) { AddChild(new NpcProbe { Name = $"NpcProbe{slot}", Slot = slot, ProcessPhysicsPriority = 200 + slot * 3 }); AddChild(new NpcProbe { Name = $"NpcProbeEnd{slot}", Slot = slot, End = true, ProcessPhysicsPriority = 200 + slot * 3 + 2 }); }
+                slot++;
+            }
+            foreach (var kv in NpcProbe.Usec) if (kv.Value > 20_000) GD.Print($"[probe] {NpcProbe.Who.GetValueOrDefault(kv.Key)}: {kv.Value / 1000.0:0} ms");
+            NpcProbe.Usec.Clear();
+            if (GetNodeOrNull("LiveProbeA") == null) { AddChild(new PhysicsProbe { Name = "LiveProbeA", IsLiveStart = true, ProcessPhysicsPriority = 19 }); AddChild(new PhysicsProbe { Name = "LiveProbeB", IsLiveEnd = true, ProcessPhysicsPriority = 21 }); }
+            if (GetNodeOrNull("AnimalProbeA") == null) { AddChild(new PhysicsProbe { Name = "AnimalProbeA", IsAnimalStart = true, ProcessPhysicsPriority = 39 }); AddChild(new PhysicsProbe { Name = "AnimalProbeB", IsAnimalEnd = true, ProcessPhysicsPriority = 41 }); }
+        }
+        GD.Print($"[probe] ecology process {ProcessProbe.EcoUsec / 1000.0:0} ms over 3 s"); ProcessProbe.EcoUsec = 0;
+        GD.Print($"[probe] live npcs {PhysicsProbe.LiveUsec / 1000.0:0} ms, player {PhysicsProbe.PlayerUsec / 1000.0:0} ms, animals {PhysicsProbe.AnimalUsec / 1000.0:0} ms, everything before the player {PhysicsProbe.AllUsec / 1000.0:0} ms over 3 s; {Sim.Animals.Count} animals");
+        PhysicsProbe.PlayerUsec = 0; PhysicsProbe.AllUsec = 0; PhysicsProbe.AnimalUsec = 0; PhysicsProbe.LiveUsec = 0;
         GD.Print($"[perf] fps {Performance.GetMonitor(Performance.Monitor.TimeFps):0}  process {Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000:0.0} ms  physics {Performance.GetMonitor(Performance.Monitor.TimePhysicsProcess) * 1000:0.0} ms  " +
             $"bodies {Performance.GetMonitor(Performance.Monitor.Physics2DActiveObjects):0}  pairs {Performance.GetMonitor(Performance.Monitor.Physics2DCollisionPairs):0}  islands {Performance.GetMonitor(Performance.Monitor.Physics2DIslandCount):0}  " +
-            $"nodes {Performance.GetMonitor(Performance.Monitor.ObjectNodeCount):0}  chunks {_loaded.Count}  npcs {Sim.Npcs.Count}  player {(Sim.Player as Node2D)?.GlobalPosition}");
+            $"nodes {Performance.GetMonitor(Performance.Monitor.ObjectNodeCount):0}  chunks {_loaded.Count}  npcs {Sim.Npcs.Count}  player {(Sim.Player as Node2D)?.GlobalPosition}  skip {GameCalendar.Instance?.SkipRemaining:0.0}h  live {Core.Tiers.LiveCount}  {GameCalendar.Instance?.DateString} {GameCalendar.Instance?.TimeString}");
     }
 
     // Dev aid: `-- --jumps` reports anyone who moves further in one frame
@@ -255,15 +320,24 @@ public partial class TerrainPainter : TileMapLayer
             if (WorldLayout.RoadDistance(p) < 60f) return SourceRoad;
             if (WorldLayout.TrailDistance(p) < 70f) return SourceDirt;
         }
-        if (g == Ground.Cordillera) return IsoGrid.Hash(cell, 7) < 0.7f ? SourceHill : SourceGrass;
-        if (g == Ground.Shield) return IsoGrid.Hash(cell, 7) < 0.12f ? SourceHill : SourceGrass;
-        return SourceGrass;
+        return g switch
+        {
+            Ground.Grassland => SourcePrairie,
+            Ground.TallGrass => SourceTallGrass,
+            Ground.Parkland => SourceParkland,
+            Ground.Tundra => SourceTundra,
+            Ground.Shield => IsoGrid.Hash(new Vector2I(cell.X / 2, cell.Y / 4), 7) < 0.12f ? SourceHill : SourceShield,
+            Ground.Lowland => SourceMuskeg,
+            // Bare rock with green slopes between, in patches rather than a checkerboard.
+            Ground.Cordillera => IsoGrid.Hash(new Vector2I(cell.X / 3, cell.Y / 6), 7) < 0.65f ? SourceMountain : SourceHill,
+            _ => SourceGrass,
+        };
     }
 
     // Winter buries the land in snow and freezes the water solid.
     private static int Winter(int src) => src switch
     {
-        SourceGrass or SourceSand or SourceDirt => SourceSnow,
+        SourceGrass or SourceSand or SourceDirt or >= SourcePrairie and <= SourceMuskeg => SourceSnow,
         SourceWater or SourceWaterIce => SourceIce,
         _ => src,
     };
@@ -312,7 +386,8 @@ public partial class TerrainPainter : TileMapLayer
         if (src == SourceDirt) return 1.05f;
         if (src == SourceRoad) return 1.1f;
         if (src == SourceSand) return 0.9f;
-        if (src == SourceHill) return 0.8f;
+        if (src == SourceHill || src == SourceMountain) return 0.8f;
+        if (src == SourceMuskeg) return 0.75f;   // the muskeg in summer: knee-deep moss and water
         // The goose marsh is a swamp in summer.
         foreach (var s in WorldLayout.Sites)
             if (s.Species == Ecology.Species.Goose && worldPos.DistanceTo(IsoGrid.ToWorld(s.Cell)) < s.RadiusPx * 0.8f && !_frozen) return 0.6f;
@@ -369,6 +444,7 @@ public partial class TerrainPainter : TileMapLayer
     {
         // Any post or place on the map by name: `--spawn="Fort William"`.
         if (WorldMap.Place(name) is { } place) return Sim.Paths?.NearestWalkable(place.Cell, 12) ?? place.Cell;
+        foreach (var lm in WorldMap.Landmarks()) if (lm.Name == name) { var c = IsoGrid.FromWorld(lm.At); return Sim.Paths?.NearestWalkable(c, 12) ?? c; }
         return name switch
         {
             "depot" => WorldLayout.Depot.Centre,
@@ -386,6 +462,8 @@ public partial class TerrainPainter : TileMapLayer
             "geese" => WorldLayout.SiteOf(Ecology.Species.Goose).Cell,
             "beaver" => WorldLayout.SiteOf(Ecology.Species.Beaver).Cell,
             "wolves" => IsoGrid.Cell(WorldLayout.SiteOf(Ecology.Species.Wolf).Cell, 4, 0),
+            "hares" => WorldLayout.SiteOf(Ecology.Species.Hare).Cell,
+            "ptarmigan" => WorldLayout.SiteOf(Ecology.Species.Ptarmigan).Cell,
             _ => WorldLayout.GateOutside,
         };
     }
@@ -405,9 +483,11 @@ public partial class TerrainPainter : TileMapLayer
         Points = new[] { new Vector2(0, -32), new Vector2(64, 0), new Vector2(0, 32), new Vector2(-64, 0) },
     };
 
+    // Dev aid: `-- --nowatercol` (measuring what streaming costs).
+    private static readonly bool _noWaterCollision = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--nowatercol") >= 0;
     private void BuildWaterCollision(Vector2I ch)
     {
-        if (Engine.IsEditorHint()) return;
+        if (Engine.IsEditorHint() || _noWaterCollision) return;
         var host = WaterCollisionPath == null || WaterCollisionPath.IsEmpty ? null : GetNodeOrNull<StaticBody2D>(WaterCollisionPath);
         if (host == null) return;
         if (_chunkBodies.Remove(ch, out var old) && IsInstanceValid(old)) old.QueueFree();

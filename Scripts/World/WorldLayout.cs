@@ -4,7 +4,7 @@ using IsometricFurTradeGame.Scripts.Ecology;
 
 namespace IsometricFurTradeGame.Scripts.World;
 
-public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse, FactorsHouse, ClerksHouse, ProvisionStore, SummerMess, GuestHouse, BoatShed, PowderMagazine, TradingPost }
+public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse, FactorsHouse, ClerksHouse, ProvisionStore, SummerMess, GuestHouse, BoatShed, PowderMagazine, TradingPost, GreatHall, PartnersHouse }
 
 public readonly record struct BuildingDef(BuildingKind Kind, string Name, Vector2I Top, int Width, int Depth, int DoorOffset)
 {
@@ -210,6 +210,14 @@ public static class WorldLayout
         }
     }
     public static void ForgetSites() => _sites = null;
+    // A people's own country: the grounds within about 600 km of home. Nobody
+    // at York knows the beaver of the Athabasca.
+    public const float HomeCountryPx = 24000f;
+    public static IEnumerable<SiteDef> SitesNear(Vector2I home, float px)
+    {
+        var at = IsoGrid.ToWorld(home);
+        foreach (var s in Sites) if (IsoGrid.ToWorld(s.Cell).DistanceTo(at) <= px) yield return s;
+    }
     public static SiteDef SiteOf(Species s)
     {
         foreach (var d in Sites) if (d.Species == s) return d;
@@ -234,56 +242,98 @@ public static class WorldLayout
         return best;
     }
 
-    // ---- forest -----------------------------------------------------------
-    // Is there a tree on the cell as the country was made (before anyone's
-    // axe)? Asked a great deal by the pathfinder, so remembered per cell.
-    private static byte[] _forest;
-    public static bool ForestAt(Vector2I c)
+    // ---- what grows where (design doc 6: a region should look like itself) ------
+    // Tile sources (terrain_tileset.tres) for the growth and the ground clutter.
+    public const int Spruce0 = 52, Tamarack = 80, Willow = 81, Rocks = 82, Boulder = 83, Reeds = 84, MuskegPool = 85,
+        DeadTree = 86, Aspen = 97, JackPine = 98, BeaverLodge = 87, CanoeBeached = 92, Cache = 95;
+    public static bool IsTreeSource(int s) => s is >= Spruce0 and <= Spruce0 + 2 or Tamarack or DeadTree or Aspen or JackPine;
+    public static bool IsFloraSource(int s) => IsTreeSource(s) || s is >= Willow and <= MuskegPool;
+
+    // Ground nobody lets grow: round the posts and camps, along the road and
+    // the trail, the beaches.
+    public static bool Cleared(Vector2I c)
     {
-        if (!WorldMap.InBounds(c)) return false;
-        _forest ??= new byte[WorldMap.Columns * WorldMap.Rows];
-        int i = c.Y * WorldMap.Columns + c.X;
-        if (_forest[i] == 0)
-        {
-            float density = ForestDensity(c);
-            _forest[i] = (byte)(density > 0f && IsoGrid.Hash(c, 11) < density ? 2 : 1);
-        }
-        return _forest[i] == 2;
+        if (WorldMap.IsWater(c) || IsBeach(c)) return true;
+        var p = IsoGrid.ToWorld(c);
+        if (Posts.NearAny(p, 900f)) return true;
+        // A carrying place is trodden bare at the landing.
+        foreach (var lm in WorldMap.Landmarks()) if (lm.Kind == "portage" && lm.At.DistanceTo(p) < 700f) return true;
+        float fortDist = p.DistanceTo(FortCentre);
+        if (fortDist > 30000f && p.DistanceTo(IsoGrid.ToWorld(OutpostTop)) > 8000f) return false;
+        if (fortDist < 1500f || TrailDistance(p) < 130f || RoadDistance(p) < 150f) return true;
+        var outpostCentre = IsoGrid.ToWorld(IsoGrid.Cell(OutpostTop, OutpostWidth / 2, OutpostDepth / 2));
+        if (p.DistanceTo(outpostCentre) < 1000f) return true;
+        foreach (var camp in new[] { WinterCamp, SummerCamp, AssiniboineWinterCamp, AssiniboineSummerCamp })
+            if (p.DistanceTo(IsoGrid.ToWorld(camp)) < CampClearingPx) return true;
+        var nwcCentre = IsoGrid.ToWorld(IsoGrid.Cell(NwcTop, NwcWidth / 2, NwcDepth / 2));
+        return p.DistanceTo(nwcCentre) < 1100f;
     }
 
-    // How thick the bush is by ecozone (design doc 6), cleared round the
-    // posts and camps, along the road and trail, and off the water.
+    // How thick the trees stand, by region, in groves and openings.
     public static float ForestDensity(Vector2I c)
     {
+        if (Cleared(c) || IsRiverBank(c)) return 0f;
         var g = WorldMap.At(c);
         float density = g switch
         {
-            Ground.Boreal => 0.32f, Ground.LakesForest => 0.32f, Ground.Shield => 0.22f, Ground.Cordillera => 0.2f,
-            Ground.Parkland => 0.1f, Ground.Tundra => 0.02f, Ground.TallGrass => 0.01f, _ => 0f,
+            Ground.Boreal => 0.32f, Ground.LakesForest => 0.32f, Ground.Shield => 0.24f, Ground.Lowland => 0.16f,
+            Ground.Cordillera => 0.2f, Ground.Parkland => 0.14f, _ => 0f,
         };
-        if (density <= 0f) return 0f;
-        // Patchy: groves and openings rather than an even scatter.
-        density *= 0.55f + 0.9f * IsoGrid.Hash(new Vector2I(c.X / 6, c.Y / 12), 31);
-        if (IsRiverBank(c) || IsBeach(c)) return 0f;
+        // Groves and openings rather than an even scatter; parkland is the
+        // most broken of all - aspen bluffs on open grass.
+        float patch = IsoGrid.Hash(new Vector2I(c.X / 6, c.Y / 12), 31);
+        density *= g == Ground.Parkland ? (patch > 0.55f ? 2.6f : 0.1f) : 0.55f + 0.9f * patch;
         var p = IsoGrid.ToWorld(c);
-        // The ground round any post of the wider country is cleared.
-        if (Posts.NearAny(p, 900f)) return 0f;
-        // Far from anything that's been cleared: no need to measure.
         float fortDist = p.DistanceTo(FortCentre);
-        if (fortDist > 30000f && p.DistanceTo(IsoGrid.ToWorld(OutpostTop)) > 8000f) return Mathf.Clamp(density, 0f, 0.5f);
-        if (TrailDistance(p) < 130f) return 0f;
-        if (RoadDistance(p) < 150f) return 0f;
-        var outpostCentre = IsoGrid.ToWorld(IsoGrid.Cell(OutpostTop, OutpostWidth / 2, OutpostDepth / 2));
-        if (p.DistanceTo(outpostCentre) < 1000f) return 0f;
-        if (p.DistanceTo(IsoGrid.ToWorld(WinterCamp)) < CampClearingPx) return 0f;
-        if (p.DistanceTo(IsoGrid.ToWorld(SummerCamp)) < CampClearingPx) return 0f;
-        if (p.DistanceTo(IsoGrid.ToWorld(AssiniboineWinterCamp)) < CampClearingPx) return 0f;
-        if (p.DistanceTo(IsoGrid.ToWorld(AssiniboineSummerCamp)) < CampClearingPx) return 0f;
-        // Keep the fort's surroundings open.
-        if (fortDist < 1500f) return 0f;
-        var nwcCentre = IsoGrid.ToWorld(IsoGrid.Cell(NwcTop, NwcWidth / 2, NwcDepth / 2));
-        if (p.DistanceTo(nwcCentre) < 1100f) return 0f;
         if (fortDist < 2300f) density *= (fortDist - 1500f) / 800f;
         return Mathf.Clamp(density, 0f, 0.5f);
+    }
+
+    // The tile that grows on a cell as the country was made (before anyone's
+    // axe), or -1. Asked a great deal (the pathfinder's bush cost, the
+    // woodcutters), so remembered per cell.
+    private static short[] _flora;
+    public static int Flora(Vector2I c)
+    {
+        if (!WorldMap.InBounds(c)) return -1;
+        _flora ??= NewFloraCache();
+        int i = c.Y * WorldMap.Columns + c.X;
+        if (_flora[i] == -2) _flora[i] = (short)PickFlora(c);
+        return _flora[i];
+    }
+    private static short[] NewFloraCache() { var a = new short[WorldMap.Columns * WorldMap.Rows]; System.Array.Fill(a, (short)-2); return a; }
+    public static bool ForestAt(Vector2I c) => IsTreeSource(Flora(c));
+
+    private static int PickFlora(Vector2I c)
+    {
+        if (Cleared(c)) return -1;
+        var g = WorldMap.At(c);
+        float h = IsoGrid.Hash(c, 11), h2 = IsoGrid.Hash(c, 12);
+        int spruce = Spruce0 + (int)(IsoGrid.Hash(c, 13) * 3f);
+        // River banks: willow and reeds whatever the region.
+        if (IsRiverBank(c)) return h < 0.07f ? Willow : h < 0.12f ? Reeds : -1;
+        float d = ForestDensity(c);
+        if (h < d)
+            return g switch
+            {
+                Ground.LakesForest => h2 < 0.4f ? JackPine : h2 < 0.7f ? spruce : Aspen,
+                Ground.Shield => h2 < 0.5f ? JackPine : h2 < 0.92f ? spruce : DeadTree,
+                Ground.Lowland => h2 < 0.6f ? Tamarack : h2 < 0.92f ? spruce : DeadTree,
+                Ground.Parkland => h2 < 0.85f ? Aspen : Willow,
+                Ground.Cordillera => h2 < 0.55f ? JackPine : spruce,
+                _ => h2 < 0.72f ? spruce : h2 < 0.86f ? Aspen : h2 < 0.96f ? Tamarack : DeadTree,
+            };
+        // The clutter between the trees.
+        float r = (h - d) / Mathf.Max(0.01f, 1f - d);
+        return g switch
+        {
+            Ground.Shield => r < 0.05f ? Rocks : r < 0.08f ? Boulder : -1,
+            Ground.Lowland => r < 0.03f ? MuskegPool : r < 0.06f ? Reeds : -1,
+            Ground.Tundra => r < 0.04f ? Willow : r < 0.06f ? Rocks : r < 0.07f ? Boulder : r < 0.075f ? spruce : -1,
+            Ground.Cordillera => r < 0.06f ? Boulder : r < 0.1f ? Rocks : -1,
+            Ground.Grassland or Ground.TallGrass => r < 0.008f ? Rocks : r < 0.01f ? Boulder : -1,
+            Ground.Parkland => r < 0.01f ? Willow : -1,
+            _ => r < 0.008f ? Rocks : -1,
+        };
     }
 }

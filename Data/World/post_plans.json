@@ -1,0 +1,79 @@
+{
+  "_about": "Layouts for the major posts of the wider country (World/Posts.cs). A post with no plan here is the small generic one: a 12 x 9 palisade and one house. Cells are inside the palisade: i runs toward the right-hand wall, j toward the front wall where the gate is (gate = the i of the two-cell gap). Building kinds are WorldLayout's BuildingKind names; each keeps its usual size (Depot 7x5, Warehouse 8x6, MensHouse 7x5, FactorsHouse 5x6, ClerksHouse 5x6, ProvisionStore 5x4, SummerMess 5x5, GuestHouse 4x5, PowderMagazine 3x3, GreatHall 9x7). Props: flagstaff, woodpile, crate, fur_bale, drying_rack, canoe. Staff: how many men, women, and whether a clerk keeps the books. Layouts are drawn from what the posts held, not from surveyed plans - correct them from a source.",
+  "Fort William": {
+    "width": 30, "depth": 26, "gate": 14,
+    "buildings": [
+      { "kind": "FactorsHouse", "name": "the partners' house", "i": 2, "j": 2 },
+      { "kind": "ClerksHouse", "name": "the counting house", "i": 9, "j": 2 },
+      { "kind": "FactorsHouse", "name": "the agents' house", "i": 16, "j": 2 },
+      { "kind": "ProvisionStore", "name": "the provision store", "i": 23, "j": 2 },
+      { "kind": "GreatHall", "name": "the Great Hall", "i": 11, "j": 10 },
+      { "kind": "Warehouse", "name": "the fur store", "i": 2, "j": 10 },
+      { "kind": "Warehouse", "name": "the warehouse", "i": 21, "j": 10 },
+      { "kind": "Depot", "name": "the Indian shop", "i": 2, "j": 18 },
+      { "kind": "PowderMagazine", "name": "the powder magazine", "i": 11, "j": 19 },
+      { "kind": "SummerMess", "name": "the kitchen", "i": 16, "j": 19 },
+      { "kind": "MensHouse", "name": "the voyageurs' house", "i": 21, "j": 18 }
+    ],
+    "props": [ { "kind": "flagstaff", "i": 14, "j": 8 }, { "kind": "fur_bale", "i": 10, "j": 17 }, { "kind": "woodpile", "i": 27, "j": 24 }, { "kind": "crate", "i": 13, "j": 23 }, { "kind": "canoe", "i": 18, "j": 28 }, { "kind": "canoe", "i": 22, "j": 28 } ],
+    "staff": { "men": 6, "women": 2, "clerk": true }
+  },
+  "Moose Factory": {
+    "width": 24, "depth": 20, "gate": 11,
+    "buildings": [
+      { "kind": "FactorsHouse", "name": "the Chief Factor's house", "i": 2, "j": 2 },
+      { "kind": "ClerksHouse", "name": "the clerks' house", "i": 8, "j": 2 },
+      { "kind": "Depot", "name": "the trading shop", "i": 15, "j": 2 },
+      { "kind": "Warehouse", "name": "the depot warehouse", "i": 2, "j": 10 },
+      { "kind": "PowderMagazine", "name": "the powder magazine", "i": 11, "j": 9 },
+      { "kind": "ProvisionStore", "name": "the provision store", "i": 15, "j": 9 },
+      { "kind": "MensHouse", "name": "the men's house", "i": 15, "j": 14 }
+    ],
+    "props": [ { "kind": "flagstaff", "i": 11, "j": 16 }, { "kind": "woodpile", "i": 21, "j": 10 }, { "kind": "canoe", "i": 12, "j": 22 } ],
+    "staff": { "men": 6, "women": 2, "clerk": true }
+  },
+  "Edmonton House": {
+    "width": 20, "depth": 16, "gate": 9,
+    "buildings": [
+      { "kind": "FactorsHouse", "name": "the master's house", "i": 2, "j": 2 },
+      { "kind": "Warehouse", "name": "the store", "i": 10, "j": 2 },
+      { "kind": "Depot", "name": "the Indian hall", "i": 2, "j": 9 },
+      { "kind": "MensHouse", "name": "the men's house", "i": 11, "j": 9 }
+    ],
+    "props": [ { "kind": "flagstaff", "i": 9, "j": 8 }, { "kind": "drying_rack", "i": 17, "j": 15 }, { "kind": "woodpile", "i": 18, "j": 14 } ],
+    "staff": { "men": 5, "women": 2, "clerk": true }
+  },
+  "Cumberland House": {
+    "width": 16, "depth": 14, "gate": 7,
+    "buildings": [
+      { "kind": "Depot", "name": "the trading room", "i": 2, "j": 2 },
+      { "kind": "ProvisionStore", "name": "the provision store", "i": 10, "j": 2 },
+      { "kind": "MensHouse", "name": "the men's house", "i": 1, "j": 7 },
+      { "kind": "FactorsHouse", "name": "the master's house", "i": 10, "j": 7 }
+    ],
+    "props": [ { "kind": "flagstaff", "i": 9, "j": 6 }, { "kind": "woodpile", "i": 14, "j": 2 } ],
+    "staff": { "men": 4, "women": 1, "clerk": false }
+  },
+  "Fort Chipewyan": {
+    "width": 18, "depth": 14, "gate": 8,
+    "buildings": [
+      { "kind": "FactorsHouse", "name": "the partner's house", "i": 2, "j": 2 },
+      { "kind": "ClerksHouse", "name": "the library and counting house", "i": 10, "j": 2 },
+      { "kind": "MensHouse", "name": "the men's house", "i": 1, "j": 8 },
+      { "kind": "ProvisionStore", "name": "the store", "i": 11, "j": 8 }
+    ],
+    "props": [ { "kind": "flagstaff", "i": 8, "j": 6 }, { "kind": "fur_bale", "i": 16, "j": 12 }, { "kind": "canoe", "i": 9, "j": 16 } ],
+    "staff": { "men": 4, "women": 1, "clerk": true }
+  },
+  "Fort Gibraltar": {
+    "width": 18, "depth": 14, "gate": 8,
+    "buildings": [
+      { "kind": "FactorsHouse", "name": "the master's house", "i": 2, "j": 2 },
+      { "kind": "Warehouse", "name": "the pemmican store", "i": 9, "j": 2 },
+      { "kind": "Depot", "name": "the trading room", "i": 1, "j": 8 },
+      { "kind": "MensHouse", "name": "the men's house", "i": 10, "j": 8 }
+    ],
+    "props": [ { "kind": "flagstaff", "i": 8, "j": 9 }, { "kind": "drying_rack", "i": 16, "j": 12 } ],
+    "staff": { "men": 4, "women": 2, "clerk": true }
+  }
+}

@@ -43,6 +43,10 @@ public class Brigade
 	// the fallback if the atlas is silent.
 	private static (float at, string name, bool heavy)[] _portages;
 	public static void ForgetPortages() => _portages = null;
+	// Rock Portage is the depot where the York boats gave way to canoes, so
+	// everything was transshipped as well as carried over: two days of it.
+	private static bool Heavy(string name) => name != null && name.Contains("Rock");
+
 	public static (float at, string name, bool heavy)[] Portages
 	{
 		get
@@ -53,17 +57,16 @@ public class Brigade
 			{
 				var list = new List<(float, string, bool)>();
 				foreach (var (name, fraction, _) in fromMap)
-					list.Add((fraction, name, name.Contains("Falls") || name.Contains("Gates")));
+					list.Add((fraction, name, Heavy(name)));
 				list.Sort((a, b) => a.Item1.CompareTo(b.Item1));
 				_portages = list.ToArray();
 			}
 			else
 				_portages = new (float, string, bool)[]
 				{
-					(0.218f, "the Rock portage", false),
-					(0.367f, "Borrowick Falls", false),
-					(0.499f, "Trout Falls", true),
-					(0.634f, "the Hill Gates", true),
+					(0.404f, "Rock Portage", true),
+					(0.531f, "Borwick's Falls", false),
+					(0.813f, "Trout Falls", false),
 				};
 			return _portages;
 		}

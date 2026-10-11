@@ -114,6 +114,14 @@
     132,
     103
    ]
+  },
+  {
+   "name": "Lowland",
+   "rgb": [
+    96,
+    112,
+    70
+   ]
   }
  ],
  "places": [
@@ -1485,20 +1493,20 @@
    882
   ],
   "cree_winter": [
-   683,
+   667,
    606
   ],
   "cree_summer": [
-   687,
-   560
+   700,
+   594
   ],
   "assiniboine_winter": [
    639,
    920
   ],
   "assiniboine_summer": [
-   696,
-   608
+   689,
+   528
   ],
   "road": [
    [
@@ -1644,19 +1652,19 @@
     18464
    ],
    [
-    86848,
+    86208,
     18784
    ],
    [
-    87232,
+    85568,
     19104
    ],
    [
-    87488,
+    85440,
     19424
    ],
    [
-    87488,
+    85440,
     19424
    ]
   ],
@@ -1664,34 +1672,26 @@
   "portages": [
    {
     "name": "Rock Portage",
-    "fraction": 0.264,
+    "fraction": 0.404,
     "cell": [
-     682,
-     665
+     674,
+     719
     ]
    },
    {
-    "name": "Borrowick Falls",
-    "fraction": 0.399,
+    "name": "Borwick's Falls",
+    "fraction": 0.531,
     "cell": [
-     674,
-     717
+     670,
+     756
     ]
    },
    {
     "name": "Trout Falls",
-    "fraction": 0.571,
+    "fraction": 0.813,
     "cell": [
-     668,
-     771
-    ]
-   },
-   {
-    "name": "Hill Gates",
-    "fraction": 0.712,
-    "cell": [
-     663,
-     822
+     655,
+     873
     ]
    }
   ],
@@ -1840,6 +1840,7632 @@
     "capacity": 75,
     "radius": 380,
     "route": null
+   },
+   {
+    "name": "Beaver lodge (Dease Lake)",
+    "species": "Beaver",
+    "cell": [
+     6,
+     78
+    ],
+    "count": 51,
+    "capacity": 51,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Dease Lake)",
+    "species": "Wolf",
+    "cell": [
+     9,
+     54
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nelson (BC) country)",
+    "species": "Beaver",
+    "cell": [
+     111,
+     54
+    ],
+    "count": 43,
+    "capacity": 77,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nelson (BC) country) 2",
+    "species": "Beaver",
+    "cell": [
+     126,
+     12
+    ],
+    "count": 37,
+    "capacity": 55,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Nelson (BC) country)",
+    "species": "Caribou",
+    "cell": [
+     162,
+     12
+    ],
+    "count": 23,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort Chipewyan country)",
+    "species": "Ptarmigan",
+    "cell": [
+     282,
+     72
+    ],
+    "count": 67,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort Chipewyan country) 2",
+    "species": "Ptarmigan",
+    "cell": [
+     306,
+     42
+    ],
+    "count": 128,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Chipewyan country)",
+    "species": "Wolf",
+    "cell": [
+     330,
+     66
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort Chipewyan country) 3",
+    "species": "Ptarmigan",
+    "cell": [
+     336,
+     66
+    ],
+    "count": 130,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort Chipewyan country) 4",
+    "species": "Ptarmigan",
+    "cell": [
+     360,
+     78
+    ],
+    "count": 115,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort Chipewyan country) 5",
+    "species": "Ptarmigan",
+    "cell": [
+     390,
+     84
+    ],
+    "count": 81,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Chipewyan country) 2",
+    "species": "Wolf",
+    "cell": [
+     414,
+     72
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Chipewyan country)",
+    "species": "Ptarmigan",
+    "cell": [
+     546,
+     90
+    ],
+    "count": 71,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort) country)",
+    "species": "Ptarmigan",
+    "cell": [
+     561,
+     12
+    ],
+    "count": 128,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort) country) 2",
+    "species": "Ptarmigan",
+    "cell": [
+     612,
+     66
+    ],
+    "count": 109,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Great Whale River country)",
+    "species": "Goose",
+    "cell": [
+     930,
+     54
+    ],
+    "count": 86,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Great Whale River country)",
+    "species": "Caribou",
+    "cell": [
+     936,
+     6
+    ],
+    "count": 16,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Great Whale River country)",
+    "species": "Ptarmigan",
+    "cell": [
+     963,
+     72
+    ],
+    "count": 130,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dease Lake) 2",
+    "species": "Beaver",
+    "cell": [
+     15,
+     114
+    ],
+    "count": 25,
+    "capacity": 63,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dease Lake country)",
+    "species": "Beaver",
+    "cell": [
+     36,
+     150
+    ],
+    "count": 36,
+    "capacity": 60,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Sekani country)",
+    "species": "Wolf",
+    "cell": [
+     72,
+     180
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort Chipewyan country) 6",
+    "species": "Ptarmigan",
+    "cell": [
+     345,
+     108
+    ],
+    "count": 80,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort Chipewyan country) 7",
+    "species": "Ptarmigan",
+    "cell": [
+     384,
+     138
+    ],
+    "count": 85,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Chipewyan country)",
+    "species": "Wolf",
+    "cell": [
+     420,
+     126
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Chipewyan country) 2",
+    "species": "Ptarmigan",
+    "cell": [
+     480,
+     96
+    ],
+    "count": 81,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Chipewyan country) 3",
+    "species": "Ptarmigan",
+    "cell": [
+     525,
+     138
+    ],
+    "count": 72,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Chipewyan country) 4",
+    "species": "Ptarmigan",
+    "cell": [
+     543,
+     168
+    ],
+    "count": 138,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort) country) 3",
+    "species": "Ptarmigan",
+    "cell": [
+     558,
+     126
+    ],
+    "count": 72,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Churchill (Pr. of Wales Fort) country)",
+    "species": "Wolf",
+    "cell": [
+     609,
+     96
+    ],
+    "count": 8,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Great Whale River country) 2",
+    "species": "Goose",
+    "cell": [
+     933,
+     102
+    ],
+    "count": 99,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Great Whale River country) 2",
+    "species": "Ptarmigan",
+    "cell": [
+     933,
+     102
+    ],
+    "count": 78,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Great Whale River country)",
+    "species": "Wolf",
+    "cell": [
+     942,
+     108
+    ],
+    "count": 4,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Great Whale River country) 3",
+    "species": "Ptarmigan",
+    "cell": [
+     981,
+     144
+    ],
+    "count": 105,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Great Whale River country) 2",
+    "species": "Wolf",
+    "cell": [
+     963,
+     96
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Great Whale River country) 3",
+    "species": "Wolf",
+    "cell": [
+     996,
+     174
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dease Lake country) 2",
+    "species": "Beaver",
+    "cell": [
+     39,
+     240
+    ],
+    "count": 45,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Sekani country)",
+    "species": "Beaver",
+    "cell": [
+     63,
+     282
+    ],
+    "count": 53,
+    "capacity": 48,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Sekani country) 2",
+    "species": "Beaver",
+    "cell": [
+     75,
+     276
+    ],
+    "count": 27,
+    "capacity": 50,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Chipewyan country)",
+    "species": "Beaver",
+    "cell": [
+     330,
+     282
+    ],
+    "count": 28,
+    "capacity": 61,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Chipewyan country) 3",
+    "species": "Wolf",
+    "cell": [
+     375,
+     198
+    ],
+    "count": 8,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Chipewyan country) 5",
+    "species": "Ptarmigan",
+    "cell": [
+     441,
+     270
+    ],
+    "count": 128,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Chipewyan country) 6",
+    "species": "Ptarmigan",
+    "cell": [
+     480,
+     222
+    ],
+    "count": 140,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Chipewyan country) 7",
+    "species": "Ptarmigan",
+    "cell": [
+     507,
+     252
+    ],
+    "count": 67,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Chipewyan country) 8",
+    "species": "Ptarmigan",
+    "cell": [
+     546,
+     234
+    ],
+    "count": 63,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Churchill (Pr. of Wales Fort) country) 2",
+    "species": "Wolf",
+    "cell": [
+     621,
+     222
+    ],
+    "count": 8,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Churchill (Pr. of Wales Fort) country)",
+    "species": "Goose",
+    "cell": [
+     639,
+     198
+    ],
+    "count": 95,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Churchill (Pr. of Wales Fort) country) 3",
+    "species": "Wolf",
+    "cell": [
+     636,
+     282
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Great Whale River country) 3",
+    "species": "Goose",
+    "cell": [
+     921,
+     276
+    ],
+    "count": 179,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Great Whale River country) 4",
+    "species": "Goose",
+    "cell": [
+     975,
+     204
+    ],
+    "count": 104,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Great Whale River country) 5",
+    "species": "Goose",
+    "cell": [
+     984,
+     258
+    ],
+    "count": 95,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Great Whale River country) 4",
+    "species": "Ptarmigan",
+    "cell": [
+     984,
+     246
+    ],
+    "count": 108,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Sekani country) 3",
+    "species": "Beaver",
+    "cell": [
+     30,
+     300
+    ],
+    "count": 33,
+    "capacity": 58,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Sekani)",
+    "species": "Beaver",
+    "cell": [
+     87,
+     360
+    ],
+    "count": 45,
+    "capacity": 67,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Nelson (BC) country)",
+    "species": "Wolf",
+    "cell": [
+     147,
+     312
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dene (Beaver) country)",
+    "species": "Beaver",
+    "cell": [
+     243,
+     372
+    ],
+    "count": 53,
+    "capacity": 69,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dene (Beaver) country) 2",
+    "species": "Beaver",
+    "cell": [
+     273,
+     348
+    ],
+    "count": 47,
+    "capacity": 73,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Chipewyan country) 2",
+    "species": "Beaver",
+    "cell": [
+     306,
+     324
+    ],
+    "count": 41,
+    "capacity": 72,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Chipewyan country) 4",
+    "species": "Wolf",
+    "cell": [
+     294,
+     378
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Chipewyan)",
+    "species": "Beaver",
+    "cell": [
+     333,
+     336
+    ],
+    "count": 39,
+    "capacity": 72,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Chipewyan) 2",
+    "species": "Beaver",
+    "cell": [
+     336,
+     306
+    ],
+    "count": 32,
+    "capacity": 60,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Chipewyan) 3",
+    "species": "Beaver",
+    "cell": [
+     363,
+     354
+    ],
+    "count": 52,
+    "capacity": 65,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Chipewyan)",
+    "species": "Caribou",
+    "cell": [
+     363,
+     372
+    ],
+    "count": 34,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Chipewyan country) 3",
+    "species": "Beaver",
+    "cell": [
+     399,
+     312
+    ],
+    "count": 29,
+    "capacity": 76,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Chipewyan country) 4",
+    "species": "Beaver",
+    "cell": [
+     411,
+     300
+    ],
+    "count": 29,
+    "capacity": 79,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Chipewyan country)",
+    "species": "Beaver",
+    "cell": [
+     450,
+     324
+    ],
+    "count": 33,
+    "capacity": 52,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Chipewyan)",
+    "species": "Beaver",
+    "cell": [
+     477,
+     354
+    ],
+    "count": 30,
+    "capacity": 73,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Chipewyan) 2",
+    "species": "Beaver",
+    "cell": [
+     480,
+     378
+    ],
+    "count": 47,
+    "capacity": 76,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Chipewyan country) 2",
+    "species": "Wolf",
+    "cell": [
+     498,
+     348
+    ],
+    "count": 4,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Churchill (Pr. of Wales Fort) country)",
+    "species": "Caribou",
+    "cell": [
+     576,
+     354
+    ],
+    "count": 34,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort) country) 4",
+    "species": "Ptarmigan",
+    "cell": [
+     621,
+     378
+    ],
+    "count": 120,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort))",
+    "species": "Ptarmigan",
+    "cell": [
+     660,
+     354
+    ],
+    "count": 104,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Churchill (Pr. of Wales Fort) country) 2",
+    "species": "Goose",
+    "cell": [
+     675,
+     372
+    ],
+    "count": 135,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Great Whale River country) 6",
+    "species": "Goose",
+    "cell": [
+     990,
+     318
+    ],
+    "count": 107,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Babine country)",
+    "species": "Beaver",
+    "cell": [
+     27,
+     384
+    ],
+    "count": 49,
+    "capacity": 77,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Connolly country)",
+    "species": "Wolf",
+    "cell": [
+     51,
+     462
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Sekani) 2",
+    "species": "Beaver",
+    "cell": [
+     87,
+     384
+    ],
+    "count": 29,
+    "capacity": 65,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dene (Beaver))",
+    "species": "Beaver",
+    "cell": [
+     234,
+     444
+    ],
+    "count": 51,
+    "capacity": 52,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Dene (Beaver) country)",
+    "species": "Wolf",
+    "cell": [
+     270,
+     384
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Chipewyan country)",
+    "species": "Caribou",
+    "cell": [
+     327,
+     390
+    ],
+    "count": 32,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Chipewyan) 4",
+    "species": "Beaver",
+    "cell": [
+     336,
+     390
+    ],
+    "count": 44,
+    "capacity": 48,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Chipewyan country) 2",
+    "species": "Caribou",
+    "cell": [
+     351,
+     462
+    ],
+    "count": 21,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Churchill (Pr. of Wales Fort) country) 4",
+    "species": "Wolf",
+    "cell": [
+     633,
+     390
+    ],
+    "count": 4,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (York Factory country)",
+    "species": "Goose",
+    "cell": [
+     687,
+     474
+    ],
+    "count": 84,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort) country) 5",
+    "species": "Ptarmigan",
+    "cell": [
+     678,
+     432
+    ],
+    "count": 115,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Great Whale River country) 7",
+    "species": "Goose",
+    "cell": [
+     930,
+     444
+    ],
+    "count": 82,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Great Whale River country) 5",
+    "species": "Ptarmigan",
+    "cell": [
+     933,
+     438
+    ],
+    "count": 108,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Great Whale River country) 8",
+    "species": "Goose",
+    "cell": [
+     993,
+     402
+    ],
+    "count": 179,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Babine country) 2",
+    "species": "Beaver",
+    "cell": [
+     12,
+     534
+    ],
+    "count": 37,
+    "capacity": 80,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Connolly)",
+    "species": "Wolf",
+    "cell": [
+     66,
+     498
+    ],
+    "count": 4,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Connolly country)",
+    "species": "Beaver",
+    "cell": [
+     87,
+     492
+    ],
+    "count": 39,
+    "capacity": 74,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort McLeod country)",
+    "species": "Beaver",
+    "cell": [
+     129,
+     552
+    ],
+    "count": 40,
+    "capacity": 58,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dunvegan country)",
+    "species": "Beaver",
+    "cell": [
+     153,
+     546
+    ],
+    "count": 44,
+    "capacity": 58,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Chipewyan country) 3",
+    "species": "Caribou",
+    "cell": [
+     354,
+     540
+    ],
+    "count": 21,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Chipewyan country) 4",
+    "species": "Caribou",
+    "cell": [
+     405,
+     510
+    ],
+    "count": 27,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Chipewyan country) 2",
+    "species": "Beaver",
+    "cell": [
+     426,
+     540
+    ],
+    "count": 37,
+    "capacity": 79,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Chipewyan country) 3",
+    "species": "Beaver",
+    "cell": [
+     483,
+     498
+    ],
+    "count": 32,
+    "capacity": 75,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Chipewyan country) 4",
+    "species": "Beaver",
+    "cell": [
+     513,
+     570
+    ],
+    "count": 41,
+    "capacity": 71,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Chipewyan country)",
+    "species": "Caribou",
+    "cell": [
+     540,
+     564
+    ],
+    "count": 34,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Churchill (Pr. of Wales Fort) country)",
+    "species": "Beaver",
+    "cell": [
+     579,
+     534
+    ],
+    "count": 46,
+    "capacity": 67,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Churchill (Pr. of Wales Fort) country) 2",
+    "species": "Caribou",
+    "cell": [
+     594,
+     480
+    ],
+    "count": 18,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Churchill (Pr. of Wales Fort) country) 3",
+    "species": "Caribou",
+    "cell": [
+     657,
+     510
+    ],
+    "count": 29,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (York Factory)",
+    "species": "Goose",
+    "cell": [
+     693,
+     534
+    ],
+    "count": 128,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (York Factory)",
+    "species": "Ptarmigan",
+    "cell": [
+     690,
+     528
+    ],
+    "count": 130,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (York Factory country) 2",
+    "species": "Goose",
+    "cell": [
+     717,
+     522
+    ],
+    "count": 132,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (York Factory country) 3",
+    "species": "Goose",
+    "cell": [
+     726,
+     516
+    ],
+    "count": 139,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort Severn country)",
+    "species": "Ptarmigan",
+    "cell": [
+     768,
+     570
+    ],
+    "count": 79,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Great Whale River country) 9",
+    "species": "Goose",
+    "cell": [
+     945,
+     480
+    ],
+    "count": 132,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Great Whale River country) 6",
+    "species": "Ptarmigan",
+    "cell": [
+     945,
+     480
+    ],
+    "count": 118,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Great Whale River)",
+    "species": "Ptarmigan",
+    "cell": [
+     978,
+     546
+    ],
+    "count": 123,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Great Whale River)",
+    "species": "Wolf",
+    "cell": [
+     975,
+     564
+    ],
+    "count": 8,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Great Whale River)",
+    "species": "Goose",
+    "cell": [
+     984,
+     510
+    ],
+    "count": 83,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort McLeod)",
+    "species": "Beaver",
+    "cell": [
+     102,
+     624
+    ],
+    "count": 52,
+    "capacity": 79,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dunvegan country) 2",
+    "species": "Beaver",
+    "cell": [
+     180,
+     576
+    ],
+    "count": 37,
+    "capacity": 46,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dunvegan)",
+    "species": "Beaver",
+    "cell": [
+     210,
+     636
+    ],
+    "count": 43,
+    "capacity": 59,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dunvegan country) 3",
+    "species": "Beaver",
+    "cell": [
+     216,
+     636
+    ],
+    "count": 48,
+    "capacity": 50,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Lesser Slave Lake Ho. country)",
+    "species": "Caribou",
+    "cell": [
+     279,
+     660
+    ],
+    "count": 21,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Lesser Slave Lake Ho. country)",
+    "species": "Wolf",
+    "cell": [
+     270,
+     600
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Chipewyan country) 5",
+    "species": "Beaver",
+    "cell": [
+     336,
+     624
+    ],
+    "count": 27,
+    "capacity": 68,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Ile-a-la-Crosse country)",
+    "species": "Beaver",
+    "cell": [
+     393,
+     660
+    ],
+    "count": 37,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Ile-a-la-Crosse country)",
+    "species": "Caribou",
+    "cell": [
+     435,
+     624
+    ],
+    "count": 31,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Chipewyan country) 5",
+    "species": "Beaver",
+    "cell": [
+     495,
+     648
+    ],
+    "count": 48,
+    "capacity": 80,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Chipewyan country) 6",
+    "species": "Beaver",
+    "cell": [
+     513,
+     636
+    ],
+    "count": 38,
+    "capacity": 56,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Woodland Cree country)",
+    "species": "Beaver",
+    "cell": [
+     567,
+     624
+    ],
+    "count": 47,
+    "capacity": 59,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Woodland Cree country) 2",
+    "species": "Beaver",
+    "cell": [
+     576,
+     630
+    ],
+    "count": 28,
+    "capacity": 61,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (York Factory country)",
+    "species": "Beaver",
+    "cell": [
+     684,
+     660
+    ],
+    "count": 39,
+    "capacity": 54,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (York Factory country)",
+    "species": "Ptarmigan",
+    "cell": [
+     690,
+     642
+    ],
+    "count": 103,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (York Factory)",
+    "species": "Beaver",
+    "cell": [
+     696,
+     594
+    ],
+    "count": 39,
+    "capacity": 58,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (York Factory) 2",
+    "species": "Goose",
+    "cell": [
+     696,
+     594
+    ],
+    "count": 141,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (York Factory country)",
+    "species": "Wolf",
+    "cell": [
+     714,
+     630
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort Severn country) 2",
+    "species": "Ptarmigan",
+    "cell": [
+     795,
+     642
+    ],
+    "count": 99,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Fort George (Chisasibi) country)",
+    "species": "Goose",
+    "cell": [
+     900,
+     666
+    ],
+    "count": 91,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort George (Chisasibi) country)",
+    "species": "Ptarmigan",
+    "cell": [
+     891,
+     660
+    ],
+    "count": 116,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort George (Chisasibi) country)",
+    "species": "Wolf",
+    "cell": [
+     978,
+     654
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Great Whale River country) 7",
+    "species": "Ptarmigan",
+    "cell": [
+     984,
+     606
+    ],
+    "count": 66,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Lesser Slave Lake Ho. country) 2",
+    "species": "Caribou",
+    "cell": [
+     297,
+     756
+    ],
+    "count": 26,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Lesser Slave Lake Ho. country)",
+    "species": "Beaver",
+    "cell": [
+     312,
+     696
+    ],
+    "count": 29,
+    "capacity": 56,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Ile-a-la-Crosse country)",
+    "species": "Wolf",
+    "cell": [
+     399,
+     690
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Woodland Cree country) 3",
+    "species": "Beaver",
+    "cell": [
+     504,
+     684
+    ],
+    "count": 40,
+    "capacity": 50,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Oxford House country)",
+    "species": "Beaver",
+    "cell": [
+     669,
+     750
+    ],
+    "count": 35,
+    "capacity": 63,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Oxford House country)",
+    "species": "Caribou",
+    "cell": [
+     666,
+     726
+    ],
+    "count": 30,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Oxford House country) 2",
+    "species": "Beaver",
+    "cell": [
+     672,
+     750
+    ],
+    "count": 33,
+    "capacity": 71,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Swampy Cree country)",
+    "species": "Wolf",
+    "cell": [
+     711,
+     696
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Severn)",
+    "species": "Wolf",
+    "cell": [
+     789,
+     726
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Severn)",
+    "species": "Caribou",
+    "cell": [
+     801,
+     744
+    ],
+    "count": 35,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort Severn country) 3",
+    "species": "Ptarmigan",
+    "cell": [
+     840,
+     702
+    ],
+    "count": 104,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Severn country)",
+    "species": "Caribou",
+    "cell": [
+     858,
+     756
+    ],
+    "count": 27,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Fort George (Chisasibi) country) 2",
+    "species": "Goose",
+    "cell": [
+     903,
+     684
+    ],
+    "count": 127,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort George (Chisasibi))",
+    "species": "Ptarmigan",
+    "cell": [
+     966,
+     690
+    ],
+    "count": 100,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort George (Chisasibi))",
+    "species": "Beaver",
+    "cell": [
+     996,
+     726
+    ],
+    "count": 38,
+    "capacity": 57,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Dakelh (Carrier) country)",
+    "species": "Caribou",
+    "cell": [
+     6,
+     810
+    ],
+    "count": 27,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Fraser)",
+    "species": "Wolf",
+    "cell": [
+     66,
+     822
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort George (BC))",
+    "species": "Beaver",
+    "cell": [
+     105,
+     804
+    ],
+    "count": 50,
+    "capacity": 66,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort George (BC) country)",
+    "species": "Beaver",
+    "cell": [
+     123,
+     846
+    ],
+    "count": 33,
+    "capacity": 69,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Dunvegan country)",
+    "species": "Wolf",
+    "cell": [
+     168,
+     810
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Assiniboine)",
+    "species": "Beaver",
+    "cell": [
+     270,
+     858
+    ],
+    "count": 44,
+    "capacity": 63,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Ile-a-la-Crosse)",
+    "species": "Beaver",
+    "cell": [
+     402,
+     846
+    ],
+    "count": 33,
+    "capacity": 59,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Ile-a-la-Crosse country) 2",
+    "species": "Beaver",
+    "cell": [
+     429,
+     792
+    ],
+    "count": 53,
+    "capacity": 76,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Lac la Ronge country)",
+    "species": "Caribou",
+    "cell": [
+     444,
+     828
+    ],
+    "count": 16,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Lac la Ronge)",
+    "species": "Beaver",
+    "cell": [
+     456,
+     858
+    ],
+    "count": 39,
+    "capacity": 68,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Woodland Cree country)",
+    "species": "Wolf",
+    "cell": [
+     528,
+     840
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Woodland Cree country)",
+    "species": "Caribou",
+    "cell": [
+     573,
+     816
+    ],
+    "count": 27,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Woodland Cree country) 2",
+    "species": "Wolf",
+    "cell": [
+     555,
+     798
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Oxford House country) 3",
+    "species": "Beaver",
+    "cell": [
+     615,
+     846
+    ],
+    "count": 30,
+    "capacity": 58,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Oxford House country) 4",
+    "species": "Beaver",
+    "cell": [
+     636,
+     798
+    ],
+    "count": 45,
+    "capacity": 47,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Oxford House country) 5",
+    "species": "Beaver",
+    "cell": [
+     663,
+     804
+    ],
+    "count": 51,
+    "capacity": 51,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Severn country) 2",
+    "species": "Caribou",
+    "cell": [
+     822,
+     858
+    ],
+    "count": 29,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort Severn country) 4",
+    "species": "Ptarmigan",
+    "cell": [
+     858,
+     786
+    ],
+    "count": 70,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Albany Fort country)",
+    "species": "Ptarmigan",
+    "cell": [
+     897,
+     846
+    ],
+    "count": 77,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Fort George (Chisasibi)) 2",
+    "species": "Ptarmigan",
+    "cell": [
+     981,
+     786
+    ],
+    "count": 102,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Dakelh (Carrier) country)",
+    "species": "Goose",
+    "cell": [
+     0,
+     876
+    ],
+    "count": 136,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Alexandria (BC))",
+    "species": "Beaver",
+    "cell": [
+     93,
+     948
+    ],
+    "count": 36,
+    "capacity": 73,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Alexandria (BC) country)",
+    "species": "Wolf",
+    "cell": [
+     117,
+     948
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort George (BC) country) 2",
+    "species": "Beaver",
+    "cell": [
+     138,
+     930
+    ],
+    "count": 30,
+    "capacity": 47,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Jasper House country)",
+    "species": "Beaver",
+    "cell": [
+     144,
+     948
+    ],
+    "count": 25,
+    "capacity": 61,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Jasper House country) 2",
+    "species": "Beaver",
+    "cell": [
+     207,
+     942
+    ],
+    "count": 25,
+    "capacity": 73,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Assiniboine country)",
+    "species": "Beaver",
+    "cell": [
+     237,
+     924
+    ],
+    "count": 48,
+    "capacity": 52,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Assiniboine) 2",
+    "species": "Beaver",
+    "cell": [
+     249,
+     930
+    ],
+    "count": 35,
+    "capacity": 69,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Assiniboine country) 2",
+    "species": "Beaver",
+    "cell": [
+     291,
+     864
+    ],
+    "count": 47,
+    "capacity": 70,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort George country)",
+    "species": "Wolf",
+    "cell": [
+     324,
+     912
+    ],
+    "count": 8,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Green Lake country)",
+    "species": "Caribou",
+    "cell": [
+     381,
+     918
+    ],
+    "count": 17,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Lac la Ronge) 2",
+    "species": "Beaver",
+    "cell": [
+     465,
+     882
+    ],
+    "count": 47,
+    "capacity": 69,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Norway House country)",
+    "species": "Beaver",
+    "cell": [
+     597,
+     936
+    ],
+    "count": 53,
+    "capacity": 78,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Oxford House country) 2",
+    "species": "Caribou",
+    "cell": [
+     642,
+     954
+    ],
+    "count": 33,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Oxford House country) 6",
+    "species": "Beaver",
+    "cell": [
+     669,
+     882
+    ],
+    "count": 51,
+    "capacity": 47,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Oxford House country) 7",
+    "species": "Beaver",
+    "cell": [
+     675,
+     906
+    ],
+    "count": 31,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Island Lake House country)",
+    "species": "Caribou",
+    "cell": [
+     693,
+     930
+    ],
+    "count": 31,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Swampy Cree country) 2",
+    "species": "Wolf",
+    "cell": [
+     741,
+     900
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Albany Fort country) 2",
+    "species": "Ptarmigan",
+    "cell": [
+     885,
+     912
+    ],
+    "count": 77,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Albany Fort country) 3",
+    "species": "Ptarmigan",
+    "cell": [
+     909,
+     912
+    ],
+    "count": 137,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Albany Fort country)",
+    "species": "Goose",
+    "cell": [
+     918,
+     864
+    ],
+    "count": 81,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Albany Fort country) 4",
+    "species": "Ptarmigan",
+    "cell": [
+     915,
+     942
+    ],
+    "count": 105,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Albany Fort country)",
+    "species": "Wolf",
+    "cell": [
+     915,
+     918
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Albany Fort country) 2",
+    "species": "Goose",
+    "cell": [
+     954,
+     930
+    ],
+    "count": 115,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Fort George (Chisasibi) country) 3",
+    "species": "Goose",
+    "cell": [
+     996,
+     888
+    ],
+    "count": 108,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Tsilhqot'in country)",
+    "species": "Wolf",
+    "cell": [
+     21,
+     978
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Alexandria (BC)) 2",
+    "species": "Beaver",
+    "cell": [
+     90,
+     1020
+    ],
+    "count": 31,
+    "capacity": 56,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Jasper House country) 3",
+    "species": "Beaver",
+    "cell": [
+     162,
+     1014
+    ],
+    "count": 32,
+    "capacity": 74,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Jasper House)",
+    "species": "Beaver",
+    "cell": [
+     186,
+     1014
+    ],
+    "count": 45,
+    "capacity": 51,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Jasper House country) 4",
+    "species": "Beaver",
+    "cell": [
+     195,
+     996
+    ],
+    "count": 36,
+    "capacity": 66,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Augustus)",
+    "species": "Beaver",
+    "cell": [
+     294,
+     996
+    ],
+    "count": 27,
+    "capacity": 53,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort George)",
+    "species": "Beaver",
+    "cell": [
+     318,
+     1026
+    ],
+    "count": 49,
+    "capacity": 55,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Vermilion)",
+    "species": "Beaver",
+    "cell": [
+     339,
+     1020
+    ],
+    "count": 31,
+    "capacity": 62,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Lac la Ronge country)",
+    "species": "Beaver",
+    "cell": [
+     444,
+     990
+    ],
+    "count": 54,
+    "capacity": 72,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Lac la Ronge country)",
+    "species": "Wolf",
+    "cell": [
+     471,
+     960
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Cumberland House)",
+    "species": "Beaver",
+    "cell": [
+     501,
+     1038
+    ],
+    "count": 27,
+    "capacity": 55,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Cumberland House country)",
+    "species": "Caribou",
+    "cell": [
+     483,
+     984
+    ],
+    "count": 32,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Cumberland House) 2",
+    "species": "Beaver",
+    "cell": [
+     510,
+     978
+    ],
+    "count": 31,
+    "capacity": 51,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (The Pas (Le Pas) country)",
+    "species": "Beaver",
+    "cell": [
+     549,
+     1008
+    ],
+    "count": 29,
+    "capacity": 59,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (The Pas (Le Pas) country) 2",
+    "species": "Beaver",
+    "cell": [
+     561,
+     1038
+    ],
+    "count": 33,
+    "capacity": 62,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Island Lake House)",
+    "species": "Beaver",
+    "cell": [
+     666,
+     1002
+    ],
+    "count": 37,
+    "capacity": 47,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Island Lake House) 2",
+    "species": "Beaver",
+    "cell": [
+     672,
+     1038
+    ],
+    "count": 37,
+    "capacity": 59,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Oji-Cree country)",
+    "species": "Beaver",
+    "cell": [
+     753,
+     984
+    ],
+    "count": 29,
+    "capacity": 47,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Martin Falls country)",
+    "species": "Caribou",
+    "cell": [
+     879,
+     1020
+    ],
+    "count": 20,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Albany Fort country) 5",
+    "species": "Ptarmigan",
+    "cell": [
+     906,
+     1008
+    ],
+    "count": 134,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Albany Fort)",
+    "species": "Goose",
+    "cell": [
+     942,
+     1020
+    ],
+    "count": 170,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Albany Fort)",
+    "species": "Caribou",
+    "cell": [
+     954,
+     1044
+    ],
+    "count": 30,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Alexandria (BC)) 3",
+    "species": "Beaver",
+    "cell": [
+     90,
+     1062
+    ],
+    "count": 29,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Jasper House country) 5",
+    "species": "Beaver",
+    "cell": [
+     162,
+     1074
+    ],
+    "count": 29,
+    "capacity": 73,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Jasper House) 2",
+    "species": "Beaver",
+    "cell": [
+     189,
+     1104
+    ],
+    "count": 39,
+    "capacity": 52,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Rocky Mountain House country)",
+    "species": "Beaver",
+    "cell": [
+     246,
+     1086
+    ],
+    "count": 51,
+    "capacity": 68,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Vermilion) 2",
+    "species": "Beaver",
+    "cell": [
+     345,
+     1056
+    ],
+    "count": 38,
+    "capacity": 55,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Manchester House)",
+    "species": "Beaver",
+    "cell": [
+     369,
+     1122
+    ],
+    "count": 49,
+    "capacity": 76,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Manchester House country)",
+    "species": "Wolf",
+    "cell": [
+     396,
+     1116
+    ],
+    "count": 8,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Plains Cree)",
+    "species": "Beaver",
+    "cell": [
+     429,
+     1146
+    ],
+    "count": 27,
+    "capacity": 54,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Plains Cree) 2",
+    "species": "Beaver",
+    "cell": [
+     447,
+     1146
+    ],
+    "count": 50,
+    "capacity": 72,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Plains Cree)",
+    "species": "Wolf",
+    "cell": [
+     438,
+     1110
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort a la Corne)",
+    "species": "Beaver",
+    "cell": [
+     459,
+     1146
+    ],
+    "count": 35,
+    "capacity": 57,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Nipawi)",
+    "species": "Beaver",
+    "cell": [
+     483,
+     1086
+    ],
+    "count": 48,
+    "capacity": 57,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Nipawi)",
+    "species": "Wolf",
+    "cell": [
+     489,
+     1122
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (The Pas (Le Pas))",
+    "species": "Beaver",
+    "cell": [
+     522,
+     1056
+    ],
+    "count": 36,
+    "capacity": 51,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (The Pas (Le Pas)) 2",
+    "species": "Beaver",
+    "cell": [
+     537,
+     1062
+    ],
+    "count": 43,
+    "capacity": 79,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (The Pas (Le Pas) country) 3",
+    "species": "Beaver",
+    "cell": [
+     555,
+     1080
+    ],
+    "count": 30,
+    "capacity": 54,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Norway House)",
+    "species": "Beaver",
+    "cell": [
+     597,
+     1056
+    ],
+    "count": 40,
+    "capacity": 57,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Oji-Cree)",
+    "species": "Wolf",
+    "cell": [
+     720,
+     1128
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Oji-Cree country) 2",
+    "species": "Beaver",
+    "cell": [
+     786,
+     1086
+    ],
+    "count": 32,
+    "capacity": 76,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Martin Falls country)",
+    "species": "Wolf",
+    "cell": [
+     801,
+     1086
+    ],
+    "count": 4,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Albany Fort)",
+    "species": "Beaver",
+    "cell": [
+     930,
+     1062
+    ],
+    "count": 50,
+    "capacity": 48,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Albany Fort) 2",
+    "species": "Goose",
+    "cell": [
+     930,
+     1062
+    ],
+    "count": 118,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Albany Fort country) 6",
+    "species": "Ptarmigan",
+    "cell": [
+     924,
+     1062
+    ],
+    "count": 91,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Albany Fort country) 7",
+    "species": "Ptarmigan",
+    "cell": [
+     960,
+     1056
+    ],
+    "count": 96,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Secwépemc (Shuswap) country)",
+    "species": "Beaver",
+    "cell": [
+     87,
+     1200
+    ],
+    "count": 43,
+    "capacity": 68,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Secwépemc (Shuswap) country) 2",
+    "species": "Beaver",
+    "cell": [
+     162,
+     1236
+    ],
+    "count": 41,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Jasper House country) 6",
+    "species": "Beaver",
+    "cell": [
+     186,
+     1224
+    ],
+    "count": 51,
+    "capacity": 79,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Rocky Mountain House country) 2",
+    "species": "Beaver",
+    "cell": [
+     210,
+     1188
+    ],
+    "count": 25,
+    "capacity": 45,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Rocky Mountain House country)",
+    "species": "Wolf",
+    "cell": [
+     204,
+     1194
+    ],
+    "count": 8,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Manchester House) 2",
+    "species": "Beaver",
+    "cell": [
+     381,
+     1182
+    ],
+    "count": 30,
+    "capacity": 76,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Hudson House country)",
+    "species": "Beaver",
+    "cell": [
+     396,
+     1230
+    ],
+    "count": 25,
+    "capacity": 68,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Carlton House)",
+    "species": "Beaver",
+    "cell": [
+     414,
+     1236
+    ],
+    "count": 33,
+    "capacity": 67,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Hudson House)",
+    "species": "Wolf",
+    "cell": [
+     408,
+     1230
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort a la Corne) 2",
+    "species": "Beaver",
+    "cell": [
+     462,
+     1152
+    ],
+    "count": 30,
+    "capacity": 65,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Swan River House country)",
+    "species": "Beaver",
+    "cell": [
+     549,
+     1206
+    ],
+    "count": 29,
+    "capacity": 75,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Swan River House country) 2",
+    "species": "Beaver",
+    "cell": [
+     555,
+     1200
+    ],
+    "count": 46,
+    "capacity": 73,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Norway House country) 2",
+    "species": "Beaver",
+    "cell": [
+     615,
+     1194
+    ],
+    "count": 34,
+    "capacity": 76,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Oji-Cree country)",
+    "species": "Wolf",
+    "cell": [
+     774,
+     1182
+    ],
+    "count": 8,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Martin Falls)",
+    "species": "Beaver",
+    "cell": [
+     855,
+     1182
+    ],
+    "count": 47,
+    "capacity": 75,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Martin Falls) 2",
+    "species": "Beaver",
+    "cell": [
+     864,
+     1194
+    ],
+    "count": 47,
+    "capacity": 47,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Martin Falls country) 2",
+    "species": "Caribou",
+    "cell": [
+     870,
+     1176
+    ],
+    "count": 33,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Henley House country)",
+    "species": "Wolf",
+    "cell": [
+     879,
+     1176
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Henley House country)",
+    "species": "Beaver",
+    "cell": [
+     903,
+     1200
+    ],
+    "count": 54,
+    "capacity": 73,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Henley House country) 2",
+    "species": "Beaver",
+    "cell": [
+     912,
+     1164
+    ],
+    "count": 44,
+    "capacity": 63,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Moose Factory country)",
+    "species": "Caribou",
+    "cell": [
+     957,
+     1206
+    ],
+    "count": 24,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Ptarmigan flats (Moose Factory)",
+    "species": "Ptarmigan",
+    "cell": [
+     969,
+     1182
+    ],
+    "count": 97,
+    "capacity": 200,
+    "radius": 600,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Coast Salish country)",
+    "species": "Goose",
+    "cell": [
+     36,
+     1320
+    ],
+    "count": 112,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Tsilhqot'in country)",
+    "species": "Caribou",
+    "cell": [
+     48,
+     1248
+    ],
+    "count": 31,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Nlaka'pamux)",
+    "species": "Beaver",
+    "cell": [
+     87,
+     1284
+    ],
+    "count": 41,
+    "capacity": 50,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Kamloops country)",
+    "species": "Wolf",
+    "cell": [
+     138,
+     1338
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Kootenay House country)",
+    "species": "Beaver",
+    "cell": [
+     168,
+     1302
+    ],
+    "count": 44,
+    "capacity": 77,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Sarcee (Tsuut'ina) country)",
+    "species": "Beaver",
+    "cell": [
+     228,
+     1332
+    ],
+    "count": 42,
+    "capacity": 46,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Dauphin country)",
+    "species": "Beaver",
+    "cell": [
+     567,
+     1332
+    ],
+    "count": 43,
+    "capacity": 63,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Manitoba House country)",
+    "species": "Beaver",
+    "cell": [
+     597,
+     1266
+    ],
+    "count": 28,
+    "capacity": 80,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Manitoba House country) 2",
+    "species": "Beaver",
+    "cell": [
+     618,
+     1320
+    ],
+    "count": 49,
+    "capacity": 52,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Bas de la Riviere country)",
+    "species": "Beaver",
+    "cell": [
+     624,
+     1284
+    ],
+    "count": 40,
+    "capacity": 51,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Oji-Cree country) 3",
+    "species": "Beaver",
+    "cell": [
+     732,
+     1296
+    ],
+    "count": 30,
+    "capacity": 46,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Oji-Cree country)",
+    "species": "Caribou",
+    "cell": [
+     741,
+     1248
+    ],
+    "count": 15,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Osnaburgh House country)",
+    "species": "Wolf",
+    "cell": [
+     732,
+     1314
+    ],
+    "count": 8,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Osnaburgh House)",
+    "species": "Beaver",
+    "cell": [
+     762,
+     1338
+    ],
+    "count": 35,
+    "capacity": 60,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Osnaburgh House country) 2",
+    "species": "Wolf",
+    "cell": [
+     744,
+     1302
+    ],
+    "count": 4,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Osnaburgh House country)",
+    "species": "Beaver",
+    "cell": [
+     789,
+     1296
+    ],
+    "count": 28,
+    "capacity": 69,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Osnaburgh House country) 3",
+    "species": "Wolf",
+    "cell": [
+     786,
+     1290
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Gloucester House)",
+    "species": "Beaver",
+    "cell": [
+     825,
+     1266
+    ],
+    "count": 55,
+    "capacity": 48,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Martin Falls) 3",
+    "species": "Beaver",
+    "cell": [
+     843,
+     1248
+    ],
+    "count": 53,
+    "capacity": 45,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Coast Salish country)",
+    "species": "Caribou",
+    "cell": [
+     3,
+     1362
+    ],
+    "count": 17,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Coast Salish country) 2",
+    "species": "Goose",
+    "cell": [
+     30,
+     1368
+    ],
+    "count": 115,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Langley country)",
+    "species": "Wolf",
+    "cell": [
+     45,
+     1356
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Kootenay House country) 2",
+    "species": "Beaver",
+    "cell": [
+     168,
+     1374
+    ],
+    "count": 39,
+    "capacity": 53,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Kootenay House)",
+    "species": "Beaver",
+    "cell": [
+     210,
+     1398
+    ],
+    "count": 26,
+    "capacity": 60,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Kootenay House country) 3",
+    "species": "Beaver",
+    "cell": [
+     228,
+     1350
+    ],
+    "count": 32,
+    "capacity": 63,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Chesterfield House country)",
+    "species": "Wolf",
+    "cell": [
+     321,
+     1422
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Alexandria)",
+    "species": "Beaver",
+    "cell": [
+     522,
+     1416
+    ],
+    "count": 27,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Dauphin country) 2",
+    "species": "Beaver",
+    "cell": [
+     570,
+     1344
+    ],
+    "count": 39,
+    "capacity": 54,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Manitoba House country)",
+    "species": "Wolf",
+    "cell": [
+     594,
+     1344
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Manitoba House country) 3",
+    "species": "Beaver",
+    "cell": [
+     618,
+     1362
+    ],
+    "count": 28,
+    "capacity": 45,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Lac Seul House country)",
+    "species": "Beaver",
+    "cell": [
+     702,
+     1362
+    ],
+    "count": 49,
+    "capacity": 49,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Osnaburgh House country) 2",
+    "species": "Beaver",
+    "cell": [
+     741,
+     1344
+    ],
+    "count": 48,
+    "capacity": 61,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Lac Seul House)",
+    "species": "Caribou",
+    "cell": [
+     732,
+     1416
+    ],
+    "count": 35,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Lac Seul House country)",
+    "species": "Wolf",
+    "cell": [
+     735,
+     1368
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Osnaburgh House) 2",
+    "species": "Beaver",
+    "cell": [
+     768,
+     1344
+    ],
+    "count": 40,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Gloucester House country)",
+    "species": "Beaver",
+    "cell": [
+     810,
+     1434
+    ],
+    "count": 28,
+    "capacity": 79,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Osnaburgh House country)",
+    "species": "Caribou",
+    "cell": [
+     795,
+     1350
+    ],
+    "count": 19,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Gloucester House country) 2",
+    "species": "Beaver",
+    "cell": [
+     816,
+     1428
+    ],
+    "count": 27,
+    "capacity": 66,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Martin Falls country) 3",
+    "species": "Caribou",
+    "cell": [
+     861,
+     1350
+    ],
+    "count": 21,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Gloucester House country)",
+    "species": "Caribou",
+    "cell": [
+     864,
+     1392
+    ],
+    "count": 33,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Brunswick House country)",
+    "species": "Caribou",
+    "cell": [
+     927,
+     1356
+    ],
+    "count": 27,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Fort Victoria)",
+    "species": "Goose",
+    "cell": [
+     30,
+     1494
+    ],
+    "count": 176,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Langley)",
+    "species": "Beaver",
+    "cell": [
+     63,
+     1476
+    ],
+    "count": 27,
+    "capacity": 77,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Langley country)",
+    "species": "Beaver",
+    "cell": [
+     78,
+     1470
+    ],
+    "count": 48,
+    "capacity": 74,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Syilx (Okanagan) country)",
+    "species": "Beaver",
+    "cell": [
+     162,
+     1452
+    ],
+    "count": 42,
+    "capacity": 71,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Kootenay House country)",
+    "species": "Wolf",
+    "cell": [
+     189,
+     1446
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Kootenay House) 2",
+    "species": "Beaver",
+    "cell": [
+     210,
+     1446
+    ],
+    "count": 47,
+    "capacity": 76,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Kootenay (Ktunaxa))",
+    "species": "Wolf",
+    "cell": [
+     195,
+     1512
+    ],
+    "count": 4,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Manitoba House)",
+    "species": "Beaver",
+    "cell": [
+     585,
+     1452
+    ],
+    "count": 55,
+    "capacity": 57,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Manitoba House) 2",
+    "species": "Beaver",
+    "cell": [
+     606,
+     1512
+    ],
+    "count": 52,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Lower Fort Garry country)",
+    "species": "Wolf",
+    "cell": [
+     618,
+     1476
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Bas de la Riviere)",
+    "species": "Beaver",
+    "cell": [
+     651,
+     1506
+    ],
+    "count": 25,
+    "capacity": 50,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Rat Portage country)",
+    "species": "Beaver",
+    "cell": [
+     672,
+     1524
+    ],
+    "count": 32,
+    "capacity": 54,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Gloucester House country) 3",
+    "species": "Beaver",
+    "cell": [
+     807,
+     1464
+    ],
+    "count": 31,
+    "capacity": 55,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort William country)",
+    "species": "Beaver",
+    "cell": [
+     816,
+     1518
+    ],
+    "count": 55,
+    "capacity": 80,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Gloucester House country) 2",
+    "species": "Caribou",
+    "cell": [
+     834,
+     1458
+    ],
+    "count": 20,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Brunswick House country) 2",
+    "species": "Caribou",
+    "cell": [
+     981,
+     1506
+    ],
+    "count": 28,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Fort Victoria country)",
+    "species": "Goose",
+    "cell": [
+     48,
+     1614
+    ],
+    "count": 130,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Langley country) 2",
+    "species": "Wolf",
+    "cell": [
+     81,
+     1548
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Colvile country)",
+    "species": "Beaver",
+    "cell": [
+     162,
+     1572
+    ],
+    "count": 25,
+    "capacity": 74,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Assiniboine country)",
+    "species": "Wolf",
+    "cell": [
+     426,
+     1614
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort la Reine)",
+    "species": "Beaver",
+    "cell": [
+     588,
+     1602
+    ],
+    "count": 27,
+    "capacity": 55,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Bas de la Riviere) 2",
+    "species": "Beaver",
+    "cell": [
+     648,
+     1542
+    ],
+    "count": 47,
+    "capacity": 77,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Lac Seul House) 2",
+    "species": "Caribou",
+    "cell": [
+     726,
+     1536
+    ],
+    "count": 33,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Lac Seul House country) 2",
+    "species": "Wolf",
+    "cell": [
+     735,
+     1602
+    ],
+    "count": 4,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Lac Seul House country)",
+    "species": "Caribou",
+    "cell": [
+     759,
+     1560
+    ],
+    "count": 35,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Ojibwa (Anishinaabe) country)",
+    "species": "Beaver",
+    "cell": [
+     777,
+     1596
+    ],
+    "count": 38,
+    "capacity": 79,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Ojibwa (Anishinaabe) country)",
+    "species": "Caribou",
+    "cell": [
+     780,
+     1560
+    ],
+    "count": 27,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort William country) 2",
+    "species": "Beaver",
+    "cell": [
+     813,
+     1536
+    ],
+    "count": 32,
+    "capacity": 45,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort William country) 3",
+    "species": "Beaver",
+    "cell": [
+     858,
+     1602
+    ],
+    "count": 41,
+    "capacity": 63,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Michipicoten country)",
+    "species": "Beaver",
+    "cell": [
+     873,
+     1602
+    ],
+    "count": 28,
+    "capacity": 45,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Michipicoten country)",
+    "species": "Caribou",
+    "cell": [
+     930,
+     1578
+    ],
+    "count": 27,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Brunswick House country)",
+    "species": "Beaver",
+    "cell": [
+     939,
+     1566
+    ],
+    "count": 39,
+    "capacity": 69,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Brunswick House country) 3",
+    "species": "Caribou",
+    "cell": [
+     951,
+     1542
+    ],
+    "count": 25,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Brunswick House country)",
+    "species": "Wolf",
+    "cell": [
+     975,
+     1614
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Brunswick House country) 4",
+    "species": "Caribou",
+    "cell": [
+     996,
+     1554
+    ],
+    "count": 34,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Fort Nisqually country)",
+    "species": "Goose",
+    "cell": [
+     6,
+     1722
+    ],
+    "count": 166,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Goose marsh (Fort Nisqually)",
+    "species": "Goose",
+    "cell": [
+     45,
+     1686
+    ],
+    "count": 146,
+    "capacity": 300,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Nisqually)",
+    "species": "Caribou",
+    "cell": [
+     45,
+     1722
+    ],
+    "count": 22,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Okanogan country)",
+    "species": "Beaver",
+    "cell": [
+     93,
+     1638
+    ],
+    "count": 43,
+    "capacity": 74,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Okanogan)",
+    "species": "Beaver",
+    "cell": [
+     117,
+     1686
+    ],
+    "count": 37,
+    "capacity": 50,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Okanogan)",
+    "species": "Caribou",
+    "cell": [
+     96,
+     1674
+    ],
+    "count": 29,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Okanogan country) 2",
+    "species": "Beaver",
+    "cell": [
+     126,
+     1710
+    ],
+    "count": 39,
+    "capacity": 57,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Colvile country) 2",
+    "species": "Beaver",
+    "cell": [
+     144,
+     1710
+    ],
+    "count": 53,
+    "capacity": 54,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Peigan (Piikani))",
+    "species": "Wolf",
+    "cell": [
+     270,
+     1632
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Plains Ojibwa (Saulteaux))",
+    "species": "Caribou",
+    "cell": [
+     666,
+     1632
+    ],
+    "count": 26,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Rainy Lake House)",
+    "species": "Beaver",
+    "cell": [
+     714,
+     1686
+    ],
+    "count": 37,
+    "capacity": 72,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Rainy Lake House) 2",
+    "species": "Beaver",
+    "cell": [
+     729,
+     1710
+    ],
+    "count": 51,
+    "capacity": 79,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Ojibwa (Anishinaabe) country) 2",
+    "species": "Beaver",
+    "cell": [
+     765,
+     1644
+    ],
+    "count": 42,
+    "capacity": 46,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Ojibwa (Anishinaabe))",
+    "species": "Beaver",
+    "cell": [
+     777,
+     1644
+    ],
+    "count": 54,
+    "capacity": 74,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Okanogan country) 3",
+    "species": "Beaver",
+    "cell": [
+     93,
+     1764
+    ],
+    "count": 49,
+    "capacity": 59,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Okanogan country)",
+    "species": "Wolf",
+    "cell": [
+     90,
+     1794
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Spokane House country)",
+    "species": "Beaver",
+    "cell": [
+     141,
+     1728
+    ],
+    "count": 37,
+    "capacity": 77,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Spokane House country) 2",
+    "species": "Beaver",
+    "cell": [
+     183,
+     1734
+    ],
+    "count": 32,
+    "capacity": 47,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Piegan country)",
+    "species": "Wolf",
+    "cell": [
+     309,
+     1734
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Métis at Pembina country)",
+    "species": "Wolf",
+    "cell": [
+     654,
+     1758
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Rainy Lake House country)",
+    "species": "Beaver",
+    "cell": [
+     693,
+     1728
+    ],
+    "count": 52,
+    "capacity": 59,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Rainy Lake House)",
+    "species": "Wolf",
+    "cell": [
+     699,
+     1770
+    ],
+    "count": 4,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Rainy Lake House) 3",
+    "species": "Beaver",
+    "cell": [
+     723,
+     1740
+    ],
+    "count": 50,
+    "capacity": 49,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Ojibwa (Anishinaabe) country) 2",
+    "species": "Caribou",
+    "cell": [
+     753,
+     1758
+    ],
+    "count": 25,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Grand Portage country)",
+    "species": "Beaver",
+    "cell": [
+     786,
+     1812
+    ],
+    "count": 35,
+    "capacity": 63,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort William)",
+    "species": "Beaver",
+    "cell": [
+     810,
+     1734
+    ],
+    "count": 54,
+    "capacity": 72,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Sault Ste. Marie country)",
+    "species": "Beaver",
+    "cell": [
+     924,
+     1794
+    ],
+    "count": 49,
+    "capacity": 76,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nez Perces country)",
+    "species": "Beaver",
+    "cell": [
+     93,
+     1836
+    ],
+    "count": 35,
+    "capacity": 49,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nez Perces country) 2",
+    "species": "Beaver",
+    "cell": [
+     105,
+     1860
+    ],
+    "count": 27,
+    "capacity": 47,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nez Perces country) 3",
+    "species": "Beaver",
+    "cell": [
+     138,
+     1908
+    ],
+    "count": 39,
+    "capacity": 51,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Spokane House country)",
+    "species": "Caribou",
+    "cell": [
+     153,
+     1908
+    ],
+    "count": 28,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Red Lake Post)",
+    "species": "Beaver",
+    "cell": [
+     675,
+     1836
+    ],
+    "count": 38,
+    "capacity": 54,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Red Lake Post country)",
+    "species": "Caribou",
+    "cell": [
+     678,
+     1908
+    ],
+    "count": 16,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Red Lake Post country)",
+    "species": "Beaver",
+    "cell": [
+     702,
+     1902
+    ],
+    "count": 26,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Rainy Lake House country)",
+    "species": "Wolf",
+    "cell": [
+     723,
+     1830
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Rainy Lake House country) 2",
+    "species": "Wolf",
+    "cell": [
+     750,
+     1824
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Grand Portage country) 2",
+    "species": "Beaver",
+    "cell": [
+     825,
+     1884
+    ],
+    "count": 51,
+    "capacity": 61,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Grand Portage country) 3",
+    "species": "Beaver",
+    "cell": [
+     855,
+     1878
+    ],
+    "count": 49,
+    "capacity": 60,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Michilimackinac country)",
+    "species": "Beaver",
+    "cell": [
+     885,
+     1914
+    ],
+    "count": 33,
+    "capacity": 57,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Sault Ste. Marie country) 2",
+    "species": "Beaver",
+    "cell": [
+     888,
+     1896
+    ],
+    "count": 25,
+    "capacity": 74,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Sault Ste. Marie country)",
+    "species": "Caribou",
+    "cell": [
+     909,
+     1890
+    ],
+    "count": 15,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Sault Ste. Marie)",
+    "species": "Beaver",
+    "cell": [
+     921,
+     1866
+    ],
+    "count": 51,
+    "capacity": 49,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Odawa (Ottawa))",
+    "species": "Beaver",
+    "cell": [
+     948,
+     1896
+    ],
+    "count": 30,
+    "capacity": 66,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (La Cloche country)",
+    "species": "Beaver",
+    "cell": [
+     972,
+     1860
+    ],
+    "count": 48,
+    "capacity": 45,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (La Cloche)",
+    "species": "Caribou",
+    "cell": [
+     999,
+     1836
+    ],
+    "count": 22,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Vancouver)",
+    "species": "Beaver",
+    "cell": [
+     15,
+     1974
+    ],
+    "count": 48,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Vancouver country)",
+    "species": "Beaver",
+    "cell": [
+     45,
+     1950
+    ],
+    "count": 54,
+    "capacity": 49,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nez Perces country) 4",
+    "species": "Beaver",
+    "cell": [
+     66,
+     1968
+    ],
+    "count": 40,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nez Perces country) 5",
+    "species": "Beaver",
+    "cell": [
+     84,
+     1968
+    ],
+    "count": 32,
+    "capacity": 61,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nez Perces)",
+    "species": "Beaver",
+    "cell": [
+     102,
+     1968
+    ],
+    "count": 38,
+    "capacity": 49,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Nez Perces)",
+    "species": "Wolf",
+    "cell": [
+     102,
+     1998
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nez Perces) 2",
+    "species": "Beaver",
+    "cell": [
+     120,
+     1920
+    ],
+    "count": 29,
+    "capacity": 58,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Salish (Flathead) country)",
+    "species": "Caribou",
+    "cell": [
+     231,
+     1992
+    ],
+    "count": 17,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Shoshone country)",
+    "species": "Beaver",
+    "cell": [
+     285,
+     1992
+    ],
+    "count": 40,
+    "capacity": 47,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort McKenzie country)",
+    "species": "Caribou",
+    "cell": [
+     276,
+     1938
+    ],
+    "count": 28,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Red Lake Post country)",
+    "species": "Wolf",
+    "cell": [
+     666,
+     1956
+    ],
+    "count": 8,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Red Lake Post country) 2",
+    "species": "Beaver",
+    "cell": [
+     684,
+     1938
+    ],
+    "count": 39,
+    "capacity": 52,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Red Lake Post country) 2",
+    "species": "Wolf",
+    "cell": [
+     690,
+     1926
+    ],
+    "count": 8,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Red Lake Post country) 3",
+    "species": "Beaver",
+    "cell": [
+     717,
+     1920
+    ],
+    "count": 33,
+    "capacity": 68,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Red Lake Post country) 4",
+    "species": "Beaver",
+    "cell": [
+     720,
+     1992
+    ],
+    "count": 37,
+    "capacity": 69,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Grand Portage country) 4",
+    "species": "Beaver",
+    "cell": [
+     759,
+     1938
+    ],
+    "count": 51,
+    "capacity": 80,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Grand Portage country) 5",
+    "species": "Beaver",
+    "cell": [
+     783,
+     1956
+    ],
+    "count": 44,
+    "capacity": 52,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Grand Portage country)",
+    "species": "Caribou",
+    "cell": [
+     771,
+     1968
+    ],
+    "count": 18,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Grand Portage country) 6",
+    "species": "Beaver",
+    "cell": [
+     792,
+     1968
+    ],
+    "count": 52,
+    "capacity": 77,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Grand Portage country) 2",
+    "species": "Caribou",
+    "cell": [
+     828,
+     1932
+    ],
+    "count": 34,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Grand Portage country)",
+    "species": "Wolf",
+    "cell": [
+     816,
+     1920
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Menominee country)",
+    "species": "Beaver",
+    "cell": [
+     885,
+     2010
+    ],
+    "count": 45,
+    "capacity": 53,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Michilimackinac country) 2",
+    "species": "Beaver",
+    "cell": [
+     891,
+     2004
+    ],
+    "count": 26,
+    "capacity": 69,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Michilimackinac)",
+    "species": "Beaver",
+    "cell": [
+     954,
+     1980
+    ],
+    "count": 47,
+    "capacity": 50,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Michilimackinac)",
+    "species": "Caribou",
+    "cell": [
+     936,
+     1998
+    ],
+    "count": 19,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Odawa (Ottawa) country)",
+    "species": "Beaver",
+    "cell": [
+     972,
+     2004
+    ],
+    "count": 52,
+    "capacity": 73,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Nez Perces country)",
+    "species": "Caribou",
+    "cell": [
+     63,
+     2106
+    ],
+    "count": 15,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Nez Perces country) 2",
+    "species": "Caribou",
+    "cell": [
+     78,
+     2076
+    ],
+    "count": 18,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Nez Perces country)",
+    "species": "Wolf",
+    "cell": [
+     171,
+     2106
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Shoshone)",
+    "species": "Beaver",
+    "cell": [
+     291,
+     2100
+    ],
+    "count": 54,
+    "capacity": 59,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Crow country)",
+    "species": "Caribou",
+    "cell": [
+     375,
+     2040
+    ],
+    "count": 26,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Union country)",
+    "species": "Wolf",
+    "cell": [
+     474,
+     2028
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Berthold country)",
+    "species": "Caribou",
+    "cell": [
+     513,
+     2028
+    ],
+    "count": 20,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Arikara country)",
+    "species": "Caribou",
+    "cell": [
+     543,
+     2076
+    ],
+    "count": 23,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Arikara country)",
+    "species": "Beaver",
+    "cell": [
+     552,
+     2058
+    ],
+    "count": 42,
+    "capacity": 71,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Dakota (Santee Sioux) country)",
+    "species": "Caribou",
+    "cell": [
+     651,
+     2088
+    ],
+    "count": 31,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dakota (Santee Sioux) country)",
+    "species": "Beaver",
+    "cell": [
+     702,
+     2070
+    ],
+    "count": 50,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dakota (Santee Sioux) country) 2",
+    "species": "Beaver",
+    "cell": [
+     723,
+     2058
+    ],
+    "count": 54,
+    "capacity": 62,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Menominee country) 2",
+    "species": "Beaver",
+    "cell": [
+     873,
+     2094
+    ],
+    "count": 50,
+    "capacity": 74,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Michilimackinac country) 3",
+    "species": "Beaver",
+    "cell": [
+     918,
+     2076
+    ],
+    "count": 53,
+    "capacity": 62,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Michilimackinac country) 4",
+    "species": "Beaver",
+    "cell": [
+     981,
+     2106
+    ],
+    "count": 54,
+    "capacity": 52,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Michilimackinac country)",
+    "species": "Wolf",
+    "cell": [
+     972,
+     2070
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Vancouver country) 2",
+    "species": "Beaver",
+    "cell": [
+     3,
+     2172
+    ],
+    "count": 31,
+    "capacity": 73,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Vancouver country)",
+    "species": "Caribou",
+    "cell": [
+     15,
+     2142
+    ],
+    "count": 17,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Nez Perces country) 3",
+    "species": "Caribou",
+    "cell": [
+     81,
+     2118
+    ],
+    "count": 16,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Nez Perces country) 4",
+    "species": "Caribou",
+    "cell": [
+     102,
+     2154
+    ],
+    "count": 24,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nez Perces country) 6",
+    "species": "Beaver",
+    "cell": [
+     147,
+     2190
+    ],
+    "count": 54,
+    "capacity": 76,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Nez Perces country) 5",
+    "species": "Caribou",
+    "cell": [
+     153,
+     2196
+    ],
+    "count": 32,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Shoshone) 2",
+    "species": "Beaver",
+    "cell": [
+     288,
+     2118
+    ],
+    "count": 54,
+    "capacity": 48,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Shoshone)",
+    "species": "Caribou",
+    "cell": [
+     300,
+     2118
+    ],
+    "count": 35,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Manuel Lisa country)",
+    "species": "Wolf",
+    "cell": [
+     537,
+     2196
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Arikara)",
+    "species": "Beaver",
+    "cell": [
+     558,
+     2160
+    ],
+    "count": 32,
+    "capacity": 55,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dakota (Santee Sioux) country) 3",
+    "species": "Beaver",
+    "cell": [
+     708,
+     2148
+    ],
+    "count": 40,
+    "capacity": 73,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dakota (Santee Sioux) country) 4",
+    "species": "Beaver",
+    "cell": [
+     720,
+     2184
+    ],
+    "count": 41,
+    "capacity": 52,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Dakota (Santee Sioux) country)",
+    "species": "Wolf",
+    "cell": [
+     750,
+     2166
+    ],
+    "count": 4,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Menominee country)",
+    "species": "Caribou",
+    "cell": [
+     825,
+     2160
+    ],
+    "count": 33,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Michilimackinac country)",
+    "species": "Caribou",
+    "cell": [
+     945,
+     2112
+    ],
+    "count": 22,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Michilimackinac country) 5",
+    "species": "Beaver",
+    "cell": [
+     972,
+     2202
+    ],
+    "count": 49,
+    "capacity": 72,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Michilimackinac country) 2",
+    "species": "Wolf",
+    "cell": [
+     963,
+     2172
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Michilimackinac country) 6",
+    "species": "Beaver",
+    "cell": [
+     993,
+     2148
+    ],
+    "count": 48,
+    "capacity": 69,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Vancouver country) 3",
+    "species": "Beaver",
+    "cell": [
+     9,
+     2232
+    ],
+    "count": 26,
+    "capacity": 70,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Nez Perces country) 6",
+    "species": "Caribou",
+    "cell": [
+     117,
+     2208
+    ],
+    "count": 30,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Nez Perces country) 2",
+    "species": "Wolf",
+    "cell": [
+     108,
+     2292
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nez Perces country) 7",
+    "species": "Beaver",
+    "cell": [
+     147,
+     2268
+    ],
+    "count": 45,
+    "capacity": 79,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Salish (Flathead) country) 2",
+    "species": "Caribou",
+    "cell": [
+     189,
+     2244
+    ],
+    "count": 33,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Shoshone country)",
+    "species": "Caribou",
+    "cell": [
+     210,
+     2208
+    ],
+    "count": 22,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Shoshone country) 2",
+    "species": "Beaver",
+    "cell": [
+     282,
+     2238
+    ],
+    "count": 38,
+    "capacity": 74,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Shoshone country) 2",
+    "species": "Caribou",
+    "cell": [
+     270,
+     2292
+    ],
+    "count": 33,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Shoshone country) 3",
+    "species": "Beaver",
+    "cell": [
+     294,
+     2286
+    ],
+    "count": 52,
+    "capacity": 47,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Shoshone country) 3",
+    "species": "Caribou",
+    "cell": [
+     294,
+     2250
+    ],
+    "count": 29,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Crow)",
+    "species": "Caribou",
+    "cell": [
+     396,
+     2214
+    ],
+    "count": 29,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Manuel Lisa country) 2",
+    "species": "Wolf",
+    "cell": [
+     534,
+     2226
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Dakota (Santee Sioux) country) 5",
+    "species": "Beaver",
+    "cell": [
+     741,
+     2238
+    ],
+    "count": 32,
+    "capacity": 56,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Ho-Chunk (Winnebago) country)",
+    "species": "Beaver",
+    "cell": [
+     765,
+     2292
+    ],
+    "count": 38,
+    "capacity": 72,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Ho-Chunk (Winnebago) country) 2",
+    "species": "Beaver",
+    "cell": [
+     768,
+     2292
+    ],
+    "count": 30,
+    "capacity": 64,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Menominee country) 2",
+    "species": "Caribou",
+    "cell": [
+     831,
+     2214
+    ],
+    "count": 29,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Ho-Chunk (Winnebago) country)",
+    "species": "Wolf",
+    "cell": [
+     822,
+     2226
+    ],
+    "count": 5,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Menominee country) 3",
+    "species": "Beaver",
+    "cell": [
+     858,
+     2268
+    ],
+    "count": 42,
+    "capacity": 52,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Menominee country) 4",
+    "species": "Beaver",
+    "cell": [
+     879,
+     2220
+    ],
+    "count": 46,
+    "capacity": 69,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Menominee country) 3",
+    "species": "Caribou",
+    "cell": [
+     924,
+     2298
+    ],
+    "count": 18,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nez Perces country) 8",
+    "species": "Beaver",
+    "cell": [
+     93,
+     2352
+    ],
+    "count": 51,
+    "capacity": 61,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Nez Perces country) 3",
+    "species": "Wolf",
+    "cell": [
+     132,
+     2316
+    ],
+    "count": 7,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Fort Nez Perces country) 9",
+    "species": "Beaver",
+    "cell": [
+     144,
+     2352
+    ],
+    "count": 46,
+    "capacity": 76,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Fort Nez Perces country) 4",
+    "species": "Wolf",
+    "cell": [
+     165,
+     2304
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Shoshone country) 4",
+    "species": "Caribou",
+    "cell": [
+     240,
+     2316
+    ],
+    "count": 33,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Shoshone country) 4",
+    "species": "Beaver",
+    "cell": [
+     309,
+     2334
+    ],
+    "count": 49,
+    "capacity": 63,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Crow country) 2",
+    "species": "Caribou",
+    "cell": [
+     360,
+     2352
+    ],
+    "count": 31,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Cheyenne country)",
+    "species": "Wolf",
+    "cell": [
+     438,
+     2310
+    ],
+    "count": 6,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Lakota (Teton Sioux))",
+    "species": "Beaver",
+    "cell": [
+     540,
+     2328
+    ],
+    "count": 46,
+    "capacity": 59,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Fort Manuel Lisa country)",
+    "species": "Caribou",
+    "cell": [
+     564,
+     2346
+    ],
+    "count": 33,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Dakota (Santee Sioux) country) 2",
+    "species": "Caribou",
+    "cell": [
+     630,
+     2340
+    ],
+    "count": 21,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Wolf den (Ho-Chunk (Winnebago) country) 2",
+    "species": "Wolf",
+    "cell": [
+     765,
+     2322
+    ],
+    "count": 8,
+    "capacity": 10,
+    "radius": 800,
+    "route": null
+   },
+   {
+    "name": "Woodland caribou (Ho-Chunk (Winnebago))",
+    "species": "Caribou",
+    "cell": [
+     834,
+     2328
+    ],
+    "count": 29,
+    "capacity": 50,
+    "radius": 700,
+    "route": null
+   },
+   {
+    "name": "Beaver lodge (Menominee country) 5",
+    "species": "Beaver",
+    "cell": [
+     912,
+     2310
+    ],
+    "count": 48,
+    "capacity": 71,
+    "radius": 350,
+    "route": null
+   },
+   {
+    "name": "Caribou herd (Fort Nelson (BC) country)",
+    "species": "Caribou",
+    "cell": [
+     180,
+     72
+    ],
+    "count": 281,
+    "capacity": 400,
+    "radius": 1200,
+    "route": [
+     [
+      180,
+      72
+     ],
+     [
+      180,
+      72
+     ],
+     [
+      180,
+      66
+     ],
+     [
+      180,
+      44
+     ],
+     [
+      180,
+      14
+     ],
+     [
+      180,
+      0
+     ],
+     [
+      180,
+      0
+     ],
+     [
+      180,
+      0
+     ],
+     [
+      180,
+      8
+     ],
+     [
+      180,
+      30
+     ],
+     [
+      180,
+      50
+     ],
+     [
+      180,
+      72
+     ]
+    ]
+   },
+   {
+    "name": "Caribou herd (Dene (Beaver) country)",
+    "species": "Caribou",
+    "cell": [
+     240,
+     144
+    ],
+    "count": 225,
+    "capacity": 400,
+    "radius": 1200,
+    "route": [
+     [
+      240,
+      144
+     ],
+     [
+      240,
+      144
+     ],
+     [
+      240,
+      134
+     ],
+     [
+      240,
+      102
+     ],
+     [
+      240,
+      62
+     ],
+     [
+      240,
+      40
+     ],
+     [
+      240,
+      40
+     ],
+     [
+      240,
+      40
+     ],
+     [
+      240,
+      50
+     ],
+     [
+      240,
+      82
+     ],
+     [
+      240,
+      114
+     ],
+     [
+      240,
+      144
+     ]
+    ]
+   },
+   {
+    "name": "Caribou herd (Fort Chipewyan country)",
+    "species": "Caribou",
+    "cell": [
+     300,
+     200
+    ],
+    "count": 271,
+    "capacity": 400,
+    "radius": 1200,
+    "route": [
+     [
+      300,
+      200
+     ],
+     [
+      300,
+      200
+     ],
+     [
+      300,
+      184
+     ],
+     [
+      300,
+      136
+     ],
+     [
+      300,
+      72
+     ],
+     [
+      300,
+      40
+     ],
+     [
+      300,
+      40
+     ],
+     [
+      300,
+      40
+     ],
+     [
+      300,
+      56
+     ],
+     [
+      300,
+      104
+     ],
+     [
+      300,
+      152
+     ],
+     [
+      300,
+      200
+     ]
+    ]
+   },
+   {
+    "name": "Caribou herd (Fort Chipewyan country) 2",
+    "species": "Caribou",
+    "cell": [
+     300,
+     200
+    ],
+    "count": 276,
+    "capacity": 400,
+    "radius": 1200,
+    "route": [
+     [
+      300,
+      200
+     ],
+     [
+      300,
+      200
+     ],
+     [
+      300,
+      196
+     ],
+     [
+      300,
+      184
+     ],
+     [
+      300,
+      168
+     ],
+     [
+      300,
+      160
+     ],
+     [
+      300,
+      160
+     ],
+     [
+      300,
+      160
+     ],
+     [
+      300,
+      164
+     ],
+     [
+      300,
+      176
+     ],
+     [
+      300,
+      188
+     ],
+     [
+      300,
+      200
+     ]
+    ]
+   },
+   {
+    "name": "Caribou herd (Fort Chipewyan country) 3",
+    "species": "Caribou",
+    "cell": [
+     360,
+     232
+    ],
+    "count": 209,
+    "capacity": 400,
+    "radius": 1200,
+    "route": [
+     [
+      360,
+      232
+     ],
+     [
+      360,
+      232
+     ],
+     [
+      360,
+      218
+     ],
+     [
+      360,
+      172
+     ],
+     [
+      360,
+      110
+     ],
+     [
+      360,
+      80
+     ],
+     [
+      360,
+      80
+     ],
+     [
+      360,
+      80
+     ],
+     [
+      360,
+      96
+     ],
+     [
+      360,
+      142
+     ],
+     [
+      360,
+      186
+     ],
+     [
+      360,
+      232
+     ]
+    ]
+   },
+   {
+    "name": "Caribou herd (Fort Chipewyan country) 4",
+    "species": "Caribou",
+    "cell": [
+     360,
+     232
+    ],
+    "count": 222,
+    "capacity": 400,
+    "radius": 1200,
+    "route": [
+     [
+      360,
+      232
+     ],
+     [
+      360,
+      232
+     ],
+     [
+      360,
+      230
+     ],
+     [
+      360,
+      220
+     ],
+     [
+      360,
+      206
+     ],
+     [
+      360,
+      200
+     ],
+     [
+      360,
+      200
+     ],
+     [
+      360,
+      200
+     ],
+     [
+      360,
+      204
+     ],
+     [
+      360,
+      214
+     ],
+     [
+      360,
+      222
+     ],
+     [
+      360,
+      232
+     ]
+    ]
+   },
+   {
+    "name": "Hare flats (Rocky Mountain House)",
+    "species": "Hare",
+    "cell": [
+     246,
+     1218
+    ],
+    "count": 81,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Edmonton House)",
+    "species": "Hare",
+    "cell": [
+     278,
+     1079
+    ],
+    "count": 74,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Augustus)",
+    "species": "Hare",
+    "cell": [
+     298,
+     1074
+    ],
+    "count": 85,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Vermilion)",
+    "species": "Hare",
+    "cell": [
+     330,
+     1072
+    ],
+    "count": 68,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Vermilion) 2",
+    "species": "Hare",
+    "cell": [
+     330,
+     1059
+    ],
+    "count": 53,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Vermilion) 3",
+    "species": "Hare",
+    "cell": [
+     329,
+     1058
+    ],
+    "count": 67,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Pitt)",
+    "species": "Hare",
+    "cell": [
+     352,
+     1098
+    ],
+    "count": 81,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Manchester House)",
+    "species": "Hare",
+    "cell": [
+     383,
+     1145
+    ],
+    "count": 70,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Hudson House)",
+    "species": "Hare",
+    "cell": [
+     409,
+     1230
+    ],
+    "count": 67,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Hudson House) 2",
+    "species": "Hare",
+    "cell": [
+     410,
+     1225
+    ],
+    "count": 66,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (South Branch House)",
+    "species": "Hare",
+    "cell": [
+     419,
+     1239
+    ],
+    "count": 74,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort a la Corne)",
+    "species": "Hare",
+    "cell": [
+     456,
+     1194
+    ],
+    "count": 57,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort a la Corne) 2",
+    "species": "Hare",
+    "cell": [
+     465,
+     1178
+    ],
+    "count": 61,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Chesterfield House)",
+    "species": "Hare",
+    "cell": [
+     346,
+     1487
+    ],
+    "count": 89,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Cumberland House)",
+    "species": "Hare",
+    "cell": [
+     517,
+     1078
+    ],
+    "count": 56,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (The Pas (Le Pas))",
+    "species": "Hare",
+    "cell": [
+     520,
+     1097
+    ],
+    "count": 81,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Pelly)",
+    "species": "Hare",
+    "cell": [
+     514,
+     1392
+    ],
+    "count": 56,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Pelly) 2",
+    "species": "Hare",
+    "cell": [
+     529,
+     1349
+    ],
+    "count": 77,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Dauphin)",
+    "species": "Hare",
+    "cell": [
+     556,
+     1467
+    ],
+    "count": 69,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Nut Lake)",
+    "species": "Hare",
+    "cell": [
+     489,
+     1313
+    ],
+    "count": 79,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Esperance)",
+    "species": "Hare",
+    "cell": [
+     522,
+     1573
+    ],
+    "count": 64,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Qu'Appelle)",
+    "species": "Hare",
+    "cell": [
+     488,
+     1518
+    ],
+    "count": 40,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Ellice)",
+    "species": "Hare",
+    "cell": [
+     531,
+     1592
+    ],
+    "count": 72,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Brandon House)",
+    "species": "Hare",
+    "cell": [
+     557,
+     1672
+    ],
+    "count": 60,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Brandon House) 2",
+    "species": "Hare",
+    "cell": [
+     561,
+     1657
+    ],
+    "count": 68,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Brandon House) 3",
+    "species": "Hare",
+    "cell": [
+     561,
+     1683
+    ],
+    "count": 74,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Souris)",
+    "species": "Hare",
+    "cell": [
+     576,
+     1699
+    ],
+    "count": 46,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Alexandria)",
+    "species": "Hare",
+    "cell": [
+     525,
+     1441
+    ],
+    "count": 85,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort la Reine)",
+    "species": "Hare",
+    "cell": [
+     588,
+     1619
+    ],
+    "count": 77,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort la Reine) 2",
+    "species": "Hare",
+    "cell": [
+     591,
+     1623
+    ],
+    "count": 77,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Manitoba House)",
+    "species": "Hare",
+    "cell": [
+     582,
+     1501
+    ],
+    "count": 82,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Gibraltar)",
+    "species": "Hare",
+    "cell": [
+     619,
+     1630
+    ],
+    "count": 85,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Gibraltar) 2",
+    "species": "Hare",
+    "cell": [
+     623,
+     1625
+    ],
+    "count": 74,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Métis of the Forks)",
+    "species": "Hare",
+    "cell": [
+     631,
+     1618
+    ],
+    "count": 64,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Douglas)",
+    "species": "Hare",
+    "cell": [
+     638,
+     1594
+    ],
+    "count": 85,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Bas de la Riviere)",
+    "species": "Hare",
+    "cell": [
+     651,
+     1522
+    ],
+    "count": 60,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Métis at Pembina)",
+    "species": "Hare",
+    "cell": [
+     634,
+     1754
+    ],
+    "count": 61,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Turtle River House)",
+    "species": "Hare",
+    "cell": [
+     638,
+     1856
+    ],
+    "count": 66,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Norway House)",
+    "species": "Hare",
+    "cell": [
+     602,
+     1067
+    ],
+    "count": 77,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (York Factory)",
+    "species": "Hare",
+    "cell": [
+     696,
+     616
+    ],
+    "count": 58,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Osnaburgh House)",
+    "species": "Hare",
+    "cell": [
+     759,
+     1376
+    ],
+    "count": 47,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Gloucester House)",
+    "species": "Hare",
+    "cell": [
+     826,
+     1378
+    ],
+    "count": 81,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Martin Falls)",
+    "species": "Hare",
+    "cell": [
+     858,
+     1254
+    ],
+    "count": 63,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Henley House)",
+    "species": "Hare",
+    "cell": [
+     895,
+     1298
+    ],
+    "count": 72,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Albany Fort)",
+    "species": "Hare",
+    "cell": [
+     942,
+     1055
+    ],
+    "count": 86,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Lac Seul House)",
+    "species": "Hare",
+    "cell": [
+     723,
+     1527
+    ],
+    "count": 75,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Red Lake Post)",
+    "species": "Hare",
+    "cell": [
+     672,
+     1871
+    ],
+    "count": 45,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort McKenzie)",
+    "species": "Hare",
+    "cell": [
+     302,
+     1882
+    ],
+    "count": 83,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Benton)",
+    "species": "Hare",
+    "cell": [
+     325,
+     1905
+    ],
+    "count": 69,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Union)",
+    "species": "Hare",
+    "cell": [
+     479,
+     1927
+    ],
+    "count": 59,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Manuel Lisa)",
+    "species": "Hare",
+    "cell": [
+     567,
+     2265
+    ],
+    "count": 88,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Moose Factory)",
+    "species": "Hare",
+    "cell": [
+     982,
+     1160
+    ],
+    "count": 80,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Severn)",
+    "species": "Hare",
+    "cell": [
+     792,
+     778
+    ],
+    "count": 67,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Churchill (Pr. of Wales Fort))",
+    "species": "Hare",
+    "cell": [
+     656,
+     389
+    ],
+    "count": 87,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Oxford House)",
+    "species": "Hare",
+    "cell": [
+     656,
+     920
+    ],
+    "count": 61,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Island Lake House)",
+    "species": "Hare",
+    "cell": [
+     669,
+     1078
+    ],
+    "count": 69,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Ile-a-la-Crosse)",
+    "species": "Hare",
+    "cell": [
+     407,
+     857
+    ],
+    "count": 49,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Chipewyan)",
+    "species": "Hare",
+    "cell": [
+     345,
+     396
+    ],
+    "count": 71,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Green Lake)",
+    "species": "Hare",
+    "cell": [
+     401,
+     1042
+    ],
+    "count": 45,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Lac la Ronge)",
+    "species": "Hare",
+    "cell": [
+     462,
+     925
+    ],
+    "count": 78,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Assiniboine)",
+    "species": "Hare",
+    "cell": [
+     261,
+     948
+    ],
+    "count": 67,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Lesser Slave Lake Ho.)",
+    "species": "Hare",
+    "cell": [
+     243,
+     801
+    ],
+    "count": 45,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Dunvegan)",
+    "species": "Hare",
+    "cell": [
+     190,
+     685
+    ],
+    "count": 51,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Grand Portage)",
+    "species": "Hare",
+    "cell": [
+     806,
+     1756
+    ],
+    "count": 49,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Rainy Lake House)",
+    "species": "Hare",
+    "cell": [
+     722,
+     1764
+    ],
+    "count": 51,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Rat Portage)",
+    "species": "Hare",
+    "cell": [
+     686,
+     1636
+    ],
+    "count": 85,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Odawa (Ottawa))",
+    "species": "Hare",
+    "cell": [
+     942,
+     1900
+    ],
+    "count": 83,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Michilimackinac)",
+    "species": "Hare",
+    "cell": [
+     933,
+     1984
+    ],
+    "count": 86,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Qu'Appelle) 2",
+    "species": "Hare",
+    "cell": [
+     479,
+     1460
+    ],
+    "count": 56,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort McKenzie) 2",
+    "species": "Hare",
+    "cell": [
+     299,
+     1891
+    ],
+    "count": 63,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Berthold)",
+    "species": "Hare",
+    "cell": [
+     505,
+     1965
+    ],
+    "count": 45,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Great Whale River)",
+    "species": "Hare",
+    "cell": [
+     985,
+     573
+    ],
+    "count": 50,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Michipicoten)",
+    "species": "Hare",
+    "cell": [
+     917,
+     1727
+    ],
+    "count": 68,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Brunswick House)",
+    "species": "Hare",
+    "cell": [
+     937,
+     1462
+    ],
+    "count": 46,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Vancouver)",
+    "species": "Hare",
+    "cell": [
+     24,
+     1981
+    ],
+    "count": 49,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Nisqually)",
+    "species": "Hare",
+    "cell": [
+     40,
+     1768
+    ],
+    "count": 51,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Nez Perces)",
+    "species": "Hare",
+    "cell": [
+     121,
+     1995
+    ],
+    "count": 43,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Spokane House)",
+    "species": "Hare",
+    "cell": [
+     167,
+     1794
+    ],
+    "count": 89,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Okanogan)",
+    "species": "Hare",
+    "cell": [
+     108,
+     1709
+    ],
+    "count": 56,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Kootenay House)",
+    "species": "Hare",
+    "cell": [
+     207,
+     1442
+    ],
+    "count": 43,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Flathead House)",
+    "species": "Hare",
+    "cell": [
+     235,
+     1880
+    ],
+    "count": 68,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Kamloops)",
+    "species": "Hare",
+    "cell": [
+     113,
+     1362
+    ],
+    "count": 49,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Alexandria (BC))",
+    "species": "Hare",
+    "cell": [
+     85,
+     1052
+    ],
+    "count": 68,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort George (BC))",
+    "species": "Hare",
+    "cell": [
+     90,
+     858
+    ],
+    "count": 40,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort St. James)",
+    "species": "Hare",
+    "cell": [
+     79,
+     749
+    ],
+    "count": 40,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Fraser)",
+    "species": "Hare",
+    "cell": [
+     76,
+     804
+    ],
+    "count": 53,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort McLeod)",
+    "species": "Hare",
+    "cell": [
+     94,
+     706
+    ],
+    "count": 51,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Langley)",
+    "species": "Hare",
+    "cell": [
+     67,
+     1493
+    ],
+    "count": 43,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Victoria)",
+    "species": "Hare",
+    "cell": [
+     22,
+     1580
+    ],
+    "count": 66,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Connolly)",
+    "species": "Hare",
+    "cell": [
+     68,
+     476
+    ],
+    "count": 42,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Babine)",
+    "species": "Hare",
+    "cell": [
+     31,
+     578
+    ],
+    "count": 40,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Nelson (BC))",
+    "species": "Hare",
+    "cell": [
+     145,
+     202
+    ],
+    "count": 72,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Dease Lake)",
+    "species": "Hare",
+    "cell": [
+     17,
+     86
+    ],
+    "count": 48,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Chilcotin)",
+    "species": "Hare",
+    "cell": [
+     75,
+     1087
+    ],
+    "count": 81,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Blackfoot)",
+    "species": "Hare",
+    "cell": [
+     303,
+     1279
+    ],
+    "count": 57,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Blood (Kainai))",
+    "species": "Hare",
+    "cell": [
+     263,
+     1553
+    ],
+    "count": 78,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Peigan (Piikani))",
+    "species": "Hare",
+    "cell": [
+     258,
+     1689
+    ],
+    "count": 64,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Sarcee (Tsuut'ina))",
+    "species": "Hare",
+    "cell": [
+     251,
+     1382
+    ],
+    "count": 45,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Gros Ventre)",
+    "species": "Hare",
+    "cell": [
+     343,
+     1664
+    ],
+    "count": 63,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Plains Cree)",
+    "species": "Hare",
+    "cell": [
+     442,
+     1208
+    ],
+    "count": 62,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Woodland Cree)",
+    "species": "Hare",
+    "cell": [
+     552,
+     946
+    ],
+    "count": 59,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Swampy Cree)",
+    "species": "Hare",
+    "cell": [
+     714,
+     851
+    ],
+    "count": 67,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Assiniboine)",
+    "species": "Hare",
+    "cell": [
+     475,
+     1556
+    ],
+    "count": 83,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Sarcee (Tsuut'ina)) 2",
+    "species": "Hare",
+    "cell": [
+     251,
+     1313
+    ],
+    "count": 81,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Plains Ojibwa (Saulteaux))",
+    "species": "Hare",
+    "cell": [
+     653,
+     1635
+    ],
+    "count": 62,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Ojibwa (Anishinaabe))",
+    "species": "Hare",
+    "cell": [
+     783,
+     1731
+    ],
+    "count": 81,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Dakota (Santee Sioux))",
+    "species": "Hare",
+    "cell": [
+     665,
+     2248
+    ],
+    "count": 57,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Clark)",
+    "species": "Hare",
+    "cell": [
+     531,
+     2002
+    ],
+    "count": 77,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Berthold) 2",
+    "species": "Hare",
+    "cell": [
+     518,
+     1951
+    ],
+    "count": 80,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Arikara)",
+    "species": "Hare",
+    "cell": [
+     551,
+     2174
+    ],
+    "count": 44,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Crow)",
+    "species": "Hare",
+    "cell": [
+     390,
+     2218
+    ],
+    "count": 62,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Shoshone)",
+    "species": "Hare",
+    "cell": [
+     279,
+     2186
+    ],
+    "count": 50,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Kootenay (Ktunaxa))",
+    "species": "Hare",
+    "cell": [
+     214,
+     1576
+    ],
+    "count": 43,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Salish (Flathead))",
+    "species": "Hare",
+    "cell": [
+     211,
+     1912
+    ],
+    "count": 45,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Chipewyan)",
+    "species": "Hare",
+    "cell": [
+     466,
+     455
+    ],
+    "count": 87,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Michilimackinac) 2",
+    "species": "Hare",
+    "cell": [
+     939,
+     1966
+    ],
+    "count": 54,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Coast Salish)",
+    "species": "Hare",
+    "cell": [
+     19,
+     1490
+    ],
+    "count": 53,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Dakelh (Carrier))",
+    "species": "Hare",
+    "cell": [
+     48,
+     755
+    ],
+    "count": 74,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Tsilhqot'in)",
+    "species": "Hare",
+    "cell": [
+     49,
+     1110
+    ],
+    "count": 61,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Connolly) 2",
+    "species": "Hare",
+    "cell": [
+     66,
+     439
+    ],
+    "count": 88,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Secwépemc (Shuswap))",
+    "species": "Hare",
+    "cell": [
+     113,
+     1258
+    ],
+    "count": 48,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Syilx (Okanagan))",
+    "species": "Hare",
+    "cell": [
+     118,
+     1527
+    ],
+    "count": 75,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Cheyenne)",
+    "species": "Hare",
+    "cell": [
+     505,
+     2347
+    ],
+    "count": 70,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Oji-Cree)",
+    "species": "Hare",
+    "cell": [
+     748,
+     1188
+    ],
+    "count": 78,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Menominee)",
+    "species": "Hare",
+    "cell": [
+     852,
+     2183
+    ],
+    "count": 88,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Pembina Post)",
+    "species": "Hare",
+    "cell": [
+     623,
+     1688
+    ],
+    "count": 57,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Pembina Post) 2",
+    "species": "Hare",
+    "cell": [
+     624,
+     1751
+    ],
+    "count": 84,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
+   },
+   {
+    "name": "Hare flats (Fort Esperance) 2",
+    "species": "Hare",
+    "cell": [
+     524,
+     1544
+    ],
+    "count": 83,
+    "capacity": 140,
+    "radius": 500,
+    "route": null
    }
   ],
   "posts": [
@@ -1847,6 +9473,7 @@
     "name": "Moose Factory",
     "company": "HBC",
     "year": 1673,
+    "closed": 0,
     "top": [
      967,
      1096
@@ -1856,6 +9483,7 @@
     "name": "Albany Fort",
     "company": "HBC",
     "year": 1679,
+    "closed": 0,
     "top": [
      944,
      1026
@@ -1865,6 +9493,7 @@
     "name": "Fort Severn",
     "company": "HBC",
     "year": 1689,
+    "closed": 0,
     "top": [
      795,
      715
@@ -1874,6 +9503,7 @@
     "name": "Churchill (Pr. of Wales Fort)",
     "company": "HBC",
     "year": 1717,
+    "closed": 0,
     "top": [
      645,
      341
@@ -1883,6 +9513,7 @@
     "name": "Michipicoten",
     "company": "HBC",
     "year": 1725,
+    "closed": 0,
     "top": [
      911,
      1645
@@ -1892,6 +9523,7 @@
     "name": "Henley House",
     "company": "HBC",
     "year": 1743,
+    "closed": 0,
     "top": [
      886,
      1239
@@ -1901,6 +9533,7 @@
     "name": "Cumberland House",
     "company": "HBC",
     "year": 1774,
+    "closed": 0,
     "top": [
      510,
      1023
@@ -1910,6 +9543,7 @@
     "name": "Gloucester House",
     "company": "HBC",
     "year": 1777,
+    "closed": 0,
     "top": [
      822,
      1324
@@ -1919,6 +9553,7 @@
     "name": "Grand Portage",
     "company": "NWC",
     "year": 1778,
+    "closed": 1803,
     "top": [
      798,
      1745
@@ -1928,6 +9563,7 @@
     "name": "Hudson House",
     "company": "HBC",
     "year": 1779,
+    "closed": 1787,
     "top": [
      412,
      1166
@@ -1937,6 +9573,7 @@
     "name": "Ile-a-la-Crosse",
     "company": "NWC",
     "year": 1779,
+    "closed": 0,
     "top": [
      408,
      825
@@ -1946,6 +9583,7 @@
     "name": "Michilimackinac",
     "company": "NWC",
     "year": 1780,
+    "closed": 0,
     "top": [
      936,
      1965
@@ -1955,6 +9593,7 @@
     "name": "Green Lake",
     "company": "HBC",
     "year": 1782,
+    "closed": 0,
     "top": [
      397,
      977
@@ -1964,6 +9603,7 @@
     "name": "Lac la Ronge",
     "company": "NWC",
     "year": 1782,
+    "closed": 0,
     "top": [
      460,
      904
@@ -1973,6 +9613,7 @@
     "name": "Sault Ste. Marie",
     "company": "NWC",
     "year": 1783,
+    "closed": 0,
     "top": [
      935,
      1868
@@ -1982,6 +9623,7 @@
     "name": "Pine Fort",
     "company": "NWC",
     "year": 1785,
+    "closed": 1811,
     "top": [
      563,
      1615
@@ -1991,6 +9633,7 @@
     "name": "Manchester House",
     "company": "HBC",
     "year": 1786,
+    "closed": 1793,
     "top": [
      374,
      1097
@@ -2000,6 +9643,7 @@
     "name": "South Branch House",
     "company": "HBC",
     "year": 1786,
+    "closed": 1794,
     "top": [
      436,
      1207
@@ -2009,6 +9653,7 @@
     "name": "Osnaburgh House",
     "company": "HBC",
     "year": 1786,
+    "closed": 0,
     "top": [
      767,
      1319
@@ -2018,6 +9663,7 @@
     "name": "Fort Esperance",
     "company": "NWC",
     "year": 1787,
+    "closed": 0,
     "top": [
      524,
      1540
@@ -2027,6 +9673,7 @@
     "name": "Rainy Lake House",
     "company": "NWC",
     "year": 1787,
+    "closed": 0,
     "top": [
      716,
      1740
@@ -2036,6 +9683,7 @@
     "name": "Fort Chipewyan",
     "company": "NWC",
     "year": 1788,
+    "closed": 0,
     "top": [
      353,
      295
@@ -2045,6 +9693,7 @@
     "name": "Brunswick House",
     "company": "HBC",
     "year": 1788,
+    "closed": 0,
     "top": [
      935,
      1412
@@ -2054,6 +9703,7 @@
     "name": "Nipawi",
     "company": "NWC",
     "year": 1790,
+    "closed": 0,
     "top": [
      476,
      1136
@@ -2063,6 +9713,7 @@
     "name": "Swan River House",
     "company": "NWC",
     "year": 1790,
+    "closed": 0,
     "top": [
      533,
      1292
@@ -2072,6 +9723,7 @@
     "name": "Montagne a la Bosse",
     "company": "NWC",
     "year": 1790,
+    "closed": 0,
     "top": [
      552,
      1595
@@ -2081,6 +9733,7 @@
     "name": "Red Lake Post",
     "company": "NWC",
     "year": 1790,
+    "closed": 0,
     "top": [
      690,
      1820
@@ -2090,6 +9743,7 @@
     "name": "La Cloche",
     "company": "HBC",
     "year": 1790,
+    "closed": 0,
     "top": [
      993,
      1817
@@ -2099,6 +9753,7 @@
     "name": "Fort George",
     "company": "NWC",
     "year": 1792,
+    "closed": 1800,
     "top": [
      321,
      993
@@ -2108,6 +9763,7 @@
     "name": "Buckingham House",
     "company": "HBC",
     "year": 1792,
+    "closed": 1800,
     "top": [
      321,
      1037
@@ -2117,6 +9773,7 @@
     "name": "Fort Bas de la Riviere",
     "company": "NWC",
     "year": 1792,
+    "closed": 0,
     "top": [
      647,
      1462
@@ -2126,6 +9783,7 @@
     "name": "Brandon House",
     "company": "HBC",
     "year": 1793,
+    "closed": 0,
     "top": [
      554,
      1635
@@ -2135,6 +9793,7 @@
     "name": "Martin Falls",
     "company": "HBC",
     "year": 1793,
+    "closed": 0,
     "top": [
      854,
      1213
@@ -2144,6 +9803,7 @@
     "name": "Fort Souris",
     "company": "NWC",
     "year": 1794,
+    "closed": 0,
     "top": [
      571,
      1645
@@ -2153,6 +9813,7 @@
     "name": "Edmonton House",
     "company": "HBC",
     "year": 1795,
+    "closed": 0,
     "top": [
      283,
      1043
@@ -2162,6 +9823,7 @@
     "name": "Fort Augustus",
     "company": "NWC",
     "year": 1795,
+    "closed": 0,
     "top": [
      292,
      1017
@@ -2171,6 +9833,7 @@
     "name": "Carlton House",
     "company": "HBC",
     "year": 1795,
+    "closed": 0,
     "top": [
      420,
      1139
@@ -2180,6 +9843,7 @@
     "name": "Fort Alexandria",
     "company": "NWC",
     "year": 1795,
+    "closed": 0,
     "top": [
      525,
      1389
@@ -2189,6 +9853,7 @@
     "name": "Portage la Prairie",
     "company": "NWC",
     "year": 1795,
+    "closed": 0,
     "top": [
      599,
      1570
@@ -2198,6 +9863,7 @@
     "name": "Manitoba House",
     "company": "HBC",
     "year": 1795,
+    "closed": 0,
     "top": [
      594,
      1445
@@ -2207,6 +9873,7 @@
     "name": "Fort Vermilion",
     "company": "NWC",
     "year": 1798,
+    "closed": 0,
     "top": [
      334,
      1033
@@ -2216,6 +9883,7 @@
     "name": "Turtle River House",
     "company": "NWC",
     "year": 1798,
+    "closed": 0,
     "top": [
      622,
      1802
@@ -2225,6 +9893,7 @@
     "name": "Rocky Mountain House",
     "company": "NWC",
     "year": 1799,
+    "closed": 0,
     "top": [
      245,
      1183
@@ -2234,6 +9903,7 @@
     "name": "Nut Lake",
     "company": "HBC",
     "year": 1799,
+    "closed": 0,
     "top": [
      488,
      1266
@@ -2243,6 +9913,7 @@
     "name": "Chesterfield House",
     "company": "HBC",
     "year": 1800,
+    "closed": 1802,
     "top": [
      339,
      1411
@@ -2252,6 +9923,7 @@
     "name": "Fort Nelson (BC)",
     "company": "NWC",
     "year": 1800,
+    "closed": 0,
     "top": [
      145,
      163
@@ -2261,6 +9933,7 @@
     "name": "Pembina Post",
     "company": "NWC",
     "year": 1801,
+    "closed": 0,
     "top": [
      619,
      1709
@@ -2270,6 +9943,7 @@
     "name": "Lesser Slave Lake Ho.",
     "company": "HBC",
     "year": 1802,
+    "closed": 0,
     "top": [
      249,
      745
@@ -2279,6 +9953,7 @@
     "name": "Fort William",
     "company": "NWC",
     "year": 1803,
+    "closed": 0,
     "top": [
      803,
      1691
@@ -2288,6 +9963,7 @@
     "name": "Dunvegan",
     "company": "NWC",
     "year": 1805,
+    "closed": 0,
     "top": [
      193,
      639
@@ -2297,6 +9973,7 @@
     "name": "Fort McLeod",
     "company": "NWC",
     "year": 1805,
+    "closed": 0,
     "top": [
      103,
      657
@@ -2306,6 +9983,7 @@
     "name": "Fort St. James",
     "company": "NWC",
     "year": 1806,
+    "closed": 0,
     "top": [
      73,
      709
@@ -2315,6 +9993,7 @@
     "name": "Fort Fraser",
     "company": "NWC",
     "year": 1806,
+    "closed": 0,
     "top": [
      64,
      752
@@ -2324,6 +10003,7 @@
     "name": "Kootenay House",
     "company": "NWC",
     "year": 1807,
+    "closed": 1812,
     "top": [
      215,
      1382
@@ -2333,6 +10013,7 @@
     "name": "Fort George (BC)",
     "company": "NWC",
     "year": 1807,
+    "closed": 0,
     "top": [
      93,
      795
@@ -2342,6 +10023,7 @@
     "name": "Fort Gibraltar",
     "company": "NWC",
     "year": 1809,
+    "closed": 0,
     "top": [
      617,
      1565
@@ -2351,6 +10033,7 @@
     "name": "Flathead House",
     "company": "NWC",
     "year": 1809,
+    "closed": 0,
     "top": [
      230,
      1830
@@ -2360,6 +10043,7 @@
     "name": "Island Lake House",
     "company": "HBC",
     "year": 1810,
+    "closed": 0,
     "top": [
      660,
      1035
@@ -2369,6 +10053,7 @@
     "name": "Spokane House",
     "company": "NWC",
     "year": 1810,
+    "closed": 0,
     "top": [
      158,
      1751
@@ -2378,6 +10063,7 @@
     "name": "Fort Kamloops",
     "company": "NWC",
     "year": 1812,
+    "closed": 0,
     "top": [
      117,
      1299
@@ -2387,6 +10073,7 @@
     "name": "Jasper House",
     "company": "HBC",
     "year": 1813,
+    "closed": 0,
     "top": [
      175,
      1026
@@ -2396,6 +10083,7 @@
     "name": "Norway House",
     "company": "HBC",
     "year": 1814,
+    "closed": 0,
     "top": [
      605,
      1024
@@ -2405,6 +10093,7 @@
     "name": "Fort Douglas",
     "company": "HBC",
     "year": 1815,
+    "closed": 0,
     "top": [
      633,
      1577
@@ -2414,6 +10103,7 @@
     "name": "Lac Seul House",
     "company": "HBC",
     "year": 1815,
+    "closed": 0,
     "top": [
      732,
      1473
@@ -2423,6 +10113,7 @@
     "name": "Fort Nez Perces",
     "company": "NWC",
     "year": 1818,
+    "closed": 0,
     "top": [
      113,
      1971
@@ -2432,6 +10123,7 @@
     "name": "Great Whale River",
     "company": "HBC",
     "year": 1820,
+    "closed": 0,
     "top": [
      986,
      523
@@ -2441,6 +10133,7 @@
     "name": "Fort Alexandria (BC)",
     "company": "NWC",
     "year": 1821,
+    "closed": 0,
     "top": [
      83,
      992
@@ -2450,6 +10143,7 @@
     "name": "Upper Fort Garry",
     "company": "HBC",
     "year": 1822,
+    "closed": 0,
     "top": [
      618,
      1606
@@ -2459,6 +10153,7 @@
     "name": "Fort Babine",
     "company": "HBC",
     "year": 1822,
+    "closed": 0,
     "top": [
      37,
      535
@@ -2468,6 +10163,7 @@
     "name": "Fort Pelly",
     "company": "HBC",
     "year": 1824,
+    "closed": 0,
     "top": [
      516,
      1342
@@ -2477,6 +10173,7 @@
     "name": "Fort Assiniboine",
     "company": "HBC",
     "year": 1824,
+    "closed": 0,
     "top": [
      258,
      885
@@ -2486,6 +10183,7 @@
     "name": "Fort Vancouver",
     "company": "HBC",
     "year": 1825,
+    "closed": 0,
     "top": [
      26,
      1914
@@ -2495,6 +10193,7 @@
     "name": "Fort Colvile",
     "company": "HBC",
     "year": 1825,
+    "closed": 0,
     "top": [
      155,
      1639
@@ -2504,6 +10203,7 @@
     "name": "Fort Connolly",
     "company": "HBC",
     "year": 1826,
+    "closed": 0,
     "top": [
      70,
      434
@@ -2513,6 +10213,7 @@
     "name": "Fort Langley",
     "company": "HBC",
     "year": 1827,
+    "closed": 0,
     "top": [
      57,
      1433
@@ -2522,6 +10223,7 @@
     "name": "Fort Pitt",
     "company": "HBC",
     "year": 1829,
+    "closed": 0,
     "top": [
      355,
      1043
@@ -2531,6 +10233,7 @@
     "name": "Fort Chilcotin",
     "company": "HBC",
     "year": 1829,
+    "closed": 0,
     "top": [
      64,
      1037
@@ -2540,6 +10243,7 @@
     "name": "Lower Fort Garry",
     "company": "HBC",
     "year": 1830,
+    "closed": 0,
     "top": [
      636,
      1536
@@ -2549,6 +10253,7 @@
     "name": "Fort Ellice",
     "company": "HBC",
     "year": 1831,
+    "closed": 0,
     "top": [
      533,
      1566
@@ -2558,6 +10263,7 @@
     "name": "Fort Nisqually",
     "company": "HBC",
     "year": 1833,
+    "closed": 0,
     "top": [
      36,
      1732
@@ -2567,6 +10273,7 @@
     "name": "Rat Portage",
     "company": "HBC",
     "year": 1836,
+    "closed": 0,
     "top": [
      690,
      1561
@@ -2576,6 +10283,7 @@
     "name": "Fort George (Chisasibi)",
     "company": "HBC",
     "year": 1837,
+    "closed": 0,
     "top": [
      981,
      710
@@ -2585,6 +10293,7 @@
     "name": "Dease Lake",
     "company": "HBC",
     "year": 1838,
+    "closed": 0,
     "top": [
      16,
      44
@@ -2594,6 +10303,7 @@
     "name": "Fort Victoria",
     "company": "HBC",
     "year": 1843,
+    "closed": 0,
     "top": [
      25,
      1517
@@ -2603,6 +10313,7 @@
     "name": "Touchwood Hills",
     "company": "HBC",
     "year": 1852,
+    "closed": 0,
     "top": [
      481,
      1405
@@ -2612,6 +10323,7 @@
     "name": "Fort Qu'Appelle",
     "company": "HBC",
     "year": 1864,
+    "closed": 0,
     "top": [
      477,
      1478
@@ -2970,6 +10682,36 @@
     "people": 8
    },
    {
+    "name": "Métis of the Forks",
+    "nation": "Metis",
+    "kind": "band",
+    "centre": [
+     633,
+     1638
+    ],
+    "people": 12
+   },
+   {
+    "name": "Métis at Pembina",
+    "nation": "Metis",
+    "kind": "band",
+    "centre": [
+     634,
+     1716
+    ],
+    "people": 8
+   },
+   {
+    "name": "Métis of the Qu'Appelle",
+    "nation": "Metis",
+    "kind": "band",
+    "centre": [
+     524,
+     1500
+    ],
+    "people": 8
+   },
+   {
     "name": "Nipissing family at Moose Factory",
     "nation": "Ojibwe",
     "kind": "family",
@@ -3135,13 +10877,13 @@
     "people": 4
    },
    {
-    "name": "Hidatsa family at Pine Fort",
-    "nation": "Missouri",
+    "name": "Métis of the Qu'Appelle family at Pine Fort",
+    "nation": "Metis",
     "kind": "family",
     "post": "Pine Fort",
     "centre": [
-     558,
-     1625
+     551,
+     1629
     ],
     "people": 4
    },
@@ -3173,14 +10915,14 @@
     "kind": "family",
     "post": "Osnaburgh House",
     "centre": [
-     762,
-     1333
+     761,
+     1335
     ],
     "people": 4
    },
    {
-    "name": "Assiniboine family at Fort Esperance",
-    "nation": "Assiniboine",
+    "name": "Métis of the Qu'Appelle family at Fort Esperance",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Esperance",
     "centre": [
@@ -3234,8 +10976,8 @@
     "people": 4
    },
    {
-    "name": "Assiniboine family at Swan River House",
-    "nation": "Assiniboine",
+    "name": "Métis of the Qu'Appelle family at Swan River House",
+    "nation": "Metis",
     "kind": "family",
     "post": "Swan River House",
     "centre": [
@@ -3245,8 +10987,8 @@
     "people": 4
    },
    {
-    "name": "Assiniboine family at Montagne a la Bosse",
-    "nation": "Assiniboine",
+    "name": "Métis of the Qu'Appelle family at Montagne a la Bosse",
+    "nation": "Metis",
     "kind": "family",
     "post": "Montagne a la Bosse",
     "centre": [
@@ -3261,8 +11003,8 @@
     "kind": "family",
     "post": "Red Lake Post",
     "centre": [
-     685,
-     1828
+     686,
+     1848
     ],
     "people": 4
    },
@@ -3300,8 +11042,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Fort Bas de la Riviere",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Fort Bas de la Riviere",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Bas de la Riviere",
     "centre": [
@@ -3311,8 +11053,8 @@
     "people": 4
    },
    {
-    "name": "Hidatsa family at Brandon House",
-    "nation": "Missouri",
+    "name": "Métis of the Qu'Appelle family at Brandon House",
+    "nation": "Metis",
     "kind": "family",
     "post": "Brandon House",
     "centre": [
@@ -3333,8 +11075,8 @@
     "people": 4
    },
    {
-    "name": "Hidatsa family at Fort Souris",
-    "nation": "Missouri",
+    "name": "Métis of the Qu'Appelle family at Fort Souris",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Souris",
     "centre": [
@@ -3360,8 +11102,8 @@
     "kind": "family",
     "post": "Fort Augustus",
     "centre": [
-     287,
-     1033
+     288,
+     1037
     ],
     "people": 4
    },
@@ -3371,25 +11113,25 @@
     "kind": "family",
     "post": "Carlton House",
     "centre": [
-     415,
-     1155
+     416,
+     1159
     ],
     "people": 4
    },
    {
-    "name": "Assiniboine family at Fort Alexandria",
-    "nation": "Assiniboine",
+    "name": "Métis of the Qu'Appelle family at Fort Alexandria",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Alexandria",
     "centre": [
-     520,
-     1401
+     518,
+     1403
     ],
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Portage la Prairie",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Portage la Prairie",
+    "nation": "Metis",
     "kind": "family",
     "post": "Portage la Prairie",
     "centre": [
@@ -3399,13 +11141,13 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Manitoba House",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Manitoba House",
+    "nation": "Metis",
     "kind": "family",
     "post": "Manitoba House",
     "centre": [
-     590,
-     1445
+     585,
+     1473
     ],
     "people": 4
    },
@@ -3416,13 +11158,13 @@
     "post": "Fort Vermilion",
     "centre": [
      329,
-     1051
+     1055
     ],
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Turtle River House",
-    "nation": "Ojibwe",
+    "name": "Métis at Pembina family at Turtle River House",
+    "nation": "Metis",
     "kind": "family",
     "post": "Turtle River House",
     "centre": [
@@ -3476,8 +11218,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Pembina Post",
-    "nation": "Ojibwe",
+    "name": "Métis at Pembina family at Pembina Post",
+    "nation": "Metis",
     "kind": "family",
     "post": "Pembina Post",
     "centre": [
@@ -3575,8 +11317,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Fort Gibraltar",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Fort Gibraltar",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Gibraltar",
     "centre": [
@@ -3652,8 +11394,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Fort Douglas",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Fort Douglas",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Douglas",
     "centre": [
@@ -3707,8 +11449,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Upper Fort Garry",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Upper Fort Garry",
+    "nation": "Metis",
     "kind": "family",
     "post": "Upper Fort Garry",
     "centre": [
@@ -3729,8 +11471,8 @@
     "people": 4
    },
    {
-    "name": "Assiniboine family at Fort Pelly",
-    "nation": "Assiniboine",
+    "name": "Métis of the Qu'Appelle family at Fort Pelly",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Pelly",
     "centre": [
@@ -3817,8 +11559,8 @@
     "people": 4
    },
    {
-    "name": "Plains Ojibwa (Saulteaux) family at Lower Fort Garry",
-    "nation": "Ojibwe",
+    "name": "Métis of the Forks family at Lower Fort Garry",
+    "nation": "Metis",
     "kind": "family",
     "post": "Lower Fort Garry",
     "centre": [
@@ -3828,8 +11570,8 @@
     "people": 4
    },
    {
-    "name": "Assiniboine family at Fort Ellice",
-    "nation": "Assiniboine",
+    "name": "Métis of the Qu'Appelle family at Fort Ellice",
+    "nation": "Metis",
     "kind": "family",
     "post": "Fort Ellice",
     "centre": [
@@ -3888,8 +11630,8 @@
     "kind": "family",
     "post": "Fort Victoria",
     "centre": [
-     20,
-     1525
+     18,
+     1519
     ],
     "people": 4
    },
@@ -3914,6 +11656,978 @@
      1496
     ],
     "people": 4
+   }
+  ],
+  "routes": [
+   {
+    "name": "Montréal canoe route",
+    "pts": [
+     [
+      127119,
+      59678
+     ],
+     [
+      122700,
+      60021
+     ],
+     [
+      120115,
+      59335
+     ],
+     [
+      115534,
+      56824
+     ],
+     [
+      110239,
+      55322
+     ],
+     [
+      105884,
+      54884
+     ],
+     [
+      103839,
+      54472
+     ],
+     [
+      99745,
+      54227
+     ],
+     [
+      95645,
+      54671
+     ],
+     [
+      91600,
+      55474
+     ],
+     [
+      87839,
+      53700
+     ],
+     [
+      85786,
+      50933
+     ],
+     [
+      83277,
+      48821
+     ],
+     [
+      82329,
+      47795
+     ]
+    ]
+   },
+   {
+    "name": "Saskatchewan brigade",
+    "pts": [
+     [
+      81708,
+      47182
+     ],
+     [
+      76998,
+      39987
+     ],
+     [
+      75755,
+      37402
+     ],
+     [
+      73379,
+      36868
+     ],
+     [
+      68083,
+      34039
+     ],
+     [
+      65412,
+      33500
+     ],
+     [
+      60859,
+      35957
+     ],
+     [
+      53993,
+      38194
+     ],
+     [
+      47895,
+      35722
+     ],
+     [
+      41212,
+      33679
+     ],
+     [
+      36060,
+      33278
+     ]
+    ]
+   },
+   {
+    "name": "Northern (Athabasca) brigade",
+    "pts": [
+     [
+      65412,
+      33500
+     ],
+     [
+      62022,
+      27111
+     ],
+     [
+      57242,
+      26989
+     ],
+     [
+      51478,
+      26449
+     ],
+     [
+      49748,
+      22981
+     ],
+     [
+      47706,
+      21018
+     ],
+     [
+      45674,
+      15008
+     ],
+     [
+      44931,
+      11255
+     ],
+     [
+      42288,
+      5169
+     ]
+    ]
+   },
+   {
+    "name": "York Factory inland route",
+    "pts": [
+     [
+      89320,
+      18167
+     ],
+     [
+      85688,
+      22244
+     ],
+     [
+      83145,
+      28203
+     ],
+     [
+      80081,
+      31749
+     ],
+     [
+      76970,
+      32970
+     ],
+     [
+      77916,
+      37701
+     ]
+    ]
+   },
+   {
+    "name": "Columbia / New Caledonia brigade",
+    "pts": [
+     [
+      2621,
+      61821
+     ],
+     [
+      11200,
+      61952
+     ],
+     [
+      14800,
+      53644
+     ],
+     [
+      16086,
+      47090
+     ],
+     [
+      15225,
+      41934
+     ],
+     [
+      12846,
+      37086
+     ],
+     [
+      11846,
+      32066
+     ],
+     [
+      10514,
+      25806
+     ],
+     [
+      9608,
+      23022
+     ]
+    ]
+   }
+  ],
+  "landmarks": [
+   {
+    "name": "Methye Portage (Portage La Loche)",
+    "kind": "portage",
+    "at": [
+     47706,
+     21018
+    ],
+    "note": "20-km divide between the Churchill & Mackenzie (Athabasca) watersheds."
+   },
+   {
+    "name": "Frog Portage (Portage du Traite)",
+    "kind": "portage",
+    "at": [
+     62022,
+     27111
+    ],
+    "note": "Churchill ↔ Saskatchewan (Sturgeon-Weir) watershed carry."
+   },
+   {
+    "name": "Grand Rapids",
+    "kind": "portage",
+    "at": [
+     73379,
+     36868
+    ],
+    "note": "Head of navigation where the Saskatchewan enters Lake Winnipeg."
+   },
+   {
+    "name": "Grand Portage",
+    "kind": "portage",
+    "at": [
+     102904,
+     56553
+    ],
+    "note": "13.5-km carry from Lake Superior around the Pigeon River falls."
+   },
+   {
+    "name": "Portage la Prairie",
+    "kind": "portage",
+    "at": [
+     76895,
+     50798
+    ],
+    "note": "Assiniboine ↔ Lake Manitoba carrying place."
+   },
+   {
+    "name": "Rock Portage",
+    "kind": "portage",
+    "at": [
+     86413,
+     23047
+    ],
+    "note": "On the York Factory - Oxford House road."
+   },
+   {
+    "name": "Borwick's Falls",
+    "kind": "portage",
+    "at": [
+     85811,
+     24239
+    ],
+    "note": "On the York Factory - Oxford House road."
+   },
+   {
+    "name": "Trout Falls",
+    "kind": "portage",
+    "at": [
+     83961,
+     27937
+    ],
+    "note": "On the York Factory - Oxford House road."
+   },
+   {
+    "name": "Rocky Mountains",
+    "kind": "mountains",
+    "at": [
+     19271,
+     23202
+    ],
+    "note": ""
+   },
+   {
+    "name": "Coast Mountains",
+    "kind": "mountains",
+    "at": [
+     765,
+     22075
+    ],
+    "note": ""
+   },
+   {
+    "name": "Hudson Bay",
+    "kind": "water",
+    "at": [
+     92619,
+     11787
+    ],
+    "note": ""
+   },
+   {
+    "name": "James Bay",
+    "kind": "water",
+    "at": [
+     121729,
+     26898
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Winnipeg",
+    "kind": "water",
+    "at": [
+     78314,
+     39449
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Superior",
+    "kind": "water",
+    "at": [
+     109555,
+     56386
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Michigan",
+    "kind": "water",
+    "at": [
+     115073,
+     73964
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Athabasca",
+    "kind": "water",
+    "at": [
+     48849,
+     9080
+    ],
+    "note": ""
+   },
+   {
+    "name": "Cypress Hills",
+    "kind": "hills",
+    "at": [
+     43293,
+     51995
+    ],
+    "note": ""
+   },
+   {
+    "name": "Wood Mountain",
+    "kind": "hills",
+    "at": [
+     53595,
+     53682
+    ],
+    "note": ""
+   },
+   {
+    "name": "Touchwood Hills",
+    "kind": "hills",
+    "at": [
+     61246,
+     45496
+    ],
+    "note": ""
+   },
+   {
+    "name": "Duck Mountain",
+    "kind": "hills",
+    "at": [
+     69257,
+     43898
+    ],
+    "note": ""
+   },
+   {
+    "name": "Riding Mountain",
+    "kind": "hills",
+    "at": [
+     71890,
+     47808
+    ],
+    "note": ""
+   },
+   {
+    "name": "Turtle Mountain",
+    "kind": "hills",
+    "at": [
+     71592,
+     55154
+    ],
+    "note": ""
+   },
+   {
+    "name": "Moose Mountain",
+    "kind": "hills",
+    "at": [
+     64017,
+     52621
+    ],
+    "note": ""
+   },
+   {
+    "name": "Pasquia Hills",
+    "kind": "hills",
+    "at": [
+     65092,
+     37313
+    ],
+    "note": ""
+   },
+   {
+    "name": "Wollaston Lake",
+    "kind": "lake",
+    "at": [
+     62783,
+     15000
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Manitoba",
+    "kind": "lake",
+    "at": [
+     75099,
+     45632
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Winnipegosis",
+    "kind": "lake",
+    "at": [
+     71056,
+     39952
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake of the Woods",
+    "kind": "lake",
+    "at": [
+     87646,
+     52399
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Nipigon",
+    "kind": "lake",
+    "at": [
+     104634,
+     47848
+    ],
+    "note": ""
+   },
+   {
+    "name": "Reindeer Lake",
+    "kind": "lake",
+    "at": [
+     64852,
+     19283
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Winnebago",
+    "kind": "lake",
+    "at": [
+     110258,
+     73032
+    ],
+    "note": ""
+   },
+   {
+    "name": "Churchill Lake",
+    "kind": "lake",
+    "at": [
+     49895,
+     22891
+    ],
+    "note": ""
+   },
+   {
+    "name": "Cree Lake",
+    "kind": "lake",
+    "at": [
+     55011,
+     17702
+    ],
+    "note": ""
+   },
+   {
+    "name": "Kasba Lake",
+    "kind": "lake",
+    "at": [
+     65243,
+     5313
+    ],
+    "note": ""
+   },
+   {
+    "name": "Scott Lake",
+    "kind": "lake",
+    "at": [
+     56690,
+     6469
+    ],
+    "note": ""
+   },
+   {
+    "name": "Yellowstone Lake",
+    "kind": "lake",
+    "at": [
+     39834,
+     74664
+    ],
+    "note": ""
+   },
+   {
+    "name": "Flathead Lake",
+    "kind": "lake",
+    "at": [
+     30267,
+     57770
+    ],
+    "note": ""
+   },
+   {
+    "name": "Southern Indian Lake",
+    "kind": "lake",
+    "at": [
+     73772,
+     19052
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Clare",
+    "kind": "lake",
+    "at": [
+     42773,
+     11603
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake St. Joseph",
+    "kind": "lake",
+    "at": [
+     96902,
+     43686
+    ],
+    "note": ""
+   },
+   {
+    "name": "Leech Lake",
+    "kind": "lake",
+    "at": [
+     89404,
+     62209
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lac des Mille Lacs",
+    "kind": "lake",
+    "at": [
+     99905,
+     52886
+    ],
+    "note": ""
+   },
+   {
+    "name": "Big Trout Lake",
+    "kind": "lake",
+    "at": [
+     97085,
+     31275
+    ],
+    "note": ""
+   },
+   {
+    "name": "Trout Lake",
+    "kind": "lake",
+    "at": [
+     90520,
+     44067
+    ],
+    "note": ""
+   },
+   {
+    "name": "Island Lake",
+    "kind": "lake",
+    "at": [
+     85668,
+     32776
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lac la Ronge",
+    "kind": "lake",
+    "at": [
+     58920,
+     28075
+    ],
+    "note": ""
+   },
+   {
+    "name": "Mille Lacs Lake",
+    "kind": "lake",
+    "at": [
+     92363,
+     65952
+    ],
+    "note": ""
+   },
+   {
+    "name": "Gods Lake",
+    "kind": "lake",
+    "at": [
+     85885,
+     29012
+    ],
+    "note": ""
+   },
+   {
+    "name": "Malheur Lake",
+    "kind": "lake",
+    "at": [
+     12183,
+     75044
+    ],
+    "note": ""
+   },
+   {
+    "name": "Rainy Lake",
+    "kind": "lake",
+    "at": [
+     92694,
+     55232
+    ],
+    "note": ""
+   },
+   {
+    "name": "Williston Lake",
+    "kind": "lake",
+    "at": [
+     13232,
+     17057
+    ],
+    "note": ""
+   },
+   {
+    "name": "Split Lake",
+    "kind": "lake",
+    "at": [
+     80438,
+     23001
+    ],
+    "note": ""
+   },
+   {
+    "name": "Ft. Peck Lake",
+    "kind": "lake",
+    "at": [
+     51492,
+     60884
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Sakakawea",
+    "kind": "lake",
+    "at": [
+     65054,
+     60766
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Oahe",
+    "kind": "lake",
+    "at": [
+     71102,
+     71897
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lower Arrow Lake",
+    "kind": "lake",
+    "at": [
+     20383,
+     48529
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Pend Oreille",
+    "kind": "lake",
+    "at": [
+     23835,
+     55366
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Chelan",
+    "kind": "lake",
+    "at": [
+     12584,
+     53637
+    ],
+    "note": ""
+   },
+   {
+    "name": "Black Lake",
+    "kind": "lake",
+    "at": [
+     58049,
+     10531
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lower Red Lake",
+    "kind": "lake",
+    "at": [
+     87200,
+     58765
+    ],
+    "note": ""
+   },
+   {
+    "name": "Upper Red Lake",
+    "kind": "lake",
+    "at": [
+     87631,
+     58090
+    ],
+    "note": ""
+   },
+   {
+    "name": "Lake Île-á-la-Crosse",
+    "kind": "lake",
+    "at": [
+     51431,
+     26215
+    ],
+    "note": ""
+   },
+   {
+    "name": "Wholdaia Lake",
+    "kind": "lake",
+    "at": [
+     61160,
+     3336
+    ],
+    "note": ""
+   },
+   {
+    "name": "Kinbasket Lake",
+    "kind": "lake",
+    "at": [
+     21674,
+     36247
+    ],
+    "note": ""
+   },
+   {
+    "name": "Harney Lake",
+    "kind": "lake",
+    "at": [
+     10840,
+     75100
+    ],
+    "note": ""
+   },
+   {
+    "name": "Albany River",
+    "kind": "river",
+    "at": [
+     108754,
+     38338
+    ],
+    "note": ""
+   },
+   {
+    "name": "Athabasca River",
+    "kind": "river",
+    "at": [
+     40444,
+     20436
+    ],
+    "note": ""
+   },
+   {
+    "name": "Columbia River",
+    "kind": "river",
+    "at": [
+     12271,
+     57523
+    ],
+    "note": ""
+   },
+   {
+    "name": "Nelson River",
+    "kind": "river",
+    "at": [
+     76949,
+     34171
+    ],
+    "note": ""
+   },
+   {
+    "name": "Peace River",
+    "kind": "river",
+    "at": [
+     30146,
+     14708
+    ],
+    "note": ""
+   },
+   {
+    "name": "Saskatchewan River",
+    "kind": "river",
+    "at": [
+     68028,
+     33907
+    ],
+    "note": ""
+   },
+   {
+    "name": "South Saskatchewan River",
+    "kind": "river",
+    "at": [
+     38885,
+     49612
+    ],
+    "note": ""
+   },
+   {
+    "name": "Winnipeg River",
+    "kind": "river",
+    "at": [
+     85610,
+     48762
+    ],
+    "note": ""
+   },
+   {
+    "name": "Fraser River",
+    "kind": "river",
+    "at": [
+     11726,
+     32584
+    ],
+    "note": ""
+   },
+   {
+    "name": "Liard River",
+    "kind": "river",
+    "at": [
+     14445,
+     1693
+    ],
+    "note": ""
+   },
+   {
+    "name": "North Saskatchewan River",
+    "kind": "river",
+    "at": [
+     36517,
+     32899
+    ],
+    "note": ""
+   },
+   {
+    "name": "Skeena River",
+    "kind": "river",
+    "at": [
+     2908,
+     15356
+    ],
+    "note": ""
+   },
+   {
+    "name": "Slave River",
+    "kind": "river",
+    "at": [
+     42730,
+     2800
+    ],
+    "note": ""
+   },
+   {
+    "name": "Red River",
+    "kind": "river",
+    "at": [
+     80698,
+     48605
+    ],
+    "note": ""
+   },
+   {
+    "name": "Assiniboine River",
+    "kind": "river",
+    "at": [
+     75458,
+     51195
+    ],
+    "note": ""
+   },
+   {
+    "name": "Qu'Appelle River",
+    "kind": "river",
+    "at": [
+     64585,
+     48845
+    ],
+    "note": ""
+   },
+   {
+    "name": "Souris River",
+    "kind": "river",
+    "at": [
+     70386,
+     53860
+    ],
+    "note": ""
+   },
+   {
+    "name": "Hayes River",
+    "kind": "river",
+    "at": [
+     85519,
+     24945
+    ],
+    "note": ""
    }
   ]
  }

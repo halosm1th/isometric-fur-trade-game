@@ -275,6 +275,17 @@ public partial class Npc : Agent
         float dt = (float)delta;
         var cal = GameCalendar.Instance;
         if (cal == null) return;
+        // A day that passes in a couple of seconds is a day nobody could have
+        // walked anywhere in (design doc 18.2). The daily batch is already
+        // resolving everyone's work in numbers at that speed, so a live body
+        // re-running searches and paths every frame is doing it twice, for an
+        // audience that cannot see him. He keeps his body and his position;
+        // only the thinking stops until the clock is a man's again.
+        if (cal.MotionScale > 8f || cal.IsSkipping)
+        {
+            if (Brain.Tier0Goal() == null) { StopMoving(); return; }
+        }
+
         // On his guard, or not (design doc 15.6). A man at work with his back
         // to the bush can be taken; one who has heard a shot cannot.
         if (Alerted > 0f) Alerted -= dt;

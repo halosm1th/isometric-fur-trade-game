@@ -54,6 +54,8 @@ public static class Camps
     // Every peer, at world start: the camps are there from the beginning.
     public static void Begin(Node host)
     {
+        // Dev aid: `-- --nocamps` leaves the wider country empty of its peoples.
+        if (System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--nocamps") >= 0) return;
         foreach (var c in All)
         {
             c.Ledger = new CountryBand { Name = c.Name, Nation = c.Nation, Camp = c.Centre, WinterGround = c.Centre, SummerGround = c.Centre, Country = c };
@@ -67,6 +69,6 @@ public static class Camps
     {
         Faction.Cree => "Cree", Faction.Assiniboine => "Assiniboine", Faction.Ojibwe => "Ojibwe", Faction.Dene => "Dene",
         Faction.Blackfoot => "Blackfoot", Faction.Sioux => "Sioux", Faction.Plateau => "Plateau people", Faction.Coast => "Coast people",
-        Faction.Missouri => "Missouri people", _ => f.ToString(),
+        Faction.Missouri => "Missouri people", Faction.Metis => "Métis", _ => f.ToString(),
     };
 }

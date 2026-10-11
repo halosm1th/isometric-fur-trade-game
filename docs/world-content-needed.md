@@ -10,7 +10,9 @@ Sources checked: `Agents/Npc.cs` (13 `Role`s), `Ecology/Species.cs` (4 `Species`
 
 ## 1. Indigenous nations and peoples
 
-**There now:** two nations, and only at York. `Cree` (roles `CreeChief`, `CreeHunter`, `CreeWoman`, `CreeDaughter`; sprites `cree`, `cree_captain`, `cree_woman`) and `Assiniboine` (sprite `assiniboine`, no role of its own). Four camps in `world.json`: Cree winter/summer and Assiniboine winter/summer, all near York.
+> **Update 2026-10-11:** this section was written before the country's camps went in. The code now has band camps for the Cree, Assiniboine, **Ojibwe, Dene, Blackfoot, Sioux, Plateau, Coast and Missouri** peoples across the map (`World/Camps.cs`, 121 camps from the atlas), and **the Métis** (three camps: the Forks, Pembina, the Qu'Appelle). What below is still true is the depth each needs: leaders, seasonal rounds, alliances and enemies, their own sprites (most borrow the Cree and Assiniboine sheets; the Métis wear the voyageur's).
+
+**There at first writing:** two nations, and only at York. `Cree` (roles `CreeChief`, `CreeHunter`, `CreeWoman`, `CreeDaughter`; sprites `cree`, `cree_captain`, `cree_woman`) and `Assiniboine` (sprite `assiniboine`, no role of its own). Four camps in `world.json`: Cree winter/summer and Assiniboine winter/summer, all near York.
 
 Every nation below needs, at least: a band/camp record with homeland and seasonal round, leaders, language (for the literacy/language barrier, design doc 10.6), trade wants and furs offered, alliances and enemies (design doc 7.2), a clothing look for sprites, and where it sits on the map.
 
@@ -27,7 +29,7 @@ Every nation below needs, at least: a band/camp record with homeland and seasona
 
 | People | Why the game needs them |
 |---|---|
-| **Métis (Bois-Brûlés, Michif)** | A whole starting path (design doc 5.3) with no role, sprite or group in code. Buffalo hunt captains, pemmican suppliers, Cuthbert Grant's riders at Seven Oaks. Need: Red River and Pembina communities, the hunt organisation (captains, scouts, soldiers; design doc 16.1), Red River carts, sashes and capotes, the Michif language, the Métis flag (first flown c. 1815 *(check)*). |
+| **Métis (Bois-Brûlés, Michif)**: **camps in code 2026-10-11** | Three band camps (the Forks, Pembina, the Qu'Appelle) under hunt captains, playable as a birth camp. Still wanted: their own sprite sheet, the buffalo hunt, Red River carts, the flag. Buffalo hunt captains, pemmican suppliers, Cuthbert Grant's riders at Seven Oaks. Need: Red River and Pembina communities, the hunt organisation (captains, scouts, soldiers; design doc 16.1), Red River carts, sashes and capotes, the Michif language, the Métis flag (first flown c. 1815 *(check)*). |
 | **Ojibwe / Saulteaux (Anishinaabe)** | Red River, Lake of the Woods, Rainy Lake, Lake Superior. **Chief Peguis** and his Saulteaux helped Selkirk's settlers survive (1812 on). The canoe route from Fort William crosses their country: wild rice, maple sugar, fish. Southern Department bands too (design doc 6.2). |
 | **Dene: Chipewyan (Denesuline)** | Athabasca and Churchill country. Fort Chipewyan is on the map; the Athabasca was the richest fur district and the hottest HBC/NWC battleground in 1815 to 1821. Need: a group, caribou-dependent round, relations with the Cree (historically hostile, then peace). |
 | **Blackfoot Confederacy: Siksika, Kainai (Blood), Piikani (Peigan)** | Named in design doc 7.2 as the plains military power, with war parties that physically move (15.1). None in code. Need: three nations with their own leaders, horse herds, war-party agents, trade at Edmonton / Rocky Mountain House. |
@@ -109,10 +111,10 @@ Every nation below needs, at least: a band/camp record with homeland and seasona
 
 **There now:** 100 posts in `world.json` (HBC, NWC, AMER, FR), each with a ledger and founding year. York Factory is the only one built as a scene (`Scenes/World/YorkFactoryExterior.tscn`). Every other post is a map point and a ledger with no buildings, people or layout.
 
-### 4.1 Broken right now (P1)
+### 4.1 Start locations (P1)
 
-- **`FortWilliamExterior.tscn` and `FortGarryExterior.tscn` are referenced in `Core/GameManager.cs` but don't exist.** Picking the NWC or Red River start will crash. Build them or hide those start options.
-- **Fort Garry is anachronistic as the Red River start.** Upper Fort Garry is 1822 in `world.json`. For 1811 to 1821, the Red River start should be **Fort Douglas** (HBC / colony, 1812 to 1813; the map says 1815 *(check)*) or **Fort Gibraltar** (NWC, 1809), or a Métis camp at **Pembina** / **Fort Daer**.
+- ~~`FortWilliamExterior.tscn` and `FortGarryExterior.tscn` referenced but missing~~ **Not a crash (checked 2026-10-11).** Every start path (HBC, NWC, Cree, Assiniboine; `Core/Starts.cs`) begins in the one York Factory world scene, and the old per-post scene map in `GameManager.cs` was dead code; it's been removed. An NWC start at Fort William, or a Métis start at Red River, would be a place in the streamed world, not a separate scene.
+- **If a Red River start is added, don't call it Fort Garry.** Upper Fort Garry is 1822 in `world.json`. For 1811 to 1821, the Red River start should be **Fort Douglas** (HBC / colony, 1812 to 1813; the map says 1815 *(check)*) or **Fort Gibraltar** (NWC, 1809), or a Métis camp at **Pembina** / **Fort Daer**.
 
 ### 4.2 Missing posts that matter in the window (P2)
 
@@ -129,7 +131,7 @@ Every nation below needs, at least: a band/camp record with homeland and seasona
 
 ### 4.3 Posts on the map that need a playable layout (by priority)
 
-1. **Fort William** (NWC HQ, the July rendezvous, Great Hall, the council). Its own building set: Montreal-style squared-timber buildings, the Great Hall, a palisade, the canoe yard, the voyageurs' camp outside the walls.
+1. **Fort William**: **first pass done 2026-10-11.** A 17 x 10 palisade on the Kaministiquia shore (the old post was 12 x 9) holding the store, **the Great Hall** (long council table, hearth, candles) and **the partners' house** (`Posts.FortWilliam`, `BuildingKind.GreatHall` / `PartnersHouse`). Still wanted: the July rendezvous gathering people into it, the council (`Economy/Council.cs`) actually sitting in the Hall, the canoe yard and the voyageurs' camp outside the walls, more of the real fort's forty buildings.
 2. **Fort Douglas / Fort Gibraltar** (Red River pair, Seven Oaks between them).
 3. **Norway House** (HBC's inland depot from 1814, the hub of the York boat brigades).
 4. **Cumberland House** (HBC's first inland post, 1774; the Saskatchewan gateway).
@@ -151,10 +153,12 @@ Fort Pitt 1829, Fort Pelly 1824, Fort Ellice 1831, Fort Qu'Appelle 1864, Upper/L
 
 | Needed | Priority | Notes |
 |---|---|---|
-| **Log / squared-timber wall set** to replace the Kenney stone | P1 | York was wood: piece-sur-pièce and log construction, plank roofs, palisade. Also listed in `asset-inventory.md`. |
+| ~~**Log / squared-timber wall set**~~ **done 2026-10-11** | P1 | Whitewashed log walls and a stake palisade, fitted from the Gemini sheet by `tools/sprites/walls.py`. Next: the weathered set for the NWC house and inland posts, palisade gates, plank roofs. |
 | **York Factory buildings by name** | P1 | The Factor's house, the men's house, the trade store and warehouse, the provision store, the cooper's and blacksmith's shops, the boat shed, the powder magazine, the observatory and flagpole, the graveyard, the "Homeguard" Cree tents outside the walls. |
 | **Interiors** | P1 | Men's house, Factor's mess and office, trade room (with the trading window and counter), store. Furniture beyond Kenney's library set. |
 | **Indigenous dwellings** | P1 | Cree conical lodges covered in birchbark or moose/caribou hide; summer vs winter lodge. Plains tipis (Assiniboine, Blackfoot) for P2. Ojibwe wigwams. Drying racks, smoking racks, caches on stilts (cache prop exists). |
+| **Berry patches** | P1 | Berries are now gathered by every camp and post through July, August and September (`Economy/Gardens.cs`) and are the main answer to the scurvy, but there is nothing to see: no bush in fruit, no picked bush, no bare winter bush. Saskatoon, cranberry and rosehip are the three that matter here. A gatherable prop like the woodpile would also give the player something to walk to. |
+| **Mandan / Hidatsa / Arikara villages** | P2 | The Missouri towns are farming towns in code now (`Economy/Gardens.cs`) and they are drawn as plains tipis, which is flatly wrong. They lived in **dome-shaped earth lodges** - a timber frame carried on four central posts, covered with willow, grass and sod, twelve metres across, with a smoke hole and an entry passage - in villages behind a **ditch and palisade**, surrounded by **garden plots** of corn, beans, squash and sunflower on the bottomland, with **corn-drying scaffolds** on the lodge roofs and in the village, and **bullboats** (a round hide boat on a willow frame) at the river. This is the great market of the plains and it should not look like a hunting camp. |
 | **Red River farms and Métis houses** | P2 | River lots (long narrow strips back from the river), Red River frame houses, Red River carts, hay stacks, the colony's windmill (later). |
 | **Fort William building set** | P2 | See 4.3. |
 | **Portages and landmarks** | P2 | Key portages are already a map layer (design doc 6.1). Need: the trails, put-in points, the Hayes River route from York (Hill River, Robinson Portage, Painted Stone), Methye Portage to the Athabasca. |
@@ -169,8 +173,8 @@ Fort Pitt 1829, Fort Pelly 1824, Fort Ellice 1831, Fort Qu'Appelle 1864, Upper/L
 
 | Animal | Region | Why it matters | Priority |
 |---|---|---|---|
-| **Snowshoe hare** | Everywhere | Art and item exist; add the species. Winter food when everything else fails; snaring. | P1 |
-| **Willow ptarmigan** | Bay | Art exists; add the species. Shot in thousands at York in winter. | P1 |
+| ~~**Snowshoe hare**~~ **in code 2026-10-11** | Everywhere | `Species.Hare`, the "Hare thicket" site south-west of the fort, white in winter and brown in summer. Snaring (`ForageGoal`) now takes hares out of the thicket's count, so a snared-out thicket stays thin until it breeds back. Still wanted: the 10-year hare cycle. | P1 |
+| ~~**Willow ptarmigan**~~ **in code 2026-10-11** | Bay | `Species.Ptarmigan`, the "Ptarmigan willows" site north of the fort; a shot into a flock takes three. Snarers take a few in winter. Gives the new `Ptarmigan` food item (fresh, so it answers scurvy). | P1 |
 | **Fish** (whitefish, pike, sturgeon, lake trout) | Everywhere | `Fish` item exists, no animal. Nets under ice keep the post alive (`scurvy` commit). Sturgeon matter on the Saskatchewan and Rainy Lake. | P1 |
 | **Polar bear** | Bay coast | Walks the shore at York in autumn: a real hazard. | P1 |
 | **Sled dogs** | Everywhere | Winter travel, barking, dog teams as property. | P1 |
@@ -220,15 +224,17 @@ Missing roles, roughly in order of usefulness at York first:
 
 | Needed | Why |
 |---|---|
-| **Tobacco** (Brazil twist) | The single most important trade and diplomatic good: smoked before every trade and council. Icon exists. |
-| **Shot, ball and powder** (powder horn icon exists) | Muskets currently have no ammunition economy; design doc 15.3 needs reloads to cost something. |
-| **Beads, awls, needles, vermilion, brass kettles, files, scrapers, mirrors** | The real trade goods list (the HBC "standard of trade"). `TradeGoods` is one lump right now. |
-| **Stroud cloth, point blankets by size** (1, 1.5, 2, 2.5, 3, 4 point) | Blankets were priced by points; ties straight into the made-beaver economy. |
-| **Made-beaver token** | The HBC unit of account. Icon exists. |
+| ~~**Tobacco**~~ **in code 2026-10-11** | `ItemId.Tobacco`. A band's trading party smokes the pipe before trading: the post gives a twist, and standing with that company rises; a post with none loses a little standing (`TradeTripGoal`). Stocked at York, the NWC house and inland posts. Still wanted: tobacco at councils, and a man smoking his own pipe. |
+| **Shot, ball and powder**: item in, economy not | `ItemId.Powder` ("Powder and ball", the powder-horn icon) is stocked and tradeable, but **muskets don't use it up yet**. Making every shot cost a charge needs NPCs to restock from their household, or the goose hunt stops; that's the next step. |
+| **Beads, awls**: in code 2026-10-11; needles, vermilion, files, scrapers, mirrors still wanted | `ItemId.Beads`, `ItemId.Awl`, valued by the Standard of Trade and stocked at the posts. Bands still trade in the `TradeGoods` lump; these are for the player's barter. |
+| **Stroud**: in code 2026-10-11; point blankets by size still wanted | `ItemId.Stroud`, a yard of stroud. |
+| ~~**Made-beaver token**~~ **in code 2026-10-11** | `ItemId.MbToken`, worth exactly 1 MB in barter. |
 | **Letter, dispatch, journal, ledger** | The physical message system (design doc 10.1.1) needs them as real objects you can carry, lose, steal, read. Icons exist. |
-| **Ice chisel, fishing net** | Winter fishing. Icons exist. |
-| **Grease, marrow fat, berries, wild rice, maple sugar, flour, oatmeal, potatoes** | Food variety by region; scurvy (fresh food) already matters in code. |
-| **Spruce beer** | The post's actual scurvy remedy. |
+| ~~**Ice chisel, fishing net**~~ **in code 2026-10-11** | A net doubles the catch and counts as winter fishing gear; a chisel adds to a catch through the ice. York keeps two nets and three chisels. |
+| ~~**Berries**~~ **in code 2026-10-11** | Gathered by every camp and post July-September, eaten first off the shelf, spoils with the fresh meat, and answers the scurvy. **Still wants its own icon** - it borrows `pemmican.png`. And berry bushes as a world prop you can see and pick (section 5). |
+| ~~**Spruce beer**~~ **in code 2026-10-11** | A post with a kettle and firewood brews it when its men have gone a fortnight without anything fresh, as the Company really did. **Wants its own icon** - it borrows `ale_tankard.png`, and should not look like ale. |
+| ~~**Corn**~~ **in code 2026-10-11** | The Missouri towns' harvest and the staple of the plains trade: thirty a mouth comes in each September, goes out to every camp within a fortnight's travel at two for one, and the Assiniboine carry it north to the Bay. Food and trade, not physic. **Wants its own icon** - it borrows `pemmican_bag.png`; braided ears and a bag of shelled corn would read better. |
+| **Grease, marrow fat, wild rice, maple sugar, flour, oatmeal, potatoes** | The rest of the food variety by region. Grease and marrow fat are the other half of real pemmican; wild rice is Ojibwe country, maple sugar the Great Lakes. |
 | **Gun repair / gunflints** (`Flint` exists) | Ties into the armourer role. |
 | **Furs:** marten, otter, fox (red, cross, silver, arctic), lynx, muskrat, bear, wolverine, mink, buffalo robe | Each animal in section 6 needs its pelt, and summer/winter grades (`ThinPelt` already does this for beaver). |
 | **Medicine bag** | Icon exists. Handle with care; frame as a person's private property with meaning, not a buff item. |
@@ -251,7 +257,7 @@ Missing roles, roughly in order of usefulness at York first:
 
 Art (`asset-prompts.md`) and audio (`audio-prompts.md`) cover most of it. Also outstanding:
 
-- **Audio: everything.** No sound in the game yet.
+- **Audio: most of it.** A first batch is in as of 2026-10-11: six music tracks, wind, river, fires, footsteps, musket, bells, a few birds. See `audio-prompts.md` > **In the game now**. Still silent: wolves and every animal added from section 6, indoor and wharf footsteps, rain, fight grunts, UI clicks, tension music.
 - **Animals:** sprite sheets for every new species in section 6 (`asset-prompts.md` 3.7 has the header and rows).
 - **People:** sheets for the new roles and nations in sections 1 and 7: Métis man and woman, Ojibwe, Dene, Blackfoot, Iroquois voyageur, settler family, De Meuron soldier, tradesmen, ship's captain, the named people in section 3 who need a recognisable look (Selkirk, Macdonell, Grant, McGillivray).
 - **Animations listed as missing** in `asset-prompts.md` priority 2 (death, side-walk, eat, shoot for existing characters) and 1.7 (children).

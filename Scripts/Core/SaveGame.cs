@@ -84,6 +84,7 @@ public static class SaveGame
             ["council"] = CouncilState(),
             ["grudges"] = GrudgeState(),
             ["losses"] = Losses.Save(HomeKey),
+            ["favours"] = Favours.Save(),
             ["fort"] = Ledger(Sim.Fort),
             ["nwc"] = Ledger(Sim.Nwc),
             ["outpost"] = Ledger(Sim.Outpost),
@@ -309,7 +310,7 @@ public static class SaveGame
             var house = new GArr();
             foreach (var f in p.House) house.Add(new GDict { ["name"] = f.Name, ["born"] = f.Born, ["died"] = f.Died, ["rank"] = f.Rank, ["end"] = f.End, ["did"] = f.Did });
             d["house"] = house; d["married"] = p.MarriedOnDay;
-            d["path"] = (int)p.StartPath; d["background"] = p.BackgroundTitle; d["kin"] = string.Join("|", p.KinNames); d["yearStory"] = p.LastYearStory; d["camp"] = p.HomeCamp;
+            d["path"] = (int)p.StartPath; d["background"] = p.BackgroundTitle; d["kin"] = string.Join("|", p.KinNames); d["yearStory"] = p.LastYearStory; d["camp"] = p.HomeCamp; d["frames"] = p.FramesPath;
             d["ambitions"] = ambs; d["tasksDone"] = p.TasksDone; d["tasksRefused"] = p.TasksRefused; d["privateMb"] = p.PrivateWorthMb; d["ambDeclared"] = p.AmbitionsDeclared;
             d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["tongue2"] = p.AssiniboineFluency; d["authorized"] = p.AuthorizedAcrossUntilDay; d["inland"] = p.PostedInland; d["captive"] = p.CaptiveOf == Sim.Nwc ? "nwc" : p.CaptiveOf == Sim.Fort ? "fort" : ""; d["captiveUntil"] = p.CaptiveUntilDay; d["parole"] = p.ParoleUntilDay; d["paroleTo"] = (int)p.ParoleTo; d["paroleConfessed"] = p.ParoleConfessed;
             d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline;
@@ -520,6 +521,7 @@ public static class SaveGame
             }
             if (d.ContainsKey("losses")) Losses.Load(d["losses"].AsGodotArray(), HomeOf, name => byName.TryGetValue(name, out var b) ? b : null);
             else Losses.Reset();
+            Favours.Load(d.ContainsKey("favours") ? d["favours"].AsGodotDictionary() : null, name => byName.TryGetValue(name, out var fb) ? fb : null);
 
             var sh = d["ship"].AsGodotDictionary();
             if (Sim.Ship != null && sh.Count > 0)
@@ -559,7 +561,7 @@ public static class SaveGame
         p.House.Clear();
         if (d.ContainsKey("house")) foreach (var hv in d["house"].AsGodotArray()) { var hd = hv.AsGodotDictionary(); p.House.Add(new Forebear { Name = S(hd, "name"), Born = I(hd, "born"), Died = I(hd, "died"), Rank = S(hd, "rank", "labourer"), End = S(hd, "end"), Did = S(hd, "did") }); }
         p.MarriedOnDay = I(d, "married", -1);
-        p.StartPath = (Core.StartPath)I(d, "path"); p.BackgroundTitle = S(d, "background"); p.LastYearStory = S(d, "yearStory"); p.HomeCamp = S(d, "camp");
+        p.StartPath = (Core.StartPath)I(d, "path"); p.BackgroundTitle = S(d, "background"); p.LastYearStory = S(d, "yearStory"); p.HomeCamp = S(d, "camp"); p.FramesPath = S(d, "frames"); p.ApplyLook();
         p.KinNames.Clear(); foreach (var k in S(d, "kin").Split('|', System.StringSplitOptions.RemoveEmptyEntries)) p.KinNames.Add(k);
         p.Ambitions.Clear();
         if (d.ContainsKey("ambitions")) foreach (var av in d["ambitions"].AsGodotArray()) { var ad = av.AsGodotDictionary(); p.Ambitions.Add(new Ambition { Kind = (AmbitionKind)I(ad, "kind"), DeclaredDay = I(ad, "day"), DeclaredYear = I(ad, "year"), Best = F(ad, "best"), Abandoned = B(ad, "abandoned") }); }

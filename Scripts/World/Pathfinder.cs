@@ -95,11 +95,26 @@ public class Pathfinder
     public static int Calls, SlowCalls;
     public static double TotalMs;
 
+    // A search that just failed is not run again for a couple of seconds from
+    // about the same place to the same goal: a man whose way home is blocked
+    // (or too long to find) used to search the whole budget every frame, and
+    // under fast-forward that was most of the frame.
+    private readonly Dictionary<(Vector2I, Vector2I), ulong> _failed = new();
+    public static int CachedFailures;
+
     public List<Vector2I> FindPath(Vector2I start, Vector2I goal)
     {
+        var key = (new Vector2I(start.X >> 2, start.Y >> 3), goal);
+        ulong now = Time.GetTicksMsec();
+        if (_failed.TryGetValue(key, out ulong until) && now < until) { CachedFailures++; return new List<Vector2I>(); }
         var sw = System.Diagnostics.Stopwatch.StartNew();
         var r = FindPathInner(start, goal);
         sw.Stop();
+        if (r.Count == 0 && start != goal)
+        {
+            if (_failed.Count > 4000) _failed.Clear();
+            _failed[key] = now + 2000;
+        }
         Calls++; TotalMs += sw.Elapsed.TotalMilliseconds;
         if (sw.Elapsed.TotalMilliseconds > 30) { SlowCalls++; GD.Print($"[path] slow {sw.Elapsed.TotalMilliseconds:0} ms {start}->{goal} len {r.Count}"); }
         return r;

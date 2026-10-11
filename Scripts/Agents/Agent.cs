@@ -6,7 +6,7 @@ using IsometricFurTradeGame.Scripts.World;
 namespace IsometricFurTradeGame.Scripts.Agents;
 
 // New nations go on the end: saves store the number.
-public enum Faction { HBC, Cree, ShipsCrew, Wild, NWC, Assiniboine, Ojibwe, Dene, Blackfoot, Sioux, Plateau, Coast, Missouri }
+public enum Faction { HBC, Cree, ShipsCrew, Wild, NWC, Assiniboine, Ojibwe, Dene, Blackfoot, Sioux, Plateau, Coast, Missouri, Metis }
 
 // Every person (and animal) in the world is one of these - the player
 // included (design doc 11.1). Needs, inventory, health and the shared action
@@ -171,6 +171,7 @@ public partial class Agent : CharacterBody2D
         if (_deathAnnounced) return;
         _deathAnnounced = true;
         Velocity = Vector2.Zero;
+        if (this is not Animal) Sim.Noise(GlobalPosition, 220f, this, "fall");
         EmitSignal(SignalName.Died);
         Net.Net.I?.AnnounceDeath(this);
     }
@@ -222,7 +223,13 @@ public partial class Agent : CharacterBody2D
         if (!Inventory.Remove(id)) return false;
         Needs.Hunger = Mathf.Min(100f, Needs.Hunger + def.Nutrition);
         Needs.Thirst = Mathf.Min(100f, Needs.Thirst + def.Thirst);
-        if (id == ItemId.Venison || id == ItemId.Goose || id == ItemId.Fish || id == ItemId.Hare) { if (HasScurvy) Sim.Notice($"{Describe()} is mending: fresh meat at last."); DaysSinceFresh = 0f; _scurvyTold = false; }
+        // Fresh meat, and the things that actually answered the scurvy in this
+        // country: berries in their season and spruce beer out of it.
+        if (id == ItemId.Venison || id == ItemId.Goose || id == ItemId.Fish || id == ItemId.Hare || id == ItemId.Ptarmigan || id == ItemId.Berries || id == ItemId.SpruceBeer)
+        {
+            if (HasScurvy) Sim.Notice($"{Describe()} is mending: {(id == ItemId.Berries ? "berries at last" : id == ItemId.SpruceBeer ? "spruce beer at last" : "fresh meat at last")}.");
+            DaysSinceFresh = 0f; _scurvyTold = false;
+        }
         if (def.Kind == ItemKind.Drink) Needs.Warmth = Mathf.Min(100f, Needs.Warmth + def.Warmth);
         Intoxication = Mathf.Min(100f, Intoxication + def.Intoxication);
         return true;
@@ -382,6 +389,9 @@ public partial class Agent : CharacterBody2D
         if (IsSick) mult *= 0.6f;
         if (GD.Randf() < missChance) { OnAttackMissed(target); return false; }
         target.TakeDamage(damage * mult, this);
+        // A blow landing is heard (and seen) by whoever is near.
+        if (range <= 100f && this is not Animal) Sim.Noise(target.GlobalPosition, 160f, this, "hit");
+        else if (this is Animal { Species: Ecology.Species.Wolf }) Sim.Noise(target.GlobalPosition, 300f, this, "bite");
         OnAttacked(target);
         return true;
     }

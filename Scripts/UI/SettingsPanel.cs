@@ -63,6 +63,15 @@ public partial class SettingsPanel : VBoxContainer
         Choice(game, "Autosave", Settings.AutosaveMinutes, m => m == 0 ? "Off" : $"Every {m} minutes", () => Settings.Autosave, m => { Settings.Autosave = m; Settings.Save(); },
             "Writes the quicksave (the same file as F5) when you are alone or hosting.");
 
+        var sound = Page(tabs, "Sound");
+        Slider(sound, "Master volume", 0f, 1f, 0.05f, () => Settings.MasterVolume, v => Settings.SetVolume("Master", v), null);
+        Slider(sound, "Music", 0f, 1f, 0.05f, () => Settings.MusicVolume, v => Settings.SetVolume(Core.Audio.MusicBus, v),
+            "Plays now and then, with long quiet between pieces; a fiddle in the men's house of an evening.");
+        Slider(sound, "Ambience", 0f, 1f, 0.05f, () => Settings.AmbienceVolume, v => Settings.SetVolume(Core.Audio.AmbienceBus, v),
+            "Wind, weather, the river, fires, the flies.");
+        Slider(sound, "Effects", 0f, 1f, 0.05f, () => Settings.EffectsVolume, v => Settings.SetVolume(Core.Audio.EffectsBus, v),
+            "Footsteps, shots, axes, bells, animals, the interface.");
+
         var keys = Page(tabs, "Controls");
         BuildKeys(keys);
 

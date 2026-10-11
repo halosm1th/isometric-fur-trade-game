@@ -5,7 +5,7 @@ using Godot;
 namespace IsometricFurTradeGame.Scripts.World;
 
 // What the ground is, by ecozone (design doc 6) or water.
-public enum Ground : byte { Ocean, Lake, River, Ford, Boreal, Tundra, Shield, Parkland, Grassland, TallGrass, LakesForest, Cordillera }
+public enum Ground : byte { Ocean, Lake, River, Ford, Boreal, Tundra, Shield, Parkland, Grassland, TallGrass, LakesForest, Cordillera, Lowland }
 
 public readonly record struct WorldPlace(string Name, string Kind, string Company, int Year, Vector2I Cell, double Lon, double Lat, string Note);
 
@@ -144,6 +144,34 @@ public static class WorldMap
             list.Add((d["name"].AsString(), (float)d["fraction"].AsDouble(), new Vector2I(c[0].AsInt32(), c[1].AsInt32())));
         }
         return list;
+    }
+
+    // The brigade routes and the named landmarks (build_world.py, from the atlas).
+    public readonly record struct Landmark(string Name, string Kind, Vector2 At, string Note);
+    private static List<Landmark> _landmarks;
+    public static List<Landmark> Landmarks()
+    {
+        if (_landmarks != null) return _landmarks;
+        _landmarks = new List<Landmark>();
+        foreach (var v in LayoutArray("landmarks"))
+        {
+            var d = v.AsGodotDictionary(); var at = d["at"].AsGodotArray();
+            _landmarks.Add(new Landmark(d["name"].AsString(), d["kind"].AsString(), new Vector2((float)at[0].AsDouble(), (float)at[1].AsDouble()), d.TryGetValue("note", out var n) ? n.AsString() : ""));
+        }
+        return _landmarks;
+    }
+    private static List<(string Name, Vector2[] Points)> _routes;
+    public static List<(string Name, Vector2[] Points)> BrigadeRoutes()
+    {
+        if (_routes != null) return _routes;
+        _routes = new List<(string, Vector2[])>();
+        foreach (var v in LayoutArray("routes"))
+        {
+            var d = v.AsGodotDictionary(); var pts = new List<Vector2>();
+            foreach (var p in d["pts"].AsGodotArray()) { var a = p.AsGodotArray(); pts.Add(new Vector2((float)a[0].AsDouble(), (float)a[1].AsDouble())); }
+            _routes.Add((d["name"].AsString(), pts.ToArray()));
+        }
+        return _routes;
     }
 
     public static WorldPlace? Place(string name)

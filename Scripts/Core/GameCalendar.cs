@@ -101,6 +101,8 @@ public partial class GameCalendar : Node
 
     // Skip forward. Used by the wait key and the debug menu.
     public void SkipHours(float hours) => SkipRemaining += Mathf.Max(0f, hours);
+    // Travel mode (UI/TravelMode.cs) stops: whatever it asked for and has not had is forgotten.
+    public void CancelSkip() => SkipRemaining = 0f;
 
     public void SkipUntilHour(float hour)
     {

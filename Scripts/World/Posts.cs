@@ -12,16 +12,23 @@ namespace IsometricFurTradeGame.Scripts.World;
 public class TradingPost
 {
     public string Name, Company;
-    public int Year;
+    public int Year, Closed;   // Closed: the year it was given up (0 = still kept)
     public Vector2I Top;
     public BuildingDef House;
     public TradingPostLedger Ledger;
     public bool Standing => Ledger != null;
 
-    public const int Width = 12, Depth = 9, GateOffset = 5;
+    // An ordinary post is 12 x 9; a headquarters is bigger (Load).
+    public int Width = 12, Depth = 9, GateOffset = 5;
     public Vector2I GateCell => IsoGrid.Cell(Top, GateOffset, Depth - 1);
     public Vector2I GateOutside => IsoGrid.DownLeft(IsoGrid.DownLeft(GateCell));
-    public Vector2I WoodpileCell => IsoGrid.Cell(Top, 9, 6);
+    public Vector2I WoodpileAt = new(9, 6), CrateAt = new(10, 3);   // in the palisade's own cells
+    public Vector2I WoodpileCell => IsoGrid.Cell(Top, WoodpileAt.X, WoodpileAt.Y);
+    public Vector2I CrateCell => IsoGrid.Cell(Top, CrateAt.X, CrateAt.Y);
+    // More buildings than the one house (Fort William's Great Hall), and how
+    // much further than an ordinary post the bush is kept back.
+    public readonly List<BuildingDef> Extra = new();
+    public float Extent;
     public Vector2I HearthCell => IsoGrid.Cell(House.Top, 1, 1);
     public Vector2I AccessCell => IsoGrid.Cell(House.Top, 2, 2);
     public Vector2 Centre => IsoGrid.ToWorld(IsoGrid.Cell(Top, Width / 2, Depth / 2));
@@ -51,8 +58,10 @@ public static class Posts
             var p = new TradingPost
             {
                 Name = d["name"].AsString(), Company = d["company"].AsString(), Year = d["year"].AsInt32(), Top = top,
+                Closed = d.TryGetValue("closed", out var cl) ? cl.AsInt32() : 0,
                 House = new BuildingDef(BuildingKind.TradingPost, d["name"].AsString(), IsoGrid.Cell(top, 2, 2), 7, 5, 3),
             };
+            if (p.Name == "Fort William") FortWilliam(p);
             list.Add(p);
             _byName[p.Name] = p;
             var key = new Vector2I(Mathf.FloorToInt(p.Centre.X / GridPx), Mathf.FloorToInt(p.Centre.Y / GridPx));
@@ -60,6 +69,21 @@ public static class Posts
             cell.Add(p);
         }
         return list;
+    }
+
+    // The North West Company's inland capital (design doc 5.2): where the
+    // partners and the Montreal agents meet each July in the Great Hall.
+    // The real place was a walled town of forty buildings; this keeps its
+    // heart - the store, the Great Hall, a partners' house - inside a
+    // palisade on the Kaministiquia shore, as big as the ground allows
+    // between the lake and the Ojibwe camp beside it.
+    private static void FortWilliam(TradingPost p)
+    {
+        p.Width = 17; p.Depth = 10; p.GateOffset = 5;
+        p.WoodpileAt = new Vector2I(3, 8); p.CrateAt = new Vector2I(14, 8);
+        p.Extra.Add(new BuildingDef(BuildingKind.GreatHall, "the Great Hall", IsoGrid.Cell(p.Top, 9, 1), 7, 4, 6));
+        p.Extra.Add(new BuildingDef(BuildingKind.PartnersHouse, "the partners' house", IsoGrid.Cell(p.Top, 9, 5), 5, 3, 2));
+        p.Extent = 450f;
     }
 
     public static TradingPost Named(string name) => name != null && _byName.TryGetValue(name, out var p) ? p : null;
@@ -74,7 +98,7 @@ public static class Posts
         for (int dx = -1; dx <= 1; dx++)
             for (int dy = -1; dy <= 1; dy++)
                 if (_grid.TryGetValue(new Vector2I(kx + dx, ky + dy), out var ps))
-                    foreach (var p in ps) if (p.Centre.DistanceTo(at) < r) return true;
+                    foreach (var p in ps) if (p.Centre.DistanceTo(at) < r + p.Extent) return true;
         return false;
     }
 

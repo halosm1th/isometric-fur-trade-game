@@ -20,7 +20,10 @@ public static class Rivals
 		public float HisScore, YourScore;
 		public bool HeWasAhead;
 		public int LastWordDay = -999;
+		public int HeMovedDay = -999;
+		public int RefusalsSeen;
 		public readonly List<string> Said = new();   // what the player has already carried
+		public readonly List<string> HeSaid = new();   // and what he has carried about you
 	}
 
 	public static Contest Current;
@@ -84,6 +87,7 @@ public static class Rivals
 			var c = Current;
 			c.HisScore = Score(c.Him, post);
 			c.YourScore = Score(p);
+			HeMoves(c, p, post);
 			bool aheadNow = c.HisScore > c.YourScore;
 			if (aheadNow == c.HeWasAhead) continue;
 			c.HeWasAhead = aheadNow;
@@ -94,6 +98,70 @@ public static class Rivals
 				: $"You stand better for {c.Seat} than {c.Him.DisplayName} does.",
 				aheadNow ? Lately(c.Him) : "what you have got done this season", 1.4f);
 		}
+	}
+
+	// What he does about you. He has the same verbs you have: the master's ear,
+	// something true he saw you do, a lie if he has nothing true and is loose
+	// enough to tell one, and the work you would not take (design doc 3.7).
+	private static void HeMoves(Contest c, Player.PlayerController p, FortLedger post)
+	{
+		var him = c.Him;
+		var master = post?.Leader;
+		if (him == null || master == null || him == master || him.IsDead) return;
+		int day = GameCalendar.Instance?.Day ?? 0;
+
+		// A word at the right time, every week. This is most of how a seat is won.
+		master.ChangeRapport(him, 1.5f);
+
+		if (day - c.HeMovedDay < 7) return;
+		bool behind = c.HisScore < c.YourScore;
+
+		// Something true he saw you do, carried to the man who decides.
+		string dirt = HeHasOnYou(him, p, c);
+		if (behind && dirt != "" && GD.Randf() < 0.3f + him.Personality.Ambition * 0.4f)
+		{
+			c.HeMovedDay = day;
+			c.HeSaid.Add(dirt);
+			p.Standing = Mathf.Max(0f, p.Standing - 8f);
+			master.ChangeRapport(p, -6f);
+			Chronicle.Event($"{him.DisplayName} told {master.DisplayName} what {p.DisplayName} had done.", him.GlobalPosition, him, p.DisplayName, 1.3f);
+			Reveal.Word(p, $"{him.DisplayName} has been in with the Factor about you, and your standing is down 8.", dirt, 1.6f);
+			return;
+		}
+
+		// Nothing true, and a man loose enough to invent one: the lie travels
+		// by the ordinary rules, and you may yet hear him tell it.
+		if (behind && him.Personality.Loyalty < 0.5f && GD.Randf() < 0.2f + him.Personality.Ambition * 0.25f)
+		{
+			c.HeMovedDay = day;
+			Lies.Tell(him, master, p, $"{p.DisplayName} has been trading on his own account", null, $"to get {c.Seat}");
+			return;
+		}
+
+		// Work you would not take, he takes - and the master marks it.
+		if (p.TasksRefused > c.RefusalsSeen)
+		{
+			c.RefusalsSeen = p.TasksRefused;
+			c.HeMovedDay = day;
+			him.Standing += 3f;
+			master.ChangeRapport(him, 4f);
+			Reveal.Word(p, $"{him.DisplayName} took the work you would not, and the Factor has marked it.", "you refused it", 1.2f);
+		}
+	}
+
+	// Something true and damaging he witnessed himself about the player, that
+	// he has not already carried.
+	private static string HeHasOnYou(Npc him, Player.PlayerController p, Contest c)
+	{
+		for (int i = him.Memories.Count - 1; i >= 0; i--)
+		{
+			var m = him.Memories[i];
+			if (m.Directness != 1 || m.Liar != null) continue;
+			if (m.Subject != p.DisplayName && m.Actor != p) continue;
+			if (!Lies.IsMisdeed(m.Text) || c.HeSaid.Contains(m.Text)) continue;
+			return m.Text;
+		}
+		return "";
 	}
 
 	// Which seat the player is actually after, from what he has declared.

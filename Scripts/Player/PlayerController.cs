@@ -115,7 +115,16 @@ public partial class PlayerController : Agent
 	public Core.StartPath StartPath = Core.StartPath.HBC;
 	public string BackgroundTitle = "";
 	public readonly List<string> KinNames = new();
-	public string HomeCamp = "";   // born to one of the country's band camps (World/Camps), if any
+	public string HomeCamp = "";
+	// Which sheet the player is drawn from (design doc 5.4): set by the
+	// character's road in, carried to every peer with the player.
+	public string FramesPath = "";
+	public void ApplyLook()
+	{
+		if (_sprite == null || string.IsNullOrEmpty(FramesPath) || !ResourceLoader.Exists(FramesPath)) return;
+		_sprite.SpriteFrames = GD.Load<SpriteFrames>(FramesPath);
+		_sprite.Play(_sprite.SpriteFrames.HasAnimation("idle") ? "idle" : _sprite.Animation);
+	}   // born to one of the country's band camps (World/Camps), if any
 	public string LastYearStory = "";   // Core/YearStory: the last year as it will be told
 
 	// Set down somewhere by the host (a new character's start, Core/Starts):
@@ -203,6 +212,7 @@ public partial class PlayerController : Agent
 	public override void _Ready()
 	{
 		_sprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
+		ApplyLook();
 		_camera = GetNodeOrNull<Camera2D>("Camera2D");
 		_label = GetNodeOrNull<Label>("NameLabel");
 		Faction = Faction.HBC;
@@ -303,6 +313,24 @@ public partial class PlayerController : Agent
 			// Dev: `--ambition=RiseAtThePost` declares one at the start, so the
 			// systems that hang off a declared ambition can be watched.
 			if (arg.StartsWith("--ambition=") && NetHub.IsServer) { if (System.Enum.TryParse<Agents.AmbitionKind>(arg.Substring(11), true, out var ak)) { var cal = GameCalendar.Instance; Ambitions.Add(new Agents.Ambition { Kind = ak, DeclaredDay = cal?.Day ?? 0, DeclaredYear = cal?.Year ?? 1811 }); AmbitionsDeclared = true; GD.Print($"[dev] you have set yourself {ak}"); } }
+			// Dev: `--skip=12` skips twelve game hours a few seconds in, to measure
+			// what a night of sleeping or travelling costs a frame.
+			if (arg.StartsWith("--skip=") && float.TryParse(arg.Substring(7), out float skipH) && NetHub.IsServer) GetTree().CreateTimer(6.0).Timeout += () => { GD.Print($"[dev] skipping {skipH} h"); GameCalendar.Instance?.SkipHours(skipH); };
+			// Dev: `--standing=60` sets your standing with the Company at the start.
+			if (arg.StartsWith("--standing=") && float.TryParse(arg.Substring(11), out float st0) && NetHub.IsServer) { Standing = st0; GD.Print($"[dev] standing {st0:0}"); }
+			// Dev: `--census=8` prints what this machine can see of the world after
+			// eight seconds - the count of bodies, the local man, his mirrored needs
+			// and what the snapshots have given him. The way to check a client is
+			// actually being told about the world (design doc 21).
+			if (arg.StartsWith("--census=") && double.TryParse(arg.Substring(9), out double csecs)) GetTree().CreateTimer(csecs).Timeout += () =>
+			{
+				int live = 0, hidden = 0;
+				foreach (var n in Sim.Npcs) { if (n == null) continue; if (n.Visible) live++; else hidden++; }
+				GD.Print($"[census] {(NetHub.IsServer ? "server" : "client")} agents={Sim.Agents.Count} npcs={Sim.Npcs.Count} (visible {live}, hidden {hidden}) animals={Sim.Animals.Count} players={PlayerCount()}");
+				GD.Print($"[census] ground: water={Sim.Terrain?.IsWaterOrIce(Cell)} walkable={Sim.Paths?.IsWalkable(Cell)} map={World.WorldMap.At(Cell)}");
+				GD.Print($"[census] me={DisplayName} rank={Rank} at {Cell} h{Needs.Health:0} f{Needs.Hunger:0} w{Needs.Warmth:0} t{Needs.Thirst:0} standing={Standing:0} task=\"{(Task.Kind == TaskKind.None ? "none" : Task.Describe())}\" inv={Inventory.SlotCount} journal={Journal.Count}");
+				foreach (var o in Sim.Players()) if (o != this) GD.Print($"[census] also here: {o.DisplayName} at {o.Cell} h{o.Needs.Health:0}");
+			};
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
 			if (arg.StartsWith("--use=") && int.TryParse(arg.Substring(6), out int slot)) GetTree().CreateTimer(3.0).Timeout += () => NetHub.I?.Act("use", new Godot.Collections.Array { slot });
 			if (arg.StartsWith("--click=")) { _devClick = true; double when = 3.0; foreach (var part in arg.Substring(8).Split(',')) { if (!int.TryParse(part, out int cslot)) continue; GetTree().CreateTimer(when).Timeout += () => { var p = GlobalPosition + new Vector2(90, 40); NetHub.I?.Act("click", new Godot.Collections.Array { cslot, p.X, p.Y }); }; when += 3.0; } }
@@ -488,7 +516,7 @@ public partial class PlayerController : Agent
 		// Mess call: the plainest thing on the shelf, while there is any.
 		if (Needs.Hunger < 70f)
 		{
-			foreach (var id in new[] { ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Bread, ItemId.Pemmican })
+			foreach (var id in new[] { ItemId.Berries, ItemId.Hare, ItemId.Ptarmigan, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican })
 			{
 				if (!fort.Stores.Remove(id)) continue;
 				Needs.Hunger = Mathf.Min(100f, Needs.Hunger + Items.Items.Of(id).Nutrition);
@@ -1275,6 +1303,14 @@ public partial class PlayerController : Agent
 		}
 		if (provisions && moved > 0) { Standing += Mathf.Min(4f, moved * 0.5f); Chronicle.Event($"{DisplayName} brought {moved} of meat to the stores.", GlobalPosition, this, weight: 0.5f); }
 		return moved;
+	}
+
+	// How many players this machine knows about (Sim.Players is a sequence).
+	private static int PlayerCount()
+	{
+		int n = 0;
+		foreach (var _ in Sim.Players()) n++;
+		return n;
 	}
 
 	private Npc NearestNpc(float reach)

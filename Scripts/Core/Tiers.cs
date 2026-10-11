@@ -44,6 +44,7 @@ public static class Tiers
             _lastBatchDay = cal.Day;
             World.GooseHunt.Tick();
             Reckoning.Spring();
+            Economy.Gardens.Tick();
             Agents.Rivals.Tick();
             World.Brigades.Season();
             World.Brigades.Tick();
@@ -188,6 +189,9 @@ public static class Tiers
             }
 
             if (foul) continue;   // nobody works in a blizzard
+            // A camp of the wider country feeds itself in its own weekly sum
+            // (Economy/CountryBand): its people are not at York's grounds.
+            if (home is Economy.CountryBand) continue;
 
             // A day's work, by what the man is for.
             switch (n.Role)
@@ -231,6 +235,8 @@ public static class Tiers
             Sim.Headline($"Word comes that {home.Title} is on short commons: nothing in the store and the men going thin.");
     }
 
+    private static readonly System.Collections.Generic.HashSet<string> _toldOf = new();
+
     private static int Mouths(Economy.Household home)
     {
         int m = 0;
@@ -252,33 +258,49 @@ public static class Tiers
     {
         var eco = Sim.Ecology;
         if (eco == null) return;
-        // A band hunts its own country, whether or not the camp has been
-        // told where the herd is this week; a post only knows what it knows -
-        // until it is hungry, when the men go looking further and come back
-        // knowing where the game is.
-        var known = home is Economy.BandLedger ? null : home;
+        // Everyone hunts by what his house knows: a band's ledger has learned
+        // every ground in its own country, a post knows what it has been told.
+        // When a house is hungry the men go looking further - but only as far
+        // as their own country, not to the thickest herd on the continent.
+        var known = home;
         bool desperate = home.FoodDays(Mouths(home)) < 8f;
-        if (desperate) known = null;
+        if (desperate)
+            foreach (var near in World.WorldLayout.SitesNear(home.AccessCell, World.WorldLayout.HomeCountryPx))
+                home.Learn(near.Name, near.Cell);
         var site = eco.BestSite(Species.Caribou, known) ?? eco.BestSite(Species.Goose, known) ?? eco.BestSite(Species.Beaver, known);
         if (site == null || site.Count < 1f)
         {
-            // Snares and lines along the bush: thin fare, no site drawn down,
-            // but enough that a camp out of the player's sight does not quietly
-            // starve to death (design doc 18.2 - the batch must be livable).
+            // Snares along the bush: thin fare, and it comes off the hare and
+            // ptarmigan grounds like anything else, so a camp that lives on
+            // snares all winter thins them (design doc 16.3). Enough, though,
+            // that a camp out of the player's sight does not quietly starve.
             int snared = (GD.Randf() < 0.75f + n.Skills.Hunting * 0.2f ? 1 : 0) + (GD.Randf() < 0.4f + n.Skills.Hunting * 0.4f ? 1 : 0);
-            if (snared > 0) home.Stores.Add(ItemId.Hare, snared);
+            if (snared > 0)
+            {
+                var small = eco.BestSite(Species.Hare, known) ?? eco.BestSite(Species.Ptarmigan, known);
+                if (small != null && small.Count >= snared)
+                {
+                    small.Take(snared);
+                    for (int i = 0; i < snared; i++) SpeciesInfo.Yield(small.Species, home.Stores);
+                }
+                else home.Stores.Add(ItemId.Hare, snared);   // whatever the bush gives where there is no ground mapped
+            }
             // A line through the ice is how an inland post got through March
             // (design doc 14.4, 16.1): thin, steady, and it keeps men alive.
-            bool line = home.Stores.Has(ItemId.FishingLine) || n.Inventory.Has(ItemId.FishingLine);
+            bool line = home.Stores.Has(ItemId.FishingLine) || n.Inventory.Has(ItemId.FishingLine) || home.Stores.Has(ItemId.FishingNet);
             if (line || !GameCalendar.Instance.IsFrozen)
             {
                 int fish = (GD.Randf() < 0.65f ? 1 : 0) + (GD.Randf() < 0.35f + n.Skills.Hunting * 0.3f ? 1 : 0);
+                if (home.Stores.Has(ItemId.FishingNet)) fish = fish * 2 + 1;
                 if (fish > 0) home.Stores.Add(ItemId.Fish, fish);
             }
             return;
         }
-        if (desperate && home is not Economy.BandLedger && home.Learn(site.Name, site.Cell))
+        if (desperate && home is not Economy.BandLedger && site.Name != "" && !_toldOf.Contains(home.Title + site.Name))
+        {
+            _toldOf.Add(home.Title + site.Name);
             Sim.Notice($"{home.Title}: the men went looking and found the game at {site.Name}.");
+        }
         float chance = Mathf.Clamp(site.Count / site.Capacity, 0.05f, 1f) * (0.16f + n.Skills.Hunting * 0.24f);
         if (GD.Randf() >= chance) return;
         site.Take(SpeciesInfo.PerKill(site.Species, n.Weapon == ItemId.Musket));
