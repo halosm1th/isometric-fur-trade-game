@@ -110,13 +110,19 @@ public partial class PlayerController : Agent
 	public int TasksDone, TasksRefused;
 	public float PrivateWorthMb;   // furs and goods kept out of the Company's books
 	public bool AmbitionsDeclared;
+	// Who you came in as (design doc 5.4, Core/CharacterSheet): the road in,
+	// the background on it, and the people you count as family.
+	public Core.StartPath StartPath = Core.StartPath.HBC;
+	public string BackgroundTitle = "";
+	public readonly List<string> KinNames = new();
+	public string LastYearStory = "";   // Core/YearStory: the last year as it will be told
 	// Those of your house who went before (design doc P.6): the family is
 	// the save file, and the journal keeps the line.
 	public readonly List<Forebear> House = new();
 	public int MarriedOnDay = -1;
 	public int LastGiftToKinYear = 0;
 	public bool TravellingServer;   // the owner is on the road: the clock marches
-	public Economy.FortLedger HomePost => Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;
+	public Economy.FortLedger HomePost => IsBandPerson ? null : Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;   // born to a band: no company post
 	public bool WantsToDefect;
 
 	// Afloat: which canoe carries you (server), mirrored as a flag.
