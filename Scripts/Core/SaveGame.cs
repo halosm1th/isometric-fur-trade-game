@@ -84,6 +84,7 @@ public static class SaveGame
             ["council"] = CouncilState(),
             ["grudges"] = GrudgeState(),
             ["losses"] = Losses.Save(HomeKey),
+            ["favours"] = Favours.Save(),
             ["fort"] = Ledger(Sim.Fort),
             ["nwc"] = Ledger(Sim.Nwc),
             ["outpost"] = Ledger(Sim.Outpost),
@@ -520,6 +521,7 @@ public static class SaveGame
             }
             if (d.ContainsKey("losses")) Losses.Load(d["losses"].AsGodotArray(), HomeOf, name => byName.TryGetValue(name, out var b) ? b : null);
             else Losses.Reset();
+            Favours.Load(d.ContainsKey("favours") ? d["favours"].AsGodotDictionary() : null, name => byName.TryGetValue(name, out var fb) ? fb : null);
 
             var sh = d["ship"].AsGodotDictionary();
             if (Sim.Ship != null && sh.Count > 0)

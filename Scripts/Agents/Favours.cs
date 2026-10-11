@@ -32,6 +32,56 @@ public static class Favours
     private static readonly Dictionary<Npc, int> _lastAskDay = new();
 
     public static int Owed(Npc n, Agent p) => _owed.GetValueOrDefault((n, p.DisplayName));
+
+    // ---- saving --------------------------------------------------------------------
+    // Every favour asked (open, done or lapsed - the done ones are history the
+    // asker remembers) and every good turn owed, by the names of the people.
+    public static Godot.Collections.Dictionary Save()
+    {
+        var list = new Godot.Collections.Array();
+        foreach (var f in All)
+        {
+            if (f.Asker == null || !GodotObject.IsInstanceValid(f.Asker)) continue;
+            list.Add(new Godot.Collections.Dictionary
+            {
+                ["asker"] = f.Asker.DisplayName, ["player"] = f.Player, ["kind"] = (int)f.Kind, ["day"] = f.Day, ["due"] = f.DueDay,
+                ["accepted"] = f.Accepted, ["done"] = f.Done, ["lapsed"] = f.Lapsed, ["target"] = f.Target ?? "", ["ask"] = f.Ask ?? "", ["short"] = f.Short ?? "",
+            });
+        }
+        var owed = new Godot.Collections.Array();
+        foreach (var kv in _owed)
+            if (kv.Value > 0 && kv.Key.Item1 != null && GodotObject.IsInstanceValid(kv.Key.Item1))
+                owed.Add(new Godot.Collections.Dictionary { ["by"] = kv.Key.Item1.DisplayName, ["to"] = kv.Key.Item2, ["n"] = kv.Value });
+        return new Godot.Collections.Dictionary { ["favours"] = list, ["owed"] = owed };
+    }
+
+    public static void Load(Godot.Collections.Dictionary d, System.Func<string, Npc> byName)
+    {
+        Reset();
+        if (d == null) return;
+        if (d.TryGetValue("favours", out var fv))
+            foreach (var v in fv.AsGodotArray())
+            {
+                var e = v.AsGodotDictionary();
+                var asker = byName(e["asker"].AsString());
+                if (asker == null) continue;
+                string target = e["target"].AsString();
+                All.Add(new Favour
+                {
+                    Asker = asker, Player = e["player"].AsString(), Kind = (FavourKind)e["kind"].AsInt32(), Day = e["day"].AsInt32(), DueDay = e["due"].AsInt32(),
+                    Accepted = e["accepted"].AsBool(), Done = e["done"].AsBool(), Lapsed = e["lapsed"].AsBool(),
+                    Target = target == "" ? null : target, Ask = e["ask"].AsString(), Short = e["short"].AsString(),
+                });
+            }
+        if (d.TryGetValue("owed", out var ov))
+            foreach (var v in ov.AsGodotArray())
+            {
+                var e = v.AsGodotDictionary();
+                var by = byName(e["by"].AsString());
+                if (by != null) _owed[(by, e["to"].AsString())] = e["n"].AsInt32();
+            }
+        GD.Print($"[favour] loaded {All.Count} favours ({All.FindAll(f => f.Accepted && !f.Done && !f.Lapsed).Count} open), {_owed.Count} good turns owed");
+    }
     public static void Reset() { All.Clear(); _owed.Clear(); _lastAskDay.Clear(); }
 
     public static Favour Open(Npc n, Agent p)
