@@ -171,6 +171,7 @@ public partial class Agent : CharacterBody2D
         if (_deathAnnounced) return;
         _deathAnnounced = true;
         Velocity = Vector2.Zero;
+        if (this is not Animal) Sim.Noise(GlobalPosition, 220f, this, "fall");
         EmitSignal(SignalName.Died);
         Net.Net.I?.AnnounceDeath(this);
     }
@@ -390,6 +391,7 @@ public partial class Agent : CharacterBody2D
         target.TakeDamage(damage * mult, this);
         // A blow landing is heard (and seen) by whoever is near.
         if (range <= 100f && this is not Animal) Sim.Noise(target.GlobalPosition, 160f, this, "hit");
+        else if (this is Animal { Species: Ecology.Species.Wolf }) Sim.Noise(target.GlobalPosition, 300f, this, "bite");
         OnAttacked(target);
         return true;
     }

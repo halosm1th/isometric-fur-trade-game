@@ -47,6 +47,19 @@ Generated with Google Gemini for this game (2026-10-11).
 | `ui/ui_page_turn` | [737005 Page turn 2](https://freesound.org/s/737005/) | redagee |
 | `ui/ui_quill_write` | [856167 Ink quill writing on parchment](https://freesound.org/s/856167/) | brktkrgll |
 
+## Synthesised stand-ins (2026-10-11)
+
+Generated in code (numpy filters and oscillators) because nothing recorded was to hand. They are placeholders: replace any of them by dropping a recording in under the same name (more numbered takes are picked up automatically). No licence attached; they're original to this project.
+
+| Clip(s) | What it imitates |
+|---|---|
+| `sfx/step_planks_01..05` | Moccasin or shoe on a plank floor or the wharf, two with a board creak |
+| `ambient/amb_rain` | Steady rain with drips off the eaves |
+| `sfx/wolf_howl_01..03`, `sfx/wolf_pack_howl` | A grey wolf howling at a distance; a pack of five |
+| `sfx/wolf_growl_01..02`, `sfx/wolf_bite` | A wolf's growl; a lunge and snap |
+| `sfx/body_fall_01..02` | A man falling on packed ground |
+| `sfx/musket_reload` | Powder poured, ball dropped, three ramrod strokes, pan primed, hammer cocked |
+
 ## Downloaded but not used
 
 | File in `assets/external/soundFX/` | Why not |

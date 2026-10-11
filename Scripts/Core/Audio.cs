@@ -63,6 +63,7 @@ public partial class Audio : Node
         _river = Bed("amb_river");
         _mosquitoes = Bed("amb_mosquitoes");
         _paddling = Bed("canoe_paddling_loop");
+        _rain = Bed("amb_rain");
         // Voices aren't muffled by the walls you're inside with them.
         _chatter = Bed("amb_fort_chatter", EffectsBus);
         for (int i = 0; i < 3; i++) _fires.Add(Loop2D("fire_hearth_loop", 700f));
@@ -219,10 +220,12 @@ public partial class Audio : Node
                 if (!mine) I._stepBudget -= 1f;
                 // How far the step carried is how hard it was put down.
                 float db = Mathf.Lerp(-18f, -5f, Mathf.Clamp((radius - 40f) / 380f, 0f, 1f)) + (mine ? 0f : -3f);
-                At(I.StepSound(), pos, db, 700f, 0.1f);
+                At(I.StepSound(pos), pos, db, 700f, 0.1f);
                 break;
             case "shot":
                 At("musket_fire", pos, 0f, 4000f, 0.04f);
+                // Then the long business of loading again (design doc 15.6).
+                At("musket_reload", pos, -10f, 650f, 0.03f, 1.4f);
                 // Far off, a shot is a flat boom that rolls across the country.
                 float d = I.Listener.DistanceTo(pos);
                 if (d > 1400f) Play("cannon_distant", Mathf.Lerp(-6f, -18f, Mathf.Clamp((d - 1400f) / 4000f, 0f, 1f)), 0.05f);
@@ -236,14 +239,25 @@ public partial class Audio : Node
             case "hit":
                 At("punch", pos, -3f, 1000f, 0.12f);
                 break;
+            case "bite":
+                At("wolf_bite", pos, -2f, 1200f, 0.08f);
+                break;
+            case "fall":
+                At("body_fall", pos, -4f, 900f, 0.08f, 0.15f);
+                break;
             case "flint":
                 At("flint_strike", pos, -4f, 900f, 0.05f);
                 break;
         }
     }
 
-    private string StepSound()
+    private HashSet<Vector2I> _wharf;
+    private string StepSound(Vector2 pos)
     {
+        // Boards first: a house floor, the wharf.
+        if (Sim.Structures != null && Sim.Structures.IsPlankFloor(pos)) return "step_planks";
+        _wharf ??= new HashSet<Vector2I>(WorldLayout.WharfCells());
+        if (_wharf.Contains(IsoGrid.FromWorld(pos))) return "step_planks";
         var cal = GameCalendar.Instance;
         if (cal == null) return "step_snow";
         // Winter is snow, a crust on it after a hard clear night; the rest of
@@ -261,7 +275,7 @@ public partial class Audio : Node
         public float Level, Target;
     }
 
-    private BedPlayer _wind, _blizzard, _river, _mosquitoes, _paddling, _chatter;
+    private BedPlayer _wind, _blizzard, _river, _mosquitoes, _paddling, _chatter, _rain;
     private readonly List<BedPlayer> _beds = new();
 
     private BedPlayer Bed(string name, string bus = AmbienceBus)
@@ -321,6 +335,9 @@ public partial class Audio : Node
         if (sky == SkyState.Blizzard) { wind = 0.15f; _blizzard.Target = 1f * walls; }
         if (sky == SkyState.Storm) { wind = 0.2f; _blizzard.Target = 0.6f * walls; }
         _wind.Target = wind * walls;
+        // Rain on the roof is louder than rain in the open, not softer.
+        if (sky == SkyState.Rain) _rain.Target = indoors ? 0.6f : 0.75f;
+        if (sky == SkyState.Storm) _rain.Target = indoors ? 0.8f : 1f;
 
         // Open water close by. Scanned twice a second: it's a few hundred
         // cell lookups.
@@ -517,9 +534,40 @@ public partial class Audio : Node
 
     // ---- what lives out there -----------------------------------------------
 
-    private float _nextCritter;
+    private float _nextCritter, _nextHowl = 20f, _nextGrowl;
+    private void Wolves(float dt, GameCalendar cal)
+    {
+        _nextHowl -= dt; _nextGrowl -= dt;
+        if (_nextHowl > 0f && _nextGrowl > 0f) return;
+        var ear = Listener;
+        Agents.Animal nearest = null; float nearestD = float.MaxValue; int pack = 0;
+        foreach (var a in Sim.Animals)
+        {
+            if (a == null || !IsInstanceValid(a) || a.IsDead || a.Species != Ecology.Species.Wolf) continue;
+            float d = a.GlobalPosition.DistanceTo(ear);
+            if (d < 3500f) pack++;
+            if (d < nearestD) { nearestD = d; nearest = a; }
+        }
+        if (nearest == null) return;
+        // Close by, a wolf that has you in mind growls.
+        if (_nextGrowl <= 0f)
+        {
+            _nextGrowl = _rng.RandfRange(5f, 10f);
+            if (nearestD < 420f) At("wolf_growl", nearest.GlobalPosition, -4f, 700f, 0.08f);
+        }
+        // At night, and more in winter, they sing.
+        if (_nextHowl <= 0f)
+        {
+            bool night = cal.Hour >= 20f || cal.Hour < 6f;
+            _nextHowl = _rng.RandfRange(35f, 90f) * (cal.CurrentSeason == Season.Winter ? 0.6f : 1f);
+            if (night && nearestD < 3500f)
+                At(pack >= 3 ? "wolf_pack_howl" : "wolf_howl", nearest.GlobalPosition, -2f, 4000f, 0.05f);
+        }
+    }
+
     private void Critters(float dt, GameCalendar cal, Agents.Agent me, bool indoors, bool day)
     {
+        Wolves(dt, cal);
         _nextCritter -= dt;
         if (_nextCritter > 0f) return;
         _nextCritter = _rng.RandfRange(18f, 50f);

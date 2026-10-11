@@ -40,6 +40,12 @@ The raw downloads stay in `assets/external/soundFX/` (git-ignored, and hidden fr
 | `mus_mens_house_reel`, `mus_mens_house_jig` | `music/mens_house_reel.mp3`, `music/boots_on_the_pine_floor.mp3` | Inside the men's house, 19:00 to 23:30. |
 | `step_snow`, `step_snow_crust` | `sfx/step_snow_01..05.wav`, `sfx/step_snow_crust_01..05.wav` | Footsteps in winter (crust on clear days), early May and late October. Loudness follows how far the step carries, so sneaking is near silent. Your own steps always; other people's within earshot, a few a second at most. |
 | `step_mud` | `sfx/step_mud_01..05.wav` | Footsteps the rest of the year. |
+| `step_planks`, `step_boardwalk` (synth) | `sfx/step_planks_01..05.wav` | Any plank floor (indoors) and the wharf, all year. |
+| `amb_rain` (synth) | `ambient/amb_rain.wav` | Rain and storms; louder under a roof. |
+| `wolf_howl_01..03`, `wolf_pack_howl` (synth) | `sfx/wolf_howl_01..03.wav`, `sfx/wolf_pack_howl.wav` | At night (20:00 to 06:00), from the nearest wolf within 3,500 px, every 35 to 90 s (more often in winter); the pack howl when three or more are about. |
+| `wolf_growl`, `wolf_bite` (synth) | `sfx/wolf_growl_01..02.wav`, `sfx/wolf_bite.wav` | A wolf within 420 px growls every 5 to 10 s; its bite landing. |
+| `body_fall` (synth) | `sfx/body_fall_01..02.wav` | A person dying. |
+| `musket_reload` (synth) | `sfx/musket_reload.wav` | 1.4 s after a shot, heard only close by. |
 | `amb_winter_wind` | `ambient/amb_winter_wind.wav` | Always some wind: most in winter, more under cloud, snow or rain. |
 | `amb_blizzard` | `ambient/amb_blizzard.wav` | Blizzard, and (softer) Storm. |
 | `amb_river` | `ambient/amb_river.wav` | Open water within about 640 px, louder closer. Silent when frozen. |
@@ -68,12 +74,14 @@ The raw downloads stay in `assets/external/soundFX/` (git-ignored, and hidden fr
 | `ui_page_turn_01..03` | `ui/ui_page_turn.ogg` | Opening or closing the journal, log or pack. |
 | (unused yet) | `ui/ui_quill_write.mp3`, `sfx/wood_creak.wav` | On disk but nothing calls them yet. The quill wants a letter-writing screen; the creak could be a bunk or a shutter. |
 
+Rows marked **(synth)** are stand-ins generated in code; a real recording under the same name replaces them.
+
 **Most wanted next**, in order:
-1. More takes of the sounds that have only one: musket, punch, door, goose, raven.
-2. Footsteps on planks, boardwalk, dirt and ice. The fort's floors and the wharf use the mud step for now.
-3. `amb_summer_day` and `amb_freezeup` beds, and rain.
-4. Wolves (`wolf_howl`, `wolf_growl`): wolves are in the game and silent.
-5. `grunt_hurt` and `body_fall` for fights, and `musket_reload`.
+1. Real recordings for the synth rows, wolves first: they're the weakest imitation.
+2. More takes of the sounds that have only one: musket, punch, door, goose, raven.
+3. Footsteps on dirt and river ice.
+4. `amb_summer_day` and `amb_freezeup` beds.
+5. `grunt_hurt`, so a blow lands with a voice.
 6. UI clicks and `ui_notice`.
 7. The tension cues and stingers in 6.4.
 
@@ -392,14 +400,14 @@ Lower-case, underscores, numbered takes `_01`. WAV, OGG and MP3 all load, and mu
 
 "Partial" means some of the section is in the game; see **In the game now**.
 
-- [ ] 1.1 Footsteps (9 surfaces x 5): partial (snow, snow crust, mud)
-- [ ] 1.2 Ambient beds (13): partial (winter wind, blizzard, river)
+- [ ] 1.1 Footsteps (9 surfaces x 5): partial (snow, snow crust, mud, planks)
+- [ ] 1.2 Ambient beds (13): partial (winter wind, blizzard, river, rain)
 - [ ] 1.3 Fort interiors and camp (4): partial (fort chatter, children at camp)
 - [ ] 1.4 Fire (6): partial (hearth loop, flint)
-- [ ] 2.1 Weapons and fighting (15): partial (musket, distant shot, punch)
+- [ ] 2.1 Weapons and fighting (15): partial (musket, distant shot, punch, reload, body fall)
 - [ ] 2.2 Work and survival (20): partial (axe chops)
 - [ ] 2.3 Travel (10): partial (paddling, dog sled, ship creak)
-- [ ] 3 Animals (24): partial (geese, raven, loon, mosquitoes)
+- [ ] 3 Animals (24): partial (geese, raven, loon, mosquitoes, wolves)
 - [ ] 4 Events (14): partial (ship salute, work bell, alarm bell, door, ice, tree fall)
 - [ ] 5 UI (13): partial (page turn; quill on disk)
 - [ ] 6.1 Menu music (3): partial (main menu done; new-game and credits still wanted)

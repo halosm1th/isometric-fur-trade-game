@@ -175,7 +175,7 @@ No `.theme`, `.ttf` or `.otf` file exists in the repo, so there is nothing to ca
 
 All the effects are CC0 from Freesound; sources in `assets/audio/CREDITS.md`. Raw downloads (~550 MB) stay in `assets/external/soundFX/`, which is git-ignored and has a `.gdignore`. One of them (`769368`, a blizzard) is CC BY-NC and is **not** used.
 
-What plays when, and what's still wanted, is in `audio-prompts.md` under **In the game now**. The biggest gaps: footsteps indoors and on the wharf (they use mud), wolves (silent), rain, fight grunts, UI clicks, and tension music.
+Synthesised stand-ins (also 2026-10-11, listed in CREDITS.md) cover plank footsteps, rain, wolves, a body falling and the musket reload until real recordings replace them. What plays when, and what's still wanted, is in `audio-prompts.md` under **In the game now**. The biggest gaps: real wolf recordings, fight grunts, UI clicks, and tension music.
 
 ---
 

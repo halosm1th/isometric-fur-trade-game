@@ -135,6 +135,9 @@ public partial class StructurePainter : TileMapLayer
     // roofed floor, or a tipi's footprint.
     public bool IsSheltered(Vector2 localPos) => IsShelteredCell(LocalToMap(localPos));
 
+    // A plank floor underfoot (Core/Audio.cs picks the footstep by it).
+    public bool IsPlankFloor(Vector2 localPos) => (_floor ?? this).GetCellSourceId(LocalToMap(localPos)) == SourceFloorPlanks;
+
     public bool IsShelteredCell(Vector2I cell)
     {
         var floor = _floor ?? this;
