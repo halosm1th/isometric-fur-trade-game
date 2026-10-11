@@ -261,6 +261,11 @@ public partial class StructurePainter : TileMapLayer
         foreach (var b in p.Extra) PaintBuilding(b, _floor ?? this);
         SetBack(p.WoodpileCell, SourceWoodpile);
         SetBack(p.CrateCell, SourceCrate);
+        foreach (var (kind, cell) in p.Props)
+        {
+            int src = kind switch { "flagstaff" => 93, "crate" => SourceCrate, "fur_bale" => SourceFurBale, "drying_rack" => 90, "canoe" => WorldLayout.CanoeBeached, _ => -1 };
+            if (src >= 0 && GetCellSourceId(cell) == -1) SetBack(cell, src);
+        }
         PlaceSign(p.GateOutside, p.Name, p.Company == "NWC" ? "North West Company" : "Hudson's Bay Company");
         if (!live) return;
         EnsureHearth(p.HearthCell, 6f);

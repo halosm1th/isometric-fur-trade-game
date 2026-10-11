@@ -403,16 +403,24 @@ def lay_out(G, places, extras, atlas):
     # Older posts choose first; each keeps clear of everything already set down.
     hand_built = {"York Factory", "Oxford House"}
     posts = []
-    for p in sorted(places, key=lambda q: q.get("year", 0)):
+    # The major posts have plans (Data/World/post_plans.json) and bigger
+    # palisades; they choose their ground first.
+    plans_path = os.path.join(ROOT, "Data", "World", "post_plans.json")
+    plans = json.load(open(plans_path, encoding="utf-8")) if os.path.exists(plans_path) else {}
+    def size(name):
+        pl = plans.get(name)
+        return (pl["width"], pl["depth"]) if isinstance(pl, dict) else (12, 9)
+    for p in sorted(places, key=lambda q: (0 if q["name"] in plans else 1, q.get("year", 0))):
         if p.get("kind") != "post" or p["name"] in hand_built or p.get("company") not in ("HBC", "NWC"): continue
-        want = Cell(tuple(p["cell"]), -6, -4)
+        pw, pd = size(p["name"])
+        want = Cell(tuple(p["cell"]), -pw // 2, -pd // 2)
         def post_ok(t):
-            c = cell_world(*Cell(t, 6, 4))
-            if any(math.dist(c, cell_world(*o)) < 1300 for o in placed): return False
-            return footprint_dry(t, 12, 9)
-        try: top = search(want, want, post_ok, 30)
+            c = cell_world(*Cell(t, pw // 2, pd // 2))
+            if any(math.dist(c, cell_world(*o)) < 1300 + 40 * max(pw - 12, 0) for o in placed): return False
+            return footprint_dry(t, pw, pd)
+        try: top = search(want, want, post_ok, 40)
         except SystemExit: print(f"  no room for {p['name']}"); continue
-        placed.append(Cell(top, 6, 4)); forbid(top, 12, 9, 3)
+        placed.append(Cell(top, pw // 2, pd // 2)); forbid(top, pw, pd, 3)
         posts.append(dict(name=p["name"], company=p["company"], year=p.get("year", 0), closed=extras.get("post_closures", {}).get(p["name"], 0), top=list(top)))
     # The nations (design doc 7.2): a band camp for each of the atlas's
     # peoples at its place in 1811, and a family of the nearest nation

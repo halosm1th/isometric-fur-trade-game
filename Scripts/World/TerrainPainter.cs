@@ -443,6 +443,7 @@ public partial class TerrainPainter : TileMapLayer
     public static Vector2I NamedSpot(string name)
     {
         // Any post or place on the map by name: `--spawn="Fort William"`.
+        if (Posts.Named(name) is { } post) return IsoGrid.Cell(post.GateCell, -1, 2);
         if (WorldMap.Place(name) is { } place) return Sim.Paths?.NearestWalkable(place.Cell, 12) ?? place.Cell;
         foreach (var lm in WorldMap.Landmarks()) if (lm.Name == name) { var c = IsoGrid.FromWorld(lm.At); return Sim.Paths?.NearestWalkable(c, 12) ?? c; }
         return name switch

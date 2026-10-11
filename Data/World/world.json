@@ -2262,7 +2262,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dease Lake country) 2",
+    "name": "Beaver lodge (Sekani country)",
     "species": "Beaver",
     "cell": [
      39,
@@ -2274,7 +2274,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sekani country)",
+    "name": "Beaver lodge (Sekani country) 2",
     "species": "Beaver",
     "cell": [
      63,
@@ -2286,7 +2286,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sekani country) 2",
+    "name": "Beaver lodge (Sekani country) 3",
     "species": "Beaver",
     "cell": [
      75,
@@ -2454,7 +2454,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sekani country) 3",
+    "name": "Beaver lodge (Sekani country) 4",
     "species": "Beaver",
     "cell": [
      30,
@@ -2685,7 +2685,7 @@
     "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort))",
     "species": "Ptarmigan",
     "cell": [
-     660,
+     669,
      354
     ],
     "count": 104,
@@ -4425,8 +4425,8 @@
     "name": "Woodland caribou (Albany Fort)",
     "species": "Caribou",
     "cell": [
-     954,
-     1044
+     945,
+     1050
     ],
     "count": 30,
     "capacity": 50,
@@ -4518,19 +4518,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Plains Cree)",
-    "species": "Beaver",
-    "cell": [
-     429,
-     1146
-    ],
-    "count": 27,
-    "capacity": 54,
-    "radius": 350,
-    "route": null
-   },
-   {
-    "name": "Beaver lodge (Plains Cree) 2",
+    "name": "Beaver lodge (Fort a la Corne country)",
     "species": "Beaver",
     "cell": [
      447,
@@ -4542,7 +4530,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Plains Cree)",
+    "name": "Wolf den (Plains Cree country)",
     "species": "Wolf",
     "cell": [
      438,
@@ -5265,7 +5253,7 @@
     "name": "Beaver lodge (Kootenay House)",
     "species": "Beaver",
     "cell": [
-     210,
+     207,
      1398
     ],
     "count": 26,
@@ -5586,11 +5574,11 @@
     "route": null
    },
    {
-    "name": "Wolf den (Lower Fort Garry country)",
+    "name": "Wolf den (Fort Bas de la Riviere country)",
     "species": "Wolf",
     "cell": [
-     618,
-     1476
+     621,
+     1458
     ],
     "count": 5,
     "capacity": 10,
@@ -6150,11 +6138,11 @@
     "route": null
    },
    {
-    "name": "Wolf den (Rainy Lake House)",
+    "name": "Wolf den (Rainy Lake House country)",
     "species": "Wolf",
     "cell": [
-     699,
-     1770
+     696,
+     1758
     ],
     "count": 4,
     "capacity": 10,
@@ -6306,7 +6294,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Rainy Lake House country)",
+    "name": "Wolf den (Rainy Lake House country) 2",
     "species": "Wolf",
     "cell": [
      723,
@@ -6318,7 +6306,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Rainy Lake House country) 2",
+    "name": "Wolf den (Rainy Lake House country) 3",
     "species": "Wolf",
     "cell": [
      750,
@@ -7206,7 +7194,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Salish (Flathead) country) 2",
+    "name": "Woodland caribou (Shoshone country)",
     "species": "Caribou",
     "cell": [
      189,
@@ -7218,7 +7206,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Shoshone country)",
+    "name": "Woodland caribou (Shoshone country) 2",
     "species": "Caribou",
     "cell": [
      210,
@@ -7242,7 +7230,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Shoshone country) 2",
+    "name": "Woodland caribou (Shoshone country) 3",
     "species": "Caribou",
     "cell": [
      270,
@@ -7266,7 +7254,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Shoshone country) 3",
+    "name": "Woodland caribou (Shoshone country) 4",
     "species": "Caribou",
     "cell": [
      294,
@@ -7446,7 +7434,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Shoshone country) 4",
+    "name": "Woodland caribou (Shoshone country) 5",
     "species": "Caribou",
     "cell": [
      240,
@@ -9120,11 +9108,11 @@
     "route": null
    },
    {
-    "name": "Hare flats (Plains Cree)",
+    "name": "Hare flats (South Branch House) 2",
     "species": "Hare",
     "cell": [
-     442,
-     1208
+     434,
+     1234
     ],
     "count": 62,
     "capacity": 140,
@@ -9159,8 +9147,8 @@
     "name": "Hare flats (Assiniboine)",
     "species": "Hare",
     "cell": [
-     475,
-     1556
+     477,
+     1560
     ],
     "count": 83,
     "capacity": 140,
@@ -9292,7 +9280,7 @@
     "species": "Hare",
     "cell": [
      211,
-     1912
+     1908
     ],
     "count": 45,
     "capacity": 140,
@@ -9312,25 +9300,13 @@
     "route": null
    },
    {
-    "name": "Hare flats (Michilimackinac) 2",
-    "species": "Hare",
-    "cell": [
-     939,
-     1966
-    ],
-    "count": 54,
-    "capacity": 140,
-    "radius": 500,
-    "route": null
-   },
-   {
     "name": "Hare flats (Coast Salish)",
     "species": "Hare",
     "cell": [
-     19,
-     1490
+     18,
+     1493
     ],
-    "count": 53,
+    "count": 58,
     "capacity": 140,
     "radius": 500,
     "route": null
@@ -9340,9 +9316,9 @@
     "species": "Hare",
     "cell": [
      48,
-     755
+     764
     ],
-    "count": 74,
+    "count": 65,
     "capacity": 140,
     "radius": 500,
     "route": null
@@ -9351,10 +9327,10 @@
     "name": "Hare flats (Tsilhqot'in)",
     "species": "Hare",
     "cell": [
-     49,
-     1110
+     54,
+     1091
     ],
-    "count": 61,
+    "count": 64,
     "capacity": 140,
     "radius": 500,
     "route": null
@@ -9363,10 +9339,10 @@
     "name": "Hare flats (Fort Connolly) 2",
     "species": "Hare",
     "cell": [
-     66,
-     439
+     68,
+     435
     ],
-    "count": 88,
+    "count": 54,
     "capacity": 140,
     "radius": 500,
     "route": null
@@ -9375,8 +9351,8 @@
     "name": "Hare flats (Secwépemc (Shuswap))",
     "species": "Hare",
     "cell": [
-     113,
-     1258
+     128,
+     1261
     ],
     "count": 48,
     "capacity": 140,
@@ -9459,7 +9435,7 @@
     "name": "Hare flats (Fort Esperance) 2",
     "species": "Hare",
     "cell": [
-     524,
+     523,
      1544
     ],
     "count": 83,
@@ -9475,58 +9451,8 @@
     "year": 1673,
     "closed": 0,
     "top": [
-     967,
-     1096
-    ]
-   },
-   {
-    "name": "Albany Fort",
-    "company": "HBC",
-    "year": 1679,
-    "closed": 0,
-    "top": [
-     944,
-     1026
-    ]
-   },
-   {
-    "name": "Fort Severn",
-    "company": "HBC",
-    "year": 1689,
-    "closed": 0,
-    "top": [
-     795,
-     715
-    ]
-   },
-   {
-    "name": "Churchill (Pr. of Wales Fort)",
-    "company": "HBC",
-    "year": 1717,
-    "closed": 0,
-    "top": [
-     645,
-     341
-    ]
-   },
-   {
-    "name": "Michipicoten",
-    "company": "HBC",
-    "year": 1725,
-    "closed": 0,
-    "top": [
-     911,
-     1645
-    ]
-   },
-   {
-    "name": "Henley House",
-    "company": "HBC",
-    "year": 1743,
-    "closed": 0,
-    "top": [
-     886,
-     1239
+     977,
+     1136
     ]
    },
    {
@@ -9535,148 +9461,8 @@
     "year": 1774,
     "closed": 0,
     "top": [
-     510,
-     1023
-    ]
-   },
-   {
-    "name": "Gloucester House",
-    "company": "HBC",
-    "year": 1777,
-    "closed": 0,
-    "top": [
-     822,
-     1324
-    ]
-   },
-   {
-    "name": "Grand Portage",
-    "company": "NWC",
-    "year": 1778,
-    "closed": 1803,
-    "top": [
-     798,
-     1745
-    ]
-   },
-   {
-    "name": "Hudson House",
-    "company": "HBC",
-    "year": 1779,
-    "closed": 1787,
-    "top": [
-     412,
-     1166
-    ]
-   },
-   {
-    "name": "Ile-a-la-Crosse",
-    "company": "NWC",
-    "year": 1779,
-    "closed": 0,
-    "top": [
-     408,
-     825
-    ]
-   },
-   {
-    "name": "Michilimackinac",
-    "company": "NWC",
-    "year": 1780,
-    "closed": 0,
-    "top": [
-     936,
-     1965
-    ]
-   },
-   {
-    "name": "Green Lake",
-    "company": "HBC",
-    "year": 1782,
-    "closed": 0,
-    "top": [
-     397,
-     977
-    ]
-   },
-   {
-    "name": "Lac la Ronge",
-    "company": "NWC",
-    "year": 1782,
-    "closed": 0,
-    "top": [
-     460,
-     904
-    ]
-   },
-   {
-    "name": "Sault Ste. Marie",
-    "company": "NWC",
-    "year": 1783,
-    "closed": 0,
-    "top": [
-     935,
-     1868
-    ]
-   },
-   {
-    "name": "Pine Fort",
-    "company": "NWC",
-    "year": 1785,
-    "closed": 1811,
-    "top": [
-     563,
-     1615
-    ]
-   },
-   {
-    "name": "Manchester House",
-    "company": "HBC",
-    "year": 1786,
-    "closed": 1793,
-    "top": [
-     374,
-     1097
-    ]
-   },
-   {
-    "name": "South Branch House",
-    "company": "HBC",
-    "year": 1786,
-    "closed": 1794,
-    "top": [
-     436,
-     1207
-    ]
-   },
-   {
-    "name": "Osnaburgh House",
-    "company": "HBC",
-    "year": 1786,
-    "closed": 0,
-    "top": [
-     767,
-     1319
-    ]
-   },
-   {
-    "name": "Fort Esperance",
-    "company": "NWC",
-    "year": 1787,
-    "closed": 0,
-    "top": [
-     524,
-     1540
-    ]
-   },
-   {
-    "name": "Rainy Lake House",
-    "company": "NWC",
-    "year": 1787,
-    "closed": 0,
-    "top": [
-     716,
-     1740
+     512,
+     1016
     ]
    },
    {
@@ -9686,7 +9472,227 @@
     "closed": 0,
     "top": [
      353,
-     295
+     387
+    ]
+   },
+   {
+    "name": "Edmonton House",
+    "company": "HBC",
+    "year": 1795,
+    "closed": 0,
+    "top": [
+     286,
+     1039
+    ]
+   },
+   {
+    "name": "Fort William",
+    "company": "NWC",
+    "year": 1803,
+    "closed": 0,
+    "top": [
+     804,
+     1633
+    ]
+   },
+   {
+    "name": "Fort Gibraltar",
+    "company": "NWC",
+    "year": 1809,
+    "closed": 0,
+    "top": [
+     635,
+     1573
+    ]
+   },
+   {
+    "name": "Albany Fort",
+    "company": "HBC",
+    "year": 1679,
+    "closed": 0,
+    "top": [
+     944,
+     1025
+    ]
+   },
+   {
+    "name": "Fort Severn",
+    "company": "HBC",
+    "year": 1689,
+    "closed": 0,
+    "top": [
+     796,
+     714
+    ]
+   },
+   {
+    "name": "Churchill (Pr. of Wales Fort)",
+    "company": "HBC",
+    "year": 1717,
+    "closed": 0,
+    "top": [
+     661,
+     348
+    ]
+   },
+   {
+    "name": "Michipicoten",
+    "company": "HBC",
+    "year": 1725,
+    "closed": 0,
+    "top": [
+     914,
+     1648
+    ]
+   },
+   {
+    "name": "Henley House",
+    "company": "HBC",
+    "year": 1743,
+    "closed": 0,
+    "top": [
+     886,
+     1238
+    ]
+   },
+   {
+    "name": "Gloucester House",
+    "company": "HBC",
+    "year": 1777,
+    "closed": 0,
+    "top": [
+     822,
+     1323
+    ]
+   },
+   {
+    "name": "Grand Portage",
+    "company": "NWC",
+    "year": 1778,
+    "closed": 1803,
+    "top": [
+     799,
+     1742
+    ]
+   },
+   {
+    "name": "Hudson House",
+    "company": "HBC",
+    "year": 1779,
+    "closed": 1787,
+    "top": [
+     412,
+     1165
+    ]
+   },
+   {
+    "name": "Ile-a-la-Crosse",
+    "company": "NWC",
+    "year": 1779,
+    "closed": 0,
+    "top": [
+     408,
+     828
+    ]
+   },
+   {
+    "name": "Michilimackinac",
+    "company": "NWC",
+    "year": 1780,
+    "closed": 0,
+    "top": [
+     937,
+     1966
+    ]
+   },
+   {
+    "name": "Green Lake",
+    "company": "HBC",
+    "year": 1782,
+    "closed": 0,
+    "top": [
+     398,
+     976
+    ]
+   },
+   {
+    "name": "Lac la Ronge",
+    "company": "NWC",
+    "year": 1782,
+    "closed": 0,
+    "top": [
+     460,
+     903
+    ]
+   },
+   {
+    "name": "Sault Ste. Marie",
+    "company": "NWC",
+    "year": 1783,
+    "closed": 0,
+    "top": [
+     935,
+     1869
+    ]
+   },
+   {
+    "name": "Pine Fort",
+    "company": "NWC",
+    "year": 1785,
+    "closed": 1811,
+    "top": [
+     564,
+     1614
+    ]
+   },
+   {
+    "name": "Manchester House",
+    "company": "HBC",
+    "year": 1786,
+    "closed": 1793,
+    "top": [
+     375,
+     1098
+    ]
+   },
+   {
+    "name": "South Branch House",
+    "company": "HBC",
+    "year": 1786,
+    "closed": 1794,
+    "top": [
+     437,
+     1198
+    ]
+   },
+   {
+    "name": "Osnaburgh House",
+    "company": "HBC",
+    "year": 1786,
+    "closed": 0,
+    "top": [
+     768,
+     1318
+    ]
+   },
+   {
+    "name": "Fort Esperance",
+    "company": "NWC",
+    "year": 1787,
+    "closed": 0,
+    "top": [
+     524,
+     1539
+    ]
+   },
+   {
+    "name": "Rainy Lake House",
+    "company": "NWC",
+    "year": 1787,
+    "closed": 0,
+    "top": [
+     716,
+     1739
     ]
    },
    {
@@ -9696,7 +9702,7 @@
     "closed": 0,
     "top": [
      935,
-     1412
+     1411
     ]
    },
    {
@@ -9706,7 +9712,7 @@
     "closed": 0,
     "top": [
      476,
-     1136
+     1135
     ]
    },
    {
@@ -9716,7 +9722,7 @@
     "closed": 0,
     "top": [
      533,
-     1292
+     1291
     ]
    },
    {
@@ -9725,8 +9731,8 @@
     "year": 1790,
     "closed": 0,
     "top": [
-     552,
-     1595
+     553,
+     1594
     ]
    },
    {
@@ -9735,8 +9741,8 @@
     "year": 1790,
     "closed": 0,
     "top": [
-     690,
-     1820
+     689,
+     1821
     ]
    },
    {
@@ -9745,8 +9751,8 @@
     "year": 1790,
     "closed": 0,
     "top": [
-     993,
-     1817
+     994,
+     1816
     ]
    },
    {
@@ -9755,8 +9761,8 @@
     "year": 1792,
     "closed": 1800,
     "top": [
-     321,
-     993
+     322,
+     994
     ]
    },
    {
@@ -9766,7 +9772,7 @@
     "closed": 1800,
     "top": [
      321,
-     1037
+     1036
     ]
    },
    {
@@ -9776,7 +9782,7 @@
     "closed": 0,
     "top": [
      647,
-     1462
+     1463
     ]
    },
    {
@@ -9785,8 +9791,8 @@
     "year": 1793,
     "closed": 0,
     "top": [
-     554,
-     1635
+     555,
+     1634
     ]
    },
    {
@@ -9795,8 +9801,8 @@
     "year": 1793,
     "closed": 0,
     "top": [
-     854,
-     1213
+     855,
+     1210
     ]
    },
    {
@@ -9805,18 +9811,8 @@
     "year": 1794,
     "closed": 0,
     "top": [
-     571,
-     1645
-    ]
-   },
-   {
-    "name": "Edmonton House",
-    "company": "HBC",
-    "year": 1795,
-    "closed": 0,
-    "top": [
-     283,
-     1043
+     572,
+     1644
     ]
    },
    {
@@ -9825,8 +9821,8 @@
     "year": 1795,
     "closed": 0,
     "top": [
-     292,
-     1017
+     294,
+     1010
     ]
    },
    {
@@ -9835,8 +9831,8 @@
     "year": 1795,
     "closed": 0,
     "top": [
-     420,
-     1139
+     421,
+     1136
     ]
    },
    {
@@ -9845,8 +9841,8 @@
     "year": 1795,
     "closed": 0,
     "top": [
-     525,
-     1389
+     526,
+     1388
     ]
    },
    {
@@ -9856,7 +9852,7 @@
     "closed": 0,
     "top": [
      599,
-     1570
+     1569
     ]
    },
    {
@@ -9865,8 +9861,8 @@
     "year": 1795,
     "closed": 0,
     "top": [
-     594,
-     1445
+     595,
+     1446
     ]
    },
    {
@@ -9875,8 +9871,8 @@
     "year": 1798,
     "closed": 0,
     "top": [
-     334,
-     1033
+     335,
+     1034
     ]
    },
    {
@@ -9886,7 +9882,7 @@
     "closed": 0,
     "top": [
      622,
-     1802
+     1801
     ]
    },
    {
@@ -9895,8 +9891,8 @@
     "year": 1799,
     "closed": 0,
     "top": [
-     245,
-     1183
+     246,
+     1182
     ]
    },
    {
@@ -9906,7 +9902,7 @@
     "closed": 0,
     "top": [
      488,
-     1266
+     1265
     ]
    },
    {
@@ -9915,8 +9911,8 @@
     "year": 1800,
     "closed": 1802,
     "top": [
-     339,
-     1411
+     340,
+     1410
     ]
    },
    {
@@ -9925,8 +9921,8 @@
     "year": 1800,
     "closed": 0,
     "top": [
-     145,
-     163
+     146,
+     162
     ]
    },
    {
@@ -9935,8 +9931,8 @@
     "year": 1801,
     "closed": 0,
     "top": [
-     619,
-     1709
+     620,
+     1708
     ]
    },
    {
@@ -9945,18 +9941,8 @@
     "year": 1802,
     "closed": 0,
     "top": [
-     249,
-     745
-    ]
-   },
-   {
-    "name": "Fort William",
-    "company": "NWC",
-    "year": 1803,
-    "closed": 0,
-    "top": [
-     803,
-     1691
+     250,
+     744
     ]
    },
    {
@@ -9966,7 +9952,7 @@
     "closed": 0,
     "top": [
      193,
-     639
+     638
     ]
    },
    {
@@ -9975,8 +9961,8 @@
     "year": 1805,
     "closed": 0,
     "top": [
-     103,
-     657
+     104,
+     656
     ]
    },
    {
@@ -9985,8 +9971,8 @@
     "year": 1806,
     "closed": 0,
     "top": [
-     73,
-     709
+     74,
+     708
     ]
    },
    {
@@ -9996,7 +9982,7 @@
     "closed": 0,
     "top": [
      64,
-     752
+     751
     ]
    },
    {
@@ -10006,7 +9992,7 @@
     "closed": 1812,
     "top": [
      215,
-     1382
+     1387
     ]
    },
    {
@@ -10015,18 +10001,8 @@
     "year": 1807,
     "closed": 0,
     "top": [
-     93,
-     795
-    ]
-   },
-   {
-    "name": "Fort Gibraltar",
-    "company": "NWC",
-    "year": 1809,
-    "closed": 0,
-    "top": [
-     617,
-     1565
+     94,
+     794
     ]
    },
    {
@@ -10036,7 +10012,7 @@
     "closed": 0,
     "top": [
      230,
-     1830
+     1829
     ]
    },
    {
@@ -10045,8 +10021,8 @@
     "year": 1810,
     "closed": 0,
     "top": [
-     660,
-     1035
+     661,
+     1036
     ]
    },
    {
@@ -10055,8 +10031,8 @@
     "year": 1810,
     "closed": 0,
     "top": [
-     158,
-     1751
+     159,
+     1750
     ]
    },
    {
@@ -10065,8 +10041,8 @@
     "year": 1812,
     "closed": 0,
     "top": [
-     117,
-     1299
+     118,
+     1298
     ]
    },
    {
@@ -10075,8 +10051,8 @@
     "year": 1813,
     "closed": 0,
     "top": [
-     175,
-     1026
+     190,
+     1049
     ]
    },
    {
@@ -10085,8 +10061,8 @@
     "year": 1814,
     "closed": 0,
     "top": [
-     605,
-     1024
+     604,
+     1025
     ]
    },
    {
@@ -10095,8 +10071,8 @@
     "year": 1815,
     "closed": 0,
     "top": [
-     633,
-     1577
+     618,
+     1558
     ]
    },
    {
@@ -10105,8 +10081,8 @@
     "year": 1815,
     "closed": 0,
     "top": [
-     732,
-     1473
+     733,
+     1472
     ]
    },
    {
@@ -10115,8 +10091,8 @@
     "year": 1818,
     "closed": 0,
     "top": [
-     113,
-     1971
+     114,
+     1970
     ]
    },
    {
@@ -10125,8 +10101,8 @@
     "year": 1820,
     "closed": 0,
     "top": [
-     986,
-     523
+     987,
+     520
     ]
    },
    {
@@ -10135,8 +10111,8 @@
     "year": 1821,
     "closed": 0,
     "top": [
-     83,
-     992
+     98,
+     997
     ]
    },
    {
@@ -10145,8 +10121,8 @@
     "year": 1822,
     "closed": 0,
     "top": [
-     618,
-     1606
+     617,
+     1603
     ]
    },
    {
@@ -10155,8 +10131,8 @@
     "year": 1822,
     "closed": 0,
     "top": [
-     37,
-     535
+     38,
+     534
     ]
    },
    {
@@ -10166,7 +10142,7 @@
     "closed": 0,
     "top": [
      516,
-     1342
+     1341
     ]
    },
    {
@@ -10175,8 +10151,8 @@
     "year": 1824,
     "closed": 0,
     "top": [
-     258,
-     885
+     259,
+     884
     ]
    },
    {
@@ -10186,7 +10162,7 @@
     "closed": 0,
     "top": [
      26,
-     1914
+     1915
     ]
    },
    {
@@ -10195,8 +10171,8 @@
     "year": 1825,
     "closed": 0,
     "top": [
-     155,
-     1639
+     156,
+     1638
     ]
    },
    {
@@ -10206,7 +10182,7 @@
     "closed": 0,
     "top": [
      70,
-     434
+     433
     ]
    },
    {
@@ -10215,8 +10191,8 @@
     "year": 1827,
     "closed": 0,
     "top": [
-     57,
-     1433
+     58,
+     1434
     ]
    },
    {
@@ -10225,8 +10201,8 @@
     "year": 1829,
     "closed": 0,
     "top": [
-     355,
-     1043
+     356,
+     1044
     ]
    },
    {
@@ -10235,8 +10211,8 @@
     "year": 1829,
     "closed": 0,
     "top": [
-     64,
-     1037
+     65,
+     1036
     ]
    },
    {
@@ -10245,8 +10221,8 @@
     "year": 1830,
     "closed": 0,
     "top": [
-     636,
-     1536
+     635,
+     1537
     ]
    },
    {
@@ -10255,8 +10231,8 @@
     "year": 1831,
     "closed": 0,
     "top": [
-     533,
-     1566
+     532,
+     1565
     ]
    },
    {
@@ -10266,7 +10242,7 @@
     "closed": 0,
     "top": [
      36,
-     1732
+     1731
     ]
    },
    {
@@ -10275,8 +10251,8 @@
     "year": 1836,
     "closed": 0,
     "top": [
-     690,
-     1561
+     691,
+     1568
     ]
    },
    {
@@ -10286,7 +10262,7 @@
     "closed": 0,
     "top": [
      981,
-     710
+     711
     ]
    },
    {
@@ -10296,7 +10272,7 @@
     "closed": 0,
     "top": [
      16,
-     44
+     43
     ]
    },
    {
@@ -10305,8 +10281,8 @@
     "year": 1843,
     "closed": 0,
     "top": [
-     25,
-     1517
+     26,
+     1516
     ]
    },
    {
@@ -10315,8 +10291,8 @@
     "year": 1852,
     "closed": 0,
     "top": [
-     481,
-     1405
+     482,
+     1404
     ]
    },
    {
@@ -10326,7 +10302,7 @@
     "closed": 0,
     "top": [
      477,
-     1478
+     1477
     ]
    }
   ],
@@ -10386,8 +10362,8 @@
     "nation": "Cree",
     "kind": "band",
     "centre": [
-     433,
-     1170
+     425,
+     1196
     ],
     "people": 12
    },
@@ -10416,8 +10392,8 @@
     "nation": "Assiniboine",
     "kind": "band",
     "centre": [
-     469,
-     1525
+     471,
+     1529
     ],
     "people": 12
    },
@@ -10537,7 +10513,7 @@
     "kind": "band",
     "centre": [
      222,
-     1876
+     1872
     ],
     "people": 8
    },
@@ -10566,8 +10542,8 @@
     "nation": "Ojibwe",
     "kind": "band",
     "centre": [
-     946,
-     1910
+     947,
+     1908
     ],
     "people": 8
    },
@@ -10606,8 +10582,8 @@
     "nation": "Dene",
     "kind": "band",
     "centre": [
-     73,
-     395
+     72,
+     393
     ],
     "people": 8
    },
@@ -10706,7 +10682,7 @@
     "nation": "Metis",
     "kind": "band",
     "centre": [
-     524,
+     523,
      1500
     ],
     "people": 8
@@ -10717,8 +10693,63 @@
     "kind": "family",
     "post": "Moose Factory",
     "centre": [
-     962,
-     1114
+     970,
+     1172
+    ],
+    "people": 4
+   },
+   {
+    "name": "Woodland Cree family at Cumberland House",
+    "nation": "Cree",
+    "kind": "family",
+    "post": "Cumberland House",
+    "centre": [
+     505,
+     1048
+    ],
+    "people": 4
+   },
+   {
+    "name": "Chipewyan family at Fort Chipewyan",
+    "nation": "Dene",
+    "kind": "family",
+    "post": "Fort Chipewyan",
+    "centre": [
+     347,
+     413
+    ],
+    "people": 4
+   },
+   {
+    "name": "Blackfoot family at Edmonton House",
+    "nation": "Blackfoot",
+    "kind": "family",
+    "post": "Edmonton House",
+    "centre": [
+     280,
+     1069
+    ],
+    "people": 4
+   },
+   {
+    "name": "Ojibwa (Anishinaabe) family at Fort William",
+    "nation": "Ojibwe",
+    "kind": "family",
+    "post": "Fort William",
+    "centre": [
+     797,
+     1635
+    ],
+    "people": 4
+   },
+   {
+    "name": "Métis of the Forks family at Fort Gibraltar",
+    "nation": "Metis",
+    "kind": "family",
+    "post": "Fort Gibraltar",
+    "centre": [
+     630,
+     1601
     ],
     "people": 4
    },
@@ -10729,7 +10760,7 @@
     "post": "Albany Fort",
     "centre": [
      939,
-     1044
+     1043
     ],
     "people": 4
    },
@@ -10739,8 +10770,8 @@
     "kind": "family",
     "post": "Fort Severn",
     "centre": [
-     790,
-     733
+     791,
+     732
     ],
     "people": 4
    },
@@ -10750,8 +10781,8 @@
     "kind": "family",
     "post": "Churchill (Pr. of Wales Fort)",
     "centre": [
-     640,
-     359
+     657,
+     368
     ],
     "people": 4
    },
@@ -10761,8 +10792,8 @@
     "kind": "family",
     "post": "Michipicoten",
     "centre": [
-     906,
-     1663
+     909,
+     1666
     ],
     "people": 4
    },
@@ -10773,18 +10804,7 @@
     "post": "Henley House",
     "centre": [
      881,
-     1257
-    ],
-    "people": 4
-   },
-   {
-    "name": "Woodland Cree family at Cumberland House",
-    "nation": "Cree",
-    "kind": "family",
-    "post": "Cumberland House",
-    "centre": [
-     504,
-     1047
+     1256
     ],
     "people": 4
    },
@@ -10795,7 +10815,7 @@
     "post": "Gloucester House",
     "centre": [
      817,
-     1342
+     1341
     ],
     "people": 4
    },
@@ -10805,8 +10825,8 @@
     "kind": "family",
     "post": "Grand Portage",
     "centre": [
-     793,
-     1763
+     794,
+     1760
     ],
     "people": 4
    },
@@ -10817,7 +10837,7 @@
     "post": "Hudson House",
     "centre": [
      407,
-     1184
+     1183
     ],
     "people": 4
    },
@@ -10828,7 +10848,7 @@
     "post": "Ile-a-la-Crosse",
     "centre": [
      404,
-     845
+     848
     ],
     "people": 4
    },
@@ -10838,8 +10858,8 @@
     "kind": "family",
     "post": "Michilimackinac",
     "centre": [
-     931,
-     1983
+     932,
+     1984
     ],
     "people": 4
    },
@@ -10849,8 +10869,8 @@
     "kind": "family",
     "post": "Green Lake",
     "centre": [
-     392,
-     995
+     393,
+     994
     ],
     "people": 4
    },
@@ -10861,7 +10881,7 @@
     "post": "Lac la Ronge",
     "centre": [
      455,
-     922
+     921
     ],
     "people": 4
    },
@@ -10872,7 +10892,7 @@
     "post": "Sault Ste. Marie",
     "centre": [
      930,
-     1886
+     1887
     ],
     "people": 4
    },
@@ -10882,8 +10902,8 @@
     "kind": "family",
     "post": "Pine Fort",
     "centre": [
-     551,
-     1629
+     552,
+     1628
     ],
     "people": 4
    },
@@ -10893,8 +10913,8 @@
     "kind": "family",
     "post": "Manchester House",
     "centre": [
-     366,
-     1119
+     367,
+     1122
     ],
     "people": 4
    },
@@ -10904,8 +10924,8 @@
     "kind": "family",
     "post": "South Branch House",
     "centre": [
-     432,
-     1227
+     433,
+     1218
     ],
     "people": 4
    },
@@ -10915,8 +10935,8 @@
     "kind": "family",
     "post": "Osnaburgh House",
     "centre": [
-     761,
-     1335
+     762,
+     1334
     ],
     "people": 4
    },
@@ -10927,7 +10947,7 @@
     "post": "Fort Esperance",
     "centre": [
      519,
-     1558
+     1557
     ],
     "people": 4
    },
@@ -10938,18 +10958,7 @@
     "post": "Rainy Lake House",
     "centre": [
      711,
-     1758
-    ],
-    "people": 4
-   },
-   {
-    "name": "Chipewyan family at Fort Chipewyan",
-    "nation": "Dene",
-    "kind": "family",
-    "post": "Fort Chipewyan",
-    "centre": [
-     345,
-     323
+     1757
     ],
     "people": 4
    },
@@ -10960,7 +10969,7 @@
     "post": "Brunswick House",
     "centre": [
      930,
-     1430
+     1429
     ],
     "people": 4
    },
@@ -10971,7 +10980,7 @@
     "post": "Nipawi",
     "centre": [
      471,
-     1154
+     1153
     ],
     "people": 4
    },
@@ -10982,7 +10991,7 @@
     "post": "Swan River House",
     "centre": [
      528,
-     1310
+     1309
     ],
     "people": 4
    },
@@ -10992,8 +11001,8 @@
     "kind": "family",
     "post": "Montagne a la Bosse",
     "centre": [
-     547,
-     1613
+     548,
+     1612
     ],
     "people": 4
    },
@@ -11003,8 +11012,8 @@
     "kind": "family",
     "post": "Red Lake Post",
     "centre": [
-     686,
-     1848
+     685,
+     1849
     ],
     "people": 4
    },
@@ -11014,8 +11023,8 @@
     "kind": "family",
     "post": "La Cloche",
     "centre": [
-     988,
-     1835
+     989,
+     1834
     ],
     "people": 4
    },
@@ -11026,7 +11035,7 @@
     "post": "Fort George",
     "centre": [
      314,
-     1013
+     1014
     ],
     "people": 4
    },
@@ -11037,7 +11046,7 @@
     "post": "Buckingham House",
     "centre": [
      316,
-     1055
+     1054
     ],
     "people": 4
    },
@@ -11048,7 +11057,7 @@
     "post": "Fort Bas de la Riviere",
     "centre": [
      641,
-     1488
+     1489
     ],
     "people": 4
    },
@@ -11058,8 +11067,8 @@
     "kind": "family",
     "post": "Brandon House",
     "centre": [
-     549,
-     1653
+     550,
+     1652
     ],
     "people": 4
    },
@@ -11069,8 +11078,8 @@
     "kind": "family",
     "post": "Martin Falls",
     "centre": [
-     849,
-     1231
+     850,
+     1228
     ],
     "people": 4
    },
@@ -11080,19 +11089,8 @@
     "kind": "family",
     "post": "Fort Souris",
     "centre": [
-     566,
-     1663
-    ],
-    "people": 4
-   },
-   {
-    "name": "Blackfoot family at Edmonton House",
-    "nation": "Blackfoot",
-    "kind": "family",
-    "post": "Edmonton House",
-    "centre": [
-     278,
-     1061
+     567,
+     1662
     ],
     "people": 4
    },
@@ -11102,8 +11100,8 @@
     "kind": "family",
     "post": "Fort Augustus",
     "centre": [
-     288,
-     1037
+     289,
+     1028
     ],
     "people": 4
    },
@@ -11114,7 +11112,7 @@
     "post": "Carlton House",
     "centre": [
      416,
-     1159
+     1154
     ],
     "people": 4
    },
@@ -11124,8 +11122,8 @@
     "kind": "family",
     "post": "Fort Alexandria",
     "centre": [
-     518,
-     1403
+     519,
+     1402
     ],
     "people": 4
    },
@@ -11136,7 +11134,7 @@
     "post": "Portage la Prairie",
     "centre": [
      594,
-     1588
+     1587
     ],
     "people": 4
    },
@@ -11146,8 +11144,8 @@
     "kind": "family",
     "post": "Manitoba House",
     "centre": [
-     585,
-     1473
+     590,
+     1444
     ],
     "people": 4
    },
@@ -11157,8 +11155,8 @@
     "kind": "family",
     "post": "Fort Vermilion",
     "centre": [
-     329,
-     1055
+     330,
+     1052
     ],
     "people": 4
    },
@@ -11169,7 +11167,7 @@
     "post": "Turtle River House",
     "centre": [
      617,
-     1820
+     1819
     ],
     "people": 4
    },
@@ -11179,8 +11177,8 @@
     "kind": "family",
     "post": "Rocky Mountain House",
     "centre": [
-     240,
-     1201
+     241,
+     1200
     ],
     "people": 4
    },
@@ -11191,7 +11189,7 @@
     "post": "Nut Lake",
     "centre": [
      483,
-     1284
+     1283
     ],
     "people": 4
    },
@@ -11201,8 +11199,8 @@
     "kind": "family",
     "post": "Chesterfield House",
     "centre": [
-     334,
-     1429
+     335,
+     1428
     ],
     "people": 4
    },
@@ -11212,8 +11210,8 @@
     "kind": "family",
     "post": "Fort Nelson (BC)",
     "centre": [
-     140,
-     181
+     141,
+     180
     ],
     "people": 4
    },
@@ -11223,8 +11221,8 @@
     "kind": "family",
     "post": "Pembina Post",
     "centre": [
-     614,
-     1727
+     615,
+     1726
     ],
     "people": 4
    },
@@ -11234,19 +11232,8 @@
     "kind": "family",
     "post": "Lesser Slave Lake Ho.",
     "centre": [
-     244,
-     763
-    ],
-    "people": 4
-   },
-   {
-    "name": "Ojibwa (Anishinaabe) family at Fort William",
-    "nation": "Ojibwe",
-    "kind": "family",
-    "post": "Fort William",
-    "centre": [
-     798,
-     1709
+     245,
+     762
     ],
     "people": 4
    },
@@ -11257,7 +11244,7 @@
     "post": "Dunvegan",
     "centre": [
      188,
-     657
+     656
     ],
     "people": 4
    },
@@ -11267,8 +11254,8 @@
     "kind": "family",
     "post": "Fort McLeod",
     "centre": [
-     98,
-     675
+     99,
+     674
     ],
     "people": 4
    },
@@ -11278,8 +11265,8 @@
     "kind": "family",
     "post": "Fort St. James",
     "centre": [
-     68,
-     727
+     69,
+     726
     ],
     "people": 4
    },
@@ -11290,7 +11277,7 @@
     "post": "Fort Fraser",
     "centre": [
      59,
-     770
+     769
     ],
     "people": 4
    },
@@ -11301,7 +11288,7 @@
     "post": "Kootenay House",
     "centre": [
      213,
-     1412
+     1417
     ],
     "people": 4
    },
@@ -11311,19 +11298,8 @@
     "kind": "family",
     "post": "Fort George (BC)",
     "centre": [
-     88,
-     813
-    ],
-    "people": 4
-   },
-   {
-    "name": "Métis of the Forks family at Fort Gibraltar",
-    "nation": "Metis",
-    "kind": "family",
-    "post": "Fort Gibraltar",
-    "centre": [
-     612,
-     1583
+     89,
+     812
     ],
     "people": 4
    },
@@ -11334,7 +11310,7 @@
     "post": "Flathead House",
     "centre": [
      225,
-     1848
+     1847
     ],
     "people": 4
    },
@@ -11344,8 +11320,8 @@
     "kind": "family",
     "post": "Island Lake House",
     "centre": [
-     655,
-     1053
+     656,
+     1054
     ],
     "people": 4
    },
@@ -11355,8 +11331,8 @@
     "kind": "family",
     "post": "Spokane House",
     "centre": [
-     153,
-     1769
+     154,
+     1768
     ],
     "people": 4
    },
@@ -11366,8 +11342,8 @@
     "kind": "family",
     "post": "Fort Kamloops",
     "centre": [
-     112,
-     1317
+     113,
+     1316
     ],
     "people": 4
    },
@@ -11377,8 +11353,8 @@
     "kind": "family",
     "post": "Jasper House",
     "centre": [
-     167,
-     1048
+     188,
+     1079
     ],
     "people": 4
    },
@@ -11389,7 +11365,7 @@
     "post": "Norway House",
     "centre": [
      602,
-     1050
+     1055
     ],
     "people": 4
    },
@@ -11399,8 +11375,8 @@
     "kind": "family",
     "post": "Fort Douglas",
     "centre": [
-     630,
-     1603
+     613,
+     1576
     ],
     "people": 4
    },
@@ -11410,8 +11386,8 @@
     "kind": "family",
     "post": "Lac Seul House",
     "centre": [
-     727,
-     1491
+     728,
+     1490
     ],
     "people": 4
    },
@@ -11421,8 +11397,8 @@
     "kind": "family",
     "post": "Fort Nez Perces",
     "centre": [
-     108,
-     1989
+     109,
+     1988
     ],
     "people": 4
    },
@@ -11432,8 +11408,8 @@
     "kind": "family",
     "post": "Great Whale River",
     "centre": [
-     981,
-     541
+     982,
+     538
     ],
     "people": 4
    },
@@ -11443,8 +11419,8 @@
     "kind": "family",
     "post": "Fort Alexandria (BC)",
     "centre": [
-     78,
-     1010
+     94,
+     1017
     ],
     "people": 4
    },
@@ -11454,8 +11430,8 @@
     "kind": "family",
     "post": "Upper Fort Garry",
     "centre": [
-     613,
-     1624
+     612,
+     1621
     ],
     "people": 4
    },
@@ -11465,8 +11441,8 @@
     "kind": "family",
     "post": "Fort Babine",
     "centre": [
-     32,
-     553
+     33,
+     552
     ],
     "people": 4
    },
@@ -11477,7 +11453,7 @@
     "post": "Fort Pelly",
     "centre": [
      511,
-     1360
+     1359
     ],
     "people": 4
    },
@@ -11487,8 +11463,8 @@
     "kind": "family",
     "post": "Fort Assiniboine",
     "centre": [
-     253,
-     903
+     254,
+     902
     ],
     "people": 4
    },
@@ -11498,8 +11474,8 @@
     "kind": "family",
     "post": "Fort Vancouver",
     "centre": [
-     22,
-     1942
+     21,
+     1941
     ],
     "people": 4
    },
@@ -11509,8 +11485,8 @@
     "kind": "family",
     "post": "Fort Colvile",
     "centre": [
-     150,
-     1657
+     151,
+     1656
     ],
     "people": 4
    },
@@ -11521,7 +11497,7 @@
     "post": "Fort Connolly",
     "centre": [
      65,
-     452
+     451
     ],
     "people": 4
    },
@@ -11532,7 +11508,7 @@
     "post": "Fort Langley",
     "centre": [
      52,
-     1457
+     1458
     ],
     "people": 4
    },
@@ -11542,8 +11518,8 @@
     "kind": "family",
     "post": "Fort Pitt",
     "centre": [
-     348,
-     1065
+     349,
+     1066
     ],
     "people": 4
    },
@@ -11553,8 +11529,8 @@
     "kind": "family",
     "post": "Fort Chilcotin",
     "centre": [
-     59,
-     1055
+     60,
+     1054
     ],
     "people": 4
    },
@@ -11564,8 +11540,8 @@
     "kind": "family",
     "post": "Lower Fort Garry",
     "centre": [
-     631,
-     1554
+     630,
+     1555
     ],
     "people": 4
    },
@@ -11575,8 +11551,8 @@
     "kind": "family",
     "post": "Fort Ellice",
     "centre": [
-     528,
-     1584
+     527,
+     1583
     ],
     "people": 4
    },
@@ -11587,7 +11563,7 @@
     "post": "Fort Nisqually",
     "centre": [
      31,
-     1750
+     1749
     ],
     "people": 4
    },
@@ -11598,7 +11574,7 @@
     "post": "Rat Portage",
     "centre": [
      681,
-     1585
+     1586
     ],
     "people": 4
    },
@@ -11609,7 +11585,7 @@
     "post": "Fort George (Chisasibi)",
     "centre": [
      976,
-     728
+     729
     ],
     "people": 4
    },
@@ -11620,7 +11596,7 @@
     "post": "Dease Lake",
     "centre": [
      11,
-     62
+     61
     ],
     "people": 4
    },
@@ -11630,8 +11606,8 @@
     "kind": "family",
     "post": "Fort Victoria",
     "centre": [
-     18,
-     1519
+     19,
+     1518
     ],
     "people": 4
    },
@@ -11641,8 +11617,8 @@
     "kind": "family",
     "post": "Touchwood Hills",
     "centre": [
-     476,
-     1423
+     477,
+     1422
     ],
     "people": 4
    },
@@ -11653,7 +11629,7 @@
     "post": "Fort Qu'Appelle",
     "centre": [
      472,
-     1496
+     1495
     ],
     "people": 4
    }

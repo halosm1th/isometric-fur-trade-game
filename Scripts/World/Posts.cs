@@ -29,6 +29,10 @@ public class TradingPost
     // much further than an ordinary post the bush is kept back.
     public readonly List<BuildingDef> Extra = new();
     public float Extent;
+    // From a plan (Data/World/post_plans.json): props, and the size of the staff.
+    public readonly List<(string Kind, Vector2I Cell)> Props = new();
+    public int StaffMen = 2, StaffWomen;
+    public bool StaffClerk, Planned;
     public Vector2I HearthCell => IsoGrid.Cell(House.Top, 1, 1);
     public Vector2I AccessCell => IsoGrid.Cell(House.Top, 2, 2);
     public Vector2 Centre => IsoGrid.ToWorld(IsoGrid.Cell(Top, Width / 2, Depth / 2));
@@ -61,7 +65,7 @@ public static class Posts
                 Closed = d.TryGetValue("closed", out var cl) ? cl.AsInt32() : 0,
                 House = new BuildingDef(BuildingKind.TradingPost, d["name"].AsString(), IsoGrid.Cell(top, 2, 2), 7, 5, 3),
             };
-            if (p.Name == "Fort William") FortWilliam(p);
+            if (!ApplyPlan(p) && p.Name == "Fort William") FortWilliam(p);
             list.Add(p);
             _byName[p.Name] = p;
             var key = new Vector2I(Mathf.FloorToInt(p.Centre.X / GridPx), Mathf.FloorToInt(p.Centre.Y / GridPx));
@@ -84,6 +88,55 @@ public static class Posts
         p.Extra.Add(new BuildingDef(BuildingKind.GreatHall, "the Great Hall", IsoGrid.Cell(p.Top, 9, 1), 7, 4, 6));
         p.Extra.Add(new BuildingDef(BuildingKind.PartnersHouse, "the partners' house", IsoGrid.Cell(p.Top, 9, 5), 5, 3, 2));
         p.Extent = 450f;
+    }
+
+    // A building kind's size and where its door is (as York's).
+    public static (int W, int D, int Door) SizeOf(BuildingKind k) => k switch
+    {
+        BuildingKind.Depot => (7, 5, 3), BuildingKind.Warehouse => (8, 6, 3), BuildingKind.MensHouse => (7, 5, 3),
+        BuildingKind.FactorsHouse => (5, 6, 2), BuildingKind.ClerksHouse => (5, 6, 2), BuildingKind.ProvisionStore => (5, 4, 2),
+        BuildingKind.SummerMess => (5, 5, 2), BuildingKind.GuestHouse => (4, 5, 1), BuildingKind.PowderMagazine => (3, 3, 1),
+        BuildingKind.GreatHall => (9, 7, 4), BuildingKind.PartnersHouse => (5, 4, 2), _ => (7, 5, 3),
+    };
+
+    // The major posts are laid out from Data/World/post_plans.json (hand
+    // editable): their palisade, gate, buildings, props and staff.
+    private static Godot.Collections.Dictionary _plans;
+    private static bool ApplyPlan(TradingPost p)
+    {
+        _plans ??= GD.Load<Json>("res://Data/World/post_plans.json")?.Data.AsGodotDictionary() ?? new Godot.Collections.Dictionary();
+        if (!_plans.TryGetValue(p.Name, out var pv)) return false;
+        var plan = pv.AsGodotDictionary();
+        p.Planned = true;
+        p.Width = plan["width"].AsInt32(); p.Depth = plan["depth"].AsInt32(); p.GateOffset = plan["gate"].AsInt32();
+        var buildings = new List<BuildingDef>();
+        foreach (var bv in plan["buildings"].AsGodotArray())
+        {
+            var b = bv.AsGodotDictionary();
+            if (!System.Enum.TryParse(b["kind"].AsString(), out BuildingKind kind)) continue;
+            var (w, dd, door) = SizeOf(kind);
+            buildings.Add(new BuildingDef(kind, b["name"].AsString(), IsoGrid.Cell(p.Top, b["i"].AsInt32(), b["j"].AsInt32()), w, dd, door));
+        }
+        if (buildings.Count == 0) return false;
+        // The house the post is kept from is its trading room, else its first building.
+        int main = buildings.FindIndex(b => b.Kind == BuildingKind.Depot);
+        p.House = buildings[main < 0 ? 0 : main];
+        foreach (var b in buildings) if (b != p.House) p.Extra.Add(b);
+        p.WoodpileAt = new Vector2I(p.Width - 2, p.Depth - 2); p.CrateAt = new Vector2I(1, p.Depth - 2);
+        if (plan.TryGetValue("props", out var props))
+            foreach (var qv in props.AsGodotArray())
+            {
+                var q = qv.AsGodotDictionary(); var at = new Vector2I(q["i"].AsInt32(), q["j"].AsInt32());
+                if (q["kind"].AsString() == "woodpile") p.WoodpileAt = at;
+                else p.Props.Add((q["kind"].AsString(), IsoGrid.Cell(p.Top, at.X, at.Y)));
+            }
+        if (plan.TryGetValue("staff", out var sv))
+        {
+            var st = sv.AsGodotDictionary();
+            p.StaffMen = st["men"].AsInt32(); p.StaffWomen = st["women"].AsInt32(); p.StaffClerk = st["clerk"].AsBool();
+        }
+        p.Extent = Mathf.Max(p.Width, p.Depth) * 30f;
+        return true;
     }
 
     public static TradingPost Named(string name) => name != null && _byName.TryGetValue(name, out var p) ? p : null;
