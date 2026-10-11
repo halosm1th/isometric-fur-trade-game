@@ -516,14 +516,15 @@ public class Conversation
             if (Leverage.Pressed(_player, m)) continue;
             var held = m;
             string label = Leverage.Label(held, npc);
-            AddOption($"\"I saw {(label.Length > 55 ? label.Substring(0, 52) + "..." : label)}.\"", () => ShowPrice(npc, held));
+            AddOption($"\"I know you {(label.Length > 55 ? label.Substring(0, 52) + "..." : (label.StartsWith("you ") ? label.Substring(4) : label))}.\"", () => ShowPrice(npc, held));
         }
         AddOption("Think better of it", () => ShowTopics(Greeting(npc)));
     }
 
     private void ShowPrice(Npc npc, MemoryEntry m)
     {
-        _text = $"\"I saw {Leverage.Label(m, npc)}. Nobody else need know. That depends on you.\"";
+        string what = Leverage.Label(m, npc); if (what.StartsWith("you ")) what = what.Substring(4);
+        _text = $"\"I know you {what}. I saw it. Nobody else need know - that depends on you.\"";
         ClearOptions();
         AddOption("\"Make it worth my while.\" (goods)", () => ShowTopics(Leverage.Press(_player, npc, m, "goods")));
         AddOption("\"Speak for me to your master.\"", () => ShowTopics(Leverage.Press(_player, npc, m, "speak")));

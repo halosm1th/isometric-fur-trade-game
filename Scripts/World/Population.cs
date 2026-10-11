@@ -78,6 +78,10 @@ public partial class Population : Node2D
 				for (int i = 0; i < theirs.Count; i++) theirs[i].Brain.Push(theirs[i], new Agents.Goals.AttackGoal(ours[i % ours.Count]));
 				GD.Print($"[dev] {ours.Count} of the Company against {theirs.Count} Nor'Westers at the gate");
 			};
+		// Dev aid: `-- --misdeed=Name` - five seconds in, that person is seen to
+		// rob the traps right where the player stands (the player is a witness).
+		foreach (string arg in OS.GetCmdlineUserArgs())
+			if (arg.StartsWith("--misdeed=")) { string who = arg.Substring(10); GetTree().CreateTimer(5.0).Timeout += () => { foreach (var n in Sim.Npcs) if (n.DisplayName.Contains(who) && !n.IsDead && Sim.Player != null) { Chronicle.Event($"{n.DisplayName} robbed the traps at the beaver lodge.", Sim.Player.GlobalPosition, n, n.DisplayName, 1.5f); GD.Print($"[dev] you saw {n.DisplayName} rob the traps"); break; } }; }
 		// Dev aid: `-- --befriend=Name` - that person counts the local player a
 		// close friend from the start (rapport 60, a hard winter shared).
 		foreach (string arg in OS.GetCmdlineUserArgs())
@@ -274,6 +278,9 @@ public partial class Population : Node2D
 		// "*about-me": whoever is holding a story about the player's misdeeds.
 		if (steps[0] == "*about-me" && Sim.Player is Player.PlayerController me)
 			foreach (var n in Sim.Npcs) { if (n.IsDead) continue; foreach (var m in n.Memories) if (m.Actor == me && m.Liar != n.DisplayName && Lies.IsMisdeed(m.Text)) { who = n; break; } if (who != null) break; }
+		// "*asker": whoever has asked the player a favour; "*held": someone the player saw do wrong.
+		else if (steps[0] == "*asker" && Sim.Player is Player.PlayerController ap) { foreach (var f in Favours.All) if (f.Player == ap.DisplayName && !f.Done && !f.Lapsed) { who = f.Asker; break; } }
+		else if (steps[0] == "*held" && Sim.Player is Player.PlayerController hp) { foreach (var n in Sim.Npcs) if (!n.IsDead && Leverage.Holds(hp, n).Count > 0) { who = n; break; } }
 		else foreach (var n in Sim.Npcs) if (n.DisplayName.Contains(steps[0]) && !n.IsDead) { who = n; break; }
 		if (who == null || Sim.Player is not Player.PlayerController p) { if (!steps[0].StartsWith("*")) GD.Print($"[talk] nobody called {steps[0]}"); return false; }
 		p.GlobalPosition = who.GlobalPosition + new Vector2(45f, 12f);
