@@ -388,6 +388,8 @@ public partial class Agent : CharacterBody2D
         if (IsSick) mult *= 0.6f;
         if (GD.Randf() < missChance) { OnAttackMissed(target); return false; }
         target.TakeDamage(damage * mult, this);
+        // A blow landing is heard (and seen) by whoever is near.
+        if (range <= 100f && this is not Animal) Sim.Noise(target.GlobalPosition, 160f, this, "hit");
         OnAttacked(target);
         return true;
     }

@@ -39,6 +39,11 @@ public static class Settings
     // Game
     public static bool PauseOnFocusLoss = true;
     public static int Autosave = 10;   // real minutes, 0 = off
+    // Sound, 0..1 on each bus (Core/Audio.cs)
+    public static float MasterVolume = 0.8f;
+    public static float MusicVolume = 0.6f;
+    public static float AmbienceVolume = 0.8f;
+    public static float EffectsVolume = 0.9f;
 
     public static bool Fullscreen => WindowMode != Mode.Windowed;
     public const float MinUi = 0.5f, MaxUi = 1.5f, MinZoom = 0.5f, MaxZoom = 2.5f;
@@ -63,11 +68,16 @@ public static class Settings
             ShowFps = (bool)cfg.GetValue("interface", "show_fps", false);
             PauseOnFocusLoss = (bool)cfg.GetValue("game", "pause_on_focus_loss", true);
             Autosave = (int)cfg.GetValue("game", "autosave_minutes", 10);
+            MasterVolume = Mathf.Clamp((float)cfg.GetValue("sound", "master", 0.8f), 0f, 1f);
+            MusicVolume = Mathf.Clamp((float)cfg.GetValue("sound", "music", 0.6f), 0f, 1f);
+            AmbienceVolume = Mathf.Clamp((float)cfg.GetValue("sound", "ambience", 0.8f), 0f, 1f);
+            EffectsVolume = Mathf.Clamp((float)cfg.GetValue("sound", "effects", 0.9f), 0f, 1f);
             Keybinds.Read(cfg);
         }
         ApplyWindow();
         ApplyRendering();
         ApplyScale();
+        Audio.ApplyVolumes();
         if (!Headless) UI.SettingsRuntime.Install();
     }
 
@@ -85,6 +95,10 @@ public static class Settings
         cfg.SetValue("interface", "show_fps", ShowFps);
         cfg.SetValue("game", "pause_on_focus_loss", PauseOnFocusLoss);
         cfg.SetValue("game", "autosave_minutes", Autosave);
+        cfg.SetValue("sound", "master", MasterVolume);
+        cfg.SetValue("sound", "music", MusicVolume);
+        cfg.SetValue("sound", "ambience", AmbienceVolume);
+        cfg.SetValue("sound", "effects", EffectsVolume);
         Keybinds.Write(cfg);
         cfg.Save(Path);
     }
@@ -94,7 +108,22 @@ public static class Settings
         WindowMode = Mode.Windowed; WindowSizeIndex = 0; VSync = true; MaxFps = 0;
         UiScale = 1f; WorldZoom = 1f; CameraSmoothing = true; BubbleTime = 1f; ShowFps = false;
         PauseOnFocusLoss = true; Autosave = 10;
-        ApplyWindow(); ApplyRendering(); ApplyScale(); Save();
+        MasterVolume = 0.8f; MusicVolume = 0.6f; AmbienceVolume = 0.8f; EffectsVolume = 0.9f;
+        ApplyWindow(); ApplyRendering(); ApplyScale(); Audio.ApplyVolumes(); Save();
+    }
+
+    public static void SetVolume(string bus, float v)
+    {
+        v = Mathf.Clamp(v, 0f, 1f);
+        switch (bus)
+        {
+            case "Master": MasterVolume = v; break;
+            case Audio.MusicBus: MusicVolume = v; break;
+            case Audio.AmbienceBus: AmbienceVolume = v; break;
+            case Audio.EffectsBus: EffectsVolume = v; break;
+        }
+        Audio.ApplyVolumes();
+        Save();
     }
 
     public static void SetWindowMode(Mode m) { WindowMode = m; ApplyWindow(); Save(); }

@@ -114,5 +114,5 @@ public partial class Hearth : Node2D
     }
 
     public void Feed(float hours) => FuelHours = Mathf.Min(MaxFuelHours, FuelHours + hours);
-    public void Light() { Lit = true; }
+    public void Light() { Lit = true; Sim.Noise(GlobalPosition, 150f, null, "flint"); }
 }

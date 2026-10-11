@@ -255,7 +255,7 @@ Missing roles, roughly in order of usefulness at York first:
 
 Art (`asset-prompts.md`) and audio (`audio-prompts.md`) cover most of it. Also outstanding:
 
-- **Audio: everything.** No sound in the game yet.
+- **Audio: most of it.** A first batch is in as of 2026-10-11: six music tracks, wind, river, fires, footsteps, musket, bells, a few birds. See `audio-prompts.md` > **In the game now**. Still silent: wolves and every animal added from section 6, indoor and wharf footsteps, rain, fight grunts, UI clicks, tension music.
 - **Animals:** sprite sheets for every new species in section 6 (`asset-prompts.md` 3.7 has the header and rows).
 - **People:** sheets for the new roles and nations in sections 1 and 7: Métis man and woman, Ojibwe, Dene, Blackfoot, Iroquois voyageur, settler family, De Meuron soldier, tradesmen, ship's captain, the named people in section 3 who need a recognisable look (Selkirk, Macdonell, Grant, McGillivray).
 - **Animations listed as missing** in `asset-prompts.md` priority 2 (death, side-walk, eat, shoot for existing characters) and 1.7 (children).

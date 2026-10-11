@@ -75,6 +75,7 @@ public partial class JournalPanel : Control
             _tabs.SetTabTitle(2, $"Pack ({Core.Keybinds.KeyFor("inventory")})");
         }
         IsOpen = _panel.Visible;
+        Core.Audio.Ui("ui_page_turn");
     }
 
     public override void _UnhandledInput(InputEvent @event)

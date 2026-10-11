@@ -83,6 +83,7 @@ public static class Sim
 
     public static void ShowNoise(Vector2 pos, float radius, string kind)
     {
+        Audio.Noise(pos, radius, kind);
         var parent = Player?.GetParent() as Node2D;
         if (parent == null) return;
         var ring = new World.NoiseRing { Position = pos, Radius = radius, ZIndex = 5 };

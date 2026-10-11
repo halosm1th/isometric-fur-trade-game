@@ -138,14 +138,18 @@ These are rendered with `DrawRect`, `PointLight2D` or `GradientTexture2D` and wo
 
 ## 8. Audio
 
-**Nothing.** No `AudioStreamPlayer` anywhere in `Scripts/` or `Scenes/`, no sound files. Needed at minimum:
+**First batch in, 2026-10-11.** Played by the `Audio` autoload (`Scripts/Core/Audio.cs`) on three buses (Music, Ambience, Effects) with volume sliders in Settings > Sound.
 
-- Ambient: wind, river, waves at the wharf, fire crackle, birds by season, geese overhead, wolves at night, blizzard.
-- Footsteps on snow / planks / dirt / ice.
-- Actions: musket, bow, knife, tomahawk, brawl hits, eating, drinking, chopping wood, trap snap, fishing line, canoe paddle.
-- UI: click, notice ping, journal page, dialogue open/close.
-- Events: ship's bell / cannon on arrival, church bell, fire alarm.
-- Music: menu theme and a few in-world cues (fiddle at the men's house, drums at the camp).
+| Folder | What's there |
+|---|---|
+| `assets/audio/music/` | 6 Gemini tracks (MP3): main menu theme, two winter pieces, one for breakup and freeze-up, a summer piece, the men's house reel |
+| `assets/audio/ambient/` | Loops: winter wind, blizzard, river, mosquitoes, fort chatter, children playing, hearth fire, canoe paddling, ship creak |
+| `assets/audio/sfx/` | Footsteps (snow, snow crust, mud: 5 takes each), axe (5), tree fall, musket, distant cannon, punch (2), work bell, alarm bell, ice cracks (3), door, flint, dog sled, goose, raven, loon, wood creak |
+| `assets/audio/ui/` | Page turn, quill |
+
+All the effects are CC0 from Freesound; sources in `assets/audio/CREDITS.md`. Raw downloads (~550 MB) stay in `assets/external/soundFX/`, which is git-ignored and has a `.gdignore`. One of them (`769368`, a blizzard) is CC BY-NC and is **not** used.
+
+What plays when, and what's still wanted, is in `audio-prompts.md` under **In the game now**. The biggest gaps: footsteps indoors and on the wharf (they use mud), wolves (silent), rain, fight grunts, UI clicks, and tension music.
 
 ---
 

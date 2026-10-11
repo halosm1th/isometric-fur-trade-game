@@ -278,10 +278,12 @@ public class ChopWoodGoal : Goal
                 if (!ChildFinished(out var r)) return GoalStatus.Running;
                 if (r != GoalStatus.Done) return GoalStatus.Failed;
                 _phase = 2;
+                // An axe carries a long way on a still day (design doc 16.1).
+                Sim.Noise(npc.GlobalPosition, 600f, npc, "chop");
                 return Delegate(new WaitGoal(0.6f));
             case 2:
                 if (!ChildFinished(out var r2)) return GoalStatus.Running;
-                if (Sim.Structures.FellTreeAt(_tree)) { npc.Inventory.Add(ItemId.Firewood, npc.Skills.Woodcraft >= 0.5f ? 6 : 4); npc.Skills.Learn(ref npc.Skills.Woodcraft, 0.01f); }
+                if (Sim.Structures.FellTreeAt(_tree)) { Sim.Noise(IsoGrid.ToWorld(_tree), 800f, npc, "fell"); npc.Inventory.Add(ItemId.Firewood, npc.Skills.Woodcraft >= 0.5f ? 6 : 4); npc.Skills.Learn(ref npc.Skills.Woodcraft, 0.01f); }
                 else return GoalStatus.Failed;
                 if (npc.HomeStores == null) return GoalStatus.Done;
                 _phase = 3;
