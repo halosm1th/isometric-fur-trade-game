@@ -107,9 +107,9 @@ Painted through `terrain_tileset.tres` (61 texture sources) by `TerrainPainter` 
 
 `dirt` `grass` `hill` `ice` `road` `sand` `snow` `stone_floor` `water` `water_ice` (132×99, Kenney Isometric Landscape, CC0). All ten are in the tileset. Still stock: flat colour, no edge transitions, no marsh or muskeg ground, no rock. `road.png` is new since the last pass.
 
-### Buildings — **Placeholder**
+### Buildings — walls and palisade **Final** (2026-10-11), floor and roofs **Placeholder**
 
-30 wall/door/window/fence/floor/roof tiles, all Kenney (CC0). Generic European stone and plaster where York Factory wants squared log and whitewashed plank; the palisade is still fenced rather than stockaded. The 8 directional `roof_*` / `roof_corner_*` tiles remain **unwired** — only flat `roof.png` is in the tileset.
+The 24 wall, window, door, open-door and corner tiles are now the **whitewashed log set**, and the 6 fence tiles are now the **palisade** (pointed stakes, as tall as a house wall), both from the Gemini sheet `NEW HBC ASSETS/Facotry Segment Sprites.jpg`. `tools/sprites/walls.py` fits each piece onto the old Kenney tile's exact edges, so corners and the fort's lines are unchanged (Kenney originals are in git history). Still Kenney: `floor_planks`, `roof` and the roof pieces. Still unused on that sheet: the weathered log set (for the Nor'Westers' house and the inland posts), the palisade gates, and the grey plank floor and steep roof tiles. The 8 directional `roof_*` / `roof_corner_*` tiles remain **unwired** — only flat `roof.png` is in the tileset.
 
 ### Furniture — mixed
 

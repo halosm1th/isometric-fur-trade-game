@@ -151,7 +151,7 @@ Fort Pitt 1829, Fort Pelly 1824, Fort Ellice 1831, Fort Qu'Appelle 1864, Upper/L
 
 | Needed | Priority | Notes |
 |---|---|---|
-| **Log / squared-timber wall set** to replace the Kenney stone | P1 | York was wood: piece-sur-pièce and log construction, plank roofs, palisade. Also listed in `asset-inventory.md`. |
+| ~~**Log / squared-timber wall set**~~ **done 2026-10-11** | P1 | Whitewashed log walls and a stake palisade, fitted from the Gemini sheet by `tools/sprites/walls.py`. Next: the weathered set for the NWC house and inland posts, palisade gates, plank roofs. |
 | **York Factory buildings by name** | P1 | The Factor's house, the men's house, the trade store and warehouse, the provision store, the cooper's and blacksmith's shops, the boat shed, the powder magazine, the observatory and flagpole, the graveyard, the "Homeguard" Cree tents outside the walls. |
 | **Interiors** | P1 | Men's house, Factor's mess and office, trade room (with the trading window and counter), store. Furniture beyond Kenney's library set. |
 | **Indigenous dwellings** | P1 | Cree conical lodges covered in birchbark or moose/caribou hide; summer vs winter lodge. Plains tipis (Assiniboine, Blackfoot) for P2. Ojibwe wigwams. Drying racks, smoking racks, caches on stilts (cache prop exists). |
