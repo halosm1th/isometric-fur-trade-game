@@ -273,10 +273,11 @@ public static class Tiers
             if (snared > 0) home.Stores.Add(ItemId.Hare, snared);
             // A line through the ice is how an inland post got through March
             // (design doc 14.4, 16.1): thin, steady, and it keeps men alive.
-            bool line = home.Stores.Has(ItemId.FishingLine) || n.Inventory.Has(ItemId.FishingLine);
+            bool line = home.Stores.Has(ItemId.FishingLine) || n.Inventory.Has(ItemId.FishingLine) || home.Stores.Has(ItemId.FishingNet);
             if (line || !GameCalendar.Instance.IsFrozen)
             {
                 int fish = (GD.Randf() < 0.65f ? 1 : 0) + (GD.Randf() < 0.35f + n.Skills.Hunting * 0.3f ? 1 : 0);
+                if (home.Stores.Has(ItemId.FishingNet)) fish = fish * 2 + 1;
                 if (fish > 0) home.Stores.Add(ItemId.Fish, fish);
             }
             return;

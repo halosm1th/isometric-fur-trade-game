@@ -65,8 +65,8 @@ public partial class Household : Node
         if (Stores.FoodNutritionTotal > 0f && Stores.Has(ItemId.SaltGeese) && !HasLooseFood() && Stores.Remove(ItemId.SaltGeese))
             Stores.Add(ItemId.DriedGoose, 8);
         var order = World.GooseHunt.Autumn
-            ? new[] { ItemId.Berries, ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican, ItemId.Goose }
-            : new[] { ItemId.Berries, ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican };
+            ? new[] { ItemId.Berries, ItemId.Hare, ItemId.Ptarmigan, ItemId.Fish, ItemId.Venison, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican, ItemId.Goose }
+            : new[] { ItemId.Berries, ItemId.Hare, ItemId.Ptarmigan, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican };
         foreach (var id in order)
         {
             while (taken < n && Stores.Remove(id)) { agent.Inventory.Add(id); taken++; }
@@ -77,7 +77,7 @@ public partial class Household : Node
 
     private bool HasLooseFood()
     {
-        foreach (var id in new[] { ItemId.Berries, ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican })
+        foreach (var id in new[] { ItemId.Berries, ItemId.Hare, ItemId.Ptarmigan, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican })
             if (Stores.Has(id)) return true;
         return false;
     }

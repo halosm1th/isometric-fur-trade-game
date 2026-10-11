@@ -462,6 +462,8 @@ public partial class EcologyManager : Node2D
         Species.Goose => 12,
         Species.Beaver => 3,
         Species.Wolf => 5,
+        Species.Hare => 5,
+        Species.Ptarmigan => 8,
         _ => 4,
     };
 

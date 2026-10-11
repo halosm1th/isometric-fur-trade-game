@@ -98,7 +98,8 @@ public class FishGoal : Goal
         bool frozen = GameCalendar.Instance.IsFrozen;
         if (frozen && !_throughIce) return GoalStatus.Failed;
         // A hole in the ice and a line: no line, no winter fish.
-        if (frozen && !(stores.Stores.Has(ItemId.FishingLine) || npc.Inventory.Has(ItemId.FishingLine))) return GoalStatus.Failed;
+        bool Gear(ItemId g) => stores.Stores.Has(g) || npc.Inventory.Has(g);
+        if (frozen && !(Gear(ItemId.FishingLine) || Gear(ItemId.FishingNet))) return GoalStatus.Failed;
         switch (_phase)
         {
             case 0:
@@ -114,6 +115,10 @@ public class FishGoal : Goal
             case 2:
                 if (!ChildFinished(out _)) return GoalStatus.Running;
                 int caught = _throughIce ? GD.RandRange(1, 3) : GD.RandRange(0, 4);
+                // A net set under the ice takes far more than a line; a chisel
+                // keeps the hole from closing over (design doc 14.4).
+                if (Gear(ItemId.FishingNet)) caught = caught * 2 + 1;
+                if (_throughIce && Gear(ItemId.IceChisel)) caught += GD.RandRange(0, 2);
                 npc.Inventory.Add(ItemId.Fish, caught);
                 _phase = 3;
                 return Delegate(new GoToGoal(stores.AccessCell, 100f));

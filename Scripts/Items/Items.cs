@@ -48,6 +48,16 @@ public enum ItemId
     Bow,
     Knife,
     Tomahawk,
+    // Added 2026-10-11 (kept at the end: keepsakes save item numbers).
+    Ptarmigan,
+    Tobacco,
+    Beads,
+    Awl,
+    Stroud,
+    MbToken,
+    Powder,
+    IceChisel,
+    FishingNet,
 }
 
 public enum ItemKind { Food, Drink, Fuel, Clothing, Fur, Goods, Weapon, Tool }
@@ -112,6 +122,23 @@ public static class Items
         { ItemId.Bow,          new("Bow",            ItemKind.Weapon,   2.0f, IconDir + "bow.png",          ValueMb: 2f,  Damage: 30f, Range: 260f, Cooldown: 1.6f) },
         { ItemId.Knife,        new("Knife",          ItemKind.Weapon,   0.5f, IconDir + "knife.png",        ValueMb: 0.5f, Damage: 18f, Range: 60f, Cooldown: 0.7f) },
         { ItemId.Tomahawk,     new("Tomahawk",       ItemKind.Weapon,   2.0f, IconDir + "tomahawk.png",     ValueMb: 1.5f, Damage: 28f, Range: 70f, Cooldown: 1.0f) },
+        // The bird's own picture until it has an icon of its own.
+        { ItemId.Ptarmigan,    new("Ptarmigan",      ItemKind.Food,     0.8f, "res://assets/sprites/animals/ptarmigan/death_se_0.png", Nutrition: 14f, ValueMb: 0.05f) },
+        // The goods the trade actually ran on (the HBC Standard of Trade):
+        // a pound of Brazil tobacco, a bunch of beads, an awl, a yard of
+        // stroud, and the brass token a Made Beaver was counted in. Tobacco
+        // is smoked before every trade (TradeTripGoal).
+        { ItemId.Tobacco,      new("Twist of tobacco", ItemKind.Goods,  1.0f, IconDir + "tobacco.png",      ValueMb: 1f) },
+        { ItemId.Beads,        new("Bunch of beads", ItemKind.Goods,    0.5f, IconDir + "beads.png",        ValueMb: 0.5f) },
+        { ItemId.Awl,          new("Awl",            ItemKind.Goods,    0.1f, IconDir + "awl.png",          ValueMb: 0.1f) },
+        { ItemId.Stroud,       new("Yard of stroud", ItemKind.Goods,    1.5f, IconDir + "stroud.png",       ValueMb: 1.5f) },
+        { ItemId.MbToken,      new("Made-beaver token", ItemKind.Goods, 0.05f, IconDir + "mb_token.png",    ValueMb: 1f) },
+        // A horn of powder and a bag of ball: about twenty charges.
+        { ItemId.Powder,       new("Powder and ball", ItemKind.Goods,   2.0f, IconDir + "powder_horn.png",  ValueMb: 1f) },
+        // Ice fishing (FishGoal): a net takes more than a line; a chisel
+        // keeps the hole open and the men at it longer.
+        { ItemId.IceChisel,    new("Ice chisel",     ItemKind.Tool,     4.0f, IconDir + "ice_chisel.png",   ValueMb: 1f) },
+        { ItemId.FishingNet,   new("Fishing net",    ItemKind.Tool,     6.0f, IconDir + "fishing_net.png",  ValueMb: 2f) },
     };
 
     // Many of these are mass nouns or have an odd plural, and "5 dried gooses"
@@ -126,6 +153,8 @@ public static class Items
         { ItemId.Firewood, "firewood" }, { ItemId.TradeGoods, "trade goods" }, { ItemId.Fish, "fish" },
         { ItemId.Knife, "knives" }, { ItemId.Flint, "flints and steels" }, { ItemId.FishingLine, "fishing line" },
         { ItemId.Snowshoes, "pairs of snowshoes" }, { ItemId.ShotPelt, "shot-through pelts" },
+        { ItemId.Tobacco, "twists of tobacco" }, { ItemId.Beads, "bunches of beads" }, { ItemId.Stroud, "yards of stroud" },
+        { ItemId.Powder, "horns of powder and ball" },
     };
 
     // "a beaver pelt" / "8 beaver pelts" / "5 dried geese", lower case.

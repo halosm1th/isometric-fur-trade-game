@@ -171,8 +171,8 @@ Fort Pitt 1829, Fort Pelly 1824, Fort Ellice 1831, Fort Qu'Appelle 1864, Upper/L
 
 | Animal | Region | Why it matters | Priority |
 |---|---|---|---|
-| **Snowshoe hare** | Everywhere | Art and item exist; add the species. Winter food when everything else fails; snaring. | P1 |
-| **Willow ptarmigan** | Bay | Art exists; add the species. Shot in thousands at York in winter. | P1 |
+| ~~**Snowshoe hare**~~ **in code 2026-10-11** | Everywhere | `Species.Hare`, the "Hare thicket" site south-west of the fort, white in winter and brown in summer. Snaring (`ForageGoal`) now takes hares out of the thicket's count, so a snared-out thicket stays thin until it breeds back. Still wanted: the 10-year hare cycle. | P1 |
+| ~~**Willow ptarmigan**~~ **in code 2026-10-11** | Bay | `Species.Ptarmigan`, the "Ptarmigan willows" site north of the fort; a shot into a flock takes three. Snarers take a few in winter. Gives the new `Ptarmigan` food item (fresh, so it answers scurvy). | P1 |
 | **Fish** (whitefish, pike, sturgeon, lake trout) | Everywhere | `Fish` item exists, no animal. Nets under ice keep the post alive (`scurvy` commit). Sturgeon matter on the Saskatchewan and Rainy Lake. | P1 |
 | **Polar bear** | Bay coast | Walks the shore at York in autumn: a real hazard. | P1 |
 | **Sled dogs** | Everywhere | Winter travel, barking, dog teams as property. | P1 |
@@ -222,13 +222,13 @@ Missing roles, roughly in order of usefulness at York first:
 
 | Needed | Why |
 |---|---|
-| **Tobacco** (Brazil twist) | The single most important trade and diplomatic good: smoked before every trade and council. Icon exists. |
-| **Shot, ball and powder** (powder horn icon exists) | Muskets currently have no ammunition economy; design doc 15.3 needs reloads to cost something. |
-| **Beads, awls, needles, vermilion, brass kettles, files, scrapers, mirrors** | The real trade goods list (the HBC "standard of trade"). `TradeGoods` is one lump right now. |
-| **Stroud cloth, point blankets by size** (1, 1.5, 2, 2.5, 3, 4 point) | Blankets were priced by points; ties straight into the made-beaver economy. |
-| **Made-beaver token** | The HBC unit of account. Icon exists. |
+| ~~**Tobacco**~~ **in code 2026-10-11** | `ItemId.Tobacco`. A band's trading party smokes the pipe before trading: the post gives a twist, and standing with that company rises; a post with none loses a little standing (`TradeTripGoal`). Stocked at York, the NWC house and inland posts. Still wanted: tobacco at councils, and a man smoking his own pipe. |
+| **Shot, ball and powder**: item in, economy not | `ItemId.Powder` ("Powder and ball", the powder-horn icon) is stocked and tradeable, but **muskets don't use it up yet**. Making every shot cost a charge needs NPCs to restock from their household, or the goose hunt stops; that's the next step. |
+| **Beads, awls**: in code 2026-10-11; needles, vermilion, files, scrapers, mirrors still wanted | `ItemId.Beads`, `ItemId.Awl`, valued by the Standard of Trade and stocked at the posts. Bands still trade in the `TradeGoods` lump; these are for the player's barter. |
+| **Stroud**: in code 2026-10-11; point blankets by size still wanted | `ItemId.Stroud`, a yard of stroud. |
+| ~~**Made-beaver token**~~ **in code 2026-10-11** | `ItemId.MbToken`, worth exactly 1 MB in barter. |
 | **Letter, dispatch, journal, ledger** | The physical message system (design doc 10.1.1) needs them as real objects you can carry, lose, steal, read. Icons exist. |
-| **Ice chisel, fishing net** | Winter fishing. Icons exist. |
+| ~~**Ice chisel, fishing net**~~ **in code 2026-10-11** | A net doubles the catch and counts as winter fishing gear; a chisel adds to a catch through the ice. York keeps two nets and three chisels. |
 | ~~**Berries**~~ **in code 2026-10-11** | Gathered by every camp and post July-September, eaten first off the shelf, spoils with the fresh meat, and answers the scurvy. **Still wants its own icon** - it borrows `pemmican.png`. And berry bushes as a world prop you can see and pick (section 5). |
 | ~~**Spruce beer**~~ **in code 2026-10-11** | A post with a kettle and firewood brews it when its men have gone a fortnight without anything fresh, as the Company really did. **Wants its own icon** - it borrows `ale_tankard.png`, and should not look like ale. |
 | ~~**Corn**~~ **in code 2026-10-11** | The Missouri towns' harvest and the staple of the plains trade: thirty a mouth comes in each September, goes out to every camp within a fortnight's travel at two for one, and the Assiniboine carry it north to the Bay. Food and trade, not physic. **Wants its own icon** - it borrows `pemmican_bag.png`; braided ears and a bag of shelled corn would read better. |

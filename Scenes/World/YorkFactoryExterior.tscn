@@ -16347,6 +16347,24 @@ Count = 55
 Capacity = 75
 RadiusPx = 380.0
 
+[node name="Hare thicket" type="Node2D" parent="Wildlife" unique_id=1811041201]
+position = Vector2(84736, 22304)
+script = ExtResource("31_site")
+SiteName = "Hare thicket"
+Species = 4
+Count = 70
+Capacity = 120
+RadiusPx = 500.0
+
+[node name="Ptarmigan willows" type="Node2D" parent="Wildlife" unique_id=1811041202]
+position = Vector2(86144, 17376)
+script = ExtResource("31_site")
+SiteName = "Ptarmigan willows"
+Species = 5
+Count = 90
+Capacity = 160
+RadiusPx = 600.0
+
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1419517200]
 
 [node name="Calendar" type="Label" parent="HUD" unique_id=703441821]

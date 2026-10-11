@@ -269,8 +269,12 @@ public partial class Animal : Agent
         var frames = _sprite.SpriteFrames;
         if (frames.HasAnimation(kind)) return kind;   // simple two-frame species
         string d = (dir.X >= 0f ? (dir.Y >= 0f ? "se" : "ne") : (dir.Y >= 0f ? "sw" : "nw"));
-        string name = $"{kind}_{d}";
-        return frames.HasAnimation(name) ? name : $"idle_{d}";
+        // Hare and ptarmigan turn white for the winter and brown for the rest.
+        string coat = Core.GameCalendar.Instance?.CurrentSeason is Core.Season.Winter or null ? "" : "summer_";
+        string name = $"{coat}{kind}_{d}";
+        if (frames.HasAnimation(name)) return name;
+        name = $"{kind}_{d}";
+        return frames.HasAnimation(name) ? name : frames.HasAnimation($"{coat}idle_{d}") ? $"{coat}idle_{d}" : $"idle_{d}";
     }
 
     private void Animate()
@@ -279,7 +283,7 @@ public partial class Animal : Agent
         if (_sprite.Animation.ToString().StartsWith("attack") && _sprite.IsPlaying()) return;
         var v = Velocity;
         bool moving = v.LengthSquared() > 4f;
-        string kind = !moving ? "idle" : IsSprinting && _sprite.SpriteFrames.HasAnimation("run_se") ? "run" : "walk";
+        string kind = !moving ? "idle" : IsSprinting && _sprite.SpriteFrames.HasAnimation("run_se") ? "run" : IsSprinting && _sprite.SpriteFrames.HasAnimation("fly_se") ? "fly" : "walk";
         string name = Anim(kind, moving ? v : _lastDir);
         if (moving) _lastDir = v;
         if (_sprite.SpriteFrames.HasAnimation("walk") && !_sprite.SpriteFrames.HasAnimation("walk_se"))
@@ -287,7 +291,7 @@ public partial class Animal : Agent
             _sprite.FlipH = _lastDir.X < 0f;
         }
         if (_sprite.Animation != name) _sprite.Play(name);
-        _sprite.SpeedScale = kind == "run" ? 1f : IsSprinting ? 1.5f : moving ? 1f : 0.4f;
+        _sprite.SpeedScale = kind == "run" || kind == "fly" ? 1f : IsSprinting ? 1.5f : moving ? 1f : 0.4f;
     }
     private Vector2 _lastDir = Vector2.Down;
 

@@ -225,7 +225,7 @@ public partial class Agent : CharacterBody2D
         Needs.Thirst = Mathf.Min(100f, Needs.Thirst + def.Thirst);
         // Fresh meat, and the things that actually answered the scurvy in this
         // country: berries in their season and spruce beer out of it.
-        if (id == ItemId.Venison || id == ItemId.Goose || id == ItemId.Fish || id == ItemId.Hare || id == ItemId.Berries || id == ItemId.SpruceBeer)
+        if (id == ItemId.Venison || id == ItemId.Goose || id == ItemId.Fish || id == ItemId.Hare || id == ItemId.Ptarmigan || id == ItemId.Berries || id == ItemId.SpruceBeer)
         {
             if (HasScurvy) Sim.Notice($"{Describe()} is mending: {(id == ItemId.Berries ? "berries at last" : id == ItemId.SpruceBeer ? "spruce beer at last" : "fresh meat at last")}.");
             DaysSinceFresh = 0f; _scurvyTold = false;

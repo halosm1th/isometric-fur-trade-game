@@ -6,6 +6,9 @@ public enum Species
     Goose,
     Beaver,
     Wolf,
+    // Small game (design doc 16.2): the snare and the winter willow flats.
+    Hare,
+    Ptarmigan,
 }
 
 public enum Diet { Prey, Predator }
@@ -23,13 +26,22 @@ public static class SpeciesInfo
         { Species.Goose,   new("Goose",   Diet.Prey, 140f, 8f,  0f,  6f,   0f,   1.2f,  0.15f, "res://Scenes/Animals/GooseFrames.tres") },
         { Species.Beaver,  new("Beaver",  Diet.Prey, 90f,  20f, 4f,  25f,  1.0f, 0.5f,  0.25f, "res://Scenes/Animals/BeaverFrames.tres") },
         { Species.Wolf,    new("Wolf",    Diet.Predator, 230f, 50f, 16f, 40f, 0.6f, 0.4f, 0.2f, "res://Scenes/Animals/WolfFrames.tres") },
+        // Hares breed fast and crash every ten years or so; a ptarmigan flock
+        // comes down to the willows in winter by the hundred.
+        { Species.Hare,    new("Snowshoe hare", Diet.Prey, 210f, 5f, 0f, 3f, 0.02f, 2.5f, 0.1f, "res://Scenes/Animals/HareFrames.tres") },
+        { Species.Ptarmigan, new("Willow ptarmigan", Diet.Prey, 150f, 3f, 0f, 1f, 0f, 1.5f, 0.1f, "res://Scenes/Animals/PtarmiganFrames.tres") },
     };
     public static SpeciesDef Of(Species s) => Defs[s];
 
     // How many animals one go at them accounts for. A volley into a flock
     // settled on the marsh is a bag of birds, not a bird; everything else is
     // one beast at a time.
-    public static int PerKill(Species s, bool shot) => s == Species.Goose ? (shot ? 8 : 4) : 1;
+    public static int PerKill(Species s, bool shot) => s switch
+    {
+        Species.Goose => shot ? 8 : 4,
+        Species.Ptarmigan => shot ? 3 : 1,   // shot into a flock on the snow
+        _ => 1,
+    };
 
     // What a kill puts in the hunter's pack. `shot` = killed with a musket:
     // a ball tears the skin and the pelt grades as damaged; traps, arrows
@@ -53,6 +65,8 @@ public static class SpeciesInfo
                 break;
             }
             case Species.Wolf: into.Add(shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotPelt : IsometricFurTradeGame.Scripts.Items.ItemId.WolfPelt, 1); break;
+            case Species.Hare: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Hare, 1); break;
+            case Species.Ptarmigan: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Ptarmigan, PerKill(s, shot)); break;
         }
     }
 }

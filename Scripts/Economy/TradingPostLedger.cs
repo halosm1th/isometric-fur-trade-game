@@ -30,6 +30,7 @@ public partial class TradingPostLedger : FortLedger
         Stores.Add(ItemId.DriedMeat, 20);
         Stores.Add(ItemId.Firewood, 25);
         Stores.Add(ItemId.TradeGoods, 40);
+        Stores.Add(ItemId.Tobacco, 8);
         Stores.Add(ItemId.Water, 10);
         Stores.Add(ItemId.Axe, 1);
         Stores.Add(ItemId.FishingLine, 2);

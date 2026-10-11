@@ -130,6 +130,14 @@ public partial class FortLedger : Household
 		Stores.Add(ItemId.Tumpline, 4);
 		Stores.Add(ItemId.Snowshoes, 4);
 		Stores.Add(ItemId.FishingLine, 6);   // the winter's fresh food comes through the ice
+		Stores.Add(ItemId.FishingNet, 2);
+		Stores.Add(ItemId.IceChisel, 3);
+		// The Standard of Trade's small goods, and tobacco for the pipe.
+		Stores.Add(ItemId.Tobacco, 30);
+		Stores.Add(ItemId.Beads, 20);
+		Stores.Add(ItemId.Awl, 24);
+		Stores.Add(ItemId.Stroud, 12);
+		Stores.Add(ItemId.Powder, 20);
 		Stores.Add(ItemId.Axe, 4);
 		Stores.Add(ItemId.PackBasket, 2);
 		Year = GameCalendar.Instance?.Year ?? 1811;

@@ -442,6 +442,8 @@ public partial class TerrainPainter : TileMapLayer
             "geese" => WorldLayout.SiteOf(Ecology.Species.Goose).Cell,
             "beaver" => WorldLayout.SiteOf(Ecology.Species.Beaver).Cell,
             "wolves" => IsoGrid.Cell(WorldLayout.SiteOf(Ecology.Species.Wolf).Cell, 4, 0),
+            "hares" => WorldLayout.SiteOf(Ecology.Species.Hare).Cell,
+            "ptarmigan" => WorldLayout.SiteOf(Ecology.Species.Ptarmigan).Cell,
             _ => WorldLayout.GateOutside,
         };
     }

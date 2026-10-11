@@ -70,8 +70,8 @@ Every species is a full 4-way set (SE/SW/NE/NW) cut into per-species folders. Th
 | Caribou | 80 | idle, walk, run, death + `cow_idle`, `cow_walk` | Yes | **Final** — cow variant for herds |
 | Beaver | 112 | idle, walk, gnaw, swim, slap, death | Yes | **Final** |
 | Goose | 84 | idle, walk, takeoff, fly, death | Yes | **Final** — migration is now visible |
-| Hare | 104 | idle, walk, run, death × winter **and** `summer_*` | **No** | **Cut, unwired** |
-| Ptarmigan | 104 | idle, walk, fly, death × winter **and** `summer_*` | **No** | **Cut, unwired** |
+| Hare | 104 | idle, walk, run, death × winter **and** `summer_*` | Yes (`Species.Hare`, 2026-10-11) | **Final** |
+| Ptarmigan | 104 | idle, walk, fly, death × winter **and** `summer_*` | Yes (`Species.Ptarmigan`, 2026-10-11) | **Final** |
 
 **Hare and ptarmigan are the quickest win in the repo.** `HareFrames.tres` and `PtarmiganFrames.tres` are complete, including seasonal coats, but `Ecology/Species.cs` still defines only four species, so neither animal exists in the world. Adding two `Species` entries lights up 208 finished frames. The seasonal `summer_*` sets also have no selection logic — nothing reads `Season` to pick a coat.
 
@@ -91,7 +91,9 @@ Prompts for all three are in `asset-prompts.md` 5.5.1. `salt_geese.png` (the cas
 
 **15 icons are cut but have no `ItemId`** — drawn, imported, and waiting on code (`pemmican_bag` left this list when `Corn` borrowed it):
 
-`awl` · `beads` · `bread_plate` · `dispatch` · `fishing_net` · `fur_pack` · `ice_chisel` · `journal` · `ledger` · `letter` · `mb_token` · `medicine_bag` · `powder_horn` · `stroud` · `tobacco`
+`bread_plate` · `dispatch` · `fur_pack` · `journal` · `ledger` · `letter` · `medicine_bag`
+
+Wired 2026-10-11: `awl` · `beads` · `fishing_net` · `ice_chisel` · `mb_token` · `powder_horn` (as Powder and ball) · `stroud` · `tobacco`. The new `Ptarmigan` food item borrows the bird's own death frame as its icon (**Placeholder**).
 
 Several back systems that already run without a physical object: `letter` and `dispatch` for the message system, `ledger` for the post accounts, `journal` for the journal panel, `mb_token` for made-beaver valuation. The individually-named trade goods — tobacco, beads, stroud, awls, powder — currently collapse into the single `TradeGoods` item.
 
