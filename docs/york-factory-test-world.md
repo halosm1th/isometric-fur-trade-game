@@ -187,6 +187,8 @@ The Assiniboine make pemmican to sell, so a camp sitting on more than its own wi
 
 ## The year's account (design doc P.3, P.4)
 
+Every man's year closes, but not all on the same day. A **Company** man's closes when the ship sails with the returns; a **Nor'Wester's** when the canoes take the furs off for Fort William and the council's minutes come north in their place; a **band** man's when the ice goes out and the geese come back, with the camp counted - how many came through the winter, how many days' food in the cache, how he stands with the Company and what of the band's debt is still on their books, and whether his people are at odds with their neighbours. All three then run the same reckoning (standing against last year's, work done and refused, the house, the ambitions measured, how things stand between the houses), hand off to the told account, and start the year's counters again.
+
 `Core/Reckoning.cs`. The trade year closes when the ship sails, and that is when the player's own book is written up: what the post shipped against its quota and whether you had a hand in it, your rank and standing with the change on last year, the work set you that you did and refused, what your own account stands at, your wife and children, anyone of your house who died this year, every declared ambition measured against what you actually did, and how things stand between the houses. Nothing in it is knowledge you did not have. The counters reset with it, so next year's entry is about next year.
 
 The journal is no longer a log of other men's chores: events of no weight to anyone are kept out of it unless the player is in them, and it holds sixty entries rather than forty. `--dumpbook=S` prints it to the console.
