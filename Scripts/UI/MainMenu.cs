@@ -47,25 +47,18 @@ public partial class MainMenu : Control
     {
         Theme = MenuTheme.Get();
 
-        // Dusk over the Bay: a warm band low down fading up into night.
-        var grad = new Gradient();
-        grad.SetColor(0, new Color(0.05f, 0.06f, 0.09f));
-        grad.SetColor(1, new Color(0.22f, 0.13f, 0.08f));
-        grad.AddPoint(0.7f, new Color(0.11f, 0.09f, 0.1f));
-        var sky = new TextureRect { Texture = new GradientTexture2D { Gradient = grad, FillFrom = new Vector2(0, 0), FillTo = new Vector2(0, 1), Width = 8, Height = 256 }, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.Scale };
-        sky.SetAnchorsPreset(LayoutPreset.FullRect);
-        AddChild(sky);
-
-        // The annual ship riding at anchor, and a new hand just off her.
-        var scene = new Control { MouseFilter = MouseFilterEnum.Ignore };
-        scene.SetAnchorsPreset(LayoutPreset.FullRect);
-        AddChild(scene);
-        var ship = new TextureRect { Texture = GD.Load<Texture2D>("res://assets/sprites/ship.png"), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, Modulate = new Color(0.75f, 0.68f, 0.62f, 0.9f) };
-        ship.AnchorLeft = 0.5f; ship.AnchorRight = 0.98f; ship.AnchorTop = 0.18f; ship.AnchorBottom = 0.85f;
-        scene.AddChild(ship);
-        var man = new TextureRect { Texture = GD.Load<Texture2D>("res://assets/sprites/player/idle_front.png"), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered };
-        man.AnchorLeft = 0.56f; man.AnchorRight = 0.66f; man.AnchorTop = 0.72f; man.AnchorBottom = 0.93f;
-        scene.AddChild(man);
+        // York Factory at dusk, the ship in the roads (assets/ui/menu_background.jpg).
+        var art = new TextureRect { Texture = GD.Load<Texture2D>("res://assets/ui/menu_background.jpg"), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered, MouseFilter = MouseFilterEnum.Ignore };
+        art.SetAnchorsPreset(LayoutPreset.FullRect);
+        AddChild(art);
+        // A little shade down the left so the panel reads against the sky.
+        var shadeGrad = new Gradient();
+        shadeGrad.SetColor(0, new Color(0, 0, 0, 0.45f));
+        shadeGrad.SetColor(1, new Color(0, 0, 0, 0f));
+        var shade = new TextureRect { Texture = new GradientTexture2D { Gradient = shadeGrad, FillFrom = new Vector2(0, 0), FillTo = new Vector2(1, 0), Width = 256, Height = 8 }, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.Scale, MouseFilter = MouseFilterEnum.Ignore };
+        shade.SetAnchorsPreset(LayoutPreset.LeftWide);
+        shade.AnchorRight = 0.55f;
+        AddChild(shade);
 
         // The menu itself, down the left.
         var margin = new MarginContainer();
@@ -210,7 +203,7 @@ public partial class MainMenu : Control
     private void Show(Control page)
     {
         Apply();
-        foreach (var p in new[] { _home, _multi, _settings }) p.Visible = p == page;
+        foreach (var p in new[] { _home, _multi, _newGame, _settings }) if (p != null) p.Visible = p == page;
         if (page == _multi && _multi.FindChild("PlayingAs", true, false) is Label who) who.Text = $"Playing as {NetHub.I.LocalName} - change it on the first page.";
         if (page == _settings) _settings.Refresh();
         _panel.ResetSize();
