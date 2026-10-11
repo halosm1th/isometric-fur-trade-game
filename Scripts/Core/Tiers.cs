@@ -266,11 +266,21 @@ public static class Tiers
         var site = eco.BestSite(Species.Caribou, known) ?? eco.BestSite(Species.Goose, known) ?? eco.BestSite(Species.Beaver, known);
         if (site == null || site.Count < 1f)
         {
-            // Snares and lines along the bush: thin fare, no site drawn down,
-            // but enough that a camp out of the player's sight does not quietly
-            // starve to death (design doc 18.2 - the batch must be livable).
+            // Snares along the bush: thin fare, and it comes off the hare and
+            // ptarmigan grounds like anything else, so a camp that lives on
+            // snares all winter thins them (design doc 16.3). Enough, though,
+            // that a camp out of the player's sight does not quietly starve.
             int snared = (GD.Randf() < 0.75f + n.Skills.Hunting * 0.2f ? 1 : 0) + (GD.Randf() < 0.4f + n.Skills.Hunting * 0.4f ? 1 : 0);
-            if (snared > 0) home.Stores.Add(ItemId.Hare, snared);
+            if (snared > 0)
+            {
+                var small = eco.BestSite(Species.Hare, known) ?? eco.BestSite(Species.Ptarmigan, known);
+                if (small != null && small.Count >= snared)
+                {
+                    small.Take(snared);
+                    for (int i = 0; i < snared; i++) SpeciesInfo.Yield(small.Species, home.Stores);
+                }
+                else home.Stores.Add(ItemId.Hare, snared);   // whatever the bush gives where there is no ground mapped
+            }
             // A line through the ice is how an inland post got through March
             // (design doc 14.4, 16.1): thin, steady, and it keeps men alive.
             bool line = home.Stores.Has(ItemId.FishingLine) || n.Inventory.Has(ItemId.FishingLine) || home.Stores.Has(ItemId.FishingNet);

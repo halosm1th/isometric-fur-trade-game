@@ -501,7 +501,7 @@ public partial class PlayerController : Agent
 		// Mess call: the plainest thing on the shelf, while there is any.
 		if (Needs.Hunger < 70f)
 		{
-			foreach (var id in new[] { ItemId.Berries, ItemId.Hare, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican })
+			foreach (var id in new[] { ItemId.Berries, ItemId.Hare, ItemId.Ptarmigan, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican })
 			{
 				if (!fort.Stores.Remove(id)) continue;
 				Needs.Hunger = Mathf.Min(100f, Needs.Hunger + Items.Items.Of(id).Nutrition);

@@ -90,7 +90,7 @@ public partial class Household : Node
         var cal = GameCalendar.Instance;
         if (cal == null || cal.Day == _spoilDay || !Net.Net.IsServer) return;
         _spoilDay = cal.Day;
-        int fresh = Stores.Count(ItemId.Venison) + Stores.Count(ItemId.Goose) + Stores.Count(ItemId.Fish) + Stores.Count(ItemId.Hare) + Stores.Count(ItemId.Berries);
+        int fresh = Stores.Count(ItemId.Venison) + Stores.Count(ItemId.Goose) + Stores.Count(ItemId.Fish) + Stores.Count(ItemId.Hare) + Stores.Count(ItemId.Ptarmigan) + Stores.Count(ItemId.Berries);
         if (fresh == 0) return;
         float rate = cal.IsFrozen ? 0.05f : 0.12f;
         int lost = Mathf.FloorToInt(fresh * rate + (GD.Randf() < (fresh * rate) % 1f ? 1 : 0));

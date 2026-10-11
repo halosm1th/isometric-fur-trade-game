@@ -162,12 +162,19 @@ public class Barter
 		var def = Items.Items.Of(id);
 		Counter.Add(id);
 		GiftGiven = true;
-		Margin += 0.05f + def.ValueMb * 0.01f;
-		Patience = Mathf.Min(1.3f, Patience + 0.25f);
-		With.ChangeRapport(Player, 4f + def.ValueMb);
+		// A pipe smoked together is worth more than the leaf in it: it is the
+		// ceremony, not the value (design doc 3.6.1).
+		bool pipe = id == ItemId.Tobacco;
+		Margin += (pipe ? 0.12f : 0.05f) + def.ValueMb * 0.01f;
+		Patience = Mathf.Min(1.4f, Patience + (pipe ? 0.4f : 0.25f));
+		With.ChangeRapport(Player, (pipe ? 8f : 4f) + def.ValueMb);
 		With.GiftsFromPlayerMb += def.ValueMb;
 		Tells.RemoveAll(t => t.StartsWith("Nothing has been given"));
 		Chronicle.Event($"{Player.DisplayName} opened the trade with a gift to {With.DisplayName}.", Player.GlobalPosition, Player, With.DisplayName, 0.6f);
+		if (pipe)
+			return Band != null
+				? "You fill a pipe and pass it. It goes round before a word of trade is spoken, and what is said after it is said between men who have smoked together."
+				: "You cut him a twist and he fills his pipe. The two of you smoke, and the price softens.";
 		return Band != null
 			? $"You put {def.Name.ToLower()} in his hands before a word of trade. He takes his time over it, and the talk comes easier."
 			: $"He pockets the {def.Name.ToLower()} without remarking on it, and finds he can do a little better on the price.";
