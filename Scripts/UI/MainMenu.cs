@@ -5,14 +5,14 @@ namespace IsometricFurTradeGame.Scripts.UI;
 
 // Continue / new game / multiplayer / settings / quit. Dev args skip it:
 // --solo, --host, --server (headless dedicated), --join=ip[:port],
-// --name=Whoever; --menu=settings|controls|multiplayer|newgame opens on that page.
+// --name=Whoever; --menu=settings|controls|multiplayer|newgame|character opens on that page.
 public partial class MainMenu : Control
 {
     private const string WorldScene = "res://Scenes/World/YorkFactoryExterior.tscn";
     private LineEdit _name, _address;
     private Label _status;
     private PanelContainer _panel;
-    private Control _home, _multi, _newGame;
+    private Control _home, _multi, _newGame, _character;
     private SettingsPanel _settings;
 
     public override void _Ready()
@@ -44,6 +44,7 @@ public partial class MainMenu : Control
         else if (page == "controls") { Show(_settings); _settings.ShowTab(3); }
         else if (page == "multiplayer") Show(_multi);
         else if (page == "newgame") Show(_newGame);
+        else if (page == "character") Show(_character);
     }
 
     private void Build()
@@ -83,6 +84,8 @@ public partial class MainMenu : Control
         _panel.AddChild(_multi);
         _newGame = BuildNewGame();
         _panel.AddChild(_newGame);
+        _character = BuildCharacter();
+        _panel.AddChild(_character);
         _settings = new SettingsPanel(() => Show(_home));
         _panel.AddChild(_settings);
 
@@ -206,7 +209,7 @@ public partial class MainMenu : Control
     private void Show(Control page)
     {
         Apply();
-        foreach (var p in new[] { _home, _multi, _newGame, _settings }) if (p != null) p.Visible = p == page;
+        foreach (var p in new[] { _home, _multi, _newGame, _character, _settings }) if (p != null) p.Visible = p == page;
         if (page == _multi && _multi.FindChild("PlayingAs", true, false) is Label who) who.Text = $"Playing as {NetHub.I.LocalName} - change it on the first page.";
         if (page == _settings) _settings.Refresh();
         _panel.ResetSize();
@@ -276,10 +279,113 @@ public partial class MainMenu : Control
         Small(box, "my-campaign.json there starts as a copy of the historical script, and README.txt explains the format. Come back to this page to pick it up.");
 
         box.AddChild(new HSeparator());
-        Big(box, "Begin").Pressed += () => { Apply(); NetHub.I.StartSolo(); Go(); };
-        Big(box, "Begin and host").Pressed += () => { Apply(); var e = NetHub.I.StartHost(); if (e == Error.Ok) Go(); else Fail($"Could not host: {e}"); };
+        Big(box, "Next: who you are").Pressed += () => Show(_character);
         Big(box, "Back").Pressed += () => Show(_home);
         return box;
+    }
+
+    // Who you are (design doc 5.4, Core/CharacterSheet): your road in, your
+    // people if you were born to a band, a background, two traits, and what
+    // you mean to make of yourself. Every choice is said in plain words.
+    private Control BuildCharacter()
+    {
+        var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(480, 600), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        var box = new VBoxContainer { CustomMinimumSize = new Vector2(460, 0), SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        box.AddThemeConstantOverride("separation", 8);
+        scroll.AddChild(box);
+        var title = new Label { Text = "Who you are", HorizontalAlignment = HorizontalAlignment.Center };
+        title.AddThemeFontSizeOverride("font_size", 24);
+        box.AddChild(title);
+        box.AddChild(new HSeparator());
+
+        Heading(box, "Name");
+        var name = new LineEdit { Text = NetHub.I.LocalName, PlaceholderText = "Your name" };
+        box.AddChild(name);
+
+        Heading(box, "Your road in");
+        var path = new OptionButton();
+        foreach (Core.StartPath sp in System.Enum.GetValues(typeof(Core.StartPath))) path.AddItem(Core.CharacterSheet.PathTitle(sp), (int)sp);
+        box.AddChild(path);
+        var pathNote = Small(box, "");
+
+        var campHead = new Label { Text = "Your people" };
+        campHead.AddThemeColorOverride("font_color", new Color(1f, 0.85f, 0.6f));
+        box.AddChild(campHead);
+        var camp = new OptionButton();
+        var camps = Core.CharacterSheet.NationCamps();
+        foreach (var c in camps) camp.AddItem($"{World.Camps.NationName(c.Nation)} - {c.Name}{(string.IsNullOrEmpty(c.Post) ? "" : $" (trades at {c.Post})")}");
+        box.AddChild(camp);
+
+        Heading(box, "Background");
+        var bg = new OptionButton();
+        box.AddChild(bg);
+        var bgNote = Small(box, "");
+
+        Heading(box, $"Traits (choose {Core.CharacterSheet.MaxTraits})");
+        var grid = new GridContainer { Columns = 2 };
+        box.AddChild(grid);
+        var checks = new System.Collections.Generic.List<CheckBox>();
+        var traitNote = Small(box, "");
+        foreach (var t in Core.CharacterSheet.AllTraits)
+        {
+            var def = t;
+            var cb = new CheckBox { Text = def.Title, TooltipText = def.Blurb, ButtonPressed = Core.CharacterSheet.Traits.Contains(def.Id) };
+            var gold = new Color(1f, 0.82f, 0.45f);
+            cb.AddThemeColorOverride("font_pressed_color", gold); cb.AddThemeColorOverride("font_hover_pressed_color", gold);
+            cb.Toggled += on =>
+            {
+                if (on && checks.FindAll(x => x.ButtonPressed).Count > Core.CharacterSheet.MaxTraits) { cb.SetPressedNoSignal(false); traitNote.Text = $"Only {Core.CharacterSheet.MaxTraits}. Untick one first."; return; }
+                traitNote.Text = on ? $"{def.Title}: {def.Blurb}" : "";
+            };
+            checks.Add(cb);
+            grid.AddChild(cb);
+        }
+
+        Heading(box, "What you mean to make of yourself");
+        var amb = new OptionButton();
+        amb.AddItem("Decide later (Esc - What you mean to do)", 0);
+        foreach (var k in Agents.Ambitions.Offered) amb.AddItem(new Agents.Ambition { Kind = k }.Title, (int)k);
+        box.AddChild(amb);
+        var ambNote = Small(box, "");
+
+        void Refresh()
+        {
+            var sp = (Core.StartPath)path.GetSelectedId();
+            pathNote.Text = Core.CharacterSheet.PathBlurb(sp);
+            bool nation = sp == Core.StartPath.Nation;
+            campHead.Visible = nation; camp.Visible = nation && camps.Count > 0;
+            var bgs = Core.CharacterSheet.BackgroundsFor(sp);
+            int keep = Mathf.Clamp(bg.Selected, 0, bgs.Length - 1);
+            bg.Clear();
+            foreach (var b in bgs) bg.AddItem(b.Title);
+            bg.Select(keep);
+            bgNote.Text = bgs[keep].Blurb;
+            int ak = amb.GetSelectedId();
+            ambNote.Text = ak <= 0 ? "You can choose it in the first days, when you know the place." : Agents.Ambitions.Blurb((Agents.AmbitionKind)ak);
+        }
+        path.ItemSelected += _ => Refresh();
+        bg.ItemSelected += i => bgNote.Text = Core.CharacterSheet.BackgroundsFor((Core.StartPath)path.GetSelectedId())[(int)i].Blurb;
+        amb.ItemSelected += _ => Refresh();
+        path.Select((int)Core.CharacterSheet.Path);
+        Refresh();
+
+        void Commit()
+        {
+            Core.CharacterSheet.Path = (Core.StartPath)path.GetSelectedId();
+            Core.CharacterSheet.Background = Mathf.Max(0, bg.Selected);
+            Core.CharacterSheet.Traits.Clear();
+            for (int i = 0; i < checks.Count; i++) if (checks[i].ButtonPressed) Core.CharacterSheet.Traits.Add(Core.CharacterSheet.AllTraits[i].Id);
+            Core.CharacterSheet.Ambition = amb.GetSelectedId() <= 0 ? Agents.AmbitionKind.None : (Agents.AmbitionKind)amb.GetSelectedId();
+            Core.CharacterSheet.Camp = Core.CharacterSheet.Path == Core.StartPath.Nation && camp.Selected >= 0 && camp.Selected < camps.Count ? camps[camp.Selected].Name : "";
+            NetHub.I.LocalSheet = Core.CharacterSheet.Encode();
+            if (name.Text.Trim() != "") { NetHub.I.LocalName = name.Text.Trim(); if (_name != null) _name.Text = NetHub.I.LocalName; }
+        }
+
+        box.AddChild(new HSeparator());
+        Big(box, "Begin").Pressed += () => { Commit(); Apply(); NetHub.I.StartSolo(); Go(); };
+        Big(box, "Begin and host").Pressed += () => { Commit(); Apply(); var e = NetHub.I.StartHost(); if (e == Error.Ok) Go(); else Fail($"Could not host: {e}"); };
+        Big(box, "Back").Pressed += () => Show(_newGame);
+        return scroll;
     }
 
     public override void _UnhandledInput(InputEvent @event)
