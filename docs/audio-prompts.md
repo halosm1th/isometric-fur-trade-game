@@ -209,6 +209,12 @@ Muskets are one-shot weapons (design doc 15.3): the shot must sound heavy and fi
 | `pipe_puff` | 2 s | Drawing on a clay tobacco pipe and puffing out smoke. |
 | `shiver` | 1.5 s | A man shivering hard in the cold, teeth chattering, a shaky breath. No words. |
 | `cough_sick_01..03` | 1.5 s | A deep, wet, sick cough. |
+| `berry_pick_01..03` | 1.5 s | Picking handfuls of berries off a bush and dropping them into a birchbark basket: leaves rustling, soft patter of fruit on bark. |
+| `salt_cask_pack` | 4 s | Packing plucked geese down into a wooden cask with coarse salt: dull thumps of birds, salt poured and crunching, then a lid tapped on with a mallet. |
+| `spruce_beer_brew_loop` | 20 s (LOOP) | A copper kettle of spruce tips boiling over a hearth: a steady rolling boil, the odd spit against hot iron, no voices. |
+| `corn_mortar_01..03` | 1.2 s | Pounding dried corn in a hollowed log mortar with a long wooden pestle: a deep woody thud and the rattle of kernels. |
+| `corn_shell_01..03` | 2 s | Shelling a dried ear of Indian corn by hand: kernels rasping off the cob and falling into a bark tray. |
+| `gum_patch` | 4 s | Patching a birchbark canoe: spruce gum melted in a small pot, smeared on with a hot iron, hissing as it sets. |
 
 ### 2.3 Travel (SFX / LOOP)
 
@@ -236,6 +242,7 @@ All of these are SFX HEADER, mono. Animals in the code now: caribou, goose, beav
 | `goose_honk_01..05` | (2 s) A single Canada goose honking on the ground. |
 | `geese_flock_overhead` | (8 s) A big V of Canada geese flying low overhead, many honking, wingbeats audible as they pass. |
 | `geese_takeoff` | (3 s) A flock of geese bursting up off a marsh in alarm: wings beating, splashing, honking. |
+| `geese_flight_marsh_loop` | (AMBIENT, 60 s, LOOP) The autumn passage on a Hudson Bay marsh: thousands of geese on the water and in the air at once, a continuous wash of honking with nearer birds over it and wingbeats passing. Not a single flock - the whole flight, heard from a goose tent at the edge of the marsh. |
 | `caribou_grunt_01..03` | (1.5 s) A caribou's low snorting grunt. |
 | `caribou_herd_loop` | (AMBIENT, 30 s) A herd of caribou passing: many hooves clicking (caribou ankle tendons click when they walk), grunting, snow crunching. |
 | `beaver_tail_slap` | (1.5 s) A beaver slapping its tail on still pond water in alarm: a loud flat crack and splash. |
@@ -277,6 +284,11 @@ All of these are SFX HEADER, mono. Animals in the code now: caribou, goose, beav
 | `death_sting` | — | A death | (Use music cue `stinger_death` below.) |
 | `news_letter` | 2 s | A message arrives (`Core/Message.cs`) | A folded, wax-sealed letter being broken open: the seal cracking, stiff paper unfolding. |
 | `trade_coins` | 1 s | A trade closes (`Economy/Barter.cs`) | Small wooden made-beaver tokens and a few metal trade goods set down on a counter. |
+| `musket_volley_geese` | 4 s | A goose hunt kills (`World/GooseHunt.cs`) | Three or four muskets fired almost together into a settled flock, then the roar of several hundred geese getting up off water. |
+| `portage_shoulder_01..03` | 2 s | A brigade at a carrying place (`World/Brigade.cs`) | A man hoisting two ninety-pound packs onto his back with a tumpline across his forehead: cords creaking, a hard breath out, canvas shifting. |
+| `canoe_haul_out` | 5 s | Arriving at a portage | A loaded freight canoe dragged up a rocky landing: bark grating on stone, water running off, men grunting. |
+| `trade_fair_loop` | (AMBIENT, 60 s, LOOP) | The Missouri towns' market (`Economy/Gardens.cs`) | A big summer trade fair outside an earth-lodge village: many voices bargaining in several languages at once, horses stamping and whinnying, dogs, corn being poured, no music. |
+| `herd_passing_distant` | 20 s | The deer pass (`Ecology/EcologyManager.cs`) | A barren-ground caribou herd crossing a mile off: a low continuous rumble of hooves and clicking tendons carried on the wind, thin grunts. |
 | `scurvy_groan` | 2 s | Illness | A sick man groaning quietly in a bunk. |
 
 ---

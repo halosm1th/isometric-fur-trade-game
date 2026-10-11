@@ -1,138 +1,164 @@
 # Asset Inventory
 
-Snapshot as of 2026-09-20. What art the game actually loads, where it came from, what is a stand-in, and what is still missing. Audio, fonts and UI art are covered at the bottom — all three are currently empty.
+What art the game has, where it came from, what is still a stand-in, and what is cut but not yet wired up. Rewritten 2026-10-11 against commit `b2064f4`, checked by following what the code actually loads (`GD.Load` calls, the `*Frames.tres` resources, `terrain_tileset.tres`, `Items.cs`, `Appearance.cs`, `NeedsHud.cs`) rather than by listing files.
 
-Status key:
+**This file is the catalogue of what exists.** Art the game does *not* have is not listed here — it lives in the companion docs, which this file deliberately does not duplicate:
 
-- **Final-ish** — game-specific art, fits the style, no known reason to redo it.
-- **Placeholder** — works, but is a stand-in (wrong style, stock pack, reused frames, tinted copy of another sprite).
-- **Missing** — the code or design doc calls for it and nothing exists; either drawn in code (rectangles, lights) or not shown at all.
-- **Unused** — sits in `assets/` but nothing references it.
+- `asset-prompts.md` — every piece of art still to be made, as Gemini prompts with reference sheets. Pruned to outstanding work only: the Factor sheet, the seven nations with no art, York Factory's log walls, weather and combat effects, and the UI theme.
+- `audio-prompts.md` — all sound, which is still entirely unmade.
+- `world-content-needed.md` — nations, people, places and species missing from the code.
 
----
+Status key: **Final** (game-specific art, loaded and in use) · **Placeholder** (in use, but a stand-in: stock pack or an older sheet still wired up) · **Cut, unwired** (art is in the repo and imported, nothing loads it).
 
-## 1. Characters (`assets/sprites/`)
-
-Character sheets are 150×130 frames, cut from the `pioneerpixel_hbc_trader` source JPGs. All human NPC roles reuse one of five sheets with a colour tint (`Population.cs`).
-
-| Sheet | Frames on disk | Animations in `.tres` | Used by | Status | Notes |
-|---|---|---|---|---|---|
-| `player/` | idle_front, idle_back, walk_front 0–3, walk_back 0–3, eat 0–3, drink 0–3, sneak_front/back/side 0–3, death 1–3 | idle, walk, walk_back, eat, drink, death, sneak, sneak_back, sneak_side, sneak_idle | Player; HBC clerks (blue tint), HBC women (pink tint, 0.72 scale), sailors (grey-blue tint, 0.78 scale) | Final-ish for player; **Placeholder** for women/sailors | No **walk_side** frames — side movement plays the front walk. `sneak_back_3` and `idle_back` on disk but not in the `.tres`. Women and sailors are tinted men. |
-| `rival/` | idle_front, walk_front 0–3, walk_back 0–3, eat 0–3 | idle, walk, walk_back, eat | Factor (Mr. Auld), NWC partner, NWC voyageurs | Final-ish for factor; **Placeholder** for NWC | No side walk, no death, no drink. Voyageurs are tinted factors — they should look like voyageurs (sash, tuque). |
-| `labourer/` | idle_front, walk_front 0–3, walk_back 0–1, walk_side 0–3 | idle, walk, walk_back, walk_side, death | Orkney labourers | Final-ish | Only 2 walk_back frames vs 4 elsewhere. Death anim reuses walk frames (check `.tres`). No eat/drink. |
-| `cree/` | idle_front, walk_front 0–3, walk_back 0–3, walk_side 0–1, shoot 0–1 | idle, walk, walk_back, walk_side, attack | Cree chief, Cree hunters | Final-ish | Only 2 side frames. No death, eat, drink. Attack is a bow shot — fine for hunters, wrong for knife/tomahawk. |
-| `cree_woman/` | idle_front, walk_front 0–3, walk_back 0–3, walk_side 0–1 | idle, walk, walk_back, walk_side | Cree women, Cree daughters (0.74–0.78 scale, tinted) | Final-ish | Only 2 side frames. No death/eat/drink. Daughters are scaled-down women. |
-
-**Missing character art**
-
-- Voyageur sheet (currently tinted `rival/`).
-- HBC woman / wife sheet (currently tinted, shrunk `player/`).
-- Sailor sheet (currently tinted `player/`).
-- Side-walk frames for `player/` and `rival/`.
-- Death frames for every sheet except `player/` and `labourer/` — NPCs die in combat and brawls; a missing death anim means they drop with no visible change other than what `Agent.cs` does (check: corpses currently just stop animating).
-- Drunk / staggering frames — intoxication is simulated (`carousing`, brawls) but there is no visual.
-- Cold / shivering, sick (fever) states — simulated, not shown.
-- Carrying / hauling frames (tumpline, pack basket, fur bales) — the logistics system tracks load; no visual.
-- Paddling frames for canoe — `PlayerController` swaps in `canoe.png` beneath the standing sprite.
-- Fighting frames: melee swing (knife/tomahawk), musket fire, brawl punch. Only `cree/` has a shoot anim.
-- Sleeping / lying-down frame (beds are used every night).
-- Children (design doc §8 kinship) — none.
-- Métis, Montreal agents, soldiers (Selkirk timeline §4) — none, future.
+Where this file notes a gap, it is only to explain the status of a file that exists. The job of filling it is described in the companion docs.
 
 ---
 
-## 2. Animals (`assets/sprites/animals/`)
+## What changed since the last inventory (2026-09-20)
 
-| Species | Files | Animations | Source | Status | Notes |
-|---|---|---|---|---|---|
-| Wolf | wolf_idle / run / bite / death (256×256 sheets) | idle, walk, attack, death × SE/SW/NW/NE | `external/critters/wolf` | **Placeholder** | Stock pack, different render style from the hand-drawn humans. Works well mechanically (4-way, full anim set). |
-| Caribou | caribou_{NE,NW,SE,SW}_{idle,walk,run} (768×41 strips) | idle/walk/run × 4 dirs | `external/critters/stag` (a stag, not a caribou) | **Placeholder** | Stock stag. No death, no attack. |
-| Beaver | beaver_0, beaver_1 (48×32) | idle, walk (2 frames) | Hand-made | **Placeholder** | Two-frame bob, no direction, no death. |
-| Goose | goose_0, goose_1 (48×40) | idle, walk (2 frames) | Hand-made | **Placeholder** | Two frames. No flying frames — geese migrate and get shot on the wing. |
-| Hare | — | — | — | **Missing** | Exists only as an item (`hare.png`); snaring is simulated with no animal in the world. |
-| Fish | — | — | — | **Missing** | Fishing is simulated; no fish/ripple visual. |
-| Dogs, horses, bison, moose, bear, fox, marten, lynx, muskrat | — | — | — | **Missing** | Design doc §16 wildlife list. Not yet simulated either. |
+The Gemini art pass (`2cea7c4`) and the world-scale commit (`adc11ab`) cleared most of the old priority list:
 
-Unused external critters: `critters/badger` (20), `critters/boar` (60) — available if you want to repurpose them.
+- Character sheets went from **5 to 14**. Voyageurs, sailors, clerks, NWC partners, country wives, Cree captains, Assiniboine and children all have their own art instead of a tint.
+- Animals went from 4 two-frame stand-ins to **6 species, fully 4-way, 80–112 frames each**, with seasonal coats for hare and ptarmigan.
+- Items went from 32 to **51 icons**; every one of the 35 `ItemId`s now has its own, with no sharing.
+- The UI got an icon, a menu background, **12 need icons** and **4 faction crests**.
+- Props went from 12 to **37**; furniture gained a stove and writing desk; the terrain set gained a road.
+- `icon.svg` (the Godot logo) is gone — `project.godot` points at `assets/ui/icon.png`.
+
+Three things from the old list produced no files and so appear nowhere below: **audio**, a **UI theme and font**, and **effects art** for weather, fire and combat. All three are now prompted for in `asset-prompts.md` and `audio-prompts.md`.
 
 ---
 
-## 3. Items / icons (`assets/sprites/items/`, 64×64)
+## 1. Characters (`assets/sprites/`, 14 sheets)
 
-All 32 icons are hand-made in a consistent style. Every `ItemId` in `Items.cs` has an icon, but several **share** one:
+Which sheet a role wears is decided by `Agents/Appearance.cs`, which swaps the real sheet in when an NPC's look is set. Older sheets stay wired in `Population.cs` / `Starts.cs` as the spawn-time default, so a role not listed in `Appearance.For()` keeps whatever it was spawned with.
 
-| Item | Icon | Status |
+New sheets are 180×170 per frame; the three original sheets (`player`, `cree`, `rival`) are 150×130.
+
+| Sheet | Files | Animations | Worn by | Status |
+|---|---|---|---|---|
+| `player` | 79 | idle, idle_side, walk, walk_back, walk_side, run_side, sneak ×4, shoot, attack, eat, drink, paddle, carry, carry_side, chop, sleep, shiver, drunk, death | Player | **Final** — the most complete sheet in the game |
+| `voyageur` | 39 | idle ×3, walk ×3, attack, eat, drink, portage, paddle, death | NWC voyageurs | **Final** |
+| `clerk` | 31 | idle ×3, walk ×3, eat, drink, write, death | Clerks, postmasters | **Final** |
+| `nwc_partner` | 36 | idle ×3, walk ×3, eat, drink, shoot, talk, death | NWC partners | **Final** |
+| `sailor` | 31 | idle ×3, walk ×3, drink, attack, haul, death | Ship's crew | **Final** |
+| `country_wife` | 43 | idle ×3, walk ×3, eat, drink, carry_wood, carry_water, carry_baby, scrape, death | HBC women and wives | **Final** |
+| `labourer` | 47 | idle ×3, walk ×3, shoot, attack, eat, drink, haul, chop, death | Orkney labourers | **Final** |
+| `cree` | 41 | idle ×3, walk ×3, run_side, shoot, attack, butcher, eat, drink, death | Cree hunters | **Final** |
+| `cree_woman` | 37 | idle ×3, walk ×3, eat, drink, carry_wood, scrape, death | Cree women and daughters | **Final** |
+| `cree_captain` | 31 | idle ×3, walk ×3, eat, talk, smoke, death | Cree chief | **Final** |
+| `assiniboine` | 40 | idle ×3, walk ×3, attack, shoot, musket, eat, drink, death | Assiniboine | **Final** |
+| `child_boy` | 17 | idle ×3, walk ×3, run_side | HBC boys under 14 | **Final** — no eat/death, deliberate |
+| `child_girl` | 21 | idle ×3, walk ×3, run_side, eat | HBC girls under 14 | **Final** |
+| `rival` | 13 | idle, walk, walk_back, eat | **Factor** (`Population.cs:32`), and NWC voyageurs in one spawn path (`Starts.cs:159`) | **Placeholder** — the last of the old 150×130 sheets. No side walk, no death, no drink. |
+
+**Notes on the sheets that exist**
+
+- **`rival` is the only sheet left behind**, and the Factor — a named, central NPC — still wears it (`Population.cs:32`). `Starts.cs:159` also spawns NWC voyageurs with it even though `VoyageurFrames` exists; `Appearance.cs` corrects them afterwards, so the stale spawn path is cosmetic but worth fixing. Replacement sheet: `asset-prompts.md` §1.
+- **Seven of the nine nations on the map have no sheet of their own** and fall through `Appearance.For()` to whatever they were spawned with. Prompts: `asset-prompts.md` §2.
+- **Orphan frames** that exist but no `.tres` references: `player/idle_back.png`, `player/sneak_back_3.png`, `player/musket_ready.png`, `labourer/musket_ready.png`, `assiniboine/shoot_{0,1,2}.png`. The two `musket_ready` frames look like a deliberate aiming pose that never got an animation entry — no new art needed, just rows in the `.tres`.
+
+---
+
+## 2. Animals (`assets/sprites/animals/`, 6 species)
+
+Every species is a full 4-way set (SE/SW/NE/NW) cut into per-species folders. The old loose two-frame files are still in `assets/sprites/animals/*.png` and are **unreferenced** — 20 files safe to delete.
+
+| Species | Files | Animations | In `Species.cs`? | Status |
+|---|---|---|---|---|
+| Wolf | 96 | idle, walk, run, attack, howl, death | Yes | **Final** |
+| Caribou | 80 | idle, walk, run, death + `cow_idle`, `cow_walk` | Yes | **Final** — cow variant for herds |
+| Beaver | 112 | idle, walk, gnaw, swim, slap, death | Yes | **Final** |
+| Goose | 84 | idle, walk, takeoff, fly, death | Yes | **Final** — migration is now visible |
+| Hare | 104 | idle, walk, run, death × winter **and** `summer_*` | **No** | **Cut, unwired** |
+| Ptarmigan | 104 | idle, walk, fly, death × winter **and** `summer_*` | **No** | **Cut, unwired** |
+
+**Hare and ptarmigan are the quickest win in the repo.** `HareFrames.tres` and `PtarmiganFrames.tres` are complete, including seasonal coats, but `Ecology/Species.cs` still defines only four species, so neither animal exists in the world. Adding two `Species` entries lights up 208 finished frames. The seasonal `summer_*` sets also have no selection logic — nothing reads `Season` to pick a coat.
+
+---
+
+## 3. Items (`assets/sprites/items/`, 51 icons at 64×64)
+
+**38 `ItemId`s** in `Items.cs`. 35 have an icon of their own; the three food items added on 2026-10-11 (`b488764`) are **Placeholder** and borrow another item's picture:
+
+| Item | Borrowing | Why it needs its own |
 |---|---|---|
-| Pemmican, Bread, Ale, Rum, Water, Venison, Goose, Firewood, Capote, Point blanket, Hide coat, Beaver pelt, Shot pelt, Holed hide, Caribou hide, Wolf pelt, Trade goods, Steel trap, Kettle, Flint, Fishing line, Tumpline, Pack basket, Hare, Fish, Musket, Bow, Knife, Tomahawk | own icon | Final-ish |
-| Dried goose | `dried_goose.png` | Final-ish |
-| **Dried meat** | reuses `dried_goose.png` | **Placeholder** — needs its own |
-| **Summer (thin) pelt** | reuses `beaver_pelt.png` | **Placeholder** — should look thinner/paler |
-| `bread_plate.png`, `medicine_bag.png` | — | **Unused** (no ItemId) |
+| `Berries` | `pemmican.png` | The main answer to the scurvy, gathered by every camp and post July-September. Reads as pemmican in the hotbar. |
+| `SpruceBeer` | `ale_tankard.png` | The post's winter scurvy remedy, brewed with a kettle and firewood. Sharing ale's tankard is actively confusing — it is a keg and a horn cup. |
+| `Corn` | `pemmican_bag.png` | The Missouri towns' harvest and the staple of the plains trade. Braided ears and shelled kernels would read better. |
 
-**Missing item art**: nothing for items the design doc names but the code doesn't have yet — powder & shot, tobacco, beads, awls, axes, cloth, snowshoes, letters/dispatches (the message system §10 has no physical letter icon), journal (the journal panel is text-only), coin/made-beaver token.
+Prompts for all three are in `asset-prompts.md` 5.5.1. `salt_geese.png` (the cask the goose flight goes into) was drawn in `0a7d14d` and is wired.
 
----
+**15 icons are cut but have no `ItemId`** — drawn, imported, and waiting on code (`pemmican_bag` left this list when `Corn` borrowed it):
 
-## 4. Terrain, buildings, props (`assets/tiles/`)
+`awl` · `beads` · `bread_plate` · `dispatch` · `fishing_net` · `fur_pack` · `ice_chisel` · `journal` · `ledger` · `letter` · `mb_token` · `medicine_bag` · `powder_horn` · `stroud` · `tobacco`
 
-All go through `assets/tiles/landscape/terrain_tileset.tres` and are painted by `TerrainPainter` / `StructurePainter`.
-
-### Landscape (132×99 isometric, from Kenney Isometric Landscape, CC0)
-
-dirt, grass, hill, ice, sand, snow, stone_floor, water, water_ice — **Placeholder**. Stock Kenney; flat-colour style. Works, but no transitions/edges, no seasonal variants beyond snow/ice swap, no river bank, no marsh/muskeg, no rock, no burnt ground.
-
-### Buildings (Kenney Isometric Buildings, CC0)
-
-wall_{N,S,E,W}, wall_corner_{N,S,E,W,back,front}, wall_door_{N,S,E,W}, wall_door_open_{N,S,E,W}, wall_window_{N,S,E,W}, floor_planks, roof, fence_{N,S,E,W}, fence_corner_{back,front} — **Placeholder**. Generic European stone/plaster; York Factory should be squared-log and whitewashed plank. Palisade / stockade wall does not exist (fences stand in for it).
-
-**Unused**: roof_{N,S,E,W}, roof_corner_{N,S,E,W} — only the flat `roof.png` is in the tileset.
-
-### Furniture
-
-bed, candle_stand, chair, display_case, rug, shelf, shelf_tall, table, table_chairs — **Placeholder** (Kenney miniature-library style). Missing: water barrel (the household barrel is a core survival object with no visual), stove, press (fur press), scales, writing desk/ledger, chest, bunk.
-
-### Props (128×256)
-
-campfire, crate, fur_bale, hay_bales, ladder, spruce_0/1/2, tipi, woodpile, hearth_left/right — mixed. Spruce and tipi look like game-specific art (Final-ish); crate/hay/ladder are Kenney (Placeholder). Missing: canoe-on-shore rack, drying rack for pelts/meat, snare stake, steel trap in the world, grave/cairn, flagpole (HBC ensign), cannon, wharf posts, beaver lodge/dam, dead tree, bush/willow, rocks, cache pit.
+Several back systems that already run without a physical object: `letter` and `dispatch` for the message system, `ledger` for the post accounts, `journal` for the journal panel, `mb_token` for made-beaver valuation. The individually-named trade goods — tobacco, beads, stroud, awls, powder — currently collapse into the single `TradeGoods` item.
 
 ---
 
-## 5. Vehicles & big objects (`assets/sprites/`)
+## 4. Terrain, buildings and props (`assets/tiles/`)
 
-| Asset | File | Status | Notes |
-|---|---|---|---|
-| Canoe | `canoe.png` (110×44) | **Placeholder** | Single orientation; no paddling, no beached/loaded variants. |
-| Ship (annual supply ship) | `ship.png` (460×340) | **Placeholder** | Single static image, offset by hand in `Ship.cs`. No sails-furled, no York boat. |
-| York boat, dog sled, snowshoes | — | **Missing** | Design doc §12 transport. |
+Painted through `terrain_tileset.tres` (61 texture sources) by `TerrainPainter` / `StructurePainter`.
+
+### Landscape — **Placeholder**
+
+`dirt` `grass` `hill` `ice` `road` `sand` `snow` `stone_floor` `water` `water_ice` (132×99, Kenney Isometric Landscape, CC0). All ten are in the tileset. Still stock: flat colour, no edge transitions, no marsh or muskeg ground, no rock. `road.png` is new since the last pass.
+
+### Buildings — **Placeholder**
+
+30 wall/door/window/fence/floor/roof tiles, all Kenney (CC0). Generic European stone and plaster where York Factory wants squared log and whitewashed plank; the palisade is still fenced rather than stockaded. The 8 directional `roof_*` / `roof_corner_*` tiles remain **unwired** — only flat `roof.png` is in the tileset.
+
+### Furniture — mixed
+
+`bed` `candle_stand` `chair` `display_case` `rug` `shelf` `shelf_tall` `table` `table_chairs` are Kenney **Placeholder** and in the tileset. `stove.png` and `writing_desk.png` are new game art but **cut, unwired** — neither is in `terrain_tileset.tres`.
+
+### Props — 37 files, 12 wired
+
+In the tileset: `campfire` `crate` `fur_bale` `hay_bales` `hearth_left` `hearth_right` `ladder` `spruce_0/1/2` `tipi` `woodpile`.
+
+**Cut but unwired (25):** `beaver_dam` `beaver_lodge` `boulder` `cache` `cannon` `canoe_beached` `dead_tree` `drying_rack` `fish_trap` `flagstaff` `fur_press` `grave` `hide_frame` `ice_hole` `leg_trap` `muskeg_pool` `pelt_frame` `reeds` `rocks` `sled` `snowdrift` `tamarack` `willow` `willow_winter` `woodpile_winter`.
+
+This is the largest single block of finished-but-invisible art in the project. Many back live systems — `leg_trap` and `fish_trap` for trapping and fishing, `ice_hole` for winter fishing, `beaver_lodge`/`beaver_dam` for the beaver ecology, `grave` for deaths, `pelt_frame`/`drying_rack`/`fur_press` for the fur economy. Adding them to `terrain_tileset.tres` and giving `StructurePainter` placement rules would change how the world reads more than any new art would.
 
 ---
 
-## 6. Drawn in code (no art file)
+## 5. Vehicles
 
-These are rendered with `DrawRect`, `PointLight2D` or `GradientTexture2D` and would benefit from real art:
+| Asset | File | Status |
+|---|---|---|
+| Canoe | `sprites/canoe.png` | **Final** — loaded by `PlayerController.cs:71`, `Canoe.cs` |
+| Supply ship | `sprites/ship.png` | **Final** — loaded by `Ship.cs` |
+| Loaded canoe | `sprites/vehicles/canoe_loaded.png` | **Cut, unwired** |
+| York boat | `sprites/vehicles/york_boat.png` (400×130) | **Cut, unwired** |
+| Dog sled | `sprites/vehicles/dog_sled.png` | **Cut, unwired** |
 
-- **Fire / blaze** (`Blaze.cs`) — reuses `campfire.png` scaled and tinted plus a light. Needs a spreading-fire sheet, smoke, charred tiles.
-- **Hearth glow** (`Hearth.cs`) — radial gradient light only.
-- **Muzzle flash** (`CombatFx.cs`) — light only. No projectile, no smoke, no blood/hit.
-- **Health bar** (`HealthBar.cs`), **ready bar** (`ReadyBar.cs`) — rectangles.
-- **Map panel** (`MapPanel.cs`) — coloured squares on a base texture; no proper map art, no icons for fort/post/camp.
-- **Main menu background** (`MainMenu.cs`) — flat `ColorRect`.
-- **Day/night** (`WorldAtmosphere.cs`) — `CanvasModulate` only; no stars, aurora, snowfall, rain, fog.
+All three unwired vehicles correspond to transport modes in design doc §12 that the code does not model yet.
 
 ---
 
-## 7. UI
+## 6. UI (`assets/ui/`)
 
-**All missing.** Every panel (Hotbar, NeedsHud, CalendarHud, DialogueMenu, JournalPanel, MapPanel, HelpPanel, PauseMenu, NoticeLog, ChatBox, DebugMenu) uses Godot's default theme and `ThemeDB.FallbackFont`. Needed:
+| Asset | Status |
+|---|---|
+| `icon.png` (256×256) | **Final** — set as `config/icon`, replaces the Godot logo |
+| `menu_background.jpg` | **Final** — used by `MainMenu.tscn` |
+| `needs/` — 12 icons at 48×48 | **Partly wired.** `NeedsHud.cs:47` builds the path from the row name, and `Rows` holds only four: Health, Warmth, Food, Water. So `cold` `drunk` `fatigue` `fever` `load` `scurvy` `standing` `wounded` are cut and unused — eight icons waiting on eight HUD rows for states the sim already tracks. |
+| `crests/` — hbc, nwc, cree, assiniboine | **Cut, unwired.** Nothing loads a crest. Natural homes: the journal panel, dialogue headers, the map, the standing display. |
 
-- A theme (`.tres`): panel backgrounds, buttons, scrollbars.
-- A period-appropriate font (and a readable pixel/UI font).
-- Icons for needs (hunger, thirst, cold, fatigue, intoxication, health, fever).
-- Faction crests (HBC, NWC, Cree band), rank insignia.
-- Cursor(s).
-- Window icon — `icon.svg` is still the Godot default logo. Needs replacing before export (Windows and macOS presets both pick it up).
+No `.theme`, `.ttf` or `.otf` file exists in the repo, so there is nothing to catalogue here; six call sites fall back to `ThemeDB.FallbackFont` (`MapPanel`, `TravelMode`, `Wayfinding`, `NpcSpawn`, `PostSign`, `WildlifeSite`). Prompts: `asset-prompts.md` §5.
 
-`external/Assets/IsometricTRPGAssetPack_UI.png` is an unused stock UI sheet that could be a temporary theme.
+---
+
+## 7. Still drawn in code, no art file
+
+- **Fire / blaze** (`Blaze.cs`) — tinted, scaled `campfire.png` plus a `PointLight2D`. No spreading-fire frames, no smoke, no scorched ground.
+- **Hearth glow** (`Hearth.cs`) — radial `GradientTexture2D` light.
+- **Muzzle flash** (`CombatFx.cs`) — light only; no projectile, smoke, or blood.
+- **Health bar / ready bar** — `DrawRect`.
+- **Map panel** (`MapPanel.cs`) — draws `Data/World/ground.png` with coloured squares for posts; the four crests would fit here.
+- **Day/night and weather** (`WorldAtmosphere.cs`) — `CanvasModulate` only. No snowfall, rain, fog, stars or aurora despite `SkyState` having Snow, Blizzard, Rain and Storm.
+- **World labels** (`PostSign.cs`, `NpcSpawn.cs`, `WildlifeSite.cs`) — fallback-font text.
 
 ---
 
@@ -153,43 +179,57 @@ What plays when, and what's still wanted, is in `audio-prompts.md` under **In th
 
 ---
 
-## 9. Scenes referenced but absent
+## 9. Scenes
 
-`GameManager.cs` maps start locations to `res://Scenes/World/FortWilliamExterior.tscn` and `res://Scenes/World/FortGarryExterior.tscn`. Neither scene exists; only `YorkFactoryExterior.tscn` does. Choosing those starts will crash. These need scenes and, for Fort William, a whole set of Great-Hall / palisade / Montreal-style art.
+`Scenes/World/` contains one scene: `YorkFactoryExterior.tscn`. `GameManager.cs:26-27` also maps start locations to `FortWilliamExterior.tscn` and `FortGarryExterior.tscn`, **neither of which exists** — picking either start crashes. Unchanged since the last inventory.
 
 ---
 
-## 10. External packs on disk (`assets/external/`, 5,343 tracked files)
+## 10. External packs (`assets/external/`)
 
-All committed to git; most of it is not referenced by anything.
+5,343 files, all committed. The Gemini pass means much less of this is load-bearing than before.
 
 | Pack | Files | Licence | Used? |
 |---|---|---|---|
-| `kenney_isometric-landscape` | 130 | CC0 | Yes — copied into `tiles/landscape` |
-| `kenney_isometric-buildings` | 132 | CC0 | Yes — copied into `tiles/buildings` |
+| `kenney_isometric-landscape` | 130 | CC0 | Yes — terrain tiles |
+| `kenney_isometric-buildings` | 132 | CC0 | Yes — wall/door/fence tiles |
 | `kenney_isometric-miniature-library` | 291 | CC0 | Partly — furniture |
-| `kenney_isometric-miniature-farm` | 459 | CC0 | Partly — hay bales, crate |
+| `kenney_isometric-miniature-farm` | 459 | CC0 | Partly — crate, hay bales |
 | `kenney_isometricDungeon` (+ .zip) | 747 | CC0 | No |
 | `kenney_isometricPrototypeTiles` (+ .zip) | 651 | CC0 | No |
-| `critters/wolf`, `critters/stag` | 30 | check pack licence | Yes — copied into `sprites/animals` |
-| `critters/badger`, `critters/boar` | 80 | check pack licence | No |
-| `isometric tileset/separated images` | 116 | unknown | No |
-| `Assets/` (IsometricTRPG pack, 5 sheets) | 5 | unknown | No |
-| `pioneerpixel_hbc_trader` | 11 JPG | source sheets for character cuts | Yes — origin of all human sprites |
+| `critters/` (wolf, stag, badger, boar) | 110 | **no licence file** | No longer — superseded by the new animal sheets |
+| `isometric tileset/separated images` | 116 | **no licence file** | No |
+| `Assets/` (IsometricTRPG, 5 sheets) | 5 | **no licence file** | No |
+| `pioneerpixel_hbc_trader` | 11 JPG | own work | Yes — style reference for every Gemini prompt; keep |
 
-Housekeeping: the two `.zip` files and the unused packs (dungeon, prototype tiles, `isometric tileset`, `Assets/`) add ~1,500 files to the repo and to the Godot import scan. Consider moving them out of `assets/` or adding a `.gdignore`. The `critters`, `isometric tileset` and `Assets/` packs have no licence file in the repo — track down and record their terms before shipping.
+**Housekeeping.** `critters/` is now fully superseded and can go. With the dungeon, prototype-tile, `isometric tileset` and `Assets/` packs that's roughly 1,600 files and two `.zip`s that nothing uses, all scanned by Godot on every import. Moving them out of `assets/` or adding a `.gdignore` would speed up imports. The three packs with no licence file still need their terms recorded before any release.
 
 ---
 
-## Priority list
+## Wiring backlog — finished art the game does not load
 
-1. `icon.svg` — replace the Godot logo (blocks a clean export).
-2. Water barrel prop — core survival object, invisible today.
-3. Death frames for cree, cree_woman, rival; side-walk for player and rival.
-4. Voyageur and HBC-woman sheets (stop tinting).
-5. UI theme + font + needs icons.
-6. Any audio at all — footsteps, fire, wind, musket.
-7. Log-wall / palisade tile set to replace Kenney stone.
-8. Beaver and goose with real animation; hare and fish in the world.
-9. Fort William and Fort Garry scenes (or remove the start options).
-10. Licences for `critters`, `isometric tileset`, `Assets/`.
+**No new art is needed for anything on this list.** Every file below is already drawn, imported and sitting in the repo; each item is a code change. This is where the cheapest visible improvement in the project currently sits — roughly 150 finished files are invisible at runtime.
+
+| # | Job | Files it brings in | Where |
+|---|---|---|---|
+| 1 | Add the 25 unwired props as tileset sources with placement rules — traps, ice holes, beaver lodges, graves, pelt frames, flagstaff, cannon | 25 | `terrain_tileset.tres`, `StructurePainter.cs` |
+| 2 | Add `Hare` and `Ptarmigan` entries pointing at the existing `.tres` files. (All six animal folders were sitting un-imported until 2026-10-11 — every png had no `.import` and the frame resources failed to parse, throwing 744 errors a run; `--headless --path . --import` fixed that, so the art is genuinely ready now.) | 208 frames | `Ecology/Species.cs` |
+| 3 | Extend `Rows` to the eight unused need icons (cold, fever, fatigue, drunk, scurvy, wounded, load, standing) — all already simulated | 8 | `UI/NeedsHud.cs:20` |
+| 4 | Season-switch the `summer_*` animations on hare and ptarmigan | — | `Agents/Animal.cs` |
+| 5 | Spawn voyageurs with `VoyageurFrames` instead of `RivalFrames` | — | `Core/Starts.cs:159` |
+| 6 | Load the four faction crests somewhere — journal, dialogue header, map, standing display | 4 | `UI/` |
+| 7 | Add `stove.png` and `writing_desk.png` to the tileset | 2 | `terrain_tileset.tres` |
+| 8 | Use `york_boat`, `dog_sled`, `canoe_loaded` once those transport modes exist | 3 | `World/` |
+| 9 | Give the orphan frames `.tres` rows (`musket_ready` ×2, `player/idle_back`, `sneak_back_3`, `assiniboine/shoot_*`) | 7 | `Scenes/*/`*`Frames.tres` |
+| 10 | Wire the 15 item icons that have no `ItemId` | 15 | `Items/Items.cs` |
+| 12 | Draw the three borrowed food icons (berries, spruce beer, corn) — the only `ItemId`s without art of their own | 3 | `asset-prompts.md` 5.5.1 |
+| 13 | Berry bushes as a gatherable prop, and Mandan earth lodges for the three Missouri towns, which are farming towns in code and drawn as plains tipis | — | `asset-prompts.md` 5.5.2-3 |
+| 11 | Add the 8 directional `roof_*` tiles, or delete them | 8 | `terrain_tileset.tres` |
+
+## Repo hygiene
+
+- Delete the 20 superseded loose PNGs in `assets/sprites/animals/*.png` — replaced by the per-species folders, referenced by nothing.
+- Delete `assets/external/critters/` (110 files) — fully superseded by the new animal sheets.
+- Consider a `.gdignore` on, or removal of, the unused external packs (`kenney_isometricDungeon`, `kenney_isometricPrototypeTiles`, `isometric tileset`, `Assets/`) and the two `.zip`s: ~1,600 files Godot scans on every import for no benefit.
+- Record licences for `critters/`, `isometric tileset/` and `Assets/` before any release, or remove them.
+- Build the two missing world scenes, or gate those start options so they cannot crash.
