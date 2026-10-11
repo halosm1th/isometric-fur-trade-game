@@ -115,6 +115,7 @@ public partial class PlayerController : Agent
 	public Core.StartPath StartPath = Core.StartPath.HBC;
 	public string BackgroundTitle = "";
 	public readonly List<string> KinNames = new();
+	public string HomeCamp = "";   // born to one of the country's band camps (World/Camps), if any
 	public string LastYearStory = "";   // Core/YearStory: the last year as it will be told
 
 	// Set down somewhere by the host (a new character's start, Core/Starts):

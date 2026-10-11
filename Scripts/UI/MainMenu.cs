@@ -315,6 +315,7 @@ public partial class MainMenu : Control
         Core.CharacterSheet.Traits.Clear();
         if (bits.Length > 2) foreach (var t in bits[2].Split(',', System.StringSplitOptions.RemoveEmptyEntries)) Core.CharacterSheet.Traits.Add(t);
         Core.CharacterSheet.Ambition = bits.Length > 3 && System.Enum.TryParse<Agents.AmbitionKind>(bits[3], true, out var a) ? a : Agents.AmbitionKind.None;
+        Core.CharacterSheet.Camp = bits.Length > 4 ? bits[4] : "";
         return Core.CharacterSheet.Encode();
     }
 

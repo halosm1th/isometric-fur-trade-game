@@ -277,7 +277,7 @@ public static class SaveGame
             var d = AgentCommon(n);
             d["role"] = (int)n.Role; d["female"] = n.IsFemale; d["fatherName"] = n.FatherName;
             d["bed"] = new GArr { n.BedCell.X, n.BedCell.Y }; d["work"] = new GArr { n.WorkCell.X, n.WorkCell.Y };
-            d["home"] = n.HomeStores == Sim.Fort ? "fort" : n.HomeStores == Sim.Nwc ? "nwc" : n.HomeStores == Sim.Band ? "band" : n.HomeStores == Sim.Outpost ? "outpost" : n.HomeStores == Sim.Assiniboine ? "assiniboine" : "";
+            d["home"] = HomeKey(n.HomeStores);
             d["frames"] = n.FramesPath; d["tint"] = n.Tint.ToHtml(); d["scale"] = n.SpriteScale;
             var p = n.Personality;
             d["personality"] = new GArr { p.Loyalty, p.Talkative, p.Suspicion, p.Ambition, p.Courage };
@@ -309,7 +309,7 @@ public static class SaveGame
             var house = new GArr();
             foreach (var f in p.House) house.Add(new GDict { ["name"] = f.Name, ["born"] = f.Born, ["died"] = f.Died, ["rank"] = f.Rank, ["end"] = f.End, ["did"] = f.Did });
             d["house"] = house; d["married"] = p.MarriedOnDay;
-            d["path"] = (int)p.StartPath; d["background"] = p.BackgroundTitle; d["kin"] = string.Join("|", p.KinNames); d["yearStory"] = p.LastYearStory;
+            d["path"] = (int)p.StartPath; d["background"] = p.BackgroundTitle; d["kin"] = string.Join("|", p.KinNames); d["yearStory"] = p.LastYearStory; d["camp"] = p.HomeCamp;
             d["ambitions"] = ambs; d["tasksDone"] = p.TasksDone; d["tasksRefused"] = p.TasksRefused; d["privateMb"] = p.PrivateWorthMb; d["ambDeclared"] = p.AmbitionsDeclared;
             d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["tongue2"] = p.AssiniboineFluency; d["authorized"] = p.AuthorizedAcrossUntilDay; d["inland"] = p.PostedInland; d["captive"] = p.CaptiveOf == Sim.Nwc ? "nwc" : p.CaptiveOf == Sim.Fort ? "fort" : ""; d["captiveUntil"] = p.CaptiveUntilDay; d["parole"] = p.ParoleUntilDay; d["paroleTo"] = (int)p.ParoleTo; d["paroleConfessed"] = p.ParoleConfessed;
             d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline;
@@ -482,7 +482,7 @@ public static class SaveGame
             foreach (var nv in d["npcs"].AsGodotArray())
             {
                 var nd = nv.AsGodotDictionary();
-                Household home = S(nd, "home") switch { "fort" => Sim.Fort, "nwc" => Sim.Nwc, "band" => Sim.Band, "outpost" => Sim.Outpost, "assiniboine" => Sim.Assiniboine, _ => null };
+                Household home = HomeOf(S(nd, "home"));
                 var frames = GD.Load<SpriteFrames>(S(nd, "frames", "res://Scenes/Player/PlayerFrames.tres"));
                 var npc = pop.Spawn(S(nd, "name"), (Role)I(nd, "role"), (Faction)I(nd, "faction"), CellOf(nd["bed"].AsGodotArray()), CellOf(nd["work"].AsGodotArray()), home, frames, Color.FromHtml(S(nd, "tint", "ffffff")), F(nd, "scale", 0.8f), B(nd, "female"));
                 LoadAgentCommon(npc, nd);
@@ -559,7 +559,7 @@ public static class SaveGame
         p.House.Clear();
         if (d.ContainsKey("house")) foreach (var hv in d["house"].AsGodotArray()) { var hd = hv.AsGodotDictionary(); p.House.Add(new Forebear { Name = S(hd, "name"), Born = I(hd, "born"), Died = I(hd, "died"), Rank = S(hd, "rank", "labourer"), End = S(hd, "end"), Did = S(hd, "did") }); }
         p.MarriedOnDay = I(d, "married", -1);
-        p.StartPath = (Core.StartPath)I(d, "path"); p.BackgroundTitle = S(d, "background"); p.LastYearStory = S(d, "yearStory");
+        p.StartPath = (Core.StartPath)I(d, "path"); p.BackgroundTitle = S(d, "background"); p.LastYearStory = S(d, "yearStory"); p.HomeCamp = S(d, "camp");
         p.KinNames.Clear(); foreach (var k in S(d, "kin").Split('|', System.StringSplitOptions.RemoveEmptyEntries)) p.KinNames.Add(k);
         p.Ambitions.Clear();
         if (d.ContainsKey("ambitions")) foreach (var av in d["ambitions"].AsGodotArray()) { var ad = av.AsGodotDictionary(); p.Ambitions.Add(new Ambition { Kind = (AmbitionKind)I(ad, "kind"), DeclaredDay = I(ad, "day"), DeclaredYear = I(ad, "year"), Best = F(ad, "best"), Abandoned = B(ad, "abandoned") }); }

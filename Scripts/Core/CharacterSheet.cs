@@ -12,7 +12,7 @@ namespace IsometricFurTradeGame.Scripts.Core;
 // mean to make of themselves. Not a second stat system: every choice sets
 // the same skills, tongues, kit, standing, kin and ambitions any agent has.
 // Chosen on the new-game page; travels to the host with the player's name.
-public enum StartPath { HBC, NWC, Cree, Assiniboine }
+public enum StartPath { HBC, NWC, Cree, Assiniboine, Nation }
 
 public record BackgroundDef(string Title, string Blurb, Action<Player.PlayerController> Apply);
 public record TraitDef(string Id, string Title, string Blurb, Action<Player.PlayerController> Apply);
@@ -23,6 +23,8 @@ public static class CharacterSheet
     public static int Background;
     public static readonly List<string> Traits = new();
     public static AmbitionKind Ambition = AmbitionKind.None;
+    // For StartPath.Nation: which of the country's band camps (World/Camps) you were born to.
+    public static string Camp = "";
     public const int MaxTraits = 2;
 
     public static string PathTitle(StartPath p) => p switch
@@ -31,6 +33,7 @@ public static class CharacterSheet
         StartPath.NWC => "The North West Company - up with the summer brigade",
         StartPath.Cree => "The Cree (Ininiwak) - born to the band by the Bay",
         StartPath.Assiniboine => "The Assiniboine (Nakoda) - born to the band upland",
+        StartPath.Nation => "Another people of the country - born to a band of your choosing",
         _ => "",
     };
 
@@ -40,10 +43,20 @@ public static class CharacterSheet
         StartPath.NWC => "You come up the river in a canot du nord with the brigade from Fort William, to winter at the partner's house across from the Bay men. Mobile, stretched thin, and ruled by the partners in council.",
         StartPath.Cree => "You are of the band that hunts the lowlands and trades at the Bay. Your family, your hunting grounds, and two companies who want your furs.",
         StartPath.Assiniboine => "You are of the band that winters upland and brings pemmican and furs down to the posts. Your kin, your horses' country far west, and traders who need what you have.",
+        StartPath.Nation => "Ojibwe, Dene, Blackfoot, Sioux, the Plateau and Coast peoples, the Missouri nations: any band camp in the country, far from York and the Pemmican War, with the traders of your own country's posts.",
         _ => "",
     };
 
-    public static bool IsBand(StartPath p) => p is StartPath.Cree or StartPath.Assiniboine;
+    public static bool IsBand(StartPath p) => p is StartPath.Cree or StartPath.Assiniboine or StartPath.Nation;
+
+    // The band camps a player can be born to under "another people", by nation.
+    public static List<World.CountryCamp> NationCamps()
+    {
+        var list = new List<World.CountryCamp>();
+        foreach (var c in World.Camps.All) if (c.Kind == "band") list.Add(c);
+        list.Sort((a, b) => a.Nation != b.Nation ? a.Nation.CompareTo(b.Nation) : string.Compare(a.Name, b.Name, StringComparison.Ordinal));
+        return list;
+    }
 
     // ---- backgrounds -----------------------------------------------------------------
 
@@ -94,7 +107,7 @@ public static class CharacterSheet
 
     // ---- the sheet on the wire ---------------------------------------------------------
 
-    public static string Encode() => $"{(int)Path}|{Background}|{string.Join(",", Traits)}|{(int)Ambition}";
+    public static string Encode() => $"{(int)Path}|{Background}|{string.Join(",", Traits)}|{(int)Ambition}|{Camp}";
 
     // Set the player up from a sheet, on the host. Empty or bad = the old
     // default (an HBC labourer), so dev args and older clients still work.
@@ -109,10 +122,15 @@ public static class CharacterSheet
             foreach (var t in parts[2].Split(',', StringSplitOptions.RemoveEmptyEntries)) if (traits.Count < MaxTraits) traits.Add(t);
             if (int.TryParse(parts[3], out int ai) && Enum.IsDefined(typeof(AmbitionKind), ai)) amb = (AmbitionKind)ai;
         }
+        string campName = parts.Length >= 5 ? parts[4] : "";
+        var camp = path == StartPath.Nation ? World.Camps.Named(campName) : null;
+        if (path == StartPath.Nation && camp == null) path = StartPath.Cree;   // no such camp: the band by the Bay
+        pc.HomeCamp = camp?.Name ?? "";
         pc.StartPath = path;
-        pc.Faction = path switch { StartPath.NWC => Faction.NWC, StartPath.Cree => Faction.Cree, StartPath.Assiniboine => Faction.Assiniboine, _ => Faction.HBC };
+        pc.Faction = path switch { StartPath.NWC => Faction.NWC, StartPath.Cree => Faction.Cree, StartPath.Assiniboine => Faction.Assiniboine, StartPath.Nation => camp.Nation, _ => Faction.HBC };
         if (path == StartPath.Cree) pc.CreeFluency = 1f;
         if (path == StartPath.Assiniboine) { pc.AssiniboineFluency = 1f; pc.CreeFluency = Mathf.Max(pc.CreeFluency, 0.3f); }
+        if (path == StartPath.Nation) { pc.CreeFluency = camp.Nation == Faction.Ojibwe ? 0.6f : 0.15f; pc.AssiniboineFluency = camp.Nation is Faction.Sioux ? 0.6f : 0.1f; Family(pc, camp); }
         if (IsBand(path))
         {
             // Born to it: a family in the camp, your own kit, nothing of the Company's.
@@ -153,7 +171,56 @@ public static class CharacterSheet
         foreach (var n in pc.KinNames) k.Add(n);
     }
 
-    public static Economy.BandLedger BandOf(Player.PlayerController pc) => pc.Faction == Faction.Assiniboine ? Sim.Assiniboine : Sim.Band;
+    public static Economy.BandLedger BandOf(Player.PlayerController pc) =>
+        pc.HomeCamp != "" && World.Camps.Named(pc.HomeCamp)?.Ledger is Economy.BandLedger cb ? cb : pc.Faction == Faction.Assiniboine ? Sim.Assiniboine : Sim.Band;
+
+    // A camp out in the country has its lodges but nobody named in them yet:
+    // a player born there comes with a family - an elder, a woman of the
+    // lodge, a cousin - who are as real as anyone at York from then on.
+    private static readonly Dictionary<Faction, string[]> _men = new()
+    {
+        [Faction.Ojibwe] = new[] { "Makwa", "Ogimaa-binesi", "Waabooz", "Ma'iingan" },
+        [Faction.Dene] = new[] { "Akaitcho", "Keskarrah", "Yahtay", "Datsan" },
+        [Faction.Blackfoot] = new[] { "Natoyist", "Apisomakau", "Ksiinaa", "Omahkai'stoo" },
+        [Faction.Sioux] = new[] { "Mato Sapa", "Wanbli", "Tatanka Najin", "Sunka Wakan" },
+        [Faction.Plateau] = new[] { "Hiyumtipin", "Wewukiye", "Kiyiyah", "Tamootsin" },
+        [Faction.Coast] = new[] { "Comcomly", "Shelathwell", "Kesno", "Taucum" },
+        [Faction.Missouri] = new[] { "Sheheke", "Kakoakis", "Mato Tope", "Posecopsahe" },
+        [Faction.Cree] = new[] { "Kiskiman", "Paskwaw", "Mahkesis", "Sakimay" },
+        [Faction.Assiniboine] = new[] { "Iyahe", "Ptehan", "Hunka", "Mato Ska" },
+    };
+    private static readonly Dictionary<Faction, string[]> _women = new()
+    {
+        [Faction.Ojibwe] = new[] { "Ozhaawashko-giizhigookwe", "Nookomis" }, [Faction.Dene] = new[] { "Thanadelthur", "Ttheda" },
+        [Faction.Blackfoot] = new[] { "Sikapiaki", "Natawista" }, [Faction.Sioux] = new[] { "Winona", "Tasina" },
+        [Faction.Plateau] = new[] { "Wetxuwiis", "Kawsis" }, [Faction.Coast] = new[] { "Kaclasko", "Illchee" },
+        [Faction.Missouri] = new[] { "Sakakawea", "Mahtowi" }, [Faction.Cree] = new[] { "Iskwesis", "Wapun" }, [Faction.Assiniboine] = new[] { "Winyan", "Ptesan" },
+    };
+
+    private static void Family(Player.PlayerController pc, World.CountryCamp camp)
+    {
+        var pop = pc.GetTree().GetFirstNodeInGroup("population") as World.Population;
+        if (pop == null || camp.Ledger == null) return;
+        int living = 0;
+        foreach (var n in Sim.Npcs) if (!n.IsDead && n.HomeStores == camp.Ledger) living++;
+        if (living >= 2) return;   // the camp has its people (placed in the editor): your kin are among them
+        bool plains = camp.Nation is Faction.Blackfoot or Faction.Sioux or Faction.Assiniboine or Faction.Missouri;
+        var manFrames = GD.Load<SpriteFrames>(plains ? "res://Scenes/Npc/AssiniboineFrames.tres" : "res://Scenes/Npc/CreeFrames.tres");
+        var womanFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/CreeWomanFrames.tres");
+        var men = _men.GetValueOrDefault(camp.Nation, _men[Faction.Cree]);
+        var women = _women.GetValueOrDefault(camp.Nation, _women[Faction.Cree]);
+        var c = camp.Centre;
+        var elder = pop.Spawn(men[0], Role.CreeHunter, camp.Nation, World.IsoGrid.Cell(c, 1, 2), World.IsoGrid.Cell(c, 2, 1), camp.Ledger, manFrames, Colors.White);
+        var woman = pop.Spawn(women[0], Role.CreeWoman, camp.Nation, World.IsoGrid.Cell(c, 2, 2), World.IsoGrid.Cell(c, 1, 1), camp.Ledger, womanFrames, Colors.White, 0.8f, true);
+        var cousin = pop.Spawn(men[1], Role.CreeHunter, camp.Nation, World.IsoGrid.Cell(c, 3, 2), World.IsoGrid.Cell(c, 3, 1), camp.Ledger, manFrames, Colors.White);
+        elder.Age = GD.RandRange(42, 55); cousin.Age = GD.RandRange(17, 24);
+        elder.Spouse = woman; woman.Spouse = elder;
+        foreach (var n in new[] { elder, cousin }) { n.Inventory.Add(ItemId.Bow); n.Inventory.Add(ItemId.Knife); n.Inventory.Add(ItemId.DriedMeat, 3); n.Skills.Seed(0.6f, 0.5f, 0.3f, 0.5f); }
+        woman.Inventory.Add(ItemId.Kettle); woman.Inventory.Add(ItemId.DriedMeat, 3);
+        camp.Ledger.Stores.Add(ItemId.DriedMeat, 20); camp.Ledger.Stores.Add(ItemId.Firewood, 12); camp.Ledger.Stores.Add(ItemId.BeaverPelt, 4);
+        camp.Ledger.Leader ??= elder;
+        foreach (var n in new[] { elder, woman, cousin }) Bind(pc, n, 50f);
+    }
 
     private static void Kin(Player.PlayerController pc, Economy.Household home, int count, float regard)
     {

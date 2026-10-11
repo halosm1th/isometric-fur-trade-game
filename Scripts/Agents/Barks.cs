@@ -389,7 +389,8 @@ public static class Barks
     }
 
     // "Mr. Auld" for gentlemen, the first name for everyone else.
-    public static string CallName(Agent a) => CallName(a?.DisplayName ?? "");
+    // The people of the nations go by their whole name ("Big Fox"), not the first word of it.
+    public static string CallName(Agent a) => a != null && a.IsBandPerson ? System.Text.RegularExpressions.Regex.Replace(a.DisplayName ?? "", @"\s*\([^)]*\)", "") : CallName(a?.DisplayName ?? "");
     public static string CallName(string n)
     {
         n = (n ?? "").Replace(" (clerk)", "").Replace(" (chief)", "").Replace(" (acting Factor)", "");

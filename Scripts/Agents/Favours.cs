@@ -89,7 +89,7 @@ public static class Favours
         string who = Barks.CallName(p);
         (f.Ask, f.Short) = kind switch
         {
-            FavourKind.TradeForKin => ("Take the furs to the Bay house and bring back a kettle and some goods. Don't let them cheat you.", $"bring {Barks.CallName(n)} a kettle for the furs"),
+            FavourKind.TradeForKin => ($"Take the furs {target ?? "down to the Bay house"} and bring back a kettle and some goods. Don't let them cheat you.", $"bring {Barks.CallName(n)} a kettle for the furs"),
             FavourKind.FreshMeat => ($"My gums are going, {who}. Bring me something fresh - a goose, a fish, a bit of venison. I'd not ask if I could go myself.", $"bring {Barks.CallName(n)} fresh meat"),
             FavourKind.CoverWork => ("I've the fever and the woodpile won't fill itself. Bring four armfuls of firewood to our pile for me?", $"stack four firewood on {Barks.CallName(n)}'s woodpile"),
             FavourKind.SpeakForCourting => ($"You've the ear of {Barks.CallName(target)}. Speak for me - tell him I'd be a good husband to his daughter. He won't hear it from me.", $"speak for {Barks.CallName(n)} to {Barks.CallName(target)}"),
@@ -102,6 +102,15 @@ public static class Favours
         if (All.Count > 60) All.RemoveAt(0);
         return f;
     }
+
+    // Where an elder means his furs to go (the camp prologue knows; the favour is asked there).
+    public static void SetTradeTarget(Npc n, Agent p, string toPost)
+    {
+        foreach (var f in All) if (f.Asker == n && f.Player == p.DisplayName && f.Kind == FavourKind.TradeForKin && !f.Done) { f.Target = toPost; f.Ask = $"Take the furs {toPost} and bring back a kettle and some goods. Don't let them cheat you."; }
+        _tradeTarget[(n, p.DisplayName)] = toPost;
+    }
+    private static readonly Dictionary<(Npc, string), string> _tradeTarget = new();
+    public static string TradeTargetFor(Npc n, Agent p) => _tradeTarget.GetValueOrDefault((n, p.DisplayName));
 
     // ---- doing it ---------------------------------------------------------------------------
 

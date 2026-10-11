@@ -195,30 +195,40 @@ public static class Starts
         var centre = band != null ? band.AccessCell : WorldLayout.CampCentre;
         Place(p, IsoGrid.ToWorld(centre) + new Vector2(50, 40));
         Npc elder = null, cousin = null;
-        foreach (var n in Sim.Npcs) if (!n.IsDead && p.KinNames.Contains(n.DisplayName)) { if (elder == null && !n.IsFemale) elder = n; else if (cousin == null) cousin = n; }
+        foreach (var n in Sim.Npcs) if (!n.IsDead && !n.IsFemale && p.KinNames.Contains(n.DisplayName)) { if (elder == null) elder = n; else if (cousin == null) cousin = n; }
+        if (cousin == null) foreach (var n in Sim.Npcs) if (!n.IsDead && n != elder && p.KinNames.Contains(n.DisplayName)) { cousin = n; break; }
         elder ??= band?.Leader;
         string e = elder != null ? Agents.Barks.CallName(elder) : "your uncle", c = cousin != null ? Agents.Barks.CallName(cousin) : "your cousin";
         string factor = Clean(Sim.Fort?.Leader?.DisplayName) ?? "the Bay men's master";
         string partner = Clean(Sim.Nwc?.Leader?.DisplayName) ?? "the Canadian";
-        string people = p.Faction == Faction.Assiniboine ? "Assiniboine" : "Cree";
+        string people = World.Camps.NationName(p.Faction);
+        // By the Bay, or out in the country with its own traders (World/Camps).
+        var camp = World.Camps.Named(p.HomeCamp);
+        string post = camp != null && !string.IsNullOrEmpty(camp.Post) ? camp.Post : "the nearest post";
+        string where = camp != null ? $"stand at {camp.Name}, far from the Bay" : "stand on the trail by the Bay men's house for the trading";
+        string toPost = camp != null ? $"down to {post}" : "down to the Bay house";
+        string kegMan = camp != null ? $"A trader's man from {post}" : "A Canadian from across the river";
+        if (camp != null) { factor = $"The master at {post}"; partner = $"The master at {post}"; }
+        string arrive = camp != null ? $"The day is yours. {char.ToUpper(post[0]) + post.Substring(1)} is days away; your own country is all around you." : "The day is yours. The Bay men's house is a short walk down the trail; the Canadians' across the river.";
+
         var seen = new HashSet<string>();
         ScenePage Hub()
         {
             var hub = new ScenePage { Title = "Morning in the summer camp", Text = seen.Count == 0
-                ? $"June. The {people} lodges stand on the trail by the Bay men's house for the trading. Smoke, dogs, children at the river. {e} is sitting outside his lodge with the winter's furs bundled at his feet. {c} is restringing a bow. A Canadian from across the river has come into the camp with a keg."
+                ? $"June. The {people} lodges {where}. Smoke, dogs, children at the river. {e} is sitting outside his lodge with the winter's furs bundled at his feet. {c} is restringing a bow. {kegMan} has come into the camp with a keg."
                 : "The camp goes about its morning." };
             if (!seen.Contains("elder")) hub.Add($"Sit with {e}", () => { seen.Add("elder"); return Elder(); });
             if (!seen.Contains("cousin")) hub.Add($"Go with {c} to look at the snares", () => { seen.Add("cousin"); return Cousin(); });
-            if (!seen.Contains("keg")) hub.Add("See what the Canadian wants", () => { seen.Add("keg"); return Keg(); });
+            if (!seen.Contains("keg")) hub.Add(camp != null ? "See what the trader's man wants" : "See what the Canadian wants", () => { seen.Add("keg"); return Keg(); });
             hub.Add("Go about the day", () => Arrive());
             return hub;
         }
-        ScenePage Elder() => new ScenePage { Title = e, Text = $"\"Take these down to the Bay house,\" {e} says, pushing the bundle toward you. \"Four good beaver. Bring back powder and a kettle. {factor} will try to give you less than they're worth, and the Canadians will try to give you rum. Don't let either of them make a fool of you.\"" }
+        ScenePage Elder() => new ScenePage { Title = e, Text = $"\"Take these {toPost},\" {e} says, pushing the bundle toward you. \"Four good beaver. Bring back powder and a kettle. {factor} will try to give you less than they're worth, and {(camp != null ? "their men" : "the Canadians")} will try to give you rum. Don't let either of them make a fool of you.\"" }
             .Add("Take the furs", () =>
             {
                 p.Inventory.Add(ItemId.BeaverPelt, 4);
-                if (elder != null) { elder.ChangeRapport(p, 5f); Favours.Ask(elder, p, FavourKind.TradeForKin, 1); }
-                Note(p, $"{e} gave you four beaver to trade at the Bay house for powder and a kettle.");
+                if (elder != null) { elder.ChangeRapport(p, 5f); Favours.Ask(elder, p, FavourKind.TradeForKin, 8, toPost); }
+                Note(p, $"{e} gave you four beaver to take {toPost} for powder and a kettle.");
                 return Hub();
             });
         ScenePage Cousin() => new ScenePage { Title = c, Text = $"Two hares in the snares and a third torn loose by a fox. {c} talks about a girl in the other band and whether her father would ever look at him." }
@@ -227,7 +237,7 @@ public static class Starts
         ScenePage Keg() => new ScenePage { Title = "The Canadian", Text = $"\"{partner} sends his compliments,\" the Canadian says, and pours a cup from the keg. \"There's more where this came from for a man who brings his furs across the river instead of to the Bay house.\"" }
             .Add("Drink with him", () => { p.Inventory.Add(ItemId.Rum, 1); p.Consume(ItemId.Rum); Note(p, $"A Nor'Wester came into the camp with rum from {partner}, for whoever takes their furs across the river."); return Hub(); })
             .Add("Send him away", () => { if (elder != null) elder.ChangeRapport(p, 4f); Note(p, $"You sent {partner}'s man and his keg out of the camp."); return Hub(); });
-        ScenePage Arrive() => new ScenePage { Title = "The summer camp", Text = $"The day is yours. The Bay men's house is a short walk down the trail; the Canadians' across the river." }
+        ScenePage Arrive() => new ScenePage { Title = "The summer camp", Text = arrive }
             .Add("Go", () => null);
         return Hub();
     }
