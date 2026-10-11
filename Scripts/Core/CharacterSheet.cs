@@ -134,11 +134,17 @@ public static class CharacterSheet
         if (IsBand(path))
         {
             // Born to it: a family in the camp, your own kit, nothing of the Company's.
-            pc.Inventory.Remove(ItemId.Capote); pc.Inventory.Remove(ItemId.Tumpline);
-            pc.Inventory.Add(ItemId.HideCoat); pc.Inventory.Add(ItemId.Snowshoes); pc.Inventory.Add(ItemId.DriedMeat, 2);
+            pc.Inventory.Clear();
+            pc.Inventory.Add(ItemId.HideCoat); pc.Inventory.Add(ItemId.Snowshoes); pc.Inventory.Add(ItemId.Knife);
+            pc.Inventory.Add(ItemId.DriedMeat, 4); pc.Inventory.Add(ItemId.Flint); pc.Inventory.Add(ItemId.FishingLine);
+            pc.Inventory.Add(ItemId.Firewood, 2); pc.Inventory.Add(ItemId.SteelTrap, 2);
+            var nation = path == StartPath.Nation && World.Camps.Named(campName) is World.CountryCamp nc ? nc.Nation : path == StartPath.Assiniboine ? Faction.Assiniboine : Faction.Cree;
+            pc.FramesPath = nation is Faction.Assiniboine or Faction.Blackfoot or Faction.Sioux or Faction.Missouri ? "res://Scenes/Npc/AssiniboineFrames.tres" : "res://Scenes/Npc/CreeFrames.tres";
             pc.Rank = "of the band"; pc.Standing = 0f;
             Kin(pc, BandOf(pc), 3, 50f);
         }
+        if (path == StartPath.NWC) pc.FramesPath = "res://Scenes/Npc/RivalFrames.tres";   // the Nor'Westers' red
+        pc.ApplyLook();
         var bgs = BackgroundsFor(path);
         bg = Mathf.Clamp(bg, 0, bgs.Length - 1);
         pc.BackgroundTitle = bgs[bg].Title;

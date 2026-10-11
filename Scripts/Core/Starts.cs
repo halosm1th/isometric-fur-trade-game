@@ -41,7 +41,8 @@ public static class Starts
         if (!chosen) return;
         var pop = p.GetTree().GetFirstNodeInGroup("population") as Population;
         // The first character of a new world sets the season he arrives in.
-        if (firstInWorld && !_worldDated)
+        bool dating = firstInWorld && !_worldDated;
+        if (dating)
         {
             _worldDated = true;
             var cal = GameCalendar.Instance;
@@ -50,13 +51,16 @@ public static class Starts
             {
                 case StartPath.HBC: cal?.SetDate(year, 8, 20, 7f); break;           // the ship's day
                 case StartPath.NWC: cal?.SetDate(year, 7, 12, 7f); break;           // the brigade's day
-                default: cal?.SetDate(year, 6, 10, 7f); Sim.Band?.MoveCamp(WorldLayout.SummerCamp); break;   // the summer camp by the post
+                default: cal?.SetDate(year, 6, 10, 7f); break;   // the summer camp by the post
             }
+            // The bands keep the season the date says: by the post from break-up to freeze-up.
+            bool summer = (cal?.Month ?? 6) is >= 6 and <= 10;
+            foreach (var b in new[] { Sim.Band, Sim.Assiniboine }) if (b != null) b.MoveCamp(summer ? b.SummerGround : b.WinterGround);
         }
         ScenePage first = p.StartPath switch
         {
-            StartPath.HBC => Ship(p, pop),
-            StartPath.NWC => Brigade(p, pop),
+            StartPath.HBC => Ship(p, pop, dating),
+            StartPath.NWC => Brigade(p, pop, dating),
             _ => Camp(p),
         };
         // Open the prologue a moment after the world settles.
@@ -70,10 +74,20 @@ public static class Starts
 
     // ---- the ship ---------------------------------------------------------------------
 
-    private static ScenePage Ship(Player.PlayerController p, Population pop)
+    // The month by name, for a start that doesn't fall on its usual day.
+    private static string Month => (GameCalendar.Instance?.Month ?? 8) switch
     {
-        // The ship comes in: she ties up this morning with you aboard.
-        if (Sim.Ship != null && Sim.Ship.Current == World.Ship.State.Away) { Sim.Ship.Summon(); Sim.Ship.Position = WorldLayout.ShipBerth + new Vector2(300, -80); }
+        1 => "January", 2 => "February", 3 => "March", 4 => "April", 5 => "May", 6 => "June",
+        7 => "July", 8 => "August", 9 => "September", 10 => "October", 11 => "November", _ => "December",
+    };
+
+    private static ScenePage Ship(Player.PlayerController p, Population pop, bool dating)
+    {
+        // The ship comes in: she ties up this morning with you aboard. A man
+        // joining a world already running comes when it is: if the ship isn't
+        // in the roads, he came round from Churchill in the Company's sloop.
+        if (dating && Sim.Ship != null && Sim.Ship.Current == World.Ship.State.Away) { Sim.Ship.Summon(); Sim.Ship.Position = WorldLayout.ShipBerth + new Vector2(300, -80); }
+        bool bySloop = Sim.Ship == null || Sim.Ship.Current is not (World.Ship.State.Arriving or World.Ship.State.Docked);
         var land = IsoGrid.ToWorld(WorldLayout.WharfEnd);
         Place(p, land + new Vector2(-30, 40));
         // Two lads who signed on with you at Stromness.
@@ -101,8 +115,10 @@ public static class Starts
         ScenePage hub = null;
         ScenePage Hub()
         {
-            hub = new ScenePage { Title = "The last day of the crossing", Text = seen.Count == 0
-                ? $"Hudson's Bay, August. Six weeks out of Stromness the Company's ship beats down the low grey coast toward the mouth of the Hayes. {a} and {b}, who signed on with you, lean on the rail beside you. A sailor, {sailor}, has been watching you since breakfast. The mate is on the quarterdeck with his glass."
+            hub = new ScenePage { Title = bySloop ? "The last day aboard the sloop" : "The last day of the crossing", Text = seen.Count == 0
+                ? (bySloop
+                    ? $"Hudson's Bay, {Month}. The Company's sloop from Churchill runs down the coast toward the mouth of the Hayes with you, {a} and {b} aboard - three hands Churchill could spare. A sailor, {sailor}, has been watching you since breakfast. The master is at the tiller with his glass."
+                    : $"Hudson's Bay, {Month}. Six weeks out of Stromness the Company's ship beats down the low grey coast toward the mouth of the Hayes. {a} and {b}, who signed on with you, lean on the rail beside you. A sailor, {sailor}, has been watching you since breakfast. The mate is on the quarterdeck with his glass.")
                 : "The coast is closer. The afternoon wears on." };
             if (!seen.Contains("mates")) hub.Add($"Talk with {a} and {b}", () => { seen.Add("mates"); return Mates(); });
             if (!seen.Contains("sailor")) hub.Add($"See what {sailor} wants", () => { seen.Add("sailor"); return Sailor(); });
@@ -127,14 +143,14 @@ public static class Starts
             .Add("Tell the mate.", () => { p.Standing += 3f; Note(p, $"You told the mate {sailor} was trading brandy on his own account. The Company will think well of it; the crew will not."); return new ScenePage { Title = "The mate", Text = $"The mate takes it down. {sailor} looks at you across the deck for the rest of the day." }.Add("Back", Hub); });
         ScenePage Mate() => new ScenePage { Title = "The mate", Text = $"\"{factor}'s the Factor - an old Bay man, hard but fair, and he'll want you the hour you land. Watch {rival}: he wants the next place going and he'll not thank a new man for crowding him. And keep off the Canadians across the river - {partner}'s people. There's been bad blood since the winter.\"" }
             .Add("Thank him", () => { Note(p, $"The mate's advice: report to {factor} at once; {rival} wants the next place going; keep clear of {partner}'s Nor'Westers."); return Hub(); });
-        ScenePage Arrive() => new ScenePage { Title = "York Factory", Text = $"Morning. The ship comes up the Hayes on the tide and makes fast at the Factory's wharf. Palisade, flag, smoke from the chimneys, and every soul in the place come down to the shore. Your first order is in your pocket: report to {factor}." }
+        ScenePage Arrive() => new ScenePage { Title = "York Factory", Text = $"Morning. The {(bySloop ? "sloop" : "ship")} comes up the Hayes on the tide and makes fast at the Factory's wharf. Palisade, flag, smoke from the chimneys, and every soul in the place come down to the shore. Your first order is in your pocket: report to {factor}." }
             .Add("Step ashore", () => { Note(p, $"You came ashore at York Factory with {a} and {b}. Report to {factor}."); return null; });
         return Hub();
     }
 
     // ---- the brigade ------------------------------------------------------------------
 
-    private static ScenePage Brigade(Player.PlayerController p, Population pop)
+    private static ScenePage Brigade(Player.PlayerController p, Population pop, bool dating)
     {
         var gate = IsoGrid.ToWorld(WorldLayout.NwcGateCell);
         Place(p, gate + new Vector2(60, 90));
@@ -159,7 +175,7 @@ public static class Starts
         ScenePage Hub()
         {
             var hub = new ScenePage { Title = "Above the last carrying place", Text = seen.Count == 0
-                ? $"July. The brigade from Fort William is camped above the last portage, a day's paddle from {partner}'s house. The canoes are turned over for the night; the kettle is on. {a} is mending a paddle. {b} has the cards out. The guide is broaching the keg for a regale."
+                ? $"{Month}. {(dating || GameCalendar.Instance?.Month == 7 ? "The brigade" : "A light canoe")} from Fort William is camped above the last portage, a day's paddle from {partner}'s house. The canoes are turned over for the night; the kettle is on. {a} is mending a paddle. {b} has the cards out. The guide is broaching the keg for a regale."
                 : "The fire burns down. The river talks to itself in the dark." };
             if (!seen.Contains("mates")) hub.Add($"Sit with {a}", () => { seen.Add("mates"); return Mates(); });
             if (!seen.Contains("cards")) hub.Add($"Play cards with {b}", () => { seen.Add("cards"); return Cards(); });
@@ -205,7 +221,7 @@ public static class Starts
         // By the Bay, or out in the country with its own traders (World/Camps).
         var camp = World.Camps.Named(p.HomeCamp);
         string post = camp != null && !string.IsNullOrEmpty(camp.Post) ? camp.Post : "the nearest post";
-        string where = camp != null ? $"stand at {camp.Name}, far from the Bay" : "stand on the trail by the Bay men's house for the trading";
+        string where = camp != null ? $"stand at {camp.Name}, far from the Bay" : WorldLayout.IsSummerCamp ? "stand on the trail by the Bay men's house for the trading" : "stand in the winter camp in the bush";
         string toPost = camp != null ? $"down to {post}" : "down to the Bay house";
         string kegMan = camp != null ? $"A trader's man from {post}" : "A Canadian from across the river";
         if (camp != null) { factor = $"The master at {post}"; partner = $"The master at {post}"; }
@@ -214,8 +230,8 @@ public static class Starts
         var seen = new HashSet<string>();
         ScenePage Hub()
         {
-            var hub = new ScenePage { Title = "Morning in the summer camp", Text = seen.Count == 0
-                ? $"June. The {people} lodges {where}. Smoke, dogs, children at the river. {e} is sitting outside his lodge with the winter's furs bundled at his feet. {c} is restringing a bow. {kegMan} has come into the camp with a keg."
+            var hub = new ScenePage { Title = "Morning in the camp", Text = seen.Count == 0
+                ? $"{Month}. The {people} lodges {where}. Smoke, dogs, children at the river. {e} is sitting outside his lodge with the winter's furs bundled at his feet. {c} is restringing a bow. {kegMan} has come into the camp with a keg."
                 : "The camp goes about its morning." };
             if (!seen.Contains("elder")) hub.Add($"Sit with {e}", () => { seen.Add("elder"); return Elder(); });
             if (!seen.Contains("cousin")) hub.Add($"Go with {c} to look at the snares", () => { seen.Add("cousin"); return Cousin(); });
@@ -237,7 +253,7 @@ public static class Starts
         ScenePage Keg() => new ScenePage { Title = "The Canadian", Text = $"\"{partner} sends his compliments,\" the Canadian says, and pours a cup from the keg. \"There's more where this came from for a man who brings his furs across the river instead of to the Bay house.\"" }
             .Add("Drink with him", () => { p.Inventory.Add(ItemId.Rum, 1); p.Consume(ItemId.Rum); Note(p, $"A Nor'Wester came into the camp with rum from {partner}, for whoever takes their furs across the river."); return Hub(); })
             .Add("Send him away", () => { if (elder != null) elder.ChangeRapport(p, 4f); Note(p, $"You sent {partner}'s man and his keg out of the camp."); return Hub(); });
-        ScenePage Arrive() => new ScenePage { Title = "The summer camp", Text = arrive }
+        ScenePage Arrive() => new ScenePage { Title = "The camp", Text = arrive }
             .Add("Go", () => null);
         return Hub();
     }

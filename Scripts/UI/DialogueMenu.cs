@@ -25,6 +25,8 @@ public partial class DialogueMenu : Control
     {
         Instance = this;
         SetUpDevPicks();
+        // A conversation that arrived while the scene was still loading (a joiner's prologue).
+        if (NetHub.PendingDialogue is Godot.Collections.Dictionary held) { NetHub.PendingDialogue = null; CallDeferred(nameof(ShowHeld), held); }
         _panel = new PanelContainer { Visible = false };
         _panel.SetAnchorsPreset(LayoutPreset.CenterBottom);
         _panel.GrowHorizontal = GrowDirection.Both; _panel.GrowVertical = GrowDirection.Begin;
@@ -49,6 +51,8 @@ public partial class DialogueMenu : Control
         _options = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _options.AddThemeConstantOverride("separation", 2); scroll.AddChild(_options);
         _scroll = scroll;
     }
+
+    private void ShowHeld(Godot.Collections.Dictionary state) => ShowState(state);
 
     public void ShowState(Godot.Collections.Dictionary state)
     {

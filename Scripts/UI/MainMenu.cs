@@ -13,6 +13,12 @@ public partial class MainMenu : Control
     private Label _status;
     private PanelContainer _panel;
     private Control _home, _multi, _newGame, _character;
+    // The character page serves a new game, hosting, and joining: which
+    // button it ends on, and where Back goes.
+    private Button _cBegin, _cHost, _cJoin;
+    private Label _cJoinNote;
+    private Control _cameFrom;
+    private string _joinTo = "";
     private SettingsPanel _settings;
 
     public override void _Ready()
@@ -44,7 +50,7 @@ public partial class MainMenu : Control
         else if (page == "controls") { Show(_settings); _settings.ShowTab(3); }
         else if (page == "multiplayer") Show(_multi);
         else if (page == "newgame") Show(_newGame);
-        else if (page == "character") Show(_character);
+        else if (page == "character") ShowCharacter("new", _newGame);
     }
 
     private void Build()
@@ -153,7 +159,7 @@ public partial class MainMenu : Control
 
         Heading(box, "Host");
         var host = Big(box, $"Host a new game (port {NetHub.DefaultPort})");
-        host.Pressed += () => { Apply(); var e = NetHub.I.StartHost(); if (e == Error.Ok) Go(); else Fail($"Could not host: {e}"); };
+        host.Pressed += () => { Apply(); ShowCharacter("host", _multi); };
         if (Core.SaveGame.Exists())
         {
             var contHost = Big(box, "Continue the saved game and host");
@@ -167,8 +173,9 @@ public partial class MainMenu : Control
         _address = new LineEdit { Text = NetHub.I.JoinAddress, PlaceholderText = "ip or ip:port", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         row.AddChild(_address);
         var join = new Button { Text = "Join", CustomMinimumSize = new Vector2(90, 0) };
-        join.Pressed += () => { Apply(); Join(_address.Text); };
-        _address.TextSubmitted += _ => { Apply(); Join(_address.Text); };
+        // Who you are first, then the address (design doc 5.4: a joiner makes a character too).
+        join.Pressed += () => { Apply(); _joinTo = _address.Text.Trim(); ShowCharacter("join", _multi); };
+        _address.TextSubmitted += _ => { Apply(); _joinTo = _address.Text.Trim(); ShowCharacter("join", _multi); };
         row.AddChild(join);
         box.AddChild(row);
 
@@ -279,7 +286,7 @@ public partial class MainMenu : Control
         Small(box, "my-campaign.json there starts as a copy of the historical script, and README.txt explains the format. Come back to this page to pick it up.");
 
         box.AddChild(new HSeparator());
-        Big(box, "Next: who you are").Pressed += () => Show(_character);
+        Big(box, "Next: who you are").Pressed += () => ShowCharacter("new", _newGame);
         Big(box, "Back").Pressed += () => Show(_home);
         return box;
     }
@@ -382,10 +389,28 @@ public partial class MainMenu : Control
         }
 
         box.AddChild(new HSeparator());
-        Big(box, "Begin").Pressed += () => { Commit(); Apply(); NetHub.I.StartSolo(); Go(); };
-        Big(box, "Begin and host").Pressed += () => { Commit(); Apply(); var e = NetHub.I.StartHost(); if (e == Error.Ok) Go(); else Fail($"Could not host: {e}"); };
-        Big(box, "Back").Pressed += () => Show(_newGame);
+        _cJoinNote = Small(box, "If you have played in that world before under this name, you come back as you were, and what you choose here is set aside.");
+        _cBegin = Big(box, "Begin");
+        _cBegin.Pressed += () => { Commit(); Apply(); NetHub.I.StartSolo(); Go(); };
+        _cHost = Big(box, "Begin and host");
+        _cHost.Pressed += () => { Commit(); Apply(); var e = NetHub.I.StartHost(); if (e == Error.Ok) Go(); else Fail($"Could not host: {e}"); };
+        _cJoin = Big(box, "Join");
+        _cJoin.Pressed += () => { Commit(); Apply(); Join(_joinTo); };
+        Big(box, "Back").Pressed += () => Show(_cameFrom ?? _newGame);
         return scroll;
+    }
+
+    // mode: "new" (solo or host), "host" (from multiplayer), "join" (to _joinTo).
+    private void ShowCharacter(string mode, Control from)
+    {
+        _cameFrom = from;
+        _cBegin.Visible = mode == "new";
+        _cHost.Visible = mode is "new" or "host";
+        _cHost.Text = mode == "host" ? $"Host a new game (port {NetHub.DefaultPort})" : "Begin and host";
+        _cJoin.Visible = mode == "join";
+        _cJoin.Text = $"Join {(_joinTo == "" ? "the game" : _joinTo)}";
+        _cJoinNote.Visible = mode == "join";
+        Show(_character);
     }
 
     public override void _UnhandledInput(InputEvent @event)

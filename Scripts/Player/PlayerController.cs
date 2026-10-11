@@ -115,7 +115,16 @@ public partial class PlayerController : Agent
 	public Core.StartPath StartPath = Core.StartPath.HBC;
 	public string BackgroundTitle = "";
 	public readonly List<string> KinNames = new();
-	public string HomeCamp = "";   // born to one of the country's band camps (World/Camps), if any
+	public string HomeCamp = "";
+	// Which sheet the player is drawn from (design doc 5.4): set by the
+	// character's road in, carried to every peer with the player.
+	public string FramesPath = "";
+	public void ApplyLook()
+	{
+		if (_sprite == null || string.IsNullOrEmpty(FramesPath) || !ResourceLoader.Exists(FramesPath)) return;
+		_sprite.SpriteFrames = GD.Load<SpriteFrames>(FramesPath);
+		_sprite.Play(_sprite.SpriteFrames.HasAnimation("idle") ? "idle" : _sprite.Animation);
+	}   // born to one of the country's band camps (World/Camps), if any
 	public string LastYearStory = "";   // Core/YearStory: the last year as it will be told
 
 	// Set down somewhere by the host (a new character's start, Core/Starts):
@@ -203,6 +212,7 @@ public partial class PlayerController : Agent
 	public override void _Ready()
 	{
 		_sprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
+		ApplyLook();
 		_camera = GetNodeOrNull<Camera2D>("Camera2D");
 		_label = GetNodeOrNull<Label>("NameLabel");
 		Faction = Faction.HBC;
