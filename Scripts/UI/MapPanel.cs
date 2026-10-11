@@ -38,12 +38,13 @@ public partial class MapPanel : Control
         box.AddChild(title);
         _canvas = new MapCanvas { Player = _player, SizeFlagsVertical = SizeFlags.ExpandFill, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         box.AddChild(_canvas);
-        var legend = new Label { Text = "you ●   posts ■ (HBC red, NWC blue)   camps ▲   sites ○   waypoint ◆ gold   your task ◆ blue      click: set a waypoint   right-click: clear it   drag: pan   wheel: zoom", HorizontalAlignment = HorizontalAlignment.Center };
+        var legend = new Label { Text = "you ●   posts ■ (HBC red, NWC blue)   camps ▲   sites ○   waypoint ◆ gold   your task ◆ blue      click: set a waypoint   right-click: clear it   G: set out for it   drag: pan   wheel: zoom", HorizontalAlignment = HorizontalAlignment.Center };
         legend.AddThemeFontSizeOverride("font_size", 11);
         legend.AddThemeColorOverride("font_color", new Color(0.25f, 0.17f, 0.08f));
         box.AddChild(legend);
         foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--map") GetTree().CreateTimer(2.5).Timeout += () => { _panel.Visible = true; if (_player != null) _canvas.CentreOn(_player.GlobalPosition); };
         GetParent()?.CallDeferred(Node.MethodName.AddChild, new WayfindingHud { Name = "Wayfinding" });
+        GetParent()?.CallDeferred(Node.MethodName.AddChild, new TravelMode { Name = "TravelMode" });
     }
 
     public override void _UnhandledInput(InputEvent @event)

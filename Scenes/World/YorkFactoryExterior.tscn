@@ -249,7 +249,7 @@ position = Vector2(0, -64)
 [node name="Cree camp" type="Node2D" parent="Cast" unique_id=296810898]
 
 [node name="Maskwa chief" type="Node2D" parent="Cast/Cree camp" unique_id=308733080]
-position = Vector2(87680, 19520)
+position = Vector2(85632, 19520)
 script = ExtResource("30_npcspawn")
 DisplayName = "Maskwa (chief)"
 Role = 5
@@ -263,7 +263,7 @@ Inventory = "Musket, HideCoat, Venison:2"
 position = Vector2(-128, -64)
 
 [node name="Wapistan" type="Node2D" parent="Cast/Cree camp" unique_id=795472894]
-position = Vector2(87296, 19520)
+position = Vector2(85248, 19520)
 script = ExtResource("30_npcspawn")
 DisplayName = "Wapistan"
 Role = 6
@@ -277,7 +277,7 @@ Inventory = "Bow, Knife, HideCoat, Venison:2, Snowshoes"
 position = Vector2(64, -96)
 
 [node name="Mahihkan" type="Node2D" parent="Cast/Cree camp" unique_id=1424819361]
-position = Vector2(87296, 19328)
+position = Vector2(85248, 19328)
 script = ExtResource("30_npcspawn")
 DisplayName = "Mahihkan"
 Role = 6
@@ -291,7 +291,7 @@ Inventory = "Musket, Knife, HideCoat, Venison:2, Snowshoes"
 position = Vector2(64, 96)
 
 [node name="Pisiskiw" type="Node2D" parent="Cast/Cree camp" unique_id=688041113]
-position = Vector2(87680, 19328)
+position = Vector2(85632, 19328)
 script = ExtResource("30_npcspawn")
 DisplayName = "Pisiskiw"
 Role = 6
@@ -305,7 +305,7 @@ Inventory = "Bow, Knife, HideCoat, Venison:2, Snowshoes"
 position = Vector2(-320, 96)
 
 [node name="Kihiw" type="Node2D" parent="Cast/Cree camp" unique_id=1593045789]
-position = Vector2(87488, 19616)
+position = Vector2(85440, 19616)
 script = ExtResource("30_npcspawn")
 DisplayName = "Kihiw"
 Role = 6
@@ -319,7 +319,7 @@ Inventory = "Musket, Knife, HideCoat, Venison:2, Snowshoes"
 position = Vector2(-128, -192)
 
 [node name="Niska" type="Node2D" parent="Cast/Cree camp" unique_id=509787922]
-position = Vector2(87680, 19520)
+position = Vector2(85632, 19520)
 script = ExtResource("30_npcspawn")
 DisplayName = "Niska"
 Role = 7
@@ -334,7 +334,7 @@ Inventory = "HideCoat, Knife"
 position = Vector2(-256, -64)
 
 [node name="Sakihitowin" type="Node2D" parent="Cast/Cree camp" unique_id=2064855976]
-position = Vector2(87296, 19520)
+position = Vector2(85248, 19520)
 script = ExtResource("30_npcspawn")
 DisplayName = "Sakihitowin"
 Role = 7
@@ -349,7 +349,7 @@ Inventory = "HideCoat, Knife"
 position = Vector2(128, -64)
 
 [node name="Wapun" type="Node2D" parent="Cast/Cree camp" unique_id=528901280]
-position = Vector2(87296, 19328)
+position = Vector2(85248, 19328)
 script = ExtResource("30_npcspawn")
 DisplayName = "Wapun"
 Role = 7
@@ -364,7 +364,7 @@ Inventory = "HideCoat, Knife"
 position = Vector2(128, 128)
 
 [node name="Atim-iskwew" type="Node2D" parent="Cast/Cree camp" unique_id=1347703040]
-position = Vector2(87680, 19328)
+position = Vector2(85632, 19328)
 script = ExtResource("30_npcspawn")
 DisplayName = "Atim-iskwew"
 Role = 7
@@ -379,7 +379,7 @@ Inventory = "HideCoat, Knife"
 position = Vector2(-256, 128)
 
 [node name="Kimiwan" type="Node2D" parent="Cast/Cree camp" unique_id=1958332079]
-position = Vector2(87680, 19520)
+position = Vector2(85632, 19520)
 script = ExtResource("30_npcspawn")
 DisplayName = "Kimiwan"
 Role = 8
@@ -395,7 +395,7 @@ Inventory = "HideCoat"
 position = Vector2(-256, 0)
 
 [node name="Wawatew" type="Node2D" parent="Cast/Cree camp" unique_id=1607662064]
-position = Vector2(87296, 19520)
+position = Vector2(85248, 19520)
 script = ExtResource("30_npcspawn")
 DisplayName = "Wawatew"
 Role = 8
@@ -11363,7 +11363,7 @@ position = Vector2(-192, 32)
 [node name="Hidatsa family at Pine Fort" type="Node2D" parent="Cast/Camps"]
 
 [node name="Many Beaver" type="Node2D" parent="Cast/Camps/Hidatsa family at Pine Fort"]
-position = Vector2(71680, 52096)
+position = Vector2(70784, 52224)
 script = ExtResource("30_npcspawn")
 DisplayName = "Many Beaver"
 Role = 6
@@ -11379,7 +11379,7 @@ Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
 position = Vector2(-64, -32)
 
 [node name="Black Berry Woman" type="Node2D" parent="Cast/Camps/Hidatsa family at Pine Fort"]
-position = Vector2(71680, 52096)
+position = Vector2(70784, 52224)
 script = ExtResource("30_npcspawn")
 DisplayName = "Black Berry Woman"
 Role = 7
@@ -11397,7 +11397,7 @@ Spouse = NodePath("../Many Beaver")
 position = Vector2(-192, -32)
 
 [node name="Two Dog" type="Node2D" parent="Cast/Camps/Hidatsa family at Pine Fort"]
-position = Vector2(71680, 52096)
+position = Vector2(70784, 52224)
 script = ExtResource("30_npcspawn")
 DisplayName = "Two Dog"
 Role = 6
@@ -11413,7 +11413,7 @@ Father = NodePath("../Many Beaver")
 position = Vector2(-256, -64)
 
 [node name="Long Morning Woman" type="Node2D" parent="Cast/Camps/Hidatsa family at Pine Fort"]
-position = Vector2(71680, 52096)
+position = Vector2(70784, 52224)
 script = ExtResource("30_npcspawn")
 DisplayName = "Long Morning Woman"
 Role = 8
@@ -11565,7 +11565,7 @@ position = Vector2(-192, 32)
 [node name="Oji-Cree family at Osnaburgh House" type="Node2D" parent="Cast/Camps"]
 
 [node name="Young Hawk" type="Node2D" parent="Cast/Camps/Oji-Cree family at Osnaburgh House"]
-position = Vector2(97792, 42752)
+position = Vector2(97664, 42816)
 script = ExtResource("30_npcspawn")
 DisplayName = "Young Hawk"
 Role = 6
@@ -11580,7 +11580,7 @@ Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
 position = Vector2(-64, -32)
 
 [node name="White Bird Woman" type="Node2D" parent="Cast/Camps/Oji-Cree family at Osnaburgh House"]
-position = Vector2(97792, 42752)
+position = Vector2(97664, 42816)
 script = ExtResource("30_npcspawn")
 DisplayName = "White Bird Woman"
 Role = 7
@@ -11597,7 +11597,7 @@ Spouse = NodePath("../Young Hawk")
 position = Vector2(-192, -32)
 
 [node name="Long Fox" type="Node2D" parent="Cast/Camps/Oji-Cree family at Osnaburgh House"]
-position = Vector2(97792, 42752)
+position = Vector2(97664, 42816)
 script = ExtResource("30_npcspawn")
 DisplayName = "Long Fox"
 Role = 6
@@ -11612,7 +11612,7 @@ Father = NodePath("../Young Hawk")
 position = Vector2(-256, -64)
 
 [node name="Big Snow Woman" type="Node2D" parent="Cast/Camps/Oji-Cree family at Osnaburgh House"]
-position = Vector2(97792, 42752)
+position = Vector2(97664, 42816)
 script = ExtResource("30_npcspawn")
 DisplayName = "Big Snow Woman"
 Role = 8
@@ -12105,7 +12105,7 @@ position = Vector2(-192, 32)
 [node name="Plains Ojibwa Saulteaux family at Red Lake Post" type="Node2D" parent="Cast/Camps"]
 
 [node name="Red Antelope" type="Node2D" parent="Cast/Camps/Plains Ojibwa Saulteaux family at Red Lake Post"]
-position = Vector2(87872, 58592)
+position = Vector2(88000, 59232)
 script = ExtResource("30_npcspawn")
 DisplayName = "Red Antelope"
 Role = 6
@@ -12121,7 +12121,7 @@ Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
 position = Vector2(-64, -32)
 
 [node name="Bird Woman the Younger" type="Node2D" parent="Cast/Camps/Plains Ojibwa Saulteaux family at Red Lake Post"]
-position = Vector2(87872, 58592)
+position = Vector2(88000, 59232)
 script = ExtResource("30_npcspawn")
 DisplayName = "Bird Woman the Younger"
 Role = 7
@@ -12139,7 +12139,7 @@ Spouse = NodePath("../Red Antelope")
 position = Vector2(-192, -32)
 
 [node name="Big Otter" type="Node2D" parent="Cast/Camps/Plains Ojibwa Saulteaux family at Red Lake Post"]
-position = Vector2(87872, 58592)
+position = Vector2(88000, 59232)
 script = ExtResource("30_npcspawn")
 DisplayName = "Big Otter"
 Role = 6
@@ -12155,7 +12155,7 @@ Father = NodePath("../Red Antelope")
 position = Vector2(-256, -64)
 
 [node name="Cloud Woman the Younger" type="Node2D" parent="Cast/Camps/Plains Ojibwa Saulteaux family at Red Lake Post"]
-position = Vector2(87872, 58592)
+position = Vector2(88000, 59232)
 script = ExtResource("30_npcspawn")
 DisplayName = "Cloud Woman the Younger"
 Role = 8
@@ -12731,7 +12731,7 @@ position = Vector2(-192, 32)
 [node name="Blackfoot family at Fort Augustus" type="Node2D" parent="Cast/Camps"]
 
 [node name="White Loon" type="Node2D" parent="Cast/Camps/Blackfoot family at Fort Augustus"]
-position = Vector2(36992, 33152)
+position = Vector2(37120, 33280)
 script = ExtResource("30_npcspawn")
 DisplayName = "White Loon"
 Role = 6
@@ -12747,7 +12747,7 @@ Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
 position = Vector2(-64, -32)
 
 [node name="Calling Moon Woman the Younger" type="Node2D" parent="Cast/Camps/Blackfoot family at Fort Augustus"]
-position = Vector2(36992, 33152)
+position = Vector2(37120, 33280)
 script = ExtResource("30_npcspawn")
 DisplayName = "Calling Moon Woman the Younger"
 Role = 7
@@ -12765,7 +12765,7 @@ Spouse = NodePath("../White Loon")
 position = Vector2(-192, -32)
 
 [node name="White Horse" type="Node2D" parent="Cast/Camps/Blackfoot family at Fort Augustus"]
-position = Vector2(36992, 33152)
+position = Vector2(37120, 33280)
 script = ExtResource("30_npcspawn")
 DisplayName = "White Horse"
 Role = 6
@@ -12781,7 +12781,7 @@ Father = NodePath("../White Loon")
 position = Vector2(-256, -64)
 
 [node name="Elk Woman the Younger" type="Node2D" parent="Cast/Camps/Blackfoot family at Fort Augustus"]
-position = Vector2(36992, 33152)
+position = Vector2(37120, 33280)
 script = ExtResource("30_npcspawn")
 DisplayName = "Elk Woman the Younger"
 Role = 8
@@ -12801,7 +12801,7 @@ position = Vector2(-192, 32)
 [node name="Plains Cree family at Carlton House" type="Node2D" parent="Cast/Camps"]
 
 [node name="White Otter" type="Node2D" parent="Cast/Camps/Plains Cree family at Carlton House"]
-position = Vector2(53376, 37056)
+position = Vector2(53504, 37184)
 script = ExtResource("30_npcspawn")
 DisplayName = "White Otter"
 Role = 6
@@ -12816,7 +12816,7 @@ Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
 position = Vector2(-64, -32)
 
 [node name="Grass Woman the Younger" type="Node2D" parent="Cast/Camps/Plains Cree family at Carlton House"]
-position = Vector2(53376, 37056)
+position = Vector2(53504, 37184)
 script = ExtResource("30_npcspawn")
 DisplayName = "Grass Woman the Younger"
 Role = 7
@@ -12833,7 +12833,7 @@ Spouse = NodePath("../White Otter")
 position = Vector2(-192, -32)
 
 [node name="Calling Fox" type="Node2D" parent="Cast/Camps/Plains Cree family at Carlton House"]
-position = Vector2(53376, 37056)
+position = Vector2(53504, 37184)
 script = ExtResource("30_npcspawn")
 DisplayName = "Calling Fox"
 Role = 6
@@ -12848,7 +12848,7 @@ Father = NodePath("../White Otter")
 position = Vector2(-256, -64)
 
 [node name="Star Woman the Younger" type="Node2D" parent="Cast/Camps/Plains Cree family at Carlton House"]
-position = Vector2(53376, 37056)
+position = Vector2(53504, 37184)
 script = ExtResource("30_npcspawn")
 DisplayName = "Star Woman the Younger"
 Role = 8
@@ -12867,7 +12867,7 @@ position = Vector2(-192, 32)
 [node name="Assiniboine family at Fort Alexandria" type="Node2D" parent="Cast/Camps"]
 
 [node name="Young Loon" type="Node2D" parent="Cast/Camps/Assiniboine family at Fort Alexandria"]
-position = Vector2(66816, 44928)
+position = Vector2(66560, 44992)
 script = ExtResource("30_npcspawn")
 DisplayName = "Young Loon"
 Role = 6
@@ -12882,7 +12882,7 @@ Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
 position = Vector2(-64, -32)
 
 [node name="Old Weasel Woman the Younger" type="Node2D" parent="Cast/Camps/Assiniboine family at Fort Alexandria"]
-position = Vector2(66816, 44928)
+position = Vector2(66560, 44992)
 script = ExtResource("30_npcspawn")
 DisplayName = "Old Weasel Woman the Younger"
 Role = 7
@@ -12899,7 +12899,7 @@ Spouse = NodePath("../Young Loon")
 position = Vector2(-192, -32)
 
 [node name="Long Otter" type="Node2D" parent="Cast/Camps/Assiniboine family at Fort Alexandria"]
-position = Vector2(66816, 44928)
+position = Vector2(66560, 44992)
 script = ExtResource("30_npcspawn")
 DisplayName = "Long Otter"
 Role = 6
@@ -12914,7 +12914,7 @@ Father = NodePath("../Young Loon")
 position = Vector2(-256, -64)
 
 [node name="Young Star Woman the Younger" type="Node2D" parent="Cast/Camps/Assiniboine family at Fort Alexandria"]
-position = Vector2(66816, 44928)
+position = Vector2(66560, 44992)
 script = ExtResource("30_npcspawn")
 DisplayName = "Young Star Woman the Younger"
 Role = 8
@@ -13003,7 +13003,7 @@ position = Vector2(-192, 32)
 [node name="Plains Ojibwa Saulteaux family at Manitoba House" type="Node2D" parent="Cast/Camps"]
 
 [node name="Black Badger" type="Node2D" parent="Cast/Camps/Plains Ojibwa Saulteaux family at Manitoba House"]
-position = Vector2(75776, 46336)
+position = Vector2(75136, 47232)
 script = ExtResource("30_npcspawn")
 DisplayName = "Black Badger"
 Role = 6
@@ -13019,7 +13019,7 @@ Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
 position = Vector2(-64, -32)
 
 [node name="Many Snow Woman the Younger" type="Node2D" parent="Cast/Camps/Plains Ojibwa Saulteaux family at Manitoba House"]
-position = Vector2(75776, 46336)
+position = Vector2(75136, 47232)
 script = ExtResource("30_npcspawn")
 DisplayName = "Many Snow Woman the Younger"
 Role = 7
@@ -13037,7 +13037,7 @@ Spouse = NodePath("../Black Badger")
 position = Vector2(-192, -32)
 
 [node name="Spotted Loon" type="Node2D" parent="Cast/Camps/Plains Ojibwa Saulteaux family at Manitoba House"]
-position = Vector2(75776, 46336)
+position = Vector2(75136, 47232)
 script = ExtResource("30_npcspawn")
 DisplayName = "Spotted Loon"
 Role = 6
@@ -13053,7 +13053,7 @@ Father = NodePath("../Black Badger")
 position = Vector2(-256, -64)
 
 [node name="White Snow Woman the Younger" type="Node2D" parent="Cast/Camps/Plains Ojibwa Saulteaux family at Manitoba House"]
-position = Vector2(75776, 46336)
+position = Vector2(75136, 47232)
 script = ExtResource("30_npcspawn")
 DisplayName = "White Snow Woman the Younger"
 Role = 8
@@ -13073,7 +13073,7 @@ position = Vector2(-192, 32)
 [node name="Blackfoot family at Fort Vermilion" type="Node2D" parent="Cast/Camps"]
 
 [node name="Two Owl" type="Node2D" parent="Cast/Camps/Blackfoot family at Fort Vermilion"]
-position = Vector2(42368, 33728)
+position = Vector2(42368, 33856)
 script = ExtResource("30_npcspawn")
 DisplayName = "Two Owl"
 Role = 6
@@ -13089,7 +13089,7 @@ Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
 position = Vector2(-64, -32)
 
 [node name="White Morning Woman the Younger" type="Node2D" parent="Cast/Camps/Blackfoot family at Fort Vermilion"]
-position = Vector2(42368, 33728)
+position = Vector2(42368, 33856)
 script = ExtResource("30_npcspawn")
 DisplayName = "White Morning Woman the Younger"
 Role = 7
@@ -13107,7 +13107,7 @@ Spouse = NodePath("../Two Owl")
 position = Vector2(-192, -32)
 
 [node name="Grey Crane" type="Node2D" parent="Cast/Camps/Blackfoot family at Fort Vermilion"]
-position = Vector2(42368, 33728)
+position = Vector2(42368, 33856)
 script = ExtResource("30_npcspawn")
 DisplayName = "Grey Crane"
 Role = 6
@@ -13123,7 +13123,7 @@ Father = NodePath("../Two Owl")
 position = Vector2(-256, -64)
 
 [node name="Fawn Woman the Younger" type="Node2D" parent="Cast/Camps/Blackfoot family at Fort Vermilion"]
-position = Vector2(42368, 33728)
+position = Vector2(42368, 33856)
 script = ExtResource("30_npcspawn")
 DisplayName = "Fawn Woman the Younger"
 Role = 8
@@ -16051,7 +16051,7 @@ position = Vector2(-192, 32)
 [node name="Coast Salish family at Fort Victoria" type="Node2D" parent="Cast/Camps"]
 
 [node name="Old Lynx the Younger" type="Node2D" parent="Cast/Camps/Coast Salish family at Fort Victoria"]
-position = Vector2(2816, 48896)
+position = Vector2(2560, 48704)
 script = ExtResource("30_npcspawn")
 DisplayName = "Old Lynx the Younger"
 Role = 6
@@ -16067,7 +16067,7 @@ Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
 position = Vector2(-64, -32)
 
 [node name="Cloud Woman the Younger" type="Node2D" parent="Cast/Camps/Coast Salish family at Fort Victoria"]
-position = Vector2(2816, 48896)
+position = Vector2(2560, 48704)
 script = ExtResource("30_npcspawn")
 DisplayName = "Cloud Woman the Younger"
 Role = 7
@@ -16085,7 +16085,7 @@ Spouse = NodePath("../Old Lynx the Younger")
 position = Vector2(-192, -32)
 
 [node name="Three Horse the Younger" type="Node2D" parent="Cast/Camps/Coast Salish family at Fort Victoria"]
-position = Vector2(2816, 48896)
+position = Vector2(2560, 48704)
 script = ExtResource("30_npcspawn")
 DisplayName = "Three Horse the Younger"
 Role = 6
@@ -16101,7 +16101,7 @@ Father = NodePath("../Old Lynx the Younger")
 position = Vector2(-256, -64)
 
 [node name="Bird Woman the Younger" type="Node2D" parent="Cast/Camps/Coast Salish family at Fort Victoria"]
-position = Vector2(2816, 48896)
+position = Vector2(2560, 48704)
 script = ExtResource("30_npcspawn")
 DisplayName = "Bird Woman the Younger"
 Role = 8

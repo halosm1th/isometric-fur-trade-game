@@ -1485,20 +1485,20 @@
    882
   ],
   "cree_winter": [
-   683,
+   667,
    606
   ],
   "cree_summer": [
-   687,
-   560
+   700,
+   594
   ],
   "assiniboine_winter": [
    639,
    920
   ],
   "assiniboine_summer": [
-   696,
-   608
+   689,
+   528
   ],
   "road": [
    [
@@ -1644,19 +1644,19 @@
     18464
    ],
    [
-    86848,
+    86208,
     18784
    ],
    [
-    87232,
+    85568,
     19104
    ],
    [
-    87488,
+    85440,
     19424
    ],
    [
-    87488,
+    85440,
     19424
    ]
   ],
@@ -3140,8 +3140,8 @@
     "kind": "family",
     "post": "Pine Fort",
     "centre": [
-     558,
-     1625
+     551,
+     1629
     ],
     "people": 4
    },
@@ -3173,8 +3173,8 @@
     "kind": "family",
     "post": "Osnaburgh House",
     "centre": [
-     762,
-     1333
+     761,
+     1335
     ],
     "people": 4
    },
@@ -3261,8 +3261,8 @@
     "kind": "family",
     "post": "Red Lake Post",
     "centre": [
-     685,
-     1828
+     686,
+     1848
     ],
     "people": 4
    },
@@ -3360,8 +3360,8 @@
     "kind": "family",
     "post": "Fort Augustus",
     "centre": [
-     287,
-     1033
+     288,
+     1037
     ],
     "people": 4
    },
@@ -3371,8 +3371,8 @@
     "kind": "family",
     "post": "Carlton House",
     "centre": [
-     415,
-     1155
+     416,
+     1159
     ],
     "people": 4
    },
@@ -3382,8 +3382,8 @@
     "kind": "family",
     "post": "Fort Alexandria",
     "centre": [
-     520,
-     1401
+     518,
+     1403
     ],
     "people": 4
    },
@@ -3404,8 +3404,8 @@
     "kind": "family",
     "post": "Manitoba House",
     "centre": [
-     590,
-     1445
+     585,
+     1473
     ],
     "people": 4
    },
@@ -3416,7 +3416,7 @@
     "post": "Fort Vermilion",
     "centre": [
      329,
-     1051
+     1055
     ],
     "people": 4
    },
@@ -3888,8 +3888,8 @@
     "kind": "family",
     "post": "Fort Victoria",
     "centre": [
-     20,
-     1525
+     18,
+     1519
     ],
     "people": 4
    },

@@ -280,7 +280,15 @@ def lay_out(G, places, extras, atlas):
     far = lambda c, px: math.dist(cell_world(*c), cell_world(*fort)) >= px
     nwc = search(centred(near("Nor'Westers' house (York)"), 12, 10), (66, 150), lambda t: far(t, 3500) and footprint_dry(t, 12, 10))
     outpost = search(centred(near("Oxford House"), 12, 9), (36, 396), lambda t: footprint_dry(t, 12, 9))
-    def camp_ok(c): return all(dry(x) for x in Rhombus(Cell(c, -4, -4), 9, 9))
+    # Ground no camp may stand on: each post's footprint and a margin round
+    # it (York's palisade is huge, and its creek, sheds and landing too).
+    forbidden = set()
+    def forbid(top, w, d, m): forbidden.update(Rhombus(Cell(top, -m, -m), w + 2 * m, d + 2 * m))
+    forbid(fort, 22 + 14, 34, 9)      # the palisade, the boat shed beyond it, Sloops Creek behind
+    forbid(nwc, 12, 10, 5); forbid(outpost, 12, 9, 5)
+    def camp_ok(c):
+        cells = list(Rhombus(Cell(c, -4, -4), 9, 9))
+        return all(dry(x) and x not in forbidden for x in cells)
     placed = [fort, nwc, outpost]
     def clear_of_all(c, px=1500): return all(math.dist(cell_world(*c), cell_world(*o)) >= px for o in placed)
     def camp(name, old, extra=lambda c: True):
@@ -378,7 +386,7 @@ def lay_out(G, places, extras, atlas):
             return footprint_dry(t, 12, 9)
         try: top = search(want, want, post_ok, 30)
         except SystemExit: print(f"  no room for {p['name']}"); continue
-        placed.append(Cell(top, 6, 4))
+        placed.append(Cell(top, 6, 4)); forbid(top, 12, 9, 3)
         posts.append(dict(name=p["name"], company=p["company"], year=p.get("year", 0), top=list(top)))
     # The nations (design doc 7.2): a band camp for each of the atlas's
     # peoples at its place in 1811, and a family of the nearest nation
@@ -403,7 +411,7 @@ def lay_out(G, places, extras, atlas):
     def nearest_people(cell):
         w = cell_world(*cell)
         return min(peoples, key=lambda q: math.dist(w, world(q[2], q[3])))
-    def family_ok(x): return all(dry(y) for y in Rhombus(Cell(x, -2, -2), 5, 5))
+    def family_ok(x): return all(dry(y) and y not in forbidden for y in Rhombus(Cell(x, -2, -2), 5, 5))
     for post in posts:
         gate = Cell(tuple(post["top"]), 5, 8)
         out_of_gate = Cell(gate, -1, 6)
