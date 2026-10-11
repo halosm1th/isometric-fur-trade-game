@@ -446,6 +446,76 @@ def lay_out(G, places, extras, atlas):
         placed.append(centre)
         nm, nation, *_ = nearest_people(centre)
         camps.append(dict(name=f"{nm} family at {post['name']}", nation=nation, kind="family", post=post["name"], centre=list(centre), people=4))
+    # ---- the game of the wider country (design doc 16.2, 16.4) ----------------
+    # Sites are cheap until someone is near (animals are drawn out of a
+    # site's count only round a player), so the whole country has them:
+    # beaver along the rivers and lakeshores of the forest, geese on the Bay
+    # coast and the lowland lakes, barren-ground caribou crossing between the
+    # tundra and the forest edge, woodland caribou in the boreal, wolves,
+    # hare in the willow flats by every post and camp, ptarmigan in the north.
+    import random as _random
+    rng = _random.Random(1811)
+    named = [(p["name"], cell_world(*p["cell"])) for p in places if p.get("kind") == "post"] + [(c["name"], cell_world(*c["centre"])) for c in camps if c["kind"] == "band"]
+    used_names = set(x["name"] for x in sites)
+    def site_name(kind, c):
+        w = cell_world(*c)
+        near = min(named, key=lambda q: math.dist(q[1], w))
+        km_away = math.dist(near[1], w) / PX_PER_KM
+        where = near[0] if km_away < 60 else f"{near[0]} country"
+        base = f"{kind} ({where})"; n = base; k = 2
+        while n in used_names: n = f"{base} {k}"; k += 1
+        used_names.add(n); return n
+    def shore(c): return dry(c) and any(g(n) in ("River", "Lake") for n in (DR(c), DL(c), UL(c), UR(c)))
+    def inside(c): return 0 <= c[0] < cols and 0 <= c[1] < rows
+    def sea_shore(c): return dry(c) and any(inside(n) and g(n) == "Ocean" for n in (DR(c), DL(c), UL(c), UR(c), DR(DR(c)), UL(UL(c))))
+    country = []
+    def add(kind, species, c, count, cap, radius, route=None):
+        country.append(dict(name=site_name(kind, c), species=species, cell=list(c), count=count, capacity=cap, radius=radius, route=route))
+    BW, BH = 24, 96   # one candidate block: about 77 x 77 km
+    for by in range(0, rows, BH):
+        for bx in range(0, cols, BW):
+            cells = [(x, y) for x in range(bx, min(cols, bx + BW), 3) for y in range(by, min(rows, by + BH), 6)]
+            rng.shuffle(cells)
+            land = [c for c in cells if dry(c) and c not in forbidden]
+            if not land: continue
+            kinds = {}
+            for c in land: kinds[g(c)] = kinds.get(g(c), 0) + 1
+            main = max(kinds, key=kinds.get)
+            if main in ("Boreal", "Shield", "LakesForest", "Lowland", "Parkland", "Cordillera"):
+                lodge = next((c for c in land if shore(c)), None)
+                if lodge and rng.random() < 0.75: add("Beaver lodge", "Beaver", lodge, rng.randint(25, 55), rng.randint(45, 80), 350)
+            if main in ("Lowland",) or any(sea_shore(c) for c in land[:40]):
+                marsh = next((c for c in land if sea_shore(c) or g(c) == "Lowland" and shore(c)), None)
+                if marsh and rng.random() < 0.45: add("Goose marsh", "Goose", marsh, rng.randint(80, 180), 300, 700)
+            if main in ("Tundra", "Lowland") and rng.random() < 0.35:
+                add("Ptarmigan flats", "Ptarmigan", land[0], rng.randint(60, 140), 200, 600)
+            if main in ("Boreal", "Shield", "Lowland") and rng.random() < 0.12:
+                add("Woodland caribou", "Caribou", land[-1], rng.randint(15, 35), 50, 700)
+            if rng.random() < 0.08 and main not in ("Coast",):
+                add("Wolf den", "Wolf", land[len(land) // 2], rng.randint(4, 8), 10, 800)
+    # Barren-ground herds: summer on the tundra, winter in the forest edge to the south.
+    for c in [c for c in ((x, y) for x in range(0, cols, 60) for y in range(0, rows // 4, 40)) if g(c) == "Tundra"][::3][:6]:
+        south = c
+        for _ in range(60):
+            n = (south[0], south[1] + 8)
+            if not (0 <= n[1] < rows): break
+            south = n
+            if g(south) in ("Boreal", "Lowland", "Shield") and dry(south): break
+        if not dry(south): continue
+        path = []
+        for m in range(12):
+            # Jan-Mar wintering south, Apr-Jun north, Jul-Sep on the tundra, Oct-Dec back south.
+            t = [0, 0, 0.1, 0.4, 0.8, 1, 1, 1, 0.9, 0.6, 0.3, 0][m]
+            cell = (round(south[0] + (c[0] - south[0]) * t), round(south[1] + (c[1] - south[1]) * t))
+            if cell[1] % 2 != south[1] % 2: cell = (cell[0], cell[1] + 1)
+            path.append(list(cell if dry(cell) else south))
+        add("Caribou herd", "Caribou", south, rng.randint(150, 300), 400, 1200, path)
+    # Hare in the willow flats beside every post and camp.
+    for name, w in named:
+        c = world_cell(w[0] + rng.uniform(-1500, 1500), w[1] + rng.uniform(900, 1800))
+        if 0 <= c[0] < cols and 0 <= c[1] < rows and dry(c): add("Hare flats", "Hare", c, rng.randint(40, 90), 140, 500)
+    sites.extend(country)
+    print(f"  {len(country)} country wildlife sites")
     km = lambda a, b: math.dist(cell_world(*a), cell_world(*b)) / PX_PER_KM
     print(f"{len(camps)} camps ({sum(1 for c in camps if c['kind'] == 'band')} bands); {len(posts)} other posts fitted; {len(crossings)} river cells forded; fort {fort}, nwc {nwc} ({km(fort, nwc):.0f} km), oxford {outpost} ({km(fort, outpost):.0f} km), road {len(road)} pts")
     return dict(fort_top=list(fort), nwc_top=list(nwc), outpost_top=list(outpost),

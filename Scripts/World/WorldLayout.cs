@@ -210,6 +210,14 @@ public static class WorldLayout
         }
     }
     public static void ForgetSites() => _sites = null;
+    // A people's own country: the grounds within about 600 km of home. Nobody
+    // at York knows the beaver of the Athabasca.
+    public const float HomeCountryPx = 24000f;
+    public static IEnumerable<SiteDef> SitesNear(Vector2I home, float px)
+    {
+        var at = IsoGrid.ToWorld(home);
+        foreach (var s in Sites) if (IsoGrid.ToWorld(s.Cell).DistanceTo(at) <= px) yield return s;
+    }
     public static SiteDef SiteOf(Species s)
     {
         foreach (var d in Sites) if (d.Species == s) return d;
@@ -237,7 +245,7 @@ public static class WorldLayout
     // ---- what grows where (design doc 6: a region should look like itself) ------
     // Tile sources (terrain_tileset.tres) for the growth and the ground clutter.
     public const int Spruce0 = 52, Tamarack = 80, Willow = 81, Rocks = 82, Boulder = 83, Reeds = 84, MuskegPool = 85,
-        DeadTree = 86, Aspen = 97, JackPine = 98;
+        DeadTree = 86, Aspen = 97, JackPine = 98, BeaverLodge = 87;
     public static bool IsTreeSource(int s) => s is >= Spruce0 and <= Spruce0 + 2 or Tamarack or DeadTree or Aspen or JackPine;
     public static bool IsFloraSource(int s) => IsTreeSource(s) || s is >= Willow and <= MuskegPool;
 

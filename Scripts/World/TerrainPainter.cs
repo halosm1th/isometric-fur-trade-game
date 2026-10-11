@@ -122,6 +122,11 @@ public partial class TerrainPainter : TileMapLayer
             if (!End) Start[Slot] = now; else Usec[Slot] = Usec.GetValueOrDefault(Slot) + now - Start.GetValueOrDefault(Slot, now);
         }
     }
+    public partial class ProcessProbe : Node
+    {
+        public static ulong Start, EcoUsec; public bool End;
+        public override void _Process(double delta) { ulong now = Time.GetTicksUsec(); if (!End) Start = now; else EcoUsec += now - Start; }
+    }
     private bool _probes;
     private float _perfTimer = -1f;
     private void PerfReport(double delta)
@@ -135,6 +140,7 @@ public partial class TerrainPainter : TileMapLayer
             _probes = true;
             pl.ProcessPhysicsPriority = 50;
             AddChild(new PhysicsProbe { IsFirst = true, ProcessPhysicsPriority = -1000 });
+            if (Sim.Ecology is Node eco) { eco.ProcessPriority = 500; AddChild(new ProcessProbe { ProcessPriority = 499 }); AddChild(new ProcessProbe { End = true, ProcessPriority = 501 }); }
             AddChild(new PhysicsProbe { IsStart = true, ProcessPhysicsPriority = 49 });
             AddChild(new PhysicsProbe { ProcessPhysicsPriority = 51 });
         }
@@ -156,6 +162,7 @@ public partial class TerrainPainter : TileMapLayer
             if (GetNodeOrNull("LiveProbeA") == null) { AddChild(new PhysicsProbe { Name = "LiveProbeA", IsLiveStart = true, ProcessPhysicsPriority = 19 }); AddChild(new PhysicsProbe { Name = "LiveProbeB", IsLiveEnd = true, ProcessPhysicsPriority = 21 }); }
             if (GetNodeOrNull("AnimalProbeA") == null) { AddChild(new PhysicsProbe { Name = "AnimalProbeA", IsAnimalStart = true, ProcessPhysicsPriority = 39 }); AddChild(new PhysicsProbe { Name = "AnimalProbeB", IsAnimalEnd = true, ProcessPhysicsPriority = 41 }); }
         }
+        GD.Print($"[probe] ecology process {ProcessProbe.EcoUsec / 1000.0:0} ms over 3 s"); ProcessProbe.EcoUsec = 0;
         GD.Print($"[probe] live npcs {PhysicsProbe.LiveUsec / 1000.0:0} ms, player {PhysicsProbe.PlayerUsec / 1000.0:0} ms, animals {PhysicsProbe.AnimalUsec / 1000.0:0} ms, everything before the player {PhysicsProbe.AllUsec / 1000.0:0} ms over 3 s; {Sim.Animals.Count} animals");
         PhysicsProbe.PlayerUsec = 0; PhysicsProbe.AllUsec = 0; PhysicsProbe.AnimalUsec = 0; PhysicsProbe.LiveUsec = 0;
         GD.Print($"[perf] fps {Performance.GetMonitor(Performance.Monitor.TimeFps):0}  process {Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000:0.0} ms  physics {Performance.GetMonitor(Performance.Monitor.TimePhysicsProcess) * 1000:0.0} ms  " +

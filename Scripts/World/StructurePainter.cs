@@ -212,6 +212,13 @@ public partial class StructurePainter : TileMapLayer
         PlaceSign(WorldLayout.GateOutside, "York Factory", "Hudson's Bay Company");
         PlaceSign(IsoGrid.DownLeft(IsoGrid.DownLeft(WorldLayout.NwcGateCell)), "Nor'Westers' House", "North West Company");
         PlaceSign(WorldLayout.OutpostGateOutside, "Oxford House", "Hudson's Bay Company");
+        // A beaver lodge in the water by each beaver ground, so you can see it.
+        foreach (var site in WorldLayout.Sites)
+        {
+            if (site.Species != Ecology.Species.Beaver) continue;
+            var lodge = WaterBeside(site.Cell);
+            if (lodge.HasValue && GetCellSourceId(lodge.Value) == -1) SetBack(lodge.Value, WorldLayout.BeaverLodge);
+        }
         // The camps of the wider country: a band's ring of tipis, or one
         // family's lodge and fire outside a post.
         foreach (var c in Camps.All)
@@ -253,6 +260,19 @@ public partial class StructurePainter : TileMapLayer
             }
         }
         RebuildCollision();
+    }
+
+    // The nearest open water to a cell (a beaver lodge stands in it).
+    private static Vector2I? WaterBeside(Vector2I c)
+    {
+        for (int r = 0; r <= 4; r++)
+            for (int dx = -r; dx <= r; dx++)
+                for (int dy = -2 * r; dy <= 2 * r; dy++)
+                {
+                    var n = new Vector2I(c.X + dx, c.Y + dy);
+                    if (WorldMap.At(n) is Ground.River or Ground.Lake) return n;
+                }
+        return null;
     }
 
     // A name board outside a gate (never saved with the scene: no owner).
