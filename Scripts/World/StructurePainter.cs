@@ -45,6 +45,8 @@ public partial class StructurePainter : TileMapLayer
     private static readonly HashSet<int> Hearths = new() { 49, 50, 56 };
 
     [Export] public bool AutoGenerate = true;
+    // Streamed and generated tiles are never written into the scene file.
+    public override void _ValidateProperty(Godot.Collections.Dictionary property) { if (AutoGenerate) GeneratedTileLayer.DontStore(property); }
     [Export] public NodePath CollisionBodyPath;
     [Export] public NodePath FloorLayerPath;
     [Export] public NodePath FrontLayerPath;

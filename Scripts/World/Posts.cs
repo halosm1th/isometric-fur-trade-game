@@ -93,6 +93,8 @@ public static class Posts
         _host = host;
         if (!Net.Net.IsServer || SaveGame.HasPending) return;
         Campaign.Begin();
+        // Dev aid: `-- --noposts` leaves the wider country unbuilt and unmanned.
+        foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--noposts") return;
         Sync(spawnCast: false);
     }
 

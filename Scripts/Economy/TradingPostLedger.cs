@@ -27,7 +27,7 @@ public partial class TradingPostLedger : FortLedger
         QuotaMb = 25f;
         Year = GameCalendar.Instance?.Year ?? 1811;
         Stores.Add(ItemId.Pemmican, 25);
-        Stores.Add(ItemId.Fish, 20);
+        Stores.Add(ItemId.DriedMeat, 20);
         Stores.Add(ItemId.Firewood, 25);
         Stores.Add(ItemId.TradeGoods, 40);
         Stores.Add(ItemId.Water, 10);
@@ -50,11 +50,12 @@ public partial class TradingPostLedger : FortLedger
         int mouths = 0;
         foreach (var n in Sim.Npcs) if (n.HomeStores == this && !n.IsDead) mouths++;
         if (mouths == 0) return;
-        // A week of nets and snares, and what the post's hunters bring in:
-        // fish all year, more meat in the hard months when the bands sell it.
+        // A week of nets and snares, and what the post's hunters bring in,
+        // dried and put by (fresh it would spoil on the books before anyone
+        // ate it): less in the hard months, made up by what the bands sell.
         bool winter = cal.IsFrozen;
-        Stores.Add(ItemId.Fish, mouths * (winter ? 6 : 9));
-        if (winter) Stores.Add(ItemId.DriedMeat, mouths * 2);
+        Stores.Add(ItemId.DriedMeat, mouths * (winter ? 5 : 7));
+        if (winter) Stores.Add(ItemId.Pemmican, mouths);
         if (Stores.Count(ItemId.Firewood) < 20) Stores.Add(ItemId.Firewood, 6);
         // The trade: a few packs a season from the bands that winter near.
         if (cal.Month is >= 10 or <= 5 && Stores.Count(ItemId.TradeGoods) > 2)

@@ -39,6 +39,8 @@ public partial class TerrainPainter : TileMapLayer
     private bool _frozen;
 
     [Export] public bool AutoGenerate = true;
+    // Streamed and generated tiles are never written into the scene file.
+    public override void _ValidateProperty(Godot.Collections.Dictionary property) { if (AutoGenerate) GeneratedTileLayer.DontStore(property); }
     [Export] public NodePath WaterCollisionPath;
     [Export] public NodePath PlayerSpawnPath;
     [Export] public NodePath StructurePainterPath;
@@ -90,8 +92,22 @@ public partial class TerrainPainter : TileMapLayer
 
     private void LoadAround() { Refocus(); while (_queue.Count > 0) LoadNext(); }
 
+    // Dev aid: `-- --perf` prints where the frame goes every few seconds.
+    private float _perfTimer = -1f;
+    private void PerfReport(double delta)
+    {
+        if (_perfTimer < 0f) { _perfTimer = 0f; foreach (string a in OS.GetCmdlineUserArgs()) if (a == "--perf") _perfTimer = 3f; if (_perfTimer == 0f) { _perfTimer = float.MaxValue; return; } }
+        _perfTimer -= (float)delta;
+        if (_perfTimer > 0f) return;
+        _perfTimer = 3f;
+        GD.Print($"[perf] fps {Performance.GetMonitor(Performance.Monitor.TimeFps):0}  process {Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000:0.0} ms  physics {Performance.GetMonitor(Performance.Monitor.TimePhysicsProcess) * 1000:0.0} ms  " +
+            $"bodies {Performance.GetMonitor(Performance.Monitor.Physics2DActiveObjects):0}  pairs {Performance.GetMonitor(Performance.Monitor.Physics2DCollisionPairs):0}  islands {Performance.GetMonitor(Performance.Monitor.Physics2DIslandCount):0}  " +
+            $"nodes {Performance.GetMonitor(Performance.Monitor.ObjectNodeCount):0}  chunks {_loaded.Count}  npcs {Sim.Npcs.Count}");
+    }
+
     public override void _Process(double delta)
     {
+        if (!Engine.IsEditorHint()) PerfReport(delta);
         if (!AutoGenerate) return;
         _focusTimer -= (float)delta;
         if (_focusTimer <= 0f) { _focusTimer = 0.25f; Refocus(); }
