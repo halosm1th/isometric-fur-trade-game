@@ -436,6 +436,16 @@ At **Breakup** (5 June) the band strikes camp and pitches the tipis on the trail
 
 Talk to one of your own company's men (labourer or voyageur) with rank *clerk*/*postmaster* or standing ≥ 35 and you get **Give orders**: cut wood · hunt at the best known site · work the trapline · stand guard at the stores · come with me · carry on as the Factor set you. He weighs your rank, his opinion of you and his loyalty to the chain of command; a sulky man says he takes his orders from Mr. Auld. Anyone else who isn't a leader, clerk, sailor or woman can be **asked to come with you** (rapport ≥ 20 across factions, ≥ 5 in your own; kin always) - `FollowGoal`: they keep a few paces behind for the day, fight whoever attacks you, and go home if they lose you or you say "that will do". Take a Cree hunter to the herd, or two labourers across the river.
 
+## Berries and the bushes (design doc 13.5)
+
+Saskatoon, lowbush cranberry and rosehip are flora like trees: scattered by region through `WorldLayout.PickFlora` (saskatoon in the shield, the parkland and the mountains; cranberry on the muskeg and the tundra; rosehip on the plains and the parkland), and what they show depends on the month and on whether anyone has been at them - in fruit in their season, picked over for thirty days after a picker strips one, bare in the autumn, a mound of snow in the deep of winter. The rosehip is the one that keeps its fruit all winter, which is why it mattered. Stand at a bush in fruit and the prompt reads *E Pick the saskatoon bush*: three to five berries into your pack, and the bush shows picked. Pemmican pounded with berries comes out a quarter larger (`MakePemmicanGoal`).
+
+## The buffalo (design doc 16.1)
+
+`Species.Buffalo`: 260 health, as fast as a man can run, four hundred pounds of meat (70 pieces - more than one man can carry, so the kill is a place the camp comes to) and a `BuffaloRobe`, or a holed hide if it was shot. A plains camp hunts buffalo before caribou (`EcologyManager.BestBigGame`, which is knowledge-filtered, so nobody at York has heard of a buffalo ground). `-- --buffalo` drops four beside you; F1 has the same button.
+
+**Two things are not there.** The herds: there are no buffalo `WildlifeSite` nodes in the exterior scene yet, so until someone places them on the grassland and the parkland with their twelve-month routes, the species exists and nothing in the world is a buffalo. And **there is no horse in the game at all** - no mount, no mounted hunt, no horse as property. The plains peoples walk.
+
 ## Scurvy (design doc 13.5)
 
 Everyone counts days since fresh meat (venison, goose, fish - dried and pemmican don't count). Past 42 days it is scurvy: ~3 health a day, slower, "gums black" in conversation, a HUD flag; fresh meat cures it. The Factor treats three or more men a month without fresh meat as a food shortage and sends hunters. `--scurvy` starts the post a day short of it.
@@ -458,7 +468,7 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 
 ## Command-line dev args (after `--`)
 
-`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y` (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2` · `--nodirector` · `--brawl` · `--provoke=N` · `--dumpbook=S` · `--quitafter=S` · `--ambition=RiseAtThePost|FoundAPost|MarryIn|PrivateTrade|DriveOffTheRival|KeepTheBandWhole` · `--standing=N`
+`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y|<post name>|<camp name>` (any camp of the country by name, e.g. `--spawn=Mandan`, and a bare cell, e.g. `--spawn=538,1959`) (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--buffalo` (four head beside you) · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2` · `--nodirector` · `--brawl` · `--provoke=N` · `--dumpbook=S` · `--quitafter=S` · `--ambition=RiseAtThePost|FoundAPost|MarryIn|PrivateTrade|DriveOffTheRival|KeepTheBandWhole` · `--standing=N`
 
 ## Barks and shared memory (design doc P.4, P.8)
 

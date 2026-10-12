@@ -167,7 +167,7 @@ public class HuntSiteGoal : Goal
                     }
                 }
                 // One caribou is a load; small game you keep working.
-                int enough = _site.Species == Species.Caribou ? 1 : _site.Species == Species.Beaver ? 2 : _site.Species == Species.Goose ? 8 : 4;
+                int enough = _site.Species is Species.Caribou or Species.Buffalo ? 1 : _site.Species == Species.Beaver ? 2 : _site.Species == Species.Goose ? 8 : 4;
                 bool loaded = npc.Inventory.TotalWeightLbs > 90f || _kills >= enough;
                 if (_worked >= _workHours || loaded || _site.Count <= 0)
                 {
@@ -623,8 +623,12 @@ public class MakePemmicanGoal : Goal
                 int dried = npc.Inventory.Count(ItemId.DriedMeat);
                 int made = dried * 3 / 4;
                 npc.Inventory.Remove(ItemId.DriedMeat, dried);
+                // The best of it was pounded up with berries (design doc 13.5):
+                // it keeps better and it is what the brigades paid most for.
+                int berries = stores.Stores.TakeUpTo(ItemId.Berries, System.Math.Max(1, dried / 2));
+                if (berries > 0) made += (made + 3) / 4;
                 stores.Stores.Add(ItemId.Pemmican, made);
-                Chronicle.Event($"{npc.DisplayName} made {made} pemmican.", npc.GlobalPosition, npc, weight: 0.2f);
+                Chronicle.Event($"{npc.DisplayName} made {made} pemmican{(berries > 0 ? ", berries and all" : "")}.", npc.GlobalPosition, npc, weight: 0.2f);
                 return GoalStatus.Done;
             }
         }

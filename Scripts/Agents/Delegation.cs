@@ -116,7 +116,7 @@ public static class Delegation
             tasks.Add(new PostTask { Name = "salt the geese down", Make = _ => new SaltGeeseGoal(), Men = fort.Stores.Count(ItemId.Goose) >= 120 ? 3 : 1, Urgency = 80f, KeyTask = true, Intent = $"{fort.Stores.Count(ItemId.Goose)} birds on the floor and the flight still on" });
         if (gooseSeason || foodShort)
         {
-            var site = eco?.BestSite(gooseSeason ? Species.Goose : Species.Caribou, fort);
+            var site = gooseSeason ? eco?.BestSite(Species.Goose, fort) : eco?.BestBigGame(fort);
             if (site == null) { var lodge = eco?.BestSite(Species.Beaver, fort); if (lodge != null && lodge.Count > lodge.Capacity * 0.6f) site = lodge; }
             float urgency = foodDays < 10f ? 85f : scorbutic >= 3 ? 70f : gooseSeason ? 55f : 45f;
             int want = foodDays < 10f ? 3 : 2;

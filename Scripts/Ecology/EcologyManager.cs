@@ -219,6 +219,13 @@ public partial class EcologyManager : Node2D
         }
     }
 
+    // The big meat animal of a people's own country (design doc 16.1, 16.2):
+    // buffalo on the plains, caribou in the north. A camp hunts what is in
+    // its country, and the knowledge filter in BestSite is what decides -
+    // nobody at York has ever seen a buffalo ground.
+    public SpawnSite BestBigGame(Economy.Household knownBy = null)
+        => BestSite(Species.Buffalo, knownBy) ?? BestSite(Species.Caribou, knownBy);
+
     public SpawnSite BestSite(Species s, Economy.Household knownBy = null)
     {
         SpawnSite best = null; float bestScore = 0f;
@@ -321,6 +328,16 @@ public partial class EcologyManager : Node2D
             foreach (string arg in OS.GetCmdlineUserArgs())
             {
                 if (arg == "--wolves") SpawnPackNear(Species.Wolf, IsoGrid.ToWorld(WorldLayout.GateOutside) + new Vector2(350, 250), 4, true);
+                // Dev: `-- --buffalo` puts a few head where the player stands,
+                // so the hunt and what it yields can be walked through before
+                // the plains have their herds.
+                if (arg == "--buffalo")
+                {
+                    var at = IsoGrid.ToWorld(WorldLayout.GateOutside);
+                    foreach (var pl in Sim.Players()) { at = pl.GlobalPosition + new Vector2(300, 150); break; }
+                    SpawnPackNear(Species.Buffalo, at, 4, false);
+                    GD.Print($"[dev] four buffalo at {IsoGrid.FromWorld(at)}");
+                }
                 if (arg == "--scarcity") foreach (var s in Sites) { s.FoodStock = 0.1f; s.Count = s.Capacity * 1.2f; s.Scarcity = true; }
                 if (arg.StartsWith("--tension=") && float.TryParse(arg.Substring(10), out float t)) Economy.Rivalry.Tension = t;
                 if (arg == "--herdmoved") foreach (var s in Sites) if (s.IsMobile) s.Cell = s.Route[Mathf.Clamp(cal.Month - 1, 0, 11)];
@@ -459,6 +476,7 @@ public partial class EcologyManager : Node2D
     private static int MaxLive(SpawnSite s) => s.Species switch
     {
         Species.Caribou => 7,
+        Species.Buffalo => 9,
         Species.Goose => 12,
         Species.Beaver => 3,
         Species.Wolf => 5,

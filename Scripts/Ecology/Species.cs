@@ -9,6 +9,9 @@ public enum Species
     // Small game (design doc 16.2): the snare and the winter willow flats.
     Hare,
     Ptarmigan,
+    // The plains (design doc 16.1): the herd that fed half the country
+    // and made the pemmican the brigades ran on.
+    Buffalo,
 }
 
 public enum Diet { Prey, Predator }
@@ -30,6 +33,12 @@ public static class SpeciesInfo
         // comes down to the willows in winter by the hundred.
         { Species.Hare,    new("Snowshoe hare", Diet.Prey, 210f, 5f, 0f, 3f, 0.02f, 2.5f, 0.1f, "res://Scenes/Animals/HareFrames.tres") },
         { Species.Ptarmigan, new("Willow ptarmigan", Diet.Prey, 150f, 3f, 0f, 1f, 0f, 1.5f, 0.1f, "res://Scenes/Animals/PtarmiganFrames.tres") },
+        // A bull is fifteen hundred pounds on the hoof and runs at thirty
+        // miles an hour; what a hunter actually brings away is the four
+        // hundred pounds of meat he can butcher off it. The robe is the
+        // winter hide. Nothing here is drawn yet - the caribou's frames
+        // stand in for it until the sheet comes.
+        { Species.Buffalo, new("Buffalo", Diet.Prey, 200f, 260f, 25f, 400f, 1.2f, 0.3f, 0.25f, "res://Scenes/Animals/CaribouFrames.tres") },
     };
     public static SpeciesDef Of(Species s) => Defs[s];
 
@@ -50,6 +59,13 @@ public static class SpeciesInfo
     {
         switch (s)
         {
+            case Species.Buffalo:
+                // Four hundred pounds of meat off one beast: more than a man
+                // can carry, which is the whole shape of a buffalo hunt - the
+                // camp comes to the kill, or most of it is left on the plain.
+                into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 70);
+                into.Add(shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotHide : IsometricFurTradeGame.Scripts.Items.ItemId.BuffaloRobe, 1);
+                break;
             case Species.Caribou:
                 into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 18);   // ~100 lb of meat: a man eats three to five pounds a day
                 into.Add(shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotHide : IsometricFurTradeGame.Scripts.Items.ItemId.CaribouHide, 1);

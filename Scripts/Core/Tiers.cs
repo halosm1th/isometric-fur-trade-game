@@ -267,7 +267,7 @@ public static class Tiers
         if (desperate)
             foreach (var near in World.WorldLayout.SitesNear(home.AccessCell, World.WorldLayout.HomeCountryPx))
                 home.Learn(near.Name, near.Cell);
-        var site = eco.BestSite(Species.Caribou, known) ?? eco.BestSite(Species.Goose, known) ?? eco.BestSite(Species.Beaver, known);
+        var site = eco.BestBigGame(known) ?? eco.BestSite(Species.Goose, known) ?? eco.BestSite(Species.Beaver, known);
         if (site == null || site.Count < 1f)
         {
             // Snares along the bush: thin fare, and it comes off the hare and

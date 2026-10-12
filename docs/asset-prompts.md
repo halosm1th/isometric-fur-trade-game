@@ -91,7 +91,7 @@ Create one sprite sheet of visual effects for a 2D hand-painted pixel art game i
 
 ---
 
-## Priority 1: the Factor
+## Priority 1: the Factor:Done
 
 The last stand-in character in the game. Every other role was redrawn at 180×170 in the Gemini pass; Mr. William Auld still wears `RivalFrames` — the original 150×130 sheet, four animations, no side walk, no drink, no death. He is a named NPC the player deals with daily.
 
@@ -117,49 +117,49 @@ Rows, in this order: IDLE FRONT, IDLE BACK, IDLE SIDE, WALK FRONT (4), WALK BACK
 
 Then one of these descriptions:
 
-### 2.1 Ojibwe (Saulteaux) man — woodlands, south and east of Lake Winnipeg
+### 2.1 Ojibwe (Saulteaux) man — woodlands, south and east of Lake Winnipeg: Done
 
 ```
 An Ojibwe man of the woodlands in 1811: smoke-tanned buckskin leggings and breechcloth, a quilled and beaded buckskin shirt with floral beadwork in red, white and blue, soft puckered-seam moccasins, a trade blanket of dark blue wool over one shoulder, hair in two braids with a single eagle feather upright at the back, a bandolier bag of loom-beaded floral work across the chest. Carries a bow; for the MUSKET rows, a short trade gun.
 ```
 
-### 2.2 Blackfoot man — the plains, far west
+### 2.2 Blackfoot man — the plains, far west: DONE
 
 ```
 A Blackfoot man of the northern plains in 1811, tall and lean: fringed buckskin leggings and a buckskin war shirt with painted horizontal bands and hair-lock fringes across the chest, hard-soled moccasins with geometric beadwork in red, blue and white, hair long and loose with a brow-band, a buffalo robe painted with a geometric box-and-border design worn over one shoulder in the idle poses. Carries a short sinew-backed horn bow; for the ATTACK rows, a stone-headed war club.
 ```
 
-### 2.3 Dakota (Sioux) man — the parkland and grassland south
+### 2.3 Dakota (Sioux) man — the parkland and grassland south:DONE
 
 ```
 A Dakota Sioux man of the grasslands in 1811: buckskin leggings and breechcloth, bare-chested in the warmer poses with a buffalo robe over one arm, a breastplate of long bone hair-pipes across the chest, moccasins with geometric lane-stitch beadwork, hair in two wrapped braids with a single feather worn flat at the back of the head, a pipe bag hanging at the hip. Carries a bow; for the ATTACK rows, a gunstock war club.
 ```
 
-### 2.4 Dene (Chipewyan) man — the barrens, north and west
+### 2.4 Dene (Chipewyan) man — the barrens, north and west: DONE
 
 ```
 A Chipewyan Dene man of the barren grounds in 1811, dressed for cold: a caribou-hide tunic with a distinctive pointed tail front and back, caribou leggings with the fur turned in, caribou mitts on a cord round the neck, high moccasin-boots, the hide pale and smoke-smudged with simple red ochre edging and porcupine quill bands, hair long and loose. Carries a bow and a long-handled ice chisel; for the ATTACK rows, a copper-bladed knife.
 ```
 
-### 2.5 Plateau man — the western mountains, beyond the Rockies
+### 2.5 Plateau man — the western mountains, beyond the Rockies: DONE
 
 ```
 A Plateau man (Secwepemc or Ktunaxa) of the mountain interior in 1811: a hide tunic and leggings cut plainer than the plains styles, a woven hat of spruce root with a flat top, a robe of woven rabbit-fur strips worn over the shoulders, moccasins with a soft sole, hair gathered and tied simply. Carries a bow; for the ATTACK rows, a stone-headed club.
 ```
 
-### 2.6 Coast man — the Pacific shore
+### 2.6 Coast man — the Pacific shore: DONE
 
 ```
 A Northwest Coast man (Nuu-chah-nulth or Coast Salish) in 1811: bare-legged, wearing a cedar-bark cape and a woven conical cedar hat with a bulbous top, a woven robe with black and red formline design at the border, a large abalone-shell ornament at the neck, hair long and loose, face with a band of red ochre across the eyes. Carries a bow; for the ATTACK rows, a carved wooden club shaped like a fish.
 ```
 
-### 2.7 Missouri River man — the earth-lodge villages, far south
+### 2.7 Missouri River man — the earth-lodge villages, far south: DONE
 
 ```
 A Mandan or Hidatsa man of the upper Missouri earth-lodge villages in 1811: buckskin leggings and breechcloth, a buffalo robe worn over one shoulder painted with a feathered circle, a bone hair-pipe choker, moccasins with simple beadwork, hair long and worn forward over the shoulders with a bone ornament. He is a trader more than a raider - draw the IDLE FRONT pose with one hand open at the waist as if offering. Carries a bow; for the MUSKET rows, an old Spanish trade gun.
 ```
 
-### 2.8 Women's sheets (second pass)
+### 2.8 Women's sheets (second pass): NOT DONE ADD TO NEXT ROUND WITH EXPLICIT INSTRUCTIONS
 
 Once the men read correctly, each nation needs a woman. Use the row list from `cree_woman`:
 
@@ -210,13 +210,13 @@ Then, once:
 
 ---
 
-## Priority 4: effects and weather
+## Priority 4: effects and weather:DONE
 
 The game simulates a great deal that is never drawn: `Core/Weather.cs` has Clear, Overcast, Snow, Blizzard, Rain and Storm, but `World/WorldAtmosphere.cs` only tints the scene with a `CanvasModulate`. Fire, gunfire and wounds are all lights and rectangles. Nothing here exists in the repo yet.
 
 Use the EFFECTS HEADER for all four.
 
-### 4.1 Fire and smoke
+### 4.1 Fire and smoke: DONE
 
 Attach `assets/tiles/props/campfire.png`:
 
@@ -229,20 +229,20 @@ Rows, each frame about 128 pixels wide and 160 tall:
 5. SPARKS (4) - a scatter of small orange sparks flying up and out.
 ```
 
-### 4.2 Weather overlays
+### 4.2 Weather overlays: DONE
 
 These tile seamlessly across the whole screen, so ask for them separately and expect to fix the seams by hand. No reference attachment:
 
 ```
 Rows, each frame exactly 256 by 256 pixels and seamlessly tileable left-to-right and top-to-bottom:
-1. SNOW LIGHT (4) - sparse small white flakes drifting down and slightly left.
-2. SNOW HEAVY (4) - dense white flakes falling faster.
+1. SNOW LIGHT (4) - sparse small white flakes drifting down and slightly left. : DOne
+2. SNOW HEAVY (4) - dense white flakes falling faster.: DOne
 3. BLIZZARD (4) - dense flakes driven almost horizontally left, with streaks.
 4. RAIN (4) - thin pale grey diagonal streaks.
 5. FOG (4) - a soft uneven band of pale grey haze, slowly shifting.
 ```
 
-### 4.3 Combat effects
+### 4.3 Combat effects:DONE 
 
 Attach `assets/external/pioneerpixel_hbc_trader/HBc man with musket.jpg`:
 
@@ -256,7 +256,7 @@ Rows, each frame about 96 pixels square unless noted:
 6. ARROW IN FLIGHT (1) - a single arrow seen side-on, about 48 pixels long.
 ```
 
-### 4.4 Night sky (optional, for the day/night cycle)
+### 4.4 Night sky (optional, for the day/night cycle): DONE
 
 ```
 One wide image 1920 by 400 pixels, seamlessly tileable left to right: the aurora borealis over a dark sub-arctic night sky, pale green and faint rose curtains hanging in vertical folds, stars showing through, the bottom edge fading to fully transparent black. Hand-painted pixel art, no blur, no text.
@@ -279,7 +279,7 @@ Gemini cannot produce a usable font file. Pick two free, properly licensed faces
 
 Then build one `assets/ui/theme.tres` and set it on the root control, so the six `ThemeDB.FallbackFont` call sites can take the theme font instead.
 
-### 5.2 Panel and frame art
+### 5.2 Panel and frame art:DONE 
 
 ITEM HEADER, attach `assets/ui/menu_background.jpg` and `assets/sprites/items/journal.png`:
 
@@ -293,7 +293,7 @@ Interface pieces for a game set in the fur trade in 1811, to be cut into a nine-
 6. Tab - a small parchment tab about 120 by 32 pixels, drawn at rest and selected.
 ```
 
-### 5.3 Cursors
+### 5.3 Cursors: Done
 
 ```
 Mouse cursors, each drawn on magenta, each exactly 32 by 32 pixels, the active point at the very top-left of the image:
@@ -308,7 +308,7 @@ Mouse cursors, each drawn on magenta, each exactly 32 by 32 pixels, the active p
 
 ---
 
-## Priority 5.5: the food that answers the scurvy, and the Missouri towns
+## Priority 5.5: the food that answers the scurvy, and the Missouri towns: DONE
 
 Added 2026-10-11 against commit `b488764`. Berries, spruce beer and corn are in the code and working — berries and spruce beer are what keeps the country out of the scurvy, corn is the staple of the plains trade — but all three borrow another item's icon, and the farming towns that grow the corn are drawn as plains tipis, which is simply wrong.
 
@@ -332,6 +332,18 @@ A sheet of nine world objects for a Mandan or Hidatsa village on the upper Misso
 
 ---
 
+## Priority 5.7: the buffalo, which the code now has
+
+Added 2026-10-11. `Species.Buffalo` is in `Ecology/Species.cs` with its own yield (seventy pieces of meat and a robe off one beast), the plains camps hunt it before they hunt caribou, and `ItemId.BuffaloRobe` is a trade good. **It is drawn as a caribou.** That is the one asset standing between the plains and being a real part of the game, so it comes before everything else in Priority 6.
+
+Attach a finished frame from `assets/sprites/animals/caribou/` and `Cree man with bow.jpg`. ANIMAL HEADER, then:
+
+```
+A sprite sheet of a North American plains buffalo (bison) in 1811, in the same isometric three-quarter view and pixel style as the reference, drawn large: a bull stands six feet at the shoulder and is roughly one and a half times the height and three times the bulk of the 110-pixel man in the reference. Dark brown woolly cape over the humped shoulders and forelegs, shorter dark coat behind, a heavy bearded head carried low, short black upcurved horns, a tufted tail. Rows, each labelled: IDLE (4 frames, standing, head low, grazing and lifting the head); WALK (6 frames, side, a heavy slow plod); RUN (6 frames, side, a full gallop with the hump pitching); CHARGE (4 frames, head down, horns forward); DEATH (5 frames, from hit, to staggering, to down on the side); and three single frames beside them: A COW, lighter and smaller with no shoulder cape; A CALF, reddish-brown; and a BUFFALO ROBE, a dressed winter hide with the hair on, folded in the way a trade robe was folded, as an inventory icon.
+```
+
+---
+
 ## Priority 6: animals the code does not have yet
 
 Do these only once `Ecology/Species.cs` grows past its four species — there is no point drawing an animal the simulation cannot spawn. (The hare and ptarmigan sheets are already drawn and waiting on exactly that; see the wiring backlog in `asset-inventory.md`.)
@@ -344,8 +356,8 @@ moose, black bear, polar bear (it walks the shore at York Factory in autumn), re
 
 | # | Asset | Why | Attach |
 |---|---|---|---|
-| 1 | **Factor sheet** | last stand-in; still on the old 150×130 `rival` sheet | `grey_trader_8way.jpg`, `clerk/idle_front.png` |
-| 2.1–2.7 | Seven nations' men (Ojibwe, Blackfoot, Dakota, Dene, Plateau, Coast, Missouri) | ~700 people on the map with no art of their own | `Assainboine Man.jpg`, `assiniboine/idle_front.png` |
+| ~~1~~ **cut and wired 2026-10-11** | **Factor sheet** | last stand-in; still on the old 150×130 `rival` sheet | `grey_trader_8way.jpg`, `clerk/idle_front.png` |
+| ~~2.1-2.7~~ **cut and wired 2026-10-11** | Seven nations' men (Ojibwe, Blackfoot, Dakota, Dene, Plateau, Coast, Missouri) | ~700 people on the map with no art of their own | `Assainboine Man.jpg`, `assiniboine/idle_front.png` |
 | 2.8 | The same seven nations' women | second pass | as above + `cree_woman/idle_front.png` |
 | 3 | York Factory painting, then log wall and palisade tiles | fort is still Kenney European stone | `props/tipi.png`, `buildings/wall_*.png` |
 | 4.1 | Fire, smoke, embers, sparks | fire is a tinted campfire plus a light | `props/campfire.png` |
@@ -355,10 +367,11 @@ moose, black bear, polar bear (it walks the shore at York Factory in autumn), re
 | 5.1 | Two licensed fonts | no font in the repo | *not a Gemini job* |
 | 5.2 | Panel, button, scrollbar, divider, tab | no theme; default Godot grey | `menu_background.jpg`, `items/journal.png` |
 | 5.3 | Five cursors | system cursor | none |
-| 5.5.1 | Berries, corn, spruce beer icons | all three in code since `b488764`, all three borrowing another item's icon | `items/pemmican.png`, `items/ale_tankard.png` |
-| 5.5.2 | Berry bushes in fruit, picked, bare and under snow | berries are the main answer to the scurvy and there is nothing to see or pick | `props/woodpile.png`, `props/campfire.png` |
-| 5.5.3 | Mandan earth lodges, corn scaffolds, gardens, bullboats, palisade | the farming towns of the Missouri are drawn as plains tipis | `props/tipi.png`, `buildings/wall_N.png` |
-| 6 | Moose, bear, fox, marten, lynx, muskrat, bison, sled dogs | only when `Species.cs` grows | `Cree man with bow.jpg` + a wolf frame |
+| ~~5.5.1~~ **cut and wired 2026-10-11** | Berries, corn, spruce beer icons | all three in code since `b488764`, all three borrowing another item's icon | `items/pemmican.png`, `items/ale_tankard.png` |
+| ~~5.5.2~~ **cut and wired 2026-10-11** | Berry bushes in fruit, picked, bare and under snow | berries are the main answer to the scurvy and there is nothing to see or pick | `props/woodpile.png`, `props/campfire.png` |
+| ~~5.5.3~~ **cut and wired 2026-10-11** | Mandan earth lodges, corn scaffolds, gardens, bullboats, palisade | the farming towns of the Missouri are drawn as plains tipis | `props/tipi.png`, `buildings/wall_N.png` |
+| 5.7 | **Buffalo** (idle, walk, run, charge, death, cow, calf, robe) | `Species.Buffalo` is in the code and hunted; it is drawn as a caribou | a `animals/caribou/` frame + `Cree man with bow.jpg` |
+| 6 | Moose, bear, fox, marten, lynx, muskrat, sled dogs | only when `Species.cs` grows | `Cree man with bow.jpg` + a wolf frame |
 
 **Not covered here: ground tiles.** The terrain comes from a streamed world map with twelve ground types (`World/WorldMap.cs`: ocean, lake, river, ford, boreal, tundra, shield, parkland, grassland, tall grass, lakes forest, cordillera). That work is in progress in another session, and seamless isometric tiles are the one thing Gemini reliably gets wrong. Better drawn once the tile shapes have settled.
 

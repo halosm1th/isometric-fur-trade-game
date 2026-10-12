@@ -291,9 +291,9 @@ public class CreeHunterBehaviour : RoleBehaviour
         // one if there are traps in the cache and the price makes it worth it.
         var trapWork = TraplineWork(npc, band, eco, furHunt);
         if (trapWork != null) return trapWork;
-        SpawnSite site = needMeat ? eco.BestSite(Species.Caribou, band) ?? eco.BestSite(Species.Goose, band) : null;
+        SpawnSite site = needMeat ? eco.BestBigGame(band) ?? eco.BestSite(Species.Goose, band) : null;
         // Laying in stock for the cache when it's under three weeks; otherwise the day goes on other things.
-        if (site == null && band.FoodDays(mouths) < 21f && GD.Randf() < 0.3f) site = eco.BestSite(Species.Caribou, band);
+        if (site == null && band.FoodDays(mouths) < 21f && GD.Randf() < 0.3f) site = eco.BestBigGame(band);
         if (site == null && Cal.CurrentSeason != Season.Winter && GD.Randf() < 0.3f) return new FishGoal();
         if (site == null && GD.Randf() < 0.35f) return new ForageGoal(4f);
         if (site != null) return new HuntSiteGoal(site, 5f);

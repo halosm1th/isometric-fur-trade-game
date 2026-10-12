@@ -152,6 +152,8 @@ public partial class DebugMenu : Control
             AddButton(S, "March the herd toward this month's ground", () => { foreach (var s in eco.Sites) s.Migrate(GameCalendar.Instance.Month); });
             AddButton(S, "Wolf pack at the gate", () => eco.SpawnPackNear(Ecology.Species.Wolf, World.IsoGrid.ToWorld(World.WorldLayout.GateOutside) + new Vector2(300, 200), 4, true));
             AddButton(S, "Starving caribou at the gate", () => eco.SpawnPackNear(Ecology.Species.Caribou, World.IsoGrid.ToWorld(World.WorldLayout.GateOutside) + new Vector2(-300, 250), 5, true));
+            // Buffalo wear the caribou's frames until their own sheet is drawn.
+            AddButton(S, "Buffalo at the gate (caribou frames)", () => eco.SpawnPackNear(Ecology.Species.Buffalo, World.IsoGrid.ToWorld(World.WorldLayout.GateOutside) + new Vector2(-420, 120), 4, true));
         }
         var ship = Sim.Ship;
         if (ship != null)

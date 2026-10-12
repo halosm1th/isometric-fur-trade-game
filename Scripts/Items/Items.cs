@@ -12,6 +12,9 @@ public enum ItemId
     Berries,
     SpruceBeer,
     Corn,
+    // The plains robe (design doc 13.6, 16.1): a winter buffalo hide dressed
+    // with the hair on. Warmth first, and a trade good second.
+    BuffaloRobe,
     Bread,
     Ale,
     Rum,
@@ -88,6 +91,8 @@ public static class Items
         { ItemId.Berries,      new("Berries",        ItemKind.Food,     0.6f, IconDir + "berries.png",      Nutrition: 10f, ValueMb: 0.1f) },
         { ItemId.SpruceBeer,   new("Spruce beer",    ItemKind.Drink,    2.0f, IconDir + "spruce_beer.png",  Nutrition: 4f, Thirst: 40f, Warmth: 3f, ValueMb: 0.15f) },
         { ItemId.Corn,         new("Indian corn",    ItemKind.Food,     1.0f, IconDir + "corn.png",         Nutrition: 32f, ValueMb: 0.25f) },
+        // A robe is a bed and a coat at once, and eight pounds to carry.
+        { ItemId.BuffaloRobe,  new("Buffalo robe",   ItemKind.Clothing, 8.0f, IconDir + "caribou_hide.png", Warmth: 8f, ValueMb: 2f) },
         { ItemId.Bread,        new("Loaf of bread",  ItemKind.Food,     1.0f, IconDir + "bread_loaf.png",   Nutrition: 25f, ValueMb: 0.15f) },
         { ItemId.Ale,          new("Tankard of ale", ItemKind.Drink,    2.0f, IconDir + "ale_tankard.png",  Nutrition: 6f, Thirst: 45f, Warmth: 4f, ValueMb: 0.2f, Intoxication: 12f) },
         { ItemId.Rum,          new("Dram of rum",    ItemKind.Drink,    1.0f, IconDir + "rum.png",          Thirst: 10f, Warmth: 8f, ValueMb: 0.8f, Intoxication: 35f) },
@@ -148,6 +153,7 @@ public static class Items
         (ItemId.Pemmican, "pemmican"), (ItemId.DriedGoose, "dried geese"), (ItemId.Goose, "geese"),
         (ItemId.SaltGeese, "casks of salt geese"),
         (ItemId.Berries, "berries"), (ItemId.SpruceBeer, "spruce beer"), (ItemId.Corn, "corn"),
+        (ItemId.BuffaloRobe, "buffalo robes"),
         (ItemId.Ptarmigan, "ptarmigan"), (ItemId.Tobacco, "twists of tobacco"), (ItemId.Beads, "bunches of beads"),
         (ItemId.Awl, "awls"), (ItemId.Stroud, "yards of stroud"), (ItemId.MbToken, "made-beaver tokens"),
         (ItemId.Powder, "powder and ball"), (ItemId.IceChisel, "ice chisels"), (ItemId.FishingNet, "fishing nets"),
