@@ -475,6 +475,7 @@ def lay_out(G, places, extras, atlas):
         used_names.add(n); return n
     def shore(c): return dry(c) and any(g(n) in ("River", "Lake") for n in (DR(c), DL(c), UL(c), UR(c)))
     def inside(c): return 0 <= c[0] < cols and 0 <= c[1] < rows
+    def WorldLayout_bank(c): return dry(c) and any(inside(n) and g(n) in ("River", "Lake") for n in (DR(c), DL(c), UL(c), UR(c), DR(DR(c)), UL(UL(c))))
     def sea_shore(c): return dry(c) and any(inside(n) and g(n) == "Ocean" for n in (DR(c), DL(c), UL(c), UR(c), DR(DR(c)), UL(UL(c))))
     country = []
     def add(kind, species, c, count, cap, radius, route=None):
@@ -522,8 +523,48 @@ def lay_out(G, places, extras, atlas):
     for name, w in named:
         c = world_cell(w[0] + rng.uniform(-1500, 1500), w[1] + rng.uniform(900, 1800))
         if 0 <= c[0] < cols and 0 <= c[1] < rows and dry(c): add("Hare flats", "Hare", c, rng.randint(40, 90), 140, 500)
+    # Buffalo (design doc 16.1): herds of thousands on the plains, wintering in
+    # the parkland and the wooded river valleys, out on the open grass from
+    # spring to the fall, within reach of the plains peoples' camps and of
+    # nobody at York. Named after their country, so a camp that knows the
+    # country knows the herd.
+    PLAINS = {"Blackfoot", "Sioux", "Assiniboine", "Metis", "Missouri"}
+    hills = [(" ".join(q["name"].split()).replace("Mtn.", "Mountain"), world(q["lon"], q["lat"])) for q in atlas.get("phys_labels", [])]
+    york = cell_world(*fort)
+    def find(c, pred, radius):
+        best, bd = None, 1e18
+        w0 = cell_world(*c)
+        for dy in range(-radius * 4, radius * 4 + 1, 4):
+            for dx in range(-radius, radius + 1, 2):
+                n = (c[0] + dx, c[1] + dy)
+                if not inside(n) or not pred(n) or n in forbidden: continue
+                d = math.dist(cell_world(*n), w0)
+                if d < bd: bd, best = d, n
+        return best
+    herds = 0
+    for camp in camps:
+        if camp["kind"] != "band" or camp["nation"] not in PLAINS: continue
+        c = tuple(camp["centre"])
+        b_summer = find(c, lambda n: g(n) in ("Grassland", "TallGrass") and not WorldLayout_bank(n), 90)
+        b_winter = find(c, lambda n: g(n) == "Parkland" or (g(n) in ("Grassland", "TallGrass", "Boreal") and WorldLayout_bank(n)), 90)
+        if not b_summer or not b_winter: continue
+        if math.dist(cell_world(*b_summer), york) < 30000 or math.dist(cell_world(*b_winter), york) < 30000: continue
+        route = []
+        for m in range(12):
+            t = [0, 0, 0, 0.35, 0.75, 1, 1, 1, 1, 0.6, 0.25, 0][m]
+            cell = (round(b_winter[0] + (b_summer[0] - b_winter[0]) * t), round(b_winter[1] + (b_summer[1] - b_winter[1]) * t))
+            if cell[1] % 2 != b_winter[1] % 2: cell = (cell[0], cell[1] + 1)
+            route.append(list(cell if dry(cell) else b_winter))
+        w = cell_world(*b_summer)
+        near = min(hills, key=lambda q: math.dist(q[1], w)) if hills else None
+        where = near[0] if near and math.dist(near[1], w) < 6000 else camp["name"].replace(" of the", "").replace("Métis", "Métis country,")
+        name = f"Buffalo plain ({where})"; k = 2
+        while name in used_names: name = f"Buffalo plain ({where}) {k}"; k += 1
+        used_names.add(name)
+        country.append(dict(name=name, species="Buffalo", cell=list(b_winter), count=rng.randint(160, 200), capacity=260, radius=rng.choice([900, 1100, 1300]), route=route))
+        herds += 1
     sites.extend(country)
-    print(f"  {len(country)} country wildlife sites")
+    print(f"  {len(country)} country wildlife sites ({herds} buffalo herds)")
     # ---- routes and landmarks: the brigade roads, the great carrying places,
     # the named waters, hills and ranges (for the map, and boards on the ground).
     def in_world(x, y): return 0 <= x < WORLD_W and 0 <= y < WORLD_H
