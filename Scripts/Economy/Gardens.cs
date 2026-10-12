@@ -27,6 +27,9 @@ public static class Gardens
 
 	public static bool IsTown(Household h) => h is CountryBand cb && cb.Country != null && Named(cb.Country.Name);
 
+	// The same question asked of a camp's name, for the painter.
+	public static bool IsTownNamed(string camp) => Named(camp);
+
 	private static bool Named(string camp)
 	{
 		foreach (string t in Towns) if (camp != null && camp.StartsWith(t)) return true;

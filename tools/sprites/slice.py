@@ -36,11 +36,18 @@ def key_magenta(rgb):
     return ~bg
 
 
+# The flat colour a sheet is drawn on, when it is not the usual magenta.
+BG = None
+
+
 def despill(rgba):
-    """Edge pixels still tinted by the magenta they were blended with."""
+    """Edge pixels still tinted by the background they were blended with."""
     a = rgba[..., 3] > 0
     r, g, b = [rgba[..., i].astype(int) for i in range(3)]
-    pink = (r - g > 35) & (b - g > 35)
+    if BG is None:
+        pink = (r - g > 35) & (b - g > 35)
+    else:
+        pink = (abs(r - BG[0]) + abs(g - BG[1]) + abs(b - BG[2])) < 150
     edge = a & ~ndimage.binary_erosion(a, iterations=2)
     kill = edge & pink
     rgba[kill, 3] = 0
@@ -51,8 +58,16 @@ def parts(path, merge=40, min_frac=0.2):
     """Figures are the big connected blobs. Small blobs are either letters
     of a label (dark, dropped) or bits of a figure that came loose - a cup,
     a dropped pipe - which join the nearest figure within `merge` px."""
+    global BG
     im = np.array(Image.open(path).convert("RGB"))
     fg = key_magenta(im)
+    BG = None
+    # Not every sheet came back on magenta: the Mandan one is drawn on a
+    # dusty pink. If the corners are not keyed out, take what is in them as
+    # the background colour and key that instead.
+    if fg[2, 2] and fg[2, -3] and fg[-3, 2] and fg[-3, -3]:
+        BG = np.median(np.array([im[2, 2], im[2, -3], im[-3, 2], im[-3, -3]], int), axis=0)
+        fg = np.abs(im.astype(int) - BG).sum(axis=2) > 60
     # Cell borders: long straight dark lines no sprite has. Erase them so
     # they don't join every figure on the sheet into one.
     dark = im.max(axis=2) < 70

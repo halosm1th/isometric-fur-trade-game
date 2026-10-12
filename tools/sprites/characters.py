@@ -79,6 +79,74 @@ CUTS = {
                            "walk_side": [28, 29, 30, 29], "run_side": [31, 32],
                            "eat": [36, 37, 38, 39]}),
     ]),
+    # The factor: his own sheet at last, where he has been wearing the
+    # Nor'Wester's red since the beginning.
+    "factor": (NEW, [
+        ("factor", 0, {"idle_front": [0], "idle_back": [4], "idle_side": [25],
+                       "walk_front": [12, 13, 14, 13], "walk_back": [4, 5, 6, 7],
+                       "walk_side": [16, 17, 25, 26], "eat": [20, 21, 22, 23],
+                       "talk": [29, 30, 31], "drink": [32, 33, 34, 35],
+                       "death": [36, 37, 38, 39], "write": [40, 41, 42, 43]}),
+    ]),
+    # The nations. Every one of these is a faction in the code with people
+    # in the country and no face of its own until now; they all share the
+    # same sheet layout, so the mapping below is the same shape each time.
+    "blackfoot": (NEW, [
+        ("Blackfoot man", 0, {"idle_front": [0], "idle_back": [4], "idle_side": [8],
+                              "walk_front": [12, 13, 14, 15, 16, 17], "walk_back": [18, 19, 20, 21],
+                              "walk_side": [22, 23, 24, 25, 26, 27], "attack": [28, 29, 30, 31],
+                              "shoot": [32, 33, 34], "musket": [35, 36, 37],
+                              "eat": [38, 39, 40, 41], "drink": [42, 43, 44, 45],
+                              "death": [46, 47, 48, 49]}),
+    ]),
+    "dene": (NEW, [
+        ("Chipewyan Dene", 0, {"idle_front": [0], "idle_back": [1], "idle_side": [2],
+                               "walk_front": [3, 4, 5, 6], "walk_back": [7, 8, 9, 10],
+                               "walk_side": [11, 12, 13, 14], "attack": [15, 16],
+                               "shoot": [18, 19], "musket": [20, 21],
+                               "eat": [22, 23, 24, 25], "drink": [26, 27, 28, 29],
+                               "death": [30, 31, 32, 33]}),
+    ]),
+    "coast": (NEW, [
+        ("Coast Salish man", 0, {"idle_front": [0], "idle_back": [4], "idle_side": [7],
+                                 "walk_front": [10, 11, 12], "walk_back": [14, 4, 5, 6],
+                                 "walk_side": [15, 16, 17, 8], "attack": [19, 20, 21],
+                                 "shoot": [22, 23], "musket": [25, 24],
+                                 "eat": [26, 27, 28, 29], "drink": [30, 31, 32, 33],
+                                 "death": [34, 35, 36, 37]}),
+    ]),
+    "dakota": (NEW, [
+        ("Dakota Man", 0, {"idle_front": [0], "idle_back": [10], "idle_side": [14],
+                           "walk_front": [17, 18, 19, 20, 21, 22], "walk_back": [23, 24, 25, 26, 27, 28],
+                           "walk_side": [29, 30, 31, 32, 33, 34], "attack": [40, 41, 42],
+                           "shoot": [43, 44, 45], "musket": [47, 48, 51],
+                           "eat": [53, 54, 55, 56], "drink": [57, 58, 59, 60],
+                           "death": [61, 62, 63, 64, 65]}),
+    ]),
+    "mandan": (NEW, [
+        ("Mandan Man", 0, {"idle_front": [0], "idle_back": [6], "idle_side": [12],
+                           "walk_front": [18, 19, 20, 21, 22, 23], "walk_back": [26, 27, 28, 29, 30, 31],
+                           "walk_side": [33, 34, 35, 36, 37, 38], "attack": [41, 42, 43, 44],
+                           "shoot": [47, 48, 49, 50], "musket": [55, 56, 57, 58],
+                           "eat": [61, 62, 63, 64], "drink": [68, 69, 70, 71],
+                           "death": [75, 76, 77, 78]}),
+    ]),
+    "plateau": (NEW, [
+        ("Plateau man", 0, {"idle_front": [0], "idle_back": [1], "idle_side": [2],
+                            "walk_front": [3, 4, 5, 6], "walk_back": [7, 8, 9, 10],
+                            "walk_side": [11, 12, 13, 14], "shoot": [15, 16, 17],
+                            "musket": [18, 19, 20], "eat": [21, 22, 23, 24],
+                            "drink": [25, 26, 27, 28], "attack": [29, 30, 31, 32],
+                            "death": [33, 34, 35, 36]}),
+    ]),
+    "ojibwe": (NEW, [
+        ("ojibway man", 0, {"idle_front": [0], "idle_back": [7], "idle_side": [14],
+                            "walk_front": [21, 22, 23, 24, 25, 26], "walk_back": [28, 29, 30, 31, 32, 33],
+                            "walk_side": [35, 36, 37, 38, 39, 40], "attack": [42, 43, 44, 45],
+                            "shoot": [49, 50, 51, 52], "musket": [56, 57, 58, 59],
+                            "eat": [63, 64, 65], "drink": [66, 67, 68, 69],
+                            "death": [73, 74, 75, 76]}),
+    ]),
     # Additions to existing characters, on their old canvas.
     "player": (OLD, [
         ("Player other animations", 0, {"idle_side": [0], "walk_side": [1, 2, 3, 4],
@@ -114,7 +182,7 @@ CUTS = {
 }
 
 # Facing fixes found on review: anims whose side frames face left.
-FLIP = {}
+FLIP = {"factor": ["idle_side", "walk_side"]}
 
 # Existing characters keep their own height (feet to hat in their idle
 # frame), so new frames match the old ones beside them.
@@ -131,7 +199,7 @@ SKIP = {"player": {"idle_back"}}
 
 SPEED = {"idle": 5, "walk": 8, "walk_back": 8, "walk_side": 8, "run_side": 11, "death": 5,
          "eat": 5, "drink": 5, "attack": 9, "shoot": 7, "sleep": 1.5, "shiver": 8, "drunk": 5}
-ONESHOT = {"death", "eat", "drink", "attack", "shoot", "chop", "write", "talk", "smoke", "butcher"}
+ONESHOT = {"death", "eat", "drink", "attack", "shoot", "chop", "write", "talk", "smoke", "butcher", "musket"}
 
 # Which frame files make each animation the game knows by name.
 def animations(folder):

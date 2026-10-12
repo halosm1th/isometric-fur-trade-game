@@ -29,7 +29,7 @@ public partial class Population : Node2D
 	{
 		if (Engine.IsEditorHint()) return;
 		_hbcFrames = GD.Load<SpriteFrames>("res://Scenes/Player/PlayerFrames.tres");
-		_factorFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/RivalFrames.tres");
+		_factorFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/FactorFrames.tres");
 		_creeFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/CreeFrames.tres");
 		_labourerFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/LabourerFrames.tres");
 		_creeWomanFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/CreeWomanFrames.tres");

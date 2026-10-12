@@ -1125,6 +1125,22 @@ public partial class PlayerController : Agent
 			return $"Picked up {label}.";
 		}
 
+		// A bush in fruit, picked by hand (design doc 13.5): the one food
+		// in this country that answers the scurvy and costs nothing but
+		// stooping for it.
+		var bush = Sim.Structures?.NearestBerryBush(GlobalPosition, 110f, true);
+		if (bush != null)
+		{
+			string what = Sim.Structures.BushName(bush.Value);
+			int got = Sim.Structures.PickBerriesAt(bush.Value);
+			if (got > 0)
+			{
+				Inventory.Add(ItemId.Berries, got);
+				_busyUntil = 1.2f;
+				return $"You strip the {what}: {got} of berries.";
+			}
+		}
+
 		var lodge = Sim.Ecology?.SiteNear(GlobalPosition, Ecology.Species.Beaver);
 		if (lodge != null)
 		{
@@ -1232,6 +1248,8 @@ public partial class PlayerController : Agent
 		if (body != null) return body is Animal ? $"{Core.Keybinds.KeyFor("interact")}  Butcher the {body.Describe().ToLower()}" : $"{Core.Keybinds.KeyFor("interact")}  Search {body.Describe()}";
 		var pickup = NearestPickup();
 		if (pickup != null) return $"{Core.Keybinds.KeyFor("interact")}  Pick up {pickup.Label}";
+		var bush = Sim.Structures?.NearestBerryBush(GlobalPosition, 110f, true);
+		if (bush != null) return $"{Core.Keybinds.KeyFor("interact")}  Pick the {Sim.Structures.BushName(bush.Value)}";
 		var lodge = Sim.Ecology?.SiteNear(GlobalPosition, Ecology.Species.Beaver);
 		if (lodge != null) { var line = lodge.LineOf(TrapOwner); return line != null && line.Traps > 0 ? $"{Core.Keybinds.KeyFor("interact")}  Check your traps ({lodge.Name})" : Inventory.Has(ItemId.SteelTrap) ? $"Use a steel trap here to set a line ({lodge.Name})" : $"{lodge.Name}"; }
 		if ((Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f)) != null) return $"{Core.Keybinds.KeyFor("interact")}  The canoe";

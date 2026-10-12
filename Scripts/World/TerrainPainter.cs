@@ -445,6 +445,12 @@ public partial class TerrainPainter : TileMapLayer
         // Any post or place on the map by name: `--spawn="Fort William"`.
         if (Posts.Named(name) is { } post) return IsoGrid.Cell(post.GateCell, -1, 2);
         if (WorldMap.Place(name) is { } place) return Sim.Paths?.NearestWalkable(place.Cell, 12) ?? place.Cell;
+        // Any camp of the country by name: `--spawn=Mandan`.
+        if (Camps.Named(name) is { } camp) return Sim.Paths?.NearestWalkable(IsoGrid.Cell(camp.Centre, 2, 2), 12) ?? camp.Centre;
+        // Or a bare cell: `--spawn=538,1959`.
+        if (name.Contains(',') && name.Split(',') is { Length: 2 } xy
+            && int.TryParse(xy[0], out int cx) && int.TryParse(xy[1], out int cy))
+            return Sim.Paths?.NearestWalkable(new Vector2I(cx, cy), 12) ?? new Vector2I(cx, cy);
         foreach (var lm in WorldMap.Landmarks()) if (lm.Name == name) { var c = IsoGrid.FromWorld(lm.At); return Sim.Paths?.NearestWalkable(c, 12) ?? c; }
         return name switch
         {

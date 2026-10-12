@@ -139,7 +139,7 @@ public static class CharacterSheet
             pc.Inventory.Add(ItemId.DriedMeat, 4); pc.Inventory.Add(ItemId.Flint); pc.Inventory.Add(ItemId.FishingLine);
             pc.Inventory.Add(ItemId.Firewood, 2); pc.Inventory.Add(ItemId.SteelTrap, 2);
             var nation = path == StartPath.Nation && World.Camps.Named(campName) is World.CountryCamp nc ? nc.Nation : path == StartPath.Assiniboine ? Faction.Assiniboine : Faction.Cree;
-            pc.FramesPath = nation == Faction.Metis ? "res://Scenes/Npc/VoyageurFrames.tres" : nation is Faction.Assiniboine or Faction.Blackfoot or Faction.Sioux or Faction.Missouri ? "res://Scenes/Npc/AssiniboineFrames.tres" : "res://Scenes/Npc/CreeFrames.tres";
+            pc.FramesPath = Agents.Appearance.ForNation(nation);
             pc.Rank = "of the band"; pc.Standing = 0f;
             Kin(pc, BandOf(pc), 3, 50f);
         }
@@ -212,10 +212,9 @@ public static class CharacterSheet
         int living = 0;
         foreach (var n in Sim.Npcs) if (!n.IsDead && n.HomeStores == camp.Ledger) living++;
         if (living >= 2) return;   // the camp has its people (placed in the editor): your kin are among them
-        bool plains = camp.Nation is Faction.Blackfoot or Faction.Sioux or Faction.Assiniboine or Faction.Missouri;
         bool metis = camp.Nation == Faction.Metis;
-        var manFrames = GD.Load<SpriteFrames>(metis ? "res://Scenes/Npc/VoyageurFrames.tres" : plains ? "res://Scenes/Npc/AssiniboineFrames.tres" : "res://Scenes/Npc/CreeFrames.tres");
-        var womanFrames = GD.Load<SpriteFrames>(metis ? "res://Scenes/Npc/CountryWifeFrames.tres" : "res://Scenes/Npc/CreeWomanFrames.tres");
+        var manFrames = GD.Load<SpriteFrames>(Agents.Appearance.ForNation(camp.Nation));
+        var womanFrames = GD.Load<SpriteFrames>(Agents.Appearance.ForNation(camp.Nation, true));
         var men = _men.GetValueOrDefault(camp.Nation, _men[Faction.Cree]);
         var women = _women.GetValueOrDefault(camp.Nation, _women[Faction.Cree]);
         var c = camp.Centre;

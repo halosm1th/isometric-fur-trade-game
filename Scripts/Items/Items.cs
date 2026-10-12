@@ -85,9 +85,9 @@ public static class Items
         // What actually answered the scurvy in this country (design doc 13.5):
         // berries in their season, and spruce beer brewed at the post all
         // winter. Corn from the Missouri towns is food and trade, not physic.
-        { ItemId.Berries,      new("Berries",        ItemKind.Food,     0.6f, IconDir + "pemmican.png",     Nutrition: 10f, ValueMb: 0.1f) },
-        { ItemId.SpruceBeer,   new("Spruce beer",    ItemKind.Drink,    2.0f, IconDir + "ale_tankard.png",  Nutrition: 4f, Thirst: 40f, Warmth: 3f, ValueMb: 0.15f) },
-        { ItemId.Corn,         new("Indian corn",    ItemKind.Food,     1.0f, IconDir + "pemmican_bag.png", Nutrition: 32f, ValueMb: 0.25f) },
+        { ItemId.Berries,      new("Berries",        ItemKind.Food,     0.6f, IconDir + "berries.png",      Nutrition: 10f, ValueMb: 0.1f) },
+        { ItemId.SpruceBeer,   new("Spruce beer",    ItemKind.Drink,    2.0f, IconDir + "spruce_beer.png",  Nutrition: 4f, Thirst: 40f, Warmth: 3f, ValueMb: 0.15f) },
+        { ItemId.Corn,         new("Indian corn",    ItemKind.Food,     1.0f, IconDir + "corn.png",         Nutrition: 32f, ValueMb: 0.25f) },
         { ItemId.Bread,        new("Loaf of bread",  ItemKind.Food,     1.0f, IconDir + "bread_loaf.png",   Nutrition: 25f, ValueMb: 0.15f) },
         { ItemId.Ale,          new("Tankard of ale", ItemKind.Drink,    2.0f, IconDir + "ale_tankard.png",  Nutrition: 6f, Thirst: 45f, Warmth: 4f, ValueMb: 0.2f, Intoxication: 12f) },
         { ItemId.Rum,          new("Dram of rum",    ItemKind.Drink,    1.0f, IconDir + "rum.png",          Thirst: 10f, Warmth: 8f, ValueMb: 0.8f, Intoxication: 35f) },

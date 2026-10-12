@@ -57,6 +57,27 @@ CUTS = [
     ("Prop 2", [67, 69], PROPS, "grave", None, 100, False),
     ("Prop 2", [66], PROPS, "woodpile_winter", None, 112, False),
     ("Prop 2", [68], PROPS, "sled", None, 118, False),
+    # The berry season has something to see and to pick at last: the three
+    # bushes that answer the scurvy, in fruit, picked and bare (design doc 13.5).
+    ("bushes", [0], PROPS, "saskatoon_bush", 86, None, False),
+    ("bushes", [1], PROPS, "saskatoon_picked", 86, None, False),
+    ("bushes", [2], PROPS, "cranberry_patch", None, 112, False),
+    ("bushes", [3], PROPS, "cranberry_picked", None, 112, False),
+    ("bushes", [4], PROPS, "rosehip_bush", 86, None, False),
+    ("bushes", [5], PROPS, "rosehip_bare", 80, None, False),
+    ("bushes", [6], PROPS, "bushes_snow", None, 96, False),
+    ("bushes", [7], PROPS, "berry_basket", 50, None, False),
+    # The Missouri towns are farming towns, not hunting camps: earth lodges,
+    # garden plots, corn scaffolds and bullboats (design doc 13.1).
+    ("Mandan Huts", [0], PROPS, "earth_lodge", None, 126, False),
+    ("Mandan Huts", [1], PROPS, "earth_lodge_winter", None, 126, False),
+    ("Mandan Huts", [2], PROPS, "garden_plot", None, 126, False),
+    ("Mandan Huts", [4], PROPS, "garden_harvested", None, 126, False),
+    ("Mandan Huts", [3], PROPS, "corn_scaffold", 124, None, False),
+    ("Mandan Huts", [5], PROPS, "cache_pit", None, 112, False),
+    ("Mandan Huts", [6], PROPS, "village_palisade", None, 126, False),
+    ("Mandan Huts", [7], PROPS, "bullboat", None, 92, False),
+    ("Mandan Huts", [8], PROPS, "corn_mortar", 74, None, False),
 ]
 
 

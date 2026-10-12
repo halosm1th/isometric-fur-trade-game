@@ -23,18 +23,24 @@ SHEETS = {
                       "capote", "blanket_pelt", "hide_coat", "trade_goods", "snowshoes", "tumpline"],
     "Trade Items 3": ["letter", "dispatch", "journal", "ledger", "mb_token", "tobacco",
                       "beads", "awl", "stroud", "ice_chisel", "pemmican_bag", "fur_pack"],
+    # The scurvy sheet: what the country eats besides meat (design doc 13.5).
+    "bery food items": ["berries", "corn", "spruce_beer"],
 }
+
+# Sheets that are not the usual four across and three down.
+GRID = {"bery food items": (3, 1)}
 SIZE, MARGIN = 64, 2
 
 
 def cut_sheet(sheet, names):
+    ncols, nrows = GRID.get(sheet, (4, 3))
     im = np.array(Image.open(os.path.join(SRC, sheet + ".jpg")).convert("RGB"))
     fg = sl.key_magenta(im)
     H, W = fg.shape
     icons = {}
     for i, name in enumerate(names):
-        cx0, cy0 = int((i % 4) * W / 4), int((i // 4) * H / 3)
-        cx1, cy1 = int((i % 4 + 1) * W / 4), int((i // 4 + 1) * H / 3)
+        cx0, cy0 = int((i % ncols) * W / ncols), int((i // ncols) * H / nrows)
+        cx1, cy1 = int((i % ncols + 1) * W / ncols), int((i // ncols + 1) * H / nrows)
         m = fg[cy0:cy1, cx0:cx1].copy()
         ch = cy1 - cy0
         # The label is the band at the bottom: cut at the highest empty gap

@@ -242,7 +242,7 @@ public partial class StructurePainter : TileMapLayer
         // family's lodge and fire outside a post.
         foreach (var c in Camps.All)
         {
-            if (!c.IsFamily) { PaintCampAt(c.Centre); continue; }
+            if (!c.IsFamily) { PaintCampAt(c.Centre, Economy.Gardens.IsTownNamed(c.Name)); continue; }
             SetBack(c.Centre, SourceCampfire);
             foreach (var t in c.Tipis()) SetBack(t, SourceTipi);
         }
@@ -556,10 +556,32 @@ public partial class StructurePainter : TileMapLayer
         _camps["the Assiniboine"] = WorldLayout.AssiniboineWinterCamp;
     }
 
-    private static IEnumerable<(Vector2I cell, int source)> CampCells(Vector2I centre)
+    private static IEnumerable<(Vector2I cell, int source)> CampCells(Vector2I centre, bool town = false)
     {
         yield return (centre, SourceCampfire);
         var c = centre;
+        // The Missouri towns are not camps (design doc 13.1): earth lodges
+        // twelve metres across, the gardens on the bottomland, corn on the
+        // drying scaffolds, a cache pit, a bullboat and the village palisade.
+        if (town)
+        {
+            int lodge = (GameCalendar.Instance?.Month ?? 8) is 12 or 1 or 2 or 3 ? WorldLayout.EarthLodgeWinter : WorldLayout.EarthLodge;
+            yield return (IsoGrid.Cell(c, 3, 0), lodge);
+            yield return (IsoGrid.Cell(c, 0, 3), lodge);
+            yield return (IsoGrid.Cell(c, -3, 0), lodge);
+            yield return (IsoGrid.Cell(c, 0, -3), lodge);
+            yield return (IsoGrid.Cell(c, 3, 3), lodge);
+            yield return (IsoGrid.Cell(c, -3, -3), lodge);
+            yield return (IsoGrid.Cell(c, 2, -2), WorldLayout.CornScaffold);
+            yield return (IsoGrid.Cell(c, -2, 2), WorldLayout.CachePit);
+            yield return (IsoGrid.Cell(c, 1, 1), WorldLayout.CornMortar);
+            yield return (IsoGrid.Cell(c, 5, 2), (GameCalendar.Instance?.Month ?? 8) is >= 10 or <= 5 ? WorldLayout.GardenHarvested : WorldLayout.GardenPlot);
+            yield return (IsoGrid.Cell(c, 2, 5), (GameCalendar.Instance?.Month ?? 8) is >= 10 or <= 5 ? WorldLayout.GardenHarvested : WorldLayout.GardenPlot);
+            yield return (IsoGrid.Cell(c, -5, 0), WorldLayout.VillagePalisade);
+            yield return (IsoGrid.Cell(c, 0, -5), WorldLayout.VillagePalisade);
+            yield return (IsoGrid.Cell(c, -4, 3), WorldLayout.Bullboat);
+            yield break;
+        }
         yield return (IsoGrid.Cell(c, 3, 0), SourceTipi);
         yield return (IsoGrid.Cell(c, 0, 3), SourceTipi);
         yield return (IsoGrid.Cell(c, -3, 0), SourceTipi);
@@ -568,9 +590,9 @@ public partial class StructurePainter : TileMapLayer
         yield return (IsoGrid.Cell(c, 2, -2), SourceWoodpile);
     }
 
-    private void PaintCampAt(Vector2I centre)
+    private void PaintCampAt(Vector2I centre, bool town = false)
     {
-        foreach (var (cell, source) in CampCells(centre)) SetBack(cell, source);
+        foreach (var (cell, source) in CampCells(centre, town)) SetBack(cell, source);
     }
 
     // Where each band's tipis stand now, by band name; the generated map has them at the winter grounds.
@@ -616,7 +638,7 @@ public partial class StructurePainter : TileMapLayer
             int flora = WorldLayout.Flora(cell);
             if (flora < 0 || _felled.Contains(cell)) continue;
             if (GetCellSourceId(cell) != -1) continue;
-            SetBack(cell, flora);
+            SetBack(cell, WorldLayout.IsBerrySource(flora) ? BerryLook(cell, flora) : flora);
         }
     }
 
@@ -664,6 +686,78 @@ public partial class StructurePainter : TileMapLayer
         RebuildCollision();
         Net.Net.I?.BroadcastCell(0, cell, -1);
         return true;
+    }
+
+    // ---- berries (design doc 13.5) -----------------------------------------
+    //
+    // A bush is one cell of flora like a tree, but what it shows depends on
+    // the month and on whether anybody has been at it: in fruit through its
+    // season, picked over for a few weeks after a picker has stripped it,
+    // bare in the autumn and a mound of snow in the deep of winter.
+    private readonly Dictionary<Vector2I, int> _picked = new();
+
+    private static bool InFruit(int source, int month) => source switch
+    {
+        WorldLayout.Saskatoon => month is 7 or 8,
+        WorldLayout.Cranberry => month is 8 or 9 or 10,
+        // The rosehip is the one that hangs on the bush all winter, which is
+        // exactly why it mattered to people with the scurvy coming on.
+        WorldLayout.Rosehip => month is 7 or 8 or 9 or 10 or 11 or 12 or 1 or 2,
+        _ => false,
+    };
+
+    public int BerryLook(Vector2I cell, int source)
+    {
+        var cal = GameCalendar.Instance;
+        int month = cal?.Month ?? 8;
+        bool stripped = _picked.TryGetValue(cell, out int day) && cal != null && cal.Day - day is >= 0 and < 30;
+        if (month is 1 or 2 or 3 && source != WorldLayout.Rosehip) return WorldLayout.BushesSnow;
+        if (!stripped && InFruit(source, month)) return source;
+        return source switch
+        {
+            WorldLayout.Saskatoon => WorldLayout.SaskatoonPicked,
+            WorldLayout.Cranberry => WorldLayout.CranberryPicked,
+            _ => WorldLayout.RosehipBare,
+        };
+    }
+
+    // The bush a body is standing by, and whether there is anything on it.
+    public Vector2I? NearestBerryBush(Vector2 worldPos, float maxDist, bool inFruitOnly)
+    {
+        var cal = GameCalendar.Instance;
+        Vector2I? best = null; float bestD = maxDist;
+        var c = LocalToMap(worldPos);
+        for (int dx = -3; dx <= 3; dx++)
+            for (int dy = -6; dy <= 6; dy++)
+            {
+                var n = new Vector2I(c.X + dx, c.Y + dy);
+                int flora = WorldLayout.Flora(n);
+                if (!WorldLayout.IsBerrySource(flora)) continue;
+                if (inFruitOnly && BerryLook(n, flora) != flora) continue;
+                float d = MapToLocal(n).DistanceTo(worldPos);
+                if (d < bestD) { bestD = d; best = n; }
+            }
+        return best;
+    }
+
+    public string BushName(Vector2I cell) => WorldLayout.Flora(cell) switch
+    {
+        WorldLayout.Saskatoon => "saskatoon bush",
+        WorldLayout.Cranberry => "cranberry patch",
+        _ => "rosehip bush",
+    };
+
+    // Strip it: the picker gets what is on it, and the bush shows picked
+    // over until it comes round again.
+    public int PickBerriesAt(Vector2I cell)
+    {
+        int flora = WorldLayout.Flora(cell);
+        if (!WorldLayout.IsBerrySource(flora) || BerryLook(cell, flora) != flora) return 0;
+        _picked[cell] = GameCalendar.Instance?.Day ?? 0;
+        int look = BerryLook(cell, flora);
+        if (GetCellSourceId(cell) != -1) SetBack(cell, look);
+        Net.Net.I?.BroadcastCell(0, cell, look);
+        return flora == WorldLayout.Cranberry ? 5 : flora == WorldLayout.Saskatoon ? 4 : 3;
     }
 
     public bool IsBed(Vector2I cell) => GetCellSourceId(cell) == SourceBed;

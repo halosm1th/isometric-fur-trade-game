@@ -246,8 +246,16 @@ public static class WorldLayout
     // Tile sources (terrain_tileset.tres) for the growth and the ground clutter.
     public const int Spruce0 = 52, Tamarack = 80, Willow = 81, Rocks = 82, Boulder = 83, Reeds = 84, MuskegPool = 85,
         DeadTree = 86, Aspen = 97, JackPine = 98, BeaverLodge = 87, CanoeBeached = 92, Cache = 95;
+    // The berry bushes (design doc 13.5): in fruit, picked over, and bare
+    // or under snow as the year goes round. And the earth-lodge towns of
+    // the Missouri (13.1), which are not camps of tipis.
+    public const int Saskatoon = 99, SaskatoonPicked = 100, Cranberry = 101, CranberryPicked = 102,
+        Rosehip = 103, RosehipBare = 104, BushesSnow = 105, BerryBasket = 106,
+        EarthLodge = 107, EarthLodgeWinter = 108, GardenPlot = 109, GardenHarvested = 110,
+        CornScaffold = 111, CachePit = 112, VillagePalisade = 113, Bullboat = 114, CornMortar = 115;
+    public static bool IsBerrySource(int s) => s is >= Saskatoon and <= BushesSnow;
     public static bool IsTreeSource(int s) => s is >= Spruce0 and <= Spruce0 + 2 or Tamarack or DeadTree or Aspen or JackPine;
-    public static bool IsFloraSource(int s) => IsTreeSource(s) || s is >= Willow and <= MuskegPool;
+    public static bool IsFloraSource(int s) => IsTreeSource(s) || s is >= Willow and <= MuskegPool || IsBerrySource(s);
 
     // Ground nobody lets grow: round the posts and camps, along the road and
     // the trail, the beaches.
@@ -327,13 +335,13 @@ public static class WorldLayout
         float r = (h - d) / Mathf.Max(0.01f, 1f - d);
         return g switch
         {
-            Ground.Shield => r < 0.05f ? Rocks : r < 0.08f ? Boulder : -1,
-            Ground.Lowland => r < 0.03f ? MuskegPool : r < 0.06f ? Reeds : -1,
-            Ground.Tundra => r < 0.04f ? Willow : r < 0.06f ? Rocks : r < 0.07f ? Boulder : r < 0.075f ? spruce : -1,
-            Ground.Cordillera => r < 0.06f ? Boulder : r < 0.1f ? Rocks : -1,
-            Ground.Grassland or Ground.TallGrass => r < 0.008f ? Rocks : r < 0.01f ? Boulder : -1,
-            Ground.Parkland => r < 0.01f ? Willow : -1,
-            _ => r < 0.008f ? Rocks : -1,
+            Ground.Shield => r < 0.05f ? Rocks : r < 0.08f ? Boulder : r < 0.11f ? Saskatoon : r < 0.13f ? Rosehip : -1,
+            Ground.Lowland => r < 0.03f ? MuskegPool : r < 0.06f ? Reeds : r < 0.1f ? Cranberry : -1,
+            Ground.Tundra => r < 0.04f ? Willow : r < 0.06f ? Rocks : r < 0.07f ? Boulder : r < 0.075f ? spruce : r < 0.1f ? Cranberry : -1,
+            Ground.Cordillera => r < 0.06f ? Boulder : r < 0.1f ? Rocks : r < 0.12f ? Saskatoon : -1,
+            Ground.Grassland or Ground.TallGrass => r < 0.008f ? Rocks : r < 0.01f ? Boulder : r < 0.02f ? Rosehip : -1,
+            Ground.Parkland => r < 0.01f ? Willow : r < 0.035f ? Saskatoon : r < 0.05f ? Rosehip : -1,
+            _ => r < 0.008f ? Rocks : r < 0.02f ? Saskatoon : -1,
         };
     }
 }

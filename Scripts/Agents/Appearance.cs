@@ -22,8 +22,34 @@ public static class Appearance
             Role.Woman or Role.Wife when n.Faction == Faction.HBC => Dir + "CountryWifeFrames.tres",
             Role.Sailor => Dir + "SailorFrames.tres",
             Role.Clerk or Role.Postmaster => Dir + "ClerkFrames.tres",
-            Role.CreeChief => Dir + "CreeCaptainFrames.tres",
+            Role.Factor => Dir + "FactorFrames.tres",
+            // The trading captain's sheet is a Cree one: a Blackfoot or a
+            // Mandan chief wears his own nation's instead.
+            Role.CreeChief when n.Faction is Faction.Cree or Faction.HBC => Dir + "CreeCaptainFrames.tres",
+            Role.Woman or Role.Wife or Role.CreeWoman or Role.CreeDaughter => ForNation(n.Faction, true),
+            Role.CreeHunter or Role.CreeChief => ForNation(n.Faction),
             _ => null,
+        };
+    }
+
+    // The sheet a man or woman of a nation wears. Every faction in the
+    // country has people in it; until now they all borrowed the Cree's or
+    // the Assiniboine's face. The women still do - nobody has drawn them.
+    public static string ForNation(Faction f, bool female = false)
+    {
+        if (female) return Dir + (f == Faction.Metis ? "CountryWifeFrames.tres" : "CreeWomanFrames.tres");
+        return Dir + f switch
+        {
+            Faction.Metis => "VoyageurFrames.tres",
+            Faction.Blackfoot => "BlackfootFrames.tres",
+            Faction.Dene => "DeneFrames.tres",
+            Faction.Coast => "CoastFrames.tres",
+            Faction.Sioux => "DakotaFrames.tres",
+            Faction.Missouri => "MandanFrames.tres",
+            Faction.Plateau => "PlateauFrames.tres",
+            Faction.Ojibwe => "OjibweFrames.tres",
+            Faction.Assiniboine => "AssiniboineFrames.tres",
+            _ => "CreeFrames.tres",
         };
     }
 
