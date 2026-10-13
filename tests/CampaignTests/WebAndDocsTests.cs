@@ -181,6 +181,34 @@ public class BranchingCampaignTests
 	}
 }
 
+public class ActionCampaignTests
+{
+	private static Dictionary<string, object> Doc() => CampLang.CompileText(Read("tools/CampaignTool/src/blood-on-the-bay.camp"));
+
+	[Fact]
+	public void SomethingHappensEveryFewDaysFromTheFirstDay()
+	{
+		var r = Sim.Simulate(Doc(), Json("tools/CampaignTool/examples/blood-on-the-bay.scenario.json"), 1);
+		var days = r.Runner.Fired.Select(f => f.Day).OrderBy(d => d).ToList();
+		int start = CampaignLogic.DayNumber("1811-08-20");
+		Assert.Equal(start, days[0]);                                              // on the day you land
+		Assert.True(days.Count(d => d <= start + 14) >= 5, "a crisis every few days in the first fortnight");
+		Assert.True(days.Count(d => d <= start + 60) >= 20, "and no quiet spell in the first two months");
+		for (int i = 1; i < days.Count && days[i] <= start + 90; i++) Assert.True(days[i] - days[i - 1] <= 8, "no lull longer than a week before winter");
+	}
+
+	[Fact]
+	public void ATruceAndARelief_TurnItAround()
+	{
+		var war = Sim.Simulate(Doc(), Json("tools/CampaignTool/examples/blood-on-the-bay.scenario.json"), 1).Runner.Fired.Select(f => f.Id).ToHashSet();
+		var peace = Sim.Simulate(Doc(), Json("tools/CampaignTool/examples/blood-on-the-bay-peace.scenario.json"), 1).Runner.Fired.Select(f => f.Id).ToHashSet();
+		Assert.Contains("the-raid-on-the-stores", war); Assert.Contains("the-siege", war);
+		Assert.DoesNotContain("the-truce", war);
+		Assert.Contains("the-truce", peace); Assert.Contains("the-relief", peace);
+		Assert.DoesNotContain("the-raid-on-the-stores", peace); Assert.DoesNotContain("the-siege", peace);
+	}
+}
+
 public class ExampleTests
 {
 	[Fact]

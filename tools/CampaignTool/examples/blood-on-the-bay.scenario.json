@@ -1,0 +1,13 @@
+{
+  "start": "1811-08-20",
+  "end": "1812-03-01",
+  "adherence": "Steady",
+  "player_faction": "HBC",
+  "tension": {
+    "1811-01-01": 30
+  },
+  "stocks": {
+    "York Factory|Pemmican": 50
+  },
+  "about": "No one keeps the peace: the Bay falls into open hostility."
+}
