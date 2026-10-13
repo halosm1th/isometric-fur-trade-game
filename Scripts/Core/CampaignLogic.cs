@@ -87,6 +87,8 @@ public static class CampaignLogic
 		["convoy_turned_back"] = "turned:", ["convoy_out"] = "out:", ["convoy_in"] = "in:",
 	};
 
+	private static readonly HashSet<string> FlagPrefixes = new() { "heard", "late", "lost", "robbed", "turned", "out", "in" };
+
 	public static bool All(object conds, CampaignState st, ICampaignWorld w)
 	{
 		if (conds == null) return true;
@@ -131,6 +133,8 @@ public static class CampaignLogic
 			return Compared(Metric(m.Groups[1].Value, SplitArgs(m.Groups[2].Value), st, w), m.Groups[3].Value, double.Parse(m.Groups[4].Value, Inv));
 		// tension>=40 written without a space is covered above; "name:arg" is a fact with one argument.
 		int colon = c.IndexOf(':');
+		// "heard:x", "late:the York boats": flags the engine raises, read as they always were.
+		if (colon > 0 && FlagPrefixes.Contains(c[..colon].Trim())) return st.Flags.Contains(c);
 		if (colon > 0) return Predicate(c[..colon].Trim(), new[] { c[(colon + 1)..].Trim() }, st, w);
 		var call = Call.Match(c);
 		if (call.Success) return Predicate(call.Groups[1].Value, SplitArgs(call.Groups[2].Value), st, w);

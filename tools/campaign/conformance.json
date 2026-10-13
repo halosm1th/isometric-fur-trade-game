@@ -2215,6 +2215,82 @@
      }
     ]
    }
+  },
+  {
+   "name": "a flag the engine raised, read bare",
+   "kind": "cond",
+   "cond": "heard:red-river-grant",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "heard:red-river-grant"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "...unset",
+   "kind": "cond",
+   "cond": "heard:red-river-grant",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "...negated",
+   "kind": "cond",
+   "cond": "!late:the York boats",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "...with spaces in the name",
+   "kind": "cond",
+   "cond": "late:the York boats",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "late:the York boats"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
   }
  ]
 }

@@ -13,6 +13,8 @@ CONVOY_FLAGS = {
     "convoy_late": "late:", "convoy_lost": "lost:", "convoy_robbed": "robbed:",
     "convoy_turned_back": "turned:", "convoy_out": "out:", "convoy_in": "in:",
 }
+# "heard:x", "late:the York boats": flags the engine raises, read as bare flags.
+FLAG_PREFIXES = {"heard", "late", "lost", "robbed", "turned", "out", "in"}
 _COMPARE = re.compile(r"^\s*([a-z_]+)\s*(?:\(([^)]*)\))?\s*(>=|<=|==|!=|>|<)\s*(-?\d+(?:\.\d+)?)\s*$")
 _CALL = re.compile(r"^\s*([a-z_]+)\s*\(([^)]*)\)\s*$")
 
@@ -147,6 +149,8 @@ def _eval_string(c, st, w):
     if m:
         return _compared(_metric(m.group(1), split_args(m.group(2)), st, w), m.group(3), float(m.group(4)))
     colon = c.find(":")
+    if colon > 0 and c[:colon].strip() in FLAG_PREFIXES:
+        return c in st.flags
     if colon > 0:
         return _predicate(c[:colon].strip(), [c[colon + 1:].strip()], st, w)
     call = _CALL.match(c)
