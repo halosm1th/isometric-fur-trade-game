@@ -82,7 +82,7 @@ public static class Plains
                     string row = "";
                     foreach (int doy in new[] { 15, 135, 196, 288 })
                         row += $"  d{doy}: night {Climate.ExposureAt(at, 0f, doy):0.0} day {Climate.ExposureAt(at, 1f, doy):0.0}";
-                    GD.Print($"[climate] {name} ({ll.Lat:0.0}N {-ll.Lon:0.0}W){row}");
+                    GD.Print($"[climate] {name} ({ll.Lat:0.0}N {-ll.Lon:0.0}W){row}  | today: {(Sim.Terrain?.FrozenAt(at) == true ? "frozen" : "open")}, sky {GameCalendar.Instance.Weather.At(at)}");
                 }
             if (arg != "--horse") continue;
             foreach (var pc in Sim.Players())
@@ -263,8 +263,12 @@ public static class Plains
             Freight(b, cal);
         }
         Raids(cal);
+        MissouriTrade.Week(cal);
         if (Log)
         {
+            foreach (var c in Camps.All)
+                if (c.Ledger != null && Gardens.IsTown(c.Ledger))
+                    GD.Print($"[plains] {cal.DateString}   {c.Name}: {c.Ledger.Stores.Count(ItemId.Corn)} corn, {c.Ledger.Herd.Horses} horses, {c.Ledger.Stores.Count(ItemId.Musket)} guns, {c.Ledger.Stores.Count(ItemId.TradeGoods)} goods, {c.Ledger.Stores.Count(ItemId.DriedMeat)} dried meat");
             var herds = new List<string>();
             foreach (var s in Sim.Ecology?.Sites ?? new List<SpawnSite>()) if (s.Species == Species.Buffalo) herds.Add($"{s.Count:0}");
             int horses = 0; foreach (var h in Horses.All()) horses += h.Herd.Horses;
@@ -319,7 +323,9 @@ public static class Plains
             if (d < bd) { bd = d; post = p.Ledger; }
         }
         if (post == null) return;
-        int pay = Mathf.Min(post.Stores.Count(ItemId.TradeGoods), Mathf.Max(1, Mathf.RoundToInt(lot * Items.Items.Of(ItemId.Pemmican).ValueMb * post.PeltPrice)));
+        // The house keeps back the goods for its winter trade (the men who go down
+        // to the Missouri, the camps that come in with furs); pemmican is paid out of the rest.
+        int pay = Mathf.Min(post.Stores.Count(ItemId.TradeGoods) - 30, Mathf.Max(1, Mathf.RoundToInt(lot * Items.Items.Of(ItemId.Pemmican).ValueMb * post.PeltPrice)));
         if (pay <= 0) return;
         lot = Mathf.Min(lot, Mathf.RoundToInt(pay / (Items.Items.Of(ItemId.Pemmican).ValueMb * post.PeltPrice)) + 1);
         if (Log) GD.Print($"[plains] {cal.DateString} {cb.Name} freight {lot} pemmican to {post.Title} ({(b.Herd.Carts > 0 ? $"{b.Herd.Carts} carts" : "travois")}), {pay} goods");
@@ -397,7 +403,11 @@ public static class Plains
     {
         var where = IsoGrid.ToWorld(target.AccessCell);
         bool told = NearPlayer(where, 12000f) || NearPlayer(IsoGrid.ToWorld(raider.Camp), 12000f);
-        if (GD.Randf() < 0.55f)
+        // Guns tip it (design doc 7.2): a camp the posts have armed raids
+        // harder and is raided less easily.
+        float armed = Mathf.Clamp(raider.Stores.Count(ItemId.Musket) / (float)Mathf.Max(1, raider.Mouths), 0f, 1f);
+        float defended = Mathf.Clamp(target.Stores.Count(ItemId.Musket) / (float)Mathf.Max(1, (target as BandLedger)?.Mouths ?? 6), 0f, 1f);
+        if (GD.Randf() < 0.55f + 0.2f * armed - 0.2f * defended)
         {
             int n = Mathf.Clamp(GD.RandRange(3, 10), 1, Mathf.Max(1, target.Herd.Free / 4));
             target.Herd.Lose(n);

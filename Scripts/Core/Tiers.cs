@@ -119,7 +119,8 @@ public static class Tiers
     private static void DailyBatch()
     {
         var cal = GameCalendar.Instance;
-        bool foul = cal.Weather.Current is SkyState.Blizzard or SkyState.Storm;
+        // Foul weather is local: a blizzard at York does not keep the Mandan indoors.
+        bool Foul(Economy.Household h) => cal.Weather.FoulAt(World.IsoGrid.ToWorld(h.AccessCell));
         bool rushing = cal.MotionScale > 6f;
         // A copy: someone who dies of want in the batch leaves Sim.Npcs mid-loop.
         foreach (var n in new System.Collections.Generic.List<Npc>(Sim.Npcs))
@@ -168,10 +169,12 @@ public static class Tiers
             if (!ate) n.Needs.Hunger = Mathf.Max(0f, n.Needs.Hunger - 26f);
             else n.Needs.Hunger = Mathf.Max(n.Needs.Hunger, 60f);
             // Snow melted at the fire does for water where there is wood.
-            n.Needs.Thirst = home.Stores.Has(ItemId.Water) || !cal.IsFrozen || home.Stores.Has(ItemId.Firewood) ? 100f : Mathf.Max(20f, n.Needs.Thirst - 10f);
+            // Winter is where the house is, not at York.
+            bool frozen = Sim.Terrain?.FrozenAt(World.IsoGrid.ToWorld(home.AccessCell)) ?? cal.IsFrozen;
+            n.Needs.Thirst = home.Stores.Has(ItemId.Water) || !frozen || home.Stores.Has(ItemId.Firewood) ? 100f : Mathf.Max(20f, n.Needs.Thirst - 10f);
             if (home.Stores.Has(ItemId.Water)) home.Stores.Remove(ItemId.Water);
             // A fire in the house keeps him warm; a cold hearth doesn't.
-            bool warm = home.Stores.Has(ItemId.Firewood) || !cal.IsFrozen;
+            bool warm = home.Stores.Has(ItemId.Firewood) || !frozen;
             if (warm) { n.Needs.Warmth = 100f; home.Stores.TakeUpTo(ItemId.Firewood, 1); }
             else n.Needs.Warmth = Mathf.Max(0f, n.Needs.Warmth - 30f);
             // Short commons, not a quiet wipe (design doc 17.1): a house with
@@ -189,7 +192,7 @@ public static class Tiers
                 continue;
             }
 
-            if (foul) continue;   // nobody works in a blizzard
+            if (Foul(home)) continue;   // nobody works in a blizzard
             // A camp of the wider country feeds itself in its own weekly sum
             // (Economy/CountryBand): its people are not at York's grounds.
             if (home is Economy.CountryBand) continue;

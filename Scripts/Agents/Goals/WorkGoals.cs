@@ -115,7 +115,7 @@ public class HuntSiteGoal : Goal
                 _worked += hours;
                 _tryTimer -= hours;
                 // Weather closing in or the light going: head home with what you have.
-                var sky = GameCalendar.Instance.Weather.Current;
+                var sky = GameCalendar.Instance.Weather.At(npc.GlobalPosition);
                 bool out_ = StaysOut(npc);
                 if (sky == SkyState.Blizzard || sky == SkyState.Storm
                     || (!out_ && GameCalendar.Instance.Hour >= 16f)
@@ -551,7 +551,7 @@ public class ForageGoal : Goal
             case 2:
             {
                 _worked += hours; _tryTimer -= hours;
-                var sky = GameCalendar.Instance.Weather.Current;
+                var sky = GameCalendar.Instance.Weather.At(npc.GlobalPosition);
                 if (_worked >= _workHours || _got >= 4 || sky == SkyState.Blizzard || sky == SkyState.Storm || GameCalendar.Instance.Hour >= 16f || npc.Needs.Thirst < 40f || npc.Needs.Warmth < 35f)
                 {
                     _phase = 3;

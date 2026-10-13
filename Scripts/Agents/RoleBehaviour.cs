@@ -38,10 +38,13 @@ public abstract class RoleBehaviour
     }
 
     protected static bool IsWorkHours => Cal.Hour >= 7f && Cal.Hour < 18f && !FoulWeather;
-    protected static bool FoulWeather => Cal.Weather.Current == SkyState.Blizzard || Cal.Weather.Current == SkyState.Storm;
+    // The weather where the man deciding is, not over the player's head.
+    private static Vector2 _here;
+    protected static bool FoulWeather => Cal.Weather.FoulAt(_here);
 
     public virtual Goal NextGoal(Npc npc)
     {
+        _here = npc.GlobalPosition;
         if (npc.PendingReport != null && !IsNight)
         {
             var g = new ReportGoal(npc.PendingReport, npc.PendingReportSite, npc.PendingReportCell);

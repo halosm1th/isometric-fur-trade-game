@@ -39,7 +39,8 @@ public class Herd
         // through: the camps winter in the valleys for a reason.
         if (graze < 0f && owner is BandLedger) graze *= 0.8f;
         Condition = Mathf.Clamp(Condition + graze - worked, 0f, 100f);
-        if (cal.IsFrozen && Condition < 30f && GD.Randf() < (30f - Condition) / 30f * 0.2f)
+        bool winter = owner != null && Sim.Terrain != null ? Sim.Terrain.FrozenAt(IsoGrid.ToWorld(owner.AccessCell)) : cal.IsFrozen;
+        if (winter && Condition < 30f && GD.Randf() < (30f - Condition) / 30f * 0.2f)
         {
             int lost = Mathf.Max(1, Mathf.RoundToInt(Horses * 0.02f));
             Lose(lost);

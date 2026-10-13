@@ -284,7 +284,7 @@ public static class Brigades
 
 		float pace = (b.Upstream ? 0.055f : 0.095f) * Mathf.Lerp(0.6f, 1.1f, Mathf.Clamp(b.Crew.Count / 6f, 0.2f, 1f));
 		if (b.Cargo.TotalWeightLbs > 240f * Mathf.Max(1, b.Crew.Count / 2)) pace *= 0.75f;
-		if (cal.Weather.Current is SkyState.Storm or SkyState.Blizzard) pace *= 0.3f;
+		if (cal.Weather.At(b.Where) is SkyState.Storm or SkyState.Blizzard) pace *= 0.3f;
 		float was = b.Along;
 		b.Along = Mathf.Clamp(b.Along + pace, 0f, 1f);
 

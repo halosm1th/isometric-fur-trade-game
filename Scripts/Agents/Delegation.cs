@@ -139,7 +139,7 @@ public static class Delegation
 
         // The inland post's duties (design doc 10.1.2's second leg): once a
         // month a man carries the furs and a report down to the Bay.
-        if (fort is OutpostLedger op && Sim.Fort != null && today - op.LastReportSentDay >= 30 && Cal.Hour < 10f && !FoulWeather())
+        if (fort is OutpostLedger op && Sim.Fort != null && today - op.LastReportSentDay >= 30 && Cal.Hour < 10f && !FoulWeather(fort))
         {
             var opRef = op;
             tasks.Add(new PostTask
@@ -233,7 +233,7 @@ public static class Delegation
         foreach (var pc in Sim.Players()) if (pc.HomePost == fort && !pc.IsDead) pc.Say(pc.Standing > best.Standing ? $"{best.DisplayName} has Oxford House. Your standing was higher; the Factor wanted a clerk who can keep books." : $"{best.DisplayName} has been given Oxford House. Standing {pc.Standing:0} against his {best.Standing:0}.");
     }
 
-    private static bool FoulWeather() => Cal.Weather.Current == SkyState.Blizzard || Cal.Weather.Current == SkyState.Storm;
+    private static bool FoulWeather(Economy.Household at) => Cal.Weather.FoulAt(World.IsoGrid.ToWorld(at.AccessCell));
 
     // After the ship: the fall outfit goes inland with two men (design doc 3.9 step 2).
     public static void OrderSupply(Npc factor)

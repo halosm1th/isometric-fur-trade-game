@@ -162,7 +162,8 @@ public partial class Agent : CharacterBody2D
             season: cal.CurrentSeason,
             daylight: cal.DaylightFactor,
             fireEnclosed: HeatEnclosed,
-            localExposure: Climate.ExposureAt(GlobalPosition, cal.DaylightFactor, cal.DayOfYear));
+            localExposure: Climate.ExposureAt(GlobalPosition, cal.DaylightFactor, cal.DayOfYear),
+            localWeather: cal.Weather.ExposureMultiplierAt(GlobalPosition));
 
         if (IsDead) OnDeath();
     }

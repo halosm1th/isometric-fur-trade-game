@@ -496,7 +496,9 @@ public partial class Net : Node
     private void SendSlowState()
     {
         var cal = GameCalendar.Instance;
-        Rpc(nameof(WorldSync), cal.Year, cal.Month, cal.Day, cal.Hour, (int)cal.Weather.Current);
+        // Each joined player hears the sky over his own head.
+        foreach (var kv in Players)
+            if (kv.Key != LocalPeerId && IsInstanceValid(kv.Value)) RpcId(kv.Key, nameof(WorldSync), cal.Year, cal.Month, cal.Day, cal.Hour, (int)cal.Weather.At(kv.Value.GlobalPosition));
         var hearths = new Godot.Collections.Array();
         if (Sim.Structures != null) foreach (var h in Sim.Structures.AllHearths) hearths.Add(new Godot.Collections.Array { h.Cell.X, h.Cell.Y, h.Lit ? h.FuelHours : -h.FuelHours - 0.001f });
         var ship = Sim.Ship;

@@ -236,6 +236,9 @@ public partial class GameCalendar : Node
             SkipRemaining -= DeltaGameHours;
         }
         Hour += DeltaGameHours;
+        // "Here", for the sky: the local player, or York with nobody about.
+        if (Sim.Player != null && GodotObject.IsInstanceValid(Sim.Player)) { Weather.Focus = Sim.Player.GlobalPosition; Weather.HasFocus = true; }
+        else if (!Weather.HasFocus && World.WorldMap.Loaded) Weather.Focus = World.IsoGrid.ToWorld(World.WorldLayout.GateOutside);
         Weather.Tick(DeltaGameHours, CurrentSeason);
         MotionScale = delta > 0 ? Mathf.Max(1f, DeltaGameHours / ((float)delta / BaselineSecondsPerHour)) : 1f;
 

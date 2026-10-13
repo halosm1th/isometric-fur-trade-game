@@ -83,7 +83,9 @@ public partial class TerrainPainter : TileMapLayer
             var cal = GameCalendar.Instance;
             if (cal != null)
             {
-                cal.SeasonChanged += _ => ApplySeason(cal.IsFrozen);
+                // Each stretch of country freezes and thaws on its own day (FrozenAt).
+                cal.DayPassed += (_, _, _) => ApplySeason();
+                cal.SeasonChanged += _ => ApplySeason();
                 _frozen = cal.IsFrozen;
             }
         }
@@ -266,6 +268,7 @@ public partial class TerrainPainter : TileMapLayer
         if (_loaded.Contains(ch)) return;
         _loaded.Add(ch);
         foreach (var cell in CellsOf(ch)) SetCell(cell, SourceFor(cell), Vector2I.Zero);
+        _paintedFrozen[ch] = FrozenAt(CellsOfFirst(ch));
         Structures?.PaintForest(CellsOf(ch));
         BuildWaterCollision(ch);
     }
@@ -342,22 +345,56 @@ public partial class TerrainPainter : TileMapLayer
         _ => src,
     };
 
-    public int SourceFor(Vector2I cell) => _frozen ? Winter(SummerSource(cell)) : SummerSource(cell);
+    public int SourceFor(Vector2I cell) => FrozenAt(cell) ? Winter(SummerSource(cell)) : SummerSource(cell);
 
-    // Frozen water has no collision, so the sea route closes but the ice
-    // becomes a road. Every painted chunk is repainted for the season.
-    private void ApplySeason(bool frozen)
+    // Whether the ground is under snow and the water under ice, here: the
+    // country freezes when its own mean temperature, three weeks back (the
+    // water lags the air), is well below freezing - the Red River opens in
+    // April while the Bay is still iced in, and the Pacific slope hardly
+    // freezes at all (Agents/Climate). Decided per chunk, once a day.
+    private readonly Dictionary<Vector2I, bool> _chunkFrozen = new();
+    public bool FrozenAt(Vector2I cell)
     {
-        if (frozen == _frozen) return;
-        _frozen = frozen;
-        foreach (var ch in _loaded)
-        {
-            foreach (var cell in CellsOf(ch)) SetCell(cell, SourceFor(cell), Vector2I.Zero);
-            BuildWaterCollision(ch);
-        }
+        var ch = ChunkOf(cell);
+        if (_chunkFrozen.TryGetValue(ch, out bool f)) return f;
+        f = ComputeFrozen(ch);
+        _chunkFrozen[ch] = f;
+        return f;
+    }
+    public bool FrozenAt(Vector2 world) => FrozenAt(IsoGrid.FromWorld(world));
+
+    private bool ComputeFrozen(Vector2I ch)
+    {
+        var cal = GameCalendar.Instance;
+        if (cal == null) return _frozen;
+        var centre = IsoGrid.ToWorld(new Vector2I(ch.X * ChunkCols + ChunkCols / 2, ch.Y * ChunkRows + ChunkRows / 2));
+        float mean = Agents.Climate.MeanAt(centre, cal.DayOfYear - 20f, out _, out _);
+        return mean < -100f ? cal.IsFrozen : mean < -4f;
     }
 
-    public bool IsFrozen => _frozen;
+    // Frozen water has no collision, so the sea route closes but the ice
+    // becomes a road. A chunk whose freeze has changed today is repainted.
+    private void ApplySeason()
+    {
+        _chunkFrozen.Clear();
+        _frozen = GameCalendar.Instance?.IsFrozen ?? _frozen;
+        foreach (var ch in _loaded)
+        {
+            if (!_paintedFrozen.TryGetValue(ch, out bool was) || was == FrozenAt(CellsOfFirst(ch))) continue;
+            Repaint(ch);
+        }
+    }
+    private readonly Dictionary<Vector2I, bool> _paintedFrozen = new();
+    private static Vector2I CellsOfFirst(Vector2I ch) => new(ch.X * ChunkCols, ch.Y * ChunkRows);
+    private void Repaint(Vector2I ch)
+    {
+        foreach (var cell in CellsOf(ch)) SetCell(cell, SourceFor(cell), Vector2I.Zero);
+        _paintedFrozen[ch] = FrozenAt(CellsOfFirst(ch));
+        BuildWaterCollision(ch);
+    }
+
+    // Frozen where the local player stands (the road planner, the travel march).
+    public bool IsFrozen => Sim.Player != null && GodotObject.IsInstanceValid(Sim.Player) ? FrozenAt(Sim.Player.GlobalPosition) : _frozen;
 
     private StructurePainter Structures =>
         StructurePainterPath == null || StructurePainterPath.IsEmpty
@@ -390,7 +427,7 @@ public partial class TerrainPainter : TileMapLayer
         if (src == SourceMuskeg) return 0.75f;   // the muskeg in summer: knee-deep moss and water
         // The goose marsh is a swamp in summer.
         foreach (var s in WorldLayout.Sites)
-            if (s.Species == Ecology.Species.Goose && worldPos.DistanceTo(IsoGrid.ToWorld(s.Cell)) < s.RadiusPx * 0.8f && !_frozen) return 0.6f;
+            if (s.Species == Ecology.Species.Goose && worldPos.DistanceTo(IsoGrid.ToWorld(s.Cell)) < s.RadiusPx * 0.8f && !FrozenAt(cell)) return 0.6f;
         return 1f;
     }
 
@@ -421,12 +458,12 @@ public partial class TerrainPainter : TileMapLayer
         if (src == SourceMuskeg) f = Mathf.Min(f, 0.6f);
         if (src == SourceHill || src == SourceMountain) f = Mathf.Min(f, 1.2f);
         // Snow: the wind keeps the plains bare enough; in the woods it lies deep.
-        if (_frozen) f *= g is Ground.Grassland or Ground.TallGrass ? 0.75f : 0.55f;
+        if (FrozenAt(cell)) f *= g is Ground.Grassland or Ground.TallGrass ? 0.75f : 0.55f;
         return f;
     }
 
     // Open water: what blocks a walker (ice doesn't).
-    public bool IsWater(Vector2I cell) => !_frozen && !Wharf.Contains(cell) && WorldMap.IsWater(cell);
+    public bool IsWater(Vector2I cell) => !FrozenAt(cell) && !Wharf.Contains(cell) && WorldMap.IsWater(cell);
 
     // Water or ice: what you can drink from (or melt).
     public bool IsWaterOrIce(Vector2I cell) => !Wharf.Contains(cell) && WorldMap.IsWater(cell);
@@ -529,7 +566,7 @@ public partial class TerrainPainter : TileMapLayer
         var host = WaterCollisionPath == null || WaterCollisionPath.IsEmpty ? null : GetNodeOrNull<StaticBody2D>(WaterCollisionPath);
         if (host == null) return;
         if (_chunkBodies.Remove(ch, out var old) && IsInstanceValid(old)) old.QueueFree();
-        if (_frozen) return;
+        if (FrozenAt(CellsOfFirst(ch))) return;
         var body = new StaticBody2D { CollisionLayer = host.CollisionLayer, CollisionMask = host.CollisionMask, Name = $"Water_{ch.X}_{ch.Y}" };
         foreach (var cell in CellsOf(ch))
         {

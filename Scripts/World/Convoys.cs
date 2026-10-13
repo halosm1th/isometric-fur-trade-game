@@ -617,7 +617,7 @@ public static class Convoys
 		km *= Mathf.Lerp(0.75f, 1.05f, Mathf.Clamp(c.Crew / (float)Mathf.Max(1, c.Run.Boats * c.Run.Men), 0f, 1f));
 		if (c.Lots > c.Run.Craft.LotsPerBoat * c.Boats * 0.8f) km *= 0.85f;
 		if (c.ShortDays > 0) km *= 0.7f;
-		var sky = cal.Weather.Current;
+		var sky = cal.Weather.At(c.Where);
 		if (sky is SkyState.Storm or SkyState.Blizzard)
 		{
 			if (GD.Randf() < 0.45f)

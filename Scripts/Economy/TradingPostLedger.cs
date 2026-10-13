@@ -32,6 +32,7 @@ public partial class TradingPostLedger : FortLedger
         Stores.Add(ItemId.Firewood, 25);
         Stores.Add(ItemId.TradeGoods, 40);
         Stores.Add(ItemId.Tobacco, 8);
+        Stores.Add(ItemId.Musket, 4);      // trade guns: the thing every nation wanted, and the one that tipped their wars
         Stores.Add(ItemId.Water, 10);
         Stores.Add(ItemId.Axe, 1);
         Stores.Add(ItemId.FishingLine, 2);
