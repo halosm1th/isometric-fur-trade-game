@@ -24,7 +24,7 @@ An HBC officer who ran the Company's affairs at York Factory and was superintend
 ## In the game
 
 - **The Factor.** He is the first NPC the HBC player reports to ([[Factor]], [[HBC Path]]). Each morning he assigns tasks, reads London's orders, and, at the ship's sailing, rates the player.
-- **Only named person with a real name** in the starting York cast; clerks, labourers and the Cree are fictional.
+- **The only York Factory officer who is a real historical person.** The clerks, labourers and the Cree of the starting cast are fictional.
 - **Succession.** If he dies, the most ambitious clerk becomes acting Factor.
 
 ## See also

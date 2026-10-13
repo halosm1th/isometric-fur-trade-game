@@ -17,7 +17,7 @@ status: planned
 
 ## Who they were
 
-An HBC surveyor and trader, trained under Philip Turnor, who mapped much of the plains and was posted at Brandon House and Red River. He sheltered the colonists in 1815.
+An HBC surveyor and trader, trained under Philip Turnor, who mapped much of the plains and was posted at Brandon House and Red River.
 
 ## In the game
 

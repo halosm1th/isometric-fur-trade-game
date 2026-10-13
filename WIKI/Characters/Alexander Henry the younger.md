@@ -21,7 +21,7 @@ An NWC partner and journalist who wintered at Pembina and in the Saskatchewan an
 
 ## In the game
 
-`Council.Seed()` includes him as "the Saskatchewan" with the most loyal and least suspicious profile of the six councillors. `docs/world-content-needed.md` points to his journal as a source for posts.
+`Council.Seed()` includes him as "the Saskatchewan" with the least suspicious profile of the six councillors (0.3). `docs/world-content-needed.md` points to his journal as a source for posts.
 
 ## See also
 

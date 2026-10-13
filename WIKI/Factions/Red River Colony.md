@@ -32,7 +32,7 @@ The *Pemmican War* campaign (`Campaigns/historical.json`) runs the colony's stor
 
 ## Why it matters to play
 
-- The proclamation attacks the [[North West Company]]'s food supply: brigades eat pemmican or do not run. Provisions are a real mechanic ([[Pemmican]] stocks, [[Daily Orders]]).
+- The proclamation attacks the [[North West Company]]'s food supply: brigades eat pemmican or do not run. Provisions are a real mechanic ([[Food and Drink|pemmican]] stocks, [[Daily Orders]]).
 - Settlers are expected to come "out by the Bay": York Factory is where they winter first (Macdonell wintered there in 1811-12, noted in `docs/world-content-needed.md`).
 - Rivalry tension crossing 70 causes armed men to go about both posts ([[Rivalry]]).
 - The [[Metis]] are the pemmican suppliers and the force at Seven Oaks under [[Cuthbert Grant]].
