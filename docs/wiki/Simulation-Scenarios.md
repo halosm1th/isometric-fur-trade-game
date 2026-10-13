@@ -63,7 +63,7 @@ The scheduling is the game's own, so *when* a beat is woken, pressed, resolved, 
 | brigades | five runs on their legs' days, late, robbed, lost and wintering as the rivers decide | only the flags events and `random_events` raise, plus the script's own `turnBack`, `lose` and `launch`; `daysOut` is always 0 and `isWintering` false; `delay` and `cancel` do nothing |
 | stock and furs | the ledgers, which everyone eats from and trades with; a post that does not stand answers nothing | the scenario's `stocks` (0 if not listed, even for a post that does not stand), changed only by `addStock` |
 | posts | the world map, `foundPost`, `postsByFoundingYear` | the same rules |
-| history | beats dated before **1 January 1811** (the calendar when the world is made); the starting path then jumps to June, July or August | beats dated before `--start` |
+| history | beats dated before the first player's first day (10 June, 12 July or 20 August 1811, by starting path) | beats dated before `--start` (the same rule: run with `--start` at the path's day) |
 | deaths | when people die | only the scenario's `dead` |
 | `say`, `shout`, `setLondon` | carried out | logged (with `--log`) |
 
@@ -77,7 +77,7 @@ For a campaign of any length:
 2. **The quiet world.** `sim story.camp --log` with no scenario: tension 20, no deeds, no brigade trouble. What happens when the player does nothing? The *never happened* list should hold only beats that need something.
 3. **The violent world and the peaceful world.** A scenario with tension rising to 80, and one where the player brokers a truce early (`"deed": "truce"`). Every branch should be reached in one of them.
 4. **Each adherence.** `--adherence Gentle` and `--adherence Strict`: events that are only pressed at Steady are forced at Strict, so a beat missing at Steady and present at Strict needs a `ResolveWhen` (or is meant to be optional).
-5. **The start.** The game decides history on 1 January 1811 and then jumps to the starting path's day; the simulator makes everything before `--start` history. If the script has beats dated in 1811, run it with `--start 1811-01-01` too, and read what the first days of play would be (see [when the game starts](World-Reference#when-the-game-starts)).
+5. **The start.** The game makes history of everything dated before the starting path's first day, as the simulator does before `--start`. The default `--start` is the ship's day (20 August 1811); if the script has beats dated in the summer of 1811, run it with `--start 1811-06-10` (the summer camp) and `--start 1811-07-12` (the brigade) too, and read what the first days of play would be on each path (see [when the game starts](World-Reference#when-the-game-starts)).
 6. **The dice.** `--runs 200` gives, for each beat, how often it fired and when (earliest, median, latest). A beat that fires in 3% of runs, or in every run on the first week, is probably not what you meant.
 7. **The letters.** Anything waiting on `heard:` needs an event to raise it in the simulator; in the game, check that the addressee exists when the letter arrives ([who can be written to](World-Reference#letters-who-can-be-written-to)).
 8. **In the game.** `install`, start a new game with the campaign at Steady, and watch the console's `[campaign]` lines. The game can be started on a date with `--date=YYYY-MM-DD`, and with a tension with `--tension=N`.

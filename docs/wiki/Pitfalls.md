@@ -99,9 +99,9 @@ A beat that is cancelled is not done, and its id is not raised as a flag. Anythi
 
 A beat dated before the game's first day is [already history](State-Flags-and-Variables#history-before-the-start): its flags are raised and its posts founded, but its letters are not sent, its tension not added, its variables not counted, its `after`s not set. A counter that a historical beat adds to stays at 0. Carry anything later beats need in flags.
 
-### Early 1811 is neither history nor on time
+### The first day of play depends on the starting path
 
-In the game, history is decided when the world is created, on **1 January 1811**; the starting path then jumps the calendar to 10 June (Cree, Assiniboine), 12 July (NWC) or 20 August 1811 (HBC). A beat dated between those is not history: it is overdue, so a fixed one **happens on the first day of play**, letters and all, and the shipped scripts' 1811 beats (the blockade on 1 June, Selkirk's grant on 12 June) do exactly that. The simulator, by contrast, makes everything before its `--start` history. Date beats either before 1811 (history everywhere) or after 20 August 1811 (live everywhere), or test them both ways. See [when the game starts](World-Reference#when-the-game-starts).
+History is decided on the first player's first day, and that day depends on the path: 10 June (Cree, Assiniboine), 12 July (NWC) or 20 August 1811 (HBC). A beat dated between 10 June and 20 August 1811 is history for one player and happens live, letters and all, for another. The simulator's `--start` defaults to the ship's day; run a script with beats in that summer at `--start 1811-06-10` too. Date beats either before 10 June 1811 (history on every path) or after 20 August 1811 (live on every path) if they should be the same for everyone. See [when the game starts](World-Reference#when-the-game-starts).
 
 ### Variables cannot hold world numbers
 

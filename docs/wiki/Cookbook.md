@@ -37,7 +37,7 @@ beat Blockade(title: "The Continental Blockade holds the fur market down", date:
 }
 ```
 
-Dated before 1811, a beat like this is [history](State-Flags-and-Variables#history-before-the-start): its flag is raised but the London change is not made. Dated in 1811 before the player's first day (as this one is), it is not history: it happens on the [first day of play](World-Reference#when-the-game-starts). If later beats depend on its effect, let them test its flag.
+Dated before the player's [first day](World-Reference#when-the-game-starts) (as this one is, on every starting path), a beat like this is [history](State-Flags-and-Variables#history-before-the-start): its flag is raised but the London change is not made. If later beats depend on its effect, let them test its flag.
 
 ## An avertable event
 

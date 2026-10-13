@@ -25,13 +25,16 @@ A new world starts on the day the first player's path arrives, in 1811:
 | NWC (the brigade) | 12 July 1811 |
 | Cree, Assiniboine (the summer camp) | 10 June 1811 |
 
-Which beats count as **history** is decided a moment earlier, when the world is created, from the calendar's date *then*: **1 January 1811** (unless the game is started with `--date=YYYY-MM-DD`, which also sets the year the starting path uses). The starting path then moves the calendar on to its day. So:
+(The year is 1811 unless the game is started with `--date=YYYY-MM-DD`, which sets the year the starting path uses.) Which beats count as **history** is decided on that first day, once the first player is in and the path has dated the world. So:
 
-- a beat dated **before 1 January 1811** is history: see [State, flags and variables](State-Flags-and-Variables#history-before-the-start);
-- a beat dated **in 1811 before the path's first day** is *not* history: it is overdue, and on the first day of play a fixed or conditional one happens (letters, tension and all), and an event is pressed (and, at Strict or Firm, forced if it is more than one or two windows late);
-- a beat dated after the first day happens in play as usual.
+- a beat dated **before the path's first day** is history, whether it falls in 1810 or in June 1811: see [State, flags and variables](State-Flags-and-Variables#history-before-the-start). The shipped scripts' blockade (1 June 1811) is history on every path: its flag is raised and London's prices are not touched. Selkirk's grant (12 June 1811) is history on the ship's and the brigade's paths, but happens two days into play from the summer camp, letter and all;
+- a beat dated on or after the first day happens in play as usual.
 
-The simulator decides history at its `--start` date instead (20 August 1811 by default), so for a beat dated in the first half of 1811 the two differ: test such beats with `--start 1811-01-01` as well, or date them after 20 August 1811 if they must be the same on every path.
+This is what the simulator does with `--start` set to the path's first day (`--start 1811-08-20`, its default, for the ship; `1811-07-12` for the brigade; `1811-06-10` for the summer camp).
+
+On a dedicated server the campaign waits, with nothing past and nothing happening, until the first player joins; history is decided on the day the first character arrives. A loaded game keeps the history it was saved with.
+
+Because the paths start on different days, a beat dated between 10 June and 20 August 1811 is history on one path and live on another: test such beats with each path's `--start`, or date them before 10 June or after 20 August 1811 if they must be the same on every path. (A character started from developer arguments, with no starting path, keeps the raw calendar's 1 January 1811, and history is decided on that day.)
 
 ## Posts
 
