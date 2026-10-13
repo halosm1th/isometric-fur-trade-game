@@ -47,11 +47,35 @@ public class Pathfinder
         return true;
     }
 
+    // Within one search the map can't change, so each step and tree is asked
+    // of the tile layers once: the corner moves re-ask the same edges the
+    // straight moves did, and every ask is several calls into the engine.
+    // 0 = blocked, 1 = open, 2 = through a door.
+    private readonly Dictionary<(Vector2I, Vector2I), byte> _stepMemo = new();
+    private readonly Dictionary<Vector2I, bool> _treeMemo = new();
+
+    private bool CanStepMemo(Vector2I a, Vector2I b, out bool throughDoor)
+    {
+        if (!_stepMemo.TryGetValue((a, b), out byte s))
+        {
+            s = CanStep(a, b, out bool d) ? (d ? (byte)2 : (byte)1) : (byte)0;
+            _stepMemo[(a, b)] = s;
+        }
+        throughDoor = s == 2;
+        return s != 0;
+    }
+
+    private bool IsTreeMemo(Vector2I c)
+    {
+        if (!_treeMemo.TryGetValue(c, out bool t)) _treeMemo[c] = t = _structures.IsTree(c);
+        return t;
+    }
+
     private IEnumerable<(Vector2I cell, float cost, bool door)> Neighbours(Vector2I c)
     {
         foreach (var n in IsoGrid.EdgeNeighbours(c))
         {
-            if (CanStep(c, n, out bool door)) yield return (n, 71.5f + (door ? 40f : 0f) + (_structures.IsTree(n) ? BushCost : 0f), door);
+            if (CanStepMemo(c, n, out bool door)) yield return (n, 71.5f + (door ? 40f : 0f) + (IsTreeMemo(n) ? BushCost : 0f), door);
         }
         // Corner moves are allowed only when both ways round are clear, so a
         // path can't slip diagonally through a wall's corner.
@@ -66,10 +90,10 @@ public class Pathfinder
 
     private (Vector2I, float, bool) Corner(Vector2I from, Vector2I to, Vector2I via1, Vector2I via2, float cost)
     {
-        if (CanStep(from, via1, out bool d1) && !d1 && CanStep(via1, to, out bool d2) && !d2 &&
-            CanStep(from, via2, out bool d3) && !d3 && CanStep(via2, to, out bool d4) && !d4)
+        if (CanStepMemo(from, via1, out bool d1) && !d1 && CanStepMemo(via1, to, out bool d2) && !d2 &&
+            CanStepMemo(from, via2, out bool d3) && !d3 && CanStepMemo(via2, to, out bool d4) && !d4)
         {
-            return (to, cost + (_structures.IsTree(to) ? BushCost : 0f), false);
+            return (to, cost + (IsTreeMemo(to) ? BushCost : 0f), false);
         }
         return (to, -1f, false);
     }
@@ -108,7 +132,9 @@ public class Pathfinder
         ulong now = Time.GetTicksMsec();
         if (_failed.TryGetValue(key, out ulong until) && now < until) { CachedFailures++; return new List<Vector2I>(); }
         var sw = System.Diagnostics.Stopwatch.StartNew();
-        var r = FindPathInner(start, goal);
+        List<Vector2I> r;
+        try { r = FindPathInner(start, goal); }
+        finally { _stepMemo.Clear(); _treeMemo.Clear(); }
         sw.Stop();
         if (r.Count == 0 && start != goal)
         {
