@@ -36,6 +36,7 @@ public partial class Npc : Agent
     // day's orders, and fed out of the canoes rather than out of the store.
     public bool Away;
     public string AwayWith = "";
+    public World.Convoy Convoy;   // a hand of a brigade on the country's rivers (World/ConvoyView.cs): real only while someone is near, never saved
 
     // Seconds of being on his guard: a shot heard, a blow taken, a fight on.
     // While it runs down he cannot be taken unawares (design doc 15.6).

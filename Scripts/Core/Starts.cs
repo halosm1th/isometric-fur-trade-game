@@ -17,6 +17,7 @@ namespace IsometricFurTradeGame.Scripts.Core;
 public class ScenePage
 {
     public string Title = "", Text = "";
+    public bool CanLeave;   // Esc closes it; a prologue is not walked away from
     public readonly List<(string label, Func<ScenePage> next)> Options = new();
     public ScenePage Add(string label, Func<ScenePage> next) { Options.Add((label, next)); return this; }
 }

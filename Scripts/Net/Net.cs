@@ -207,6 +207,11 @@ public partial class Net : Node
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void PostsRpc(string[] names) => World.Posts.ApplyStanding(names);
 
+    // The boats and where they are, for the brigades near any player (World/ConvoyView.cs).
+    public void BroadcastConvoys(Godot.Collections.Array rows) { if (IsServer && Multiplayer.HasMultiplayerPeer() && Multiplayer.GetPeers().Length > 0) Rpc(nameof(ConvoysRpc), rows); }
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+    private void ConvoysRpc(Godot.Collections.Array rows) => World.ConvoyView.Apply(rows);
+
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void Hello(string name, string sheet)
     {

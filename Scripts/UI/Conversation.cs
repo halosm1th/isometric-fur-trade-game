@@ -169,6 +169,7 @@ public class Conversation
     {
         if (_scene != null && npcId == SceneId && !_closed)
         {
+            if (option < 0 && _scene.CanLeave) { Close(); return State(); }
             if (option < 0 || option >= _options.Count) return State();   // a prologue isn't walked away from
             _options[option].action();
             return State();
@@ -230,7 +231,7 @@ public class Conversation
     {
         float r = npc.RapportWith(_player);
         string mood = r > 40 ? "warmly" : r > 10 ? "civilly" : r < -20 ? "coldly" : "";
-        string role = npc.Role switch
+        string role = npc.Convoy != null ? (npc.Convoy.Guide == npc.DisplayName ? $"guide of {npc.Convoy.Name}" : $"a hand with {npc.Convoy.Name}") : npc.Role switch
         {
             Role.Factor => "the Factor, master of this post",
             Role.Clerk => "a clerk of the Company",
@@ -305,6 +306,7 @@ public class Conversation
         // Leverage: something you saw him do.
         var holds = Leverage.Holds(_player, npc).FindAll(m => !Leverage.Pressed(_player, m));
         if (holds.Count > 0) AddOption("Take him aside: \"I saw what you did...\"", () => ShowLeverage(npc));
+        if (npc.Convoy != null) AddOption("The brigade...", () => StartScene(World.Convoys.Meet(_player, npc.Convoy)));
         AddOption("Talk...", () => ShowTalk(npc));
         if (ownLeader || (ownMan && canCommand) || npc.Following == _player || CanAskAlong(npc)) AddOption("Work and orders...", () => ShowWork(npc));
         if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster)
@@ -352,12 +354,36 @@ public class Conversation
         }
         if ((npc.Role == Role.Factor || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster) && npc.Faction == _player.Faction)
             AddOption(npc.Role == Role.Factor ? "What does London want of us?" : "What do the partners want of us?", () => ShowTalk(npc, AskDirective(npc)));
+        if (npc.HomeStores is Economy.FortLedger house && npc.Faction == _player.Faction && World.Convoys.Expecting(house).Count > 0)
+            AddOption("When do we look for the brigade?", () => ShowTalk(npc, AskBrigade(house)));
         if (npc.Role == Role.CreeChief && npc.HomeStores is Economy.BandLedger cb && cb.OtherBand != null && cb.StandingWithOtherBand < 60f && canTalk)
             AddOption($"Speak for peace with {cb.OtherBand.Name}", () => ShowTalk(npc, BrokerPeace(npc, cb)));
         if (npc.Role == Role.NwcPartner && Sim.Nwc != null && Sim.Nwc.DirectiveReadDay > -100 && npc.Faction == _player.Faction)
             AddOption("What did the council decide?", () => ShowTalk(npc, $"\"{Sim.Nwc.DirectiveText}\""));
         if (npc.IsBandPerson && !canTalk) _text += " (You have only signs and a few words with them.)";
         AddOption("Back", () => ShowTopics(Greeting(npc)));
+    }
+
+    // What the house expects by water, and what it has heard of it (World/Convoys.cs).
+    private string AskBrigade(Economy.FortLedger house)
+    {
+        var sb = new System.Text.StringBuilder();
+        foreach (var c in World.Convoys.Expecting(house))
+        {
+            sb.Append($"{c.Name} left {c.FromName} {c.DaysOut} days ago with {c.Lots} pieces and were {c.State} when we last had word; I look for them {World.Convoys.Expected(c)}.");
+            if (c.Late) sb.Append(" They are overdue, and I do not like it.");
+            sb.Append(' ');
+        }
+        float food = house.FoodDays(Mathf.Max(1, CountMouths(house)));
+        if (food < 20f) sb.Append($"We have {food:0} days of provisions in the store, and the boats are the only thing that will mend that.");
+        return "\"" + sb.ToString().Trim() + "\"";
+    }
+
+    private static int CountMouths(Economy.FortLedger house)
+    {
+        int n = 0;
+        foreach (var m in Sim.Npcs) if (m.HomeStores == house && !m.IsDead) n++;
+        return n;
     }
 
     // ---- the sale of a dead man's effects (design doc P.8) -----------------------
@@ -854,6 +880,16 @@ public class Conversation
         }
         if (Economy.Rivalry.Tension >= 40f && Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(leader.Faction)) != null)
             AddOption("\"Let me stand guard at the stores.\"", () => { _player.AssignTask(TaskKind.Firewood, 0, "guard the storeroom"); _player.Standing += 1f; ShowTopics("\"Keep your eyes open, then.\""); });
+        if (leader.Role is Role.Factor or Role.Postmaster or Role.NwcPartner)
+        {
+            int shown = 0;
+            foreach (var boats in World.Convoys.OpenFor(_player))
+            {
+                if (shown++ >= 3) break;
+                var cv = boats;
+                AddOption($"\"Send me with {cv.Name} to {cv.ToName}.\"", () => ShowTopics(World.Convoys.Assign(_player, leader, cv)));
+            }
+        }
         AddOption("Back", () => ShowTopics(Greeting(leader)));
     }
 

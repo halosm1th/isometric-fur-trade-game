@@ -183,12 +183,13 @@ public static class Items
     public static bool IsFood(ItemId id) => Defs[id].Kind == ItemKind.Food;
 }
 
-// Stacks keep their insertion order so the hotbar's slots stay put while
-// counts change underneath them. Also used as a stockpile/ledger.
+// Stacks sit in fixed slots (Minecraft style): emptying a slot leaves a gap
+// rather than shuffling the rest, a new stack takes the first gap, and the
+// first nine slots are the hotbar. Also used as a stockpile/ledger.
 public class Inventory
 {
     private readonly Dictionary<ItemId, int> _stacks = new();
-    private readonly List<ItemId> _order = new();
+    private readonly List<ItemId?> _order = new();   // null = an empty slot
 
     public int Count(ItemId id) => _stacks.GetValueOrDefault(id);
     public bool Has(ItemId id) => Count(id) > 0;
@@ -196,8 +197,24 @@ public class Inventory
     public void Add(ItemId id, int n = 1)
     {
         if (n <= 0) return;
-        if (!_stacks.ContainsKey(id)) _order.Add(id);
+        if (!_stacks.ContainsKey(id)) PlaceInFirstGap(id);
         _stacks[id] = Count(id) + n;
+    }
+
+    private void PlaceInFirstGap(ItemId id)
+    {
+        int gap = _order.IndexOf(null);
+        if (gap >= 0) _order[gap] = id; else _order.Add(id);
+    }
+
+    // Add a stack at a chosen slot (restoring a layout); falls back to the first gap.
+    public void AddAt(int slot, ItemId id, int n)
+    {
+        if (n <= 0) return;
+        if (_stacks.ContainsKey(id)) { _stacks[id] += n; return; }
+        if (slot < 0 || slot > 512 || (slot < _order.Count && _order[slot] != null)) { Add(id, n); return; }
+        while (_order.Count <= slot) _order.Add(null);
+        _order[slot] = id; _stacks[id] = n;
     }
 
     public bool Remove(ItemId id, int n = 1)
@@ -208,7 +225,9 @@ public class Inventory
         if (_stacks[id] == 0)
         {
             _stacks.Remove(id);
-            _order.Remove(id);
+            int at = _order.IndexOf(id);
+            if (at >= 0) _order[at] = null;
+            while (_order.Count > 0 && _order[^1] == null) _order.RemoveAt(_order.Count - 1);
         }
         return true;
     }
@@ -223,10 +242,11 @@ public class Inventory
 
     public void Clear() { _stacks.Clear(); _order.Clear(); }
 
-    public int SlotCount => _order.Count;
+    public int SlotCount => _stacks.Count;       // stacks held
+    public int SlotSpan => _order.Count;         // one past the last used slot
 
     public (ItemId id, int count)? Slot(int i) =>
-        i >= 0 && i < _order.Count ? (_order[i], _stacks[_order[i]]) : null;
+        i >= 0 && i < _order.Count && _order[i] != null ? (_order[i].Value, _stacks[_order[i].Value]) : null;
 
     public float TotalWeightLbs =>
         _stacks.Sum(kv => Items.Of(kv.Key).WeightLbs * kv.Value);
@@ -246,22 +266,28 @@ public class Inventory
         _stacks.Where(kv => Items.Of(kv.Key).Kind == ItemKind.Clothing && !Unworn.Contains(kv.Key))
                .Sum(kv => Items.Of(kv.Key).Warmth * kv.Value);
 
-    // Put the slot at `from` where `to` is: the hotbar is the first nine.
+    // Drag a stack from one slot to another: an empty slot takes it, an
+    // occupied one swaps places. The hotbar is the first nine slots.
     public void MoveSlot(int from, int to)
     {
-        if (from < 0 || from >= _order.Count || to < 0 || to >= _order.Count || from == to) return;
-        var id = _order[from]; _order.RemoveAt(from); _order.Insert(to, id);
+        if (from < 0 || from >= _order.Count || _order[from] == null || to < 0 || to > 512 || from == to) return;
+        while (_order.Count <= to) _order.Add(null);
+        (_order[from], _order[to]) = (_order[to], _order[from]);
+        while (_order.Count > 0 && _order[^1] == null) _order.RemoveAt(_order.Count - 1);
     }
+
+    // Slot index of a stack, or -1.
+    public int SlotOf(ItemId id) => _order.IndexOf(id);
 
     // Extra carrying capacity from packs worn (only one of each counts).
     public float CarryBonusLbs
     {
-        get { float b = 0f; foreach (var id in _order) b += Items.Of(id).Capacity; return b; }
+        get { float b = 0f; foreach (var id in _stacks.Keys) b += Items.Of(id).Capacity; return b; }
     }
 
     public ItemId? FirstOfKind(ItemKind kind)
     {
-        foreach (var id in _order) if (Items.Of(id).Kind == kind) return id;
+        foreach (var id in _order) if (id != null && Items.Of(id.Value).Kind == kind) return id;
         return null;
     }
 
@@ -275,8 +301,10 @@ public class Inventory
     public ItemId? BestWeapon()
     {
         ItemId? best = null; float bestDmg = 0f;
-        foreach (var id in _order)
+        foreach (var oid in _order)
         {
+            if (oid == null) continue;
+            var id = oid.Value;
             var d = Items.Of(id);
             if (d.Kind == ItemKind.Weapon && d.Damage > bestDmg) { best = id; bestDmg = d.Damage; }
         }
@@ -284,10 +312,10 @@ public class Inventory
     }
 
     public IEnumerable<(ItemId id, int count)> All() =>
-        _order.Select(id => (id, _stacks[id]));
+        _order.Where(id => id != null).Select(id => (id.Value, _stacks[id.Value]));
 
     public string Summary()
     {
-        return string.Join(", ", _order.Select(id => $"{Items.Of(id).Name} x{_stacks[id]}"));
+        return string.Join(", ", All().Select(s => $"{Items.Of(s.id).Name} x{s.count}"));
     }
 }

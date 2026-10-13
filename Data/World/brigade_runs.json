@@ -1,0 +1,71 @@
+{
+  "about": "The country's brigades (design doc 12.1, 12.2, 18.3). Each run is a company's boats on a named road: 'stops' are posts or landmarks in the order the road meets them (the path follows the atlas's brigade routes between them; a gap with no route is crossed in a straight line), and each leg is one crossing of the year - 'depart' is MM-DD, 'cargo' is 'outfit' (goods and provisions out of the sending post's books) or 'returns' (the furs on its books). A leg runs only while both its end posts stand. Boats take as long as the road and the weather give them; a leg that cannot get in before freeze-up winters on the bank and goes on at the ice-out.",
+  "craft": {
+    "canoe": { "up": 55, "down": 85, "lots_per_boat": 70, "sprite": "res://assets/sprites/vehicles/canoe_loaded.png", "scale": 0.7 },
+    "york boat": { "up": 28, "down": 55, "lots_per_boat": 160, "sprite": "res://assets/sprites/vehicles/york_boat.png", "scale": 0.7 }
+  },
+  "runs": [
+    {
+      "name": "the York boats",
+      "company": "HBC",
+      "craft": "york boat",
+      "boats": 3,
+      "men": 7,
+      "stops": ["York Factory", "Norway House", "Grand Rapids", "Cumberland House"],
+      "legs": [
+        { "from": "York Factory", "to": "Cumberland House", "depart": "06-12", "cargo": "outfit" },
+        { "from": "Cumberland House", "to": "York Factory", "depart": "07-08", "cargo": "returns" },
+        { "from": "York Factory", "to": "Cumberland House", "depart": "09-05", "cargo": "outfit" }
+      ]
+    },
+    {
+      "name": "the Saskatchewan brigade",
+      "company": "HBC",
+      "craft": "york boat",
+      "boats": 2,
+      "men": 6,
+      "stops": ["Cumberland House", "Carlton House", "Edmonton House"],
+      "legs": [
+        { "from": "Edmonton House", "to": "Cumberland House", "depart": "05-25", "cargo": "returns" },
+        { "from": "Cumberland House", "to": "Edmonton House", "depart": "08-05", "cargo": "outfit" }
+      ]
+    },
+    {
+      "name": "the Montreal canoes",
+      "company": "NWC",
+      "craft": "canoe",
+      "boats": 5,
+      "men": 8,
+      "stops": ["Fort William", "Rainy Lake House", "Fort Bas de la Riviere"],
+      "legs": [
+        { "from": "Fort William", "to": "Fort Bas de la Riviere", "depart": "05-05", "cargo": "outfit" },
+        { "from": "Fort Bas de la Riviere", "to": "Fort William", "depart": "06-12", "cargo": "returns" },
+        { "from": "Fort William", "to": "Fort Bas de la Riviere", "depart": "08-04", "cargo": "outfit" }
+      ]
+    },
+    {
+      "name": "the Saskatchewan canoes",
+      "company": "NWC",
+      "craft": "canoe",
+      "boats": 3,
+      "men": 7,
+      "stops": ["Fort Bas de la Riviere", "Nipawi", "Fort George", "Fort Augustus"],
+      "legs": [
+        { "from": "Fort Augustus", "to": "Fort Bas de la Riviere", "depart": "05-28", "cargo": "returns" },
+        { "from": "Fort Bas de la Riviere", "to": "Fort Augustus", "depart": "08-15", "cargo": "outfit" }
+      ]
+    },
+    {
+      "name": "the Athabasca brigade",
+      "company": "NWC",
+      "craft": "canoe",
+      "boats": 4,
+      "men": 7,
+      "stops": ["Ile-a-la-Crosse", "Methye Portage (Portage La Loche)", "Fort Chipewyan"],
+      "legs": [
+        { "from": "Fort Chipewyan", "to": "Ile-a-la-Crosse", "depart": "06-01", "cargo": "returns" },
+        { "from": "Ile-a-la-Crosse", "to": "Fort Chipewyan", "depart": "08-12", "cargo": "outfit" }
+      ]
+    }
+  ]
+}

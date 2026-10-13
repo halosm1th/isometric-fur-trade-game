@@ -11,7 +11,9 @@ status: implemented
 
 ![[item-tumpline.png|56]] ![[item-pack_basket.png|56]] ![[item-capote.png|56]] ![[sheet-items-all.png|420]]
 
-Your pack is a **list of stacks with no slot limit**: only **weight** limits you. Stacks keep the order they were picked up in, and the **first nine** are the hotbar.
+Your pack is a **grid of slots** (nine to a row, 36 to begin with, growing a row when full), with no slot limit beyond **weight**. The first row is the hotbar. Stacks stay where you put them: emptying a slot leaves a gap, and new items take the first free square.
+
+**Drag and drop:** pick up a stack with the left mouse button and drop it on another square. An empty square takes it; an occupied one swaps places. This works between the pack grid (`I`) and the hotbar. **Right-click** a square to use the item, or to wear / take off clothing and snowshoes. Hover for weight, worth and effects.
 
 ## The hotbar
 
@@ -22,7 +24,7 @@ Nine slots along the bottom of the screen, each with an icon, a count and the ke
 | `1` - `9` | Select and **use** that slot |
 | Mouse wheel | Move the selection |
 | `Enter` (or keypad `Enter`) | Use the selected slot |
-| Left click | Use the selected item on the spot where you click, or strike with a selected weapon |
+| Left click on the world | Use the selected item on the spot where you click, or strike with a selected weapon |
 
 Using an item does what its kind says:
 
@@ -70,7 +72,7 @@ Band characters begin instead with a hide coat, snowshoes, a knife, 4 dried meat
 
 ## Wearing things
 
-Only **worn** clothing and snowshoes count. In the Pack tab each clothing item and snowshoes has a **Wear / Take off** button; using them on the hotbar toggles too. Warmth adds up across layers (capote 4.5 + point blanket 5 + hide coat 7 + robe 8). See [[Clothing]].
+Only **worn** clothing and snowshoes count. Right-click clothing or snowshoes in the Pack tab (or use them on the hotbar) to toggle them. Warmth adds up across layers (capote 4.5 + point blanket 5 + hide coat 7 + robe 8). See [[Clothing]].
 
 ## Storing and withdrawing
 
@@ -81,7 +83,7 @@ Other containers: **canoes** (load/unload from the bank menu; capacity in pounds
 ## Tips
 
 > [!tip]
-> Use the **◄ ►** buttons in the Pack tab to put the items you press most (food, firewood, flint, weapon) in slots 1 - 9.
+> Drag the items you press most (food, firewood, flint, weapon) into the first row to put them on keys 1 - 9.
 
 ## See also
 

@@ -1,0 +1,2043 @@
+{
+  "title": "The Company Years, 1811-1830",
+  "description": "From Selkirk's grant to the Governor's economies: the blockade, the Pemmican War, Seven Oaks, the lawless years, the union of the companies and what Simpson made of it. The dated history is fixed or pressed on the world; the brigades on the rivers answer to what the world does.",
+  "seed": 1821,
+  "posts_by_founding_year": true,
+  "beats": [
+    {
+      "id": "blockade",
+      "title": "The Continental Blockade holds the fur market down",
+      "kind": "fixed",
+      "date": "1811-06-01",
+      "happens": [
+        {
+          "do": "london",
+          "price": 0.85,
+          "quota": 0.85
+        },
+        {
+          "do": "flag",
+          "name": "blockade"
+        }
+      ]
+    },
+    {
+      "id": "selkirk-grant",
+      "title": "Lord Selkirk's grant of Assiniboia (the Red River Colony)",
+      "kind": "fixed",
+      "date": "1811-06-12",
+      "keywords": [
+        "Selkirk",
+        "Red River",
+        "colony",
+        "Assiniboia"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "red_river_colony"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "Lord Selkirk's grant",
+          "text": "The Committee has granted Lord Selkirk a hundred and sixteen thousand square miles on the Red River for a settlement. Settlers will come out by the Bay. Give them every assistance; the Canadians will not like it.",
+          "days": 70
+        }
+      ]
+    },
+    {
+      "id": "settlers-winter-at-york",
+      "title": "Governor Macdonell's settlers winter at York Factory",
+      "kind": "fixed",
+      "date": "1811-09-24",
+      "requires": [
+        "selkirk-grant"
+      ],
+      "keywords": [
+        "Macdonell",
+        "settlers",
+        "York Factory",
+        "Stornoway"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "settlers_at_york"
+        },
+        {
+          "do": "tension",
+          "add": 3,
+          "why": "a hundred mouths to feed at the Factory"
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "Pemmican",
+          "add": -40
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "Bread",
+          "add": -30
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "The Selkirk settlers",
+          "text": "Governor Macdonell's party is landed at the Factory with the season too far gone to push inland. Winter them as you can, and let them see the Company is a good neighbour. They go up in the spring.",
+          "days": 0
+        }
+      ]
+    },
+    {
+      "id": "war-of-1812",
+      "title": "War between Britain and the United States",
+      "kind": "fixed",
+      "date": "1812-06-18",
+      "keywords": [
+        "war",
+        "Americans",
+        "Montreal"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "Montreal",
+          "to": "the wintering partner",
+          "subject": "war with the Americans",
+          "text": "The Americans have declared war. Michilimackinac is in danger and the canoes may be wanted for the King's service.",
+          "days": 75,
+          "company": "NWC"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the American war",
+          "text": "Britain is at war with the United States. The ship may be late; ration accordingly.",
+          "days": 400
+        }
+      ]
+    },
+    {
+      "id": "settlers-reach-red-river",
+      "title": "The first settlers reach the Forks",
+      "kind": "fixed",
+      "date": "1812-08-30",
+      "requires": [
+        "settlers-winter-at-york"
+      ],
+      "keywords": [
+        "settlers",
+        "Red River",
+        "Forks",
+        "Macdonell"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "colony_founded"
+        },
+        {
+          "do": "tension",
+          "add": 4,
+          "why": "a colony on the buffalo ground"
+        },
+        {
+          "do": "news",
+          "from": "Fort Gibraltar",
+          "to": "the wintering partner",
+          "subject": "strangers at the Forks",
+          "text": "Macdonell's people have put down their stakes at the Forks, on the very road of our provision brigades. Mr. McGillivray will want to hear of it.",
+          "days": 50,
+          "company": "NWC"
+        }
+      ]
+    },
+    {
+      "id": "astoria-sold",
+      "title": "Astor's Fort Astoria sold to the North West Company",
+      "kind": "fixed",
+      "date": "1813-10-16",
+      "keywords": [
+        "Astoria",
+        "Columbia",
+        "Fort George"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "fort_george"
+        },
+        {
+          "do": "news",
+          "from": "Fort William",
+          "to": "the wintering partner",
+          "subject": "Astoria is ours",
+          "text": "Astor's men on the Columbia have sold out to us. Fort Astoria is Fort George now, and many of his clerks are Nor'Westers.",
+          "days": 250,
+          "company": "NWC"
+        }
+      ]
+    },
+    {
+      "id": "war-slows-the-canoes",
+      "title": "The war on the Lakes slows the Montreal canoes",
+      "kind": "conditional",
+      "repeat_days": 40,
+      "requires": [
+        "war-of-1812"
+      ],
+      "when": [
+        "after:1812-07-17",
+        "before:1815-01-01",
+        "month:5-9"
+      ],
+      "happens": [
+        {
+          "do": "brigade",
+          "run": "the Montreal canoes",
+          "effect": "delay",
+          "days": 4
+        },
+        {
+          "do": "stock",
+          "post": "Fort William",
+          "item": "Powder",
+          "add": -5
+        },
+        {
+          "do": "if",
+          "cond": "count(war-slows-the-canoes) < 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "Word from the Lakes: the war has the Montreal traffic stopped at every carrying place, and powder goes to the King's service first.",
+              "to": "NWC"
+            }
+          ]
+        }
+      ],
+      "cancel_when": [
+        "after:1815-01-01"
+      ]
+    },
+    {
+      "id": "pemmican-proclamation",
+      "title": "Governor Macdonell's Pemmican Proclamation",
+      "kind": "event",
+      "date": "1814-01-08",
+      "window_days": 60,
+      "lead_days": 120,
+      "requires": [
+        "settlers-reach-red-river"
+      ],
+      "keywords": [
+        "pemmican",
+        "Red River",
+        "Macdonell",
+        "proclamation",
+        "provisions"
+      ],
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 10,
+          "why": "word that the colony's governor means to stop the pemmican"
+        }
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "pemmican_proclamation"
+        },
+        {
+          "do": "tension",
+          "add": 20,
+          "why": "the Pemmican Proclamation"
+        },
+        {
+          "do": "news",
+          "from": "Fort Gibraltar",
+          "to": "the wintering partner",
+          "subject": "the Pemmican Proclamation",
+          "text": "Macdonell has forbidden any provisions to leave the colony's lands. Our brigades eat pemmican or they do not run. The partners will not stand it.",
+          "days": 45,
+          "company": "NWC"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the governor's proclamation",
+          "text": "Governor Macdonell has proclaimed that no pemmican may be taken out of Assiniboia. The Nor'Westers are furious; keep your people close.",
+          "days": 120
+        }
+      ],
+      "done_when": [
+        "flag:pemmican_proclamation"
+      ]
+    },
+    {
+      "id": "blockade-lifted",
+      "title": "Peace in Europe: the fur market reopens",
+      "kind": "fixed",
+      "date": "1814-05-30",
+      "happens": [
+        {
+          "do": "unflag",
+          "name": "blockade"
+        },
+        {
+          "do": "london",
+          "price": 1.18,
+          "quota": 1.15
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "peace",
+          "text": "Bonaparte is beaten and the Continent is open again. Furs will sell; the Committee expects returns to answer.",
+          "days": 80
+        }
+      ]
+    },
+    {
+      "id": "goods-flow-1814",
+      "title": "The blockade lifts and the outfit comes freely",
+      "kind": "conditional",
+      "requires": [
+        "blockade-lifted"
+      ],
+      "happens": [
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "TradeGoods",
+          "add": 40
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "PointBlanket",
+          "add": 10
+        },
+        {
+          "do": "stock",
+          "post": "Fort William",
+          "item": "TradeGoods",
+          "add": 40
+        },
+        {
+          "do": "say",
+          "text": "Peace in Europe, and a full outfit at last: the shelves at York Factory and Fort William are stocked as they have not been in years.",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "pemmican-starves-the-canoes",
+      "title": "The Proclamation empties the canoes' provisions",
+      "kind": "conditional",
+      "repeat_days": 40,
+      "requires": [
+        "pemmican-proclamation"
+      ],
+      "when": [
+        "month:5-9",
+        {
+          "not": "flag:colony_dispersed"
+        }
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "shortages"
+        },
+        {
+          "do": "stock",
+          "post": "Fort Bas de la Riviere",
+          "item": "Pemmican",
+          "add": -15
+        },
+        {
+          "do": "stock",
+          "post": "Fort Augustus",
+          "item": "Pemmican",
+          "add": -10
+        },
+        {
+          "do": "brigade",
+          "run": "the Saskatchewan canoes",
+          "effect": "delay",
+          "days": 5
+        },
+        {
+          "do": "if",
+          "cond": "var(shortages) >= 3",
+          "then": [
+            {
+              "do": "tension",
+              "add": 3,
+              "why": "the canoes go hungry while the colony holds the pemmican"
+            },
+            {
+              "do": "say",
+              "text": "The Saskatchewan canoes are on short commons for the third summer running: the Proclamation is starving the brigades, and the partners are saying so.",
+              "to": "NWC",
+              "headline": true
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Pemmican is short on the Saskatchewan: the canoes lie up to hunt.",
+              "to": "NWC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "colony-dispersed",
+      "title": "The Red River Colony attacked and dispersed",
+      "kind": "event",
+      "date": "1815-06-25",
+      "window_days": 60,
+      "requires": [
+        "pemmican-proclamation"
+      ],
+      "keywords": [
+        "Red River",
+        "colony",
+        "settlers",
+        "burned"
+      ],
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 8,
+          "why": "the Metis gathering against the colony"
+        }
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "colony_dispersed"
+        },
+        {
+          "do": "tension",
+          "add": 15,
+          "why": "the colony burned out"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the colony broken up",
+          "text": "The settlers at Red River have been driven off and their houses burned. Some are coming down to the Bay.",
+          "days": 40
+        }
+      ],
+      "done_when": [
+        "flag:colony_dispersed"
+      ]
+    },
+    {
+      "id": "colony-restored",
+      "title": "Colin Robertson brings the settlers back to the Forks",
+      "kind": "conditional",
+      "delay_days": 70,
+      "requires": [
+        "colony-dispersed"
+      ],
+      "keywords": [
+        "Robertson",
+        "settlers",
+        "Red River",
+        "Fort Douglas"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "colony_restored"
+        },
+        {
+          "do": "tension",
+          "add": 5,
+          "why": "the settlers return, and with them the quarrel"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the settlers return",
+          "text": "Mr. Robertson has brought the colonists back from Norway House and put up Fort Douglas. Governor Semple comes out in the autumn.",
+          "days": 55
+        }
+      ]
+    },
+    {
+      "id": "seven-oaks",
+      "title": "The Battle of Seven Oaks: Governor Semple and twenty colonists killed",
+      "kind": "event",
+      "date": "1816-06-19",
+      "window_days": 45,
+      "requires": [
+        "colony-dispersed"
+      ],
+      "keywords": [
+        "Seven Oaks",
+        "Semple",
+        "Grant",
+        "Metis",
+        "Red River"
+      ],
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 15,
+          "why": "Cuthbert Grant's riders on the Assiniboine"
+        }
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "seven_oaks"
+        },
+        {
+          "do": "flag",
+          "name": "governor_killed"
+        },
+        {
+          "do": "tension",
+          "add": 25,
+          "why": "Seven Oaks"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "Seven Oaks",
+          "text": "Governor Semple is dead with twenty of the colonists, shot down at Seven Oaks by Grant's half-breeds. The colony is gone.",
+          "days": 35
+        },
+        {
+          "do": "news",
+          "from": "Fort William",
+          "to": "the wintering partner",
+          "subject": "Seven Oaks",
+          "text": "Grant's people met Semple at Seven Oaks. Semple is dead and the colony scattered. There will be a reckoning for this in Montreal.",
+          "days": 60,
+          "company": "NWC"
+        }
+      ],
+      "done_when": [
+        "flag:seven_oaks"
+      ],
+      "cancel_when": [
+        "after:1816-05-01",
+        "tension<20"
+      ],
+      "on_cancel": [
+        {
+          "do": "flag",
+          "name": "seven_oaks_averted"
+        },
+        {
+          "do": "say",
+          "text": "The spring of 1816 passes quietly on the Assiniboine. Whatever was gathering has gone home.",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "selkirk-fort-william",
+      "title": "Lord Selkirk marches on Fort William and arrests the partners",
+      "kind": "conditional",
+      "delay_days": 55,
+      "requires": [
+        "seven-oaks"
+      ],
+      "keywords": [
+        "Selkirk",
+        "Fort William",
+        "de Meurons",
+        "soldiers"
+      ],
+      "when": [
+        "flag:governor_killed"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "fort_william_seized"
+        },
+        {
+          "do": "tension",
+          "add": 10,
+          "why": "Fort William taken"
+        },
+        {
+          "do": "news",
+          "from": "Fort William",
+          "to": "the wintering partner",
+          "subject": "Fort William taken",
+          "text": "Selkirk came up the lakes with his de Meurons and took Fort William. McGillivray and the partners are under arrest.",
+          "days": 70,
+          "company": "NWC"
+        }
+      ]
+    },
+    {
+      "id": "fort-william-stood-down",
+      "title": "Selkirk's soldiers hold Fort William",
+      "kind": "conditional",
+      "requires": [
+        "selkirk-fort-william"
+      ],
+      "happens": [
+        {
+          "do": "brigade",
+          "run": "the Montreal canoes",
+          "effect": "cancel"
+        },
+        {
+          "do": "stock",
+          "post": "Fort William",
+          "item": "TradeGoods",
+          "add": -60
+        },
+        {
+          "do": "stock",
+          "post": "Fort William",
+          "item": "Pemmican",
+          "add": -30
+        },
+        {
+          "do": "say",
+          "text": "Lord Selkirk's soldiers hold Fort William. The Montreal canoes are stood down and the stores are under guard.",
+          "to": "NWC",
+          "headline": true
+        },
+        {
+          "do": "after",
+          "days": 60,
+          "then": [
+            {
+              "do": "say",
+              "text": "Fort William is given back to the partners, with its stores a good deal lighter.",
+              "to": "NWC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "peguis-treaty",
+      "title": "Selkirk's treaty with the Saulteaux and Cree chiefs",
+      "kind": "fixed",
+      "date": "1817-07-18",
+      "requires": [
+        "seven-oaks"
+      ],
+      "keywords": [
+        "Selkirk",
+        "Peguis",
+        "treaty",
+        "Red River",
+        "Saulteaux"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "peguis_treaty"
+        },
+        {
+          "do": "tension",
+          "add": -5,
+          "why": "Selkirk makes his peace with the chiefs"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the treaty",
+          "text": "Lord Selkirk has made a treaty with the chiefs of the Saulteaux and the Cree for the land along the Red and the Assiniboine. The Company will hold that the land is its own to give.",
+          "days": 60
+        }
+      ]
+    },
+    {
+      "id": "york-trials",
+      "title": "The trials at York in Upper Canada",
+      "kind": "fixed",
+      "date": "1818-10-01",
+      "requires": [
+        "seven-oaks"
+      ],
+      "keywords": [
+        "trial",
+        "Seven Oaks",
+        "York",
+        "Upper Canada",
+        "acquitted"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "york_trials"
+        },
+        {
+          "do": "tension",
+          "add": 6,
+          "why": "the courts of Upper Canada acquit the Nor'Westers"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the trials",
+          "text": "The Canadian courts have acquitted every man tried for Seven Oaks. The Committee says nothing aloud and a good deal in private.",
+          "days": 90
+        }
+      ]
+    },
+    {
+      "id": "interior-war-1818",
+      "title": "The lawless years: the interior war of 1818",
+      "kind": "pressure",
+      "date": "1818-06-01",
+      "requires": [
+        "seven-oaks"
+      ],
+      "keywords": [
+        "burned",
+        "brigade",
+        "seized",
+        "ruin"
+      ],
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 15,
+          "why": "the interior war"
+        }
+      ]
+    },
+    {
+      "id": "interior-war-1819",
+      "title": "The lawless years: the interior war of 1819",
+      "kind": "pressure",
+      "date": "1819-06-01",
+      "requires": [
+        "seven-oaks"
+      ],
+      "keywords": [
+        "burned",
+        "brigade",
+        "seized",
+        "ruin"
+      ],
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 15,
+          "why": "the interior war"
+        }
+      ]
+    },
+    {
+      "id": "interior-war-1820",
+      "title": "The lawless years: the interior war of 1820",
+      "kind": "pressure",
+      "date": "1820-06-01",
+      "requires": [
+        "seven-oaks"
+      ],
+      "keywords": [
+        "burned",
+        "brigade",
+        "seized",
+        "ruin"
+      ],
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 10,
+          "why": "the interior war"
+        },
+        {
+          "do": "london",
+          "price": 0.85,
+          "quota": 0.9
+        }
+      ]
+    },
+    {
+      "id": "interior-ambushes",
+      "title": "The interior war reaches the brigades",
+      "kind": "conditional",
+      "repeat_days": 60,
+      "requires": [
+        "seven-oaks"
+      ],
+      "when": [
+        "month:5-9",
+        "tension>=50",
+        {
+          "not": "flag:merger"
+        },
+        "chance:25"
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "incidents"
+        },
+        {
+          "do": "tension",
+          "add": 1,
+          "why": "an incident on the brigade roads"
+        },
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 35,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the Saskatchewan canoes",
+                  "effect": "turn_back"
+                }
+              ]
+            },
+            {
+              "weight": 25,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the Saskatchewan brigade",
+                  "effect": "delay",
+                  "days": 6
+                }
+              ]
+            },
+            {
+              "weight": 25,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the Athabasca brigade",
+                  "effect": "lose"
+                }
+              ]
+            },
+            {
+              "weight": 15,
+              "do": [
+                {
+                  "do": "say",
+                  "text": "A rumour of shots at a carrying place; nothing came of it this time."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "grand-rapids-seizure",
+      "title": "Grand Rapids: Nor'Westers seize the Company's boats",
+      "kind": "event",
+      "date": "1819-06-20",
+      "window_days": 40,
+      "requires": [
+        "seven-oaks"
+      ],
+      "keywords": [
+        "Grand Rapids",
+        "seized",
+        "boats",
+        "Williams"
+      ],
+      "pressure": [
+        {
+          "do": "brigade",
+          "run": "the York boats",
+          "effect": "delay",
+          "days": 3
+        }
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "grand_rapids"
+        },
+        {
+          "do": "brigade",
+          "run": "the York boats",
+          "effect": "lose"
+        },
+        {
+          "do": "tension",
+          "add": 8,
+          "why": "Grand Rapids"
+        },
+        {
+          "do": "say",
+          "text": "The Nor'Westers have seized the Company's boats at Grand Rapids. The York brigade's goods are in their hands.",
+          "to": "HBC",
+          "headline": true
+        }
+      ],
+      "done_when": [
+        "flag:grand_rapids"
+      ]
+    },
+    {
+      "id": "selkirk-dies",
+      "title": "The Earl of Selkirk dies at Pau",
+      "kind": "fixed",
+      "date": "1820-04-08",
+      "keywords": [
+        "Selkirk",
+        "death",
+        "Pau",
+        "ruin"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "selkirk_dead"
+        },
+        {
+          "do": "tension",
+          "add": -5,
+          "why": "the colony's patron is gone"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "Lord Selkirk",
+          "text": "Lord Selkirk is dead in the south of France, worn out and ruined by his lawsuits. The colony has lost its friend, and the Committee has lost a troublesome one.",
+          "days": 100
+        }
+      ]
+    },
+    {
+      "id": "merger",
+      "title": "The union of the Hudson's Bay and North West Companies",
+      "kind": "event",
+      "date": "1821-03-26",
+      "window_days": 120,
+      "lead_days": 365,
+      "keywords": [
+        "union",
+        "merger",
+        "coalition",
+        "Simpson",
+        "the new company"
+      ],
+      "pressure": [
+        {
+          "do": "london",
+          "price": 0.9,
+          "quota": 0.9
+        }
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "merger"
+        },
+        {
+          "do": "tension",
+          "add": -70,
+          "why": "the companies made one"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the union of the companies",
+          "text": "The Company and the North West Company are joined under the Company's charter. Mr. George Simpson will govern the Northern Department. Expect economies.",
+          "days": 90
+        },
+        {
+          "do": "news",
+          "from": "Montreal",
+          "to": "the wintering partner",
+          "subject": "the coalition",
+          "text": "It is done: the North West Company goes into the Hudson's Bay Company. The wintering partners are to be chief factors and chief traders. Many of the men will be let go.",
+          "days": 75,
+          "company": "NWC"
+        }
+      ],
+      "done_when": [
+        "flag:merger"
+      ]
+    },
+    {
+      "id": "canoes-stood-down",
+      "title": "The North West Company's canoes are stood down",
+      "kind": "conditional",
+      "requires": [
+        "merger"
+      ],
+      "happens": [
+        {
+          "do": "brigade",
+          "run": "the Montreal canoes",
+          "effect": "cancel"
+        },
+        {
+          "do": "brigade",
+          "run": "the Saskatchewan canoes",
+          "effect": "cancel"
+        },
+        {
+          "do": "brigade",
+          "run": "the Athabasca brigade",
+          "effect": "cancel"
+        },
+        {
+          "do": "say",
+          "text": "The two companies are one. The canoes are stood down; the brigades will run under a single flag.",
+          "to": "NWC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "simpson-council",
+      "title": "The first council of the Northern Department at York Factory",
+      "kind": "fixed",
+      "date": "1821-07-10",
+      "requires": [
+        "merger"
+      ],
+      "keywords": [
+        "Simpson",
+        "council",
+        "York Factory",
+        "economies"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "simpson_governs"
+        },
+        {
+          "do": "london",
+          "price": 1.05,
+          "quota": 1
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "Mr. Simpson's council",
+          "text": "The chief factors and traders met at the Factory and Mr. Simpson gave out the new establishments. Posts that do not pay are to be shut, canoe men let go, and the York boats made to do the work of the Montreal canoes.",
+          "days": 0
+        }
+      ]
+    },
+    {
+      "id": "men-let-go",
+      "title": "Retrenchment: the voyageurs are discharged",
+      "kind": "conditional",
+      "delay_days": 150,
+      "requires": [
+        "simpson-council"
+      ],
+      "happens": [
+        {
+          "do": "tension",
+          "add": 4,
+          "why": "four hundred men turned off"
+        },
+        {
+          "do": "say",
+          "text": "Half the old North West engages are discharged at Fort William and the Bas de la Riviere. Some will go to the Red River; some will go to the Americans.",
+          "to": "NWC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "columbia-department",
+      "title": "Simpson crosses to the Columbia and the Company takes the Pacific slope",
+      "kind": "fixed",
+      "date": "1824-10-01",
+      "requires": [
+        "simpson-council"
+      ],
+      "keywords": [
+        "Simpson",
+        "Columbia",
+        "Fort Vancouver",
+        "Fort George"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "columbia_department"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the Columbia",
+          "text": "Governor Simpson has gone over the mountains to the Columbia and means to move the depot up the river to a new post, to be called Fort Vancouver. The Americans are to be shut out by the Company's own thoroughness: no beaver left to trap on the frontier.",
+          "days": 120
+        }
+      ]
+    },
+    {
+      "id": "red-river-flood",
+      "title": "The great flood at Red River",
+      "kind": "fixed",
+      "date": "1826-05-05",
+      "requires": [
+        "simpson-council"
+      ],
+      "keywords": [
+        "flood",
+        "Red River",
+        "colony",
+        "Assiniboine"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "red_river_flood"
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "tension",
+              "add": 6,
+              "why": "the Red River in flood, in a hard year"
+            }
+          ],
+          "else": [
+            {
+              "do": "tension",
+              "add": 3,
+              "why": "the Red River in flood"
+            }
+          ]
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the flood",
+          "text": "The Red River has risen over the colony and carried off the houses and the crops. Some of the settlers are leaving for the States; most will build again on the higher ground.",
+          "days": 60
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "A bad year for the Company, a worse one for the settlers: the flood has found a colony already short of everything.",
+              "to": "HBC",
+              "headline": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "no-one-stands-in-the-way",
+      "title": "The Company without a rival",
+      "kind": "conditional",
+      "requires": [
+        "merger"
+      ],
+      "when": [
+        "after:1827-01-01",
+        "flag:columbia_department"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "monopoly"
+        },
+        {
+          "do": "tension",
+          "add": -20,
+          "why": "no rival left in the country"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "no rival",
+          "text": "With the Canadians gone and the Americans kept off the Columbia, the Company has the country to itself. The Committee asks that the Factor remember what that implies about his Indians' prices.",
+          "days": 100
+        }
+      ]
+    },
+    {
+      "id": "ship-1812",
+      "title": "The ship from London, 1812",
+      "kind": "fixed",
+      "date": "1812-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1812",
+          "text": "The Committee has read the returns and is not pleased with the state of the interior.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1813",
+      "title": "The ship from London, 1813",
+      "kind": "fixed",
+      "date": "1813-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1813",
+          "text": "The Committee has read the returns and is not pleased with the state of the interior.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1814",
+      "title": "The ship from London, 1814",
+      "kind": "fixed",
+      "date": "1814-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1814",
+          "text": "The Committee has read the returns and is not pleased with the state of the interior.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1815",
+      "title": "The ship from London, 1815",
+      "kind": "fixed",
+      "date": "1815-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1815",
+          "text": "The Committee has read the returns and is not pleased with the state of the interior.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1816",
+      "title": "The ship from London, 1816",
+      "kind": "fixed",
+      "date": "1816-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1816",
+          "text": "The Committee has read the returns and is not pleased with the state of the interior.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1817",
+      "title": "The ship from London, 1817",
+      "kind": "fixed",
+      "date": "1817-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1817",
+          "text": "The Committee has read the returns and is not pleased with the state of the interior.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1818",
+      "title": "The ship from London, 1818",
+      "kind": "fixed",
+      "date": "1818-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1818",
+          "text": "The Committee has read the returns and is not pleased with the state of the interior.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1819",
+      "title": "The ship from London, 1819",
+      "kind": "fixed",
+      "date": "1819-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1819",
+          "text": "The Committee has read the returns and is not pleased with the state of the interior.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1820",
+      "title": "The ship from London, 1820",
+      "kind": "fixed",
+      "date": "1820-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1820",
+          "text": "The Committee has read the returns and is not pleased with the state of the interior.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1821",
+      "title": "The ship from London, 1821",
+      "kind": "fixed",
+      "date": "1821-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1821",
+          "text": "The Committee has read the returns and wants to know why the expenses of the Northern Department are not smaller.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1822",
+      "title": "The ship from London, 1822",
+      "kind": "fixed",
+      "date": "1822-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1822",
+          "text": "The Committee has read the returns and wants to know why the expenses of the Northern Department are not smaller.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1823",
+      "title": "The ship from London, 1823",
+      "kind": "fixed",
+      "date": "1823-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1823",
+          "text": "The Committee has read the returns and wants to know why the expenses of the Northern Department are not smaller.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1824",
+      "title": "The ship from London, 1824",
+      "kind": "fixed",
+      "date": "1824-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1824",
+          "text": "The Committee has read the returns and wants to know why the expenses of the Northern Department are not smaller.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1825",
+      "title": "The ship from London, 1825",
+      "kind": "fixed",
+      "date": "1825-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1825",
+          "text": "The Committee has read the returns and wants to know why the expenses of the Northern Department are not smaller.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1826",
+      "title": "The ship from London, 1826",
+      "kind": "fixed",
+      "date": "1826-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1826",
+          "text": "The Committee has read the returns and wants to know why the expenses of the Northern Department are not smaller.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1827",
+      "title": "The ship from London, 1827",
+      "kind": "fixed",
+      "date": "1827-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1827",
+          "text": "The Committee has read the returns and wants to know why the expenses of the Northern Department are not smaller.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1828",
+      "title": "The ship from London, 1828",
+      "kind": "fixed",
+      "date": "1828-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1828",
+          "text": "The Committee has read the returns and wants to know why the expenses of the Northern Department are not smaller.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1829",
+      "title": "The ship from London, 1829",
+      "kind": "fixed",
+      "date": "1829-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1829",
+          "text": "The Committee has read the returns and wants to know why the expenses of the Northern Department are not smaller.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship-1830",
+      "title": "The ship from London, 1830",
+      "kind": "fixed",
+      "date": "1830-08-20",
+      "keywords": [
+        "ship",
+        "London",
+        "Committee",
+        "returns"
+      ],
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the ship, 1830",
+          "text": "The Committee has read the returns and wants to know why the expenses of the Northern Department are not smaller.",
+          "days": 0
+        },
+        {
+          "do": "if",
+          "cond": "var(hardYears) >= 2",
+          "then": [
+            {
+              "do": "say",
+              "text": "The ship brings a hard letter this year.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "year-end",
+      "title": "The year's reckoning",
+      "kind": "conditional",
+      "repeat_days": 330,
+      "when": [
+        "month==12"
+      ],
+      "happens": [
+        {
+          "do": "if",
+          "cond": "tension>=50",
+          "then": [
+            {
+              "do": "add",
+              "var": "hardYears"
+            }
+          ],
+          "else": [
+            {
+              "do": "add",
+              "var": "goodYears"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "committee-loses-patience",
+      "title": "The Committee loses patience",
+      "kind": "conditional",
+      "repeat_days": 720,
+      "requires": [
+        "year-end"
+      ],
+      "when": [
+        "var(hardYears) >= 3"
+      ],
+      "on_awaken": [
+        {
+          "do": "say",
+          "text": "A long letter has come from Fenchurch Street, and nobody will say what is in it.",
+          "to": "HBC"
+        }
+      ],
+      "activate_when": [
+        {
+          "any": [
+            "tension>=50",
+            {
+              "m": "stock",
+              "a": [
+                "York Factory",
+                "TradeGoods"
+              ],
+              "op": "<",
+              "v": 20
+            }
+          ]
+        }
+      ],
+      "happens": [
+        {
+          "do": "london",
+          "price": 0.8,
+          "quota": 0.8
+        },
+        {
+          "do": "set",
+          "var": "hardYears",
+          "to": 0
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "your conduct of the trade",
+          "text": "The Committee is not satisfied. The quota is cut and the price paid reduced until returns improve.",
+          "days": 30
+        }
+      ],
+      "cancel_when": [
+        "var(goodYears) >= 4"
+      ],
+      "on_cancel": [
+        {
+          "do": "say",
+          "text": "The Committee's temper has improved with the returns.",
+          "to": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "york-boats-overdue",
+      "title": "The York boats are late for the ship",
+      "kind": "conditional",
+      "repeat_days": 300,
+      "when": [
+        "convoy_late:the York boats",
+        "month:7-9"
+      ],
+      "on_awaken": [
+        {
+          "do": "say",
+          "text": "The York boats are overdue and the ship is nearly due: the Factor walks the wharf at all hours.",
+          "to": "HBC"
+        }
+      ],
+      "activate_when": [
+        "convoy_days_late(the York boats) >= 10"
+      ],
+      "happens": [
+        {
+          "do": "london",
+          "price": 1,
+          "quota": 0.95
+        },
+        {
+          "do": "say",
+          "text": "The boats are still not in. The ship will go home light and the Committee will hear it from the Factor.",
+          "to": "HBC",
+          "headline": true
+        }
+      ],
+      "done_when": [
+        "convoy_in:the York boats"
+      ],
+      "on_resolve": [
+        {
+          "do": "say",
+          "text": "The York boats are in at last, a little late and none the worse.",
+          "to": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "boats-lost-london",
+      "title": "A boat lost on the road, and London hears of it",
+      "kind": "conditional",
+      "repeat_days": 300,
+      "when": [
+        {
+          "any": [
+            "convoy_lost:the York boats",
+            "convoy_lost:the Saskatchewan brigade"
+          ]
+        }
+      ],
+      "happens": [
+        {
+          "do": "london",
+          "price": 0.97,
+          "quota": 0.92
+        },
+        {
+          "do": "news",
+          "from": "Cumberland House",
+          "to": "the Factor at York Factory",
+          "subject": "Boats lost on the road",
+          "text": "A boat has gone down with its pieces on the way, and men with it. The returns will be short this summer, and the Committee will want to know why.",
+          "days": 25,
+          "company": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "athabasca-winters",
+      "title": "The Athabasca brigade winters on the road",
+      "kind": "conditional",
+      "repeat_days": 365,
+      "when": [
+        "convoy_wintering:the Athabasca brigade"
+      ],
+      "happens": [
+        {
+          "do": "say",
+          "text": "The Athabasca brigade could not make the Methye Portage before the freeze, and the men winter where they stand. Fort Chipewyan will go short.",
+          "to": "NWC",
+          "headline": true
+        },
+        {
+          "do": "stock",
+          "post": "Fort Chipewyan",
+          "item": "Pemmican",
+          "add": -20
+        }
+      ]
+    },
+    {
+      "id": "edmonton-goes-to-the-rival",
+      "title": "Edmonton House has nothing to trade",
+      "kind": "conditional",
+      "repeat_days": 365,
+      "when": [
+        {
+          "m": "stock",
+          "a": [
+            "Edmonton House",
+            "TradeGoods"
+          ],
+          "op": "<",
+          "v": 10
+        },
+        "month:10-12",
+        "post:Fort Augustus"
+      ],
+      "happens": [
+        {
+          "do": "stock",
+          "post": "Fort Augustus",
+          "item": "BeaverPelt",
+          "add": 15
+        },
+        {
+          "do": "say",
+          "text": "Edmonton House has nothing left on its shelves, and the Piegans are taking their furs next door to Fort Augustus.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    }
+  ]
+}

@@ -18,7 +18,7 @@ public partial class HelpPanel : Control
         $"Left click  strike whoever is under the cursor      {K("attack_nearest")}  strike the nearest hostile\n" +
         $"{K("wait")}  wait an hour (sleep at night)     {K("time_fast")}  hold to fast-forward     {K("chat")}  chat\n" +
         $"{K("pause_clock")}  stop/start the clock (host)     {K("clock_slower")} / {K("clock_faster")}  slower / faster clock (host)\n" +
-        $"{K("journal")}  journal      {K("log")}  log      {K("inventory")}  pack      {K("map")}  map      {K("debug_menu")}  test console (host)      F5 / F9  save / load (host)\n" +
+        $"{K("journal")}  journal      {K("log")}  log      {K("inventory")}  pack (drag items between squares; right-click uses or wears)      {K("map")}  map      {K("debug_menu")}  test console (host)      F5 / F9  save / load (host)\n" +
         $"{K("restart")}  begin again after death      Esc  menu (settings, keys)      F11  full screen      Ctrl + wheel  zoom      {K("help")}  this\n\n" +
         "You are the Company's new hand at York Factory. Keep warm (a hearth, a capote), fed and watered;\n" +
         "do what the Factor sets you each morning and your standing rises. Furs are money: trap beaver\n" +

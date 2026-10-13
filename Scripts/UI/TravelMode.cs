@@ -28,6 +28,7 @@ public partial class TravelMode : Control
     private float _checkTimer;
     private readonly HashSet<GodotObject> _alreadyNear = new();
     private readonly HashSet<string> _placesAtStart = new();
+    private readonly HashSet<int> _boatsAtStart = new();   // brigades already beside you when you set out
     private Vector2 _savedZoom = Vector2.One;
     private int _lastHour = -1;
     private Vector2 _start;
@@ -79,7 +80,8 @@ public partial class TravelMode : Control
         // Your horse is to hand: you ride.
         if (_player.HasHorse && !_player.Mounted && _player.GlobalPosition.DistanceTo(_player.HorsePicket) < PlayerController.RemountReachPx * 1.5f) Net.Net.I?.Act("mount");
         _dest = NearestPlaceName(target) ?? "the waypoint";
-        _alreadyNear.Clear(); _placesAtStart.Clear();
+        _alreadyNear.Clear(); _placesAtStart.Clear(); _boatsAtStart.Clear();
+        foreach (var c in Convoys.All) if (c.Where.DistanceTo(_player.GlobalPosition) < 1800f) _boatsAtStart.Add(c.Id);
         foreach (var n in Sim.Npcs) if (n.GlobalPosition.DistanceTo(_player.GlobalPosition) < 1400f) _alreadyNear.Add(n);
         foreach (var a in Sim.Animals) if (a.GlobalPosition.DistanceTo(_player.GlobalPosition) < 1400f) _alreadyNear.Add(a);
         foreach (var (name, at) in Places()) if (at.DistanceTo(_player.GlobalPosition) < StopNearPx * 1.5f) _placesAtStart.Add(name);
@@ -156,6 +158,10 @@ public partial class TravelMode : Control
             if (n.IsDead || _alreadyNear.Contains(n) || n.Tier == Tier.Background) continue;
             if (n.GlobalPosition.DistanceTo(_player.GlobalPosition) < 1100f) { Stop($"You come upon {n.Describe()}."); return; }
         }
+        // A brigade on the water or the bank: the one thing on the road that is worth stopping for.
+        foreach (var c in Convoys.All)
+            if (c.Now != ConvoyState.Arrived && !_boatsAtStart.Contains(c.Id) && c.Where.DistanceTo(_player.GlobalPosition) < 1500f)
+            { Stop($"You come upon {c.Name}, {c.State}, bound for {c.ToName}. The guide, {c.Guide}, is at the boats."); return; }
         foreach (var a in Sim.Animals)
         {
             // Wolves stop you; deer and geese only if you came out for them.

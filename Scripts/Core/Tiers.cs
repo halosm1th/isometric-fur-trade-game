@@ -48,6 +48,7 @@ public static class Tiers
             Agents.Rivals.Tick();
             World.Brigades.Season();
             World.Brigades.Tick();
+            World.Convoys.Tick();
             DailyBatch();
         }
     }

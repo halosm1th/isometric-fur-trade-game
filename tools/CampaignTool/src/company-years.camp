@@ -1,0 +1,799 @@
+// The Company Years, 1811-1830.
+//
+// A long campaign in five acts: the grant and the blockade, the Pemmican War,
+// the lawless years, the union of the companies, and Simpson's economies. It is
+// the biggest script the game ships, and it is written to show the language off:
+// every lifecycle hook is used somewhere, the brigades on the rivers are acted
+// on and read, a beat can be cancelled by the world, and a pair of counters
+// (hardYears, goodYears) keep a running opinion of how the Company is doing.
+//
+// Source of Campaigns/company-years.json. Edit it here and run
+//     dotnet run --project tools/CampaignTool -- build
+// or open it in the web editor:
+//     dotnet run --project tools/CampaignTool -- serve
+//
+// How to read it. A beat is a thing that may happen to the world. It sleeps
+// until its AwakenWhen holds, makes its OnApproach pressure as its day draws
+// near, waits for ActivateWhen, then happens (OnActivate). If the world gets
+// there by itself first, ResolveWhen holds and OnResolve runs instead; if it
+// can no longer happen, CancelWhen holds and OnCancel runs. Every part is
+// optional. The kind (fixed, conditional, event, pressure) is worked out from
+// what a beat has, so most beats never say it.
+
+campaign CompanyYears(
+    title: "The Company Years, 1811-1830",
+    description: "From Selkirk's grant to the Governor's economies: the blockade, " +
+                 "the Pemmican War, Seven Oaks, the lawless years, the union of " +
+                 "the companies and what Simpson made of it. The dated history " +
+                 "is fixed or pressed on the world; the brigades on the rivers " +
+                 "answer to what the world does.",
+    seed: 1821,
+    postsByFoundingYear: true
+);
+
+// ---------------------------------------------------------------- counters
+
+int incidents;      // violence on the brigade roads
+int shortages;      // summers the Saskatchewan canoes went hungry
+int hardYears;      // years the world ended in a bad way
+int goodYears;      // years it did not
+
+// ---------------------------------------------------------------- constants
+
+const int hot = 50;          // the tension at which things begin to break
+const int cold = 20;         // the tension at which they begin to heal
+
+const string london = "the Governor and Committee, London";
+const string yorkBoats = "the York boats";
+const string saskBrigade = "the Saskatchewan brigade";
+const string montrealCanoes = "the Montreal canoes";
+const string saskCanoes = "the Saskatchewan canoes";
+const string athabasca = "the Athabasca brigade";
+
+// ---------------------------------------------------------------- helpers
+
+void fromLondon(string subject, string text, int days)
+{
+    news(from: london, to: Person.Factor, subject: subject, text: text, days: days);
+}
+
+void fromMontreal(string from, string subject, string text, int days)
+{
+    news(from: from, to: Person.Partner, subject: subject, text: text, days: days, company: Company.NWC);
+}
+
+// the summer, when the rivers are open and the brigades run
+bool openWater() => world.inMonths(5, 9);
+
+// ================================================================ ACT I
+// The blockade and the grant, 1811-1813
+
+beat Blockade(
+    id: "blockade",
+    title: "The Continental Blockade holds the fur market down",
+    date: date(1811, 6, 1)
+) {
+    OnActivate() {
+        world.setLondon(0.85, 0.85);
+        flags.set("blockade");
+    }
+}
+
+beat SelkirkGrant(
+    id: "selkirk-grant",
+    title: "Lord Selkirk's grant of Assiniboia (the Red River Colony)",
+    date: date(1811, 6, 12),
+    keywords: ["Selkirk", "Red River", "colony", "Assiniboia"]
+) {
+    OnActivate() {
+        flags.set("red_river_colony");
+        fromLondon(
+            "Lord Selkirk's grant",
+            "The Committee has granted Lord Selkirk a hundred and sixteen thousand " +
+            "square miles on the Red River for a settlement. Settlers will come out " +
+            "by the Bay. Give them every assistance; the Canadians will not like it.",
+            70);
+    }
+}
+
+beat SettlersWinterAtYork(
+    id: "settlers-winter-at-york",
+    title: "Governor Macdonell's settlers winter at York Factory",
+    date: date(1811, 9, 24),
+    keywords: ["Macdonell", "settlers", "York Factory", "Stornoway"]
+) [SelkirkGrant] {
+    OnActivate() {
+        flags.set("settlers_at_york");
+        world.raiseTension(3, "a hundred mouths to feed at the Factory");
+        world.addStock("York Factory", Item.Pemmican, -40);
+        world.addStock("York Factory", Item.Bread, -30);
+        fromLondon(
+            "The Selkirk settlers",
+            "Governor Macdonell's party is landed at the Factory with the season too " +
+            "far gone to push inland. Winter them as you can, and let them see the " +
+            "Company is a good neighbour. They go up in the spring.",
+            0);
+    }
+}
+
+beat WarOf1812(
+    id: "war-of-1812",
+    title: "War between Britain and the United States",
+    date: date(1812, 6, 18),
+    keywords: ["war", "Americans", "Montreal"]
+) {
+    OnActivate() {
+        fromMontreal(
+            "Montreal",
+            "war with the Americans",
+            "The Americans have declared war. Michilimackinac is in danger and the " +
+            "canoes may be wanted for the King's service.",
+            75);
+        fromLondon(
+            "the American war",
+            "Britain is at war with the United States. The ship may be late; ration " +
+            "accordingly.",
+            400);
+    }
+}
+
+beat SettlersReachRedRiver(
+    id: "settlers-reach-red-river",
+    title: "The first settlers reach the Forks",
+    date: date(1812, 8, 30),
+    keywords: ["settlers", "Red River", "Forks", "Macdonell"]
+) [SettlersWinterAtYork] {
+    OnActivate() {
+        flags.set("colony_founded");
+        world.raiseTension(4, "a colony on the buffalo ground");
+        fromMontreal(
+            "Fort Gibraltar",
+            "strangers at the Forks",
+            "Macdonell's people have put down their stakes at the Forks, on the " +
+            "very road of our provision brigades. Mr. McGillivray will want to " +
+            "hear of it.",
+            50);
+    }
+}
+
+beat AstoriaSold(
+    id: "astoria-sold",
+    title: "Astor's Fort Astoria sold to the North West Company",
+    date: date(1813, 10, 16),
+    keywords: ["Astoria", "Columbia", "Fort George"]
+) {
+    OnActivate() {
+        flags.set("fort_george");
+        fromMontreal(
+            "Fort William",
+            "Astoria is ours",
+            "Astor's men on the Columbia have sold out to us. Fort Astoria is Fort " +
+            "George now, and many of his clerks are Nor'Westers.",
+            250);
+    }
+}
+
+// The war on the Lakes hinders the Montreal canoes, but not every week of every
+// summer: this beat sleeps for forty days after it has happened.
+beat WarSlowsTheCanoes(
+    id: "war-slows-the-canoes",
+    title: "The war on the Lakes slows the Montreal canoes",
+    repeat: days(40)
+) [WarOf1812] {
+    AwakenWhen() => world.date >= date(1812, 7, 17)
+        && world.date < date(1815, 1, 1)
+        && openWater();
+    OnActivate() {
+        brigade(montrealCanoes).delay(4);
+        world.addStock("Fort William", Item.Powder, -5);
+        if (WarSlowsTheCanoes.count < 2) {
+            say("Word from the Lakes: the war has the Montreal traffic stopped at " +
+                "every carrying place, and powder goes to the King's service first.",
+                Company.NWC);
+        }
+    }
+    CancelWhen() => world.date >= date(1815, 1, 1);
+}
+
+// ================================================================ ACT II
+// The Proclamation and the war for the Red River, 1814-1816
+
+beat PemmicanProclamation(
+    id: "pemmican-proclamation",
+    title: "Governor Macdonell's Pemmican Proclamation",
+    date: date(1814, 1, 8),
+    window: days(60),
+    lead: days(120),
+    keywords: ["pemmican", "Red River", "Macdonell", "proclamation", "provisions"]
+) [SettlersReachRedRiver] {
+    OnApproach() {
+        world.raiseTension(10, "word that the colony's governor means to stop the pemmican");
+    }
+    OnActivate() {
+        flags.set("pemmican_proclamation");
+        world.raiseTension(20, "the Pemmican Proclamation");
+        fromMontreal(
+            "Fort Gibraltar",
+            "the Pemmican Proclamation",
+            "Macdonell has forbidden any provisions to leave the colony's lands. " +
+            "Our brigades eat pemmican or they do not run. The partners will not " +
+            "stand it.",
+            45);
+        fromLondon(
+            "the governor's proclamation",
+            "Governor Macdonell has proclaimed that no pemmican may be taken out " +
+            "of Assiniboia. The Nor'Westers are furious; keep your people close.",
+            120);
+    }
+    ResolveWhen() => flags.has("pemmican_proclamation");
+}
+
+beat BlockadeLifted(
+    id: "blockade-lifted",
+    title: "Peace in Europe: the fur market reopens",
+    date: date(1814, 5, 30)
+) {
+    OnActivate() {
+        flags.clear("blockade");
+        world.setLondon(1.18, 1.15);
+        fromLondon(
+            "peace",
+            "Bonaparte is beaten and the Continent is open again. Furs will sell; " +
+            "the Committee expects returns to answer.",
+            80);
+    }
+}
+
+beat GoodsFlow1814(
+    id: "goods-flow-1814",
+    title: "The blockade lifts and the outfit comes freely"
+) [BlockadeLifted] {
+    OnActivate() {
+        world.addStock("York Factory", Item.TradeGoods, 40);
+        world.addStock("York Factory", Item.PointBlanket, 10);
+        world.addStock("Fort William", Item.TradeGoods, 40);
+        shout("Peace in Europe, and a full outfit at last: the shelves at York " +
+              "Factory and Fort William are stocked as they have not been in years.");
+    }
+}
+
+// The Proclamation starves the Saskatchewan canoes, summer after summer. The
+// third summer is the worst, and the beat says so.
+beat PemmicanStarvesTheCanoes(
+    id: "pemmican-starves-the-canoes",
+    title: "The Proclamation empties the canoes' provisions",
+    repeat: days(40)
+) [PemmicanProclamation] {
+    AwakenWhen() => openWater() && !flags.has("colony_dispersed");
+    OnActivate() {
+        shortages++;
+        world.addStock("Fort Bas de la Riviere", Item.Pemmican, -15);
+        world.addStock("Fort Augustus", Item.Pemmican, -10);
+        brigade(saskCanoes).delay(5);
+        if (shortages >= 3) {
+            world.raiseTension(3, "the canoes go hungry while the colony holds the pemmican");
+            shout("The Saskatchewan canoes are on short commons for the third summer " +
+                  "running: the Proclamation is starving the brigades, and the " +
+                  "partners are saying so.", Company.NWC);
+        } else {
+            say("Pemmican is short on the Saskatchewan: the canoes lie up to hunt.", Company.NWC);
+        }
+    }
+}
+
+beat ColonyDispersed(
+    id: "colony-dispersed",
+    title: "The Red River Colony attacked and dispersed",
+    date: date(1815, 6, 25),
+    window: days(60),
+    keywords: ["Red River", "colony", "settlers", "burned"]
+) [PemmicanProclamation] {
+    OnApproach() {
+        world.raiseTension(8, "the Metis gathering against the colony");
+    }
+    OnActivate() {
+        flags.set("colony_dispersed");
+        world.raiseTension(15, "the colony burned out");
+        fromLondon(
+            "the colony broken up",
+            "The settlers at Red River have been driven off and their houses " +
+            "burned. Some are coming down to the Bay.",
+            40);
+    }
+    ResolveWhen() => flags.has("colony_dispersed");
+}
+
+// Colin Robertson brings the settlers back, if the colony was broken at all.
+beat ColonyRestored(
+    id: "colony-restored",
+    title: "Colin Robertson brings the settlers back to the Forks",
+    delay: days(70),
+    keywords: ["Robertson", "settlers", "Red River", "Fort Douglas"]
+) [ColonyDispersed] {
+    OnActivate() {
+        flags.set("colony_restored");
+        world.raiseTension(5, "the settlers return, and with them the quarrel");
+        fromLondon(
+            "the settlers return",
+            "Mr. Robertson has brought the colonists back from Norway House and " +
+            "put up Fort Douglas. Governor Semple comes out in the autumn.",
+            55);
+    }
+}
+
+// Seven Oaks may not happen: if the spring of 1816 is quiet enough, the
+// Metis stand down, and the beat is cancelled whatever the adherence.
+beat SevenOaks(
+    id: "seven-oaks",
+    title: "The Battle of Seven Oaks: Governor Semple and twenty colonists killed",
+    date: date(1816, 6, 19),
+    window: days(45),
+    keywords: ["Seven Oaks", "Semple", "Grant", "Metis", "Red River"]
+) [ColonyDispersed] {
+    OnApproach() {
+        world.raiseTension(15, "Cuthbert Grant's riders on the Assiniboine");
+    }
+    OnActivate() {
+        flags.set("seven_oaks");
+        flags.set("governor_killed");
+        world.raiseTension(25, "Seven Oaks");
+        fromLondon(
+            "Seven Oaks",
+            "Governor Semple is dead with twenty of the colonists, shot down at " +
+            "Seven Oaks by Grant's half-breeds. The colony is gone.",
+            35);
+        fromMontreal(
+            "Fort William",
+            "Seven Oaks",
+            "Grant's people met Semple at Seven Oaks. Semple is dead and the colony " +
+            "scattered. There will be a reckoning for this in Montreal.",
+            60);
+    }
+    ResolveWhen() => flags.has("seven_oaks");
+    CancelWhen() => world.date >= date(1816, 5, 1) && world.tension < cold;
+    OnCancel() {
+        flags.set("seven_oaks_averted");
+        shout("The spring of 1816 passes quietly on the Assiniboine. Whatever " +
+              "was gathering has gone home.");
+    }
+}
+
+beat SelkirkFortWilliam(
+    id: "selkirk-fort-william",
+    title: "Lord Selkirk marches on Fort William and arrests the partners",
+    delay: days(55),
+    keywords: ["Selkirk", "Fort William", "de Meurons", "soldiers"]
+) [SevenOaks] {
+    AwakenWhen() => flags.has("governor_killed");
+    OnActivate() {
+        flags.set("fort_william_seized");
+        world.raiseTension(10, "Fort William taken");
+        fromMontreal(
+            "Fort William",
+            "Fort William taken",
+            "Selkirk came up the lakes with his de Meurons and took Fort William. " +
+            "McGillivray and the partners are under arrest.",
+            70);
+    }
+}
+
+beat FortWilliamStoodDown(
+    id: "fort-william-stood-down",
+    title: "Selkirk's soldiers hold Fort William"
+) [SelkirkFortWilliam] {
+    OnActivate() {
+        brigade(montrealCanoes).cancel();
+        world.addStock("Fort William", Item.TradeGoods, -60);
+        world.addStock("Fort William", Item.Pemmican, -30);
+        shout("Lord Selkirk's soldiers hold Fort William. The Montreal canoes are " +
+              "stood down and the stores are under guard.", Company.NWC);
+        after(days(60), () => say("Fort William is given back to the partners, with its " +
+                                  "stores a good deal lighter.", Company.NWC));
+    }
+}
+
+// ================================================================ ACT III
+// The lawless years, 1817-1820
+
+beat PeguisTreaty(
+    id: "peguis-treaty",
+    title: "Selkirk's treaty with the Saulteaux and Cree chiefs",
+    date: date(1817, 7, 18),
+    keywords: ["Selkirk", "Peguis", "treaty", "Red River", "Saulteaux"]
+) [SevenOaks] {
+    OnActivate() {
+        flags.set("peguis_treaty");
+        world.raiseTension(-5, "Selkirk makes his peace with the chiefs");
+        fromLondon(
+            "the treaty",
+            "Lord Selkirk has made a treaty with the chiefs of the Saulteaux and " +
+            "the Cree for the land along the Red and the Assiniboine. The Company " +
+            "will hold that the land is its own to give.",
+            60);
+    }
+}
+
+beat YorkTrials(
+    id: "york-trials",
+    title: "The trials at York in Upper Canada",
+    date: date(1818, 10, 1),
+    keywords: ["trial", "Seven Oaks", "York", "Upper Canada", "acquitted"]
+) [SevenOaks] {
+    OnActivate() {
+        flags.set("york_trials");
+        world.raiseTension(6, "the courts of Upper Canada acquit the Nor'Westers");
+        fromLondon(
+            "the trials",
+            "The Canadian courts have acquitted every man tried for Seven Oaks. The " +
+            "Committee says nothing aloud and a good deal in private.",
+            90);
+    }
+}
+
+// A summer of burned posts and stopped brigades, each year of the three.
+foreach (int year in 1818..1820) {
+    beat InteriorWar(
+        id: "interior-war-" + year,
+        title: "The lawless years: the interior war of " + year,
+        date: date(year, 6, 1),
+        keywords: ["burned", "brigade", "seized", "ruin"]
+    ) [SevenOaks] {
+        OnApproach() {
+            world.raiseTension(year == 1820 ? 10 : 15, "the interior war");
+            if (year == 1820) world.setLondon(0.85, 0.9);
+        }
+    }
+}
+
+// Once the interior is violent enough, the brigades are set upon. Each time,
+// the dice decide how: sometimes only a rumour.
+beat InteriorAmbushes(
+    id: "interior-ambushes",
+    title: "The interior war reaches the brigades",
+    repeat: days(60)
+) [SevenOaks] {
+    AwakenWhen() => openWater()
+        && world.tension >= hot
+        && !flags.has("merger")
+        && chance(25);
+    OnActivate() {
+        incidents++;
+        world.raiseTension(1, "an incident on the brigade roads");
+        random(
+            option(35, () => brigade(saskCanoes).turnBack()),
+            option(25, () => brigade(saskBrigade).delay(6)),
+            option(25, () => brigade(athabasca).lose()),
+            option(15, () => say("A rumour of shots at a carrying place; nothing came of it this time."))
+        );
+    }
+}
+
+beat GrandRapidsSeizure(
+    id: "grand-rapids-seizure",
+    title: "Grand Rapids: Nor'Westers seize the Company's boats",
+    date: date(1819, 6, 20),
+    window: days(40),
+    keywords: ["Grand Rapids", "seized", "boats", "Williams"]
+) [SevenOaks] {
+    OnApproach() {
+        brigade(yorkBoats).delay(3);
+    }
+    OnActivate() {
+        flags.set("grand_rapids");
+        brigade(yorkBoats).lose();
+        world.raiseTension(8, "Grand Rapids");
+        shout("The Nor'Westers have seized the Company's boats at Grand Rapids. " +
+              "The York brigade's goods are in their hands.", Company.HBC);
+    }
+    ResolveWhen() => flags.has("grand_rapids");
+}
+
+beat SelkirkDies(
+    id: "selkirk-dies",
+    title: "The Earl of Selkirk dies at Pau",
+    date: date(1820, 4, 8),
+    keywords: ["Selkirk", "death", "Pau", "ruin"]
+) {
+    OnActivate() {
+        flags.set("selkirk_dead");
+        world.raiseTension(-5, "the colony's patron is gone");
+        fromLondon(
+            "Lord Selkirk",
+            "Lord Selkirk is dead in the south of France, worn out and ruined by " +
+            "his lawsuits. The colony has lost its friend, and the Committee " +
+            "has lost a troublesome one.",
+            100);
+    }
+}
+
+// ================================================================ ACT IV
+// The union of the companies, 1821
+
+beat Merger(
+    id: "merger",
+    title: "The union of the Hudson's Bay and North West Companies",
+    date: date(1821, 3, 26),
+    window: days(120),
+    lead: days(365),
+    keywords: ["union", "merger", "coalition", "Simpson", "the new company"]
+) {
+    OnApproach() {
+        world.setLondon(0.9, 0.9);
+    }
+    OnActivate() {
+        flags.set("merger");
+        world.raiseTension(-70, "the companies made one");
+        fromLondon(
+            "the union of the companies",
+            "The Company and the North West Company are joined under the Company's " +
+            "charter. Mr. George Simpson will govern the Northern Department. " +
+            "Expect economies.",
+            90);
+        fromMontreal(
+            "Montreal",
+            "the coalition",
+            "It is done: the North West Company goes into the Hudson's Bay Company. " +
+            "The wintering partners are to be chief factors and chief traders. " +
+            "Many of the men will be let go.",
+            75);
+    }
+    ResolveWhen() => flags.has("merger");
+}
+
+beat CanoesStoodDown(
+    id: "canoes-stood-down",
+    title: "The North West Company's canoes are stood down"
+) [Merger] {
+    OnActivate() {
+        brigade(montrealCanoes).cancel();
+        brigade(saskCanoes).cancel();
+        brigade(athabasca).cancel();
+        shout("The two companies are one. The canoes are stood down; the brigades " +
+              "will run under a single flag.", Company.NWC);
+    }
+}
+
+beat SimpsonCouncil(
+    id: "simpson-council",
+    title: "The first council of the Northern Department at York Factory",
+    date: date(1821, 7, 10),
+    keywords: ["Simpson", "council", "York Factory", "economies"]
+) [Merger] {
+    OnActivate() {
+        flags.set("simpson_governs");
+        world.setLondon(1.05, 1.0);
+        fromLondon(
+            "Mr. Simpson's council",
+            "The chief factors and traders met at the Factory and Mr. Simpson " +
+            "gave out the new establishments. Posts that do not pay are to be " +
+            "shut, canoe men let go, and the York boats made to do the work of " +
+            "the Montreal canoes.",
+            0);
+    }
+}
+
+// The men let go in the winter after the union.
+beat MenLetGo(
+    id: "men-let-go",
+    title: "Retrenchment: the voyageurs are discharged",
+    delay: days(150)
+) [SimpsonCouncil] {
+    OnActivate() {
+        world.raiseTension(4, "four hundred men turned off");
+        shout("Half the old North West engages are discharged at Fort William and " +
+              "the Bas de la Riviere. Some will go to the Red River; some will " +
+              "go to the Americans.", Company.NWC);
+    }
+}
+
+// ================================================================ ACT V
+// Simpson's economies, 1822-1830
+
+beat ColumbiaDepartment(
+    id: "columbia-department",
+    title: "Simpson crosses to the Columbia and the Company takes the Pacific slope",
+    date: date(1824, 10, 1),
+    keywords: ["Simpson", "Columbia", "Fort Vancouver", "Fort George"]
+) [SimpsonCouncil] {
+    OnActivate() {
+        flags.set("columbia_department");
+        fromLondon(
+            "the Columbia",
+            "Governor Simpson has gone over the mountains to the Columbia and " +
+            "means to move the depot up the river to a new post, to be called " +
+            "Fort Vancouver. The Americans are to be shut out by the Company's " +
+            "own thoroughness: no beaver left to trap on the frontier.",
+            120);
+    }
+}
+
+// The Red River flood of 1826 is not in the Committee's gift to prevent. If it
+// comes in a bad year it is worse.
+beat RedRiverFlood(
+    id: "red-river-flood",
+    title: "The great flood at Red River",
+    date: date(1826, 5, 5),
+    keywords: ["flood", "Red River", "colony", "Assiniboine"]
+) [SimpsonCouncil] {
+    OnActivate() {
+        flags.set("red_river_flood");
+        if (hardYears >= 2) {
+            world.raiseTension(6, "the Red River in flood, in a hard year");
+        } else {
+            world.raiseTension(3, "the Red River in flood");
+        }
+        fromLondon(
+            "the flood",
+            "The Red River has risen over the colony and carried off the houses " +
+            "and the crops. Some of the settlers are leaving for the States; " +
+            "most will build again on the higher ground.",
+            60);
+        if (hardYears >= 2) {
+            shout("A bad year for the Company, a worse one for the settlers: the " +
+                  "flood has found a colony already short of everything.", Company.HBC);
+        }
+    }
+}
+
+beat NoOneStandsInTheWay(
+    id: "no-one-stands-in-the-way",
+    title: "The Company without a rival"
+) [Merger] {
+    AwakenWhen() => world.date >= date(1827, 1, 1) && flags.has("columbia_department");
+    OnActivate() {
+        flags.set("monopoly");
+        world.raiseTension(-20, "no rival left in the country");
+        fromLondon(
+            "no rival",
+            "With the Canadians gone and the Americans kept off the Columbia, the " +
+            "Company has the country to itself. The Committee asks that the " +
+            "Factor remember what that implies about his Indians' prices.",
+            100);
+    }
+}
+
+// ---------------------------------------------------------------- the years
+
+// Every August the ship brings the Committee's letter. It is warmer in a good
+// year and colder in a bad one; goodYears and hardYears are kept by the
+// year-end beat below.
+foreach (int year in 1812..1830) {
+    beat ShipLetter(
+        id: "ship-" + year,
+        title: "The ship from London, " + year,
+        date: date(year, 8, 20),
+        keywords: ["ship", "London", "Committee", "returns"]
+    ) {
+        OnActivate() {
+            fromLondon(
+                "the ship, " + year,
+                year < 1821 ? "The Committee has read the returns and is not pleased with the "
+                              + "state of the interior." :
+                              "The Committee has read the returns and wants to know why the "
+                              + "expenses of the Northern Department are not smaller.",
+                0);
+            if (hardYears >= 2) {
+                say("The ship brings a hard letter this year.", Company.HBC);
+            }
+        }
+    }
+}
+
+// The last day of the year, the world is called good or bad by how tense it is.
+beat YearEnd(
+    id: "year-end",
+    title: "The year's reckoning",
+    repeat: days(330)
+) {
+    AwakenWhen() => world.month == 12;
+    OnActivate() {
+        if (world.tension >= hot) {
+            hardYears++;
+        } else {
+            goodYears++;
+        }
+    }
+}
+
+// Three bad years and the Committee loses patience with the whole department.
+beat CommitteeLosesPatience(
+    id: "committee-loses-patience",
+    title: "The Committee loses patience",
+    repeat: days(720)
+) [YearEnd] {
+    AwakenWhen() => hardYears >= 3;
+    OnAwaken() {
+        say("A long letter has come from Fenchurch Street, and nobody will say " +
+            "what is in it.", Company.HBC);
+    }
+    ActivateWhen() => world.tension >= hot || world.stock("York Factory", Item.TradeGoods) < 20;
+    OnActivate() {
+        world.setLondon(0.8, 0.8);
+        hardYears = 0;
+        fromLondon(
+            "your conduct of the trade",
+            "The Committee is not satisfied. The quota is cut and the price paid " +
+            "reduced until returns improve.",
+            30);
+    }
+    CancelWhen() => goodYears >= 4;
+    OnCancel() {
+        say("The Committee's temper has improved with the returns.", Company.HBC);
+    }
+}
+
+// ---------------------------------------------------------------- the brigades
+
+// The York boats are the Company's lifeline. If they are late for the ship, the
+// Factor worries; if they are still out of the river ten days on, London hears
+// of it; if they come in, he is relieved and the beat is over for the year.
+beat YorkBoatsOverdue(
+    id: "york-boats-overdue",
+    title: "The York boats are late for the ship",
+    repeat: days(300)
+) {
+    AwakenWhen() => brigade(yorkBoats).isLate && world.inMonths(7, 9);
+    OnAwaken() {
+        say("The York boats are overdue and the ship is nearly due: the Factor " +
+            "walks the wharf at all hours.", Company.HBC);
+    }
+    ActivateWhen() => brigade(yorkBoats).daysLate >= 10;
+    OnActivate() {
+        world.setLondon(1, 0.95);
+        shout("The boats are still not in. The ship will go home light and the " +
+              "Committee will hear it from the Factor.", Company.HBC);
+    }
+    ResolveWhen() => brigade(yorkBoats).isIn;
+    OnResolve() {
+        say("The York boats are in at last, a little late and none the worse.", Company.HBC);
+    }
+}
+
+beat BoatsLostLondon(
+    id: "boats-lost-london",
+    title: "A boat lost on the road, and London hears of it",
+    repeat: days(300)
+) {
+    AwakenWhen() => brigade(yorkBoats).isLost || brigade(saskBrigade).isLost;
+    OnActivate() {
+        world.setLondon(0.97, 0.92);
+        news(
+            from: "Cumberland House",
+            to: Person.Factor,
+            subject: "Boats lost on the road",
+            text: "A boat has gone down with its pieces on the way, and men with it. " +
+                  "The returns will be short this summer, and the Committee will " +
+                  "want to know why.",
+            days: 25,
+            company: Company.HBC);
+    }
+}
+
+beat AthabascaWinters(
+    id: "athabasca-winters",
+    title: "The Athabasca brigade winters on the road",
+    repeat: days(365)
+) {
+    AwakenWhen() => brigade(athabasca).isWintering;
+    OnActivate() {
+        shout("The Athabasca brigade could not make the Methye Portage before the " +
+              "freeze, and the men winter where they stand. Fort Chipewyan will " +
+              "go short.", Company.NWC);
+        world.addStock("Fort Chipewyan", Item.Pemmican, -20);
+    }
+}
+
+beat EdmontonGoesToTheRival(
+    id: "edmonton-goes-to-the-rival",
+    title: "Edmonton House has nothing to trade",
+    repeat: days(365)
+) {
+    AwakenWhen() => world.stock("Edmonton House", Item.TradeGoods) < 10
+        && world.inMonths(10, 12)
+        && world.hasPost("Fort Augustus");
+    OnActivate() {
+        world.addStock("Fort Augustus", Item.BeaverPelt, 15);
+        shout("Edmonton House has nothing left on its shelves, and the Piegans are " +
+              "taking their furs next door to Fort Augustus.", Company.HBC);
+    }
+}

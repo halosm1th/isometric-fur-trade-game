@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>CampaignTool</RootNamespace>
+    <AssemblyName>CampaignTool</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- The game's own campaign code: pure C#, so the tool runs exactly what the game runs. -->
+    <Compile Include="../../Scripts/Core/CampaignLogic.cs" Link="Game/CampaignLogic.cs" />
+    <Compile Include="../../Scripts/Core/CampaignRunner.cs" Link="Game/CampaignRunner.cs" />
+  </ItemGroup>
+</Project>

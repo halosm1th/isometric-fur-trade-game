@@ -13,6 +13,7 @@ public partial class WorldRoot : Node2D
         Sim.Reset();
         Campaign.Reset();
         Posts.Reset();
+        Convoys.Reset();
         Camps.Reset();
         Economy.Plains.Reset();
         UI.Exploration.Reset(); UI.Waypoint.Clear();
@@ -28,6 +29,8 @@ public partial class WorldRoot : Node2D
         Camps.Begin(this);
         Posts.Begin(this);
         var ysort = GetNodeOrNull<Node2D>("YSort");
+        // The brigades on the country's rivers, drawn where a player is near them.
+        ysort?.AddChild(new ConvoyView { Name = "ConvoyView" });
         if (ysort != null) Net.Net.I?.CallDeferred(nameof(Net.Net.WorldReady), ysort);
         Net.Net.I?.ClientWorldReady();
     }
