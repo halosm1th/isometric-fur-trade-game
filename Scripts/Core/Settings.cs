@@ -78,7 +78,7 @@ public static class Settings
         ApplyRendering();
         ApplyScale();
         Audio.ApplyVolumes();
-        if (!Headless) UI.SettingsRuntime.Install();
+        if (!Headless) { UI.SettingsRuntime.Install(); UI.WeatherOverlay.Install(); UI.Cursors.Install(); }
     }
 
     public static void Save()

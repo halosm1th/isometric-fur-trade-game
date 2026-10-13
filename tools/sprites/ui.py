@@ -19,6 +19,14 @@ CUTS = {
         ([22], "needs/water", 48), ([23], "needs/fatigue", 48), ([24], "needs/drunk", 48), ([25], "needs/fever", 48),
         ([42], "needs/scurvy", 48), ([43], "needs/wounded", 48), ([44], "needs/load", 48), ([45], "needs/standing", 48),
     ],
+    # The five cursors (design doc 10.8): a quill for the pointer, an
+    # hourglass while the game is working, a scroll and quill over someone
+    # to talk to, knife and tomahawk over an enemy, the ink and coins over
+    # a trade.
+    "Mouse cursors": [
+        ([0], "cursors/default", 48), ([1], "cursors/busy", 48), ([2], "cursors/talk", 48),
+        ([18], "cursors/attack", 48), ([19], "cursors/trade", 48),
+    ],
     "Faction Symbols": [
         ([0], "crests/hbc", 128), ([1], "crests/nwc", 128), ([2], "crests/cree", 128), ([11], "crests/assiniboine", 128),
         ([12], "icon", 256),

@@ -171,6 +171,8 @@ public partial class Agent : CharacterBody2D
         if (_deathAnnounced) return;
         _deathAnnounced = true;
         Velocity = Vector2.Zero;
+        // What is left on the ground where he fell.
+        if (LastAttacker != null) CombatFx.Pool(this);
         if (this is not Animal) Sim.Noise(GlobalPosition, 220f, this, "fall");
         EmitSignal(SignalName.Died);
         Net.Net.I?.AnnounceDeath(this);
@@ -194,6 +196,38 @@ public partial class Agent : CharacterBody2D
     public float LoadFactor => Mathf.Clamp(1f - (Inventory.TotalWeightLbs - CarryCapacityLbs) / 160f, 0.35f, 1f);
     public float DrunkFactor => Intoxication > 40f ? Mathf.Lerp(1f, 0.6f, (Intoxication - 40f) / 60f) : 1f;
     public float SickFactor => IsSick ? 0.7f : HasScurvy ? 0.8f : 1f;
+    // On horseback (design doc 12.3): the coat of the horse under him, or -1
+    // afoot. The pace that buys is the ground's to say (TerrainPainter.RideFactorAt):
+    // three times a walker over open grass, worse than one in the muskeg.
+    public int MountCoat = -1;
+    public bool Mounted => MountCoat >= 0;
+    // The horse's own shape (a thin horse is a slow one).
+    public virtual float RidePace => 1f;
+    public virtual void SetMounted(int coat)
+    {
+        if (coat == MountCoat) return;
+        MountCoat = coat;
+        GetNodeOrNull<Mount>("Mount")?.QueueFree();
+        if (coat >= 0) { var m = new Mount { Name = "Mount", Coat = coat }; AddChild(m); }
+    }
+    // The ground's pace for this body, afoot or mounted.
+    public float GroundFactor(out bool slippery)
+    {
+        slippery = false;
+        if (Sim.Terrain == null) return 1f;
+        return Mounted ? Sim.Terrain.RideFactorAt(GlobalPosition, out slippery) * RidePace : Sim.Terrain.SpeedFactorAt(GlobalPosition, Inventory.IsWorn(ItemId.Snowshoes), out slippery);
+    }
+    // What goes over the wire: the animation, and the horse if there is one.
+    public string NetAnim => Mounted ? $"{CurrentAnimation}|h{MountCoat}" : CurrentAnimation;
+    public static string StripMount(string anim) { int bar = anim.IndexOf("|h"); return bar >= 0 ? anim.Substring(0, bar) : anim; }
+    public void ApplyNetSnapshot(Vector2 pos, string anim, bool flip)
+    {
+        int bar = anim.IndexOf("|h");
+        int coat = bar >= 0 && int.TryParse(anim.Substring(bar + 2), out int c) ? c : -1;
+        if (coat != MountCoat) SetMounted(coat);
+        ApplySnapshot(pos, bar >= 0 ? anim.Substring(0, bar) : anim, flip);
+    }
+
     public float EffectiveSpeed => MoveSpeed * Needs.CapabilityFactor * LoadFactor * DrunkFactor * SickFactor * (IsSprinting ? SprintMultiplier : IsSneaking ? 0.45f : 1f);
 
     public void CatchFever()
@@ -371,6 +405,8 @@ public partial class Agent : CharacterBody2D
         float mult = Needs.CapabilityFactor;
         if (IsSneaking && target.Unaware) mult *= 2.5f;
         if (range > 100f) CombatFx.Shot(this, target.GlobalPosition + new Vector2(0, -40), Weapon == ItemId.Musket);
+        if (Weapon == ItemId.Musket && range > 100f) CombatFx.Musket(this, target.GlobalPosition);
+        else if (range <= 100f) CombatFx.Swing(this, target);
         if (Weapon == ItemId.Musket) Sim.Noise(GlobalPosition, 1500f, this, "shot");
         else if (range > 100f) Sim.Noise(GlobalPosition, 200f, this, "step");
         // Hold your fire until the range is right (design doc 15.6): a smooth
@@ -387,7 +423,7 @@ public partial class Agent : CharacterBody2D
         }
         if (range > 100f) Skills.Learn(ref Skills.Hunting, 0.01f);
         if (IsSick) mult *= 0.6f;
-        if (GD.Randf() < missChance) { OnAttackMissed(target); return false; }
+        if (GD.Randf() < missChance) { CombatFx.Missed(this, target.GlobalPosition); OnAttackMissed(target); return false; }
         target.TakeDamage(damage * mult, this);
         // A blow landing is heard (and seen) by whoever is near.
         if (range <= 100f && this is not Animal) Sim.Noise(target.GlobalPosition, 160f, this, "hit");
@@ -404,6 +440,7 @@ public partial class Agent : CharacterBody2D
         if (IsDead || Invulnerable) return;
         Needs.Health = Mathf.Max(0f, Needs.Health - amount);
         HurtFlash = 0.18f;
+        CombatFx.Blood(this, amount);
         ShowHealthBar();
         LastAttacker = from;
         LastAttackedAgo = 0f;

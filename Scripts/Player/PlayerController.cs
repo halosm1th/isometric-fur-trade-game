@@ -498,11 +498,27 @@ public partial class PlayerController : Agent
 			NetHub.I?.Act("interact"); return;
 		}
 		if (@event.IsActionPressed("drink")) { NetHub.I?.Act("drink"); return; }
+		if (@event.IsActionPressed("mount")) { NetHub.I?.Act("mount"); return; }
 		if (@event.IsActionPressed("wait")) { NetHub.I?.Act("wait"); return; }
 	}
 
 	// Hotbar: the owner asks the server to use slot i.
 	public void UseSlot(int i) => NetHub.I?.Act("use", new Godot.Collections.Array { i });
+
+	// What the pointer is over, said in the shape of the pointer itself.
+	private void CursorOverWhat()
+	{
+		if (_busyUntil > 0f || _travel != null) { UI.Cursors.Show(UI.Cursors.Look.Busy); return; }
+		var over = AgentUnderCursor();
+		if (over == null || over.IsDead) { UI.Cursors.Show(UI.Cursors.Look.Default); return; }
+		int slot = UI.Hotbar.SelectedSlot;
+		var held = Inventory.Slot(slot);
+		bool weapon = held != null && Items.Items.Of(held.Value.id).Kind == ItemKind.Weapon;
+		if (over is Agents.Animal || weapon) { UI.Cursors.Show(UI.Cursors.Look.Attack); return; }
+		// A man of another nation with furs to sell is a trade; anyone else
+		// at the post is a conversation.
+		UI.Cursors.Show(over is Agents.Npc n && n.IsBandPerson ? UI.Cursors.Look.Trade : UI.Cursors.Look.Talk);
+	}
 
 	private Agent AgentUnderCursor()
 	{
@@ -627,7 +643,7 @@ public partial class PlayerController : Agent
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (NetHub.IsServer) { SeenAcross(); MarriageTick(); CaptiveTick(); CountStores(); CountPrivate(); PostKeep((float)delta); }
+		if (NetHub.IsServer) { SeenAcross(); MarriageTick(); CaptiveTick(); CountStores(); CountPrivate(); PostKeep((float)delta); HorseTick((float)delta); }
 		base._PhysicsProcess(delta);
 		float dt = (float)delta;
 		if (IsServerCopy) ServerCanoeTick();
@@ -635,6 +651,7 @@ public partial class PlayerController : Agent
 
 		if (IsLocal)
 		{
+			CursorOverWhat();
 			LocalMove(dt);
 			return;
 		}
@@ -662,7 +679,7 @@ public partial class PlayerController : Agent
 		if (_busyUntil > 0f) { _busyUntil -= dt; Velocity = Vector2.Zero; return; }
 
 		bool typing = UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping;
-		IsSneaking = !typing && Input.IsActionPressed("sneak") && !Input.IsActionPressed("sprint");
+		IsSneaking = !typing && !Mounted && Input.IsActionPressed("sneak") && !Input.IsActionPressed("sprint");
 		IsSprinting = !typing && Input.IsActionPressed("sprint");
 		Vector2 input = typing ? Vector2.Zero : Input.GetVector("move_left", "move_right", "move_up", "move_down");
 		if (input != Vector2.Zero && WantsSkipHours > 0f) NetHub.I?.Act("cancel_wait");
@@ -682,7 +699,7 @@ public partial class PlayerController : Agent
 			}
 		}
 		bool slippery = false;
-		float ground = Sim.Terrain != null ? Sim.Terrain.SpeedFactorAt(GlobalPosition, Inventory.IsWorn(ItemId.Snowshoes), out slippery) : 1f;
+		float ground = GroundFactor(out slippery);
 		if (IsAfloat) { ground = 1.5f * (Aboard != null && Aboard.Overloaded ? 0.6f : Aboard != null ? Mathf.Lerp(1f, 0.75f, Aboard.LoadLbs / Canoe.CapacityLbs) : 1f); slippery = false; }
 		// On the road the march is compressed with the clock (design doc 18.3).
 		float travelBoost = _travel != null ? Mathf.Clamp(NetHub.IsServer ? GameCalendar.Instance.MotionScale : GameCalendar.TravelBoost, 1f, 8f) : 1f;
@@ -694,7 +711,13 @@ public partial class PlayerController : Agent
 		// counts as landing, so just don't let the canoe grind onto a wall.
 
 		string target;
-		if (IsSneaking)
+		if (Mounted)
+		{
+			// In the saddle you sit; the horse does the walking.
+			if (input != Vector2.Zero) _facing = Mathf.Abs(input.X) > Mathf.Abs(input.Y) * 1.2f ? "walk_side" : input.Y < -0.3f ? "walk_back" : "walk";
+			target = _facing == "walk_side" ? "idle_side" : _facing == "walk_back" ? "idle_back" : "idle";
+		}
+		else if (IsSneaking)
 		{
 			bool side = Mathf.Abs(input.X) > Mathf.Abs(input.Y) * 1.2f;
 			target = input == Vector2.Zero ? "sneak_idle" : side ? "sneak_side" : (input.Y < -0.3f ? "sneak_back" : "sneak");
@@ -757,6 +780,7 @@ public partial class PlayerController : Agent
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
 			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["skills"] = new float[] { Skills.Hunting, Skills.Trapping, Skills.Trade, Skills.Woodcraft }, ["furs"] = BelievedFursMb, ["quota"] = BelievedQuotaMb, ["counted"] = LastCountedDay, ["unworn"] = UnwornList(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
+			["horse"] = PackHorse(),
 		};
 		_oneShotAnim = ""; _teleported = false;
 		return d;
@@ -787,6 +811,7 @@ public partial class PlayerController : Agent
 		if (d.ContainsKey("unworn")) { Inventory.Unworn.Clear(); foreach (int u in (int[])d["unworn"]) Inventory.Unworn.Add((ItemId)u); }
 		if (d.ContainsKey("mail") && !NetHub.IsServer) { Mail.Clear(); foreach (string line in (string[])d["mail"]) { var parts = line.Split('|'); Mail.Add(new Message { Kind = parts[0], From = parts[1], To = parts[2], Subject = parts[3], Read = parts[4] == "1", Text = parts.Length > 5 ? parts[5] : "" }); } }
 		Journal.Clear(); foreach (var e in (Godot.Collections.Array)d["journal"]) Journal.Add((string)e);
+		if (d.ContainsKey("horse")) UnpackHorse((Godot.Collections.Array)d["horse"]);
 		bool dead = (bool)d["dead"];
 		if (dead && !wasDead) EmitSignal(SignalName.Died);
 		if (!dead && wasDead) EmitSignal(SignalName.Revived);
@@ -801,6 +826,7 @@ public partial class PlayerController : Agent
 		switch (action)
 		{
 			case "interact": return Interact();
+			case "mount": return RideAction();
 			case "use": return UseSlotServer((int)args[0]);
 			case "travel": TravellingServer = (bool)args[0]; return "";
 			case "click": { var r = ClickAt((int)args[0], new Vector2((float)args[1], (float)args[2])); if (_devClick) GD.Print("[click] " + r); return r; }
