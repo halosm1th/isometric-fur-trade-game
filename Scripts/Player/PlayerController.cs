@@ -55,8 +55,28 @@ public partial class PlayerController : Agent
 	// The country's tongue (design doc 10.6): 0 = none, 1 = fluent. Grows with talk and marriage.
 	public float CreeFluency = 0.1f;
 	public float AssiniboineFluency = 0.05f;
-	public float FluencyWith(Agent who) => who != null && who.Faction == Faction.Assiniboine ? (HasInterpreterFor(who) ? 1f : AssiniboineFluency) : EffectiveFluency;
-	public void Learn(Agent who, float amount) { if (who != null && who.Faction == Faction.Assiniboine) AssiniboineFluency = Mathf.Min(1f, AssiniboineFluency + amount); else CreeFluency = Mathf.Min(1f, CreeFluency + amount); }
+	// How much of this person's tongue you have (design doc 10.6). Two
+	// languages are kept - the Cree of the northern trade and the Nakoda of
+	// the plains - and what you have of one carries only as far into another
+	// as the two are kin: a man with good Cree is deaf in a Blackfoot lodge.
+	// A man born to a camp has his own people's tongue whatever is on his
+	// sheet.
+	public float FluencyWith(Agent who)
+	{
+		if (who == null || !Agents.Languages.IsNation(who.Faction)) return EffectiveFluency;
+		if (HasInterpreterFor(who)) return 1f;
+		float best = CreeFluency * Agents.Languages.Kin(Faction.Cree, who.Faction);
+		best = Mathf.Max(best, AssiniboineFluency * Agents.Languages.Kin(Faction.Assiniboine, who.Faction));
+		if (IsBandPerson) best = Mathf.Max(best, Agents.Languages.Kin(Faction, who.Faction));
+		return Mathf.Max(best, HasInterpreter ? 1f : 0f);
+	}
+	// What you pick up goes to whichever of the two languages is nearer his.
+	public void Learn(Agent who, float amount)
+	{
+		bool plains = who != null && Agents.Languages.Kin(Faction.Assiniboine, who.Faction) > Agents.Languages.Kin(Faction.Cree, who.Faction);
+		if (plains) AssiniboineFluency = Mathf.Min(1f, AssiniboineFluency + amount);
+		else CreeFluency = Mathf.Min(1f, CreeFluency + amount);
+	}
 	// A woman of the country speaks for you with her own people; a Cree wife knows enough Nakoda for trade.
 	public bool HasInterpreterFor(Agent who)
 	{

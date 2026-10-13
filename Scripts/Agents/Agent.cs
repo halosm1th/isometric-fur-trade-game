@@ -344,7 +344,7 @@ public partial class Agent : CharacterBody2D
     {
         // Their own tongue to someone who hasn't learned it (design doc 10.6).
         if (IsBandPerson && Sim.Player is Player.PlayerController me && me != this && me.FluencyWith(this) < 0.3f)
-            text = $"({(Faction == Faction.Assiniboine ? "Assiniboine" : "Cree")} - you catch a word or two)";
+            text = $"({Languages.Name(Faction)} - you catch a word or two)";
         if (_bubble == null || !IsInstanceValid(_bubble))
         {
             _bubble = new SpeechBubble { Position = new Vector2(0, -140), ZIndex = 30, ZAsRelative = false };

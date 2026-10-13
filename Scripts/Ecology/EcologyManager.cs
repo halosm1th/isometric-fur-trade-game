@@ -215,7 +215,8 @@ public partial class EcologyManager : Node2D
         Sim.Ecology = this;
         foreach (var d in WorldLayout.Sites)
         {
-            Sites.Add(new SpawnSite { Name = d.Name, Species = d.Species, Cell = d.Cell, HomeCell = d.Cell, Count = d.Count, Capacity = d.Capacity, RadiusPx = d.RadiusPx, Route = d.Route });
+            var site = new SpawnSite { Name = d.Name, Species = d.Species, Cell = d.Cell, HomeCell = d.Cell, Count = d.Count, Capacity = d.Capacity, RadiusPx = d.RadiusPx, Route = d.Route };
+            Sites.Add(site);
         }
     }
 
@@ -324,6 +325,13 @@ public partial class EcologyManager : Node2D
         if (!_scenarioDone)
         {
             _scenarioDone = true;
+            // A herd stands where the year has it, not where it was drawn:
+            // a game begun in July finds the buffalo out on the open grass,
+            // not still in the winter quarters its route starts at. (Done
+            // here rather than in _Ready because the clock takes its date
+            // from the command line in its own _Ready.)
+            foreach (var s in Sites)
+                if (s.IsMobile && s.Cell == s.HomeCell) s.Cell = s.Route[Mathf.Clamp(cal.Month - 1, 0, s.Route.Length - 1)];
             // Dev aid: `-- --wolves` drops a hungry pack outside the gate at start.
             foreach (string arg in OS.GetCmdlineUserArgs())
             {
@@ -366,7 +374,7 @@ public partial class EcologyManager : Node2D
             {
                 float moved = s.Migrate(cal.Month);
                 // Only those who can see the herd know it's moving (design doc 16.5).
-                if (moved > 200f) Chronicle.Event($"the caribou were on the move, heading {Heading(s)}.", s.WorldPos, subject: s.Name, weight: 0.8f);
+                if (moved > 200f) Chronicle.Event($"the {SpeciesInfo.Of(s.Species).Name.ToLower()} were on the move, heading {Heading(s)}.", s.WorldPos, subject: s.Name, weight: 0.8f);
             }
         }
 
