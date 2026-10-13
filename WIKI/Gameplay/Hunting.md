@@ -7,7 +7,7 @@ status: implemented
 
 # Hunting
 
-**Status:** Implemented for caribou, geese, wolves, hares and ptarmigan; buffalo exist as a species but no herds are placed in the world yet. Code: `Scripts/Agents/Animal.cs`, `Scripts/Ecology/Species.cs`, `Scripts/Ecology/EcologyManager.cs`, `Scripts/World/GooseHunt.cs`.
+**Status:** Implemented for caribou, geese, wolves, hares and ptarmigan; buffalo are partial: 18 herds are placed near the plains camps but drawn with caribou sprites, with no horses or communal hunt yet [[Buffalo]]. Code: `Scripts/Agents/Animal.cs`, `Scripts/Ecology/Species.cs`, `Scripts/Ecology/EcologyManager.cs`, `Scripts/World/GooseHunt.cs`.
 
 Hunting is the way a post eats fresh meat (which also keeps off scurvy) and the way you earn standing with the Factor. There are **three verbs** in the design: *hunt* big game with a weapon, *trap* beaver ([[Trapping]]), and *fish or snare* small game ([[Fishing]]).
 
@@ -23,7 +23,7 @@ Hunting is the way a post eats fresh meat (which also keeps off scurvy) and the 
 | **Ptarmigan** | 3 | 150 | 1 (3 if shot into a flock) | Winter flocks on the willow flats |
 | **Wolf** | 50 | 230 | 1 wolf pelt (or shot-through pelt) | Predator; a threat, hunted for the pelt |
 | **Beaver** | 20 | 90 | 1 pelt + 3 fresh meat | Trapped rather than hunted ([[Trapping]]) |
-| **Buffalo** | 260 | 200 | 70 fresh meat + 1 robe (or holed hide) | Species defined; no herds placed in the world yet |
+| **Buffalo** | 260 | 200 | 70 fresh meat + 1 robe (or holed hide) | 18 herds near the plains camps; caribou sprites as a stand-in |
 
 Pelts are **prime** except from June to September when they are thin. Full detail: [[Furs and Pelts]], [[Caribou]], [[Goose]], [[Wolf]], [[Hare]], [[Ptarmigan]], [[Buffalo]].
 

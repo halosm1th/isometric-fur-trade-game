@@ -55,7 +55,7 @@ A character made on the New Game page is dropped into a short prologue and the w
 - The wider country as a fogged atlas map (Hudson Bay to the Pacific, the Missouri villages, the Great Lakes), with named posts, camps and routes. See [[Regions]].
 - A simulation of roughly nine hundred bodies in the country, only those near a player being walked about at full fidelity (see [[Simulation Tiers]]).
 - A director that decides which real events reach you, never inventing any (see [[The Director]]).
-- Wildlife with population dynamics: caribou, geese, beaver, wolves, hares and ptarmigan, plus buffalo as a species with no herds placed yet (see [[Wildlife]]).
+- Wildlife with population dynamics: caribou, geese, beaver, wolves, hares and ptarmigan, plus buffalo (18 herds near the plains peoples' camps, drawn with caribou sprites for now) (see [[Wildlife]]).
 
 ## Not yet in the game
 
