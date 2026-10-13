@@ -83,7 +83,7 @@ public partial class ConvoyView : Node2D
 			if (now - c.Seen > 3.0) { foreach (var b in c.Boats) if (IsInstanceValid(b)) b.QueueFree(); _crafts.Remove(id); continue; }
 			Place(c, dt);
 		}
-		if (Net.Net.IsServer) PlaceMen(dt);
+		if (Net.Net.IsServer) PlaceMen(dt); else ClientRide();
 		UpdateHud();
 	}
 
@@ -263,16 +263,18 @@ public partial class ConvoyView : Node2D
 		{
 			var c = Convoys.Riders[p];
 			if (!IsInstanceValid(p) || p.IsDead || c.Now == ConvoyState.Arrived || !Convoys.All.Contains(c)) { Convoys.Leave(p, ""); continue; }
+			bool local = p == Sim.Player;   // the host's own player steps off on his key; a joined one asks (ride_off)
 			bool typing = ChatBox.Instance?.IsTyping ?? false;
-			bool stepping = !typing && Input.GetVector("move_left", "move_right", "move_up", "move_down") != Vector2.Zero;
+			bool stepping = local && !typing && Input.GetVector("move_left", "move_right", "move_up", "move_down") != Vector2.Zero;
 
 			if (!c.Moving)
 			{
+				p.RideId = 0; p.TravellingServer = false;
 				// Ashore with the brigade: your own legs until they push off.
 				if (_riding.Remove(p))
 				{
-					cal.CancelSkip();
-					p.GlobalPosition = Convoys.LandNear(c.Now == ConvoyState.Calling ? Convoys.Landing(c.At) : c.HasCamp ? c.CampAt : c.Where);
+					if (local) cal.CancelSkip();
+					p.SetStartPosition(Convoys.LandNear(c.Now == ConvoyState.Calling ? Convoys.Landing(c.At) : c.HasCamp ? c.CampAt : c.Where));
 					p.Say(c.Now switch
 					{
 						ConvoyState.Portaging => $"{c.Name} come in to {c.At}. Out of the boat; the pieces go over on men's backs.",
@@ -293,20 +295,40 @@ public partial class ConvoyView : Node2D
 				_riding.Add(p);
 				p.Say($"The boats push off for {c.ToName}. You take your place.");
 			}
-			if (stepping) { _riding.Remove(p); cal.CancelSkip(); Convoys.Leave(p, "You step ashore."); continue; }
-			p.GlobalPosition = c.Where + new Vector2(0f, -24f);
-			if (cal.SkipRemaining < 0.5f) cal.SkipHours(0.5f - cal.SkipRemaining);
+			if (stepping) { _riding.Remove(p); Convoys.Leave(p, "You step ashore."); continue; }
+			p.RideId = c.Id;
+			p.SetStartPosition(c.Where + new Vector2(0f, -24f));
+			if (local) { if (cal.SkipRemaining < 0.5f) cal.SkipHours(0.5f - cal.SkipRemaining); }
+			else p.TravellingServer = true;   // a joined player cannot skip the shared day; it marches instead
 			if (p.Needs.Hunger < 45f) Convoys.FeedRider(p, c);
 		}
+	}
+
+	// A joined player's machine: sit in the boats the server sent, and ask to
+	// step ashore on the first step of your own.
+	private void ClientRide()
+	{
+		if (Net.Net.IsServer || Sim.Player is not PlayerController me || me.RideId == 0) return;
+		if (!_crafts.TryGetValue(me.RideId, out var c)) return;
+		bool typing = ChatBox.Instance?.IsTyping ?? false;
+		if (!typing && Input.GetVector("move_left", "move_right", "move_up", "move_down") != Vector2.Zero)
+		{
+			me.RideId = 0;
+			Net.Net.I?.Act("ride_off");
+			return;
+		}
+		me.GlobalPosition = c.Pos + new Vector2(0f, -24f);
 	}
 
 	private void UpdateHud()
 	{
 		var me = Sim.Player as PlayerController;
-		var c = me == null ? null : Convoys.BoardedBy(me);
-		_hud.Visible = c != null && _riding.Contains(me);
-		if (_hud.Visible)
-			_hud.Text = $"With {c.Name} to {c.ToName}  -  {Mathf.RoundToInt(c.KmToGo)} km to go  -  {GameCalendar.Instance?.DateString}  -  any step takes you ashore";
+		int id = me?.RideId ?? 0;
+		_hud.Visible = id != 0 && _crafts.ContainsKey(id);
+		if (!_hud.Visible) return;
+		var boardedNow = Convoys.BoardedBy(me);   // only the server knows how far there is to go
+		string far = boardedNow != null ? $"{Mathf.RoundToInt(boardedNow.KmToGo)} km to {boardedNow.ToName}  -  " : "";
+		_hud.Text = $"With {_crafts[id].Name}  -  {far}{GameCalendar.Instance?.DateString}  -  any step takes you ashore";
 	}
 
 	// ---- for the prompt and the interaction ------------------------------------------------------

@@ -796,7 +796,7 @@ public static class Convoys
 		foreach (var kv in Riders) if (kv.Value == c) riders.Add(kv.Key);
 		foreach (var p in riders)
 		{
-			if (GodotObject.IsInstanceValid(p)) p.GlobalPosition = LandNear(Landing(c.ToName));
+			if (GodotObject.IsInstanceValid(p)) p.SetStartPosition(LandNear(Landing(c.ToName)));
 			Leave(p, $"You come to {c.ToName} with {c.Name}.");
 		}
 		foreach (var p in Sim.Players())
@@ -909,11 +909,10 @@ public static class Convoys
 		return page;
 	}
 
-	// A place in the boats. Only the person at the host's own keyboard can ride
-	// for now: a joined player's position is his own machine's to say.
+	// A place in the boats. A joined player's feet are his own machine's, so the
+	// server tells it (RideId) and it follows the boats the server sends.
 	private static string Board(PlayerController p, Convoy c)
 	{
-		if (p != Sim.Player) return "\"We have no room.\" (Only the host's own player can ride with a brigade for now.)";
 		if (c.Now == ConvoyState.Wintering) return $"\"{c.Guide}\" shakes his head. \"We are not going anywhere till the ice goes. Come back in the spring.\"";
 		if (c.Company != p.Faction)
 		{
@@ -933,11 +932,15 @@ public static class Convoys
 		if (p == null) return;
 		Riders.Remove(p);
 		var cal = GameCalendar.Instance;
-		if (Net.Net.IsServer) cal?.CancelSkip();
+		if (GodotObject.IsInstanceValid(p))
+		{
+			p.RideId = 0; p.TravellingServer = false;
+			if (p == Sim.Player) cal?.CancelSkip();
+		}
 		if (GodotObject.IsInstanceValid(p) && !p.IsDead)
 		{
 			var land = LandNear(p.GlobalPosition);
-			if (p.GlobalPosition.DistanceTo(land) > 1f && Routes.Passable(IsoGrid.FromWorld(p.GlobalPosition), false) == false) p.GlobalPosition = land;
+			if (p.GlobalPosition.DistanceTo(land) > 1f && Routes.Passable(IsoGrid.FromWorld(p.GlobalPosition), false) == false) p.SetStartPosition(land);
 			if (why != "") p.Say(why);
 		}
 	}
