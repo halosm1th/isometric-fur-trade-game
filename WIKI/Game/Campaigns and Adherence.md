@@ -46,7 +46,7 @@ Forced beats are logged as `[forced]`. Gentle is the design document's director 
 
 Actions a beat can run: `flag`, `unflag`, `tension` (rivalry, 0-100), `london` (multiplies the next year's pelt price and quota), `found_post`, and `news` (a sealed letter delivered after N days to a named addressee: the Factor at York Factory, the wintering partner, the postmaster at Oxford House or the chief of the band).
 
-A beat dated before the world began (1 January 1811, when the world is created) counts as already history: its flags hold but nobody is sent news of it. Beats dated in 1811 before the player's first day (10 June, 12 July or 20 August, by starting path) are not history: they happen on the first day of play, so the blockade and Selkirk's grant are news on arrival. Campaign progress is part of the save ([[Save and Load]]).
+A beat dated before the first player's first day (10 June 1811 for the Cree and Assiniboine, 12 July for the North West Company, 20 August for the Hudson's Bay Company) counts as already history: its flags hold (and a post it founds stands) but nobody is sent news of it and nothing else it does is carried out. So the blockade (1 June) is already history on every path; Selkirk's grant (12 June) is history for the Company and the Nor'Westers, and news two days in for a camp start. On a dedicated server, history is decided when the first player joins. Campaign progress is part of the save ([[Save and Load]]).
 
 ## The historical script, beat by beat
 

@@ -55,6 +55,9 @@ public static class Campaign
     public static readonly List<string> Log = new();
     private static int _lastDay = int.MinValue;
     private static bool _begun;
+    // Whether what the script dates before today has been made history yet.
+    // It waits for the first player, whose starting path sets the first day.
+    private static bool _settled;
 
     // ---- choosing ------------------------------------------------------------
 
@@ -166,7 +169,8 @@ public static class Campaign
     }
     // ---- the game ---------------------------------------------------------------
 
-    // A new world (server): read the script, note the start year.
+    // A new world (server): read the script, note the start year. Which beats
+    // are already history waits for the first day of play (Settle).
     public static void Begin()
     {
         if (_begun) return;
@@ -179,15 +183,31 @@ public static class Campaign
         var cal = GameCalendar.Instance;
         StartYear = cal?.Year ?? 1811;
         LoadScript();
+        GD.Print($"[campaign] {Title} ({Level}); {_runner.Script.Beats.Count} beats");
+    }
+
+    // The world's first day of play: the first player is in and their starting
+    // path has dated the world (Starts.Begin, in the same call that adds him),
+    // so what the script dates before today is history now - its flags and
+    // posts hold, nobody is sent news of it. On a dedicated server this waits
+    // for the first player to join.
+    private static void Settle()
+    {
+        _settled = true;
+        var cal = GameCalendar.Instance;
         int today = cal == null ? 0 : DayOf(cal.Year, cal.Month, cal.Day);
+        int posts = _founded.Count;
+        // A dedicated server's clock may have run into a new year before anyone came.
+        if (_runner.Script.PostsByFoundingYear && cal != null) for (int y = StartYear + 1; y <= cal.Year; y++) _world.NewYear(y);
         _runner.Level = Level;
         _runner.Begin(today, _world);
-        GD.Print($"[campaign] {Title} ({Level}); {_runner.Script.Beats.Count} beats");
+        if (_founded.Count != posts) World.Posts.Sync(true);
+        GD.Print($"[campaign] history to {cal?.DateString}: {_runner.History.Count} beats past");
     }
 
     public static void Reset()
     {
-        _begun = false;
+        _begun = false; _settled = false;
         _runner.Reset();
         _founded.Clear(); _inTransit.Clear(); Log.Clear(); JournalText = ""; _journalStale = true;
         _lastDay = int.MinValue;
@@ -199,6 +219,7 @@ public static class Campaign
         var cal = GameCalendar.Instance;
         if (cal == null || !Net.Net.IsServer) return;
         if (!_begun) { if (SaveGame.HasPending) return; Begin(); }
+        if (!_settled) { if (!Sim.Players().Any()) return; Settle(); }
         int today = DayOf(cal.Year, cal.Month, cal.Day);
         if (today == _lastDay) return;
         _lastDay = today;
@@ -451,7 +472,7 @@ public static class Campaign
         foreach (var (day, news) in _inTransit) transit.Add(new Godot.Collections.Dictionary { ["day"] = day, ["news"] = news });
         return new Godot.Collections.Dictionary
         {
-            ["id"] = Id, ["level"] = (int)Level, ["start"] = StartYear,
+            ["id"] = Id, ["level"] = (int)Level, ["start"] = StartYear, ["settled"] = _settled,
             ["flags"] = Arr(_flags), ["pressured"] = Arr(_pressured), ["done"] = Arr(_done), ["founded"] = Arr(_founded),
             ["transit"] = transit, ["log"] = Arr(Log),
             ["vars"] = Vars(), ["doneDay"] = Ints(_st.DoneDay), ["shift"] = Ints(_shift), ["cooldown"] = Ints(_cooldown),
@@ -466,6 +487,7 @@ public static class Campaign
         if (d == null) { Begin(); return; }
         Id = Str(d, "id", "historical"); Level = (Adherence)(d.TryGetValue("level", out var l) ? l.AsInt32() : 1);
         _begun = true;
+        _settled = !d.TryGetValue("settled", out var st) || st.AsBool();   // older saves: decided at world start
         LoadScript();
         StartYear = d.TryGetValue("start", out var s) ? s.AsInt32() : 1811;
         foreach (var (key, set) in new[] { ("flags", _flags), ("pressured", _pressured), ("done", _done), ("founded", _founded) })

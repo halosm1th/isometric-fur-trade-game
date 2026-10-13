@@ -104,7 +104,7 @@ It repeats and is dated before the start: it is catching up, one round a day. Se
 
 ## A beat happens on the first day of play, though it is dated earlier
 
-In the game, only beats dated before 1 January 1811 are history; a fixed beat dated in 1811 before the starting path's day happens on the first day of play. See [when the game starts](World-Reference#when-the-game-starts).
+A beat dated before the starting path's first day is history unless its requires were not met by the history before it (a beat it needs is dateless, or dated later): then it is due at once, and a fixed one happens on the first day, letters and all. See [history before the start](State-Flags-and-Variables#history-before-the-start). A beat dated *on* the first day is not history either: it happens that day. On a loaded game made before this rule, history was decided on 1 January 1811, and a beat dated later in 1811 can still be overdue there; start a new game. See [when the game starts](World-Reference#when-the-game-starts).
 
 ## A beat did nothing in the game
 

@@ -144,7 +144,7 @@ To check a campaign against bad luck as well as good, run the simulator with `--
 
 ## History before the start
 
-When a new world is created, the campaign looks at every beat **dated before the calendar's date at that moment**, in the order they are written. In the game that date is **1 January 1811** (the starting path moves the calendar on to June, July or August afterwards, so beats dated earlier in 1811 are overdue, not history: see [when the game starts](World-Reference#when-the-game-starts)); in the simulator it is the `--start` date. A beat that
+On the first day of play, the campaign looks at every beat **dated before that day**, in the order they are written. In the game that day is the first player's starting path's first day (10 June, 12 July or 20 August 1811: see [when the game starts](World-Reference#when-the-game-starts)); in the simulator it is the `--start` date. A beat that
 
 - has a date before today, and
 - does not repeat, and
