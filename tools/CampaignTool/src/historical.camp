@@ -114,7 +114,8 @@ beat PemmicanProclamation(
     date: date(1814, 1, 8),
     window: days(60),
     lead: days(120),
-    keywords: ["pemmican", "Red River", "Macdonell", "proclamation", "provisions"]
+    keywords: ["pemmican", "Red River", "Macdonell", "proclamation", "provisions"],
+    rumour: "They say the governor at the Forks means to forbid any pemmican to leave the colony."
 ) [RedRiverGrant] {
     OnApproach() {
         world.raiseTension(10, "word that the colony's governor means to stop the pemmican");
@@ -150,7 +151,8 @@ beat ColonyDispersed(
     title: "The Red River Colony attacked and dispersed",
     date: date(1815, 6, 25),
     window: days(60),
-    keywords: ["Red River", "colony", "settlers", "burned"]
+    keywords: ["Red River", "colony", "settlers", "burned"],
+    rumour: "The Metis talk of driving the settlers from the Forks before another winter."
 ) [PemmicanProclamation] {
     OnApproach() {
         world.raiseTension(8, "the Métis gathering against the colony");
@@ -176,7 +178,8 @@ beat SevenOaks(
            "killed",
     date: date(1816, 6, 19),
     window: days(45),
-    keywords: ["Seven Oaks", "Semple", "Grant", "Métis", "Red River"]
+    keywords: ["Seven Oaks", "Semple", "Grant", "Métis", "Red River"],
+    rumour: "Grant's riders are gathering on the Assiniboine, and the colony's governor is on the road out from Fort Douglas."
 ) [PemmicanProclamation] {
     OnApproach() {
         world.raiseTension(15, "Cuthbert Grant's riders on the Assiniboine");
@@ -212,7 +215,8 @@ beat SelkirkFortWilliam(
     title: "Lord Selkirk marches on Fort William and arrests the partners",
     lead: days(0),
     delay: days(420),
-    keywords: ["Selkirk", "Fort William", "de Meurons", "soldiers"]
+    keywords: ["Selkirk", "Fort William", "de Meurons", "soldiers"],
+    rumour: "Word is Lord Selkirk has hired soldiers for the north and means to come up the lakes."
 ) [SevenOaks] {
     AwakenWhen() => flags.has("governor_killed");
     OnActivate() {
@@ -289,7 +293,8 @@ beat Merger(
     date: date(1821, 3, 26),
     window: days(120),
     lead: days(365),
-    keywords: ["union", "merger", "coalition", "Simpson", "the new company"]
+    keywords: ["union", "merger", "coalition", "Simpson", "the new company"],
+    rumour: "There is talk in London and in Montreal of a union of the two companies."
 ) {
     OnApproach() {
         world.setLondon(0.9, 0.9);
@@ -401,7 +406,8 @@ beat FortWilliamStoodDown(
 beat InteriorAmbushes(
     id: "interior-ambushes",
     title: "The interior war reaches the brigades",
-    repeat: days(60)
+    repeat: days(60),
+    rumour: "Shots are said to have been heard along the brigade roads."
 ) [SevenOaks] {
     AwakenWhen() => world.inMonths(5, 9)
         && world.tension >= 50
@@ -452,7 +458,8 @@ beat BoatsLostLondon(
 beat YorkBoatsOverdue(
     id: "york-boats-overdue",
     title: "The York boats are late for the ship",
-    repeat: days(300)
+    repeat: days(300),
+    rumour: "The York boats are not yet in."
 ) {
     AwakenWhen() => brigade("the York boats").isLate && world.inMonths(7, 9);
     OnActivate() {

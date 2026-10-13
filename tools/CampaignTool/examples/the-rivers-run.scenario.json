@@ -1,0 +1,48 @@
+{
+  "about": "A mixed decade: tension rising to 1816 then falling; the York boats late some summers, a boat lost, the Saskatchewan brigade robbed once, the Athabasca men wintering.",
+  "start": "1811-08-20",
+  "end": "1821-12-31",
+  "adherence": "Steady",
+  "player_faction": "HBC",
+  "tension": {
+    "1811-01-01": 15,
+    "1814-01-01": 40,
+    "1816-06-01": 75,
+    "1820-01-01": 50,
+    "1821-04-01": 10
+  },
+  "random_events": [
+    {
+      "flag": "late:the York boats",
+      "per_year": 0.6,
+      "months": "7-9",
+      "clear_after_days": 25
+    },
+    {
+      "flag": "lost:the York boats",
+      "per_year": 0.12,
+      "months": "6-9",
+      "clear_after_days": 60
+    },
+    {
+      "flag": "robbed:the Saskatchewan brigade",
+      "per_year": 0.15,
+      "months": "6-9",
+      "clear_after_days": 40
+    }
+  ],
+  "events": [
+    {
+      "on": "1818-09-15",
+      "flag": "wintering:the Athabasca brigade"
+    },
+    {
+      "on": "1816-07-01",
+      "deed": "escort"
+    },
+    {
+      "on": "1817-08-01",
+      "deed": "courier"
+    }
+  ]
+}

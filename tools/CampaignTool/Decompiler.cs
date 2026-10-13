@@ -199,6 +199,7 @@ public sealed class Decompiler
 			if (b.TryGetValue(key, out var n)) args.Add($"{word}: days({CJson.Num(Tree.N(n))})");
 		var kws = Tree.AsList(b.GetValueOrDefault("keywords"));
 		if (kws.Count > 0) args.Add($"keywords: [{string.Join(", ", kws.Select(k => Quote(Tree.S(k))))}]");
+		if (Tree.S(b.GetValueOrDefault("rumour")).Length > 0) args.Add($"rumour: {Str(Tree.S(b["rumour"]), Ind.Length + 8)}");
 
 		sb.Append($"beat {name}(");
 		string flat = string.Join(", ", args);

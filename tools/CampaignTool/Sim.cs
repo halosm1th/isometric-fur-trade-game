@@ -185,6 +185,7 @@ public static class Sim
 				{
 					if (ev.TryGetValue("flag", out var f)) flags.Add(Tree.S(f));
 					if (ev.TryGetValue("unflag", out var u)) flags.Remove(Tree.S(u));
+					if (ev.TryGetValue("deed", out var dd)) runner.State.Deed(Tree.S(dd));
 					if (ev.TryGetValue("convoy_days_late", out var cl)) host.SetConvoyDaysLate(Tree.S(ev["run"]), Tree.N(cl));
 				}
 			foreach (var rv in random)

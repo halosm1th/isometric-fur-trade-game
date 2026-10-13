@@ -36,7 +36,7 @@ public static class Known
 	public static readonly HashSet<string> Metrics = new() { "var", "month", "year", "day", "day_of_year", "count", "beat_age", "tension", "standing", "stock", "furs", "convoys_active", "convoy_days_late", "convoy_days_out" };
 	public static readonly string[] Addressees = { "the Factor at York Factory", "the postmaster at Oxford House", "the wintering partner", "the chief of the band" };
 	public static readonly string[] Companies = { "HBC", "NWC" };
-	public static readonly string[] EngineFlagPrefixes = { "heard:", "late:", "lost:", "robbed:", "turned:", "out:", "in:" };
+	public static readonly string[] EngineFlagPrefixes = { "heard:", "late:", "lost:", "robbed:", "turned:", "out:", "in:", "deed:" };
 	public static readonly HashSet<string> EngineFlags = new() { "brigade_late", "brigade_lost", "brigade_robbed", "brigade_turned_back", "brigade_in" };
 
 	public static string Root { get; } = FindRoot();

@@ -1,0 +1,265 @@
+// The Long Peace, 1811-1821.
+//
+// What the Pemmican War might have been. The grant, the settlers and the
+// blockade are the same as in the historical script, but nobody is held to
+// the violence: the Proclamation becomes a *bargain* if the world, or the
+// player, keeps the peace, and Seven Oaks is only a rumour that never lands.
+// If the peace fails, the script falls back to the historical road: the war
+// beats are there, waiting on tension. It is a campaign about what the player
+// can change.
+//
+//   - player.did("truce") is the lever: brokering a truce between the
+//     companies turns the Pemmican Proclamation into the Pemmican Bargain.
+//   - Every beat a player could hear of ahead of time has a rumour.
+//   - The seasons are loops: a freshet, low water and an early freeze, each
+//     year, rolled with dice.
+//
+// Source of Campaigns/the-long-peace.json (see the wiki's Command-line tool page).
+
+campaign TheLongPeace(
+    title: "The Long Peace, 1811-1821",
+    description: "The same grant, the same settlers, the same blockade - but the " +
+                 "war is only a possibility. Keep the peace between the companies " +
+                 "and the Proclamation becomes a bargain; let it slip and the " +
+                 "historical road is waiting.",
+    seed: 1819,
+    postsByFoundingYear: true
+);
+
+int goodSummers;      // summers the brigades got through
+const int hot = 55;   // tension at which the peace is breaking
+const int calm = 25;  // tension at which it is holding
+
+const string london = "the Governor and Committee, London";
+
+void fromLondon(string subject, string text, int days) {
+    news(from: london, to: Person.Factor, subject: subject, text: text, days: days);
+}
+
+void fromMontreal(string subject, string text, int days) {
+    news(from: "Montreal", to: Person.Partner, subject: subject, text: text, days: days, company: Company.NWC);
+}
+
+bool peaceHolds() => world.tension < hot;
+
+// ------------------------------------------------------------ the grant
+
+beat Blockade(id: "blockade", title: "The Continental Blockade holds the fur market down", date: date(1811, 6, 1)) {
+    OnActivate() { world.setLondon(0.85, 0.85); flags.set("blockade"); }
+}
+
+beat SelkirkGrant(
+    id: "selkirk-grant",
+    title: "Lord Selkirk's grant of Assiniboia",
+    date: date(1811, 6, 12)
+) {
+    OnActivate() {
+        flags.set("red_river_colony");
+        fromLondon("Lord Selkirk's grant",
+            "The Committee has granted Lord Selkirk land on the Red River for a settlement. " +
+            "Settlers will come out by the Bay; give them every assistance.", 70);
+    }
+}
+
+beat SettlersWinterAtYork(
+    id: "settlers-winter-at-york",
+    title: "The settlers winter at York Factory",
+    date: date(1811, 9, 24),
+    rumour: "A shipload of Highland settlers is expected at the Factory before the ice."
+) [SelkirkGrant] {
+    OnActivate() {
+        world.raiseTension(2, "a hundred mouths at the Factory");
+        world.addStock("York Factory", Item.Pemmican, -30);
+        fromLondon("The Selkirk settlers", "The settlers are landed and must be wintered. Be a good neighbour.", 0);
+    }
+}
+
+beat TheColonyBegins(
+    id: "the-colony-begins",
+    title: "The settlers reach the Forks",
+    date: date(1812, 8, 30)
+) [SettlersWinterAtYork] {
+    OnActivate() {
+        flags.set("colony_founded");
+        fromMontreal("strangers at the Forks",
+            "Macdonell's people have put down stakes at the Forks, on the road of our provision brigades.", 50);
+    }
+}
+
+// ------------------------------------------------------------ the pemmican question
+
+// The historical road: the Proclamation. It is made to happen only if the peace
+// is already breaking by the new year of 1814.
+beat PemmicanProclamation(
+    id: "pemmican-proclamation",
+    title: "Governor Macdonell's Pemmican Proclamation",
+    date: date(1814, 1, 8),
+    window: days(60),
+    lead: days(120),
+    rumour: "They say the governor at the Forks means to forbid any pemmican to leave the colony."
+) [TheColonyBegins] {
+    OnApproach() { world.raiseTension(6, "word of an embargo on pemmican"); }
+    ActivateWhen() => !peaceHolds() && !flags.has("pemmican_bargain");
+    OnActivate() {
+        flags.set("pemmican_proclamation");
+        world.raiseTension(20, "the Pemmican Proclamation");
+        fromMontreal("the Pemmican Proclamation", "Macdonell has forbidden any provisions to leave the colony's lands. The partners will not stand it.", 45);
+    }
+    ResolveWhen() => flags.has("pemmican_proclamation") || flags.has("pemmican_bargain");
+    CancelWhen() => flags.has("pemmican_bargain");
+}
+
+// The peaceful road: if the player has brokered a truce, or the tension is
+// low, the two companies and the colony agree what the colony will sell.
+beat PemmicanBargain(
+    id: "pemmican-bargain",
+    title: "The Pemmican Bargain",
+    delay: days(10),
+    rumour: "The colony's governor and the partners at Fort Gibraltar are said to be talking terms over pemmican."
+) [TheColonyBegins] {
+    AwakenWhen() => world.date >= date(1813, 6, 1) && (player.did("truce") || world.tension < calm);
+    OnActivate() {
+        flags.set("pemmican_bargain");
+        world.raiseTension(-8, "the Pemmican Bargain");
+        world.addStock("Fort Bas de la Riviere", Item.Pemmican, 30);
+        fromMontreal("a bargain over pemmican",
+            "The colony will sell the brigades a fixed share of its pemmican at a fair price, and the partners will keep off the colony's herds.", 40);
+        fromLondon("the colony's pemmican",
+            "The Company and the Canadians have agreed what the colony will sell. The Committee is pleased, and wants to know who arranged it.", 90);
+    }
+}
+
+// ------------------------------------------------------------ the war that does not come
+
+beat TheMetisGather(
+    id: "the-metis-gather",
+    title: "The Metis gather against the colony",
+    date: date(1815, 6, 25),
+    window: days(60),
+    rumour: "The Metis are said to be gathering on the Assiniboine, and some of them mean the colony harm."
+) [PemmicanProclamation] {
+    OnApproach() { world.raiseTension(6, "the Metis gathering"); }
+    OnActivate() {
+        flags.set("colony_dispersed");
+        world.raiseTension(15, "the colony burned out");
+        fromLondon("the colony broken up", "The settlers at Red River have been driven off. Some are coming down to the Bay.", 40);
+    }
+    ResolveWhen() => flags.has("colony_dispersed");
+    CancelWhen() => flags.has("pemmican_bargain");
+    OnCancel() { say("The summer of 1815 passes quietly at the Forks. The colony stands."); }
+}
+
+beat SevenOaksAverted(
+    id: "seven-oaks-averted",
+    title: "A quiet summer on the Assiniboine",
+    date: date(1816, 6, 19),
+    rumour: "There is talk of trouble at the Forks this summer, but the governor means to meet Grant and talk."
+) [TheColonyBegins] {
+    ActivateWhen() => flags.has("pemmican_bargain") || player.did("truce");
+    OnActivate() {
+        flags.set("seven_oaks_averted");
+        world.raiseTension(-10, "the governor meets Grant");
+        shout("Governor Semple has met Cuthbert Grant on the Assiniboine, and the two have parted with a bargain, not blows.");
+    }
+}
+
+beat SevenOaks(
+    id: "seven-oaks",
+    title: "The Battle of Seven Oaks",
+    date: date(1816, 6, 19),
+    window: days(45),
+    rumour: "Grant's riders are gathering on the Assiniboine, and the colony's governor is on the road out from Fort Douglas."
+) [TheMetisGather] {
+    OnApproach() { world.raiseTension(15, "Grant's riders"); }
+    OnActivate() {
+        flags.set("seven_oaks");
+        world.raiseTension(25, "Seven Oaks");
+        fromLondon("Seven Oaks", "Governor Semple is dead with twenty colonists. The colony is gone.", 35);
+    }
+    ResolveWhen() => flags.has("seven_oaks");
+    CancelWhen() => flags.has("seven_oaks_averted");
+}
+
+// ------------------------------------------------------------ the coalition
+
+beat CoalitionTalks(
+    id: "coalition-talks",
+    title: "The companies begin to talk of a union",
+    date: date(1819, 3, 1),
+    rumour: "In London and in Montreal they say the two companies are tired of the cost of fighting each other."
+) {
+    OnActivate() {
+        world.raiseTension(-10, "talk of a union");
+        fromLondon("a union", "The Committee has begun to talk with the Canadians. Say nothing of it at the posts.", 90);
+    }
+}
+
+beat Merger(
+    id: "merger",
+    title: "The union of the Hudson's Bay and North West Companies",
+    date: date(1821, 3, 26),
+    window: days(120),
+    lead: days(365),
+    rumour: "It is said the union of the two companies is settled and only waits for the signatures."
+) [CoalitionTalks] {
+    OnActivate() {
+        flags.set("merger");
+        world.raiseTension(-40, "the companies made one");
+        brigade("the Montreal canoes").cancel();
+        fromLondon("the union of the companies", "The Company and the North West Company are joined under the Company's charter.", 90);
+        fromMontreal("the coalition", "It is done: the North West Company goes into the Hudson's Bay Company.", 75);
+    }
+    ResolveWhen() => flags.has("merger");
+}
+
+// ------------------------------------------------------------ the seasons
+
+// Each year the rivers are a little different. Dice decide: a high freshet at
+// breakup, low water in August, an early freeze in the fall.
+foreach (int year in 1812..1820) {
+    beat Freshet(
+        id: "freshet-" + year,
+        title: "The freshet, " + year,
+        date: date(year, 5, 10),
+        keywords: ["freshet", "breakup", "high water"]
+    ) {
+        OnActivate() {
+            random(
+                option(30, () => {
+                    brigade("the York boats").delay(5);
+                    say("The freshet is high this spring: the York boats lie at the Factory waiting for the rapids to fall.", Company.HBC);
+                }),
+                option(70, () => goodSummers++)
+            );
+        }
+    }
+
+    beat LowWater(
+        id: "low-water-" + year,
+        title: "Low water, " + year,
+        date: date(year, 8, 5),
+        rumour: "The rivers are low and the brigades are grounding on the bars."
+    ) {
+        OnActivate() {
+            if (chance(25)) {
+                brigade("the Saskatchewan brigade").delay(6);
+                say("Low water on the Saskatchewan: the brigade is lightening at every bar.", Company.HBC);
+            }
+        }
+    }
+}
+
+// ------------------------------------------------------------ what the player did
+
+beat TheBrigadeRememberedYou(
+    id: "the-brigade-remembered-you",
+    title: "The brigade remembers who rode with it",
+    repeat: days(365),
+    rumour: "The boatmen say there is a man at the Factory who will ride the brigade through the rapids with them."
+) {
+    AwakenWhen() => player.did("escort");
+    OnActivate() {
+        world.raiseTension(-2, "the boatmen speak well of the Company");
+        say("The boatmen speak of the man who rode in with them, and the Factor hears of it.", Company.HBC);
+    }
+}

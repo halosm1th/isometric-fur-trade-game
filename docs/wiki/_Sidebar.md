@@ -5,6 +5,7 @@
 - [Language guide](Language-Guide)
 - [Beats and the lifecycle](Beats-and-the-Lifecycle)
 - [Library reference](Library-Reference)
+- [Player deeds and rumours](Player-Deeds-and-Rumours)
 - [Examples](Examples)
 - [The web editor](Web-Editor)
 - [Command-line tool](Command-Line-Tool)

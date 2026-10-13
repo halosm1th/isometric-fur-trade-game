@@ -226,6 +226,9 @@ internal sealed class Compiler
 					case "lead": fields["lead_days"] = Dayz(v, a); break;
 					case "delay": fields["delay_days"] = Dayz(v, a); break;
 					case "repeat": fields["repeat_days"] = Dayz(v, a); break;
+					case "rumour":
+						fields["rumour"] = v is string rs && rs.Length > 0 ? rs : throw new CampError($"rumour is text, but got {Describe(v)}", a.Value.At);
+						break;
 					case "keywords":
 						fields["keywords"] = v is ArrV { Items: var kw } && kw.All(x => x is string) ? kw.ToList() : throw new CampError($"keywords is a list of text, e.g. [\"war\", \"Red River\"], but got {Describe(v)}", a.Value.At);
 						break;
@@ -282,14 +285,14 @@ internal sealed class Compiler
 			var beat = Tree.Dict(("id", inst.Id), ("title", title));
 			string derived = BeatKinds.Derive(fields);
 			beat["kind"] = explicitKind ?? derived;
-			foreach (var key in new[] { "date", "window_days", "lead_days", "delay_days", "repeat_days", "requires", "keywords", "when", "on_awaken", "pressure", "activate_when", "happens", "done_when", "on_resolve", "cancel_when", "on_cancel" })
+			foreach (var key in new[] { "date", "window_days", "lead_days", "delay_days", "repeat_days", "requires", "keywords", "rumour", "when", "on_awaken", "pressure", "activate_when", "happens", "done_when", "on_resolve", "cancel_when", "on_cancel" })
 				if (fields.TryGetValue(key, out var fv)) beat[key] = fv;
 			return beat;
 		}
 		finally { _localFuncs = saveFuncs; }
 	}
 
-	private static readonly string[] BeatArgs = { "id", "title", "kind", "date", "window", "lead", "delay", "repeat", "keywords" };
+	private static readonly string[] BeatArgs = { "id", "title", "kind", "date", "window", "lead", "delay", "repeat", "keywords", "rumour" };
 
 	private double Dayz(object v, Arg a) => v is DaysV d && d.N >= 0 && d.N == Math.Floor(d.N) ? d.N : throw new CampError($"{a.Name} is a number of days, e.g. days(45), but got {Describe(v)}", a.Value.At);
 
@@ -473,11 +476,11 @@ internal sealed class Compiler
 		// beats not yet numbered (a reference before the beat is declared, during Declare)
 		var inst = _insts.FirstOrDefault(i => i.Decl.Name == n.Name);
 		if (inst != null) return new BeatV(n.Name, inst.Id);
-		if (n.Name == "world" || n.Name == "flags") return new ObjV(n.Name);
+		if (n.Name == "world" || n.Name == "flags" || n.Name == "player") return new ObjV(n.Name);
 		if (Library.IsEnum(n.Name)) return new TypeNameV(n.Name);
 		var forward = _ast.Decls.OfType<BeatDecl>().FirstOrDefault(x => x.Name == n.Name);
 		if (forward != null) return new BeatV(n.Name, forward.Args.FirstOrDefault(a => a.Name == "id")?.Value is LitExpr { Value: string fid } ? fid : n.Name);
-		var cands = env.Names().Concat(_vars.Keys).Concat(_byName.Keys).Concat(_insts.Select(i => i.Decl.Name)).Concat(new[] { "world", "flags" }).Concat(Library.EnumDocs.Keys);
+		var cands = env.Names().Concat(_vars.Keys).Concat(_byName.Keys).Concat(_insts.Select(i => i.Decl.Name)).Concat(new[] { "world", "flags", "player" }).Concat(Library.EnumDocs.Keys);
 		throw new CampError($"'{n.Name}' is not defined.{Suggest(n.Name, cands)}", n.At);
 	}
 

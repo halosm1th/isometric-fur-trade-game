@@ -135,6 +135,52 @@ public class LongCampaignTests
 	}
 }
 
+public class BranchingCampaignTests
+{
+	private static Dictionary<string, object> Peace() => CampLang.CompileText(Read("tools/CampaignTool/src/the-long-peace.camp"));
+	private static HashSet<string> Fired(Dictionary<string, object> sc) => Sim.Simulate(Peace(), sc, 5).Runner.Fired.Select(f => f.Id).ToHashSet();
+
+	[Fact]
+	public void ATruceTurnsTheProclamationIntoABargain()
+	{
+		var f = Fired(Json("tools/CampaignTool/examples/the-long-peace.scenario.json"));
+		Assert.Contains("pemmican-bargain", f);
+		Assert.Contains("seven-oaks-averted", f);
+		Assert.DoesNotContain("pemmican-proclamation", f);
+		Assert.DoesNotContain("seven-oaks", f);
+	}
+
+	[Fact]
+	public void WithoutOneTheHistoricalRoadIsWaiting()
+	{
+		var f = Fired(Json("tools/CampaignTool/examples/the-long-peace-at-war.scenario.json"));
+		Assert.Contains("pemmican-proclamation", f);
+		Assert.Contains("seven-oaks", f);
+		Assert.DoesNotContain("pemmican-bargain", f);
+		Assert.DoesNotContain("seven-oaks-averted", f);
+	}
+
+	[Fact]
+	public void TheRiversRunReactsToThePlayersDeeds()
+	{
+		var doc = CampLang.CompileText(Read("tools/CampaignTool/src/the-rivers-run.camp"));
+		var none = Json("tools/CampaignTool/examples/the-rivers-run.scenario.json");
+		none["events"] = L();
+		Assert.DoesNotContain(Sim.Simulate(doc, none, 5).Runner.Fired, f => f.Id == "the-boatmen-talk");
+		Assert.Contains(Sim.Simulate(doc, Json("tools/CampaignTool/examples/the-rivers-run.scenario.json"), 5).Runner.Fired, f => f.Id == "the-boatmen-talk");
+	}
+
+	[Fact]
+	public void EveryShippedCampaignHasRumoursForWhatIsComing()
+	{
+		foreach (var src in new[] { "historical", "company-years", "the-long-peace", "the-rivers-run" })
+		{
+			var beats = ((List<object>)CampLang.CompileText(Read($"tools/CampaignTool/src/{src}.camp"))["beats"]).Cast<Dictionary<string, object>>();
+			Assert.True(beats.Count(b => b.ContainsKey("rumour")) >= 4, $"{src} should tell the player of what is stirring");
+		}
+	}
+}
+
 public class ExampleTests
 {
 	[Fact]

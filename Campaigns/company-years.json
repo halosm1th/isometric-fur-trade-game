@@ -243,6 +243,7 @@
         "proclamation",
         "provisions"
       ],
+      "rumour": "They say the governor at the Forks means to forbid any pemmican to leave the colony.",
       "pressure": [
         {
           "do": "tension",
@@ -418,6 +419,7 @@
         "settlers",
         "burned"
       ],
+      "rumour": "The Metis talk of driving the settlers from the Forks before another winter.",
       "pressure": [
         {
           "do": "tension",
@@ -462,6 +464,7 @@
         "Red River",
         "Fort Douglas"
       ],
+      "rumour": "Robertson is said to be gathering the scattered colonists at Norway House.",
       "happens": [
         {
           "do": "flag",
@@ -498,6 +501,7 @@
         "Metis",
         "Red River"
       ],
+      "rumour": "Grant's riders are gathering on the Assiniboine, and the colony's governor is on the road out from Fort Douglas.",
       "pressure": [
         {
           "do": "tension",
@@ -542,7 +546,12 @@
       ],
       "cancel_when": [
         "after:1816-05-01",
-        "tension<20"
+        {
+          "any": [
+            "tension<20",
+            "flag:deed:truce"
+          ]
+        }
       ],
       "on_cancel": [
         {
@@ -570,6 +579,7 @@
         "de Meurons",
         "soldiers"
       ],
+      "rumour": "Word is Lord Selkirk has hired soldiers for the north and means to come up the lakes.",
       "when": [
         "flag:governor_killed"
       ],
@@ -653,6 +663,7 @@
         "Red River",
         "Saulteaux"
       ],
+      "rumour": "Lord Selkirk is said to be meeting the chiefs at Red River.",
       "happens": [
         {
           "do": "flag",
@@ -688,6 +699,7 @@
         "Upper Canada",
         "acquitted"
       ],
+      "rumour": "The men taken at Fort William are to be tried in Upper Canada.",
       "happens": [
         {
           "do": "flag",
@@ -787,6 +799,7 @@
       "requires": [
         "seven-oaks"
       ],
+      "rumour": "Shots are said to have been heard along the brigade roads.",
       "when": [
         "month:5-9",
         "tension>=50",
@@ -867,6 +880,7 @@
         "boats",
         "Williams"
       ],
+      "rumour": "The Nor'Westers mean to hold Grand Rapids against the Company's boats.",
       "pressure": [
         {
           "do": "brigade",
@@ -912,6 +926,7 @@
         "Pau",
         "ruin"
       ],
+      "rumour": "Lord Selkirk is failing, they say, in the south of France.",
       "happens": [
         {
           "do": "flag",
@@ -946,6 +961,7 @@
         "Simpson",
         "the new company"
       ],
+      "rumour": "There is talk in London and in Montreal of a union of the two companies.",
       "pressure": [
         {
           "do": "london",
@@ -1030,6 +1046,7 @@
         "York Factory",
         "economies"
       ],
+      "rumour": "Mr. Simpson is to hold a council of the chief factors at the Factory.",
       "happens": [
         {
           "do": "flag",
@@ -1058,6 +1075,7 @@
       "requires": [
         "simpson-council"
       ],
+      "rumour": "It is said the Nor'Westers' voyageurs are to be paid off.",
       "happens": [
         {
           "do": "tension",
@@ -1086,6 +1104,7 @@
         "Fort Vancouver",
         "Fort George"
       ],
+      "rumour": "Simpson is said to mean to cross the mountains to the Columbia.",
       "happens": [
         {
           "do": "flag",
@@ -1115,6 +1134,7 @@
         "colony",
         "Assiniboine"
       ],
+      "rumour": "The snow was deep in the north this winter, and the Red River is rising.",
       "happens": [
         {
           "do": "flag",
@@ -1915,6 +1935,7 @@
       "title": "The York boats are late for the ship",
       "kind": "conditional",
       "repeat_days": 300,
+      "rumour": "The York boats are not yet in.",
       "when": [
         "convoy_late:the York boats",
         "month:7-9"
@@ -2036,6 +2057,78 @@
           "text": "Edmonton House has nothing left on its shelves, and the Piegans are taking their furs next door to Fort Augustus.",
           "to": "HBC",
           "headline": true
+        }
+      ]
+    },
+    {
+      "id": "truces-are-remembered",
+      "title": "Both companies remember who kept the peace",
+      "kind": "conditional",
+      "repeat_days": 365,
+      "rumour": "People at both posts say you spoke for peace, and that it is not forgotten.",
+      "when": [
+        "flag:deed:truce",
+        "tension>15"
+      ],
+      "happens": [
+        {
+          "do": "tension",
+          "add": -5,
+          "why": "a truce is remembered"
+        },
+        {
+          "do": "say",
+          "text": "Both companies' people speak of the truce as the one sensible thing done this year."
+        }
+      ]
+    },
+    {
+      "id": "the-raid-is-talked-of",
+      "title": "The raid is the talk of both posts",
+      "kind": "conditional",
+      "repeat_days": 365,
+      "rumour": "The raid you went out on is the talk of both posts, and not kindly.",
+      "when": [
+        "flag:deed:raid",
+        {
+          "not": "flag:merger"
+        }
+      ],
+      "happens": [
+        {
+          "do": "tension",
+          "add": 4,
+          "why": "talk of the raid"
+        },
+        {
+          "do": "news",
+          "from": "Fort William",
+          "to": "the wintering partner",
+          "subject": "the raid on the Bay",
+          "text": "The Bay's people have been seen breaking into a store. The partners want it answered, and will not be told it was only one man's doing.",
+          "days": 20,
+          "company": "NWC"
+        }
+      ]
+    },
+    {
+      "id": "boats-steady-hand",
+      "title": "The York boats have a steadier hand",
+      "kind": "conditional",
+      "repeat_days": 730,
+      "when": [
+        "var(deed:escort) >= 2"
+      ],
+      "happens": [
+        {
+          "do": "tension",
+          "add": -2,
+          "why": "the brigades come in"
+        },
+        {
+          "do": "say",
+          "text": "The Factor remarks that the boats come in steadier since you took to riding them.",
+          "to": "HBC"
         }
       ]
     }

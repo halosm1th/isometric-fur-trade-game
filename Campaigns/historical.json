@@ -120,6 +120,7 @@
         "proclamation",
         "provisions"
       ],
+      "rumour": "They say the governor at the Forks means to forbid any pemmican to leave the colony.",
       "pressure": [
         {
           "do": "tension",
@@ -174,6 +175,7 @@
         "settlers",
         "burned"
       ],
+      "rumour": "The Metis talk of driving the settlers from the Forks before another winter.",
       "pressure": [
         {
           "do": "tension",
@@ -220,6 +222,7 @@
         "Métis",
         "Red River"
       ],
+      "rumour": "Grant's riders are gathering on the Assiniboine, and the colony's governor is on the road out from Fort Douglas.",
       "pressure": [
         {
           "do": "tension",
@@ -278,6 +281,7 @@
         "de Meurons",
         "soldiers"
       ],
+      "rumour": "Word is Lord Selkirk has hired soldiers for the north and means to come up the lakes.",
       "when": [
         "flag:governor_killed"
       ],
@@ -409,6 +413,7 @@
         "Simpson",
         "the new company"
       ],
+      "rumour": "There is talk in London and in Montreal of a union of the two companies.",
       "pressure": [
         {
           "do": "london",
@@ -636,6 +641,7 @@
       "requires": [
         "seven-oaks"
       ],
+      "rumour": "Shots are said to have been heard along the brigade roads.",
       "when": [
         "month:5-9",
         "tension>=50",
@@ -737,6 +743,7 @@
       "title": "The York boats are late for the ship",
       "kind": "conditional",
       "repeat_days": 300,
+      "rumour": "The York boats are not yet in.",
       "when": [
         "convoy_late:the York boats",
         "month:7-9"

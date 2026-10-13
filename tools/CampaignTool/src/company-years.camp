@@ -204,7 +204,8 @@ beat PemmicanProclamation(
     date: date(1814, 1, 8),
     window: days(60),
     lead: days(120),
-    keywords: ["pemmican", "Red River", "Macdonell", "proclamation", "provisions"]
+    keywords: ["pemmican", "Red River", "Macdonell", "proclamation", "provisions"],
+    rumour: "They say the governor at the Forks means to forbid any pemmican to leave the colony."
 ) [SettlersReachRedRiver] {
     OnApproach() {
         world.raiseTension(10, "word that the colony's governor means to stop the pemmican");
@@ -286,7 +287,8 @@ beat ColonyDispersed(
     title: "The Red River Colony attacked and dispersed",
     date: date(1815, 6, 25),
     window: days(60),
-    keywords: ["Red River", "colony", "settlers", "burned"]
+    keywords: ["Red River", "colony", "settlers", "burned"],
+    rumour: "The Metis talk of driving the settlers from the Forks before another winter."
 ) [PemmicanProclamation] {
     OnApproach() {
         world.raiseTension(8, "the Metis gathering against the colony");
@@ -308,7 +310,8 @@ beat ColonyRestored(
     id: "colony-restored",
     title: "Colin Robertson brings the settlers back to the Forks",
     delay: days(70),
-    keywords: ["Robertson", "settlers", "Red River", "Fort Douglas"]
+    keywords: ["Robertson", "settlers", "Red River", "Fort Douglas"],
+    rumour: "Robertson is said to be gathering the scattered colonists at Norway House."
 ) [ColonyDispersed] {
     OnActivate() {
         flags.set("colony_restored");
@@ -321,14 +324,16 @@ beat ColonyRestored(
     }
 }
 
-// Seven Oaks may not happen: if the spring of 1816 is quiet enough, the
-// Metis stand down, and the beat is cancelled whatever the adherence.
+// Seven Oaks may not happen: if the spring of 1816 is quiet enough, or the
+// player has brokered a truce between the companies, the Metis stand down and
+// the beat is cancelled whatever the adherence.
 beat SevenOaks(
     id: "seven-oaks",
     title: "The Battle of Seven Oaks: Governor Semple and twenty colonists killed",
     date: date(1816, 6, 19),
     window: days(45),
-    keywords: ["Seven Oaks", "Semple", "Grant", "Metis", "Red River"]
+    keywords: ["Seven Oaks", "Semple", "Grant", "Metis", "Red River"],
+    rumour: "Grant's riders are gathering on the Assiniboine, and the colony's governor is on the road out from Fort Douglas."
 ) [ColonyDispersed] {
     OnApproach() {
         world.raiseTension(15, "Cuthbert Grant's riders on the Assiniboine");
@@ -350,7 +355,7 @@ beat SevenOaks(
             60);
     }
     ResolveWhen() => flags.has("seven_oaks");
-    CancelWhen() => world.date >= date(1816, 5, 1) && world.tension < cold;
+    CancelWhen() => world.date >= date(1816, 5, 1) && (world.tension < cold || player.did("truce"));
     OnCancel() {
         flags.set("seven_oaks_averted");
         shout("The spring of 1816 passes quietly on the Assiniboine. Whatever " +
@@ -362,7 +367,8 @@ beat SelkirkFortWilliam(
     id: "selkirk-fort-william",
     title: "Lord Selkirk marches on Fort William and arrests the partners",
     delay: days(55),
-    keywords: ["Selkirk", "Fort William", "de Meurons", "soldiers"]
+    keywords: ["Selkirk", "Fort William", "de Meurons", "soldiers"],
+    rumour: "Word is Lord Selkirk has hired soldiers for the north and means to come up the lakes."
 ) [SevenOaks] {
     AwakenWhen() => flags.has("governor_killed");
     OnActivate() {
@@ -399,7 +405,8 @@ beat PeguisTreaty(
     id: "peguis-treaty",
     title: "Selkirk's treaty with the Saulteaux and Cree chiefs",
     date: date(1817, 7, 18),
-    keywords: ["Selkirk", "Peguis", "treaty", "Red River", "Saulteaux"]
+    keywords: ["Selkirk", "Peguis", "treaty", "Red River", "Saulteaux"],
+    rumour: "Lord Selkirk is said to be meeting the chiefs at Red River."
 ) [SevenOaks] {
     OnActivate() {
         flags.set("peguis_treaty");
@@ -417,7 +424,8 @@ beat YorkTrials(
     id: "york-trials",
     title: "The trials at York in Upper Canada",
     date: date(1818, 10, 1),
-    keywords: ["trial", "Seven Oaks", "York", "Upper Canada", "acquitted"]
+    keywords: ["trial", "Seven Oaks", "York", "Upper Canada", "acquitted"],
+    rumour: "The men taken at Fort William are to be tried in Upper Canada."
 ) [SevenOaks] {
     OnActivate() {
         flags.set("york_trials");
@@ -450,7 +458,8 @@ foreach (int year in 1818..1820) {
 beat InteriorAmbushes(
     id: "interior-ambushes",
     title: "The interior war reaches the brigades",
-    repeat: days(60)
+    repeat: days(60),
+    rumour: "Shots are said to have been heard along the brigade roads."
 ) [SevenOaks] {
     AwakenWhen() => openWater()
         && world.tension >= hot
@@ -473,7 +482,8 @@ beat GrandRapidsSeizure(
     title: "Grand Rapids: Nor'Westers seize the Company's boats",
     date: date(1819, 6, 20),
     window: days(40),
-    keywords: ["Grand Rapids", "seized", "boats", "Williams"]
+    keywords: ["Grand Rapids", "seized", "boats", "Williams"],
+    rumour: "The Nor'Westers mean to hold Grand Rapids against the Company's boats."
 ) [SevenOaks] {
     OnApproach() {
         brigade(yorkBoats).delay(3);
@@ -492,7 +502,8 @@ beat SelkirkDies(
     id: "selkirk-dies",
     title: "The Earl of Selkirk dies at Pau",
     date: date(1820, 4, 8),
-    keywords: ["Selkirk", "death", "Pau", "ruin"]
+    keywords: ["Selkirk", "death", "Pau", "ruin"],
+    rumour: "Lord Selkirk is failing, they say, in the south of France."
 ) {
     OnActivate() {
         flags.set("selkirk_dead");
@@ -515,7 +526,8 @@ beat Merger(
     date: date(1821, 3, 26),
     window: days(120),
     lead: days(365),
-    keywords: ["union", "merger", "coalition", "Simpson", "the new company"]
+    keywords: ["union", "merger", "coalition", "Simpson", "the new company"],
+    rumour: "There is talk in London and in Montreal of a union of the two companies."
 ) {
     OnApproach() {
         world.setLondon(0.9, 0.9);
@@ -557,7 +569,8 @@ beat SimpsonCouncil(
     id: "simpson-council",
     title: "The first council of the Northern Department at York Factory",
     date: date(1821, 7, 10),
-    keywords: ["Simpson", "council", "York Factory", "economies"]
+    keywords: ["Simpson", "council", "York Factory", "economies"],
+    rumour: "Mr. Simpson is to hold a council of the chief factors at the Factory."
 ) [Merger] {
     OnActivate() {
         flags.set("simpson_governs");
@@ -576,7 +589,8 @@ beat SimpsonCouncil(
 beat MenLetGo(
     id: "men-let-go",
     title: "Retrenchment: the voyageurs are discharged",
-    delay: days(150)
+    delay: days(150),
+    rumour: "It is said the Nor'Westers' voyageurs are to be paid off."
 ) [SimpsonCouncil] {
     OnActivate() {
         world.raiseTension(4, "four hundred men turned off");
@@ -593,7 +607,8 @@ beat ColumbiaDepartment(
     id: "columbia-department",
     title: "Simpson crosses to the Columbia and the Company takes the Pacific slope",
     date: date(1824, 10, 1),
-    keywords: ["Simpson", "Columbia", "Fort Vancouver", "Fort George"]
+    keywords: ["Simpson", "Columbia", "Fort Vancouver", "Fort George"],
+    rumour: "Simpson is said to mean to cross the mountains to the Columbia."
 ) [SimpsonCouncil] {
     OnActivate() {
         flags.set("columbia_department");
@@ -613,7 +628,8 @@ beat RedRiverFlood(
     id: "red-river-flood",
     title: "The great flood at Red River",
     date: date(1826, 5, 5),
-    keywords: ["flood", "Red River", "colony", "Assiniboine"]
+    keywords: ["flood", "Red River", "colony", "Assiniboine"],
+    rumour: "The snow was deep in the north this winter, and the Red River is rising."
 ) [SimpsonCouncil] {
     OnActivate() {
         flags.set("red_river_flood");
@@ -730,7 +746,8 @@ beat CommitteeLosesPatience(
 beat YorkBoatsOverdue(
     id: "york-boats-overdue",
     title: "The York boats are late for the ship",
-    repeat: days(300)
+    repeat: days(300),
+    rumour: "The York boats are not yet in."
 ) {
     AwakenWhen() => brigade(yorkBoats).isLate && world.inMonths(7, 9);
     OnAwaken() {
@@ -795,5 +812,57 @@ beat EdmontonGoesToTheRival(
         world.addStock("Fort Augustus", Item.BeaverPelt, 15);
         shout("Edmonton House has nothing left on its shelves, and the Piegans are " +
               "taking their furs next door to Fort Augustus.", Company.HBC);
+    }
+}
+
+// ---------------------------------------------------------------- what the player did
+//
+// player.did("truce") and the others are the campaign's way of hearing what the
+// player has done: brokering a truce, going out on a raid, riding a brigade to
+// its landing, carrying a packet through. The game records them; these beats
+// are how the world answers.
+
+beat TrucesAreRemembered(
+    id: "truces-are-remembered",
+    title: "Both companies remember who kept the peace",
+    repeat: days(365),
+    rumour: "People at both posts say you spoke for peace, and that it is not forgotten."
+) {
+    AwakenWhen() => player.did("truce") && world.tension > 15;
+    OnActivate() {
+        world.raiseTension(-5, "a truce is remembered");
+        say("Both companies' people speak of the truce as the one sensible thing done this year.");
+    }
+}
+
+beat TheRaidIsTalkedOf(
+    id: "the-raid-is-talked-of",
+    title: "The raid is the talk of both posts",
+    repeat: days(365),
+    rumour: "The raid you went out on is the talk of both posts, and not kindly."
+) {
+    AwakenWhen() => player.did("raid") && !flags.has("merger");
+    OnActivate() {
+        world.raiseTension(4, "talk of the raid");
+        news(
+            from: "Fort William",
+            to: Person.Partner,
+            subject: "the raid on the Bay",
+            text: "The Bay's people have been seen breaking into a store. The partners " +
+                  "want it answered, and will not be told it was only one man's doing.",
+            days: 20,
+            company: Company.NWC);
+    }
+}
+
+beat TheBoatsHaveASteadyHand(
+    id: "boats-steady-hand",
+    title: "The York boats have a steadier hand",
+    repeat: days(730)
+) {
+    AwakenWhen() => player.deeds("escort") >= 2;
+    OnActivate() {
+        world.raiseTension(-2, "the brigades come in");
+        say("The Factor remarks that the boats come in steadier since you took to riding them.", Company.HBC);
     }
 }

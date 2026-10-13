@@ -797,6 +797,7 @@ public static class Convoys
 		foreach (var kv in Riders) if (kv.Value == c) riders.Add(kv.Key);
 		foreach (var p in riders)
 		{
+			if (!c.TurnedBack) Campaign.Deed("escort");
 			if (GodotObject.IsInstanceValid(p)) p.SetStartPosition(LandNear(Landing(c.ToName)));
 			Leave(p, $"You come to {c.ToName} with {c.Name}.");
 		}
