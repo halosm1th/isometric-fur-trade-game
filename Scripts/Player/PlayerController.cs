@@ -156,6 +156,7 @@ public partial class PlayerController : Agent
 	public int MarriedOnDay = -1;
 	public int LastGiftToKinYear = 0;
 	public bool TravellingServer;   // the owner is on the road: the clock marches
+	public int RideId;              // the brigade (World/Convoys.cs) whose boats he is sitting in, 0 for none; the owner's machine follows them
 	public Economy.FortLedger HomePost => IsBandPerson ? null : Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;   // born to a band: no company post
 	public bool WantsToDefect;
 
@@ -754,7 +755,7 @@ public partial class PlayerController : Agent
 			["inv"] = inv, ["standing"] = Standing, ["task"] = Task.Kind == TaskKind.None ? "" : Task.Describe() + (Task.IsComplete ? " - done" : ""),
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "", ["focus"] = Core.Focus.For(this),
-			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
+			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["ride"] = RideId, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
 			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["skills"] = new float[] { Skills.Hunting, Skills.Trapping, Skills.Trade, Skills.Woodcraft }, ["furs"] = BelievedFursMb, ["quota"] = BelievedQuotaMb, ["counted"] = LastCountedDay, ["unworn"] = UnwornList(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
 		};
@@ -779,6 +780,7 @@ public partial class PlayerController : Agent
 		if ((bool)d["tele"]) GlobalPosition = new Vector2((float)d["px"], (float)d["py"]);
 		Faction = (Faction)(int)d["faction"];
 		_afloatMirror = (bool)d["afloat"];
+		if (d.ContainsKey("ride") && !NetHub.IsServer) RideId = (int)d["ride"];
 		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"]; Rank = (string)d["rank"]; if (d.ContainsKey("fresh")) DaysSinceFresh = (float)d["fresh"];
 		if (d.ContainsKey("tongue")) CreeFluency = (float)d["tongue"];
 		if (d.ContainsKey("tongue2")) AssiniboineFluency = (float)d["tongue2"];
@@ -803,6 +805,7 @@ public partial class PlayerController : Agent
 			case "interact": return Interact();
 			case "use": return UseSlotServer((int)args[0]);
 			case "travel": TravellingServer = (bool)args[0]; return "";
+			case "ride_off": Convoys.Leave(this, "You step ashore."); return "";
 			case "click": { var r = ClickAt((int)args[0], new Vector2((float)args[1], (float)args[2])); if (_devClick) GD.Print("[click] " + r); return r; }
 			case "wear": { var s = Inventory.Slot((int)args[0]); if (s == null || !Inventory.Wearable(s.Value.id)) return ""; Inventory.ToggleWorn(s.Value.id); return ""; }
 			case "move_slot": Inventory.MoveSlot((int)args[0], (int)args[1]); return "";
@@ -1182,6 +1185,13 @@ public partial class PlayerController : Agent
 			}
 		}
 
+		// A brigade's boats on the bank or the landing: the guide, a place in them, the road's news.
+		if (Aboard == null && Convoys.ById(ConvoyView.NearestId(GlobalPosition, 260f)) is { } boats)
+		{
+			NetHub.I?.PushDialogue(this, Conversation.StartScene(Convoys.Meet(this, boats)));
+			return "";
+		}
+
 		var nearCanoe = Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f);
 		if (nearCanoe != null) { NetHub.I?.PushDialogue(this, Conversation.StartCanoe(nearCanoe)); return ""; }
 
@@ -1272,6 +1282,7 @@ public partial class PlayerController : Agent
 		if (bush != null) return $"{Core.Keybinds.KeyFor("interact")}  Pick the {Sim.Structures.BushName(bush.Value)}";
 		var lodge = Sim.Ecology?.SiteNear(GlobalPosition, Ecology.Species.Beaver);
 		if (lodge != null) { var line = lodge.LineOf(TrapOwner); return line != null && line.Traps > 0 ? $"{Core.Keybinds.KeyFor("interact")}  Check your traps ({lodge.Name})" : Inventory.Has(ItemId.SteelTrap) ? $"Use a steel trap here to set a line ({lodge.Name})" : $"{lodge.Name}"; }
+		if (Aboard == null && ConvoyView.NearestId(GlobalPosition, 260f) is var boatId && boatId != 0) return $"{Core.Keybinds.KeyFor("interact")}  {ConvoyView.NameOf(boatId)}";
 		if ((Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f)) != null) return $"{Core.Keybinds.KeyFor("interact")}  The canoe";
 		if (Sim.Structures?.NearestBed(GlobalPosition, 90f) != null) return (GameCalendar.Instance?.Hour ?? 12f) is >= 17f or < 6f ? $"{Core.Keybinds.KeyFor("interact")}  Sleep till morning" : $"{Core.Keybinds.KeyFor("interact")}  Rest an hour";
 		foreach (var h in OtherHouseholds()) if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(h.WoodpileCell)) < 120f) return $"{Core.Keybinds.KeyFor("interact")}  {h.Title}'s woodpile";

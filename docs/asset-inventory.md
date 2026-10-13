@@ -138,8 +138,8 @@ Many of these back live systems — `leg_trap` and `fish_trap` for trapping and 
 |---|---|---|
 | Canoe | `sprites/canoe.png` | **Final** — loaded by `PlayerController.cs`, `Canoe.cs` |
 | Supply ship | `sprites/ship.png` | **Final** — loaded by `Ship.cs` |
-| Loaded canoe | `sprites/vehicles/canoe_loaded.png` | **Cut, unwired** |
-| York boat | `sprites/vehicles/york_boat.png` (400×130) | **Cut, unwired** |
+| Loaded canoe | `sprites/vehicles/canoe_loaded.png` | **Wired** — the NWC brigades' boats (`ConvoyView.cs`, `Data/World/brigade_runs.json`) |
+| York boat | `sprites/vehicles/york_boat.png` (400×130) | **Wired** — the Company's brigades' boats (`ConvoyView.cs`, `Data/World/brigade_runs.json`) |
 | Dog sled | `sprites/vehicles/dog_sled.png` | **Cut, unwired** |
 
 Nothing in `Scripts/` or `Scenes/` references the three `vehicles/` files; they correspond to transport modes in design doc §12 that the code does not model yet.
@@ -234,18 +234,19 @@ The Freesound effects are CC0; sources in `assets/audio/CREDITS.md`. Synthesised
 
 | # | Job | Files it brings in | Where |
 |---|---|---|---|
-| 1 | Placement rules for the tileset props nothing places (`beaver_dam`, `snowdrift`, `fish_trap`, `grave`, `willow_winter`, `berry_basket`) and for the 8 props not yet in the tileset (`cannon`, `fur_press`, `hide_frame`, `ice_hole`, `leg_trap`, `pelt_frame`, `sled`, `woodpile_winter`) | 14 | `terrain_tileset.tres`, `StructurePainter.cs`, `WorldLayout.cs` |
-| 2 | Extend `Rows` to the eight unused need icons (cold, fever, fatigue, drunk, scurvy, wounded, load, standing) — all already simulated | 8 | `UI/NeedsHud.cs:20` |
-| 3 | Make animals play their unused animations: wolf `howl`, beaver `gnaw`/`swim`/`slap`, goose `takeoff`, caribou `cow_*` | 5 sets | `Agents/Animal.cs` |
-| 4 | Stop spawning with `RivalFrames`: the NWC start's voyageurs, the NWC-path player, and the scene's placeholder NPCs | — | `Core/Starts.cs:172`, `Core/CharacterSheet.cs:146`, `YorkFactoryExterior.tscn` |
-| 5 | Load the four faction crests somewhere — journal, dialogue header, map, standing display | 4 | `UI/` |
-| 6 | Add `stove.png` and `writing_desk.png` to the tileset | 2 | `terrain_tileset.tres` |
-| 7 | Use `york_boat`, `dog_sled`, `canoe_loaded` once those transport modes exist | 3 | `World/` |
-| 8 | Give the orphan frames `.tres` rows (`musket_ready` ×2, `player/idle_back`, `sneak_back_3`, `assiniboine/shoot_*`, `cree/shoot_*`) | 9 | `Scenes/*/*Frames.tres` |
-| 9 | Wire the 8 item icons that have no `ItemId` | 8 | `Items/Items.cs` |
-| 10 | Add the 8 directional `roof_*` tiles, or delete them | 8 | `terrain_tileset.tres` |
-| 11 | Cut the finished weathered log set, palisade gates, grey plank floor and steep roof from `Facotry Segment Sprites.jpg` | ~20 pieces | `tools/sprites/walls.py`, `StructurePainter.cs` |
-| 12 | Slice and wire the drawn effects sheets: fire and smoke, weather overlays, combat effects, aurora band, panels, cursors | 11 sheets | `tools/sprites/`, `World/WorldAtmosphere.cs`, `World/Blaze.cs`, `CombatFx.cs`, `UI/` |
+| 1 | Add the 25 unwired props as tileset sources with placement rules — traps, ice holes, beaver lodges, graves, pelt frames, flagstaff, cannon | 25 | `terrain_tileset.tres`, `StructurePainter.cs` |
+| 2 | Add `Hare` and `Ptarmigan` entries pointing at the existing `.tres` files. (All six animal folders were sitting un-imported until 2026-10-11 — every png had no `.import` and the frame resources failed to parse, throwing 744 errors a run; `--headless --path . --import` fixed that, so the art is genuinely ready now.) | 208 frames | `Ecology/Species.cs` |
+| 3 | Extend `Rows` to the eight unused need icons (cold, fever, fatigue, drunk, scurvy, wounded, load, standing) — all already simulated | 8 | `UI/NeedsHud.cs:20` |
+| 4 | Season-switch the `summer_*` animations on hare and ptarmigan | — | `Agents/Animal.cs` |
+| 5 | Spawn voyageurs with `VoyageurFrames` instead of `RivalFrames` | — | `Core/Starts.cs:159` |
+| 6 | Load the four faction crests somewhere — journal, dialogue header, map, standing display | 4 | `UI/` |
+| 7 | Add `stove.png` and `writing_desk.png` to the tileset | 2 | `terrain_tileset.tres` |
+| 8 | Use `dog_sled` once that transport mode exists (`york_boat` and `canoe_loaded` are wired to the brigades) | 1 | `World/` |
+| 9 | Give the orphan frames `.tres` rows (`musket_ready` ×2, `player/idle_back`, `sneak_back_3`, `assiniboine/shoot_*`) | 7 | `Scenes/*/`*`Frames.tres` |
+| 10 | Wire the 15 item icons that have no `ItemId` | 15 | `Items/Items.cs` |
+| 12 | Draw the three borrowed food icons (berries, spruce beer, corn) — the only `ItemId`s without art of their own | 3 | `asset-prompts.md` 5.5.1 |
+| 13 | Berry bushes as a gatherable prop, and Mandan earth lodges for the three Missouri towns, which are farming towns in code and drawn as plains tipis | — | `asset-prompts.md` 5.5.2-3 |
+| 11 | Add the 8 directional `roof_*` tiles, or delete them | 8 | `terrain_tileset.tres` |
 
 ## Repo hygiene
 

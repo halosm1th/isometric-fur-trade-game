@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>CampaignTests</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The game's campaign code (pure C#) and the authoring tool, compiled straight into the tests. -->
+    <Compile Include="../../Scripts/Core/CampaignLogic.cs" Link="Game/CampaignLogic.cs" />
+    <Compile Include="../../Scripts/Core/CampaignRunner.cs" Link="Game/CampaignRunner.cs" />
+    <Compile Include="../../tools/CampaignTool/*.cs" Exclude="../../tools/CampaignTool/Program.cs" Link="Tool/%(Filename)%(Extension)" />
+    <None Include="cases.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

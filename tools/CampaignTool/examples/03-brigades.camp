@@ -1,0 +1,52 @@
+// Brigades on the rivers: reading them, and acting on them.
+//
+// brigade("name") is one of the runs in Data/World/brigade_runs.json. It can be
+// asked (isLate, isLost, isRobbed, wasTurnedBack, isOut, isIn, isWintering,
+// daysLate, daysOut) and it can be told (delay, turnBack, lose, cancel,
+// launch).
+
+campaign OnTheRivers(
+    title: "Brigades on the rivers",
+    description: "Reading and acting on the York boats and the Montreal canoes."
+);
+
+const string boats = "the York boats";
+const string canoes = "the Montreal canoes";
+
+// The boats are late: say so, and if they stay late, London hears of it. If
+// they come in first, the Factor is relieved and the beat is over.
+beat BoatsOverdue(repeat: days(300)) {
+    AwakenWhen() => brigade(boats).isLate && world.inMonths(7, 9);
+    OnAwaken() {
+        say("The York boats are overdue and the ship is nearly due.", Company.HBC);
+    }
+    ActivateWhen() => brigade(boats).daysLate >= 10;
+    OnActivate() {
+        world.setLondon(1, 0.95);
+        shout("The boats are still not in. The Committee will hear it from the Factor.", Company.HBC);
+    }
+    ResolveWhen() => brigade(boats).isIn;
+    OnResolve() {
+        say("The York boats are in at last.", Company.HBC);
+    }
+}
+
+// A war on the lakes slows the Montreal canoes, now and again, in the summers.
+beat WarOnTheLakes(
+    title: "The war slows the canoes",
+    repeat: days(40)
+) {
+    AwakenWhen() => world.date >= date(1812, 7, 1) && world.date < date(1815, 1, 1) && world.inMonths(5, 9);
+    OnActivate() {
+        brigade(canoes).delay(4);
+        world.addStock("Fort William", Item.Powder, -5);
+    }
+}
+
+// The union of the companies stands the canoes down for good.
+beat Union(title: "The canoes are stood down", date: date(1821, 3, 26)) {
+    OnActivate() {
+        brigade(canoes).cancel();
+        shout("The two companies are one. The canoes are stood down.", Company.NWC);
+    }
+}

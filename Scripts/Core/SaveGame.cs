@@ -97,6 +97,7 @@ public static class SaveGame
             ["items"] = Sim.Spawner?.GoneItems() ?? new GArr(),
             ["canoes"] = Canoes(),
             ["brigades"] = World.Brigades.Save(),
+            ["convoys"] = World.Convoys.Save(),
             ["ship"] = Ship(),
             ["npcs"] = Npcs(),
             ["players"] = Players(),
@@ -274,7 +275,7 @@ public static class SaveGame
         var a = new GArr();
         foreach (var n in Sim.Npcs)
         {
-            if (!GodotObject.IsInstanceValid(n)) continue;
+            if (!GodotObject.IsInstanceValid(n) || n.Convoy != null) continue;   // a brigade's hands are numbers on its row, not people on the books
             var d = AgentCommon(n);
             d["role"] = (int)n.Role; d["female"] = n.IsFemale; d["fatherName"] = n.FatherName;
             d["bed"] = new GArr { n.BedCell.X, n.BedCell.Y }; d["work"] = new GArr { n.WorkCell.X, n.WorkCell.Y };
@@ -534,6 +535,7 @@ public static class SaveGame
 
             // The brigades last, because they claim their men by name.
             World.Brigades.Load(d.ContainsKey("brigades") ? d["brigades"].AsGodotArray() : null);
+            World.Convoys.Load(d.ContainsKey("convoys") ? d["convoys"].AsGodotDictionary() : null);
 
             _savedPlayers.Clear();
             foreach (var pv in d["players"].AsGodotArray()) { var pd = pv.AsGodotDictionary(); _savedPlayers[S(pd, "name")] = pd; }

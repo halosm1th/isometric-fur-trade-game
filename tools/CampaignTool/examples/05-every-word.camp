@@ -1,0 +1,85 @@
+// Every word the language has, used once. Not for play: it is the reference
+// the wiki's library page is written from, kept compiling so it cannot go stale.
+
+campaign EveryWord(
+    title: "Every word in the language",
+    description: "A tour of the library: the world, flags, beats and brigades, conditions and effects.",
+    note: "Not a campaign to play.",
+    seed: 7,
+    postsByFoundingYear: true
+);
+
+int mood;
+float ratio = 0.5;
+
+beat Root(date: date(1812, 6, 1)) {
+    OnActivate() { flags.set("root"); }
+}
+
+// ---- conditions: what can be asked of the world
+beat Questions(title: "Everything a condition can ask") [Root] {
+    AwakenWhen() => world.tension >= 1         // 0-100
+        && world.standing > -100               // the player's standing with their company
+        && world.month <= 12
+        && world.year >= 1812
+        && world.day <= 31
+        && world.dayOfYear > 0
+        && world.convoysActive >= 0
+        && world.stock("York Factory", Item.Rum) < 1000
+        && world.furs("York Factory") >= 0
+        && world.hasPost("York Factory")
+        && !world.isDead("a man who is not dead")
+        && world.inMonths(1, 12)
+        && world.date >= date(1812, 1, 1)
+        && world.season != Season.Winter
+        && world.playerFaction == Company.HBC
+        && flags.has("root")
+        && Root.done && Root.count >= 1 && Root.age >= 0
+        && mood >= 0
+        && ratio < 10
+        && chance(100)
+        && !brigade("the York boats").isLate;
+    ActivateWhen() => brigade("the York boats").isOut || brigade("the York boats").isIn
+        || brigade("the York boats").isLost || brigade("the York boats").isRobbed
+        || brigade("the York boats").wasTurnedBack || brigade("the York boats").isWintering
+        || brigade("the York boats").daysLate > 0 || brigade("the York boats").daysOut > 0
+        || raw("tension>=0");
+    OnActivate() { flags.set("questions_asked"); }
+}
+
+// ---- effects: what can be done to it
+beat Answers(title: "Everything an effect can do") [Questions] {
+    OnActivate() {
+        flags.set("a");
+        flags.clear("a");
+        mood = 3;
+        mood += 2;
+        mood -= 1;
+        mood++;
+        mood--;
+        world.raiseTension(5, "because");
+        world.setLondon(1.1, 0.9);
+        world.foundPost("Fort William");
+        world.addStock("York Factory", Item.Rum, -5);
+        news(
+            from: "Montreal", to: Person.Partner, subject: "all of it", text: "Everything.",
+            days: 30, company: Company.NWC);
+        say("A line for the log.", Company.All);
+        shout("A line for the headlines.");
+        trigger(Elsewhere);
+        after(days(10), () => flags.set("later"));
+        random(option(1, () => mood++), option(2, () => mood--));
+        brigade("the York boats").delay(3);
+        brigade("the York boats").turnBack();
+        brigade("the York boats").lose();
+        brigade("the York boats").cancel();
+        brigade("the York boats").launch();
+        if (mood > 2) { flags.set("big"); } else { flags.set("small"); }
+        action("tension", add: 1, why: "the generic way");
+    }
+}
+
+beat Elsewhere(title: "Made to happen by trigger()", kind: Kind.Conditional) {
+    AwakenWhen() => world.tension >= 100;
+    OnActivate() { flags.set("elsewhere"); }
+}

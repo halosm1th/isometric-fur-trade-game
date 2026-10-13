@@ -1,0 +1,36 @@
+// The smallest useful campaign: one thing happens on one day.
+//
+// A script starts with its header: the campaign's name, and its details as
+// name: value pairs. Everything after it is a beat. A beat is something that
+// may happen to the world; this one is fixed to a date, so it happens on that
+// day whatever anyone does.
+
+campaign FirstBeat(
+    title: "A first beat",
+    description: "One letter, on one day."
+);
+
+beat TheLetter(
+    title: "A letter from London",
+    date: date(1812, 3, 1)
+) {
+    // OnActivate is what the beat does when it happens.
+    OnActivate() {
+        news(
+            from: "the Governor and Committee, London",
+            to: Person.Factor,
+            subject: "the spring letter",
+            text: "The Committee expects the returns to answer, and the " +
+                  "men's wages to be kept down.",
+            days: 60);
+        flags.set("letter_sent");
+    }
+}
+
+// A beat with a header and nothing else is allowed too: this one only exists
+// to be waited for, and happens the moment TheLetter has.
+beat TheAnswer(title: "The Factor writes back") [TheLetter] {
+    OnActivate() {
+        say("The Factor has written his answer, and the ship will carry it.", Company.HBC);
+    }
+}

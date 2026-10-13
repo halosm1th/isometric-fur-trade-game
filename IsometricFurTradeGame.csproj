@@ -4,4 +4,9 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>IsometricFurTradeGame</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- tests/ and tools/CampaignTool are separate projects; the game does not compile them. -->
+    <Compile Remove="tests/**" />
+    <Compile Remove="tools/**" />
+  </ItemGroup>
 </Project>
