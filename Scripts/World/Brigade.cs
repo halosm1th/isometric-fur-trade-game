@@ -197,9 +197,10 @@ public static class Brigades
 	public static void Tick()
 	{
 		var cal = GameCalendar.Instance;
-		if (cal == null || !Net.Net.IsServer || cal.Day == _lastDay) return;
-		if (cal.Day < _lastDay) Reset();   // a new world, or a save put the clock back
-		_lastDay = cal.Day;
+		int today = Campaign.DayOf(cal?.Year ?? 1811, cal?.Month ?? 1, cal?.Day ?? 1);   // cal.Day is the day of the month: 31 -> 1 is not the clock going back
+		if (cal == null || !Net.Net.IsServer || today == _lastDay) return;
+		if (today < _lastDay) Reset();   // a new world, or a save put the clock back
+		_lastDay = today;
 		DevSend();
 		// Anyone walking with the brigade is with it, and hears everything at
 		// first hand (design doc 18.3).

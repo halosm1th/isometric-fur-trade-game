@@ -1,4 +1,5 @@
 using Godot;
+using IsometricFurTradeGame.Scripts.Agents;
 using IsometricFurTradeGame.Scripts.Core;
 using IsometricFurTradeGame.Scripts.Items;
 using IsometricFurTradeGame.Scripts.World;
@@ -65,6 +66,13 @@ public partial class TradingPostLedger : FortLedger
             Stores.Add(ItemId.BeaverPelt, pelts);
             Stores.Remove(ItemId.TradeGoods, Mathf.Min(pelts, Stores.Count(ItemId.TradeGoods)));
             FursTakenMb += pelts;
+        }
+        // A post lives on its brigade (World/Convoys.cs): when the boats are late or lost
+        // and the shelves are bare, the bands that winter near carry their furs to the other house.
+        else if (cal.Month is >= 10 or <= 5)
+        {
+            LostToRivalMb += 2f;
+            Chronicle.Event($"a party came to {Post.Name} and found the shelves bare; they went on to the other house.", IsoGrid.ToWorld(AccessCell), subject: Post.Name, weight: 1f);
         }
     }
 }

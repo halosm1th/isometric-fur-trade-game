@@ -298,6 +298,8 @@ public static class Campaign
                     };
                     _inTransit.Add((DayOf(GameCalendar.Instance.Year, GameCalendar.Instance.Month, GameCalendar.Instance.Day) + (int)Num(a, "days", 30), news));
                     break;
+                // A beat acts on a brigade on the road (World/Convoys.cs): effect is "delay", "turn_back" or "lose".
+                case "brigade": World.Convoys.Affect(Str(a, "run", ""), Str(a, "effect", "delay"), (int)Num(a, "days", 5)); break;
                 default: GD.PushWarning($"[campaign] {b.Id}: unknown action '{Str(a, "do", "")}'"); break;
             }
         }
@@ -316,6 +318,7 @@ public static class Campaign
     // ---- conditions ----------------------------------------------------------------
 
     public static void Flag(string name) { if (Net.Net.IsServer) _flags.Add(name); }
+    public static void Unflag(string name) { if (Net.Net.IsServer) _flags.Remove(name); }
     public static bool Has(string name) => _flags.Contains(name);
 
     private static bool Holds(string c)
@@ -399,6 +402,7 @@ public static class Campaign
 
     private static readonly DateTime Epoch = new(1700, 1, 1);
     public static int DayOf(int y, int m, int d) => (new DateTime(Mathf.Clamp(y, 1700, 2100), Mathf.Clamp(m, 1, 12), 1).AddDays(Mathf.Max(0, d - 1)) - Epoch).Days;
+    public static DateTime DateOf(int day) => Epoch.AddDays(day);
     public static int DayOf(string iso)
     {
         var p = iso.Split('-');

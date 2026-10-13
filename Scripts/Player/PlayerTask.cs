@@ -2,7 +2,7 @@ using IsometricFurTradeGame.Scripts.Core;
 
 namespace IsometricFurTradeGame.Scripts.Player;
 
-public enum TaskKind { Firewood, CarryCargo, DriveOffAnimals, DeliverLetter, Raid, Report, Courier, Geese, None }
+public enum TaskKind { Firewood, CarryCargo, DriveOffAnimals, DeliverLetter, Raid, Report, Courier, Geese, Brigade, None }
 
 // An assignment the Factor hands the player (design doc 3.9, seen from the
 // subordinate's side): intent and a count, not steps. Doing it earns
@@ -17,6 +17,7 @@ public class PlayerTask
     public int Deadline;            // day it's wanted by
     public bool Accepted;           // you said you would
     public bool OwnWay;             // he does not mind how (design doc 3.9)
+    public string Convoy = "", Dest = "";   // TaskKind.Brigade: which brigade, and where it is bound
 
     public bool IsComplete => Kind != TaskKind.None && Done >= Need;
 
@@ -29,6 +30,7 @@ public class PlayerTask
         TaskKind.Raid => $"Go with the men and seize what you can from the other company's stores ({Done}/{Need} lots)",
         TaskKind.Report => "Report to the Factor: find Mr. Auld and speak to him",
         TaskKind.Courier => $"Carry the outfit up the river road and stow it at Oxford House ({Done}/{Need} lots)",
+        TaskKind.Brigade => IsComplete ? $"Went with {Convoy} to {Dest}" : $"Go with {Convoy} to {Dest}: catch up with the boats, ask the guide for a place, and ride in with them",
         TaskKind.Geese => $"To the marsh while the flight lasts: bring {Need} geese to the stores ({Done}/{Need})",
         _ => "",
     } + (Intent != "" ? $" - {Intent}" : "") + (OwnWay ? " [your own way]" : "");

@@ -131,8 +131,8 @@ This is the largest single block of finished-but-invisible art in the project. M
 |---|---|---|
 | Canoe | `sprites/canoe.png` | **Final** — loaded by `PlayerController.cs:71`, `Canoe.cs` |
 | Supply ship | `sprites/ship.png` | **Final** — loaded by `Ship.cs` |
-| Loaded canoe | `sprites/vehicles/canoe_loaded.png` | **Cut, unwired** |
-| York boat | `sprites/vehicles/york_boat.png` (400×130) | **Cut, unwired** |
+| Loaded canoe | `sprites/vehicles/canoe_loaded.png` | **Wired** — the NWC brigades' boats (`ConvoyView.cs`, `Data/World/brigade_runs.json`) |
+| York boat | `sprites/vehicles/york_boat.png` (400×130) | **Wired** — the Company's brigades' boats (`ConvoyView.cs`, `Data/World/brigade_runs.json`) |
 | Dog sled | `sprites/vehicles/dog_sled.png` | **Cut, unwired** |
 
 All three unwired vehicles correspond to transport modes in design doc §12 that the code does not model yet.
@@ -221,7 +221,7 @@ Synthesised stand-ins (also 2026-10-11, listed in CREDITS.md) cover plank footst
 | 5 | Spawn voyageurs with `VoyageurFrames` instead of `RivalFrames` | — | `Core/Starts.cs:159` |
 | 6 | Load the four faction crests somewhere — journal, dialogue header, map, standing display | 4 | `UI/` |
 | 7 | Add `stove.png` and `writing_desk.png` to the tileset | 2 | `terrain_tileset.tres` |
-| 8 | Use `york_boat`, `dog_sled`, `canoe_loaded` once those transport modes exist | 3 | `World/` |
+| 8 | Use `dog_sled` once that transport mode exists (`york_boat` and `canoe_loaded` are wired to the brigades) | 1 | `World/` |
 | 9 | Give the orphan frames `.tres` rows (`musket_ready` ×2, `player/idle_back`, `sneak_back_3`, `assiniboine/shoot_*`) | 7 | `Scenes/*/`*`Frames.tres` |
 | 10 | Wire the 15 item icons that have no `ItemId` | 15 | `Items/Items.cs` |
 | 12 | Draw the three borrowed food icons (berries, spruce beer, corn) — the only `ItemId`s without art of their own | 3 | `asset-prompts.md` 5.5.1 |

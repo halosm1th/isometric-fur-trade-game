@@ -106,6 +106,8 @@ public static class Objective
                 return rival != null ? (IsoGrid.ToWorld(rival.AccessCell), rival.Title) : null;
             case TaskKind.Courier:
                 return Sim.Outpost != null ? (IsoGrid.ToWorld(Sim.Outpost.AccessCell), "Oxford House") : null;
+            case TaskKind.Brigade:
+                return Convoys.Find(t.Convoy) is { } boats ? (boats.Where, boats.Name) : null;
             case TaskKind.Geese:
                 foreach (var s in WorldLayout.Sites) if (s.Species == Ecology.Species.Goose) return (IsoGrid.ToWorld(s.Cell), s.Name);
                 return null;

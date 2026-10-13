@@ -1182,6 +1182,13 @@ public partial class PlayerController : Agent
 			}
 		}
 
+		// A brigade's boats on the bank or the landing: the guide, a place in them, the road's news.
+		if (Aboard == null && Convoys.ById(ConvoyView.NearestId(GlobalPosition, 260f)) is { } boats)
+		{
+			NetHub.I?.PushDialogue(this, Conversation.StartScene(Convoys.Meet(this, boats)));
+			return "";
+		}
+
 		var nearCanoe = Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f);
 		if (nearCanoe != null) { NetHub.I?.PushDialogue(this, Conversation.StartCanoe(nearCanoe)); return ""; }
 
@@ -1272,6 +1279,7 @@ public partial class PlayerController : Agent
 		if (bush != null) return $"{Core.Keybinds.KeyFor("interact")}  Pick the {Sim.Structures.BushName(bush.Value)}";
 		var lodge = Sim.Ecology?.SiteNear(GlobalPosition, Ecology.Species.Beaver);
 		if (lodge != null) { var line = lodge.LineOf(TrapOwner); return line != null && line.Traps > 0 ? $"{Core.Keybinds.KeyFor("interact")}  Check your traps ({lodge.Name})" : Inventory.Has(ItemId.SteelTrap) ? $"Use a steel trap here to set a line ({lodge.Name})" : $"{lodge.Name}"; }
+		if (Aboard == null && ConvoyView.NearestId(GlobalPosition, 260f) is var boatId && boatId != 0) return $"{Core.Keybinds.KeyFor("interact")}  {ConvoyView.NameOf(boatId)}";
 		if ((Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f)) != null) return $"{Core.Keybinds.KeyFor("interact")}  The canoe";
 		if (Sim.Structures?.NearestBed(GlobalPosition, 90f) != null) return (GameCalendar.Instance?.Hour ?? 12f) is >= 17f or < 6f ? $"{Core.Keybinds.KeyFor("interact")}  Sleep till morning" : $"{Core.Keybinds.KeyFor("interact")}  Rest an hour";
 		foreach (var h in OtherHouseholds()) if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(h.WoodpileCell)) < 120f) return $"{Core.Keybinds.KeyFor("interact")}  {h.Title}'s woodpile";
