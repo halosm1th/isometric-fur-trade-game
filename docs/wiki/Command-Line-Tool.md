@@ -53,6 +53,6 @@ The tool compiles the same two files the game does (`Scripts/Core/CampaignLogic.
 | `Check.cs`, `Graph.cs`, `Sim.cs` | the checker, the graph, the simulator |
 | `Server.cs`, `web/` | the web editor |
 
-`dotnet test tests/CampaignTests` runs the whole suite, including *every shipped campaign decompiles and recompiles to identical JSON*.
+`dotnet test tests/CampaignTests` runs the whole suite, including *every shipped campaign decompiles and recompiles to identical JSON*. The editor has a browser test too: `tools/CampaignTool/web/smoke-test.js` drives it in headless Chromium through Playwright (the instructions are at the top of the file).
 
 To add a word to the language, add a row to `Library.cs` (with its description and an example: the tests insist) and run `docs`.
