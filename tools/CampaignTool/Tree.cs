@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.IO;
+using System.Linq;
 
 namespace CampaignTool;
 
@@ -86,6 +87,15 @@ public static class Tree
 			default: sb.Append(Quote(o.ToString())); break;
 		}
 	}
+
+	// One line, no indentation.
+	public static string Compact(object o) => o switch
+	{
+		null => "null", bool b => b ? "true" : "false", double d => Num(d), int i => i.ToString(), string s => Quote(s),
+		List<object> l => "[" + string.Join(", ", l.Select(Compact)) + "]",
+		Dictionary<string, object> d => "{" + string.Join(", ", d.Select(kv => Quote(kv.Key) + ": " + Compact(kv.Value))) + "}",
+		_ => Quote(o.ToString()),
+	};
 
 	// Structural equality, whole numbers equal however they were written.
 	public static bool Same(object a, object b)

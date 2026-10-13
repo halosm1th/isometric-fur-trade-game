@@ -77,7 +77,7 @@ Run as: dotnet run --project tools/CampaignTool -- check story.camp";
 	{
 		string text = File.ReadAllText(path);
 		if (path.EndsWith(".json", StringComparison.OrdinalIgnoreCase)) return Tree.ParseObject(text);
-		try { return Lang.CompileText(text); }
+		try { return CampLang.CompileText(text); }
 		catch (CampError e) { throw new CampError($"{Path.GetFileName(path)}: {e.Message}"); }
 	}
 

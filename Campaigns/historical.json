@@ -120,9 +120,6 @@
         "proclamation",
         "provisions"
       ],
-      "done_when": [
-        "flag:pemmican_proclamation"
-      ],
       "pressure": [
         {
           "do": "tension",
@@ -157,6 +154,9 @@
           "text": "Governor Macdonell has proclaimed that no pemmican may be taken out of Assiniboia. The Nor'Westers are furious; keep your people close.",
           "days": 120
         }
+      ],
+      "done_when": [
+        "flag:pemmican_proclamation"
       ]
     },
     {
@@ -173,9 +173,6 @@
         "colony",
         "settlers",
         "burned"
-      ],
-      "done_when": [
-        "flag:colony_dispersed"
       ],
       "pressure": [
         {
@@ -202,6 +199,9 @@
           "text": "The settlers at Red River have been driven off and their houses burned. Some are coming down to the Bay.",
           "days": 40
         }
+      ],
+      "done_when": [
+        "flag:colony_dispersed"
       ]
     },
     {
@@ -219,9 +219,6 @@
         "Grant",
         "Métis",
         "Red River"
-      ],
-      "done_when": [
-        "flag:seven_oaks"
       ],
       "pressure": [
         {
@@ -261,6 +258,9 @@
           "days": 60,
           "company": "NWC"
         }
+      ],
+      "done_when": [
+        "flag:seven_oaks"
       ]
     },
     {
@@ -409,9 +409,6 @@
         "Simpson",
         "the new company"
       ],
-      "done_when": [
-        "flag:merger"
-      ],
       "pressure": [
         {
           "do": "london",
@@ -446,6 +443,9 @@
           "days": 75,
           "company": "NWC"
         }
+      ],
+      "done_when": [
+        "flag:merger"
       ]
     },
     {
@@ -457,13 +457,9 @@
         "war-of-1812"
       ],
       "when": [
-        {
-          "all": [
-            "after:1812-07-17",
-            "before:1815-01-01",
-            "month:5-9"
-          ]
-        }
+        "after:1812-07-17",
+        "before:1815-01-01",
+        "month:5-9"
       ],
       "happens": [
         {
@@ -533,13 +529,9 @@
         "pemmican-proclamation"
       ],
       "when": [
+        "month:5-9",
         {
-          "all": [
-            "month:5-9",
-            {
-              "not": "flag:colony_dispersed"
-            }
-          ]
+          "not": "flag:colony_dispersed"
         }
       ],
       "happens": [
@@ -645,16 +637,12 @@
         "seven-oaks"
       ],
       "when": [
+        "month:5-9",
+        "tension>=50",
         {
-          "all": [
-            "month:5-9",
-            "tension>=50",
-            {
-              "not": "flag:merger"
-            },
-            "chance:25"
-          ]
-        }
+          "not": "flag:merger"
+        },
+        "chance:25"
       ],
       "happens": [
         {
@@ -750,12 +738,8 @@
       "kind": "conditional",
       "repeat_days": 300,
       "when": [
-        {
-          "all": [
-            "convoy_late:the York boats",
-            "month:7-9"
-          ]
-        }
+        "convoy_late:the York boats",
+        "month:7-9"
       ],
       "happens": [
         {
@@ -795,20 +779,16 @@
       "repeat_days": 365,
       "when": [
         {
-          "all": [
-            {
-              "m": "stock",
-              "a": [
-                "Edmonton House",
-                "TradeGoods"
-              ],
-              "op": "<",
-              "v": 10
-            },
-            "month:10-12",
-            "post:Fort Augustus"
-          ]
-        }
+          "m": "stock",
+          "a": [
+            "Edmonton House",
+            "TradeGoods"
+          ],
+          "op": "<",
+          "v": 10
+        },
+        "month:10-12",
+        "post:Fort Augustus"
       ],
       "happens": [
         {

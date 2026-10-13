@@ -10,15 +10,19 @@ internal static class U
 	public static string Read(string rel) => File.ReadAllText(Path.Combine(Root, rel));
 	public static Dictionary<string, object> Json(string rel) => Tree.ParseObject(Read(rel));
 
-	// The first beat of: campaign T; <decls> beat <head>; <clauses> end; end.
-	public static Dictionary<string, object> Beat(string clauses, string head = "'b' : event on 1816-06-19", string decls = "") =>
-		(Dictionary<string, object>)((List<object>)Lang.CompileText($"campaign T;\n{decls}\nbeat {head};\n{clauses}\nend;\nend.\n")["beats"])[0];
+	// The beat B of: campaign T(title: "t"); <decls> beat B(id: "b", <header>) { <members> }
+	public static Dictionary<string, object> Beat(string members, string header = "date: date(1816, 6, 19)", string decls = "") =>
+		(Dictionary<string, object>)((List<object>)CampLang.CompileText($"campaign T(title: \"t\");\n{decls}\nbeat B(id: \"b\", {header}) {{\n{members}\n}}\n")["beats"])[^1];
 
 	public static List<object> Happens(string statements, string decls = "") =>
-		(List<object>)Beat($"happens begin {statements} end;", decls: decls)["happens"];
+		(List<object>)Beat($"OnActivate() {{ {statements} }}", decls: decls)["happens"];
 
-	public static object When(string cond, string decls = "") =>
-		((List<object>)Beat($"when {cond};", decls: decls)["when"])[0];
+	public static List<object> Whens(string cond, string decls = "") =>
+		(List<object>)Beat($"AwakenWhen() => {cond};", decls: decls)["when"];
+
+	public static object When(string cond, string decls = "") => Whens(cond, decls)[0];
+
+	public static Dictionary<string, object> Compile(string src) => CampLang.CompileText(src);
 
 	public static Dictionary<string, object> Doc(params Dictionary<string, object>[] beats) =>
 		Tree.Dict(("title", "t"), ("description", ""), ("beats", new List<object>(beats)));

@@ -2,518 +2,782 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace CampaignTool;
 
-// The language, in the end: Pascal-flavoured source -> the JSON tree the game reads.
-public static class Lang
+public sealed class CompileResult
 {
-	public static readonly string[] BeatKinds = { "fixed", "conditional", "event", "pressure" };
-
-	public static readonly Dictionary<string, string> Addressees = new(StringComparer.OrdinalIgnoreCase)
-	{
-		["Factor"] = "the Factor at York Factory", ["Postmaster"] = "the postmaster at Oxford House",
-		["Partner"] = "the wintering partner", ["Chief"] = "the chief of the band",
-	};
-	public static readonly Dictionary<string, string> AddresseeNames = Addressees.ToDictionary(kv => kv.Value, kv => kv.Key);
-
-	// Names that are values: the companies, what a brigade can be made to do, the seasons.
-	public static readonly Dictionary<string, object> Builtins = new(StringComparer.OrdinalIgnoreCase)
-	{
-		["true"] = true, ["false"] = false,
-		["HBC"] = "HBC", ["NWC"] = "NWC", ["All"] = "all",
-		["Delay"] = "delay", ["TurnBack"] = "turn_back", ["Lose"] = "lose", ["Cancel"] = "cancel", ["Launch"] = "launch",
-		["Breakup"] = "Breakup", ["OpenWater"] = "OpenWater", ["FreezeUp"] = "FreezeUp", ["Winter"] = "Winter",
-	};
-	public static readonly Dictionary<string, string> EffectNames = new() { ["delay"] = "Delay", ["turn_back"] = "TurnBack", ["lose"] = "Lose", ["cancel"] = "Cancel", ["launch"] = "Launch" };
-
-	// Numbers the world can be asked: Pascal name -> the engine's.
-	public static readonly Dictionary<string, (string json, int args)> Metrics = new(StringComparer.OrdinalIgnoreCase)
-	{
-		["Tension"] = ("tension", 0), ["Standing"] = ("standing", 0), ["Month"] = ("month", 0), ["Year"] = ("year", 0), ["Day"] = ("day", 0),
-		["DayOfYear"] = ("day_of_year", 0), ["ConvoysActive"] = ("convoys_active", 0),
-		["Stock"] = ("stock", 2), ["Furs"] = ("furs", 1), ["Count"] = ("count", 1), ["BeatAge"] = ("beat_age", 1),
-		["ConvoyDaysLate"] = ("convoy_days_late", 1), ["ConvoyDaysOut"] = ("convoy_days_out", 1),
-	};
-
-	// Facts the world can be asked.
-	public static readonly Dictionary<string, string> Predicates = new(StringComparer.OrdinalIgnoreCase)
-	{
-		["Flag"] = "flag", ["Beat"] = "beat", ["Post"] = "post", ["Dead"] = "dead", ["Season"] = "season", ["PlayerFaction"] = "player_faction",
-		["ConvoyLate"] = "convoy_late", ["ConvoyLost"] = "convoy_lost", ["ConvoyRobbed"] = "convoy_robbed", ["ConvoyTurnedBack"] = "convoy_turned_back",
-		["ConvoyOut"] = "convoy_out", ["ConvoyIn"] = "convoy_in", ["ConvoyWintering"] = "convoy_wintering",
-	};
-	public static readonly Dictionary<string, string> PredicateNames = Predicates.ToDictionary(kv => kv.Value, kv => kv.Key);
-	public static readonly Dictionary<string, string> MetricNames = Metrics.ToDictionary(kv => kv.Value.json, kv => kv.Key);
-
-	public static Dictionary<string, object> CompileText(string src) => new Compiler(Parser.ParseText(src)).Compile();
-
-	public static string FmtNum(double d) => Tree.Num(d);
-
-	public static List<string> TopCommas(string s)
-	{
-		var outp = new List<string>();
-		if (s.Trim().Length == 0) return outp;
-		var cur = new System.Text.StringBuilder();
-		bool quote = false;
-		for (int i = 0; i < s.Length; i++)
-		{
-			char ch = s[i];
-			if (ch == '\\' && quote && i + 1 < s.Length) { cur.Append(s, i, 2); i++; continue; }
-			if (ch == '"') quote = !quote;
-			if (ch == ',' && !quote) { outp.Add(cur.ToString()); cur.Clear(); } else cur.Append(ch);
-		}
-		outp.Add(cur.ToString());
-		return outp;
-	}
-
-	// How a value reads when a number is joined to a string.
-	public static string Join(object v) => v is double d ? Tree.Num(d) : v is bool b ? (b ? "true" : "false") : v?.ToString() ?? "";
-
-	public static object Predicate(string name, List<string> args)
-	{
-		if (name == "flag" && args.Count == 1 && !args[0].Contains(':') && !args[0].StartsWith("!")) return $"flag:{args[0]}";
-		if (args.Count == 1) return $"{name}:{args[0]}";
-		return Tree.Dict(("p", name), ("a", args.Cast<object>().ToList()));
-	}
-
-	public static object Metric(string name, List<string> args, string op, double v)
-	{
-		string num = Tree.Num(v);
-		if (args.Count == 0 && name != "var" && name != "stock") return $"{name}{op}{num}";
-		if (args.Count == 1 && !Regex.IsMatch(args[0], @"[(),]")) return $"{name}({args[0]}) {op} {num}";
-		return Tree.Dict(("m", name), ("a", args.Cast<object>().ToList()), ("op", op), ("v", v));
-	}
+	public Dictionary<string, object> Json = new();
+	public Dictionary<string, int> BeatLines = new();        // beat id -> line in the source
+	public Dictionary<string, string> BeatNames = new();     // beat id -> the name it is written with
+	public List<Diagnostic> Warnings = new();
 }
 
-internal sealed class Env
+public static class CampLang
 {
-	private readonly Dictionary<string, object> _v = new(StringComparer.OrdinalIgnoreCase);
-	private readonly Env _parent;
-	public Env(Env parent = null) { _parent = parent; }
-	public void Set(string k, object v) => _v[k] = v;
-	public bool TryGet(string k, out object v)
+	public static CompileResult Compile(string src) => new Compiler(CampParser.Parse(src)).Run();
+	public static Dictionary<string, object> CompileText(string src) => Compile(src).Json;
+}
+
+// The kind of a beat is worked out from what it has, so that most beats never say it.
+public static class BeatKinds
+{
+	public static readonly string[] All = { "fixed", "conditional", "event", "pressure" };
+	public static string Derive(Dictionary<string, object> beat)
 	{
-		for (var e = this; e != null; e = e._parent) if (e._v.TryGetValue(k, out v)) return true;
-		v = null;
-		return false;
+		if (!beat.ContainsKey("happens")) return "pressure";
+		if (!beat.ContainsKey("date")) return "conditional";
+		if (beat.ContainsKey("window_days") || beat.ContainsKey("lead_days") || beat.ContainsKey("pressure") || beat.ContainsKey("done_when")) return "event";
+		return "fixed";
 	}
 }
 
 internal sealed class Compiler
 {
-	private readonly ProgramAst _p;
+	private sealed record Inst(BeatDecl Decl, Env Env, string Id);
+
+	private static readonly (string hook, string key, bool cond)[] HookMap =
+	{
+		("AwakenWhen", "when", true), ("OnAwaken", "on_awaken", false), ("OnApproach", "pressure", false),
+		("ActivateWhen", "activate_when", true), ("OnActivate", "happens", false),
+		("ResolveWhen", "done_when", true), ("OnResolve", "on_resolve", false),
+		("CancelWhen", "cancel_when", true), ("OnCancel", "on_cancel", false),
+	};
+
+	private static readonly string[] ValueTypes = { "int", "float", "string", "bool", "Date", "Days", "Company", "Person", "Item", "Season", "Kind", "Beat", "Brigade", "string[]", "int[]" };
+
+	private readonly ScriptAst _ast;
 	private readonly Env _globals = new();
-	private readonly Dictionary<string, object> _out = Tree.Dict(("title", ""), ("description", ""));
-	private readonly List<object> _beats = new();
+	private readonly Dictionary<string, double> _vars = new();
+	private readonly Dictionary<string, FuncDecl> _funcs = new();
+	private Dictionary<string, FuncDecl> _localFuncs = new();
+	private readonly List<Inst> _insts = new();
+	private readonly Dictionary<string, string> _byName = new();       // name -> id; null when two beats share the name
+	private readonly HashSet<string> _ids = new();
+	private readonly CompileResult _res = new();
+	private List<object> _out;
 	private int _depth;
 
-	public Compiler(ProgramAst p) { _p = p; }
+	public Compiler(ScriptAst ast) { _ast = ast; }
 
-	public Dictionary<string, object> Compile()
+	// ---------------------------------------------------------------- the script
+
+	public CompileResult Run()
 	{
-		foreach (var item in _p.Order)
+		var root = _res.Json;
+		root["title"] = ""; root["description"] = "";
+		Header(root);
+		Declare(_ast.Decls, _globals);
+		foreach (var inst in _insts)
 		{
-			if (item is ConstDecl c) DeclareConst(c);
-			else CompileTop((TopItem)item, _globals);
+			if (!_ids.Add(inst.Id)) throw new CampError($"there are two beats with the id \"{inst.Id}\"", inst.Decl.NameAt);
+			var n = inst.Decl.Name;
+			_byName[n] = _byName.ContainsKey(n) ? null : inst.Id;
 		}
-		_out["beats"] = _beats;
-		return _out;
+		var vars = _vars.Where(kv => kv.Value != 0).ToList();
+		if (vars.Count > 0) { var vd = new Dictionary<string, object>(); foreach (var kv in vars) vd[kv.Key] = kv.Value; root["vars"] = vd; }
+		var beats = new List<object>();
+		foreach (var inst in _insts)
+		{
+			beats.Add(CompileBeat(inst));
+			_res.BeatLines[inst.Id] = inst.Decl.At.Line;
+			_res.BeatNames[inst.Id] = inst.Decl.Name;
+		}
+		root["beats"] = beats;
+		return _res;
 	}
 
-	private void DeclareConst(ConstDecl c)
+	private void Header(Dictionary<string, object> root)
 	{
-		var v = Const(c.Value, _globals, false);
-		_globals.Set(c.Name, v);
-		switch (c.Name.ToLowerInvariant())
+		var c = _ast.Campaign;
+		bool titled = false;
+		foreach (var a in c.Args)
 		{
-			case "title": _out["title"] = Lang.Join(v); break;
-			case "description": _out["description"] = Lang.Join(v); break;
-			case "note": _out["note"] = Lang.Join(v); break;
-			case "seed": _out["seed"] = v is double ? v : throw new CampError("Seed must be a number", c.Line); break;
-			case "postsbyfoundingyear": if (v is true) _out["posts_by_founding_year"] = true; break;
+			if (a.Name == null) throw new CampError("the header's values are named: campaign " + c.Name + "(title: \"...\", description: \"...\")", a.Value.At);
+			var v = Eval(a.Value, _globals);
+			switch (a.Name)
+			{
+				case "title": root["title"] = Text(v, a); titled = true; break;
+				case "description": root["description"] = Text(v, a); break;
+				case "note": root["note"] = Text(v, a); break;
+				case "seed": root["seed"] = v is double d && d >= 0 && d == Math.Floor(d) ? d : throw new CampError("seed must be a whole number", a.Value.At); break;
+				case "postsByFoundingYear": if (v is true) root["posts_by_founding_year"] = true; else if (v is not false) throw new CampError("postsByFoundingYear is true or false", a.Value.At); break;
+				default: throw new CampError($"the campaign header has no '{a.Name}'.{Suggest(a.Name, new[] { "title", "description", "note", "seed", "postsByFoundingYear" })} (its values are title, description, note, seed, postsByFoundingYear)", a.NameAt);
+			}
 		}
+		if (!titled) throw new CampError("the campaign needs a title: campaign " + c.Name + "(title: \"...\")", c.At);
 	}
 
-	// ---------------------------------------------------------------- constants
+	private string Text(object v, Arg a) => v is string s ? s : throw new CampError($"{a.Name} is text, but got {Describe(v)}", a.Value.At);
 
-	private bool IsConst(Expr e, Env env)
-	{
-		switch (e)
-		{
-			case LitE: return true;
-			case NameE n: return env.TryGet(n.Name, out _) || Lang.Builtins.ContainsKey(n.Name);
-			case UnE u: return IsConst(u.Operand, env);
-			case BinE b: return IsConst(b.Left, env) && IsConst(b.Right, env);
-			default: return false;
-		}
-	}
+	// ---------------------------------------------------------------- declarations
 
-	// bare: an unknown name is its own text (Flag(governor_killed), Rum, Delay)
-	private object Const(Expr e, Env env, bool bare)
+	private void Declare(List<Decl> decls, Env env)
 	{
-		switch (e)
+		foreach (var d in decls)
 		{
-			case LitE l: return l.Value;
-			case NameE n:
-				if (env.TryGet(n.Name, out var v)) return v;
-				if (Lang.Builtins.TryGetValue(n.Name, out var b)) return b;
-				if (bare) return n.Name;
-				throw new CampError($"'{n.Name}' is not a constant here (declare it under const, or use quotes)", n.Line);
-			case UnE u:
-				{
-					var x = Const(u.Operand, env, false);
-					if (u.Op == "-" && x is double d) return -d;
-					if (u.Op == "not" && x is bool bb) return !bb;
-					throw new CampError($"cannot apply {u.Op} to {Lang.Join(x)}", u.Line);
-				}
-			case BinE be:
-				{
-					var l = Const(be.Left, env, bare); var r = Const(be.Right, env, bare);
-					switch (be.Op)
+			switch (d)
+			{
+				case ConstDecl c:
 					{
-						case "+":
-							if (l is double a && r is double c) return a + c;
-							return Lang.Join(l) + Lang.Join(r);
-						case "-": return Num(l, be) - Num(r, be);
-						case "*": return Num(l, be) * Num(r, be);
-						case "/": return Num(l, be) / Num(r, be);
-						case "and": return Bool(l, be) && Bool(r, be);
-						case "or": return Bool(l, be) || Bool(r, be);
-						case "=": return Equals(l, r);
-						case "<>": return !Equals(l, r);
-						case "<": return Num(l, be) < Num(r, be);
-						case ">": return Num(l, be) > Num(r, be);
-						case "<=": return Num(l, be) <= Num(r, be);
-						case ">=": return Num(l, be) >= Num(r, be);
+						var v = Eval(c.Value, env);
+						CheckType(c.Type, v, c.Value.At, $"const {c.Name}");
+						env.Set(c.Name, v, c.Type);
+						break;
 					}
+				case VarDecl v:
+					{
+						if (env != _globals) throw new CampError($"variable {v.Name} must be declared at the top of the campaign, not inside a loop", v.At);
+						if (v.Type != "int" && v.Type != "float") throw new CampError($"a campaign variable is an int or a float ('{v.Type} {v.Name}' is neither); text and dates are const", v.At);
+						if (_vars.ContainsKey(v.Name)) throw new CampError($"variable {v.Name} is declared twice", v.At);
+						double init = 0;
+						if (v.Value != null)
+						{
+							var iv = Eval(v.Value, env);
+							init = iv is double dd ? dd : throw new CampError($"a variable starts at a number, but got {Describe(iv)}", v.Value.At);
+							if (v.Type == "int" && init != Math.Floor(init)) throw new CampError($"{v.Name} is an int but starts at {CJson.Num(init)}", v.Value.At);
+						}
+						_vars[v.Name] = init;
+						break;
+					}
+				case FuncDecl f:
+					if (_funcs.ContainsKey(f.Name) || Library.Find("", f.Name) != null) throw new CampError($"there is already a function called {f.Name}", f.At);
+					_funcs[f.Name] = f;
 					break;
-				}
-			case CallE c2:
-				throw new CampError($"{c2.Name}(...) is not a constant", c2.Line);
+				case BeatDecl b:
+					_insts.Add(new Inst(b, env, BeatId(b, env)));
+					break;
+				case LoopDecl l:
+					if (l.For != null)
+						foreach (var i in Counting(l.For, env)) { var inner = new Env(env); inner.Set(l.For.Var, i); Declare(l.Body, inner); }
+					else
+						foreach (var item in Items(l.Foreach, env)) { var inner = new Env(env); inner.Set(l.Foreach.Var, item); Declare(l.Body, inner); }
+					break;
+				default: throw new CampError("this cannot be declared here", d.At);
+			}
 		}
-		throw new CampError("not a constant", e.Line);
 	}
 
-	private static double Num(object v, Expr at) => v is double d ? d : throw new CampError($"expected a number, got '{Lang.Join(v)}'", at.Line);
-	private static bool Bool(object v, Expr at) => v is bool b ? b : throw new CampError($"expected true or false, got '{Lang.Join(v)}'", at.Line);
-	private string Str(Expr e, Env env) => Lang.Join(Const(e, env, true));
-	private double Number(Expr e, Env env) => Num(Const(e, env, false), e);
+	private string BeatId(BeatDecl b, Env env)
+	{
+		var idArg = b.Args.FirstOrDefault(a => a.Name == "id");
+		if (idArg == null) return b.Name;
+		var v = Eval(idArg.Value, env);
+		return v is string s && s.Length > 0 ? s : throw new CampError("a beat's id is a non-empty string", idArg.Value.At);
+	}
+
+	// ---------------------------------------------------------------- loops
+
+	private IEnumerable<object> Counting(ForStmt f, Env env)
+	{
+		double from = Whole(Eval(f.From, env), f.From), limit = Whole(Eval(f.Limit, env), f.Limit);
+		double step = f.Step == null ? 1 : Whole(Eval(f.Step, env), f.Step);
+		if (step <= 0) throw new CampError("a loop step is a positive number", f.At);
+		int guard = 0;
+		for (double i = from; f.LimitOp switch { "<" => i < limit, "<=" => i <= limit, ">" => i > limit, _ => i >= limit }; i += f.Down ? -step : step)
+		{
+			if (++guard > 5000) throw new CampError("this loop runs more than 5000 times: is it counting the wrong way?", f.At);
+			yield return i;
+		}
+	}
+
+	private IEnumerable<object> Items(ForeachStmt f, Env env)
+	{
+		if (f.Source is RangeExpr r)
+		{
+			double a = Whole(Eval(r.From, env), r.From), b = Whole(Eval(r.To, env), r.To);
+			if (b - a > 5000) throw new CampError("this range has more than 5000 numbers", r.At);
+			for (double i = a; i <= b; i++) yield return i;
+			yield break;
+		}
+		var v = Eval(f.Source, env);
+		if (v is ArrV arr) { foreach (var x in arr.Items) yield return x; yield break; }
+		throw new CampError($"foreach goes over a range (1818..1820) or a list ([\"a\", \"b\"]), not {Describe(v)}", f.Source.At);
+	}
+
+	private double Whole(object v, Expr at) => v is double d && d == Math.Floor(d) ? d : throw new CampError($"expected a whole number, but got {Describe(v)}", at.At);
 
 	// ---------------------------------------------------------------- beats
 
-	private void CompileTop(TopItem item, Env env)
+	private Dictionary<string, object> CompileBeat(Inst inst)
 	{
-		if (item.Beat != null) { _beats.Add(CompileBeat(item.Beat, env)); return; }
-		int from = (int)Number(item.From, env), to = (int)Number(item.To, env);
-		for (int i = from; i <= to; i++)
+		var b = inst.Decl;
+		var env = new Env(inst.Env);
+		var saveFuncs = _localFuncs;
+		_localFuncs = new();
+		try
 		{
-			var inner = new Env(env);
-			inner.Set(item.LoopVar, (double)i);
-			foreach (var b in item.Body) CompileTop(b, inner);
+			var fields = new Dictionary<string, object>();
+			string explicitKind = null;
+			string title = inst.Id;
+			var seen = new HashSet<string>();
+			foreach (var a in b.Args)
+			{
+				if (a.Name == null) throw new CampError($"a beat's header values are named: beat {b.Name}(date: date(1816, 6, 19), title: \"...\")", a.Value.At);
+				if (!seen.Add(a.Name)) throw new CampError($"{a.Name} is given twice", a.NameAt);
+				if (a.Name == "id") continue;
+				var v = Eval(a.Value, env);
+				switch (a.Name)
+				{
+					case "title": title = v as string ?? throw new CampError($"title is text, but got {Describe(v)}", a.Value.At); break;
+					case "kind": explicitKind = v is EnumV { Type: "Kind" } ke ? ke.Value.ToLowerInvariant() : throw new CampError($"kind is Kind.Fixed, Kind.Conditional, Kind.Event or Kind.Pressure, but got {Describe(v)}", a.Value.At); break;
+					case "date": fields["date"] = v is DateV dv ? dv.ToString() : throw new CampError($"date is date(year, month, day), but got {Describe(v)}", a.Value.At); break;
+					case "window": fields["window_days"] = Dayz(v, a); break;
+					case "lead": fields["lead_days"] = Dayz(v, a); break;
+					case "delay": fields["delay_days"] = Dayz(v, a); break;
+					case "repeat": fields["repeat_days"] = Dayz(v, a); break;
+					case "keywords":
+						fields["keywords"] = v is ArrV { Items: var kw } && kw.All(x => x is string) ? kw.ToList() : throw new CampError($"keywords is a list of text, e.g. [\"war\", \"Red River\"], but got {Describe(v)}", a.Value.At);
+						break;
+					default:
+						throw new CampError($"a beat has no '{a.Name}'.{Suggest(a.Name, BeatArgs)} Its header takes {string.Join(", ", BeatArgs)}", a.NameAt);
+				}
+			}
+			if (b.Requires.Count > 0)
+				fields["requires"] = b.Requires.Select(r =>
+				{
+					var v = Eval(r, env);
+					return v is BeatV bv ? bv.Id : v is string s ? s : throw new CampError($"requires names beats, but got {Describe(v)}", r.At);
+				}).Cast<object>().ToList();
+
+			var hooks = new HashSet<string>();
+			foreach (var m in b.Members)
+			{
+				switch (m)
+				{
+					case ConstDecl c:
+						{
+							var v = Eval(c.Value, env);
+							CheckType(c.Type, v, c.Value.At, $"const {c.Name}");
+							env.Set(c.Name, v, c.Type);
+							break;
+						}
+					case VarDecl v: throw new CampError($"variable {v.Name} belongs at the top of the campaign, where every beat can see it", v.At);
+					case FuncDecl f:
+						if (_localFuncs.ContainsKey(f.Name)) throw new CampError($"{f.Name} is declared twice in this beat", f.At);
+						_localFuncs[f.Name] = f;
+						break;
+					case HookDecl h:
+						{
+							if (!hooks.Add(h.Name)) throw new CampError($"{h.Name} is written twice in beat {b.Name}", h.At);
+							var (_, key, cond) = HookMap.First(x => x.hook == h.Name);
+							if (cond)
+							{
+								if (h.ExprBody == null) throw new CampError($"{h.Name} is a condition: write {h.Name}() => condition;", h.At);
+								var list = CondList(h.ExprBody, env);
+								if (list.Count > 0) fields[key] = list;
+							}
+							else
+							{
+								var outp = new List<object>();
+								if (h.Block != null) ExecBlock(h.Block, new Env(env), outp);
+								else Exec(new ExprStmt { At = h.ExprBody.At, Value = h.ExprBody }, env, outp);
+								if (outp.Count > 0) fields[key] = outp;
+							}
+							break;
+						}
+				}
+			}
+
+			var beat = Tree.Dict(("id", inst.Id), ("title", title));
+			string derived = BeatKinds.Derive(fields);
+			beat["kind"] = explicitKind ?? derived;
+			foreach (var key in new[] { "date", "window_days", "lead_days", "delay_days", "repeat_days", "requires", "keywords", "when", "on_awaken", "pressure", "activate_when", "happens", "done_when", "on_resolve", "cancel_when", "on_cancel" })
+				if (fields.TryGetValue(key, out var fv)) beat[key] = fv;
+			return beat;
 		}
+		finally { _localFuncs = saveFuncs; }
 	}
 
-	private Dictionary<string, object> CompileBeat(BeatDecl b, Env env)
-	{
-		string id = Str(b.Id, env);
-		var beat = Tree.Dict(("id", id), ("title", b.Title != null ? Str(b.Title, env) : id), ("kind", b.Kind));
-		if (b.Date != null)
-		{
-			string date = Str(b.Date, env);
-			if (!Regex.IsMatch(date, @"^\d{4}-\d\d-\d\d$")) throw new CampError($"beat {id}: '{date}' is not a date (YYYY-MM-DD)", b.Line);
-			beat["date"] = date;
-		}
-		foreach (var (name, expr) in b.Numbers)
-			beat[name switch { "window" => "window_days", "lead" => "lead_days", "delay" => "delay_days", _ => "repeat_days" }] = Math.Truncate(Number(expr, env));
-		if (b.Requires.Count > 0) beat["requires"] = b.Requires.Select(r => (object)Str(r, env)).ToList();
-		if (b.Keywords.Count > 0) beat["keywords"] = b.Keywords.Select(r => (object)Str(r, env)).ToList();
-		if (b.When.Count > 0) beat["when"] = b.When.Select(c => Cond(c, env)).ToList();
-		if (b.DoneWhen.Count > 0) beat["done_when"] = b.DoneWhen.Select(c => Cond(c, env)).ToList();
-		if (b.Pressure != null) beat["pressure"] = Stmts(b.Pressure, env);
-		if (b.Happens != null) beat["happens"] = Stmts(b.Happens, env);
-		return beat;
-	}
+	private static readonly string[] BeatArgs = { "id", "title", "kind", "date", "window", "lead", "delay", "repeat", "keywords" };
+
+	private double Dayz(object v, Arg a) => v is DaysV d && d.N >= 0 && d.N == Math.Floor(d.N) ? d.N : throw new CampError($"{a.Name} is a number of days, e.g. days(45), but got {Describe(v)}", a.Value.At);
 
 	// ---------------------------------------------------------------- conditions
 
-	private object Cond(Expr e, Env env)
+	private List<object> CondList(Expr e, Env env)
 	{
-		switch (e)
+		var saved = _out; _out = null;
+		try
 		{
-			case LitE { Value: bool b }: return b;
-			case NameE n:
-				if (env.TryGet(n.Name, out var cv) && cv is bool cb) return cb;
-				if (Lang.Builtins.TryGetValue(n.Name, out var bv) && bv is bool bb) return bb;
-				throw new CampError($"'{n.Name}' is not a condition (a flag is written Flag('{n.Name}'))", n.Line);
-			case UnE { Op: "not" } u: return Tree.Dict(("not", Cond(u.Operand, env)));
-			case BinE { Op: "and" or "or" } be:
-				{
-					string key = be.Op == "and" ? "all" : "any";
-					var parts = new List<object>();
-					if (be.Left is BinE lb && lb.Op == be.Op && !lb.Paren) parts.AddRange((List<object>)((Dictionary<string, object>)Cond(be.Left, env))[key]);
-					else parts.Add(Cond(be.Left, env));
-					parts.Add(Cond(be.Right, env));
-					return Tree.Dict((key, parts));
-				}
-			case BinE be when be.Op is "=" or "<>" or "<" or ">" or "<=" or ">=": return Compare(be, env);
-			case CallE c: return Predicate(c, env);
+			var parts = new List<Expr>();
+			if (e is BinaryExpr { Op: "&&", Paren: false }) Flatten(e, "&&", parts); else parts.Add(e);
+			return parts.Select(p => ToCond(Eval(p, env), p)).ToList();
 		}
-		throw new CampError("this is not a condition", e.Line);
+		finally { _out = saved; }
 	}
 
-	private static string FlipOp(string op) => op switch { "<" => ">", ">" => "<", "<=" => ">=", ">=" => "<=", _ => op };
-	private static string JsonOp(string op) => op switch { "=" => "==", "<>" => "!=", _ => op };
-
-	private object Compare(BinE be, Env env)
+	private static void Flatten(Expr e, string op, List<Expr> into)
 	{
-		if (IsConst(be.Left, env) && IsConst(be.Right, env)) return Const(be, env, false);
-		string op = be.Op;
-		Expr metric = be.Left, value = be.Right;
-		if (!IsMetric(metric, env) && IsMetric(value, env)) { (metric, value) = (value, metric); op = FlipOp(op); }
-		if (!IsMetric(metric, env)) throw new CampError("a comparison needs a number the game knows (Tension, Stock(...), a declared var...) on one side", be.Line);
-		if (metric is NameE { Name: var tn } && tn.Equals("Today", StringComparison.OrdinalIgnoreCase)) return TodayCompare(be, op, value, env);
-		var (name, args) = MetricOf(metric, env);
-		var v = Const(value, env, false);
-		if (v is not double d) throw new CampError($"compare with a number, not '{Lang.Join(v)}'", be.Line);
-		return Lang.Metric(name, args, JsonOp(op), d);
+		if (e is BinaryExpr b && b.Op == op && !b.Paren) { Flatten(b.Left, op, into); Flatten(b.Right, op, into); }
+		else into.Add(e);
 	}
 
-	// Today >= 1816-06-19 reads as after:, Today < ... as before:.
-	private object TodayCompare(BinE be, string op, Expr value, Env env)
+	private object ToCond(object v, Expr at)
 	{
-		string date = Lang.Join(Const(value, env, false));
-		if (!Regex.IsMatch(date, @"^\d{4}-\d\d-\d\d$")) throw new CampError("Today is compared with a date (1816-06-19)", be.Line);
-		var next = DateTime.ParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture).AddDays(1).ToString("yyyy-MM-dd");
-		return op switch
+		switch (v)
 		{
-			">=" => Lang.Predicate("after", new() { date }),
-			"<" => Lang.Predicate("before", new() { date }),
-			">" => Lang.Predicate("after", new() { next }),
-			"<=" => Lang.Predicate("before", new() { next }),
-			_ => throw new CampError("Today can be compared with <, <=, > and >= only", be.Line),
-		};
-	}
-
-	private bool IsMetric(Expr e, Env env) => e switch
-	{
-		NameE n => n.Name.Equals("Today", StringComparison.OrdinalIgnoreCase) || (!env.TryGet(n.Name, out _) && (Lang.Metrics.TryGetValue(n.Name, out var m) && m.args == 0 || _p.Vars.ContainsKey(n.Name))),
-		CallE c => Lang.Metrics.TryGetValue(c.Name, out var m) && m.args > 0,
-		_ => false,
-	};
-
-	private (string name, List<string> args) MetricOf(Expr e, Env env)
-	{
-		if (e is NameE n)
-		{
-			if (!env.TryGet(n.Name, out _) && Lang.Metrics.TryGetValue(n.Name, out var m)) return (m.json, new List<string>());
-			if (_p.Vars.ContainsKey(n.Name)) return ("var", new List<string> { n.Name });
+			case bool b: return b;
+			case CondV c: return c.Json;
+			case MetricV or VarV: throw new CampError("this is a number, not a condition: compare it (for example > 10)", at.At);
+			case QueryV q: throw new CampError($"compare this with a name (== Season.Winter)", at.At);
+			case DateQ: throw new CampError("compare today's date with a date (world.date >= date(1816, 6, 19))", at.At);
 		}
-		var c = (CallE)e;
-		var (json, count) = Lang.Metrics[c.Name];
-		if (c.Args.Count != count) throw new CampError($"{c.Name} takes {count} argument{(count == 1 ? "" : "s")}", c.Line);
-		return (json, c.Args.Select(a => Str(a, env)).ToList());
-	}
-
-	private object Predicate(CallE c, Env env)
-	{
-		string lower = c.Name.ToLowerInvariant();
-		if (Lang.Predicates.TryGetValue(c.Name, out var json))
-		{
-			if (c.Args.Count != 1) throw new CampError($"{c.Name} takes one argument", c.Line);
-			return Lang.Predicate(json, new() { Str(c.Args[0], env) });
-		}
-		if (lower == "chance")
-		{
-			if (c.Args.Count != 1) throw new CampError("Chance takes a percentage", c.Line);
-			return Lang.Predicate("chance", new() { Lang.FmtNum(Number(c.Args[0], env)) });
-		}
-		if (lower == "inmonths")
-		{
-			if (c.Args.Count is < 1 or > 2) throw new CampError("InMonths(first[, last])", c.Line);
-			string a = Lang.FmtNum(Number(c.Args[0], env));
-			string spec = c.Args.Count == 2 ? $"{a}-{Lang.FmtNum(Number(c.Args[1], env))}" : a;
-			return Lang.Predicate("month", new() { spec });
-		}
-		if (lower == "raw")
-		{
-			if (c.Args.Count != 1) throw new CampError("Raw('condition text')", c.Line);
-			string raw = Str(c.Args[0], env);
-			return raw.TrimStart().StartsWith("{") ? Tree.Parse(raw) : raw;
-		}
-		if (IsMetric(c, env)) throw new CampError($"{c.Name}(...) is a number: compare it (e.g. {c.Name}(...) > 0)", c.Line);
-		throw new CampError($"unknown condition {c.Name}", c.Line);
+		throw new CampError($"expected a condition, but got {Describe(v)}", at.At);
 	}
 
 	// ---------------------------------------------------------------- statements
 
-	private List<object> Stmts(Stmt s, Env env)
+	private void ExecBlock(BlockStmt b, Env env, List<object> outp)
 	{
-		var outp = new List<object>();
-		Emit(s, env, outp);
-		return outp;
+		foreach (var s in b.Body) Exec(s, env, outp);
 	}
 
-	private void Emit(Stmt s, Env env, List<object> outp)
+	private void Exec(Stmt s, Env env, List<object> outp)
 	{
-		switch (s)
-		{
-			case null: return;
-			case BlockS b: foreach (var x in b.Body) Emit(x, env, outp); return;
-			case IfS i:
-				{
-					var node = Tree.Dict(("do", "if"), ("cond", Cond(i.Cond, env)), ("then", Stmts(i.Then, env)));
-					if (i.Else != null) node["else"] = Stmts(i.Else, env);
-					outp.Add(node);
-					return;
-				}
-			case AssignS a: outp.Add(Assign(a, env)); return;
-			case ForS f:
-				{
-					int from = (int)Number(f.From, env), to = (int)Number(f.To, env);
-					for (int k = from; k <= to; k++)
-					{
-						var inner = new Env(env);
-						inner.Set(f.Var, (double)k);
-						Emit(f.Body, inner, outp);
-					}
-					return;
-				}
-			case AfterS af:
-				outp.Add(Tree.Dict(("do", "after"), ("days", Number(af.Days, env)), ("then", Stmts(af.Body, env))));
-				return;
-			case ChooseS ch:
-				{
-					var opts = new List<object>();
-					foreach (var (w, body) in ch.Options) opts.Add(Tree.Dict(("weight", Number(w, env)), ("do", Stmts(body, env))));
-					outp.Add(Tree.Dict(("do", "random"), ("options", opts)));
-					return;
-				}
-			case CallS c: Call(c, env, outp); return;
-		}
-	}
-
-	private void NeedVar(string name, int line)
-	{
-		if (!_p.Vars.ContainsKey(name)) throw new CampError($"variable {name} is not declared (add it under var)", line);
-	}
-
-	private object Assign(AssignS a, Env env)
-	{
-		NeedVar(a.Var, a.Line);
-		// x := x + 3 and x := x - 1 are additions
-		if (a.Value is BinE { Op: "+" or "-" } be)
-		{
-			bool leftIsVar = be.Left is NameE ln && ln.Name.Equals(a.Var, StringComparison.OrdinalIgnoreCase);
-			bool rightIsVar = be.Right is NameE rn && rn.Name.Equals(a.Var, StringComparison.OrdinalIgnoreCase);
-			if (leftIsVar && IsConst(be.Right, env)) { double by = Num(Const(be.Right, env, false), be); return Tree.Dict(("do", "add"), ("var", a.Var), ("by", be.Op == "+" ? by : -by)); }
-			if (rightIsVar && be.Op == "+" && IsConst(be.Left, env)) return Tree.Dict(("do", "add"), ("var", a.Var), ("by", Num(Const(be.Left, env, false), be)));
-		}
-		return Tree.Dict(("do", "set"), ("var", a.Var), ("to", Number(a.Value, env)));
-	}
-
-	private void Need(CallS c, int min, int max, string usage)
-	{
-		if (c.Args.Count < min || c.Args.Count > max) throw new CampError($"{c.Name}: {usage}", c.Line);
-	}
-
-	private void Call(CallS c, Env env, List<object> outp)
-	{
-		if (_p.Procs.TryGetValue(c.Name, out var proc)) { Expand(proc, c, env, outp); return; }
-		string name = c.Name.ToLowerInvariant();
-		switch (name)
-		{
-			case "flag": case "unflag":
-				Need(c, 1, 1, $"{c.Name}('name')");
-				outp.Add(Tree.Dict(("do", name), ("name", Str(c.Args[0], env))));
-				return;
-			case "inc": case "dec":
-				{
-					Need(c, 1, 2, $"{c.Name}(variable[, amount])");
-					string v = (c.Args[0] as NameE)?.Name ?? throw new CampError($"{c.Name} needs a variable", c.Line);
-					NeedVar(v, c.Line);
-					var act = Tree.Dict(("do", "add"), ("var", v));
-					if (c.Args.Count == 2) { double by = Number(c.Args[1], env); act["by"] = name == "inc" ? by : -by; }
-					else if (name == "dec") act["by"] = -1.0;
-					outp.Add(act);
-					return;
-				}
-			case "tension":
-				{
-					Need(c, 1, 2, "Tension(amount[, 'why'])");
-					var act = Tree.Dict(("do", "tension"), ("add", Number(c.Args[0], env)));
-					if (c.Args.Count == 2) act["why"] = Str(c.Args[1], env);
-					outp.Add(act);
-					return;
-				}
-			case "london":
-				Need(c, 2, 2, "London(price, quota)");
-				outp.Add(Tree.Dict(("do", "london"), ("price", Number(c.Args[0], env)), ("quota", Number(c.Args[1], env))));
-				return;
-			case "foundpost":
-				Need(c, 1, 1, "FoundPost('place')");
-				outp.Add(Tree.Dict(("do", "found_post"), ("place", Str(c.Args[0], env))));
-				return;
-			case "news":
-				{
-					Need(c, 5, 6, "News(from, to, subject, text, days[, company])");
-					string to = Str(c.Args[1], env);
-					if (Lang.Addressees.TryGetValue(to, out var full)) to = full;
-					var act = Tree.Dict(("do", "news"), ("from", Str(c.Args[0], env)), ("to", to), ("subject", Str(c.Args[2], env)), ("text", Str(c.Args[3], env)), ("days", Number(c.Args[4], env)));
-					if (c.Args.Count == 6) act["company"] = Str(c.Args[5], env);
-					outp.Add(act);
-					return;
-				}
-			case "brigade":
-				{
-					Need(c, 1, 3, "Brigade('run'[, Delay|TurnBack|Lose|Cancel|Launch[, days or leg]])");
-					var act = Tree.Dict(("do", "brigade"), ("run", Str(c.Args[0], env)));
-					if (c.Args.Count >= 2) act["effect"] = Str(c.Args[1], env);
-					if (c.Args.Count == 3) act[Equals(act.GetValueOrDefault("effect"), "launch") ? "leg" : "days"] = Number(c.Args[2], env);
-					outp.Add(act);
-					return;
-				}
-			case "stock":
-				Need(c, 3, 3, "Stock('post', Item, amount)");
-				outp.Add(Tree.Dict(("do", "stock"), ("post", Str(c.Args[0], env)), ("item", Str(c.Args[1], env)), ("add", Number(c.Args[2], env))));
-				return;
-			case "say": case "shout":
-				{
-					Need(c, 1, 2, $"{c.Name}('text'[, HBC|NWC|All])");
-					var act = Tree.Dict(("do", "say"), ("text", Str(c.Args[0], env)));
-					if (c.Args.Count == 2) act["to"] = Str(c.Args[1], env);
-					if (name == "shout") act["headline"] = true;
-					outp.Add(act);
-					return;
-				}
-			case "trigger":
-				Need(c, 1, 1, "Trigger('beat')");
-				outp.Add(Tree.Dict(("do", "trigger"), ("beat", Str(c.Args[0], env))));
-				return;
-			case "action":
-				{
-					// Action('name', 'key', value, 'key', value ...): anything the game does that the language has no word for
-					if (c.Args.Count < 1 || c.Args.Count % 2 == 0) throw new CampError("Action('name', 'key', value, ...)", c.Line);
-					var act = Tree.Dict(("do", Str(c.Args[0], env)));
-					for (int i = 1; i < c.Args.Count; i += 2) act[Str(c.Args[i], env)] = Const(c.Args[i + 1], env, false);
-					outp.Add(act);
-					return;
-				}
-		}
-		throw new CampError($"unknown statement {c.Name} (declare it with 'procedure {c.Name};' or check the spelling)", c.Line);
-	}
-
-	private void Expand(ProcDecl proc, CallS c, Env env, List<object> outp)
-	{
-		if (c.Args.Count != proc.Params.Count) throw new CampError($"{proc.Name} takes {proc.Params.Count} argument{(proc.Params.Count == 1 ? "" : "s")}", c.Line);
-		if (++_depth > 30) throw new CampError($"procedure {proc.Name} calls itself without end", c.Line);
+		var saved = _out; _out = outp;
 		try
 		{
-			var inner = new Env(_globals);
-			for (int i = 0; i < proc.Params.Count; i++) inner.Set(proc.Params[i], Const(c.Args[i], env, true));
-			Emit(proc.Body, inner, outp);
+			switch (s)
+			{
+				case EmptyStmt: return;
+				case BlockStmt b: ExecBlock(b, new Env(env), outp); return;
+				case LocalStmt l:
+					{
+						var v = Eval(l.Value, env);
+						CheckType(l.Type, v, l.Value.At, l.Name);
+						env.Set(l.Name, v, l.Type);
+						return;
+					}
+				case ExprStmt es:
+					{
+						var v = Eval(es.Value, env);
+						if (v is not Unit) throw new CampError($"this does nothing: it only works out {Describe(v)}. An effect looks like flags.set(\"x\"), mood += 1, trigger(Beat), news(...)", es.Value.At);
+						return;
+					}
+				case AssignStmt a: outp.Add(Assign(a, env)); return;
+				case IfStmt i:
+					{
+						var cv = Eval(i.Cond, env);
+						if (cv is bool cb)
+						{
+							var branch = cb ? i.Then : i.Else;
+							if (branch != null) Exec(branch, new Env(env), outp);
+							return;
+						}
+						var node = Tree.Dict(("do", "if"), ("cond", ToCond(cv, i.Cond)));
+						var then = new List<object>();
+						Exec(i.Then, new Env(env), then);
+						node["then"] = then;
+						if (i.Else != null) { var els = new List<object>(); Exec(i.Else, new Env(env), els); node["else"] = els; }
+						outp.Add(node);
+						return;
+					}
+				case ForStmt f:
+					foreach (var k in Counting(f, env)) { var inner = new Env(env); inner.Set(f.Var, k); Exec(f.Body, inner, outp); }
+					return;
+				case ForeachStmt f:
+					foreach (var k in Items(f, env)) { var inner = new Env(env); inner.Set(f.Var, k); Exec(f.Body, inner, outp); }
+					return;
+			}
+			throw new CampError("this statement is not part of the language", s.At);
+		}
+		finally { _out = saved; }
+	}
+
+	private object Assign(AssignStmt a, Env env)
+	{
+		if (a.Target is not NameExpr n) throw new CampError("only a campaign variable can be assigned to", a.Target.At);
+		if (env.Has(n.Name)) throw new CampError($"{n.Name} is a const and cannot change", a.Target.At);
+		if (!_vars.ContainsKey(n.Name)) throw new CampError($"no variable called {n.Name}.{Suggest(n.Name, _vars.Keys)} Declare it at the top: int {n.Name};", a.Target.At);
+		double Num(Expr e) => Eval(e, env) is double d ? d : throw new CampError("a variable changes by a number known when the script is compiled", e.At);
+		switch (a.Op)
+		{
+			case "++": return Tree.Dict(("do", "add"), ("var", n.Name));
+			case "--": return Tree.Dict(("do", "add"), ("var", n.Name), ("by", -1.0));
+			case "+=": return Tree.Dict(("do", "add"), ("var", n.Name), ("by", Num(a.Value)));
+			case "-=": return Tree.Dict(("do", "add"), ("var", n.Name), ("by", -Num(a.Value)));
+			case "=":
+				if (a.Value is BinaryExpr { Op: "+" or "-" } be)
+				{
+					if (be.Left is NameExpr l && l.Name == n.Name) return Tree.Dict(("do", "add"), ("var", n.Name), ("by", be.Op == "+" ? Num(be.Right) : -Num(be.Right)));
+					if (be.Op == "+" && be.Right is NameExpr r && r.Name == n.Name) return Tree.Dict(("do", "add"), ("var", n.Name), ("by", Num(be.Left)));
+				}
+				return Tree.Dict(("do", "set"), ("var", n.Name), ("to", Num(a.Value)));
+		}
+		throw new CampError($"{a.Op} is not supported on a campaign variable (use =, +=, -=, ++, --)", a.At);
+	}
+
+	internal void RunLambda(LambdaV l, List<object> outp)
+	{
+		var saved = _out; _out = outp;
+		try
+		{
+			if (l.Block != null) ExecBlock(l.Block, new Env(l.Env), outp);
+			else
+			{
+				var v = Eval(l.Body, l.Env);
+				if (v is not Unit) throw new CampError($"this does nothing: it only works out {Describe(v)}", l.Body.At);
+			}
+		}
+		finally { _out = saved; }
+	}
+
+	// ---------------------------------------------------------------- expressions
+
+	private Ctx Mk(Span at, Env env) => new() { C = this, Out = _out, At = at, Env = env };
+
+	internal object Eval(Expr e, Env env)
+	{
+		switch (e)
+		{
+			case LitExpr l: return l.Value is long n ? (double)n : l.Value;
+			case NameExpr nm: return Resolve(nm, env);
+			case LambdaExpr lam: return new LambdaV(lam.Body, lam.Block, env);
+			case ArrayExpr arr: return new ArrV(arr.Items.Select(x => Eval(x, env)).ToList());
+			case RangeExpr r:
+				{
+					double a = Whole(Eval(r.From, env), r.From), b = Whole(Eval(r.To, env), r.To);
+					if (b - a > 5000) throw new CampError("this range has more than 5000 numbers", r.At);
+					var list = new List<object>();
+					for (double i = a; i <= b; i++) list.Add(i);
+					return new ArrV(list);
+				}
+			case IndexExpr ix:
+				{
+					var t = Eval(ix.Target, env);
+					var i = Eval(ix.Index, env);
+					if (t is ArrV a && i is double d && d == Math.Floor(d) && d >= 0 && d < a.Items.Count) return a.Items[(int)d];
+					throw new CampError(t is ArrV ? "that position is not in the list" : $"{Describe(t)} cannot be indexed", ix.At);
+				}
+			case TernaryExpr t:
+				{
+					var c = Eval(t.Cond, env);
+					if (c is bool b) return Eval(b ? t.Then : t.Else, env);
+					throw new CampError("a ? : needs a condition known when the script is compiled; use if for the game's own conditions", t.At);
+				}
+			case UnaryExpr u: return Unary(u, env);
+			case BinaryExpr b: return Binary(b, env);
+			case MemberExpr m: return Member(m, env);
+			case CallExpr c: return Call(c, env);
+		}
+		throw new CampError("this cannot be evaluated", e.At);
+	}
+
+	private object Resolve(NameExpr n, Env env)
+	{
+		if (env.TryGet(n.Name, out var v)) return v;
+		if (_vars.ContainsKey(n.Name)) return new VarV(n.Name);
+		if (_byName.TryGetValue(n.Name, out var id))
+			return id != null ? new BeatV(n.Name, id) : throw new CampError($"more than one beat is called {n.Name}; use its id as a string", n.At);
+		// beats not yet numbered (a reference before the beat is declared, during Declare)
+		var inst = _insts.FirstOrDefault(i => i.Decl.Name == n.Name);
+		if (inst != null) return new BeatV(n.Name, inst.Id);
+		if (n.Name == "world" || n.Name == "flags") return new ObjV(n.Name);
+		if (Library.IsEnum(n.Name)) return new TypeNameV(n.Name);
+		var forward = _ast.Decls.OfType<BeatDecl>().FirstOrDefault(x => x.Name == n.Name);
+		if (forward != null) return new BeatV(n.Name, forward.Args.FirstOrDefault(a => a.Name == "id")?.Value is LitExpr { Value: string fid } ? fid : n.Name);
+		var cands = env.Names().Concat(_vars.Keys).Concat(_byName.Keys).Concat(_insts.Select(i => i.Decl.Name)).Concat(new[] { "world", "flags" }).Concat(Library.EnumDocs.Keys);
+		throw new CampError($"'{n.Name}' is not defined.{Suggest(n.Name, cands)}", n.At);
+	}
+
+	private object Member(MemberExpr m, Env env)
+	{
+		var tv = Eval(m.Target, env);
+		if (tv is TypeNameV tn)
+		{
+			if (Library.EnumValues(tn.Name).Contains(m.Name)) return new EnumV(tn.Name, m.Name);
+			throw new CampError($"{tn.Name} has no '{m.Name}'.{Suggest(m.Name, Library.EnumValues(tn.Name))} It has {string.Join(", ", Library.EnumValues(tn.Name).Take(12))}{(Library.EnumValues(tn.Name).Count() > 12 ? ", ..." : "")}", m.NameAt);
+		}
+		string owner = OwnerOf(tv, m.Target);
+		var mem = Library.Find(owner, m.Name) ?? throw new CampError($"{Describe(tv)} has no '{m.Name}'.{Suggest(m.Name, Library.Of(owner).Select(x => x.Name))} It has {string.Join(", ", Library.Of(owner).Select(x => x.Name))}", m.NameAt);
+		if (mem.Kind == "function") throw new CampError($"{mem.Full} is a function: write {mem.Full}(...)", m.NameAt);
+		return mem.Run(Mk(m.At, env), tv, new Args());
+	}
+
+	private string OwnerOf(object tv, Expr at) => tv switch
+	{
+		ObjV o => o.Type, BeatV => "Beat", BrigadeV => "Brigade",
+		_ => throw new CampError($"{Describe(tv)} has no members", at.At),
+	};
+
+	private object Call(CallExpr c, Env env)
+	{
+		if (c.Callee is NameExpr n)
+		{
+			if (_localFuncs.TryGetValue(n.Name, out var lf) || _funcs.TryGetValue(n.Name, out lf)) return CallUser(lf, c, env);
+			var g = Library.Find("", n.Name);
+			if (g == null || g.Kind != "function")
+				throw new CampError($"there is no function called {n.Name}.{Suggest(n.Name, Library.Of("").Where(x => x.Kind == "function").Select(x => x.Name).Concat(_funcs.Keys).Concat(_localFuncs.Keys))}", n.At);
+			return g.Run(Mk(c.At, env), null, BindArgs(g, c.Args, env, c));
+		}
+		if (c.Callee is MemberExpr m)
+		{
+			var tv = Eval(m.Target, env);
+			string owner = OwnerOf(tv, m.Target);
+			var mem = Library.Find(owner, m.Name) ?? throw new CampError($"{Describe(tv)} has no '{m.Name}'.{Suggest(m.Name, Library.Of(owner).Select(x => x.Name))} It has {string.Join(", ", Library.Of(owner).Select(x => x.Name))}", m.NameAt);
+			if (mem.Kind != "function") throw new CampError($"{mem.Full} is not a function: leave off the ()", m.NameAt);
+			return mem.Run(Mk(c.At, env), tv, BindArgs(mem, c.Args, env, c));
+		}
+		throw new CampError("only a function can be called", c.At);
+	}
+
+	private Args BindArgs(Member m, List<Arg> args, Env env, CallExpr at)
+	{
+		var a = new Args();
+		var ps = m.Params;
+		int pos = 0;
+		foreach (var arg in args)
+		{
+			var val = Eval(arg.Value, env);
+			if (arg.Name == null)
+			{
+				if (pos >= ps.Length) throw new CampError($"{m.Full} takes {(ps.Length == 0 ? "no arguments" : $"{ps.Length} argument{(ps.Length == 1 ? "" : "s")}")}: {m.Signature}", arg.Value.At);
+				var p = ps[pos];
+				if (p.Rest) { a.Rest.Add(Coerce(p.Type, val, arg.Value.At, m, p)); continue; }
+				pos++;
+				if (a.V.ContainsKey(p.Name)) throw new CampError($"{p.Name} is given twice", arg.Value.At);
+				a.V[p.Name] = Coerce(p.Type, val, arg.Value.At, m, p);
+			}
+			else
+			{
+				var p = ps.FirstOrDefault(x => x.Name == arg.Name && !x.Rest);
+				if (p == null)
+				{
+					if (!m.OpenNamed) throw new CampError($"{m.Full} has no argument '{arg.Name}'.{Suggest(arg.Name, ps.Select(x => x.Name))} It is {m.Signature}", arg.NameAt);
+					a.Extra[arg.Name] = val;
+					continue;
+				}
+				if (a.V.ContainsKey(p.Name)) throw new CampError($"{p.Name} is given twice", arg.NameAt);
+				a.V[p.Name] = Coerce(p.Type, val, arg.Value.At, m, p);
+			}
+		}
+		foreach (var p in ps)
+			if (!p.Optional && !p.Rest && !a.V.ContainsKey(p.Name))
+				throw new CampError($"{m.Full} needs {p.Name}: {m.Signature}", at.At);
+		return a;
+	}
+
+	private object Coerce(string type, object v, Span at, Member m, LibParam p)
+	{
+		if (Conforms(type, v)) return v;
+		throw new CampError($"{m.Full}: {p.Name} should be {Article(type)}, but got {Describe(v)}", at);
+	}
+
+	private static string Article(string type) => type switch
+	{
+		"int" => "a whole number", "float" => "a number", "string" => "text", "bool" => "a condition", "Date" => "a date, date(year, month, day)",
+		"Days" => "a length of time, days(n)", "Beat" => "a beat", "Lambda" => "a () => ... block", "Option" => "an option(weight, () => ...)",
+		"Company" => "Company.HBC, Company.NWC or Company.All", "Person" => "a Person (Person.Factor ...) or text", "Item" => "an Item (Item.Rum ...)",
+		"Season" => "a Season", "Kind" => "a Kind", "Brigade" => "a brigade(\"name\")", _ => type,
+	};
+
+	private static bool Conforms(string type, object v) => type switch
+	{
+		"any" or "var" => true,
+		"int" => v is double d && d == Math.Floor(d),
+		"float" or "number" => v is double,
+		"string" => v is string,
+		"bool" => v is bool or CondV,
+		"Date" => v is DateV,
+		"Days" => v is DaysV,
+		"Beat" => v is BeatV or string,
+		"Brigade" => v is BrigadeV,
+		"Lambda" => v is LambdaV,
+		"Option" => v is OptionV,
+		"Person" => v is string or EnumV { Type: "Person" },
+		"Company" or "Item" or "Season" or "Kind" => v is EnumV e && e.Type == type,
+		"string[]" => v is ArrV a && a.Items.All(x => x is string),
+		"int[]" => v is ArrV a2 && a2.Items.All(x => x is double d2 && d2 == Math.Floor(d2)),
+		_ => false,
+	};
+
+	private void CheckType(string type, object v, Span at, string what)
+	{
+		if (type == "var") return;
+		if (!ValueTypes.Contains(type)) throw new CampError($"'{type}' is not a type.{Suggest(type, ValueTypes)} The types are {string.Join(", ", ValueTypes)}", at);
+		if (!Conforms(type, v)) throw new CampError($"{what} is declared {type}, but its value is {Describe(v)}", at);
+	}
+
+	private object CallUser(FuncDecl f, CallExpr c, Env env)
+	{
+		var inner = new Env(_globals);
+		var bound = new Dictionary<string, object>();
+		int pos = 0;
+		foreach (var arg in c.Args)
+		{
+			var val = Eval(arg.Value, env);
+			Param p;
+			if (arg.Name == null)
+			{
+				if (pos >= f.Params.Count) throw new CampError($"{f.Name} takes {f.Params.Count} argument{(f.Params.Count == 1 ? "" : "s")}", arg.Value.At);
+				p = f.Params[pos++];
+			}
+			else p = f.Params.FirstOrDefault(x => x.Name == arg.Name) ?? throw new CampError($"{f.Name} has no argument '{arg.Name}'.{Suggest(arg.Name, f.Params.Select(x => x.Name))}", arg.NameAt);
+			if (bound.ContainsKey(p.Name)) throw new CampError($"{p.Name} is given twice", arg.Value.At);
+			CheckType(p.Type, val, arg.Value.At, $"{f.Name}: {p.Name}");
+			bound[p.Name] = val;
+		}
+		foreach (var p in f.Params)
+		{
+			if (!bound.TryGetValue(p.Name, out var bv)) throw new CampError($"{f.Name} needs {p.Name} ({p.Type})", c.At);
+			inner.Set(p.Name, bv, p.Type);
+		}
+		if (++_depth > 40) throw new CampError($"{f.Name} calls itself without end", c.At);
+		try
+		{
+			if (f.ReturnType == "void")
+			{
+				if (_out == null) throw new CampError($"{f.Name} changes the world, so it belongs in an effect, not in a condition", c.At);
+				if (f.Block != null) ExecBlock(f.Block, inner, _out);
+				else
+				{
+					var v = Eval(f.ExprBody, inner);
+					if (v is not Unit) throw new CampError($"{f.Name} is void but its body gives back {Describe(v)}", f.ExprBody.At);
+				}
+				return new Unit();
+			}
+			if (f.ExprBody == null) throw new CampError($"a function that gives back a value is written with =>: {f.ReturnType} {f.Name}(...) => value;", f.At);
+			var r = Eval(f.ExprBody, inner);
+			CheckType(f.ReturnType, r, f.ExprBody.At, $"{f.Name}'s result");
+			return r;
 		}
 		finally { _depth--; }
+	}
+
+	// ---------------------------------------------------------------- operators
+
+	private object Unary(UnaryExpr u, Env env)
+	{
+		var x = Eval(u.Operand, env);
+		if (u.Op == "-") return x is double d ? -d : throw new CampError($"cannot negate {Describe(x)}", u.At);
+		if (x is bool b) return !b;
+		return new CondV(Tree.Dict(("not", ToCond(x, u.Operand))));
+	}
+
+	private object Binary(BinaryExpr b, Env env)
+	{
+		if (b.Op is "&&" or "||")
+		{
+			var parts = new List<Expr>();
+			Flatten(b.Left, b.Op, parts);
+			Flatten(b.Right, b.Op, parts);
+			var items = new List<object>();
+			foreach (var p in parts)
+			{
+				var v = ToCond(Eval(p, env), p);
+				if (v is bool bv)
+				{
+					if (b.Op == "&&" && !bv) return false;
+					if (b.Op == "||" && bv) return true;
+					continue;
+				}
+				items.Add(v);
+			}
+			if (items.Count == 0) return b.Op == "&&";
+			if (items.Count == 1) return new CondV(items[0]);
+			return new CondV(Tree.Dict((b.Op == "&&" ? "all" : "any", items)));
+		}
+		var l = Eval(b.Left, env);
+		var r = Eval(b.Right, env);
+		switch (b.Op)
+		{
+			case "+":
+				if (l is double a1 && r is double a2) return a1 + a2;
+				if (l is DateV d && r is DaysV dd) return DateV.From(d.ToDateTime().AddDays(dd.N));
+				if (l is DaysV x1 && r is DaysV x2) return new DaysV(x1.N + x2.N);
+				if (l is string || r is string) return CJson.Join(l) + CJson.Join(r);
+				break;
+			case "-":
+				if (l is double s1 && r is double s2) return s1 - s2;
+				if (l is DateV d2 && r is DaysV dd2) return DateV.From(d2.ToDateTime().AddDays(-dd2.N));
+				if (l is DaysV y1 && r is DaysV y2) return new DaysV(y1.N - y2.N);
+				break;
+			case "*":
+				if (l is double m1 && r is double m2) return m1 * m2;
+				if (l is DaysV dl && r is double mr) return new DaysV(dl.N * mr);
+				break;
+			case "/":
+				if (l is double q1 && r is double q2) return q2 == 0 ? throw new CampError("division by zero", b.At) : q1 / q2;
+				break;
+			case "%":
+				if (l is double p1 && r is double p2) return p2 == 0 ? throw new CampError("division by zero", b.At) : p1 % p2;
+				break;
+			case "==" or "!=" or "<" or ">" or "<=" or ">=": return Compare(b, l, r);
+		}
+		throw new CampError($"cannot use {b.Op} with {Describe(l)} and {Describe(r)}", b.At);
+	}
+
+	private static string Flip(string op) => op switch { "<" => ">", ">" => "<", "<=" => ">=", ">=" => "<=", _ => op };
+
+	private object Compare(BinaryExpr b, object l, object r)
+	{
+		string op = b.Op;
+		bool IsLive(object x) => x is MetricV or VarV or QueryV or DateQ;
+		if (!IsLive(l) && !IsLive(r))
+		{
+			int cmp;
+			if (l is double x1 && r is double x2) cmp = x1.CompareTo(x2);
+			else if (l is string s1 && r is string s2) cmp = string.CompareOrdinal(s1, s2);
+			else if (l is DateV d1 && r is DateV d2) cmp = d1.CompareTo(d2);
+			else if (l is bool && r is bool || l is EnumV && r is EnumV || l is BeatV && r is BeatV) cmp = Equals(l, r) ? 0 : 1;
+			else throw new CampError($"cannot compare {Describe(l)} with {Describe(r)}", b.At);
+			if (op is not ("==" or "!=") && (l is bool or EnumV or BeatV)) throw new CampError($"{op} only works on numbers, text and dates", b.At);
+			return op switch { "==" => cmp == 0, "!=" => cmp != 0, "<" => cmp < 0, ">" => cmp > 0, "<=" => cmp <= 0, _ => cmp >= 0 };
+		}
+		if (!IsLive(l)) { (l, r) = (r, l); op = Flip(op); }
+		if (IsLive(r)) throw new CampError("the game can compare a number it knows with a fixed number, not with another changing number", b.At);
+		switch (l)
+		{
+			case QueryV q:
+				{
+					string want = q.Pred == "season" ? "Season" : "Company";
+					if (r is not EnumV ev || ev.Type != want) throw new CampError($"{(q.Pred == "season" ? "world.season" : "world.playerFaction")} is compared with {(want == "Season" ? "Season.Winter and so on" : "Company.HBC or Company.NWC")}", b.At);
+					if (op is not ("==" or "!=")) throw new CampError($"a name is compared with == or != only", b.At);
+					var p = CJson.Predicate(q.Pred, new() { ev.Value });
+					return new CondV(op == "==" ? p : Tree.Dict(("not", p)));
+				}
+			case DateQ:
+				{
+					if (r is not DateV dv) throw new CampError("today's date is compared with a date: date(1816, 6, 19)", b.At);
+					var next = DateV.From(dv.ToDateTime().AddDays(1)).ToString();
+					return op switch
+					{
+						">=" => new CondV(CJson.Predicate("after", new() { dv.ToString() })),
+						"<" => new CondV(CJson.Predicate("before", new() { dv.ToString() })),
+						">" => new CondV(CJson.Predicate("after", new() { next })),
+						"<=" => new CondV(CJson.Predicate("before", new() { next })),
+						_ => throw new CampError("today's date is compared with <, <=, > or >= (a day is a range, not a point)", b.At),
+					};
+				}
+			case MetricV m:
+				return new CondV(CJson.Metric(m.Name, m.Args, op, r is double n ? n : throw new CampError($"compare with a number, not {Describe(r)}", b.At)));
+			case VarV v:
+				return new CondV(CJson.Metric("var", new() { v.Name }, op, r is double n2 ? n2 : throw new CampError($"compare with a number, not {Describe(r)}", b.At)));
+		}
+		throw new CampError("this cannot be compared", b.At);
+	}
+
+	// ---------------------------------------------------------------- words
+
+	internal static string Describe(object v) => v switch
+	{
+		double d => $"the number {CJson.Num(d)}", string s => $"the text \"{s}\"", bool b => $"{(b ? "true" : "false")}", DateV d => $"the date {d}",
+		DaysV d => $"{CJson.Num(d.N)} days", BeatV b => $"the beat {b.Name}", BrigadeV b => $"the brigade \"{b.Run}\"", EnumV e => $"{e.Type}.{e.Value}",
+		ObjV o => o.Type, TypeNameV t => $"the type {t.Name}", VarV vv => $"the variable {vv.Name}", MetricV m => "a number from the world",
+		QueryV => "a name from the world", DateQ => "today's date", CondV => "a condition", Unit => "an effect", LambdaV => "a block", OptionV => "an option",
+		ArrV => "a list", null => "nothing", _ => v.ToString(),
+	};
+
+	internal static string Suggest(string word, IEnumerable<string> candidates)
+	{
+		string best = null;
+		int bd = int.MaxValue;
+		foreach (var c in candidates.Distinct())
+		{
+			int d = CampParser.Distance(word.ToLowerInvariant(), c.ToLowerInvariant());
+			if (d < bd) { bd = d; best = c; }
+		}
+		return best != null && bd <= Math.Max(2, word.Length / 3) ? $" Did you mean '{best}'?" : "";
 	}
 }

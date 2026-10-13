@@ -191,13 +191,14 @@ public class SimulationTests
 public class ShippedTests
 {
 	private static IEnumerable<string> Sources() => Directory.GetFiles(Path.Combine(Root, "tools/CampaignTool/src"), "*.camp");
+	public static IEnumerable<string> AllSources() => Sources().Concat(Directory.GetFiles(Path.Combine(Root, "tools/CampaignTool/examples"), "*.camp"));
 
 	[Fact]
 	public void TheInstalledJsonIsWhatTheSourceBuilds()
 	{
 		foreach (var src in Sources())
 		{
-			var built = Lang.CompileText(File.ReadAllText(src));
+			var built = CampLang.CompileText(File.ReadAllText(src));
 			var installed = Json($"Campaigns/{Path.GetFileNameWithoutExtension(src)}.json");
 			Assert.True(Tree.Same(built, installed), $"Campaigns/{Path.GetFileNameWithoutExtension(src)}.json is stale: run  dotnet run --project tools/CampaignTool -- build");
 		}
@@ -206,18 +207,18 @@ public class ShippedTests
 	[Fact]
 	public void SourcesAreClean()
 	{
-		foreach (var src in Sources().Append(Path.Combine(Root, "tools/CampaignTool/examples/showcase.camp")))
+		foreach (var src in AllSources())
 		{
-			var r = Checker.Check(Lang.CompileText(File.ReadAllText(src)));
-			if (!src.EndsWith("showcase.camp")) Assert.Empty(r.Warnings);
-			Assert.Empty(r.Errors);
+			var r = Checker.Check(CampLang.CompileText(File.ReadAllText(src)));
+			Assert.True(r.Errors.Count == 0, $"{Path.GetFileName(src)}: {string.Join("; ", r.Errors.Select(e => e.where + " " + e.msg))}");
+			Assert.True(r.Warnings.Count == 0, $"{Path.GetFileName(src)}: {string.Join("; ", r.Warnings.Select(e => e.where + " " + e.msg))}");
 		}
 	}
 
 	[Fact]
 	public void TheBrigadeBeatsBehave()
 	{
-		var doc = Lang.CompileText(Read("tools/CampaignTool/src/historical.camp"));
+		var doc = CampLang.CompileText(Read("tools/CampaignTool/src/historical.camp"));
 		var sc = Json("tools/CampaignTool/examples/pemmican-war.scenario.json");
 		var r = Sim.Simulate(doc, sc, 5);
 		int MostPerYear(string id) => r.Runner.Fired.Where(f => f.Id == id).GroupBy(f => CampaignLogic.DateOf(f.Day).Year).Max(g => g.Count());
@@ -257,13 +258,5 @@ public class DriftTests
 		foreach (var text in new[] { effect, runOne })
 			foreach (Match m in Regex.Matches(text, "case \"([a-z_]+)\":"))
 				Assert.True(Known.Actions.ContainsKey(m.Groups[1].Value), $"the game runs '{m.Groups[1].Value}' and the tool does not know it");
-	}
-
-	[Fact]
-	public void EveryBuiltinNameThePascalCompilerKnowsReachesTheGame()
-	{
-		// the language's words compile to the engine's names
-		foreach (var json in Lang.Predicates.Values) Assert.Contains(json, Known.Predicates);
-		foreach (var (json, _) in Lang.Metrics.Values) Assert.Contains(json, Known.Metrics);
 	}
 }

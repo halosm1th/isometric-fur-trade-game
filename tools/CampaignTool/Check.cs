@@ -36,7 +36,8 @@ public sealed class Atom
 
 public static class Checker
 {
-	private static readonly string[] Kinds = Lang.BeatKinds;
+	private static readonly string[] Kinds = BeatKinds.All;
+	private static readonly string[] BeatKeys = { "id", "title", "kind", "date", "window_days", "lead_days", "delay_days", "repeat_days", "requires", "keywords", "when", "on_awaken", "pressure", "activate_when", "happens", "done_when", "on_resolve", "cancel_when", "on_cancel" };
 	private static readonly HashSet<string> FlagWords = new() { "heard", "late", "lost", "robbed", "turned", "out", "in" };
 	private static readonly Regex CompareRe = new(@"^\s*([a-z_]+)\s*(?:\(([^)]*)\))?\s*(>=|<=|==|!=|>|<)\s*(-?\d+(?:\.\d+)?)\s*$");
 	private static readonly Regex CallRe = new(@"^\s*([a-z_]+)\s*\(([^)]*)\)\s*$");
@@ -80,6 +81,7 @@ public static class Checker
 		var rep = new Report();
 		var facts = new Facts();
 		var world = Known.World;
+		if (doc.GetValueOrDefault("vars") is Dictionary<string, object> initial) foreach (var k in initial.Keys) Facts.Add(facts.VarsSet, k, "vars");
 		var beats = Tree.AsList(doc.GetValueOrDefault("beats")).Cast<Dictionary<string, object>>().ToList();
 		var ids = new Dictionary<string, Dictionary<string, object>>();
 		for (int i = 0; i < beats.Count; i++)
@@ -108,12 +110,14 @@ public static class Checker
 			if (kind == "pressure" && Tree.AsList(b.GetValueOrDefault("happens")).Count > 0) rep.Warn(where, "a pressure beat's 'happens' never runs (only its pressure does)");
 			if (Tree.AsList(b.GetValueOrDefault("done_when")).Count > 0 && (kind == "fixed" || kind == "pressure")) rep.Warn(where, "done_when is only used by event beats and conditional ones");
 			if (b.TryGetValue("repeat_days", out var rd) && Tree.N(rd) != 0 && !hasDate && kind != "conditional") rep.Warn(where, "repeat without a date repeats only after its cooldown");
-			foreach (var key in new[] { "when", "done_when" })
+			foreach (var key in b.Keys)
+				if (!BeatKeys.Contains(key)) rep.Error(where, $"unknown key '{key}' (a beat has {string.Join(", ", BeatKeys)})");
+			foreach (var key in new[] { "when", "activate_when", "done_when", "cancel_when" })
 			{
 				var l = Tree.AsList(b.GetValueOrDefault(key));
 				for (int j = 0; j < l.Count; j++) CheckCondition(l[j], $"{where} > {key}[{j}]", rep, facts, world);
 			}
-			foreach (var key in new[] { "pressure", "happens" }) CheckActions(b.GetValueOrDefault(key), $"{where} > {key}", rep, facts, world);
+			foreach (var key in new[] { "on_awaken", "pressure", "happens", "on_resolve", "on_cancel" }) CheckActions(b.GetValueOrDefault(key), $"{where} > {key}", rep, facts, world);
 			foreach (var r in Tree.AsList(b.GetValueOrDefault("requires"))) Facts.Add(facts.FlagsRead, Tree.S(r), where);
 		}
 
