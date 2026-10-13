@@ -55,7 +55,8 @@ public partial class SettingsPanel : VBoxContainer
             "The view eases after you instead of being locked to you.");
         Slider(view, "Speech lingers", 0.5f, 3f, 0.25f, () => Settings.BubbleTime, t => { Settings.BubbleTime = t; Settings.Save(); },
             "How long what people say stays over their heads.");
-        Toggle(view, "Show frame rate", () => Settings.ShowFps, on => { Settings.ShowFps = on; Settings.Save(); }, null);
+        Toggle(view, "Show frame rate", () => Settings.ShowFps, on => { Settings.ShowFps = on; Settings.Save(); },
+            "A small frames-per-second counter at the top centre of the screen.");
 
         var game = Page(tabs, "Game");
         Toggle(game, "Pause when the window loses focus", () => Settings.PauseOnFocusLoss, on => { Settings.PauseOnFocusLoss = on; Settings.Save(); },
