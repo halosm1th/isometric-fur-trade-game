@@ -1168,6 +1168,8 @@ public partial class PlayerController : Agent
 			NetHub.I?.PushDialogue(this, state);
 			return "";
 		}
+		// Your horse, standing where you left it: up you get.
+		if (NearOwnHorse) return RideAction();
 		var body = NearestCorpse(110f);
 		if (body != null)
 		{
@@ -1308,6 +1310,7 @@ public partial class PlayerController : Agent
 		if (structures.TryToggleDoorNear(Position)) return "";
 
 		var hearth = structures.HearthNear(GlobalPosition);
+		if (hearth == null && Mounted) return RideAction();   // nothing else to hand: get down
 		return hearth != null ? hearth.Describe() : "";
 	}
 
@@ -1320,6 +1323,7 @@ public partial class PlayerController : Agent
 		if (NearRoadHead(out bool atYork) && NearestNpc(110f) == null) return atYork ? $"{Core.Keybinds.KeyFor("interact")}  Take the river road inland to Oxford House (a day's march)" : $"{Core.Keybinds.KeyFor("interact")}  Take the river road down to York Factory";
 		var npc = NearestNpc(110f);
 		if (npc != null) return $"{Core.Keybinds.KeyFor("interact")}  Talk to {npc.DisplayName}";
+		if (NearOwnHorse) return $"{Core.Keybinds.KeyFor("interact")}  Get up on {HorseName}";
 		var body = NearestCorpse(110f);
 		if (body != null) return body is Animal ? $"{Core.Keybinds.KeyFor("interact")}  Butcher the {body.Describe().ToLower()}" : $"{Core.Keybinds.KeyFor("interact")}  Search {body.Describe()}";
 		var pickup = NearestPickup();
@@ -1345,6 +1349,7 @@ public partial class PlayerController : Agent
 		if (Sim.Structures != null && Sim.Structures.HasDoorNear(Position)) return $"{Core.Keybinds.KeyFor("interact")}  Open / close the door";
 		var hearth = Sim.Structures?.HearthNear(GlobalPosition);
 		if (hearth != null) return hearth.IsBurning ? $"{Core.Keybinds.KeyFor("interact")}  Look at the fire" : hearth.FuelHours > 0f ? "Flint on it to light it" : $"{Core.Keybinds.KeyFor("interact")}  Cold hearth (feed it wood)";
+		if (Mounted) return $"{Core.Keybinds.KeyFor("interact")}  Get down off {HorseName}";
 		return "";
 	}
 

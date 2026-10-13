@@ -46,7 +46,7 @@ public class Needs
     // when you are trying to look at something else.
     public bool GodMode;
 
-    public void Tick(float gameHours, float activity, bool sheltered, float heat, float clothingWarmth, Season season, float daylight, bool fireEnclosed = false)
+    public void Tick(float gameHours, float activity, bool sheltered, float heat, float clothingWarmth, Season season, float daylight, bool fireEnclosed = false, float localExposure = -1f)
     {
         if (gameHours <= 0f || IsDead) return;
         if (GodMode)
@@ -63,7 +63,7 @@ public class Needs
         // Shelter blocks wind; only a fire produces warmth. Real shelter is
         // both together (design doc 17.3 / 18.4).
         float weather = GameCalendar.Instance?.Weather.ExposureMultiplier ?? 1f;
-        float exposure = Climate.ExposurePerHour(season, daylight) * (sheltered ? ShelterWindFactor : weather);
+        float exposure = (localExposure >= 0f ? localExposure : Climate.ExposurePerHour(season, daylight)) * (sheltered ? ShelterWindFactor : weather);
         float loss = Mathf.Max(0f, exposure - clothingWarmth);
         float gain = heat * HearthRecovery * (sheltered || fireEnclosed ? 1f : OpenFireFactor);
         Warmth = Mathf.Clamp(Warmth + (gain - loss) * gameHours, 0f, 100f);
@@ -96,6 +96,29 @@ public class Needs
 // days cost nothing.
 public static class Climate
 {
+    // The cold where you stand (design doc 6, 17.3): the Bay coast is not the
+    // plains. A mean temperature for the day of the year from the latitude -
+    // York's January -26 and July +15, the Red River's -17 and +20 - milder
+    // west of the mountains, the nights colder than the days; and exposure
+    // grows as it falls below about 12 degrees. A July night on the
+    // Saskatchewan costs a man nothing; one at York in May still bites.
+    public static float ExposureAt(Vector2 world, float daylight, float dayOfYear)
+    {
+        if (!World.WorldMap.Loaded) return -1f;
+        var cell = World.IsoGrid.FromWorld(world);
+        var key = new Vector2I(cell.X >> 5, cell.Y >> 5);
+        if (!_latCache.TryGetValue(key, out var ll)) { var g = World.WorldMap.LonLatOf(World.IsoGrid.ToWorld(new Vector2I(key.X << 5, key.Y << 5))); ll = new Vector2((float)g.Lon, (float)g.Lat); _latCache[key] = ll; }
+        float lat = ll.Y, lon = ll.X;
+        float jan = -26f + (57f - lat) * 1.3f, jul = 15f + (57f - lat) * 0.7f;
+        if (lon < -118f) { jan += 12f; jul -= 1f; }   // the Pacific side: wet, mild winters
+        float mean = (jan + jul) / 2f - (jul - jan) / 2f * Mathf.Cos(2f * Mathf.Pi * (dayOfYear - 15f) / 365f);
+        float t = Mathf.Lerp(mean - 5f, mean + 8f, daylight);
+        if (Probe) GD.Print($"[climate] lat {lat:0.0} lon {lon:0.0} day {dayOfYear:0}: mean {mean:0} C, now {t:0} C, exposure {Mathf.Max(0f, (12f - t) / 7f):0.00}/h");
+        return Mathf.Max(0f, (12f - t) / 7f);
+    }
+    private static readonly System.Collections.Generic.Dictionary<Vector2I, Vector2> _latCache = new();
+    public static bool Probe;
+
     public static float ExposurePerHour(Season season, float daylight)
     {
         (float day, float night) = season switch

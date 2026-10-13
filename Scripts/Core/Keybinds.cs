@@ -16,7 +16,7 @@ public static class Keybinds
     {
         ("move_up", "Walk up"), ("move_down", "Walk down"), ("move_left", "Walk left"), ("move_right", "Walk right"),
         ("sprint", "Run"), ("sneak", "Crouch / sneak (and deliberate arson with flint)"), ("interact", "Talk / use what's in front of you"),
-        ("attack_nearest", "Strike the nearest hostile"), ("drink", "Drink"), ("mount", "Mount / get down off your horse"), ("wait", "Wait an hour / sleep at night"),
+        ("attack_nearest", "Strike the nearest hostile"), ("drink", "Drink"), ("mount", "Mount / get down off your horse (E on your horse does it too)"), ("wait", "Wait an hour / sleep at night"),
         ("hotbar_use", "Use the selected hotbar slot"),
         ("hotbar_1", "Hotbar slot 1"), ("hotbar_2", "Hotbar slot 2"), ("hotbar_3", "Hotbar slot 3"), ("hotbar_4", "Hotbar slot 4"), ("hotbar_5", "Hotbar slot 5"),
         ("hotbar_6", "Hotbar slot 6"), ("hotbar_7", "Hotbar slot 7"), ("hotbar_8", "Hotbar slot 8"), ("hotbar_9", "Hotbar slot 9"),

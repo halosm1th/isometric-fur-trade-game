@@ -24,6 +24,8 @@ public partial class PlayerController
     private int _horseNight = -1;
 
     public const float RemountReachPx = 200f;
+    // Close enough to your picketed horse that E means "get up".
+    public bool NearOwnHorse => HasHorse && !Mounted && !IsAfloat && GlobalPosition.DistanceTo(HorsePicket) < 140f;
 
     // The horse's shape slows him: a starving horse goes at a walk.
     public override float RidePace => HorsePace;

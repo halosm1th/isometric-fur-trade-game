@@ -161,7 +161,8 @@ public partial class Agent : CharacterBody2D
             clothingWarmth: Inventory.ClothingWarmth + InnateWarmth,
             season: cal.CurrentSeason,
             daylight: cal.DaylightFactor,
-            fireEnclosed: HeatEnclosed);
+            fireEnclosed: HeatEnclosed,
+            localExposure: Climate.ExposureAt(GlobalPosition, cal.DaylightFactor, cal.DayOfYear));
 
         if (IsDead) OnDeath();
     }

@@ -33,6 +33,7 @@ public static class WorldMap
     private static byte[] _ground = new byte[1];
     private static Godot.Collections.Dictionary _layout = new();
     private static Godot.Collections.Dictionary _projection = new();
+    public static bool Loaded => _projection.ContainsKey("lat0");
 
     static WorldMap() => Load();
 
@@ -179,6 +180,23 @@ public static class WorldMap
     {
         foreach (var p in Places) if (p.Name == name) return p;
         return null;
+    }
+
+    // ---- world -> lon/lat (the projection run backwards) -----------------------
+
+    public static (double Lon, double Lat) LonLatOf(Vector2 world)
+    {
+        double r(double d) => d * Math.PI / 180.0;
+        double lat1 = _projection["lat1"].AsDouble(), lat2 = _projection["lat2"].AsDouble(), lat0 = _projection["lat0"].AsDouble(), lon0 = _projection["lon0"].AsDouble();
+        double n = Math.Log(Math.Cos(r(lat1)) / Math.Cos(r(lat2))) / Math.Log(Math.Tan(Math.PI / 4 + r(lat2) / 2) / Math.Tan(Math.PI / 4 + r(lat1) / 2));
+        double f = Math.Cos(r(lat1)) * Math.Pow(Math.Tan(Math.PI / 4 + r(lat1) / 2), n) / n;
+        double rho0 = 6371.0 * f / Math.Pow(Math.Tan(Math.PI / 4 + r(lat0) / 2), n);
+        double x = world.X / PxPerKm + _projection["x0_km"].AsDouble();
+        double y = _projection["ytop_km"].AsDouble() - world.Y / PxPerKm;
+        double rho = Math.Sign(n) * Math.Sqrt(x * x + (rho0 - y) * (rho0 - y));
+        double th = Math.Atan2(x, rho0 - y);
+        double lat = 2.0 * Math.Atan(Math.Pow(6371.0 * f / rho, 1.0 / n)) - Math.PI / 2;
+        return (lon0 + th / n * 180.0 / Math.PI, lat * 180.0 / Math.PI);
     }
 
     // ---- lon/lat -> cell (Lambert conformal conic, as the importer) -------------

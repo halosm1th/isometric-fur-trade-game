@@ -73,6 +73,17 @@ public static class Plains
         foreach (string arg in OS.GetCmdlineUserArgs())
         {
             if (arg == "--horseraid") _devRaid = true;
+            // Dev: `--climate` prints the night and day cold at a few places through the year.
+            if (arg == "--climate")
+                foreach (var name in new[] { "York Factory", "Fort Gibraltar", "Edmonton House", "Fort William", "Fort Chipewyan", "Kootenay House" })
+                {
+                    var at = Posts.Named(name) is { } tp ? World.IsoGrid.ToWorld(tp.AccessCell) : World.IsoGrid.ToWorld(World.WorldLayout.GateOutside);
+                    var ll = World.WorldMap.LonLatOf(at);
+                    string row = "";
+                    foreach (int doy in new[] { 15, 135, 196, 288 })
+                        row += $"  d{doy}: night {Climate.ExposureAt(at, 0f, doy):0.0} day {Climate.ExposureAt(at, 1f, doy):0.0}";
+                    GD.Print($"[climate] {name} ({ll.Lat:0.0}N {-ll.Lon:0.0}W){row}");
+                }
             if (arg != "--horse") continue;
             foreach (var pc in Sim.Players())
             {

@@ -53,7 +53,11 @@ public partial class CountryBand : BandLedger
         // dies of the scurvy over a winter (design doc 13.5).
         Stores.Add(ItemId.Venison, mouths * 2);
         Stores.Add(ItemId.Fish, mouths);
-        if (Stores.Count(ItemId.Firewood) < 20) Stores.Add(ItemId.Firewood, 6);
+        // The women keep the woodpile (or the chip pile, on the plains) up to
+        // a week and more of the lodges' fires: the daily reckoning burns a
+        // piece a person a day, and a camp that ran short froze in November.
+        int wood = mouths * 10;
+        if (Stores.Count(ItemId.Firewood) < wood) Stores.Add(ItemId.Firewood, wood - Stores.Count(ItemId.Firewood));
         if (cal.Month is >= 10 or <= 4) Stores.Add(ItemId.BeaverPelt, (int)GD.RandRange(0, Country.IsFamily ? 1 : 3));
     }
 }
