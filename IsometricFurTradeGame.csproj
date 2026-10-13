@@ -4,4 +4,8 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>IsometricFurTradeGame</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- tests/ is a separate console project (tests/CampaignTests); the game does not compile it. -->
+    <Compile Remove="tests/**" />
+  </ItemGroup>
 </Project>

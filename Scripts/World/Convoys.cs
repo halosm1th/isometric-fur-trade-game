@@ -545,6 +545,7 @@ public static class Convoys
 		c.Step = 0f;
 		All.Add(c);
 		Raise($"out:{c.Name}"); Unraise($"in:{c.Name}"); Unraise($"late:{c.Name}");
+		Unraise($"lost:{c.Name}"); Unraise($"robbed:{c.Name}"); Unraise($"turned:{c.Name}");   // a new crossing starts clean
 		string what = leg.Cargo == "returns" ? "the winter's returns" : "the outfit";
 		string line = $"{c.Name} leave {leg.From} for {leg.To}: {c.Boats} {run.Craft.Name}s, {c.Crew} men under {c.Guide}, {c.Lots} pieces of {what}.";
 		Chronicle.Event(line, Landing(leg.From), null, c.Name, 1.2f);
@@ -992,10 +993,21 @@ public static class Convoys
 
 	// ---- a campaign beat acts on a convoy ---------------------------------------------------------------
 
-	// Campaign scripts: {"do": "brigade", "run": "the York boats", "effect": "delay" | "turn_back" | "lose", "days": 5}
-	public static void Affect(string run, string effect, int days)
+	// Campaign scripts: {"do": "brigade", "run": "the York boats", "effect": "delay" | "turn_back" | "lose" | "cancel" | "launch", "days": 5, "leg": 0}
+	public static void Affect(string run, string effect, int days, int leg = 0)
 	{
-		foreach (var c in All)
+		LoadRuns();
+		if (effect == "launch")
+		{
+			foreach (var r in Runs)
+				if (r.Name == run && leg >= 0 && leg < r.Legs.Count)
+				{
+					var started = Launch(r, r.Legs[leg], 0);
+					if (started != null) Hear(started, $"Word: {started.Name} have been sent off ahead of their day.", "", 1.2f);
+				}
+			return;
+		}
+		foreach (var c in new List<Convoy>(All))
 		{
 			if (c.Name != run || c.Now == ConvoyState.Arrived) continue;
 			switch (effect)
@@ -1008,16 +1020,26 @@ public static class Convoys
 				case "turn_back":
 					TurnBack(c);
 					Chronicle.Event($"{c.Name} have been turned back.", c.Where, null, c.Name, 1.8f);
-					Raise("brigade_turned_back");
+					Raise("brigade_turned_back"); Raise($"turned:{c.Name}");
 					break;
 				case "lose":
 					int lost = 0;
 					foreach (var (id, n) in new List<(ItemId, int)>(c.Cargo.All())) { int take = (n + 1) / 2; c.Cargo.Remove(id, take); lost += take; }
 					Chronicle.Event($"{c.Name} have lost {lost} pieces on the road.", c.Where, null, c.Name, 1.8f);
-					Raise("brigade_lost");
+					Raise("brigade_lost"); Raise($"lost:{c.Name}");
+					break;
+				case "cancel":
+					// Never sent after all: the pieces go back on the books of the house that loaded them.
+					int back = 0;
+					foreach (var (id, n) in new List<(ItemId, int)>(c.Cargo.All())) { c.Cargo.Remove(id, n); c.From.Stores.Add(id, n); back += n; }
+					foreach (var (id, n) in new List<(ItemId, int)>(c.Provisions.All())) { c.Provisions.Remove(id, n); c.From.Stores.Add(id, n); }
+					foreach (var p in new List<PlayerController>(Riders.Keys)) if (Riders[p] == c) Leave(p, $"{c.Name} are stood down.");
+					DropMen(c);
+					c.Now = ConvoyState.Arrived; c.ArrivedDay = int.MinValue;
+					Chronicle.Event($"{c.Name} were stood down with {back} pieces still on the bank at {c.FromName}.", Landing(c.FromName), null, c.Name, 1.6f);
 					break;
 			}
-			Hear(c, $"Word: {c.Name} are {c.State}{(effect == "turn_back" ? ", turned back" : "")}.", "", 1.5f, headline: true);
+			if (effect != "cancel") Hear(c, $"Word: {c.Name} are {c.State}{(effect == "turn_back" ? ", turned back" : "")}.", "", 1.5f, headline: true);
 		}
 	}
 

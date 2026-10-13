@@ -1,0 +1,2220 @@
+{
+ "about": "Cases the campaign language must agree on. Run by tools/campaign/run_conformance.py and tests/CampaignTests. State dates are ISO; world metrics are keyed 'name' or 'name(arg,arg)', facts 'name(arg)'.",
+ "cases": [
+  {
+   "name": "flag set",
+   "kind": "cond",
+   "cond": "flag:x",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "x"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "flag unset",
+   "kind": "cond",
+   "cond": "flag:x",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "bare name is a flag",
+   "kind": "cond",
+   "cond": "x",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "x"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "bare name unset",
+   "kind": "cond",
+   "cond": "x",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "negation",
+   "kind": "cond",
+   "cond": "!flag:x",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "negation of set flag",
+   "kind": "cond",
+   "cond": "!flag:x",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "x"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "flag name with a colon in it",
+   "kind": "cond",
+   "cond": "flag:heard:red-river",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "heard:red-river"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "beat done",
+   "kind": "cond",
+   "cond": "beat:seven-oaks",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [
+     "seven-oaks"
+    ],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "beat not done",
+   "kind": "cond",
+   "cond": "beat:seven-oaks",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "after, on the day",
+   "kind": "cond",
+   "cond": "after:1816-06-19",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "after, day before",
+   "kind": "cond",
+   "cond": "after:1816-06-20",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "before",
+   "kind": "cond",
+   "cond": "before:1816-06-20",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "before, on the day",
+   "kind": "cond",
+   "cond": "before:1816-06-19",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "tension >=",
+   "kind": "cond",
+   "cond": "tension>=40",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {
+     "tension": 50
+    },
+    "predicates": {}
+   }
+  },
+  {
+   "name": "tension < ",
+   "kind": "cond",
+   "cond": "tension<40",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {
+     "tension": 50
+    },
+    "predicates": {}
+   }
+  },
+  {
+   "name": "tension >= too high",
+   "kind": "cond",
+   "cond": "tension>=60",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {
+     "tension": 50
+    },
+    "predicates": {}
+   }
+  },
+  {
+   "name": "spaces around the comparison",
+   "kind": "cond",
+   "cond": "tension >= 40",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {
+     "tension": 50
+    },
+    "predicates": {}
+   }
+  },
+  {
+   "name": "equals",
+   "kind": "cond",
+   "cond": "tension == 50",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {
+     "tension": 50
+    },
+    "predicates": {}
+   }
+  },
+  {
+   "name": "not equals",
+   "kind": "cond",
+   "cond": "tension != 50",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {
+     "tension": 50
+    },
+    "predicates": {}
+   }
+  },
+  {
+   "name": "stock with two arguments",
+   "kind": "cond",
+   "cond": "stock(Cumberland House, TradeGoods) < 10",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {
+     "stock(Cumberland House,TradeGoods)": 5
+    },
+    "predicates": {}
+   }
+  },
+  {
+   "name": "stock not low",
+   "kind": "cond",
+   "cond": "stock(Cumberland House, TradeGoods) < 10",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {
+     "stock(Cumberland House,TradeGoods)": 25
+    },
+    "predicates": {}
+   }
+  },
+  {
+   "name": "a number the world does not know is never true",
+   "kind": "cond",
+   "cond": "nothing > 1",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "...nor is its opposite",
+   "kind": "cond",
+   "cond": "nothing < 1",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "...nor !=",
+   "kind": "cond",
+   "cond": "nothing != 1",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "post fact from the world",
+   "kind": "cond",
+   "cond": "post:Fort William",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {
+     "post(Fort William)": true
+    }
+   }
+  },
+  {
+   "name": "post fact missing",
+   "kind": "cond",
+   "cond": "post:Fort William",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "dead person",
+   "kind": "cond",
+   "cond": "dead:Alexander Henry",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {
+     "dead(Alexander Henry)": true
+    }
+   }
+  },
+  {
+   "name": "call syntax for a fact",
+   "kind": "cond",
+   "cond": "post(Fort William)",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {
+     "post(Fort William)": true
+    }
+   }
+  },
+  {
+   "name": "all",
+   "kind": "cond",
+   "cond": {
+    "all": [
+     "flag:a",
+     "flag:b"
+    ]
+   },
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "a",
+     "b"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "all, one missing",
+   "kind": "cond",
+   "cond": {
+    "all": [
+     "flag:a",
+     "flag:b"
+    ]
+   },
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "a"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "any",
+   "kind": "cond",
+   "cond": {
+    "any": [
+     "flag:a",
+     "flag:b"
+    ]
+   },
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "b"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "any, none",
+   "kind": "cond",
+   "cond": {
+    "any": [
+     "flag:a",
+     "flag:b"
+    ]
+   },
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "empty any is false",
+   "kind": "cond",
+   "cond": {
+    "any": []
+   },
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "empty all is true",
+   "kind": "cond",
+   "cond": {
+    "all": []
+   },
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "not",
+   "kind": "cond",
+   "cond": {
+    "not": "flag:a"
+   },
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "a list means all",
+   "kind": "cond",
+   "cond": [
+    "flag:a",
+    "flag:b"
+   ],
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "a",
+     "b"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "a list, one missing",
+   "kind": "cond",
+   "cond": [
+    "flag:a",
+    "flag:b"
+   ],
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "a"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "nested",
+   "kind": "cond",
+   "cond": {
+    "all": [
+     "flag:a",
+     {
+      "any": [
+       "flag:b",
+       {
+        "not": "flag:c"
+       }
+      ]
+     }
+    ]
+   },
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "a"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "nested, falls through",
+   "kind": "cond",
+   "cond": {
+    "all": [
+     "flag:a",
+     {
+      "any": [
+       "flag:b",
+       {
+        "not": "flag:c"
+       }
+      ]
+     }
+    ]
+   },
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "a",
+     "c"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "fact object",
+   "kind": "cond",
+   "cond": {
+    "p": "post",
+    "a": [
+     "Fort William"
+    ]
+   },
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {
+     "post(Fort William)": true
+    }
+   }
+  },
+  {
+   "name": "number object",
+   "kind": "cond",
+   "cond": {
+    "m": "tension",
+    "op": ">=",
+    "v": 40
+   },
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {
+     "tension": 41
+    },
+    "predicates": {}
+   }
+  },
+  {
+   "name": "number object with arguments",
+   "kind": "cond",
+   "cond": {
+    "m": "stock",
+    "a": [
+     "York Factory",
+     "Rum"
+    ],
+    "op": "<",
+    "v": 10
+   },
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {
+     "stock(York Factory,Rum)": 3
+    },
+    "predicates": {}
+   }
+  },
+  {
+   "name": "script variable object",
+   "kind": "cond",
+   "cond": {
+    "m": "var",
+    "a": [
+     "hostility"
+    ],
+    "op": ">=",
+    "v": 3
+   },
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {
+     "hostility": 3
+    },
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "script variable string",
+   "kind": "cond",
+   "cond": "var(hostility) >= 3",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {
+     "hostility": 3
+    },
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "script variable unset is 0",
+   "kind": "cond",
+   "cond": "var(hostility) == 0",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "month in range",
+   "kind": "cond",
+   "cond": "month:6-8",
+   "expect": true,
+   "state": {
+    "today": "1816-07-10",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "month out of range",
+   "kind": "cond",
+   "cond": "month:11-3",
+   "expect": false,
+   "state": {
+    "today": "1816-07-10",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "month wraps the year",
+   "kind": "cond",
+   "cond": "month:11-3",
+   "expect": true,
+   "state": {
+    "today": "1816-12-01",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "month wraps, january",
+   "kind": "cond",
+   "cond": "month:11-3",
+   "expect": true,
+   "state": {
+    "today": "1816-01-15",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "single month",
+   "kind": "cond",
+   "cond": "month:7",
+   "expect": true,
+   "state": {
+    "today": "1816-07-10",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "month number",
+   "kind": "cond",
+   "cond": "month >= 6",
+   "expect": true,
+   "state": {
+    "today": "1816-06-01",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "year number",
+   "kind": "cond",
+   "cond": "year >= 1816",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "year number, too soon",
+   "kind": "cond",
+   "cond": "year >= 1817",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "day of year",
+   "kind": "cond",
+   "cond": "day_of_year == 31",
+   "expect": true,
+   "state": {
+    "today": "1816-01-31",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "beat age",
+   "kind": "cond",
+   "cond": "beat_age(b) >= 10",
+   "expect": true,
+   "state": {
+    "today": "1816-06-11",
+    "flags": [],
+    "vars": {},
+    "done": [
+     "b"
+    ],
+    "doneDay": {
+     "b": "1816-06-01"
+    },
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "beat age, not yet",
+   "kind": "cond",
+   "cond": "beat_age(b) >= 11",
+   "expect": false,
+   "state": {
+    "today": "1816-06-11",
+    "flags": [],
+    "vars": {},
+    "done": [
+     "b"
+    ],
+    "doneDay": {
+     "b": "1816-06-01"
+    },
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "beat age of a beat that has not happened is huge",
+   "kind": "cond",
+   "cond": "beat_age(b) >= 1000",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "how often a beat has happened",
+   "kind": "cond",
+   "cond": "count(b) == 2",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {
+     "count:b": 2
+    },
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "convoy late, structured",
+   "kind": "cond",
+   "cond": {
+    "p": "convoy_late",
+    "a": [
+     "the York boats"
+    ]
+   },
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "late:the York boats"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "convoy late, compact",
+   "kind": "cond",
+   "cond": "convoy_late:the York boats",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "late:the York boats"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "convoy late, not",
+   "kind": "cond",
+   "cond": "convoy_late:the York boats",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "lost:the York boats"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "convoy lost",
+   "kind": "cond",
+   "cond": "convoy_lost:the York boats",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "lost:the York boats"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "convoy robbed",
+   "kind": "cond",
+   "cond": "convoy_robbed:the York boats",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "robbed:the York boats"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "convoy turned back",
+   "kind": "cond",
+   "cond": "convoy_turned_back:the York boats",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "turned:the York boats"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "convoy out",
+   "kind": "cond",
+   "cond": "convoy_out:the York boats",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "out:the York boats"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "convoy in",
+   "kind": "cond",
+   "cond": "convoy_in:the York boats",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "in:the York boats"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "chance, passes",
+   "kind": "cond",
+   "cond": "chance:30",
+   "expect": true,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 1
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "chance, fails",
+   "kind": "cond",
+   "cond": "chance:20",
+   "expect": false,
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 1
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "flag and unflag",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "flag",
+     "name": "a"
+    },
+    {
+     "do": "flag",
+     "name": "b"
+    },
+    {
+     "do": "unflag",
+     "name": "a"
+    }
+   ],
+   "expect": {
+    "flags": [
+     "b"
+    ]
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "flag name takes the count",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "flag",
+     "name": "seen-{count:b}"
+    }
+   ],
+   "expect": {
+    "flags": [
+     "seen-2"
+    ]
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {
+     "count:b": 2
+    },
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "set and add",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "set",
+     "var": "x",
+     "to": 5
+    },
+    {
+     "do": "add",
+     "var": "x",
+     "by": 2.5
+    },
+    {
+     "do": "add",
+     "var": "y"
+    }
+   ],
+   "expect": {
+    "vars": {
+     "x": 7.5,
+     "y": 1
+    }
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "add can subtract",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "add",
+     "var": "x",
+     "by": -2
+    }
+   ],
+   "expect": {
+    "vars": {
+     "x": 1
+    }
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {
+     "x": 3
+    },
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "if, then",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "if",
+     "cond": "tension>=40",
+     "then": [
+      {
+       "do": "flag",
+       "name": "hot"
+      }
+     ],
+     "else": [
+      {
+       "do": "flag",
+       "name": "cool"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "flags": [
+     "hot"
+    ]
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {
+     "tension": 50
+    },
+    "predicates": {}
+   }
+  },
+  {
+   "name": "if, else",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "if",
+     "cond": "tension>=40",
+     "then": [
+      {
+       "do": "flag",
+       "name": "hot"
+      }
+     ],
+     "else": [
+      {
+       "do": "flag",
+       "name": "cool"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "flags": [
+     "cool"
+    ]
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {
+     "tension": 10
+    },
+    "predicates": {}
+   }
+  },
+  {
+   "name": "if with no else",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "if",
+     "cond": "flag:no",
+     "then": [
+      {
+       "do": "flag",
+       "name": "x"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "flags": []
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "if, nested",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "if",
+     "cond": "flag:a",
+     "then": [
+      {
+       "do": "if",
+       "cond": "flag:b",
+       "then": [
+        {
+         "do": "flag",
+         "name": "both"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "flags": [
+     "a",
+     "b",
+     "both"
+    ]
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [
+     "a",
+     "b"
+    ],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "a world action is passed on",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "tension",
+     "add": 5,
+     "why": "Seven Oaks"
+    }
+   ],
+   "expect": {
+    "effects": [
+     {
+      "do": "tension",
+      "add": 5,
+      "why": "Seven Oaks"
+     }
+    ]
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "world action text takes variables",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "say",
+     "text": "hostility is {var:h}"
+    }
+   ],
+   "expect": {
+    "effects": [
+     {
+      "do": "say",
+      "text": "hostility is 3"
+     }
+    ]
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {
+     "h": 3
+    },
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "world action text takes counts",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "say",
+     "text": "the {count:b}nd time"
+    }
+   ],
+   "expect": {
+    "effects": [
+     {
+      "do": "say",
+      "text": "the 2nd time"
+     }
+    ]
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {
+     "count:b": 2
+    },
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "a variable can be a fraction in text",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "say",
+     "text": "{var:h}"
+    }
+   ],
+   "expect": {
+    "effects": [
+     {
+      "do": "say",
+      "text": "0.5"
+     }
+    ]
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {
+     "h": 0.5
+    },
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "after puts actions on a timer",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "after",
+     "days": 10,
+     "then": [
+      {
+       "do": "flag",
+       "name": "later"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "flags": [],
+    "timers": [
+     {
+      "on": "1816-06-29",
+      "count": 1
+     }
+    ]
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "trigger asks for a beat",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "trigger",
+     "beat": "seven-oaks"
+    }
+   ],
+   "expect": {
+    "forced": [
+     "seven-oaks"
+    ]
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "random, equal weights, low roll",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "random",
+     "options": [
+      {
+       "weight": 1,
+       "do": [
+        {
+         "do": "flag",
+         "name": "first"
+        }
+       ]
+      },
+      {
+       "weight": 1,
+       "do": [
+        {
+         "do": "flag",
+         "name": "second"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "flags": [
+     "first"
+    ],
+    "seed": 1015568748
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 1,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "random, equal weights, high roll",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "random",
+     "options": [
+      {
+       "weight": 1,
+       "do": [
+        {
+         "do": "flag",
+         "name": "first"
+        }
+       ]
+      },
+      {
+       "weight": 1,
+       "do": [
+        {
+         "do": "flag",
+         "name": "second"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "flags": [
+     "second"
+    ],
+    "seed": 2293459174
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 20240611,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "random, weighted toward the second",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "random",
+     "options": [
+      {
+       "weight": 1,
+       "do": [
+        {
+         "do": "flag",
+         "name": "first"
+        }
+       ]
+      },
+      {
+       "weight": 9,
+       "do": [
+        {
+         "do": "flag",
+         "name": "second"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "flags": [
+     "second"
+    ],
+    "seed": 1015568748
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 1,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "random, no options does nothing",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "random",
+     "options": []
+    }
+   ],
+   "expect": {
+    "flags": [],
+    "seed": 1
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 1,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "two rolls in a row use the stream",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "random",
+     "options": [
+      {
+       "weight": 1,
+       "do": [
+        {
+         "do": "flag",
+         "name": "first"
+        }
+       ]
+      },
+      {
+       "weight": 1,
+       "do": [
+        {
+         "do": "flag",
+         "name": "second"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "do": "random",
+     "options": [
+      {
+       "weight": 1,
+       "do": [
+        {
+         "do": "flag",
+         "name": "first"
+        }
+       ]
+      },
+      {
+       "weight": 1,
+       "do": [
+        {
+         "do": "flag",
+         "name": "second"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "seed": 1586005467
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 1,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "chance inside an if",
+   "kind": "run",
+   "actions": [
+    {
+     "do": "if",
+     "cond": "chance:30",
+     "then": [
+      {
+       "do": "flag",
+       "name": "yes"
+      }
+     ],
+     "else": [
+      {
+       "do": "flag",
+       "name": "no"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "flags": [
+     "yes"
+    ]
+   },
+   "state": {
+    "today": "1816-06-19",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 1,
+    "timers": []
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   }
+  },
+  {
+   "name": "a timer that is due runs; one that is not stays",
+   "kind": "due",
+   "state": {
+    "today": "1816-06-29",
+    "flags": [],
+    "vars": {},
+    "done": [],
+    "doneDay": {},
+    "seed": 1,
+    "timers": [
+     {
+      "on": "1816-06-29",
+      "actions": [
+       {
+        "do": "flag",
+        "name": "due"
+       }
+      ]
+     },
+     {
+      "on": "1816-07-01",
+      "actions": [
+       {
+        "do": "flag",
+        "name": "not-yet"
+       }
+      ]
+     }
+    ]
+   },
+   "world": {
+    "metrics": {},
+    "predicates": {}
+   },
+   "expect": {
+    "flags": [
+     "due"
+    ],
+    "timers": [
+     {
+      "on": "1816-07-01",
+      "count": 1
+     }
+    ]
+   }
+  }
+ ]
+}

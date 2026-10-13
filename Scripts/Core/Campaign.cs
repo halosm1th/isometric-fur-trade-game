@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using IsometricFurTradeGame.Scripts.Agents;
+using IsometricFurTradeGame.Scripts.Economy;
+using IsometricFurTradeGame.Scripts.Items;
 using IsometricFurTradeGame.Scripts.World;
 
 namespace IsometricFurTradeGame.Scripts.Core;
@@ -44,17 +47,21 @@ public static class Campaign
     private class Beat
     {
         public string Id, Title, Kind = "event";
-        public int Date = -1, Window = 60, LeadDays = 30, DelayDays;
-        public string[] Requires = Array.Empty<string>(), When = Array.Empty<string>(), DoneWhen = Array.Empty<string>(), Keywords = Array.Empty<string>();
-        public Godot.Collections.Array Pressure = new(), Happens = new();
+        public int Date = -1, Window = 60, LeadDays = 30, DelayDays, RepeatDays;
+        public string[] Requires = Array.Empty<string>(), Keywords = Array.Empty<string>();
+        public List<object> When = new(), DoneWhen = new(), Pressure = new(), Happens = new();
     }
 
     private static readonly List<Beat> _beats = new();
     private static bool _postsByYear;
-    private static readonly HashSet<string> _flags = new();
+    // The language's own memory (flags, variables, what is done, timers, the roll's seed): Core/CampaignLogic.cs.
+    private static readonly CampaignState _st = new();
+    private static readonly GodotWorld _world = new();
+    private static HashSet<string> _flags => _st.Flags;
+    private static HashSet<string> _done => _st.Done;
     private static readonly HashSet<string> _pressured = new();
-    private static readonly HashSet<string> _done = new();
     private static readonly Dictionary<string, int> _readySince = new();
+    private static readonly Dictionary<string, int> _shift = new(), _cooldown = new();   // a repeating beat's date moves on; a conditional one waits
     private static readonly HashSet<string> _founded = new();
     private static readonly List<(int Day, Godot.Collections.Dictionary News)> _inTransit = new();
     public static readonly List<string> Log = new();
@@ -143,6 +150,7 @@ public static class Campaign
         if (d == null) { GD.PushWarning($"[campaign] no script '{Id}' - running with none"); Id = "none"; return; }
         Title = Str(d, "title", Id); Description = Str(d, "description", "");
         _postsByYear = d.TryGetValue("posts_by_founding_year", out var pby) && pby.AsBool();
+        if (d.TryGetValue("seed", out var sd)) _st.Seed = (uint)sd.AsInt64();
         if (!d.TryGetValue("beats", out var bs)) return;
         foreach (var bv in bs.AsGodotArray())
         {
@@ -154,11 +162,62 @@ public static class Campaign
                 Window = b.TryGetValue("window_days", out var w) ? w.AsInt32() : 60,
                 LeadDays = b.TryGetValue("lead_days", out var l) ? l.AsInt32() : 30,
                 DelayDays = b.TryGetValue("delay_days", out var dl) ? dl.AsInt32() : 0,
-                Requires = Strings(b, "requires"), When = Strings(b, "when"), DoneWhen = Strings(b, "done_when"), Keywords = Strings(b, "keywords"),
-                Pressure = b.TryGetValue("pressure", out var p) ? p.AsGodotArray() : new(),
-                Happens = b.TryGetValue("happens", out var h) ? h.AsGodotArray() : new(),
+                RepeatDays = b.TryGetValue("repeat_days", out var rp) ? rp.AsInt32() : 0,
+                Requires = Strings(b, "requires"), Keywords = Strings(b, "keywords"),
+                When = ListOf(b, "when"), DoneWhen = ListOf(b, "done_when"), Pressure = ListOf(b, "pressure"), Happens = ListOf(b, "happens"),
             };
+            Defaults(beat.Pressure, beat); Defaults(beat.Happens, beat);
             _beats.Add(beat);
+        }
+    }
+
+    // ---- the script as plain data -------------------------------------------------
+
+    private static object ToTree(Variant v) => v.VariantType switch
+    {
+        Variant.Type.Dictionary => ToDict(v.AsGodotDictionary()),
+        Variant.Type.Array => ToList(v.AsGodotArray()),
+        Variant.Type.String or Variant.Type.StringName => v.AsString(),
+        Variant.Type.Bool => v.AsBool(),
+        Variant.Type.Int or Variant.Type.Float => v.AsDouble(),
+        _ => null,
+    };
+    private static Dictionary<string, object> ToDict(Godot.Collections.Dictionary d)
+    {
+        var r = new Dictionary<string, object>();
+        foreach (var kv in d) r[kv.Key.AsString()] = ToTree(kv.Value);
+        return r;
+    }
+    private static List<object> ToList(Godot.Collections.Array a)
+    {
+        var r = new List<object>();
+        foreach (var v in a) r.Add(ToTree(v));
+        return r;
+    }
+    // A field that may be one thing or a list of them (a condition, an action).
+    private static List<object> ListOf(Godot.Collections.Dictionary d, string key)
+    {
+        if (!d.TryGetValue(key, out var v)) return new List<object>();
+        return ToTree(v) is List<object> l ? l : new List<object> { ToTree(v) };
+    }
+
+    // What a bare action took from its beat before there were conditionals:
+    // a flag with no name is the beat's own, a tension with no reason is its title,
+    // and a news letter remembers which beat sent it.
+    private static void Defaults(object actions, Beat b)
+    {
+        if (actions is Dictionary<string, object> one) actions = new List<object> { one };
+        if (actions is not List<object> list) return;
+        foreach (var o in list)
+        {
+            if (o is not Dictionary<string, object> a) continue;
+            string act = a.TryGetValue("do", out var n) ? CampaignLogic.Str(n) : "";
+            a["_beat"] = b.Id;
+            if (act is "flag" or "unflag" && !a.ContainsKey("name")) a["name"] = b.Id;
+            if (act == "tension" && !a.ContainsKey("why")) a["why"] = b.Title;
+            if (act == "news" && !a.ContainsKey("subject")) a["subject"] = b.Title;
+            Defaults(a.GetValueOrDefault("then"), b); Defaults(a.GetValueOrDefault("else"), b); Defaults(a.GetValueOrDefault("do"), b);
+            if (a.GetValueOrDefault("options") is List<object> opts) foreach (var op in opts) if (op is Dictionary<string, object> od) Defaults(od.GetValueOrDefault("do"), b);
         }
     }
 
@@ -180,18 +239,19 @@ public static class Campaign
         // A later start: what was dated before it is history already. Its
         // flags hold, but nobody is sent news of it or pushed toward it.
         int today = cal == null ? 0 : DayOf(cal.Year, cal.Month, cal.Day);
+        _st.Today = today;
         foreach (var b in _beats)
         {
-            if (b.Date < 0 || b.Date >= today || !All(b.Requires, r => _done.Contains(r) || _flags.Contains(r))) continue;
-            foreach (var av in b.Happens)
+            if (b.Date < 0 || b.Date >= today || b.RepeatDays > 0 || !All(b.Requires, r => _done.Contains(r) || _flags.Contains(r))) continue;
+            foreach (var o in b.Happens)
             {
-                var a = av.AsGodotDictionary();
-                string act = Str(a, "do", "");
-                if (act == "flag") _flags.Add(Str(a, "name", b.Id));
-                else if (act == "unflag") _flags.Remove(Str(a, "name", b.Id));
-                else if (act == "found_post") _founded.Add(Str(a, "place", ""));
+                if (o is not Dictionary<string, object> a) continue;
+                string act = a.TryGetValue("do", out var n) ? CampaignLogic.Str(n) : "";
+                if (act == "flag") _flags.Add(CampaignLogic.Str(a["name"]));
+                else if (act == "unflag") _flags.Remove(CampaignLogic.Str(a["name"]));
+                else if (act == "found_post") _founded.Add(a.TryGetValue("place", out var pl) ? CampaignLogic.Str(pl) : "");
             }
-            _done.Add(b.Id); _flags.Add(b.Id);
+            _done.Add(b.Id); _flags.Add(b.Id); _st.DoneDay[b.Id] = b.Date;
         }
         GD.Print($"[campaign] {Title} ({Level}); {_beats.Count} beats");
     }
@@ -200,8 +260,13 @@ public static class Campaign
     {
         _begun = false;
         _flags.Clear(); _pressured.Clear(); _done.Clear(); _readySince.Clear(); _founded.Clear(); _inTransit.Clear(); Log.Clear();
+        _st.Vars.Clear(); _st.DoneDay.Clear(); _st.Timers.Clear(); _st.Forced.Clear(); _st.Seed = 20240611;
+        _shift.Clear(); _cooldown.Clear();
         _lastDay = int.MinValue;
     }
+
+    // The script's own date for a beat, moved on by however often it has come round.
+    private static int DateOfBeat(Beat b) => b.Date < 0 ? -1 : b.Date + _shift.GetValueOrDefault(b.Id);
 
     // Once a game day, on the server.
     public static void Tick()
@@ -212,35 +277,55 @@ public static class Campaign
         int today = DayOf(cal.Year, cal.Month, cal.Day);
         if (today == _lastDay) return;
         _lastDay = today;
+        _st.Today = today;
 
         if (_postsByYear && cal.Month == 1 && cal.Day == 1)
             foreach (var p in WorldMap.Places)
                 if (p.Kind == "post" && p.Year == cal.Year && p.Year > StartYear && _founded.Add(p.Name))
                 { Note($"{p.Name} is founded ({p.Company})."); World.Posts.Sync(true); }
 
+        // What an action asked to happen some days on.
+        foreach (var due in CampaignLogic.Due(_st)) CampaignLogic.Run(due, _st, _world);
+
         foreach (var b in _beats)
         {
             if (_done.Contains(b.Id)) continue;
-            if (!All(b.Requires, r => _done.Contains(r) || _flags.Contains(r)) || !All(b.When, Holds)) continue;
+            if (_cooldown.TryGetValue(b.Id, out int resting) && today < resting) continue;
+            if (!All(b.Requires, r => _done.Contains(r) || _flags.Contains(r)) || !CampaignLogic.All(b.When, _st, _world)) continue;
             if (!_readySince.ContainsKey(b.Id)) _readySince[b.Id] = today;
             // The world got there by itself.
-            if (b.DoneWhen.Length > 0 && All(b.DoneWhen, Holds)) { Finish(b, false); continue; }
-            int due = b.Date >= 0 ? b.Date : _readySince[b.Id] + b.DelayDays;
+            if (b.DoneWhen.Count > 0 && CampaignLogic.All(b.DoneWhen, _st, _world)) { Finish(b, false); continue; }
+            int date = DateOfBeat(b);
+            int due = date >= 0 ? date : _readySince[b.Id] + b.DelayDays;
             if (today < due - b.LeadDays) continue;
 
-            if (Level >= Adherence.Steady && _pressured.Add(b.Id)) Run(b, b.Pressure);
+            if (Level >= Adherence.Steady && _pressured.Add(b.Id)) Run(b.Pressure);
             if (today < due) continue;
             switch (b.Kind)
             {
                 // Outside anyone's reach (design doc 4.4): the blockade, the
                 // colony's founding, Selkirk's answer to a governor's killing.
-                case "fixed" or "conditional": Run(b, b.Happens); Finish(b, false); break;
+                case "fixed" or "conditional": Run(b.Happens); Finish(b, false); break;
                 case "pressure": if (Level == Adherence.Gentle || _pressured.Contains(b.Id)) Finish(b, false); break;
                 default:
                     int grace = Mathf.Max(b.Window, 1);
                     bool force = Level == Adherence.Strict && today >= due + grace || Level == Adherence.Firm && today >= due + 2 * grace;
-                    if (force) { Run(b, b.Happens); Finish(b, true); }
+                    if (force) { Run(b.Happens); Finish(b, true); }
                     break;
+            }
+        }
+
+        // Beats an action called for by name happen now, whatever their date.
+        for (int guard = 0; _st.Forced.Count > 0 && guard < 20; guard++)
+        {
+            var ids = new List<string>(_st.Forced);
+            _st.Forced.Clear();
+            foreach (var id in ids)
+            {
+                var fb = _beats.Find(x => x.Id == id);
+                if (fb == null) { GD.PushWarning($"[campaign] trigger: no beat '{id}'"); continue; }
+                if (_done.Contains(id)) continue;
+                Run(fb.Happens); Finish(fb, true);
             }
         }
 
@@ -259,7 +344,17 @@ public static class Campaign
     {
         _done.Add(b.Id);
         _flags.Add(b.Id);
+        _st.DoneDay[b.Id] = _st.Today;
+        _st.Vars["count:" + b.Id] = _st.Vars.GetValueOrDefault("count:" + b.Id) + 1;
         Note(forced ? $"[forced] {b.Title}" : $"{b.Title}");
+        // A beat that comes round again: undone now, with its date (or its
+        // waiting) moved on, so it can happen next year as well.
+        if (b.RepeatDays > 0)
+        {
+            _done.Remove(b.Id); _pressured.Remove(b.Id); _readySince.Remove(b.Id);
+            if (b.Date >= 0) _shift[b.Id] = _shift.GetValueOrDefault(b.Id) + b.RepeatDays;
+            else _cooldown[b.Id] = _st.Today + b.RepeatDays;
+        }
     }
 
     private static void Note(string text)
@@ -271,36 +366,93 @@ public static class Campaign
 
     // ---- actions ------------------------------------------------------------------
 
-    private static void Run(Beat b, Godot.Collections.Array actions)
+    private static void Run(List<object> actions) => CampaignLogic.Run(actions, _st, _world);
+
+    // What the game does for the actions the language does not own, and the
+    // facts and numbers it answers conditions with.
+    private sealed class GodotWorld : ICampaignWorld
     {
-        foreach (var av in actions)
+        public double Metric(string name, string[] a)
         {
-            var a = av.AsGodotDictionary();
-            switch (Str(a, "do", ""))
+            string arg = a.Length > 0 ? a[0] : "";
+            switch (name)
             {
-                case "flag": _flags.Add(Str(a, "name", b.Id)); break;
-                case "unflag": _flags.Remove(Str(a, "name", b.Id)); break;
-                case "tension": Economy.Rivalry.Raise((float)Num(a, "add", 0), Str(a, "why", b.Title)); break;
+                case "tension": return Economy.Rivalry.Tension;
+                case "standing": return (Sim.Player as Player.PlayerController)?.Standing ?? 0;
+                case "stock": return a.Length > 1 && Convoys.Ledger(arg) is { } led && Enum.TryParse<ItemId>(a[1], out var id) ? led.Stores.Count(id) : double.NaN;
+                case "furs": return Convoys.Ledger(arg)?.FursInStoreMb ?? double.NaN;
+                case "convoys_active": { int n = 0; foreach (var c in Convoys.All) if (c.Now != ConvoyState.Arrived) n++; return n; }
+                case "convoy_days_late": return Convoys.Find(arg) is { } cv ? Math.Max(0, _st.Today - cv.DueDay) : 0;
+                case "convoy_days_out": return Convoys.Find(arg)?.DaysOut ?? 0;
+            }
+            GD.PushWarning($"[campaign] unknown number '{name}'");
+            return double.NaN;
+        }
+
+        public bool Predicate(string name, string[] a)
+        {
+            string arg = a.Length > 0 ? a[0] : "";
+            switch (name)
+            {
+                case "post": return PostExists(arg);
+                case "dead": foreach (var n in Sim.Npcs) if (n.DisplayName == arg) return n.IsDead; return false;
+                case "player_faction": return Sim.Players().Any(p => p.Faction.ToString().Equals(arg, StringComparison.OrdinalIgnoreCase));
+                case "season": return GameCalendar.Instance?.CurrentSeason.ToString().Equals(arg, StringComparison.OrdinalIgnoreCase) ?? false;
+                case "convoy_wintering": return Convoys.Find(arg)?.Now == ConvoyState.Wintering;
+            }
+            GD.PushWarning($"[campaign] unknown condition '{name}'");
+            return false;
+        }
+
+        private static string S(Dictionary<string, object> a, string k, string def = "") => a.TryGetValue(k, out var v) ? CampaignLogic.Str(v) : def;
+        private static double N(Dictionary<string, object> a, string k, double def = 0) => a.TryGetValue(k, out var v) ? CampaignLogic.Num(v) : def;
+
+        public void Effect(string name, Dictionary<string, object> a)
+        {
+            string beat = S(a, "_beat");
+            switch (name)
+            {
+                case "tension": Economy.Rivalry.Raise((float)N(a, "add"), S(a, "why", beat)); break;
                 case "london":
                     if (Sim.Fort != null)
                     {
-                        Sim.Fort.LondonIncentiveNext = Mathf.Clamp(Sim.Fort.LondonIncentiveNext * (float)Num(a, "price", 1), 0.3f, 3f);
-                        Sim.Fort.QuotaNextMb = Mathf.Clamp(Sim.Fort.QuotaNextMb * (float)Num(a, "quota", 1), 10f, 400f);
+                        Sim.Fort.LondonIncentiveNext = Mathf.Clamp(Sim.Fort.LondonIncentiveNext * (float)N(a, "price", 1), 0.3f, 3f);
+                        Sim.Fort.QuotaNextMb = Mathf.Clamp(Sim.Fort.QuotaNextMb * (float)N(a, "quota", 1), 10f, 400f);
                     }
                     break;
-                case "found_post": if (_founded.Add(Str(a, "place", ""))) { Note($"{Str(a, "place", "")} is founded."); World.Posts.Sync(true); } break;
+                case "found_post": if (_founded.Add(S(a, "place"))) { Note($"{S(a, "place")} is founded."); World.Posts.Sync(true); } break;
                 case "news":
                     var news = new Godot.Collections.Dictionary
                     {
-                        ["from"] = Str(a, "from", "Montreal"), ["to"] = Str(a, "to", "the Factor at York Factory"),
-                        ["subject"] = Str(a, "subject", b.Title), ["text"] = Str(a, "text", ""), ["company"] = Str(a, "company", "HBC"),
-                        ["beat"] = b.Id,
+                        ["from"] = S(a, "from", "Montreal"), ["to"] = S(a, "to", "the Factor at York Factory"),
+                        ["subject"] = S(a, "subject", beat), ["text"] = S(a, "text"), ["company"] = S(a, "company", "HBC"),
+                        ["beat"] = beat,
                     };
-                    _inTransit.Add((DayOf(GameCalendar.Instance.Year, GameCalendar.Instance.Month, GameCalendar.Instance.Day) + (int)Num(a, "days", 30), news));
+                    _inTransit.Add((_st.Today + (int)N(a, "days", 30), news));
                     break;
-                // A beat acts on a brigade on the road (World/Convoys.cs): effect is "delay", "turn_back" or "lose".
-                case "brigade": World.Convoys.Affect(Str(a, "run", ""), Str(a, "effect", "delay"), (int)Num(a, "days", 5)); break;
-                default: GD.PushWarning($"[campaign] {b.Id}: unknown action '{Str(a, "do", "")}'"); break;
+                // A beat acts on a brigade on the road (World/Convoys.cs): effect is
+                // "delay", "turn_back", "lose", "cancel" (the cargo goes home) or "launch" (a leg now; leg = its number).
+                case "brigade": Convoys.Affect(S(a, "run"), S(a, "effect", "delay"), (int)N(a, "days", 5), (int)N(a, "leg", 0)); break;
+                // A post's shelves: add (or take, if negative) so many of an item.
+                case "stock":
+                    if (Convoys.Ledger(S(a, "post")) is { } led && Enum.TryParse<ItemId>(S(a, "item"), out var id))
+                    {
+                        int n = (int)N(a, "add");
+                        if (n > 0) led.Stores.Add(id, n); else if (n < 0) led.Stores.TakeUpTo(id, -n);
+                    }
+                    else GD.PushWarning($"[campaign] {beat}: stock needs a standing post and an item, got '{S(a, "post")}' '{S(a, "item")}'");
+                    break;
+                // A line for the players of one company (or all): their journal, their screen, and the headline if asked.
+                case "say":
+                    string text = S(a, "text"), to = S(a, "to", "all");
+                    foreach (var p in Sim.Players())
+                    {
+                        if (to != "all" && !p.Faction.ToString().Equals(to, StringComparison.OrdinalIgnoreCase)) continue;
+                        p.Journal.Add($"{GameCalendar.Instance?.DateString}: {text}"); p.Say(text);
+                    }
+                    if (a.TryGetValue("headline", out var hl) && hl is true) Sim.Headline(text);
+                    break;
+                default: GD.PushWarning($"[campaign] {beat}: unknown action '{name}'"); break;
             }
         }
     }
@@ -320,28 +472,6 @@ public static class Campaign
     public static void Flag(string name) { if (Net.Net.IsServer) _flags.Add(name); }
     public static void Unflag(string name) { if (Net.Net.IsServer) _flags.Remove(name); }
     public static bool Has(string name) => _flags.Contains(name);
-
-    private static bool Holds(string c)
-    {
-        c = c.Trim();
-        if (c.StartsWith("!")) return !Holds(c[1..]);
-        int colon = c.IndexOf(':');
-        string key = colon < 0 ? c : c[..colon], val = colon < 0 ? "" : c[(colon + 1)..];
-        var cal = GameCalendar.Instance;
-        int today = cal == null ? 0 : DayOf(cal.Year, cal.Month, cal.Day);
-        switch (key)
-        {
-            case "flag": return _flags.Contains(val);
-            case "beat": return _done.Contains(val);
-            case "post": return PostExists(val);
-            case "after": return today >= DayOf(val);
-            case "before": return today < DayOf(val);
-            case "dead": foreach (var n in Sim.Npcs) if (n.DisplayName == val) return n.IsDead; return false;
-        }
-        if (c.StartsWith("tension>=") && float.TryParse(c[9..], out float t1)) return Economy.Rivalry.Tension >= t1;
-        if (c.StartsWith("tension<") && float.TryParse(c[8..], out float t2)) return Economy.Rivalry.Tension < t2;
-        return _flags.Contains(c);
-    }
 
     // Does a post stand yet (design doc 6.1: only once the timeline reaches it)?
     public static bool PostExists(string name)
@@ -370,6 +500,39 @@ public static class Campaign
 
     // ---- save ------------------------------------------------------------------------
 
+    private static Godot.Collections.Dictionary Vars()
+    {
+        var d = new Godot.Collections.Dictionary();
+        foreach (var kv in _st.Vars) d[kv.Key] = kv.Value;
+        return d;
+    }
+    private static Godot.Collections.Dictionary Ints(Dictionary<string, int> src)
+    {
+        var d = new Godot.Collections.Dictionary();
+        foreach (var kv in src) d[kv.Key] = kv.Value;
+        return d;
+    }
+    // Pending timers: their actions are plain data, so they go out as JSON text.
+    private static Godot.Collections.Array Timers()
+    {
+        var a = new Godot.Collections.Array();
+        foreach (var t in _st.Timers) a.Add(new Godot.Collections.Dictionary { ["day"] = t.Day, ["json"] = Json.Stringify(ToVariant(t.Actions)) });
+        return a;
+    }
+    private static Variant ToVariant(object o)
+    {
+        switch (o)
+        {
+            case null: return default;
+            case string s: return s;
+            case bool b: return b;
+            case double d: return d;
+            case List<object> l: { var a = new Godot.Collections.Array(); foreach (var x in l) a.Add(ToVariant(x)); return a; }
+            case Dictionary<string, object> m: { var d = new Godot.Collections.Dictionary(); foreach (var kv in m) d[kv.Key] = ToVariant(kv.Value); return d; }
+        }
+        return default;
+    }
+
     public static Godot.Collections.Dictionary Save()
     {
         var transit = new Godot.Collections.Array();
@@ -379,6 +542,8 @@ public static class Campaign
             ["id"] = Id, ["level"] = (int)Level, ["start"] = StartYear,
             ["flags"] = Arr(_flags), ["pressured"] = Arr(_pressured), ["done"] = Arr(_done), ["founded"] = Arr(_founded),
             ["transit"] = transit, ["log"] = Arr(Log),
+            ["vars"] = Vars(), ["doneDay"] = Ints(_st.DoneDay), ["shift"] = Ints(_shift), ["cooldown"] = Ints(_cooldown),
+            ["timers"] = Timers(), ["seed"] = (long)_st.Seed, ["forced"] = Arr(_st.Forced),
         };
     }
 
@@ -395,6 +560,18 @@ public static class Campaign
         if (d.TryGetValue("transit", out var tr))
             foreach (var x in tr.AsGodotArray()) { var e = x.AsGodotDictionary(); _inTransit.Add((e["day"].AsInt32(), e["news"].AsGodotDictionary())); }
         if (d.TryGetValue("log", out var lg)) foreach (var x in lg.AsGodotArray()) Log.Add(x.AsString());
+        if (d.TryGetValue("vars", out var vs)) foreach (var kv in vs.AsGodotDictionary()) _st.Vars[kv.Key.AsString()] = kv.Value.AsDouble();
+        foreach (var (key, into) in new[] { ("doneDay", _st.DoneDay), ("shift", _shift), ("cooldown", _cooldown) })
+            if (d.TryGetValue(key, out var iv)) foreach (var kv in iv.AsGodotDictionary()) into[kv.Key.AsString()] = kv.Value.AsInt32();
+        if (d.TryGetValue("seed", out var sd)) _st.Seed = (uint)sd.AsInt64();
+        if (d.TryGetValue("forced", out var fc)) foreach (var x in fc.AsGodotArray()) _st.Forced.Add(x.AsString());
+        if (d.TryGetValue("timers", out var tm))
+            foreach (var x in tm.AsGodotArray())
+            {
+                var t = x.AsGodotDictionary();
+                var actions = ToTree(Json.ParseString(t["json"].AsString())) as List<object> ?? new List<object>();
+                _st.Timers.Add(new CampaignTimer { Day = t["day"].AsInt32(), Actions = actions });
+            }
         GD.Print($"[campaign] restored {Title} ({Level}): {_done.Count}/{_beats.Count} beats past, {_inTransit.Count} letters on the way");
     }
 
