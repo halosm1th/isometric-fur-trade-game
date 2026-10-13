@@ -43,7 +43,7 @@ public partial class JournalPanel : Control
         _packRows = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         _packRows.AddThemeConstantOverride("separation", 2);
         _pack.GetParent().AddChild(_packRows);
-        // The pack tab is two stacked parts: the summary text, then the rows.
+        // The pack tab is two stacked parts: the summary text, then the slot grid.
         var packScroll = _pack.GetParent() as ScrollContainer;
         if (packScroll != null)
         {
@@ -196,7 +196,7 @@ public partial class JournalPanel : Control
         while (_gridSlots.Count < want)
         {
             int idx = _gridSlots.Count;
-            var slot = new InventorySlot { Index = idx, Hotbar = idx < Hotbar.Slots };
+            var slot = new InventorySlot { Index = idx, Hotbar = idx < Hotbar.Slots, CustomMinimumSize = new Vector2(46, 46) };
             if (idx < Hotbar.Slots) slot.LeftClicked += i => Hotbar.SelectSlot(i);
             _grid.AddChild(slot); _gridSlots.Add(slot);
         }
