@@ -17,10 +17,10 @@ There are **four skills**, each a number from 0 to 1, and they are the same skil
 |---|---|---|
 | **Hunting** | +0.01 each time you fire a ranged weapon (musket or bow) | Shrinks your chance to miss: the range-based miss chance is multiplied by (1 - 0.55 x skill). Also helps hares/fish for NPCs. |
 | **Trapping** | +0.02 each time you set a line of traps | Each trap's overnight catch chance is multiplied by (0.6 + 0.8 x skill): 0.72 at the default 0.15, 1.4 at full skill. |
-| **Trade** | +0.012 per barter deal | Widens your margin by 0.08 x skill, raises the chance a haggle works (0.42 + 0.4 x skill), and lets you read how sharp an NPC's price is at 0.35+ ("passable") and 0.6+. See [[Trading and Barter]]. |
+| **Trade** | +0.012 per barter deal | Widens your margin by 0.08 x skill, raises the chance a haggle works (0.42 + 0.4 x skill), and a sharper trader notices more *tells* at the counter (a thin-looking camp, a rival's guns) from Trade 0.35 and again from 0.6, or from high rapport. See [[Trading and Barter]]. |
 | **Woodcraft** | +0.02 per tree felled | At 0.5 or more an axe yields **6 firewood** per tree instead of 4 and swings faster (0.8 s instead of 1.2 s). |
 
-Skills are saved with the player and, when you die, your heir inherits the better of the two hunting and trapping values ([[Heirs and Succession]]).
+Skills are saved with the player. After a death, if your heir was already a person in the world (a son, a wife's brother), your Hunting and Trapping become the better of yours and his ([[Heirs and Succession]]).
 
 ## Reading your skills
 
