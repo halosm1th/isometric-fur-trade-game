@@ -11,14 +11,18 @@ status: implemented
 
 The player has **four bars**, shown bottom-left, each from 0 to 100 where 100 is fully satisfied. They drain in *game hours*, so the same code that ticks you every frame ticks an NPC once a day. There is no separate sleep or fatigue bar in the simulation (a "fatigue" icon exists in the art folder but is not wired to any mechanic).
 
-| Bar | Icon | Colour | Starts | What drains it |
-|---|---|---|---|---|
-| **Health** | ![[ui-need-health.png\|28]] | red | 100 | Damage from blows, fire, starvation, thirst, freezing, fever, scurvy |
-| **Warmth** | ![[ui-need-warmth.png\|28]] | orange | 100 | Cold exposure beyond what your clothing and fire offset |
-| **Food** | ![[ui-need-food.png\|28]] | green | 100 | Hunger, scaled by activity |
-| **Water** | ![[ui-need-water.png\|28]] | blue | 100 | Thirst, a steady 1.8 an hour |
+![[ui-need-health.png|36]] ![[ui-need-warmth.png|36]] ![[ui-need-food.png|36]] ![[ui-need-water.png|36]]
 
-Other status icons exist for conditions that show on the HUD: ![[ui-need-cold.png|24]] cold, ![[ui-need-fever.png|24]] fever, ![[ui-need-scurvy.png|24]] scurvy, ![[ui-need-drunk.png|24]] drunk, ![[ui-need-wounded.png|24]] wounded, ![[ui-need-load.png|24]] load, ![[ui-need-standing.png|24]] standing and ![[ui-need-fatigue.png|24]] fatigue. In the current build the HUD prints most of these as text in the line under the bars (`Indoors  Load 62/90 lb  |  Trade musket  |  FEVER`).
+*Health, Warmth, Food and Water, in HUD order.*
+
+| Bar | Colour | Starts | What drains it |
+|---|---|---|---|
+| **Health** | red | 100 | Damage from blows, fire, starvation, thirst, freezing, fever, scurvy |
+| **Warmth** | orange | 100 | Cold exposure beyond what your clothing and fire offset |
+| **Food** | green | 100 | Hunger, scaled by activity |
+| **Water** | blue | 100 | Thirst, a steady 1.8 an hour |
+
+The art set also holds icons for further conditions (the four bars above are the only ones the HUD draws as icons): ![[ui-need-cold.png|24]] cold, ![[ui-need-fever.png|24]] fever, ![[ui-need-scurvy.png|24]] scurvy, ![[ui-need-drunk.png|24]] drunk, ![[ui-need-wounded.png|24]] wounded, ![[ui-need-load.png|24]] load, ![[ui-need-standing.png|24]] standing and ![[ui-need-fatigue.png|24]] fatigue. In the current build those conditions are printed as text in the line under the bars (`Indoors  Load 62/90 lb  |  Trade musket  |  FEVER`).
 
 ## Rates
 
