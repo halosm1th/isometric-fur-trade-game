@@ -406,6 +406,7 @@ public static class Campaign
             ["transit"] = transit, ["log"] = Arr(Log),
             ["vars"] = Vars(), ["doneDay"] = Ints(_st.DoneDay), ["shift"] = Ints(_shift), ["cooldown"] = Ints(_cooldown),
             ["timers"] = Timers(), ["seed"] = (long)_st.Seed, ["forced"] = Arr(_st.Forced),
+            ["awakened"] = Arr(_runner.Awakened), ["cancelled"] = Arr(_runner.Cancelled), ["readySince"] = Ints(_runner.ReadySince),
         };
     }
 
@@ -427,6 +428,9 @@ public static class Campaign
             if (d.TryGetValue(key, out var iv)) foreach (var kv in iv.AsGodotDictionary()) into[kv.Key.AsString()] = kv.Value.AsInt32();
         if (d.TryGetValue("seed", out var sd)) _st.Seed = (uint)sd.AsInt64();
         if (d.TryGetValue("forced", out var fc)) foreach (var x in fc.AsGodotArray()) _st.Forced.Add(x.AsString());
+        foreach (var (key, into) in new[] { ("awakened", _runner.Awakened), ("cancelled", _runner.Cancelled) })
+            if (d.TryGetValue(key, out var av)) foreach (var x in av.AsGodotArray()) into.Add(x.AsString());
+        if (d.TryGetValue("readySince", out var rs)) foreach (var kv in rs.AsGodotDictionary()) _runner.ReadySince[kv.Key.AsString()] = kv.Value.AsInt32();
         if (d.TryGetValue("timers", out var tm))
             foreach (var x in tm.AsGodotArray())
             {

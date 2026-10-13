@@ -21,7 +21,11 @@ public sealed class CampaignBeat
 	public string Id = "", Title = "", Kind = "event";
 	public int Date = -1, Window = 60, LeadDays = 30, DelayDays, RepeatDays;
 	public string[] Requires = Array.Empty<string>(), Keywords = Array.Empty<string>();
+	// The lifecycle (see docs/wiki/Beats-and-the-Lifecycle.md):
+	//   When = AwakenWhen, OnAwaken, Pressure = OnApproach, ActivateWhen, Happens = OnActivate,
+	//   DoneWhen = ResolveWhen, OnResolve, CancelWhen, OnCancel
 	public List<object> When = new(), DoneWhen = new(), Pressure = new(), Happens = new();
+	public List<object> OnAwaken = new(), ActivateWhen = new(), OnResolve = new(), CancelWhen = new(), OnCancel = new();
 }
 
 // A campaign script read into plain data: the beats, and what the file said
@@ -32,6 +36,7 @@ public sealed class CampaignScript
 	public string Title = "", Description = "";
 	public bool PostsByFoundingYear;
 	public uint? Seed;
+	public readonly Dictionary<string, double> InitialVars = new();   // variables that start at something other than 0
 	public readonly List<CampaignBeat> Beats = new();
 
 	public static CampaignScript Parse(Dictionary<string, object> root, string fallbackTitle = "")
@@ -42,6 +47,7 @@ public sealed class CampaignScript
 			PostsByFoundingYear = root.TryGetValue("posts_by_founding_year", out var pby) && pby is true,
 		};
 		if (root.TryGetValue("seed", out var sd)) s.Seed = (uint)(long)CampaignLogic.Num(sd);
+		if (root.GetValueOrDefault("vars") is Dictionary<string, object> vars) foreach (var kv in vars) s.InitialVars[kv.Key] = CampaignLogic.Num(kv.Value);
 		if (root.GetValueOrDefault("beats") is not List<object> beats) return s;
 		foreach (var bo in beats)
 		{
@@ -53,8 +59,10 @@ public sealed class CampaignScript
 				Window = Int(b, "window_days", 60), LeadDays = Int(b, "lead_days", 30), DelayDays = Int(b, "delay_days", 0), RepeatDays = Int(b, "repeat_days", 0),
 				Requires = Strings(b, "requires"), Keywords = Strings(b, "keywords"),
 				When = ListOf(b, "when"), DoneWhen = ListOf(b, "done_when"), Pressure = ListOf(b, "pressure"), Happens = ListOf(b, "happens"),
+				OnAwaken = ListOf(b, "on_awaken"), ActivateWhen = ListOf(b, "activate_when"), OnResolve = ListOf(b, "on_resolve"),
+				CancelWhen = ListOf(b, "cancel_when"), OnCancel = ListOf(b, "on_cancel"),
 			};
-			Defaults(beat.Pressure, beat); Defaults(beat.Happens, beat);
+			foreach (var effects in new[] { beat.Pressure, beat.Happens, beat.OnAwaken, beat.OnResolve, beat.OnCancel }) Defaults(effects, beat);
 			s.Beats.Add(beat);
 		}
 		return s;
@@ -114,6 +122,7 @@ public sealed class CampaignRunner
 	public Adherence Level = Adherence.Steady;
 	public readonly CampaignState State = new();
 	public readonly HashSet<string> Pressured = new();
+	public readonly HashSet<string> Awakened = new(), Cancelled = new();
 	public readonly Dictionary<string, int> ReadySince = new();
 	public readonly Dictionary<string, int> Shift = new(), Cooldown = new();   // a repeating beat's date moves on; a conditional one waits
 	public readonly List<FiredBeat> Fired = new();
@@ -123,7 +132,7 @@ public sealed class CampaignRunner
 	{
 		State.Flags.Clear(); State.Done.Clear(); State.Vars.Clear(); State.DoneDay.Clear(); State.Timers.Clear(); State.Forced.Clear();
 		State.Seed = 20240611;
-		Pressured.Clear(); ReadySince.Clear(); Shift.Clear(); Cooldown.Clear(); Fired.Clear(); History.Clear();
+		Pressured.Clear(); Awakened.Clear(); Cancelled.Clear(); ReadySince.Clear(); Shift.Clear(); Cooldown.Clear(); Fired.Clear(); History.Clear();
 	}
 
 	public void Load(CampaignScript script)
@@ -139,6 +148,7 @@ public sealed class CampaignRunner
 	public void Begin(int today, ICampaignHost host)
 	{
 		State.Today = today;
+		foreach (var kv in Script.InitialVars) if (!State.Vars.ContainsKey(kv.Key)) State.Vars[kv.Key] = kv.Value;
 		foreach (var b in Script.Beats)
 		{
 			if (b.Date < 0 || b.Date >= today || b.RepeatDays > 0 || !Ready(b)) continue;
@@ -170,12 +180,29 @@ public sealed class CampaignRunner
 
 		foreach (var b in Script.Beats)
 		{
-			if (State.Done.Contains(b.Id)) continue;
+			if (State.Done.Contains(b.Id) || Cancelled.Contains(b.Id)) continue;
 			if (Cooldown.TryGetValue(b.Id, out int resting) && today < resting) continue;
+			// It can never happen now.
+			if (b.CancelWhen.Count > 0 && CampaignLogic.All(b.CancelWhen, State, host))
+			{
+				Cancelled.Add(b.Id);
+				CampaignLogic.Run(b.OnCancel, State, host);
+				host.Note($"[cancelled] {b.Title}");
+				continue;
+			}
 			if (!Ready(b) || !CampaignLogic.All(b.When, State, host)) continue;
-			if (!ReadySince.ContainsKey(b.Id)) ReadySince[b.Id] = today;
+			if (!ReadySince.ContainsKey(b.Id))
+			{
+				ReadySince[b.Id] = today;
+				if (Awakened.Add(b.Id)) CampaignLogic.Run(b.OnAwaken, State, host);   // the moment it wakes
+			}
 			// The world got there by itself.
-			if (b.DoneWhen.Count > 0 && CampaignLogic.All(b.DoneWhen, State, host)) { Finish(b, "by the world", false, host); continue; }
+			if (b.DoneWhen.Count > 0 && CampaignLogic.All(b.DoneWhen, State, host))
+			{
+				CampaignLogic.Run(b.OnResolve, State, host);
+				Finish(b, "by the world", false, host);
+				continue;
+			}
 			int when = DateOfBeat(b);
 			int due = when >= 0 ? when : ReadySince[b.Id] + b.DelayDays;
 			if (today < due - b.LeadDays) continue;
@@ -187,6 +214,7 @@ public sealed class CampaignRunner
 				// Outside anyone's reach (design doc 4.4): the blockade, the
 				// colony's founding, Selkirk's answer to a governor's killing.
 				case "fixed" or "conditional":
+					if (!CampaignLogic.All(b.ActivateWhen, State, host)) break;   // due, but not yet
 					CampaignLogic.Run(b.Happens, State, host);
 					Finish(b, b.Kind == "fixed" ? "on its day" : "when its conditions held", false, host);
 					break;
@@ -194,6 +222,7 @@ public sealed class CampaignRunner
 					if (Level == Adherence.Gentle || Pressured.Contains(b.Id)) Finish(b, "as pressure", false, host);
 					break;
 				default:
+					// An event the world may still produce itself; once its grace has run out it is made to happen.
 					int grace = Math.Max(b.Window, 1);
 					bool force = Level == Adherence.Strict && today >= due + grace || Level == Adherence.Firm && today >= due + 2 * grace;
 					if (force) { CampaignLogic.Run(b.Happens, State, host); Finish(b, "forced", true, host); }
@@ -229,7 +258,7 @@ public sealed class CampaignRunner
 		// waiting) moved on, so it can happen next year as well.
 		if (b.RepeatDays > 0)
 		{
-			State.Done.Remove(b.Id); Pressured.Remove(b.Id); ReadySince.Remove(b.Id);
+			State.Done.Remove(b.Id); Pressured.Remove(b.Id); ReadySince.Remove(b.Id); Awakened.Remove(b.Id);
 			if (b.Date >= 0) Shift[b.Id] = Shift.GetValueOrDefault(b.Id) + b.RepeatDays;
 			else Cooldown[b.Id] = State.Today + b.RepeatDays;
 		}
