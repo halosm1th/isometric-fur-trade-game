@@ -18,7 +18,8 @@ public partial class JournalPanel : Control
     private TabContainer _tabs;
     private RichTextLabel _journal, _log, _pack;
     private VBoxContainer _packRows;
-    private string _packKey = "";
+    private GridContainer _grid;
+    private readonly List<InventorySlot> _gridSlots = new();
     private PlayerController _player;
 
     public override void _Ready()
@@ -42,7 +43,7 @@ public partial class JournalPanel : Control
         _packRows = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         _packRows.AddThemeConstantOverride("separation", 2);
         _pack.GetParent().AddChild(_packRows);
-        // The pack tab is two stacked parts: the summary text, then the rows.
+        // The pack tab is two stacked parts: the summary text, then the slot grid.
         var packScroll = _pack.GetParent() as ScrollContainer;
         if (packScroll != null)
         {
@@ -94,7 +95,7 @@ public partial class JournalPanel : Control
         if (!_panel.Visible) return;
         _refresh -= (float)delta;
         if (_refresh > 0f) return;
-        _refresh = 0.5f;
+        _refresh = _tabs.CurrentTab == 2 ? 0.1f : 0.5f;
         switch (_tabs.CurrentTab)
         {
             case 0: FillJournal(); break;
@@ -173,45 +174,32 @@ public partial class JournalPanel : Control
             foreach (var m in _player.Mail) sb.AppendLine($"   {m.Summary}{(m.Read ? $"\n      [color=#998]{m.Text}[/color]" : "")}");
         }
         sb.AppendLine();
-        sb.AppendLine("[color=#998]Slots 1-9 are the hotbar. ◄ ► move an item; Wear / Take off changes what's on your body.[/color]");
+        sb.AppendLine("[color=#998]The first row is the hotbar. Drag items between squares to arrange them (an occupied square swaps). Right-click uses an item, or wears / takes off clothing.[/color]");
         _pack.Text = sb.ToString();
 
-        // Rows only rebuild when the pack changes, so the buttons stay clickable.
-        var key = new System.Text.StringBuilder();
-        foreach (var (id, n) in _player.Inventory.All()) key.Append(id).Append(n).Append(_player.Inventory.IsWorn(id) ? 'w' : '-');
-        if (key.ToString() == _packKey) return;
-        _packKey = key.ToString();
-        foreach (var c in _packRows.GetChildren()) c.QueueFree();
-        int slot = 0;
-        foreach (var (id, n) in _player.Inventory.All())
+        EnsureGrid();
+        for (int i = 0; i < _gridSlots.Count; i++) _gridSlots[i].Refresh(_player, i < Hotbar.Slots ? Core.Keybinds.KeyFor($"hotbar_{i + 1}") : "");
+    }
+
+    // The pack as a grid of squares, nine to a row; the first row is the hotbar.
+    // It grows a row when the last one is used.
+    private void EnsureGrid()
+    {
+        int span = _player.Inventory.SlotSpan;
+        int want = System.Math.Max(36, (span + Hotbar.Slots) / Hotbar.Slots * Hotbar.Slots);
+        if (_grid == null)
         {
-            var d = Items.Items.Of(id);
-            int idx = slot++;
-            var row = new HBoxContainer(); row.AddThemeConstantOverride("separation", 6);
-            var num = new Label { Text = idx < 9 ? $"{idx + 1}" : "-", CustomMinimumSize = new Vector2(18, 0) }; num.AddThemeFontSizeOverride("font_size", 12); num.Modulate = idx < 9 ? new Color(0.95f, 0.8f, 0.45f) : new Color(0.6f, 0.6f, 0.6f); row.AddChild(num);
-            var icon = new TextureRect { Texture = GD.Load<Texture2D>(d.Icon), CustomMinimumSize = new Vector2(22, 22), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered }; row.AddChild(icon);
-            string extra = d.Kind switch
-            {
-                ItemKind.Food => $"feeds {d.Nutrition:0}",
-                ItemKind.Drink => $"quenches {d.Thirst:0}" + (d.Intoxication > 0 ? $", {d.Intoxication:0} proof" : ""),
-                ItemKind.Clothing => $"warmth {d.Warmth:0}",
-                ItemKind.Fuel => $"{d.FuelHours:0} h on the fire",
-                ItemKind.Weapon => $"{d.Damage:0} dmg, reach {d.Range:0}",
-                ItemKind.Tool => d.Capacity > 0 ? $"+{d.Capacity:0} lb carry" : id == ItemId.Snowshoes ? "snow at full pace" : "use it (click / hotbar)",
-                _ => "",
-            };
-            var name = new Label { Text = $"{d.Name} x{n}   {d.WeightLbs * n:0.#} lb   {d.ValueMb * n:0.#} MB   {extra}", SizeFlagsHorizontal = SizeFlags.ExpandFill }; name.AddThemeFontSizeOverride("font_size", 12); row.AddChild(name);
-            if (_player.Inventory.Wearable(id))
-            {
-                bool worn = _player.Inventory.IsWorn(id);
-                var wear = new Button { Text = worn ? "Take off" : "Wear" }; wear.AddThemeFontSizeOverride("font_size", 11);
-                int s = idx; wear.Pressed += () => Net.Net.I?.Act("wear", new Godot.Collections.Array { s });
-                row.AddChild(wear);
-                if (worn) name.Modulate = new Color(0.8f, 1f, 0.8f);
-            }
-            var left = new Button { Text = "◄" }; left.AddThemeFontSizeOverride("font_size", 11); { int s = idx; left.Pressed += () => Net.Net.I?.Act("move_slot", new Godot.Collections.Array { s, s - 1 }); } left.Disabled = idx == 0; row.AddChild(left);
-            var right = new Button { Text = "►" }; right.AddThemeFontSizeOverride("font_size", 11); { int s = idx; right.Pressed += () => Net.Net.I?.Act("move_slot", new Godot.Collections.Array { s, s + 1 }); } right.Disabled = idx >= _player.Inventory.SlotCount - 1; row.AddChild(right);
-            _packRows.AddChild(row);
+            _grid = new GridContainer { Columns = Hotbar.Slots };
+            _grid.AddThemeConstantOverride("h_separation", 4); _grid.AddThemeConstantOverride("v_separation", 4);
+            _packRows.AddChild(_grid);
         }
+        while (_gridSlots.Count < want)
+        {
+            int idx = _gridSlots.Count;
+            var slot = new InventorySlot { Index = idx, Hotbar = idx < Hotbar.Slots, CustomMinimumSize = new Vector2(46, 46) };
+            if (idx < Hotbar.Slots) slot.LeftClicked += i => Hotbar.SelectSlot(i);
+            _grid.AddChild(slot); _gridSlots.Add(slot);
+        }
+        for (int i = 0; i < _gridSlots.Count; i++) _gridSlots[i].Selected = i == Hotbar.SelectedSlot;
     }
 }

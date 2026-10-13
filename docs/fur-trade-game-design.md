@@ -2,6 +2,8 @@
 
 *Working design document. Compiled from planning discussion — intended as a shared reference for continued design and implementation work.*
 
+Last verified against the code: 2026-10-13. Most of this document is design intent. Where the build clearly differs, a `> **Implementation note (2026-10-13):**` callout follows the section heading; the aspirational text is left as written. For what is built, see `WIKI/Development/Development Status.md`.
+
 *Revision note: this version folds in the follow-up planning discussion — population scale and simulation tiers (Sections 11.1, 18.2), the spawn-site ecology system (Section 16.4), the map boundary and the Southern Department / James Bay region (Section 6), pre-1821 HBC and NWC structure (Section 5), the message system rebuilt around read events (Section 10.1), delegation and task assignment (Section 3.9), and the Fort William council (Section 3.8.1). A later pass added the player-experience layer — a second design test and the director (Sections 2.1, 2.2) and a new lettered Section P. A change list is at the end.*
 
 ---
@@ -110,6 +112,8 @@ Ambitions should regularly **pull against each other and against orders** — th
 The game's strongest tension machine is already built: **the ship comes in August, and London expects its packs** (Sections 3.9, 10.1.2). Everything the player does all year is measured against that day. The NWC equivalent is the July brigade and council (Section 3.8.1); the Métis/freeman one is the hunt and the pemmican sale (Section 16.1). Each path has one annual reckoning, and the year is shaped around reaching it.
 
 **Pacing target: a year in roughly 4–6 hours of play**, not ~24. The ship cycle only works as a heartbeat if a player gets several of them in an ordinary playthrough. Compression is uneven by design: the trading season and the reckoning run dense and close to live; deep winter compresses hardest — except when the winter itself is the drama (Section 17.6), and Section 18.3's drop-to-live rules apply to it like any trail.
+
+> **Implementation note (2026-10-13):** the pacing target is not met. The calendar runs at 30 seconds of play per game hour (`GameCalendar.SecondsPerGameHour`, adjustable from 0.5 to 120 s with `[` and `]`), a game day is 12 minutes, and a 365-day year is about 73 hours of play at the base rate (24 × 365 × 30 s), not 4–6 hours. The four chapters, the quota line counting down to the ship and the reckoning are built as described.
 
 **Four seasonal chapters, each with one clear stake:**
 - **Freeze-up** — the posting is decided: who winters where, with what outfit (Section 3.9 step 2). Stake: where you'll be and with whom.
@@ -341,6 +345,8 @@ This window is not a static backdrop — it's the real, escalating history of th
 
 ### 4.2 Optional Prologue Era — 1801–1811
 
+> **Implementation note (2026-10-13):** there is no 1801 start. The playable arc is 1811–1821 (`Campaigns/historical.json`); the XY Company has no faction, posts or people in the build.
+
 Still under consideration as an earlier start. Would add:
 - The tail end of the **XY Company** rivalry (a splinter from the NWC's internal conflict, founded in 1798 by two Montreal firms and later identified with Alexander Mackenzie; merged back into the NWC in 1804). Because Section 3.8.1 makes the splinter a general mechanic, an 1801 start can seed the XY split as an initial condition rather than scripting it.
 - Background news of Lewis & Clark's expedition (1804–06)
@@ -390,6 +396,8 @@ Each path should have a genuinely different early-game problem to solve, not jus
 - **Company decisions are made in council, not issued.** Wintering partners meet the Montreal Agents at the Fort William rendezvous, and the year's directive is the output of that negotiation (Sections 3.8.1, 10.1.3) — a consultative shareholder system standing in contrast to HBC's hierarchical one.
 
 ### 5.3 Métis / Freeman — Red River
+
+> **Implementation note (2026-10-13):** there is no standalone Métis or freeman starting path. The Métis are a faction with 3 band camps (the Forks, Pembina, the Qu'Appelle) and 18 family camps, hunt captains and Michif, but they wear the voyageur's and country wife's sprite sheets, and the communal hunt of 16.1 is not built. A freeman's son appears only as an NWC background.
 - Not really "competing" with the companies — the economic engine that feeds both of them, via pemmican and buffalo hunting.
 - Communal buffalo hunts were organized almost like military campaigns (hunt captains, scouts, formation discipline) — see Section 16.1.
 - Freemen (independent traders no longer tied to a company) sit outside the formal hierarchy entirely — highest personal freedom, least institutional backing.
@@ -442,7 +450,7 @@ Distinct zones with distinct feel/mechanics — including distinct wildlife (Sec
 - **West edge**: working assumption is the Pacific coast, as already planned, which keeps the Columbia region and the Americans-in-Oregon thread. A cut at the Rockies was floated, but it would chop the Columbia region already built out here (Section 20).
 - **South**: the real cut is depth into the American interior. Only the edge of it is in play, via Astor and Manuel Lisa as the nuisance faction (Section 7.3) — no simulation of St. Louis or the deep Missouri.
 - **Date gating**: the map spans c. 1670–1870, and several posts labeled on it post-date the game window (for example Fort Vancouver 1825, Fort Union 1828, Fort Ellice 1831, St. Paul 1841, Fort Victoria 1843). Every post needs a founding date and only exists in-world once the timeline reaches it.
-- **In the game (Oct 2026)**: the play area above is built at half scale, 20 px to the km on a Lambert conformal conic projection. That gives 501 × 1180 cells, generated from the atlas data by `tools/world/build_world.py` into `Data/World/ground.png` (hand-paintable) and `world.json`, and streamed in chunks around the viewer (18.1). Buildings stay at life size, so a fort covers what the map calls tens of kilometres. Hand-built places keep their shape and are fitted onto dry ground near their real positions. Posts appear by founding year when the campaign says so (2.3).
+- **In the game (Oct 2026)**: the play area above is built at 40 px to the km (`px_per_km` in `world.json`; an earlier build used half that, 20 px/km and 501 × 1180 cells) on a Lambert conformal conic projection. That gives 1002 × 2361 cells, one pixel of `ground.png` each, generated from the atlas data by `tools/world/build_world.py` into `Data/World/ground.png` (hand-paintable) and `world.json`, and streamed in chunks around the viewer (18.1). Buildings stay at life size, so a fort covers what the map calls tens of kilometres. Hand-built places keep their shape and are fitted onto dry ground near their real positions. Posts appear by founding year when the campaign says so (2.3). The map holds 105 places (101 posts and four camps at York) plus 124 camps of the peoples from the atlas; six posts (Fort William, Moose Factory, Edmonton House, Cumberland House, Fort Chipewyan, Fort Gibraltar) have hand-drawn plans in `Data/World/post_plans.json`, the rest a generic palisade and house. The map is fogged until explored.
 - **Reusable map layers**: post types (HBC, NWC, American, French regime, Russian-American Co.), factory/district HQs, pemmican provision posts, Indigenous sacred sites (S1–S11), historic events and battles, key portages, canoe/brigade routes, nation homelands and language families, the Rupert's Land limit, and HBC district boundaries.
 
 ### 6.2 Southern Department (James Bay / East Main)
@@ -463,6 +471,8 @@ HBC, NWC, and (after 1821) the merged company. See Section 4 for the historical 
 This is real intertribal war, not scenery. The **Blackfoot Confederacy** (Siksika, Kainai, Piikani) held military dominance on the northwestern plains, in active conflict with **Cree, Assiniboine**, and other groups over territory and horses. Critically, the fur companies were arming one side or another — every gun a post sells tips a real balance of power, so trade decisions aren't neutral commerce, they're taking a side. This conflict isn't background flavor — it physically plays out via the party-collision model in Section 15: a war party is actually moving to raid, and the player can actually run into it.
 
 ### 7.3 Americans — Nuisance Faction
+
+> **Implementation note (2026-10-13):** there is no American faction value, sprite sheet or people. Americans exist as posts on the map (for example Fort Manuel Lisa, 1812), the Missouri villages, and a few campaign beats.
 Doesn't need to be a playable path to matter, and resolves into two differently-shaped background nodes rather than one (Section 10.7):
 - **Astor / New York** — a single-principal node: the American Fur Company (incorporated 1808) was Astor's alone, so one agent's goals decide everything it does. His **Pacific Fur Company** built Fort Astoria in 1811; lost it to the British in the War of 1812 (became Fort George, 1813) — a real available set-piece for "fight Americans" content. The 1811 Southwest Company briefly partnered Astor with the NWC, and when the Pacific Fur Company sold its Columbia holdings to the NWC in October 1813, many of its employees became Nor'Westers — a real personnel pipeline into Section 13.2's recruit pool, not just a change of flag on a map.
 - **St. Louis** — a small merchant association: Manuel Lisa's **Missouri Fur Company** (formed 1809, reorganized 1812 after Astor's buyout offer was rejected) pushing up the Missouri from further south. The Blackfeet besieged its Three Forks post in 1810 — direct fuel for the arming-a-side friction in Section 7.2.
@@ -521,6 +531,8 @@ Two clearly distinct fail-state systems, not one:
 - A lost fight (Section 15.5) can resolve into this instead of death.
 
 ### 9.2 Slavery — a persistent state
+
+> **Implementation note (2026-10-13):** not built. Captivity (9.1) is in; slavery is not.
 - A real status effect with limits, represented by literal "chains."
 - Should plausibly restrict:
   - **Movement** — bound to wherever captors are; the world effectively shrinks.
@@ -538,6 +550,8 @@ On permanent death, the player chooses:
 Succession is the game's headline idea, not a consolation prize — Section P.6 covers how losing, dying, and the handover to an heir should feel.
 
 ### 9.4 Aging & Natural Decline
+
+> **Implementation note (2026-10-13):** not built. Characters do not age or decline; succession happens on death (9.3), which is built.
 Succession doesn't have to wait for violent death. Voyageur labor historically wore men out physically by their 40s, and a character's declining capacity — slower on the portage, worse in a fight, less suited to the brigade circuit — is a real, non-violent path toward handing control to an heir (Section 9.3.3), and a natural nudge toward the political/administrative side of a career (Section 3.7) as the physical one closes off. It also gives the multi-generational family-ambition goal (Section 3.1) a built-in reason to actually change hands over the course of a long game, rather than only doing so through tragedy.
 
 ---
@@ -739,6 +753,8 @@ The York-Oxford brigade (`Brigade.cs`) is one road. Every other road is a **run*
 - **Not yet.** The Metis winter hunt, the Columbia and Pacific brigades, goods other than the outfit/returns split, and a map marker for brigades you have not met.
 
 ### 12.3 Horses — Plains Mobility & Raiding
+
+> **Implementation note (2026-10-13):** not built. There are no horses: no mount, mounted movement, horse herd as property or raiding. The plains peoples in the game walk, and the buffalo hunt is an ordinary hunt.
 The plains' equivalent of the canoe: a horse herd is both transport and wealth, and losing it mid-journey is a real stranding risk parallel to a wrecked canoe or a York boat stuck at a portage. Historically, horse raiding between Blackfoot, Cree, and Assiniboine was itself a major form of the intertribal conflict already established (Section 7.2) — a raid whose entire goal is the herd, not a fight over trade goods or territory. This slots directly into the existing party-collision combat model (Section 15.1): a horse-raiding party is doing exactly what it says, and running into one is a different flavor of encounter than a war party or an ambush, with a different resolution (chase it off, defend the herd, cut losses and let it go). Herd health and grazing become their own resource-management concern on long plains journeys, mirroring the fuel/food concerns of a canoe brigade (Section 17).
 
 ### 12.4 Personal Carry Capacity
@@ -763,6 +779,8 @@ One generic item model, not per-category logic. Every item — a trade good, a f
 **A cache is a fourth location, alongside carried, in a vessel, and institutional storage** — an item hidden at a specific point in the world rather than held by anyone. A cache has a location, a decay rate (goods left in the open degrade the same way stored food does, Section 13.1), and a discovery risk if anyone else passes near it or already knows it's there — the same hidden-roll pattern already governing courier blowback (Section 10.3). Caching is how a stranded brigade survives an early freeze (Section 14.1) and how a side-trader keeps goods off the books (Section 3.9's skimming) without needing a separate hidden-inventory system: it's the existing item model's location field, just pointed at an empty tile instead of an agent or a warehouse.
 
 ### 12.6 Crafting
+
+> **Implementation note (2026-10-13):** not built. There are no recipes, facility-gating or smithing; items come only from fixed, hard-coded processes (for example a post brewing spruce beer), not from player recipes.
 Making an item is a reusable chain (Section 3.2) like pemmican-making (Section 3.6) or founding a post (Section 13.8) — a **recipe** is just that chain formalized: inputs (materials, drawn from Section 12.5's item model), a skill check (Section 3.10) that governs the output's quality (the same quality property furs already carry, Section 13.6, generalized to crafted goods), and a location requirement.
 
 **Most things can be made anywhere**, with ordinary materials and time: moccasins and mittens (hide and sinew), snowshoes, a bow and arrows, snares and basic traps, a fishing net, a poultice from foraged plants (Section 17.5), a canoe repair patching bark with spruce gum, a lean-to. These use the **crafting** skill (Section 3.10), improved through use like any other.
@@ -832,6 +850,8 @@ Each company runs a **shared solvency ledger**: capital and available credit, un
 **This is where the 1821 merger comes from mechanically, not from a date.** Historically, mounting legal costs wore down both companies, each tried to buy the other out, HBC prevailed on deeper pockets and political connections, and by 1818 disaffection with Montreal's leadership was already driving desertions to HBC and to American rivals. The model reproduces the mechanism: when both ledgers cross an exhaustion threshold, the two councils (Section 3.8, Section 10.7) negotiate a merger, on terms shaped by whichever side is less depleted. As Section 4.4 lays out, this is tuned to land close to 1821 under expected play, but the crossing itself is real and simulated, not scheduled — 1821 is where history put it, not a timer this design copies. Mechanically it's the largest instance of a negotiated Accord (Section 3.8.2): the same generic object as a peace treaty or a trade deal, just with corporate-merger terms.
 
 ### 13.8 Founding a New Post
+
+> **Implementation note (2026-10-13):** not built. A player cannot found a post; posts appear only by their founding year on the map.
 Every post on the map currently has a founding date (Section 6.1) — none of them let the player start one, which this closes. Founding a post is a Tier 1 ambition goal (Section 3.1) like any other, decomposing into the same kind of chain Section 3.2 already assumes rather than a bespoke system:
 
 1. **Identify a viable site** — requires either exploration (Section 10.8) or existing knowledge of what makes a location worth it: a good hunting ground (Section 16.4), a trade route junction, or deliberately contested ground already worked by a rival.
@@ -846,6 +866,8 @@ Once founded, a new post is simply a new location running the same simulation as
 ## 14. World Simulation — Weather, Seasons, Day/Night, Wildlife
 
 ### 14.1 Seasons
+
+> **Implementation note (2026-10-13):** the calendar and four seasonal chapters are built, with dated freeze-up and breakup events and the goose flights. Per-waterway water-state transitions (the Autumn Scramble, the Spring Lockout) are not.
 A season model that maps directly onto the operating calendar already built into the logistics/message system:
 - **Spring breakup (ice-out)** — water routes open, brigades depart, goose hunt begins.
 - **Summer** — main trading/travel season; bison summer hunt; Fort William rendezvous (July).
@@ -915,6 +937,8 @@ With one-shot muskets (Section 15.3) and breakable morale (Section 15.4), the fu
 - **Post-based/seasonal (geese, fish)**: a hard seasonal window tied to Section 14.1's calendar; missing it — bad weather, getting pulled away by other events — can genuinely threaten a post's winter food security, as with the historical 1816 case.
 
 ### 16.2 Species by Region
+
+> **Implementation note (2026-10-13):** seven species are in: caribou, goose, beaver, wolf, snowshoe hare, ptarmigan and buffalo (18 herds on the plains, a full yield and a robe, drawn with the caribou sprite). Moose, bears, marten, lynx, foxes, muskrat, fish as an animal, salmon and the rest of the lists below are not built, nor is the hare/lynx cycle.
 Ties hunting directly to Section 6's regional identity rather than one universal animal list:
 - **Shield/boreal corridor**: moose, elk, woodland caribou, black bear.
 - **Plains**: bison, pronghorn.
@@ -1032,7 +1056,7 @@ This is what makes Section 11.1's "everyone is a full agent" affordable at open-
   - **Entering any fort/post tile** — needs live fidelity to interact with anyone there.
 - Manual drop-out is always available — it's a zoom level, not a locked mode.
 - The design property worth keeping: every automatic trigger is already a place the design puts real stakes, so the zoom level itself becomes a signal — if you're still zoomed out, nothing that matters is currently happening.
-- **Compression target**: tuned together with sleep/wait and the live clock so a full year runs about 4–6 hours of play (Section P.3).
+- **Compression target**: tuned together with sleep/wait and the live clock so a full year runs about 4–6 hours of play (Section P.3). *(2026-10-13: not met; the base clock gives a year of about 73 hours, and travel mode does not yet close the gap.)*
 
 ### 18.4 Fire — A Simulated Object, Not a Tile Flag
 Fire is a real object that sits on a tile and does things over time, not a boolean "sheltered" flag:
