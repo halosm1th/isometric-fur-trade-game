@@ -30,7 +30,7 @@ The same Settings screen opens from the main menu and from the in-game pause men
 | World zoom | 50% - 250% | 100% |
 | Smooth camera | on / off | on |
 | Speech lingers (how long dialogue bubbles stay) | 50% - 300% in 25% steps | 100% |
-| Show frame rate | on / off | off |
+| Show frame rate (a small counter at the top centre of the screen) | on / off | off |
 
 The UI is laid out for 1280 x 720 and stretches. On bigger screens it grows by **half** as much as the screen did (1080p becomes 1.25x, 1440p 1.5x, 4K 2x), and the Interface size slider scales that again. The interface is never allowed to grow so large that the window holds less than 960 x 540 of layout. World zoom is applied through the camera and is divided by the interface scale so the two never fight. In game, zoom is also on `Ctrl` + mouse wheel, `Ctrl` + `=` / `-`, and `Ctrl` + `0` to reset.
 

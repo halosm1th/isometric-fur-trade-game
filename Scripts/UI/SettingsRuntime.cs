@@ -30,7 +30,11 @@ public partial class SettingsRuntime : Node
         GetTree().Root.SizeChanged += Settings.ApplyScale;
         var layer = new CanvasLayer { Layer = 100 };
         AddChild(layer);
-        _fps = new Label { Position = new Vector2(6, 2), Visible = Settings.ShowFps, MouseFilter = Control.MouseFilterEnum.Ignore };
+        // Top centre: the calendar has the top-left corner, the focus panel the top-right.
+        _fps = new Label { Visible = Settings.ShowFps, MouseFilter = Control.MouseFilterEnum.Ignore, HorizontalAlignment = HorizontalAlignment.Center };
+        _fps.SetAnchorsPreset(Control.LayoutPreset.CenterTop);
+        _fps.GrowHorizontal = Control.GrowDirection.Both;
+        _fps.OffsetTop = 2;
         _fps.AddThemeFontSizeOverride("font_size", 12);
         _fps.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.9f));
         layer.AddChild(_fps);
