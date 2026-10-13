@@ -747,7 +747,7 @@ public partial class PlayerController : Agent
 	public Godot.Collections.Dictionary PackState()
 	{
 		var inv = new Godot.Collections.Array();
-		foreach (var (id, n) in Inventory.All()) inv.Add(new Godot.Collections.Array { (int)id, n });
+		foreach (var (id, n) in Inventory.All()) inv.Add(new Godot.Collections.Array { (int)id, n, Inventory.SlotOf(id) });
 		var d = new Godot.Collections.Dictionary
 		{
 			["h"] = Needs.Health, ["w"] = Needs.Warmth, ["f"] = Needs.Hunger, ["t"] = Needs.Thirst,
@@ -767,7 +767,7 @@ public partial class PlayerController : Agent
 		bool wasDead = Needs.Health <= 0f;
 		Needs.Health = (float)d["h"]; Needs.Warmth = (float)d["w"]; Needs.Hunger = (float)d["f"]; Needs.Thirst = (float)d["t"];
 		Inventory.Clear();
-		foreach (var e in (Godot.Collections.Array)d["inv"]) { var row = (Godot.Collections.Array)e; Inventory.Add((ItemId)(int)row[0], (int)row[1]); }
+		foreach (var e in (Godot.Collections.Array)d["inv"]) { var row = (Godot.Collections.Array)e; if (row.Count > 2) Inventory.AddAt((int)row[2], (ItemId)(int)row[0], (int)row[1]); else Inventory.Add((ItemId)(int)row[0], (int)row[1]); }
 		Standing = (float)d["standing"];
 		TaskText = (string)d["task"];
 		_clientCooldown = (float)d["cd"];
