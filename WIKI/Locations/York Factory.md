@@ -122,6 +122,8 @@ After the ship sails the Factor sends the **fall outfit** inland to Oxford House
 
 ### The ship
 
+![[vehicle-ship.png|400]]
+
 The annual ship from London ([[Ship]]) is summoned on 20 August from "offscreen", about 6,000 px (about 150 km) down the Hayes and into the Bay, sails in at 90 px/s and ties up at the end of the wharf. She carries the year's outfit: 120 trade goods, 30 pemmican, 40 dried goose, 40 bread, 30 ale, 8 muskets, 12 steel traps, 24 rum, 4 kettles, 20 point blankets and 6 capotes, plus the Committee's packet (price and quota for the coming year; see [[London Committee]]). Eight crew come ashore, the bos'n carrying the packet to the Factor (kill him and it is on his body). There is a 35 percent chance one sailor brings the fever. Furs go aboard only once the outfit is off. On 15 September she sails if at least three of her crew are alive; otherwise she is stranded at the wharf. As she sails, the Factor's report is written, the player's standing is reviewed (private trade and unexplained river crossings count against you) and the books go to London in a letter that takes 75 days.
 
 ## Player notes

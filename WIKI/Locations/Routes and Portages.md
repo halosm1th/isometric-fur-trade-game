@@ -47,6 +47,8 @@ Each carry has a sign board, a beached canoe and a cache at its landing, and the
 
 See [[Brigade]] for the vehicle and [[Canoe]], [[York Boat]] for the boats.
 
+![[vehicle-canoe.png|200]] ![[vehicle-canoe_loaded.png|200]] ![[vehicle-york_boat.png|250]]
+
 ## The five brigade routes
 
 `world.json` carries five dashed routes, drawn on the map (M) in dark red where you have seen them (route length is the sum of the polyline legs):
@@ -68,6 +70,10 @@ Eight portages are marked in `layout.landmarks`: **Methye Portage** (Portage La 
 ## Long journeys on foot
 
 For a hundred miles off the road, `Routes.Plan` (A*, on a background thread) plans the cheapest way from here to there over the world map: round the lakes, over the rivers at the fords, through the bush slowly (cost x1.4 in forest), up mountains (x2.2), over fords (x1.6), and **over lakes and rivers in winter** ("the rivers and lakes are the winter road"). The result is a few hundred waypoints to follow. Waypoints come from clicking the map and pressing G; see [[Travel and Wayfinding]].
+
+In winter the frozen river is the road (see [[Dog Sled]]).
+
+![[vehicle-dog_sled.png|250]]
 
 ## Tips
 

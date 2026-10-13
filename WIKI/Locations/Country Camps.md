@@ -11,6 +11,10 @@ status: implemented
 
 ![[map-world-overview.png|600]]
 
+![[loc-plains-tipi-camp.png|450]] ![[loc-earth-lodge-village.png|450]]
+
+*A plains tipi camp (left) and a Missouri earth-lodge village (right), built from the real tiles.*
+
 ## How a camp works
 
 - **Bands** are rings of tipis (five round a campfire) with 8 or 12 people. The three Missouri farming towns (Mandan, Hidatsa, Arikara) are painted as **earth-lodge villages** instead (earth lodges, garden plots, corn scaffold, cache pit, corn mortar, village palisade, bullboat; see [[Props and Furniture]]).
