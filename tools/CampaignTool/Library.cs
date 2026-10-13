@@ -164,6 +164,10 @@ public static class Library
 		Fn("world", "addStock", P1("post:string", "item:Item", "amount:int"), "effect", "Put goods in (or, if negative, take them out of) a post's ledger.", "world.addStock(\"York Factory\", Item.Rum, -5)",
 			(c, s, a) => Fx(c, "stock", ("post", a.S("post")), ("item", a.S("item")), ("add", a.N("amount"))));
 
+		// ---- the player
+		Fn("player", "did", P1("deed:string"), "bool", "True once the player has done this at least once: truce, raid, escort or courier.", "player.did(\"truce\")", (c, s, a) => Pred("flag", "deed:" + a.S("deed")));
+		Fn("player", "deeds", P1("deed:string"), "int", "How many times the player has done it.", "player.deeds(\"escort\") >= 2", (c, s, a) => Metric("var", "deed:" + a.S("deed")));
+
 		// ---- flags
 		Fn("flags", "has", P1("name:string"), "bool", "True when the flag is raised.", "flags.has(\"governor_killed\")", (c, s, a) => Pred("flag", a.S("name")));
 		Fn("flags", "set", P1("name:string"), "effect", "Raise a flag.", "flags.set(\"governor_killed\")", (c, s, a) => Fx(c, "flag", ("name", a.S("name"))));

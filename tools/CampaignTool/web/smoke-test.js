@@ -30,7 +30,7 @@ const assert = (cond, what) => { if (!cond) { console.error('FAIL:', what); proc
   await page.waitForFunction(() => window.__editor && window.__editor.state.check, null, { timeout: 15000 });
 
   await open('tools/CampaignTool/src/company-years.camp');
-  assert(await page.evaluate(() => window.__editor.state.check.beats) === 56, 'the long campaign compiles to 56 beats');
+  assert(await page.evaluate(() => window.__editor.state.check.beats) === 59, 'the long campaign compiles to 59 beats');
   const classes = await page.$$eval('#highlight span', ns => [...new Set(ns.map(n => n.className))]);
   for (const c of ['t-kw', 't-type', 't-hook', 't-builtin', 't-str', 't-num', 't-cmt', 't-beat', 't-member', 't-enumv']) assert(classes.includes(c), `highlighting produces ${c}`);
 
@@ -61,7 +61,7 @@ const assert = (cond, what) => { if (!cond) { console.error('FAIL:', what); proc
 
   await page.click('[data-tab=graph]');
   await page.waitForSelector('svg.graph .node', { timeout: 10000 });
-  assert(await page.$$eval('svg.graph .node', ns => ns.length) === 56, 'the graph has a node for every beat');
+  assert(await page.$$eval('svg.graph .node', ns => ns.length) === 59, 'the graph has a node for every beat');
   await shot('editor-graph');
 
   await page.click('[data-tab=ref]');

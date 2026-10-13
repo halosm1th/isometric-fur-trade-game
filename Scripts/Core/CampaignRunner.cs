@@ -18,7 +18,7 @@ public interface ICampaignHost : ICampaignWorld
 
 public sealed class CampaignBeat
 {
-	public string Id = "", Title = "", Kind = "event";
+	public string Id = "", Title = "", Kind = "event", Rumour = "";
 	public int Date = -1, Window = 60, LeadDays = 30, DelayDays, RepeatDays;
 	public string[] Requires = Array.Empty<string>(), Keywords = Array.Empty<string>();
 	// The lifecycle (see docs/wiki/Beats-and-the-Lifecycle.md):
@@ -54,7 +54,7 @@ public sealed class CampaignScript
 			if (bo is not Dictionary<string, object> b) continue;
 			var beat = new CampaignBeat
 			{
-				Id = Text(b, "id", $"beat{s.Beats.Count}"), Title = Text(b, "title", ""), Kind = Text(b, "kind", "event"),
+				Id = Text(b, "id", $"beat{s.Beats.Count}"), Title = Text(b, "title", ""), Kind = Text(b, "kind", "event"), Rumour = Text(b, "rumour", ""),
 				Date = b.TryGetValue("date", out var dt) ? CampaignLogic.DayNumber(CampaignLogic.Str(dt)) : -1,
 				Window = Int(b, "window_days", 60), LeadDays = Int(b, "lead_days", 30), DelayDays = Int(b, "delay_days", 0), RepeatDays = Int(b, "repeat_days", 0),
 				Requires = Strings(b, "requires"), Keywords = Strings(b, "keywords"),
@@ -262,6 +262,29 @@ public sealed class CampaignRunner
 			if (b.Date >= 0) Shift[b.Id] = Shift.GetValueOrDefault(b.Id) + b.RepeatDays;
 			else Cooldown[b.Id] = State.Today + b.RepeatDays;
 		}
+	}
+
+	// What is stirring: the beats that are awake or pressing and have a rumour
+	// to tell, for the player's journal. Only what the author wrote is shown,
+	// never the beat's own title, so nothing is given away.
+	public sealed class Stir
+	{
+		public string Id = "", Rumour = "", Stage = "";   // stirring (awake), approaching (pressing), due
+		public int DaysToDue = -1;
+	}
+
+	public List<Stir> Stirring(int today)
+	{
+		var list = new List<Stir>();
+		foreach (var b in Script.Beats)
+		{
+			if (b.Rumour.Length == 0 || State.Done.Contains(b.Id) || Cancelled.Contains(b.Id) || !ReadySince.TryGetValue(b.Id, out int since)) continue;
+			int date = DateOfBeat(b);
+			int due = date >= 0 ? date : since + b.DelayDays;
+			if (date >= 0 && today < due - b.LeadDays) continue;   // a dated beat is talked of only as its day nears
+			list.Add(new Stir { Id = b.Id, Rumour = b.Rumour, DaysToDue = due - today, Stage = today >= due ? "due" : Pressured.Contains(b.Id) ? "approaching" : "stirring" });
+		}
+		return list;
 	}
 
 	// Words the director listens for while a beat is near (design doc 2.2's

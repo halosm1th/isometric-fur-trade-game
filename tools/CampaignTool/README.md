@@ -46,7 +46,7 @@ dotnet run --project tools/CampaignTool -- docs                      # write doc
 
 | | |
 |---|---|
-| `src/*.camp` | the campaigns the game ships, as scripts: `historical` (1811-21) and `company-years` (1811-30, the long one). `Campaigns/*.json` is generated from these by `build`; a test fails if they disagree |
+| `src/*.camp` | the campaigns the game ships, as scripts: `blood-on-the-bay` (action from the first hour), `historical` (1811-21), `company-years` (1811-30, the long one), `the-long-peace` (branches on what the player does) and `the-rivers-run` (the brigades). `Campaigns/*.json` is generated from these by `build`; a test fails if they disagree |
 | `examples/` | five small campaigns that each teach one thing, and the simulator's example worlds |
 | `web/` | the editor (plain HTML, CSS and JavaScript; no build step) |
 | `*.cs` | the compiler, checker, simulator and server: see the wiki's *Command-line tool* page |

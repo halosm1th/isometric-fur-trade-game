@@ -235,7 +235,7 @@ public static class Letters
         m.OnRead = reader =>
         {
             if (Sim.Band != null) Sim.Band.StandingWithCompany = Mathf.Min(100f, Sim.Band.StandingWithCompany + 2f);
-            foreach (var pc in Sim.Players()) if (pc.Task.Kind == Player.TaskKind.DeliverLetter && !pc.Task.IsComplete) { pc.Task.Progress(Player.TaskKind.DeliverLetter, 1); pc.Standing += 3f; }
+            foreach (var pc in Sim.Players()) if (pc.Task.Kind == Player.TaskKind.DeliverLetter && !pc.Task.IsComplete) { pc.Task.Progress(Player.TaskKind.DeliverLetter, 1); pc.Standing += 3f; Campaign.Deed("courier"); }
             Sim.Notice($"The Factor reads the chief's answer: {answer}.");
         };
         return m;

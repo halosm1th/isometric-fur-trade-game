@@ -1,0 +1,1050 @@
+{
+  "title": "The Long Peace, 1811-1821",
+  "description": "The same grant, the same settlers, the same blockade - but the war is only a possibility. Keep the peace between the companies and the Proclamation becomes a bargain; let it slip and the historical road is waiting.",
+  "seed": 1819,
+  "posts_by_founding_year": true,
+  "beats": [
+    {
+      "id": "blockade",
+      "title": "The Continental Blockade holds the fur market down",
+      "kind": "fixed",
+      "date": "1811-06-01",
+      "happens": [
+        {
+          "do": "london",
+          "price": 0.85,
+          "quota": 0.85
+        },
+        {
+          "do": "flag",
+          "name": "blockade"
+        }
+      ]
+    },
+    {
+      "id": "selkirk-grant",
+      "title": "Lord Selkirk's grant of Assiniboia",
+      "kind": "fixed",
+      "date": "1811-06-12",
+      "happens": [
+        {
+          "do": "flag",
+          "name": "red_river_colony"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "Lord Selkirk's grant",
+          "text": "The Committee has granted Lord Selkirk land on the Red River for a settlement. Settlers will come out by the Bay; give them every assistance.",
+          "days": 70
+        }
+      ]
+    },
+    {
+      "id": "settlers-winter-at-york",
+      "title": "The settlers winter at York Factory",
+      "kind": "fixed",
+      "date": "1811-09-24",
+      "requires": [
+        "selkirk-grant"
+      ],
+      "rumour": "A shipload of Highland settlers is expected at the Factory before the ice.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "a hundred mouths at the Factory"
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "Pemmican",
+          "add": -30
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "The Selkirk settlers",
+          "text": "The settlers are landed and must be wintered. Be a good neighbour.",
+          "days": 0
+        }
+      ]
+    },
+    {
+      "id": "the-colony-begins",
+      "title": "The settlers reach the Forks",
+      "kind": "fixed",
+      "date": "1812-08-30",
+      "requires": [
+        "settlers-winter-at-york"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "colony_founded"
+        },
+        {
+          "do": "news",
+          "from": "Montreal",
+          "to": "the wintering partner",
+          "subject": "strangers at the Forks",
+          "text": "Macdonell's people have put down stakes at the Forks, on the road of our provision brigades.",
+          "days": 50,
+          "company": "NWC"
+        }
+      ]
+    },
+    {
+      "id": "pemmican-proclamation",
+      "title": "Governor Macdonell's Pemmican Proclamation",
+      "kind": "event",
+      "date": "1814-01-08",
+      "window_days": 60,
+      "lead_days": 120,
+      "requires": [
+        "the-colony-begins"
+      ],
+      "rumour": "They say the governor at the Forks means to forbid any pemmican to leave the colony.",
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 6,
+          "why": "word of an embargo on pemmican"
+        }
+      ],
+      "activate_when": [
+        {
+          "not": "tension<55"
+        },
+        {
+          "not": "flag:pemmican_bargain"
+        }
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "pemmican_proclamation"
+        },
+        {
+          "do": "tension",
+          "add": 20,
+          "why": "the Pemmican Proclamation"
+        },
+        {
+          "do": "news",
+          "from": "Montreal",
+          "to": "the wintering partner",
+          "subject": "the Pemmican Proclamation",
+          "text": "Macdonell has forbidden any provisions to leave the colony's lands. The partners will not stand it.",
+          "days": 45,
+          "company": "NWC"
+        }
+      ],
+      "done_when": [
+        {
+          "any": [
+            "flag:pemmican_proclamation",
+            "flag:pemmican_bargain"
+          ]
+        }
+      ],
+      "cancel_when": [
+        "flag:pemmican_bargain"
+      ]
+    },
+    {
+      "id": "pemmican-bargain",
+      "title": "The Pemmican Bargain",
+      "kind": "conditional",
+      "delay_days": 10,
+      "requires": [
+        "the-colony-begins"
+      ],
+      "rumour": "The colony's governor and the partners at Fort Gibraltar are said to be talking terms over pemmican.",
+      "when": [
+        "after:1813-06-01",
+        {
+          "any": [
+            "flag:deed:truce",
+            "tension<25"
+          ]
+        }
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "pemmican_bargain"
+        },
+        {
+          "do": "tension",
+          "add": -8,
+          "why": "the Pemmican Bargain"
+        },
+        {
+          "do": "stock",
+          "post": "Fort Bas de la Riviere",
+          "item": "Pemmican",
+          "add": 30
+        },
+        {
+          "do": "news",
+          "from": "Montreal",
+          "to": "the wintering partner",
+          "subject": "a bargain over pemmican",
+          "text": "The colony will sell the brigades a fixed share of its pemmican at a fair price, and the partners will keep off the colony's herds.",
+          "days": 40,
+          "company": "NWC"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the colony's pemmican",
+          "text": "The Company and the Canadians have agreed what the colony will sell. The Committee is pleased, and wants to know who arranged it.",
+          "days": 90
+        }
+      ]
+    },
+    {
+      "id": "the-metis-gather",
+      "title": "The Metis gather against the colony",
+      "kind": "event",
+      "date": "1815-06-25",
+      "window_days": 60,
+      "requires": [
+        "pemmican-proclamation"
+      ],
+      "rumour": "The Metis are said to be gathering on the Assiniboine, and some of them mean the colony harm.",
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 6,
+          "why": "the Metis gathering"
+        }
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "colony_dispersed"
+        },
+        {
+          "do": "tension",
+          "add": 15,
+          "why": "the colony burned out"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the colony broken up",
+          "text": "The settlers at Red River have been driven off. Some are coming down to the Bay.",
+          "days": 40
+        }
+      ],
+      "done_when": [
+        "flag:colony_dispersed"
+      ],
+      "cancel_when": [
+        "flag:pemmican_bargain"
+      ],
+      "on_cancel": [
+        {
+          "do": "say",
+          "text": "The summer of 1815 passes quietly at the Forks. The colony stands."
+        }
+      ]
+    },
+    {
+      "id": "seven-oaks-averted",
+      "title": "A quiet summer on the Assiniboine",
+      "kind": "fixed",
+      "date": "1816-06-19",
+      "requires": [
+        "the-colony-begins"
+      ],
+      "rumour": "There is talk of trouble at the Forks this summer, but the governor means to meet Grant and talk.",
+      "activate_when": [
+        {
+          "any": [
+            "flag:pemmican_bargain",
+            "flag:deed:truce"
+          ]
+        }
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "seven_oaks_averted"
+        },
+        {
+          "do": "tension",
+          "add": -10,
+          "why": "the governor meets Grant"
+        },
+        {
+          "do": "say",
+          "text": "Governor Semple has met Cuthbert Grant on the Assiniboine, and the two have parted with a bargain, not blows.",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "seven-oaks",
+      "title": "The Battle of Seven Oaks",
+      "kind": "event",
+      "date": "1816-06-19",
+      "window_days": 45,
+      "requires": [
+        "the-metis-gather"
+      ],
+      "rumour": "Grant's riders are gathering on the Assiniboine, and the colony's governor is on the road out from Fort Douglas.",
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 15,
+          "why": "Grant's riders"
+        }
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "seven_oaks"
+        },
+        {
+          "do": "tension",
+          "add": 25,
+          "why": "Seven Oaks"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "Seven Oaks",
+          "text": "Governor Semple is dead with twenty colonists. The colony is gone.",
+          "days": 35
+        }
+      ],
+      "done_when": [
+        "flag:seven_oaks"
+      ],
+      "cancel_when": [
+        "flag:seven_oaks_averted"
+      ]
+    },
+    {
+      "id": "coalition-talks",
+      "title": "The companies begin to talk of a union",
+      "kind": "fixed",
+      "date": "1819-03-01",
+      "rumour": "In London and in Montreal they say the two companies are tired of the cost of fighting each other.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": -10,
+          "why": "talk of a union"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "a union",
+          "text": "The Committee has begun to talk with the Canadians. Say nothing of it at the posts.",
+          "days": 90
+        }
+      ]
+    },
+    {
+      "id": "merger",
+      "title": "The union of the Hudson's Bay and North West Companies",
+      "kind": "event",
+      "date": "1821-03-26",
+      "window_days": 120,
+      "lead_days": 365,
+      "requires": [
+        "coalition-talks"
+      ],
+      "rumour": "It is said the union of the two companies is settled and only waits for the signatures.",
+      "happens": [
+        {
+          "do": "flag",
+          "name": "merger"
+        },
+        {
+          "do": "tension",
+          "add": -40,
+          "why": "the companies made one"
+        },
+        {
+          "do": "brigade",
+          "run": "the Montreal canoes",
+          "effect": "cancel"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the union of the companies",
+          "text": "The Company and the North West Company are joined under the Company's charter.",
+          "days": 90
+        },
+        {
+          "do": "news",
+          "from": "Montreal",
+          "to": "the wintering partner",
+          "subject": "the coalition",
+          "text": "It is done: the North West Company goes into the Hudson's Bay Company.",
+          "days": 75,
+          "company": "NWC"
+        }
+      ],
+      "done_when": [
+        "flag:merger"
+      ]
+    },
+    {
+      "id": "freshet-1812",
+      "title": "The freshet, 1812",
+      "kind": "fixed",
+      "date": "1812-05-10",
+      "keywords": [
+        "freshet",
+        "breakup",
+        "high water"
+      ],
+      "happens": [
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 30,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the York boats",
+                  "effect": "delay",
+                  "days": 5
+                },
+                {
+                  "do": "say",
+                  "text": "The freshet is high this spring: the York boats lie at the Factory waiting for the rapids to fall.",
+                  "to": "HBC"
+                }
+              ]
+            },
+            {
+              "weight": 70,
+              "do": [
+                {
+                  "do": "add",
+                  "var": "goodSummers"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "low-water-1812",
+      "title": "Low water, 1812",
+      "kind": "fixed",
+      "date": "1812-08-05",
+      "rumour": "The rivers are low and the brigades are grounding on the bars.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:25",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 6
+            },
+            {
+              "do": "say",
+              "text": "Low water on the Saskatchewan: the brigade is lightening at every bar.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "freshet-1813",
+      "title": "The freshet, 1813",
+      "kind": "fixed",
+      "date": "1813-05-10",
+      "keywords": [
+        "freshet",
+        "breakup",
+        "high water"
+      ],
+      "happens": [
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 30,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the York boats",
+                  "effect": "delay",
+                  "days": 5
+                },
+                {
+                  "do": "say",
+                  "text": "The freshet is high this spring: the York boats lie at the Factory waiting for the rapids to fall.",
+                  "to": "HBC"
+                }
+              ]
+            },
+            {
+              "weight": 70,
+              "do": [
+                {
+                  "do": "add",
+                  "var": "goodSummers"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "low-water-1813",
+      "title": "Low water, 1813",
+      "kind": "fixed",
+      "date": "1813-08-05",
+      "rumour": "The rivers are low and the brigades are grounding on the bars.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:25",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 6
+            },
+            {
+              "do": "say",
+              "text": "Low water on the Saskatchewan: the brigade is lightening at every bar.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "freshet-1814",
+      "title": "The freshet, 1814",
+      "kind": "fixed",
+      "date": "1814-05-10",
+      "keywords": [
+        "freshet",
+        "breakup",
+        "high water"
+      ],
+      "happens": [
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 30,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the York boats",
+                  "effect": "delay",
+                  "days": 5
+                },
+                {
+                  "do": "say",
+                  "text": "The freshet is high this spring: the York boats lie at the Factory waiting for the rapids to fall.",
+                  "to": "HBC"
+                }
+              ]
+            },
+            {
+              "weight": 70,
+              "do": [
+                {
+                  "do": "add",
+                  "var": "goodSummers"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "low-water-1814",
+      "title": "Low water, 1814",
+      "kind": "fixed",
+      "date": "1814-08-05",
+      "rumour": "The rivers are low and the brigades are grounding on the bars.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:25",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 6
+            },
+            {
+              "do": "say",
+              "text": "Low water on the Saskatchewan: the brigade is lightening at every bar.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "freshet-1815",
+      "title": "The freshet, 1815",
+      "kind": "fixed",
+      "date": "1815-05-10",
+      "keywords": [
+        "freshet",
+        "breakup",
+        "high water"
+      ],
+      "happens": [
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 30,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the York boats",
+                  "effect": "delay",
+                  "days": 5
+                },
+                {
+                  "do": "say",
+                  "text": "The freshet is high this spring: the York boats lie at the Factory waiting for the rapids to fall.",
+                  "to": "HBC"
+                }
+              ]
+            },
+            {
+              "weight": 70,
+              "do": [
+                {
+                  "do": "add",
+                  "var": "goodSummers"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "low-water-1815",
+      "title": "Low water, 1815",
+      "kind": "fixed",
+      "date": "1815-08-05",
+      "rumour": "The rivers are low and the brigades are grounding on the bars.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:25",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 6
+            },
+            {
+              "do": "say",
+              "text": "Low water on the Saskatchewan: the brigade is lightening at every bar.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "freshet-1816",
+      "title": "The freshet, 1816",
+      "kind": "fixed",
+      "date": "1816-05-10",
+      "keywords": [
+        "freshet",
+        "breakup",
+        "high water"
+      ],
+      "happens": [
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 30,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the York boats",
+                  "effect": "delay",
+                  "days": 5
+                },
+                {
+                  "do": "say",
+                  "text": "The freshet is high this spring: the York boats lie at the Factory waiting for the rapids to fall.",
+                  "to": "HBC"
+                }
+              ]
+            },
+            {
+              "weight": 70,
+              "do": [
+                {
+                  "do": "add",
+                  "var": "goodSummers"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "low-water-1816",
+      "title": "Low water, 1816",
+      "kind": "fixed",
+      "date": "1816-08-05",
+      "rumour": "The rivers are low and the brigades are grounding on the bars.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:25",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 6
+            },
+            {
+              "do": "say",
+              "text": "Low water on the Saskatchewan: the brigade is lightening at every bar.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "freshet-1817",
+      "title": "The freshet, 1817",
+      "kind": "fixed",
+      "date": "1817-05-10",
+      "keywords": [
+        "freshet",
+        "breakup",
+        "high water"
+      ],
+      "happens": [
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 30,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the York boats",
+                  "effect": "delay",
+                  "days": 5
+                },
+                {
+                  "do": "say",
+                  "text": "The freshet is high this spring: the York boats lie at the Factory waiting for the rapids to fall.",
+                  "to": "HBC"
+                }
+              ]
+            },
+            {
+              "weight": 70,
+              "do": [
+                {
+                  "do": "add",
+                  "var": "goodSummers"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "low-water-1817",
+      "title": "Low water, 1817",
+      "kind": "fixed",
+      "date": "1817-08-05",
+      "rumour": "The rivers are low and the brigades are grounding on the bars.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:25",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 6
+            },
+            {
+              "do": "say",
+              "text": "Low water on the Saskatchewan: the brigade is lightening at every bar.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "freshet-1818",
+      "title": "The freshet, 1818",
+      "kind": "fixed",
+      "date": "1818-05-10",
+      "keywords": [
+        "freshet",
+        "breakup",
+        "high water"
+      ],
+      "happens": [
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 30,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the York boats",
+                  "effect": "delay",
+                  "days": 5
+                },
+                {
+                  "do": "say",
+                  "text": "The freshet is high this spring: the York boats lie at the Factory waiting for the rapids to fall.",
+                  "to": "HBC"
+                }
+              ]
+            },
+            {
+              "weight": 70,
+              "do": [
+                {
+                  "do": "add",
+                  "var": "goodSummers"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "low-water-1818",
+      "title": "Low water, 1818",
+      "kind": "fixed",
+      "date": "1818-08-05",
+      "rumour": "The rivers are low and the brigades are grounding on the bars.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:25",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 6
+            },
+            {
+              "do": "say",
+              "text": "Low water on the Saskatchewan: the brigade is lightening at every bar.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "freshet-1819",
+      "title": "The freshet, 1819",
+      "kind": "fixed",
+      "date": "1819-05-10",
+      "keywords": [
+        "freshet",
+        "breakup",
+        "high water"
+      ],
+      "happens": [
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 30,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the York boats",
+                  "effect": "delay",
+                  "days": 5
+                },
+                {
+                  "do": "say",
+                  "text": "The freshet is high this spring: the York boats lie at the Factory waiting for the rapids to fall.",
+                  "to": "HBC"
+                }
+              ]
+            },
+            {
+              "weight": 70,
+              "do": [
+                {
+                  "do": "add",
+                  "var": "goodSummers"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "low-water-1819",
+      "title": "Low water, 1819",
+      "kind": "fixed",
+      "date": "1819-08-05",
+      "rumour": "The rivers are low and the brigades are grounding on the bars.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:25",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 6
+            },
+            {
+              "do": "say",
+              "text": "Low water on the Saskatchewan: the brigade is lightening at every bar.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "freshet-1820",
+      "title": "The freshet, 1820",
+      "kind": "fixed",
+      "date": "1820-05-10",
+      "keywords": [
+        "freshet",
+        "breakup",
+        "high water"
+      ],
+      "happens": [
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 30,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the York boats",
+                  "effect": "delay",
+                  "days": 5
+                },
+                {
+                  "do": "say",
+                  "text": "The freshet is high this spring: the York boats lie at the Factory waiting for the rapids to fall.",
+                  "to": "HBC"
+                }
+              ]
+            },
+            {
+              "weight": 70,
+              "do": [
+                {
+                  "do": "add",
+                  "var": "goodSummers"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "low-water-1820",
+      "title": "Low water, 1820",
+      "kind": "fixed",
+      "date": "1820-08-05",
+      "rumour": "The rivers are low and the brigades are grounding on the bars.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:25",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 6
+            },
+            {
+              "do": "say",
+              "text": "Low water on the Saskatchewan: the brigade is lightening at every bar.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "the-brigade-remembered-you",
+      "title": "The brigade remembers who rode with it",
+      "kind": "conditional",
+      "repeat_days": 365,
+      "rumour": "The boatmen say there is a man at the Factory who will ride the brigade through the rapids with them.",
+      "when": [
+        "flag:deed:escort"
+      ],
+      "happens": [
+        {
+          "do": "tension",
+          "add": -2,
+          "why": "the boatmen speak well of the Company"
+        },
+        {
+          "do": "say",
+          "text": "The boatmen speak of the man who rode in with them, and the Factor hears of it.",
+          "to": "HBC"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,381 @@
+// Landfall: Blood on the Bay, 1811.
+//
+// An action campaign. The history books give you a year of quiet before the
+// war; this script does not. From the hour the ship drops anchor at York
+// Factory (20 August 1811) something happens every few days: thieves at the
+// landing, the Nor'Westers' men at the door, the first brigade ambushed, a
+// fire, a raid on the stores, hunger, a siege. It is built to keep tension
+// climbing from the first day, and to give the player a way out at each step:
+//
+//   - player.did("truce")   - a brokered truce turns the siege into a standoff
+//   - player.did("escort")  - riding a brigade in breaks the blockade of the river
+//   - player.did("raid")    - striking first makes everything worse, quickly
+//
+// Almost every beat is dateless or a few days after the start, and is woken by
+// what the world does, so it plays out the same way whatever the clock says.
+// Nothing is waiting for 1814.
+
+campaign BloodOnTheBay(
+    title: "Landfall: Blood on the Bay, 1811",
+    description: "You step off the ship into trouble. Thieves at the landing, " +
+                 "the Nor'Westers at the door, the first brigade ambushed before " +
+                 "it clears the Hayes, a fire, a raid, hunger, a siege. Something " +
+                 "happens every few days until winter - and you can end it.",
+    seed: 1811,
+    postsByFoundingYear: true
+);
+
+int blows;          // blows struck by either side so far
+int losses;         // what the post has lost, counted in storms and thefts
+
+const string yorkBoats = "the York boats";
+const string saskBrigade = "the Saskatchewan brigade";
+const string london = "the Governor and Committee, London";
+
+void warning(string text) { shout(text, Company.HBC); }
+
+void nwcRumour(string subject, string text, int days) {
+    news(from: "Fort William", to: Person.Partner, subject: subject, text: text, days: days, company: Company.NWC);
+}
+
+void fromLondon(string subject, string text, int days) {
+    news(from: london, to: Person.Factor, subject: subject, text: text, days: days);
+}
+
+// ================================================================ ACT I
+// The first fortnight
+
+beat TheStorm(
+    id: "the-storm",
+    title: "A squall catches the ship at the landing",
+    date: date(1811, 8, 20),
+    rumour: "The sky over the Bay is yellow and the ship is not yet unloaded."
+) {
+    OnActivate() {
+        losses++;
+        world.addStock("York Factory", Item.TradeGoods, -20);
+        world.raiseTension(3, "the cargo lost in the surf");
+        shout("A squall catches the ship at the landing. Two boats are swamped and the outfit is in the surf.", Company.HBC);
+    }
+}
+
+beat ThievesAtTheLanding(
+    id: "thieves-at-the-landing",
+    title: "Thieves at the landing",
+    date: date(1811, 8, 22),
+    rumour: "Strange men have been seen among the boats at night."
+) [TheStorm] {
+    OnActivate() {
+        losses++;
+        blows++;
+        world.addStock("York Factory", Item.Rum, -12);
+        world.addStock("York Factory", Item.TradeGoods, -10);
+        world.raiseTension(6, "thieves at the landing");
+        shout("Thieves have been through the landed goods in the night. The Nor'Westers' house is a stone's throw away and nobody saw a thing.", Company.HBC);
+    }
+}
+
+beat TheFactorsOrders(
+    id: "the-factors-orders",
+    title: "The Committee's orders",
+    date: date(1811, 8, 23)
+) {
+    OnActivate() {
+        fromLondon(
+            "The season's orders",
+            "The Committee expects the York boats on the road before the month is out, " +
+            "and returns that answer. The Canadians have more men on the Bay than we " +
+            "were told. Hold what you have.",
+            0);
+        flags.set("orders_read");
+    }
+}
+
+beat TheBoatsGoOut(
+    id: "the-boats-go-out",
+    title: "The York boats go out",
+    date: date(1811, 8, 26)
+) [TheFactorsOrders] {
+    OnActivate() {
+        brigade(yorkBoats).launch();
+        say("The York boats push off from the landing with the first of the outfit.", Company.HBC);
+    }
+}
+
+beat TheNwcMenAtTheDoor(
+    id: "the-nwc-men-at-the-door",
+    kind: Kind.Fixed,
+    title: "The Nor'Westers come to the door",
+    date: date(1811, 8, 28),
+    rumour: "A party of Canadians has been seen on the road to the Factory, armed."
+) [TheBoatsGoOut] {
+    OnApproach() { world.raiseTension(4, "armed men on the road"); }
+    OnActivate() {
+        blows++;
+        world.raiseTension(8, "the Nor'Westers at the door");
+        nwcRumour("the Bay", "Our people are at the English house. If they will not trade fair we shall see how they like it.", 20);
+        shout("A party of Nor'Westers stands at the gate of the Factory, armed, and says it has come to trade. Nobody believes it.", Company.HBC);
+    }
+}
+
+beat TheBoatsAmbushed(
+    id: "the-boats-ambushed",
+    title: "The York boats are ambushed on the Hayes",
+    date: date(1811, 9, 3),
+    rumour: "Shots are said to have been heard on the Hayes, below the first rapids."
+) [TheBoatsGoOut] {
+    OnActivate() {
+        losses++;
+        blows++;
+        random(
+            option(50, () => brigade(yorkBoats).turnBack()),
+            option(30, () => brigade(yorkBoats).lose()),
+            option(20, () => brigade(yorkBoats).delay(6))
+        );
+        world.raiseTension(10, "the boats ambushed on the Hayes");
+        shout("The York boats were fired on at the rapids. They are hurt, and the men are saying who did it.", Company.HBC);
+    }
+}
+
+beat TheSecondBrigade(
+    id: "the-second-brigade",
+    title: "The Saskatchewan brigade is held at Cumberland House",
+    date: date(1811, 9, 9),
+    rumour: "The Saskatchewan brigade is not at Cumberland House, and nobody will say why."
+) {
+    OnActivate() {
+        brigade(saskBrigade).delay(10);
+        world.raiseTension(4, "the Saskatchewan brigade held");
+        say("Word comes down: the Saskatchewan brigade is held at Cumberland House by men who say they are only keeping the road.", Company.HBC);
+    }
+}
+
+beat TheFirstFire(
+    id: "the-first-fire",
+    kind: Kind.Fixed,
+    title: "Fire in the store",
+    date: date(1811, 9, 14),
+    rumour: "The Factory's powder store has been seen with no watch on it at night."
+) {
+    OnApproach() { world.raiseTension(3, "an unwatched store"); }
+    OnActivate() {
+        losses++;
+        blows++;
+        world.addStock("York Factory", Item.Firewood, -40);
+        world.addStock("York Factory", Item.Powder, -15);
+        world.raiseTension(8, "fire in the store");
+        shout("Fire in the store at night! The men put it out with the water barrels, but the powder is gone and half the winter's wood with it. Nobody will say who struck the light.", Company.HBC);
+    }
+}
+
+// ================================================================ ACT II
+// The month the lines are drawn
+
+// The player may keep the peace here, or not. A truce deed turns everything
+// that follows in the other direction.
+beat TheParley(
+    id: "the-parley",
+    title: "The Nor'Westers ask to talk",
+    date: date(1811, 9, 20),
+    rumour: "The Canadians' bourgeois at the English house is said to be willing to talk, if someone will go over."
+) [TheFirstFire] {
+    ActivateWhen() => world.tension >= 40;
+    OnActivate() {
+        flags.set("parley_offered");
+        say("The Nor'Westers have sent word that they will talk, if the Company sends a man across with no musket in his hand.", Company.HBC);
+    }
+    CancelWhen() => player.did("truce");
+}
+
+beat TheTruce(
+    id: "the-truce",
+    title: "A truce on the Bay",
+    delay: days(2),
+    rumour: "The two houses are said to have stopped watching each other over the gate."
+) {
+    AwakenWhen() => player.did("truce");
+    OnActivate() {
+        flags.set("truce_on_the_bay");
+        world.raiseTension(-25, "a truce on the Bay");
+        shout("The two houses have agreed to keep to their own sides of the river. The gate is opened for the first time in a month.", Company.All);
+    }
+}
+
+beat TheRaidOnTheStores(
+    id: "the-raid-on-the-stores",
+    kind: Kind.Fixed,
+    title: "A raid on the Factory's stores",
+    date: date(1811, 9, 28),
+    rumour: "Armed men have been seen gathering behind the English house. They are not there to trade."
+) [TheNwcMenAtTheDoor] {
+    ActivateWhen() => !flags.has("truce_on_the_bay") && world.tension >= 35;
+    OnApproach() { world.raiseTension(5, "armed men gathering"); }
+    OnActivate() {
+        losses++;
+        blows += 2;
+        flags.set("open_hostility_on_the_bay");
+        world.addStock("York Factory", Item.Pemmican, -40);
+        world.addStock("York Factory", Item.TradeGoods, -25);
+        world.addStock("York Factory", Item.Musket, -4);
+        world.raiseTension(15, "the raid on the stores");
+        shout("A raid on the Factory's stores at dawn: pemmican, goods and four muskets carried off, and a clerk struck down at the door.", Company.HBC);
+        nwcRumour("the Bay", "The English house has had its cellar emptied. Say nothing of who.", 15);
+    }
+}
+
+beat TheCounterRaid(
+    id: "the-counter-raid",
+    title: "The Factory strikes back",
+    delay: days(5),
+    rumour: "Some of the Factory's men are talking of paying the Canadians back in kind."
+) [TheRaidOnTheStores] {
+    AwakenWhen() => player.did("raid") || world.tension >= 75;
+    OnActivate() {
+        blows += 2;
+        world.addStock("York Factory", Item.BeaverPelt, 25);
+        world.raiseTension(12, "the Factory strikes back");
+        shout("The Factory has struck back. A party crossed at night and came home with furs that were not the Company's. The Canadians swear to have it out.", Company.HBC);
+    }
+}
+
+beat HungerComes(
+    id: "hunger-comes",
+    title: "The stores run low",
+    delay: days(10),
+    rumour: "The pemmican is going down faster than it should, and the geese are thin."
+) [TheRaidOnTheStores] {
+    AwakenWhen() => world.stock("York Factory", Item.Pemmican) < 60;
+    ActivateWhen() => world.tension >= 45;
+    OnActivate() {
+        world.addStock("York Factory", Item.DriedGoose, -15);
+        world.raiseTension(4, "hunger at the Factory");
+        shout("The pemmican is half what it should be and the winter has not begun. The men are on short rations and say whom to thank.", Company.HBC);
+    }
+}
+
+// ================================================================ ACT III
+// The siege
+
+beat TheBlockadeOfTheRiver(
+    id: "the-river-is-held",
+    title: "The river is held against the Factory",
+    date: date(1811, 10, 8),
+    rumour: "The Canadians are said to be holding the carrying places against every boat of the Company."
+) [TheBoatsAmbushed] {
+    ActivateWhen() => !flags.has("truce_on_the_bay");
+    OnActivate() {
+        flags.set("river_held");
+        brigade(yorkBoats).cancel();
+        brigade(saskBrigade).cancel();
+        world.raiseTension(6, "the river held");
+        shout("The river is held. No boat of the Company will pass the carrying places while the Canadians hold them, and the winter packet cannot go out.", Company.HBC);
+    }
+    CancelWhen() => player.did("escort");
+    OnCancel() { say("A boat of the Company has come through. The Canadians are not holding the river as hard as they said."); }
+}
+
+beat TheSiege(
+    id: "the-siege",
+    title: "The siege of the Factory",
+    repeat: days(10),
+    rumour: "There is nobody going in or out of the Factory gate after dark, and the dogs are being kept inside."
+) {
+    AwakenWhen() => flags.has("open_hostility_on_the_bay") && !flags.has("truce_on_the_bay");
+    OnActivate() {
+        losses++;
+        world.addStock("York Factory", Item.Pemmican, -10);
+        world.addStock("York Factory", Item.Firewood, -15);
+        world.raiseTension(3, "the Factory besieged");
+        random(
+            option(40, () => say("A shot through a window at midnight. Nobody is hurt, and nobody sleeps.", Company.HBC)),
+            option(30, () => shout("A man of the Company was struck down at the woodpile and carried in. The surgeon gives him the night.", Company.HBC)),
+            option(30, () => say("A stray dog is shot at the gate, and a note with it: 'Next the dog's master.'", Company.HBC))
+        );
+    }
+    CancelWhen() => flags.has("truce_on_the_bay") || player.did("escort") || world.date >= date(1811, 12, 15);
+    OnCancel() { say("The ring round the Factory has loosened: the deep cold has driven the besiegers to their own fires, and men are coming and going at the gate again."); }
+}
+
+beat TheFirstSnow(
+    id: "the-first-snow",
+    kind: Kind.Fixed,
+    title: "The first snow, and no relief",
+    date: date(1811, 10, 28),
+    rumour: "The snow is coming early, and the Factory's wood is low."
+) {
+    OnApproach() { world.raiseTension(2, "winter coming on a short store"); }
+    OnActivate() {
+        world.addStock("York Factory", Item.Firewood, -20);
+        shout("The first snow, a fortnight early. The Factory's wood is short and the river will be ice before the boats are back.", Company.HBC);
+    }
+}
+
+// The player's way out, if they ride a brigade in.
+beat TheRelief(
+    id: "the-relief",
+    title: "The brigade comes in",
+    delay: days(3),
+    rumour: "A boat of the Company has been seen making the landing."
+) {
+    AwakenWhen() => player.did("escort");
+    OnActivate() {
+        flags.set("relief_came");
+        world.addStock("York Factory", Item.Pemmican, 60);
+        world.addStock("York Factory", Item.TradeGoods, 40);
+        world.raiseTension(-15, "the relief comes through");
+        shout("A brigade of the Company has fought its way through, and the stores are full again. The gate is a good deal lighter this evening.", Company.HBC);
+    }
+}
+
+// ================================================================ the same every week
+// Something happens, whatever else is going on.
+
+// Fourteen spells of small trouble, one every six days, all of it making the place harder
+// to hold. Each is rolled: some only an alarm, some a loss.
+foreach (int week in 1..14) {
+    beat Trouble(
+        id: "trouble-" + week,
+        title: "Trouble, the week of " + week,
+        date: date(1811, 8, 20) + days(week * 6 + 3),
+        rumour: week % 2 == 0 ? "Somebody has been at the woodpile in the night." : "The dogs have been barking at nothing, again."
+    ) {
+        OnActivate() {
+            world.raiseTension(2, "another night of trouble");
+            if (chance(50)) {
+                losses++;
+                world.addStock("York Factory", Item.TradeGoods, -5);
+                say("Goods are missing from the store again, and the gate was barred.", Company.HBC);
+            } else {
+                say("Another alarm in the night, and nothing to show for it but men who have not slept.", Company.HBC);
+            }
+        }
+    }
+}
+
+// ================================================================ the way it ends
+
+beat TheCommitteeAsks(
+    id: "the-committee-asks",
+    title: "London wants an account",
+    repeat: days(60),
+    rumour: "The Governor and Committee have been told of the trouble on the Bay, and are not pleased."
+) {
+    AwakenWhen() => losses >= 3 && !flags.has("truce_on_the_bay");
+    OnActivate() {
+        world.setLondon(0.9, 0.85);
+        fromLondon("The state of the Bay", "The Committee has heard of thefts, fires and a raid. It expects an account, and a Factor who can hold his post.", 40);
+    }
+}
+
+beat TheWinterSettles(
+    id: "the-winter-settles",
+    title: "The ice, and an uneasy winter",
+    date: date(1811, 11, 20),
+    rumour: "The river is freezing and neither house can move against the other until spring."
+) {
+    OnActivate() {
+        world.raiseTension(-10, "the ice stops the quarrel");
+        shout("The river is shut by ice. Neither house can move against the other before the spring, and both know it.", Company.All);
+        flags.set("winter_has_come");
+    }
+}

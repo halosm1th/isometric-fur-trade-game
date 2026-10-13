@@ -1,0 +1,23 @@
+{
+  "start": "1811-08-20",
+  "end": "1812-03-01",
+  "adherence": "Steady",
+  "player_faction": "HBC",
+  "tension": {
+    "1811-01-01": 30
+  },
+  "stocks": {
+    "York Factory|Pemmican": 50
+  },
+  "about": "The player brokers a truce in September and rides a brigade in during October.",
+  "events": [
+    {
+      "on": "1811-09-18",
+      "deed": "truce"
+    },
+    {
+      "on": "1811-10-10",
+      "deed": "escort"
+    }
+  ]
+}

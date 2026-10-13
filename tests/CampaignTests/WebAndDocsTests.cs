@@ -135,6 +135,80 @@ public class LongCampaignTests
 	}
 }
 
+public class BranchingCampaignTests
+{
+	private static Dictionary<string, object> Peace() => CampLang.CompileText(Read("tools/CampaignTool/src/the-long-peace.camp"));
+	private static HashSet<string> Fired(Dictionary<string, object> sc) => Sim.Simulate(Peace(), sc, 5).Runner.Fired.Select(f => f.Id).ToHashSet();
+
+	[Fact]
+	public void ATruceTurnsTheProclamationIntoABargain()
+	{
+		var f = Fired(Json("tools/CampaignTool/examples/the-long-peace.scenario.json"));
+		Assert.Contains("pemmican-bargain", f);
+		Assert.Contains("seven-oaks-averted", f);
+		Assert.DoesNotContain("pemmican-proclamation", f);
+		Assert.DoesNotContain("seven-oaks", f);
+	}
+
+	[Fact]
+	public void WithoutOneTheHistoricalRoadIsWaiting()
+	{
+		var f = Fired(Json("tools/CampaignTool/examples/the-long-peace-at-war.scenario.json"));
+		Assert.Contains("pemmican-proclamation", f);
+		Assert.Contains("seven-oaks", f);
+		Assert.DoesNotContain("pemmican-bargain", f);
+		Assert.DoesNotContain("seven-oaks-averted", f);
+	}
+
+	[Fact]
+	public void TheRiversRunReactsToThePlayersDeeds()
+	{
+		var doc = CampLang.CompileText(Read("tools/CampaignTool/src/the-rivers-run.camp"));
+		var none = Json("tools/CampaignTool/examples/the-rivers-run.scenario.json");
+		none["events"] = L();
+		Assert.DoesNotContain(Sim.Simulate(doc, none, 5).Runner.Fired, f => f.Id == "the-boatmen-talk");
+		Assert.Contains(Sim.Simulate(doc, Json("tools/CampaignTool/examples/the-rivers-run.scenario.json"), 5).Runner.Fired, f => f.Id == "the-boatmen-talk");
+	}
+
+	[Fact]
+	public void EveryShippedCampaignHasRumoursForWhatIsComing()
+	{
+		foreach (var src in new[] { "historical", "company-years", "the-long-peace", "the-rivers-run" })
+		{
+			var beats = ((List<object>)CampLang.CompileText(Read($"tools/CampaignTool/src/{src}.camp"))["beats"]).Cast<Dictionary<string, object>>();
+			Assert.True(beats.Count(b => b.ContainsKey("rumour")) >= 4, $"{src} should tell the player of what is stirring");
+		}
+	}
+}
+
+public class ActionCampaignTests
+{
+	private static Dictionary<string, object> Doc() => CampLang.CompileText(Read("tools/CampaignTool/src/blood-on-the-bay.camp"));
+
+	[Fact]
+	public void SomethingHappensEveryFewDaysFromTheFirstDay()
+	{
+		var r = Sim.Simulate(Doc(), Json("tools/CampaignTool/examples/blood-on-the-bay.scenario.json"), 1);
+		var days = r.Runner.Fired.Select(f => f.Day).OrderBy(d => d).ToList();
+		int start = CampaignLogic.DayNumber("1811-08-20");
+		Assert.Equal(start, days[0]);                                              // on the day you land
+		Assert.True(days.Count(d => d <= start + 14) >= 5, "a crisis every few days in the first fortnight");
+		Assert.True(days.Count(d => d <= start + 60) >= 20, "and no quiet spell in the first two months");
+		for (int i = 1; i < days.Count && days[i] <= start + 90; i++) Assert.True(days[i] - days[i - 1] <= 8, "no lull longer than a week before winter");
+	}
+
+	[Fact]
+	public void ATruceAndARelief_TurnItAround()
+	{
+		var war = Sim.Simulate(Doc(), Json("tools/CampaignTool/examples/blood-on-the-bay.scenario.json"), 1).Runner.Fired.Select(f => f.Id).ToHashSet();
+		var peace = Sim.Simulate(Doc(), Json("tools/CampaignTool/examples/blood-on-the-bay-peace.scenario.json"), 1).Runner.Fired.Select(f => f.Id).ToHashSet();
+		Assert.Contains("the-raid-on-the-stores", war); Assert.Contains("the-siege", war);
+		Assert.DoesNotContain("the-truce", war);
+		Assert.Contains("the-truce", peace); Assert.Contains("the-relief", peace);
+		Assert.DoesNotContain("the-raid-on-the-stores", peace); Assert.DoesNotContain("the-siege", peace);
+	}
+}
+
 public class ExampleTests
 {
 	[Fact]

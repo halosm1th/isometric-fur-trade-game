@@ -194,6 +194,7 @@ or, for a beat with nothing but a header, `beat Name(arguments);`.
 | `delay` | For a dateless beat: days after waking before it is due. |
 | `repeat` | It comes round again this many days after it happened. |
 | `keywords` | Words the news director listens for, `["Selkirk", "colony"]`. |
+| `rumour` | One line for the player's journal while the beat is stirring: see [Player deeds and rumours](Player-Deeds-and-Rumours). |
 | `kind` | `Kind.Fixed` ... only to override what is worked out (below). |
 
 ### `[Requires]`

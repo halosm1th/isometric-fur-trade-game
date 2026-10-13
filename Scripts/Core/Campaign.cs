@@ -189,7 +189,7 @@ public static class Campaign
     {
         _begun = false;
         _runner.Reset();
-        _founded.Clear(); _inTransit.Clear(); Log.Clear();
+        _founded.Clear(); _inTransit.Clear(); Log.Clear(); JournalText = ""; _journalStale = true;
         _lastDay = int.MinValue;
     }
 
@@ -204,6 +204,8 @@ public static class Campaign
         _lastDay = today;
         _runner.Level = Level;
         _runner.Tick(today, _world);
+        string jt = BuildJournalText(today);
+        if (jt != JournalText || _journalStale) { JournalText = jt; _journalStale = false; Net.Net.I?.BroadcastJournalText(jt); }
 
         for (int i = _inTransit.Count - 1; i >= 0; i--)
         {
@@ -340,6 +342,54 @@ public static class Campaign
     public static void Flag(string name) { if (Net.Net.IsServer) _flags.Add(name); }
     public static void Unflag(string name) { if (Net.Net.IsServer) _flags.Remove(name); }
     public static bool Has(string name) => _flags.Contains(name);
+
+    // Something the player did that the story should know of (truce, raid,
+    // escort, courier): a flag and a count a script can ask about, and a line
+    // in the journal's account of what you have done.
+    public static void Deed(string kind) { if (Net.Net.IsServer) { _st.Deed(kind); _journalStale = true; } }
+
+    // ---- what is stirring (the journal) ---------------------------------------------
+
+    private static bool _journalStale = true;
+    public static string JournalText { get; private set; } = "";
+
+    private static readonly (string kind, string line)[] DeedWords =
+    {
+        ("truce", "brokered a truce between the companies"), ("raid", "gone out on a raid"), ("escort", "ridden a brigade to its landing"), ("courier", "carried a packet through"),
+    };
+
+    // The journal's top: the rumours of what is coming, then what you have done.
+    // Built on the server each day and sent to the others.
+    private static string BuildJournalText(int today)
+    {
+        var sb = new System.Text.StringBuilder();
+        var stirs = _runner.Stirring(today);
+        if (stirs.Count > 0)
+        {
+            sb.AppendLine("[color=#dcb][b]What is stirring[/b][/color]");
+            foreach (var s in stirs.OrderBy(x => x.DaysToDue))
+            {
+                string when = s.DaysToDue <= 0 ? "any day now" : s.DaysToDue <= 14 ? "within a fortnight" : s.DaysToDue <= 45 ? "within weeks" : s.DaysToDue <= 120 ? "in the coming months" : "before long";
+                sb.AppendLine($"   {s.Rumour} [color=#998]({when})[/color]");
+            }
+            sb.AppendLine();
+        }
+        var done = new List<string>();
+        foreach (var (kind, line) in DeedWords)
+        {
+            int n = (int)_st.Vars.GetValueOrDefault("deed:" + kind);
+            if (n > 0) done.Add(n == 1 ? line : $"{line} ({n} times)");
+        }
+        if (done.Count > 0)
+        {
+            sb.AppendLine("[color=#dcb][b]What you have done[/b][/color]");
+            sb.AppendLine("   You have " + string.Join(", ", done) + ".");
+            sb.AppendLine();
+        }
+        return sb.ToString();
+    }
+
+    public static void ApplyJournalText(string text) { JournalText = text; }
 
     // Does a post stand yet (design doc 6.1: only once the timeline reaches it)?
     public static bool PostExists(string name)

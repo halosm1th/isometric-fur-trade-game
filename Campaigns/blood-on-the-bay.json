@@ -1,0 +1,1364 @@
+{
+  "title": "Landfall: Blood on the Bay, 1811",
+  "description": "You step off the ship into trouble. Thieves at the landing, the Nor'Westers at the door, the first brigade ambushed before it clears the Hayes, a fire, a raid, hunger, a siege. Something happens every few days until winter - and you can end it.",
+  "seed": 1811,
+  "posts_by_founding_year": true,
+  "beats": [
+    {
+      "id": "the-storm",
+      "title": "A squall catches the ship at the landing",
+      "kind": "fixed",
+      "date": "1811-08-20",
+      "rumour": "The sky over the Bay is yellow and the ship is not yet unloaded.",
+      "happens": [
+        {
+          "do": "add",
+          "var": "losses"
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "TradeGoods",
+          "add": -20
+        },
+        {
+          "do": "tension",
+          "add": 3,
+          "why": "the cargo lost in the surf"
+        },
+        {
+          "do": "say",
+          "text": "A squall catches the ship at the landing. Two boats are swamped and the outfit is in the surf.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "thieves-at-the-landing",
+      "title": "Thieves at the landing",
+      "kind": "fixed",
+      "date": "1811-08-22",
+      "requires": [
+        "the-storm"
+      ],
+      "rumour": "Strange men have been seen among the boats at night.",
+      "happens": [
+        {
+          "do": "add",
+          "var": "losses"
+        },
+        {
+          "do": "add",
+          "var": "blows"
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "Rum",
+          "add": -12
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "TradeGoods",
+          "add": -10
+        },
+        {
+          "do": "tension",
+          "add": 6,
+          "why": "thieves at the landing"
+        },
+        {
+          "do": "say",
+          "text": "Thieves have been through the landed goods in the night. The Nor'Westers' house is a stone's throw away and nobody saw a thing.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "the-factors-orders",
+      "title": "The Committee's orders",
+      "kind": "fixed",
+      "date": "1811-08-23",
+      "happens": [
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "The season's orders",
+          "text": "The Committee expects the York boats on the road before the month is out, and returns that answer. The Canadians have more men on the Bay than we were told. Hold what you have.",
+          "days": 0
+        },
+        {
+          "do": "flag",
+          "name": "orders_read"
+        }
+      ]
+    },
+    {
+      "id": "the-boats-go-out",
+      "title": "The York boats go out",
+      "kind": "fixed",
+      "date": "1811-08-26",
+      "requires": [
+        "the-factors-orders"
+      ],
+      "happens": [
+        {
+          "do": "brigade",
+          "run": "the York boats",
+          "effect": "launch"
+        },
+        {
+          "do": "say",
+          "text": "The York boats push off from the landing with the first of the outfit.",
+          "to": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "the-nwc-men-at-the-door",
+      "title": "The Nor'Westers come to the door",
+      "kind": "fixed",
+      "date": "1811-08-28",
+      "requires": [
+        "the-boats-go-out"
+      ],
+      "rumour": "A party of Canadians has been seen on the road to the Factory, armed.",
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 4,
+          "why": "armed men on the road"
+        }
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "blows"
+        },
+        {
+          "do": "tension",
+          "add": 8,
+          "why": "the Nor'Westers at the door"
+        },
+        {
+          "do": "news",
+          "from": "Fort William",
+          "to": "the wintering partner",
+          "subject": "the Bay",
+          "text": "Our people are at the English house. If they will not trade fair we shall see how they like it.",
+          "days": 20,
+          "company": "NWC"
+        },
+        {
+          "do": "say",
+          "text": "A party of Nor'Westers stands at the gate of the Factory, armed, and says it has come to trade. Nobody believes it.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "the-boats-ambushed",
+      "title": "The York boats are ambushed on the Hayes",
+      "kind": "fixed",
+      "date": "1811-09-03",
+      "requires": [
+        "the-boats-go-out"
+      ],
+      "rumour": "Shots are said to have been heard on the Hayes, below the first rapids.",
+      "happens": [
+        {
+          "do": "add",
+          "var": "losses"
+        },
+        {
+          "do": "add",
+          "var": "blows"
+        },
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 50,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the York boats",
+                  "effect": "turn_back"
+                }
+              ]
+            },
+            {
+              "weight": 30,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the York boats",
+                  "effect": "lose"
+                }
+              ]
+            },
+            {
+              "weight": 20,
+              "do": [
+                {
+                  "do": "brigade",
+                  "run": "the York boats",
+                  "effect": "delay",
+                  "days": 6
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "do": "tension",
+          "add": 10,
+          "why": "the boats ambushed on the Hayes"
+        },
+        {
+          "do": "say",
+          "text": "The York boats were fired on at the rapids. They are hurt, and the men are saying who did it.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "the-second-brigade",
+      "title": "The Saskatchewan brigade is held at Cumberland House",
+      "kind": "fixed",
+      "date": "1811-09-09",
+      "rumour": "The Saskatchewan brigade is not at Cumberland House, and nobody will say why.",
+      "happens": [
+        {
+          "do": "brigade",
+          "run": "the Saskatchewan brigade",
+          "effect": "delay",
+          "days": 10
+        },
+        {
+          "do": "tension",
+          "add": 4,
+          "why": "the Saskatchewan brigade held"
+        },
+        {
+          "do": "say",
+          "text": "Word comes down: the Saskatchewan brigade is held at Cumberland House by men who say they are only keeping the road.",
+          "to": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "the-first-fire",
+      "title": "Fire in the store",
+      "kind": "fixed",
+      "date": "1811-09-14",
+      "rumour": "The Factory's powder store has been seen with no watch on it at night.",
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 3,
+          "why": "an unwatched store"
+        }
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "losses"
+        },
+        {
+          "do": "add",
+          "var": "blows"
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "Firewood",
+          "add": -40
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "Powder",
+          "add": -15
+        },
+        {
+          "do": "tension",
+          "add": 8,
+          "why": "fire in the store"
+        },
+        {
+          "do": "say",
+          "text": "Fire in the store at night! The men put it out with the water barrels, but the powder is gone and half the winter's wood with it. Nobody will say who struck the light.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "the-parley",
+      "title": "The Nor'Westers ask to talk",
+      "kind": "fixed",
+      "date": "1811-09-20",
+      "requires": [
+        "the-first-fire"
+      ],
+      "rumour": "The Canadians' bourgeois at the English house is said to be willing to talk, if someone will go over.",
+      "activate_when": [
+        "tension>=40"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "parley_offered"
+        },
+        {
+          "do": "say",
+          "text": "The Nor'Westers have sent word that they will talk, if the Company sends a man across with no musket in his hand.",
+          "to": "HBC"
+        }
+      ],
+      "cancel_when": [
+        "flag:deed:truce"
+      ]
+    },
+    {
+      "id": "the-truce",
+      "title": "A truce on the Bay",
+      "kind": "conditional",
+      "delay_days": 2,
+      "rumour": "The two houses are said to have stopped watching each other over the gate.",
+      "when": [
+        "flag:deed:truce"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "truce_on_the_bay"
+        },
+        {
+          "do": "tension",
+          "add": -25,
+          "why": "a truce on the Bay"
+        },
+        {
+          "do": "say",
+          "text": "The two houses have agreed to keep to their own sides of the river. The gate is opened for the first time in a month.",
+          "to": "all",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "the-raid-on-the-stores",
+      "title": "A raid on the Factory's stores",
+      "kind": "fixed",
+      "date": "1811-09-28",
+      "requires": [
+        "the-nwc-men-at-the-door"
+      ],
+      "rumour": "Armed men have been seen gathering behind the English house. They are not there to trade.",
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 5,
+          "why": "armed men gathering"
+        }
+      ],
+      "activate_when": [
+        {
+          "not": "flag:truce_on_the_bay"
+        },
+        "tension>=35"
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "losses"
+        },
+        {
+          "do": "add",
+          "var": "blows",
+          "by": 2
+        },
+        {
+          "do": "flag",
+          "name": "open_hostility_on_the_bay"
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "Pemmican",
+          "add": -40
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "TradeGoods",
+          "add": -25
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "Musket",
+          "add": -4
+        },
+        {
+          "do": "tension",
+          "add": 15,
+          "why": "the raid on the stores"
+        },
+        {
+          "do": "say",
+          "text": "A raid on the Factory's stores at dawn: pemmican, goods and four muskets carried off, and a clerk struck down at the door.",
+          "to": "HBC",
+          "headline": true
+        },
+        {
+          "do": "news",
+          "from": "Fort William",
+          "to": "the wintering partner",
+          "subject": "the Bay",
+          "text": "The English house has had its cellar emptied. Say nothing of who.",
+          "days": 15,
+          "company": "NWC"
+        }
+      ]
+    },
+    {
+      "id": "the-counter-raid",
+      "title": "The Factory strikes back",
+      "kind": "conditional",
+      "delay_days": 5,
+      "requires": [
+        "the-raid-on-the-stores"
+      ],
+      "rumour": "Some of the Factory's men are talking of paying the Canadians back in kind.",
+      "when": [
+        {
+          "any": [
+            "flag:deed:raid",
+            "tension>=75"
+          ]
+        }
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "blows",
+          "by": 2
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "BeaverPelt",
+          "add": 25
+        },
+        {
+          "do": "tension",
+          "add": 12,
+          "why": "the Factory strikes back"
+        },
+        {
+          "do": "say",
+          "text": "The Factory has struck back. A party crossed at night and came home with furs that were not the Company's. The Canadians swear to have it out.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "hunger-comes",
+      "title": "The stores run low",
+      "kind": "conditional",
+      "delay_days": 10,
+      "requires": [
+        "the-raid-on-the-stores"
+      ],
+      "rumour": "The pemmican is going down faster than it should, and the geese are thin.",
+      "when": [
+        {
+          "m": "stock",
+          "a": [
+            "York Factory",
+            "Pemmican"
+          ],
+          "op": "<",
+          "v": 60
+        }
+      ],
+      "activate_when": [
+        "tension>=45"
+      ],
+      "happens": [
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "DriedGoose",
+          "add": -15
+        },
+        {
+          "do": "tension",
+          "add": 4,
+          "why": "hunger at the Factory"
+        },
+        {
+          "do": "say",
+          "text": "The pemmican is half what it should be and the winter has not begun. The men are on short rations and say whom to thank.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "the-river-is-held",
+      "title": "The river is held against the Factory",
+      "kind": "fixed",
+      "date": "1811-10-08",
+      "requires": [
+        "the-boats-ambushed"
+      ],
+      "rumour": "The Canadians are said to be holding the carrying places against every boat of the Company.",
+      "activate_when": [
+        {
+          "not": "flag:truce_on_the_bay"
+        }
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "river_held"
+        },
+        {
+          "do": "brigade",
+          "run": "the York boats",
+          "effect": "cancel"
+        },
+        {
+          "do": "brigade",
+          "run": "the Saskatchewan brigade",
+          "effect": "cancel"
+        },
+        {
+          "do": "tension",
+          "add": 6,
+          "why": "the river held"
+        },
+        {
+          "do": "say",
+          "text": "The river is held. No boat of the Company will pass the carrying places while the Canadians hold them, and the winter packet cannot go out.",
+          "to": "HBC",
+          "headline": true
+        }
+      ],
+      "cancel_when": [
+        "flag:deed:escort"
+      ],
+      "on_cancel": [
+        {
+          "do": "say",
+          "text": "A boat of the Company has come through. The Canadians are not holding the river as hard as they said."
+        }
+      ]
+    },
+    {
+      "id": "the-siege",
+      "title": "The siege of the Factory",
+      "kind": "conditional",
+      "repeat_days": 10,
+      "rumour": "There is nobody going in or out of the Factory gate after dark, and the dogs are being kept inside.",
+      "when": [
+        "flag:open_hostility_on_the_bay",
+        {
+          "not": "flag:truce_on_the_bay"
+        }
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "losses"
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "Pemmican",
+          "add": -10
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "Firewood",
+          "add": -15
+        },
+        {
+          "do": "tension",
+          "add": 3,
+          "why": "the Factory besieged"
+        },
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 40,
+              "do": [
+                {
+                  "do": "say",
+                  "text": "A shot through a window at midnight. Nobody is hurt, and nobody sleeps.",
+                  "to": "HBC"
+                }
+              ]
+            },
+            {
+              "weight": 30,
+              "do": [
+                {
+                  "do": "say",
+                  "text": "A man of the Company was struck down at the woodpile and carried in. The surgeon gives him the night.",
+                  "to": "HBC",
+                  "headline": true
+                }
+              ]
+            },
+            {
+              "weight": 30,
+              "do": [
+                {
+                  "do": "say",
+                  "text": "A stray dog is shot at the gate, and a note with it: 'Next the dog's master.'",
+                  "to": "HBC"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "cancel_when": [
+        {
+          "any": [
+            "flag:truce_on_the_bay",
+            "flag:deed:escort",
+            "after:1811-12-15"
+          ]
+        }
+      ],
+      "on_cancel": [
+        {
+          "do": "say",
+          "text": "The ring round the Factory has loosened: the deep cold has driven the besiegers to their own fires, and men are coming and going at the gate again."
+        }
+      ]
+    },
+    {
+      "id": "the-first-snow",
+      "title": "The first snow, and no relief",
+      "kind": "fixed",
+      "date": "1811-10-28",
+      "rumour": "The snow is coming early, and the Factory's wood is low.",
+      "pressure": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "winter coming on a short store"
+        }
+      ],
+      "happens": [
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "Firewood",
+          "add": -20
+        },
+        {
+          "do": "say",
+          "text": "The first snow, a fortnight early. The Factory's wood is short and the river will be ice before the boats are back.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "the-relief",
+      "title": "The brigade comes in",
+      "kind": "conditional",
+      "delay_days": 3,
+      "rumour": "A boat of the Company has been seen making the landing.",
+      "when": [
+        "flag:deed:escort"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "relief_came"
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "Pemmican",
+          "add": 60
+        },
+        {
+          "do": "stock",
+          "post": "York Factory",
+          "item": "TradeGoods",
+          "add": 40
+        },
+        {
+          "do": "tension",
+          "add": -15,
+          "why": "the relief comes through"
+        },
+        {
+          "do": "say",
+          "text": "A brigade of the Company has fought its way through, and the stores are full again. The gate is a good deal lighter this evening.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "trouble-1",
+      "title": "Trouble, the week of 1",
+      "kind": "fixed",
+      "date": "1811-08-29",
+      "rumour": "The dogs have been barking at nothing, again.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-2",
+      "title": "Trouble, the week of 2",
+      "kind": "fixed",
+      "date": "1811-09-04",
+      "rumour": "Somebody has been at the woodpile in the night.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-3",
+      "title": "Trouble, the week of 3",
+      "kind": "fixed",
+      "date": "1811-09-10",
+      "rumour": "The dogs have been barking at nothing, again.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-4",
+      "title": "Trouble, the week of 4",
+      "kind": "fixed",
+      "date": "1811-09-16",
+      "rumour": "Somebody has been at the woodpile in the night.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-5",
+      "title": "Trouble, the week of 5",
+      "kind": "fixed",
+      "date": "1811-09-22",
+      "rumour": "The dogs have been barking at nothing, again.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-6",
+      "title": "Trouble, the week of 6",
+      "kind": "fixed",
+      "date": "1811-09-28",
+      "rumour": "Somebody has been at the woodpile in the night.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-7",
+      "title": "Trouble, the week of 7",
+      "kind": "fixed",
+      "date": "1811-10-04",
+      "rumour": "The dogs have been barking at nothing, again.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-8",
+      "title": "Trouble, the week of 8",
+      "kind": "fixed",
+      "date": "1811-10-10",
+      "rumour": "Somebody has been at the woodpile in the night.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-9",
+      "title": "Trouble, the week of 9",
+      "kind": "fixed",
+      "date": "1811-10-16",
+      "rumour": "The dogs have been barking at nothing, again.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-10",
+      "title": "Trouble, the week of 10",
+      "kind": "fixed",
+      "date": "1811-10-22",
+      "rumour": "Somebody has been at the woodpile in the night.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-11",
+      "title": "Trouble, the week of 11",
+      "kind": "fixed",
+      "date": "1811-10-28",
+      "rumour": "The dogs have been barking at nothing, again.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-12",
+      "title": "Trouble, the week of 12",
+      "kind": "fixed",
+      "date": "1811-11-03",
+      "rumour": "Somebody has been at the woodpile in the night.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-13",
+      "title": "Trouble, the week of 13",
+      "kind": "fixed",
+      "date": "1811-11-09",
+      "rumour": "The dogs have been barking at nothing, again.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trouble-14",
+      "title": "Trouble, the week of 14",
+      "kind": "fixed",
+      "date": "1811-11-15",
+      "rumour": "Somebody has been at the woodpile in the night.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "another night of trouble"
+        },
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "add",
+              "var": "losses"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -5
+            },
+            {
+              "do": "say",
+              "text": "Goods are missing from the store again, and the gate was barred.",
+              "to": "HBC"
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "Another alarm in the night, and nothing to show for it but men who have not slept.",
+              "to": "HBC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "the-committee-asks",
+      "title": "London wants an account",
+      "kind": "conditional",
+      "repeat_days": 60,
+      "rumour": "The Governor and Committee have been told of the trouble on the Bay, and are not pleased.",
+      "when": [
+        "var(losses) >= 3",
+        {
+          "not": "flag:truce_on_the_bay"
+        }
+      ],
+      "happens": [
+        {
+          "do": "london",
+          "price": 0.9,
+          "quota": 0.85
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "The state of the Bay",
+          "text": "The Committee has heard of thefts, fires and a raid. It expects an account, and a Factor who can hold his post.",
+          "days": 40
+        }
+      ]
+    },
+    {
+      "id": "the-winter-settles",
+      "title": "The ice, and an uneasy winter",
+      "kind": "fixed",
+      "date": "1811-11-20",
+      "rumour": "The river is freezing and neither house can move against the other until spring.",
+      "happens": [
+        {
+          "do": "tension",
+          "add": -10,
+          "why": "the ice stops the quarrel"
+        },
+        {
+          "do": "say",
+          "text": "The river is shut by ice. Neither house can move against the other before the spring, and both know it.",
+          "to": "all",
+          "headline": true
+        },
+        {
+          "do": "flag",
+          "name": "winter_has_come"
+        }
+      ]
+    }
+  ]
+}

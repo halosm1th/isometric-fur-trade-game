@@ -144,4 +144,55 @@ public class RunnerTests
 		Days(r2, h2, D("1814-01-11"), D("1814-01-20"));
 		Assert.Empty(h2.Said);
 	}
+
+	[Fact]
+	public void ARumourIsToldOnlyWhileTheBeatIsAwakeAndNear()
+	{
+		var doc = Doc(B("a", "event", "1815-01-01", ("lead_days", 60.0), ("rumour", "Men are gathering at the Forks."), ("happens", L(Say("happened")))));
+		var (r, h) = Make(doc, D("1814-01-01"));
+		Days(r, h, D("1814-01-01"), D("1814-06-01"));
+		Assert.Empty(r.Stirring(D("1814-06-01")));                         // far off: nothing is said
+		Days(r, h, D("1814-06-02"), D("1814-11-15"));
+		var s = Assert.Single(r.Stirring(D("1814-11-15")));                  // inside the lead time
+		Assert.Equal("Men are gathering at the Forks.", s.Rumour);
+		Assert.Equal("approaching", s.Stage);
+		Assert.InRange(s.DaysToDue, 40, 50);
+		Days(r, h, D("1814-11-16"), D("1815-01-02"));
+		Assert.Empty(r.Stirring(D("1815-01-02")) .Where(x => r.State.Done.Contains(x.Id)));
+	}
+
+	[Fact]
+	public void ARumourlessBeatTellsNothing()
+	{
+		var doc = Doc(B("a", "conditional", null, ("delay_days", 10.0), ("happens", L(Say("x")))));
+		var (r, h) = Make(doc, D("1814-01-01"));
+		Days(r, h, D("1814-01-01"), D("1814-01-03"));
+		Assert.Empty(r.Stirring(D("1814-01-03")));
+	}
+
+	[Fact]
+	public void ADatelessBeatIsTalkedOfOnceItWakes()
+	{
+		var doc = Doc(B("a", "conditional", null, ("when", L("tension>=50")), ("delay_days", 20.0), ("rumour", "The boats are late."), ("happens", L(Say("x")))));
+		var (r, h) = Make(doc, D("1814-01-01"));
+		Days(r, h, D("1814-01-01"), D("1814-02-01"));
+		Assert.Empty(r.Stirring(D("1814-02-01")));
+		h.Tension = 60;
+		Days(r, h, D("1814-02-02"), D("1814-02-05"));
+		Assert.Single(r.Stirring(D("1814-02-05")));
+		Days(r, h, D("1814-02-06"), D("1814-03-01"));
+		Assert.Empty(r.Stirring(D("1814-03-01")));                          // it happened: no longer a rumour
+	}
+
+	[Fact]
+	public void ADeedRaisesAFlagAndCounts()
+	{
+		var st = new CampaignState();
+		st.Deed("truce"); st.Deed("truce");
+		Assert.Contains("deed:truce", st.Flags);
+		Assert.Equal(2, st.Vars["deed:truce"]);
+		Assert.True(CampaignLogic.Eval("deed:truce", st, new Host()));
+		Assert.True(CampaignLogic.Eval("var(deed:truce) >= 2", st, new Host()));
+		Assert.False(CampaignLogic.Eval("var(deed:truce) >= 3", st, new Host()));
+	}
 }
