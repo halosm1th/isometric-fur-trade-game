@@ -9,8 +9,9 @@ public enum Ground : byte { Ocean, Lake, River, Ford, Boreal, Tundra, Shield, Pa
 
 public readonly record struct WorldPlace(string Name, string Kind, string Company, int Year, Vector2I Cell, double Lon, double Lat, string Note);
 
-// The whole play area (design doc 6.1) at half scale: 20 world px a km,
-// one pixel of Data/World/ground.png per cell. Built from the Pemmican
+// The whole play area (design doc 6.1) at 40 world px a km (px_per_km in
+// world.json; the old York-Oxford scale), 1002 x 2361 cells, one pixel of
+// Data/World/ground.png per cell. Built from the Pemmican
 // Empire atlas by tools/world/build_world.py, which also fits the hand-built
 // posts onto dry ground and lays the York Factory roads (world.json).
 //
