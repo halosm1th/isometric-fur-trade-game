@@ -27,7 +27,7 @@ The Siksika, Kainai and Piikani held military dominance on the northwestern plai
 
 - **Camps.** Each band has a chief (the scene's Yellow Antelope leads the Blackfoot proper), a hunter (Three Loon), a wife (White Fawn Woman) and a daughter (Fawn Woman). A chief wears the Blackfoot sheet, not the Cree captain's: "a Blackfoot or a Mandan chief wears his own nation's" (code comment, `Appearance.cs`).
 - **Edmonton House and its neighbours** have Blackfoot family camps: the people who actually come to those posts.
-- **At odds.** Two nations with standing under 25 see each other's armed hunters as enemies. Nothing in the build yet forces war parties, but the model for it (`AtOddsWithOtherBand`) is there.
+- **At odds.** Two nations with standing under 25 see each other's armed hunters as enemies. Horse raids between enemy nations are built (`Economy/Plains.cs`: feuds, live raids near a player, numbers elsewhere); war parties and mounted battle are not (see `docs/specs/story-plains-years.md`).
 - **Language wall.** The Cree-Blackfoot kinship is 0.1: a man with perfect Cree is nearly deaf in a Blackfoot lodge ([[Languages]]).
 
 ## Notable people

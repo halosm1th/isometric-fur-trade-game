@@ -45,6 +45,8 @@ All of them are a `Household`: an `Inventory` called Stores (items by count), a 
 
 ## Planned (design doc 13)
 
+The world market, money and distance prices are specced on [[Global Trade]].
+
 | Feature | Design doc | Status |
 |---|---|---|
 | Fur quality rating per pack and a periodic market clearing | 13.6 | Planned. Quality is expressed today by different item ids ([[Summer Pelt]], [[Shot-through Pelt]]) and a flat price per post |

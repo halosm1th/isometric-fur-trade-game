@@ -21,6 +21,12 @@ status: planned
 7. **Weather effects on screen** (snow, rain, fog; today only a colour modulate).
 8. **Expanded American parts** (design doc 7.3 and 10.7).
 
+## Specs written (2026-10-13)
+
+- [[The Plains Years]]: a story arc from York to the plains and the intertribal war (`docs/specs/story-plains-years.md`).
+- [[Global Trade]]: a world market, money and the distance gradient (`docs/specs/global-trade.md`).
+- Tool proposals T0-T8 (`docs/specs/tools.md`); T0, the wiki checker, is built (`tools/docs/check_wiki.py`).
+
 ## Systems from the design doc not yet built
 
 | Area | Planned item | Source |
