@@ -37,7 +37,7 @@ public static class Known
 	public static readonly string[] Addressees = { "the Factor at York Factory", "the postmaster at Oxford House", "the wintering partner", "the chief of the band" };
 	public static readonly string[] Companies = { "HBC", "NWC" };
 	public static readonly string[] EngineFlagPrefixes = { "heard:", "late:", "lost:", "robbed:", "turned:", "out:", "in:", "deed:" };
-	public static readonly HashSet<string> EngineFlags = new() { "brigade_late", "brigade_lost", "brigade_robbed", "brigade_turned_back", "brigade_in" };
+	public static readonly HashSet<string> EngineFlags = new() { "brigade_late", "brigade_lost", "brigade_robbed", "brigade_turned_back", "brigade_in", "open_hostility" };
 
 	public static string Root { get; } = FindRoot();
 

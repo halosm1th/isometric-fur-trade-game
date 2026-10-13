@@ -1,6 +1,6 @@
 # Campaign tool
 
-Campaigns (the dated history the world is nudged to follow, and how the brigades on the rivers answer to it) are written in a small C-like language, checked by this tool, and compiled to the JSON the game reads. The full documentation is in [`docs/wiki`](../../docs/wiki/Home.md); this page is the five-minute version.
+Campaigns (the dated history the world is nudged to follow, and how the brigades on the rivers answer to it) are written in a small C-like language, checked by this tool, and compiled to the JSON the game reads. The full documentation is in [`docs/wiki`](../../docs/wiki/Home.md); this page is the five-minute version. When writing a campaign, keep these open: the [Library reference](../../docs/wiki/Library-Reference.md) (every function), the [World reference](../../docs/wiki/World-Reference.md) (every post, brigade run, item, person and letter address a script can name), the [Cookbook](../../docs/wiki/Cookbook.md) and the [Pitfalls](../../docs/wiki/Pitfalls.md).
 
 ```c
 campaign FirstBeat(title: "A first beat", description: "One letter, on one day.");
@@ -51,4 +51,4 @@ dotnet run --project tools/CampaignTool -- docs                      # write doc
 | `web/` | the editor (plain HTML, CSS and JavaScript; no build step) |
 | `*.cs` | the compiler, checker, simulator and server: see the wiki's *Command-line tool* page |
 
-The tool compiles the game's own `CampaignLogic.cs` and `CampaignRunner.cs` (pure C#, no engine types), so a script behaves identically in the simulator and in the game. `dotnet test tests/CampaignTests` runs the suite.
+The tool compiles the game's own `CampaignLogic.cs` and `CampaignRunner.cs` (pure C#, no engine types), so a script is *scheduled* identically in the simulator and in the game; the world it plays against is invented (see the wiki's [simulator differences](../../docs/wiki/Simulation-Scenarios.md#how-the-simulator-differs-from-the-game)). `dotnet test tests/CampaignTests` runs the suite.

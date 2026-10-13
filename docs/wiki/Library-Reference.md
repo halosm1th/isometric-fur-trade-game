@@ -6,6 +6,8 @@ Every name the language gives you, with what it does and an example. Anything in
 
 Types: `int` is a whole number, `float` any number, `string` text, `bool` a condition or true/false. A *Days* is a length of time, `days(10)`; a *Date* is `date(1816, 6, 19)`. *effect* means the call changes the world, so it belongs in an effect hook (`OnActivate` ...) and not in a condition.
 
+The names you pass in (posts, brigade runs, items, people, letter addressees) are listed in the [World reference](World-Reference); what each effect really does once the game carries it out is in [Effects in the game](Effects-in-the-Game); the flags the game raises by itself are in [State, flags and variables](State-Flags-and-Variables).
+
 ## Beat header
 
 | Argument | Type | What it is |
@@ -14,12 +16,12 @@ Types: `int` is a whole number, `float` any number, `string` text, `bool` a cond
 | `title` | `string` | What the log and the news call the beat. Defaults to the id. |
 | `kind` | `Kind` | Fixed, Conditional, Event or Pressure. Almost never written: it is derived from what the beat has (see the guide). |
 | `date` | `Date` | The day the beat is due. A beat with no date is due the moment it wakes, plus its delay. |
-| `window` | `Days` | How long the world has to do the beat itself after its date before it is forced (Firm and Strict adherence). |
-| `lead` | `Days` | How long before its date the beat's pressure (OnApproach) begins. Default 30. |
-| `delay` | `Days` | For a beat with no date: days after waking before it is due. |
-| `repeat` | `Days` | The beat comes round again this many days after it happened, and can happen again. |
+| `window` | `Days` | How long the world has to do the beat itself after its date before it is forced: Strict forces it one window late, Firm two windows late. Default 60 days. |
+| `lead` | `Days` | How long before its date the beat's pressure (OnApproach) begins, and its rumour is first told. Default 30 days. |
+| `delay` | `Days` | For a beat with no date: days after waking before it is due. Default 0. |
+| `repeat` | `Days` | The beat comes round again this many days after it happened: a dated beat's date moves on by this much, a dateless beat sleeps this long. |
 | `rumour` | `string` | What the player is told while the beat is stirring or its day draws near: one line for the journal's "What is stirring" list, written as something a person at the post could have heard. The beat's own title is never shown there, so a rumour is the only thing that says anything before the beat happens. |
-| `keywords` | `string[]` | Words the news director looks for when it chooses what to tell the player. Free text. |
+| `keywords` | `string[]` | Words the news director looks for when it chooses what to tell the player, from 120 days before a dated beat's date until two windows after it. Free text. |
 
 ## Campaign header
 
@@ -29,18 +31,18 @@ Types: `int` is a whole number, `float` any number, `string` text, `bool` a cond
 | `description` | `string` | A few sentences about the campaign, shown under its name. |
 | `note` | `string` | A note kept in the JSON, for whoever opens it. Free text. |
 | `seed` | `int` | The seed for the script's dice (chance, random). The same seed gives the same history. |
-| `postsByFoundingYear` | `bool` | When true, posts appear in the world on 1 January of the year they were founded. |
+| `postsByFoundingYear` | `bool` | When true, posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only if a beat founds it. |
 
 ## Hooks
 
 | Hook | Kind | What it does |
 |---|---|---|
-| `AwakenWhen()` | condition (`=>`) | A beat only does anything on the days this holds (and its requirements are met). The first such day it wakes, and OnAwaken runs. Leave it out and the beat is awake from the start. |
+| `AwakenWhen()` | condition (`=>`) | A beat only does anything on the days this holds (and its requirements are met). The first such day it wakes, and OnAwaken runs; a dateless beat counts its delay from then. Leave it out and the beat is awake from the start. |
 | `OnAwaken()` | effects (`{ }`) | What happens at the moment the beat wakes, once. A repeating beat does it again each time round. |
-| `OnApproach()` | effects (`{ }`) | Pressure on the world as the beat's day draws near: it runs once, when the lead time before the date begins. This is how a beat makes the world ready for itself. |
-| `ActivateWhen()` | condition (`=>`) | A last condition the beat waits for once it is due. If it does not hold the beat is due but not yet happening. |
+| `OnApproach()` | effects (`{ }`) | Pressure on the world as the beat's day draws near: it runs once, on the first awake day within the lead time before the date (Steady adherence and up; never at Gentle). This is how a beat makes the world ready for itself. |
+| `ActivateWhen()` | condition (`=>`) | A last condition the beat waits for once it is due, and that a forced event waits for too. If it does not hold the beat is due but not yet happening. trigger() does not ask it. |
 | `OnActivate()` | effects (`{ }`) | What the beat does when it happens. |
-| `ResolveWhen()` | condition (`=>`) | The world got there by itself: while this holds, the beat is over without OnActivate running. |
+| `ResolveWhen()` | condition (`=>`) | The world got there by itself: asked every day the beat is awake, even long before its date. The first day it holds, OnResolve runs and the beat is over without OnActivate running. |
 | `OnResolve()` | effects (`{ }`) | What happens when the world resolves the beat. |
 | `CancelWhen()` | condition (`=>`) | The beat can no longer happen. Checked before everything else, on every day, whatever the adherence. |
 | `OnCancel()` | effects (`{ }`) | What happens when the beat is cancelled. |
@@ -73,7 +75,7 @@ date: date(1816, 6, 19)
 
 `chance(int percent) : bool`
 
-True this often (a percent), decided by the campaign's seed.
+True this often (a percent), decided by the campaign's seed. It rolls again every time it is asked: in AwakenWhen, chance(10) is a one-in-ten chance each day.
 
 ```c
 chance(30)
@@ -103,7 +105,7 @@ brigade("the York boats").isLate
 
 `news(string from, Person to, string subject, string text, int days, Company company?) : effect`
 
-A letter arrives for the player after some days.
+A sealed letter, sent now. After some days it reaches the first living person it is addressed to (it waits if there is nobody), and it is known only once it is read; reading it raises the flag heard:<this beat's id>.
 
 ```c
 news(from: "Montreal", to: Person.Partner, subject: "war", text: "...", days: 75, company: Company.NWC)
@@ -113,7 +115,7 @@ news(from: "Montreal", to: Person.Partner, subject: "war", text: "...", days: 75
 
 `say(string text, Company to?) : effect`
 
-A line in the log, for one company or for everyone.
+A line in the journal of every player of one company (or of everyone), spoken over their heads.
 
 ```c
 say("The boats are overdue.", Company.HBC)
@@ -133,7 +135,7 @@ shout("The governor is dead!")
 
 `trigger(Beat beat) : effect`
 
-Make another beat happen now.
+Make another beat happen at the end of today: its OnActivate runs whatever its date, requirements, ActivateWhen, or cancellation.
 
 ```c
 trigger(TheEnd)
@@ -143,7 +145,7 @@ trigger(TheEnd)
 
 `after(Days delay, Lambda then) : effect`
 
-Do something some days from now.
+Do something some days from now (saved with the game).
 
 ```c
 after(days(10), () => trigger(TheEnd))
@@ -188,7 +190,7 @@ The state of the world: asked in conditions, changed in effects.
 
 `world.tension : int`
 
-How tense the colony and the companies are, 0-100.
+How close the two companies are to blows, 0-100. It starts at 20, falls by 1.2 a day on its own, and at 70 or more the companies are at open hostility.
 
 ```c
 world.tension >= 50
@@ -198,7 +200,7 @@ world.tension >= 50
 
 `world.standing : int`
 
-The player's standing with their company.
+The player's standing with their company (the local player; 0 if there is none).
 
 ```c
 world.standing < 10
@@ -248,7 +250,7 @@ world.dayOfYear > 200
 
 `world.convoysActive : int`
 
-How many brigades are on the rivers.
+How many brigade crossings are on the rivers now (not yet arrived).
 
 ```c
 world.convoysActive == 0
@@ -278,7 +280,7 @@ world.season == Season.Winter
 
 `world.playerFaction : Company`
 
-Which company the player works for.
+Which company a player works for: in multiplayer, true if any player does.
 
 ```c
 world.playerFaction == Company.HBC
@@ -288,7 +290,7 @@ world.playerFaction == Company.HBC
 
 `world.stock(string post, Item item) : int`
 
-How much of an item a post's ledger holds.
+How many pieces of an item a post's ledger holds. A post that does not stand has no ledger and answers nothing, so every comparison with it is false.
 
 ```c
 world.stock("York Factory", Item.Rum) < 20
@@ -298,7 +300,7 @@ world.stock("York Factory", Item.Rum) < 20
 
 `world.furs(string post) : int`
 
-The furs in a post's ledger.
+The furs in a post's ledger, in Made Beaver.
 
 ```c
 world.furs("York Factory") > 500
@@ -308,7 +310,7 @@ world.furs("York Factory") > 500
 
 `world.hasPost(string place) : bool`
 
-True once a post stands there.
+True while a post stands there: founded by the start year and not given up, or founded since (by the script, or on 1 January of its year with postsByFoundingYear).
 
 ```c
 world.hasPost("Fort William")
@@ -318,7 +320,7 @@ world.hasPost("Fort William")
 
 `world.isDead(string name) : bool`
 
-True once the named person is dead.
+True once the person with exactly this name is dead. Names are written as the game shows them ("Mr. William Auld", "Maskwa (chief)"); a name nobody in the world has is never dead.
 
 ```c
 world.isDead("Miles Macdonell")
@@ -338,7 +340,7 @@ world.inMonths(6, 8)
 
 `world.raiseTension(int amount, string why?) : effect`
 
-Raise (or, if negative, lower) the tension, with a line for the log.
+Raise (or, if negative, lower) the tension, with a line for the log. The result is kept within 0-100.
 
 ```c
 world.raiseTension(10, "the colony is armed")
@@ -348,7 +350,7 @@ world.raiseTension(10, "the colony is armed")
 
 `world.setLondon(float price, float quota) : effect`
 
-Set the London market's price and quota multipliers.
+Multiply next year's London price and quota at York Factory (1 leaves one alone). They compound: two calls of 0.9 make 0.81.
 
 ```c
 world.setLondon(0.85, 0.85)
@@ -358,7 +360,7 @@ world.setLondon(0.85, 0.85)
 
 `world.foundPost(string place) : effect`
 
-A post is founded there.
+A post on the world map is founded there and appears in the world.
 
 ```c
 world.foundPost("Fort William")
@@ -368,7 +370,7 @@ world.foundPost("Fort William")
 
 `world.addStock(string post, Item item, int amount) : effect`
 
-Put goods in (or, if negative, take them out of) a post's ledger.
+Put goods in (or, if negative, take them out of) a post's ledger. Nothing happens if the post does not stand.
 
 ```c
 world.addStock("York Factory", Item.Rum, -5)
@@ -463,7 +465,7 @@ Raid.count >= 2
 
 `Beat.age : int`
 
-Days since the beat last happened.
+Days since the beat last happened (99999 if it never has).
 
 ```c
 SevenOaks.age > 90
@@ -478,7 +480,7 @@ SevenOaks.age > 90
 
 `Brigade.isLate : bool`
 
-True when the brigade has missed its day.
+True when the brigade has missed its day (until it arrives or sets out again).
 
 ```c
 brigade("the York boats").isLate
@@ -488,7 +490,7 @@ brigade("the York boats").isLate
 
 `Brigade.isLost : bool`
 
-True when the brigade has been lost.
+True when the brigade has lost pieces on this crossing.
 
 ```c
 brigade("the York boats").isLost
@@ -498,7 +500,7 @@ brigade("the York boats").isLost
 
 `Brigade.isRobbed : bool`
 
-True when the brigade has been robbed.
+True when the brigade was robbed on this crossing.
 
 ```c
 brigade("the York boats").isRobbed
@@ -508,7 +510,7 @@ brigade("the York boats").isRobbed
 
 `Brigade.wasTurnedBack : bool`
 
-True when the brigade was turned back.
+True when the brigade was turned back on this crossing.
 
 ```c
 brigade("the York boats").wasTurnedBack
@@ -518,7 +520,7 @@ brigade("the York boats").wasTurnedBack
 
 `Brigade.isOut : bool`
 
-True when the brigade is out on the river.
+True when the brigade has set out at least once (it stays true: on the river now is isOut && !isIn).
 
 ```c
 brigade("the York boats").isOut
@@ -528,7 +530,7 @@ brigade("the York boats").isOut
 
 `Brigade.isIn : bool`
 
-True when the brigade has arrived.
+True when the brigade has arrived (until it sets out again).
 
 ```c
 brigade("the York boats").isIn
@@ -548,7 +550,7 @@ brigade("the York boats").isWintering
 
 `Brigade.daysLate : int`
 
-How many days late the brigade is.
+How many days late the brigade's crossing is (0 when it is not on the river).
 
 ```c
 brigade("the York boats").daysLate > 10
@@ -558,7 +560,7 @@ brigade("the York boats").daysLate > 10
 
 `Brigade.daysOut : int`
 
-How many days the brigade has been out.
+How many days the brigade's crossing has been out (0 when it is not on the river).
 
 ```c
 brigade("the York boats").daysOut > 40
@@ -568,7 +570,7 @@ brigade("the York boats").daysOut > 40
 
 `Brigade.delay(int days?) : effect`
 
-Hold the brigade up.
+Hold the brigade on the bank for some days (5 if not given).
 
 ```c
 brigade("the York boats").delay(4)
@@ -578,7 +580,7 @@ brigade("the York boats").delay(4)
 
 `Brigade.turnBack(int days?) : effect`
 
-Turn the brigade back.
+Turn the brigade back toward the post it left. (The game does not use days.)
 
 ```c
 brigade("the York boats").turnBack()
@@ -588,7 +590,7 @@ brigade("the York boats").turnBack()
 
 `Brigade.lose() : effect`
 
-The brigade is lost with all hands and goods.
+Half of every kind of piece the brigade carries is lost on the road; the boats go on.
 
 ```c
 brigade("the York boats").lose()
@@ -598,7 +600,7 @@ brigade("the York boats").lose()
 
 `Brigade.cancel() : effect`
 
-The brigade does not sail this year.
+Stand down the crossing now on the road: its pieces go back on the books of the post that loaded them. Later crossings still run.
 
 ```c
 brigade("the York boats").cancel()
@@ -608,7 +610,7 @@ brigade("the York boats").cancel()
 
 `Brigade.launch(int leg?) : effect`
 
-Send the brigade out now, from a leg of its route.
+Send one crossing of the run out now: leg is its place in the run's list of legs, counting from 0.
 
 ```c
 brigade("the York boats").launch()
