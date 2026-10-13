@@ -648,6 +648,8 @@ def compile_text(text):
             out["title"] = parse_scalar(rest)
         elif word == "description":
             out["description"] = parse_scalar(rest)
+        elif word == "note":
+            out["note"] = parse_scalar(rest)
         elif word == "posts_by_founding_year":
             out["posts_by_founding_year"] = True
         elif word == "seed":
@@ -655,7 +657,7 @@ def compile_text(text):
         elif word == "beat":
             out["beats"].append(_parse_beat(ln, kids))
         else:
-            raise CampError(f"unknown top-level '{word}' (campaign, description, beat, posts_by_founding_year, seed)", ln.no)
+            raise CampError(f"unknown top-level '{word}' (campaign, description, note, beat, posts_by_founding_year, seed)", ln.no)
         i = j
     return out
 
@@ -710,6 +712,8 @@ def decompile(d):
     out.append(f"campaign {json.dumps(d.get('title', ''))}")
     if d.get("description"):
         out.append(f"description {json.dumps(d['description'])}")
+    if d.get("note"):
+        out.append(f"note {json.dumps(d['note'])}")
     if d.get("posts_by_founding_year"):
         out.append("posts_by_founding_year")
     if "seed" in d:

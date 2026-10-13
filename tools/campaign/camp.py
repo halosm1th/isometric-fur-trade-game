@@ -207,8 +207,10 @@ def cmd_sim(a):
 def monte_carlo(doc, scenario, a):
     seen = collections.defaultdict(list)
     forced = collections.Counter()
+    history = set()
     for n in range(a.runs):
         res = sim.simulate(doc, scenario, seed=(a.seed or 1) + n * 7919, level=a.adherence)
+        history |= set(res.history)
         for bid, hits in res.fired.items():
             date, how = hits[0]
             seen[bid].append(engine.day_number(date))
@@ -219,7 +221,7 @@ def monte_carlo(doc, scenario, a):
     for b in doc.get("beats", []):
         days = seen.get(b["id"], [])
         if not days:
-            print(f"{b['id']:30s} {'0%':>6s}  {'':6s}  never")
+            print(f"{b['id']:30s} {'-':>6s}  {'':6s}  {'(history: before the start)' if b['id'] in history else 'never'}")
             continue
         iso = lambda d: engine.date_of(int(d)).isoformat()
         print(f"{b['id']:30s} {100 * len(days) // a.runs:5d}%  {100 * forced[b['id']] // len(days):5d}%  {iso(min(days))} / {iso(statistics.median(days))} / {iso(max(days))}")

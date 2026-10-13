@@ -647,6 +647,21 @@ Actions:
       Addressees: a person's name, or the Factor at York Factory, the
       postmaster at Oxford House, the wintering partner, the chief of the band.
 
+More than flags (see tools/campaign/README.md, which also has a tool for writing, checking and
+playing scripts forward without the game):
+  Conditions also take { ""all"": [..] }, { ""any"": [..] }, { ""not"": c }, a fact
+  { ""p"": ""convoy_late"", ""a"": [""the York boats""] } or a number
+  { ""m"": ""stock"", ""a"": [""York Factory"", ""Rum""], ""op"": ""<"", ""v"": 10 }; in a string,
+  ""stock(York Factory, Rum) < 10"", ""var(mood) >= 3"", ""month:6-8"", ""chance:30"", ""season:Winter"".
+  A beat can also have repeat_days (it happens again that much later).
+  Actions also:  { ""do"": ""set"", ""var"": ""mood"", ""to"": 2 }   { ""do"": ""add"", ""var"": ""mood"", ""by"": 1 }
+    { ""do"": ""if"", ""cond"": c, ""then"": [..], ""else"": [..] }
+    { ""do"": ""random"", ""options"": [ { ""weight"": 30, ""do"": [..] }, .. ] }
+    { ""do"": ""after"", ""days"": 10, ""then"": [..] }      { ""do"": ""trigger"", ""beat"": ""id"" }
+    { ""do"": ""brigade"", ""run"": ""the York boats"", ""effect"": ""delay|turn_back|lose|cancel|launch"" }
+    { ""do"": ""stock"", ""post"": ""York Factory"", ""item"": ""Rum"", ""add"": -10 }
+    { ""do"": ""say"", ""text"": ""..."", ""to"": ""HBC"", ""headline"": true }
+
 Adherence (chosen with the campaign):
   Gentle  fixed and conditional beats; the director favours related news
   Steady  + pressure

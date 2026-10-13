@@ -355,6 +355,50 @@ class Simulation(unittest.TestCase):
             self.assertIn(bid, r.fired, bid)
 
 
+class Shipped(unittest.TestCase):
+    """The campaigns the game ships, and the source they are built from."""
+
+    def src(self, name):
+        with open(os.path.join(HERE, "src", name)) as f:
+            return f.read()
+
+    def test_installed_json_is_what_the_source_builds(self):
+        for name in sorted(os.listdir(os.path.join(HERE, "src"))):
+            if not name.endswith(".camp"):
+                continue
+            with self.subTest(name):
+                built = lang.compile_text(self.src(name))
+                with open(os.path.join(ROOT, "Campaigns", name[:-5] + ".json")) as f:
+                    self.assertEqual(norm(built), norm(json.load(f)), f"Campaigns/{name[:-5]}.json is stale: run tools/campaign/camp.py build")
+
+    def test_sources_are_clean(self):
+        for name in sorted(os.listdir(os.path.join(HERE, "src"))):
+            if name.endswith(".camp"):
+                with self.subTest(name):
+                    r = check.check(lang.compile_text(self.src(name)))
+                    self.assertEqual((r.errors, r.warnings), ([], []))
+
+    def test_the_brigade_beats_behave(self):
+        doc = lang.compile_text(self.src("historical.camp"))
+        with open(os.path.join(HERE, "examples", "pemmican-war.scenario.json")) as f:
+            scenario = json.load(f)
+        r = sim.simulate(doc, scenario, seed=5)
+        def per_year(bid):
+            c = {}
+            for date, _ in r.fired.get(bid, []):
+                c[date[:4]] = c.get(date[:4], 0) + 1
+            return c
+        # the brigades are acted on about every six weeks of open water, not every other week
+        self.assertLessEqual(max(per_year("war-slows-the-canoes").values()), 4)
+        self.assertLessEqual(max(per_year("interior-ambushes").values()), 3)
+        self.assertLessEqual(max(per_year("pemmican-starves-the-canoes").values()), 4)
+        # the ones that answer what the boats did
+        self.assertIn("fort-william-stood-down", r.fired)
+        self.assertIn("canoes-stood-down", r.fired)
+        # and the dated history is untouched
+        self.assertEqual(r.fired["merger"][0][0], "1821-03-26")
+
+
 class Drift(unittest.TestCase):
     """The tool's idea of the language must match the game's."""
 
