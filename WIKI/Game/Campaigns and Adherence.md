@@ -7,7 +7,7 @@ status: implemented
 
 # Campaigns and Adherence
 
-**Status:** Implemented. Code: `Scripts/Core/Campaign.cs`; scripts: `Campaigns/historical.json` and `Campaigns/Gemini and Clark.json`.
+**Status:** Implemented. Code: `Scripts/Core/Campaign.cs`, `CampaignRunner.cs`, `CampaignLogic.cs`; scripts: `Campaigns/*.json`, written in the campaign language in `tools/CampaignTool/src/*.camp`. **To write campaigns, see the campaign scripting wiki in [`docs/wiki`](../../docs/wiki/Home.md)**: the language, a cookbook, and full references to every post, brigade, item, person and flag a script can use.
 
 A **campaign** is a JSON file of dated *beats* (the blockade, the Pemmican Proclamation, Seven Oaks, the merger) that the [[The Director|director]] works toward. **Adherence** is a dial on how hard the world is held to that script. Both are chosen on the New Game page of the main menu. Nothing in a campaign is announced to you directly: every beat becomes a sealed letter that must arrive and be read ([[Information and Messages]]), so you hear about Seven Oaks weeks after it happens, from whoever carries the news.
 
@@ -16,11 +16,15 @@ A **campaign** is a JSON file of dated *beats* (the blockade, the Pemmican Procl
 | Choice | What it is |
 |---|---|
 | **No script** | The world runs on its own pressures. Posts that stand at the start date exist; later ones appear only if someone founds them. |
-| **The Pemmican War, 1811-1821** (`historical.json`) | The shipped historical arc: Selkirk's colony, the Pemmican Proclamation, Seven Oaks, Fort William seized, the lawless years, and the union of the companies. 13 beats. |
-| **The Plains Ablaze (1801-1821)** (`Gemini and Clark.json`) | The same arc plus an alternate-history opening: the Lewis and Clark expedition is destroyed and the U.S. Army invades the Plains. 13 beats. The file name is as it appears in the repository. |
+| **The Pemmican War, 1811-1821** (`historical.json`) | The shipped historical arc: Selkirk's colony, the Pemmican Proclamation, Seven Oaks, Fort William seized, the lawless years, and the union of the companies; then nine beats that act on the brigades. 22 beats. |
+| **The Company Years, 1811-1830** (`company-years.json`) | The long one, in five acts: the same arc, then Simpson's council, the Columbia and the Red River flood. Seven Oaks can be averted by a quiet spring or a truce. 59 beats. |
+| **The Long Peace, 1811-1821** (`the-long-peace.json`) | The same grant and blockade, but the war is only a possibility: a truce the player brokers turns the Proclamation into a bargain and Seven Oaks is averted. 30 beats. |
+| **The Rivers Run, 1811-1821** (`the-rivers-run.json`) | The brigades: late, lost, robbed and wintering boats, early ice, and a Committee that counts the troubles. Riding a brigade in or carrying a packet is noticed. 18 beats. |
+| **Landfall: Blood on the Bay, 1811** (`blood-on-the-bay.json`) | Action from the first hour at York Factory: a squall, thieves, the Nor'Westers at the gate, an ambush on the Hayes, fire, hunger and a siege, all before winter. A truce or a relief brigade can turn it. 33 beats. |
+| **The Plains Ablaze (1801-1821)** (`Gemini and Clark.json`) | The arc plus an alternate-history opening: the Lewis and Clark expedition is destroyed and the U.S. Army invades the Plains. 13 beats. Written as JSON only (the editor can convert it). |
 | **My campaign** (user folder) | `user://campaigns/*.json`. The menu button "Open the campaigns folder" creates `my-campaign.json` (a copy of the historical script) and a `README.txt` describing the format. |
 
-Both scripts set `posts_by_founding_year: true`: posts in the atlas appear on 1 January of their founding year.
+All the shipped scripts set `posts_by_founding_year: true`: posts in the atlas appear on 1 January of their founding year.
 
 ## The four adherence levels
 
@@ -42,9 +46,11 @@ Forced beats are logged as `[forced]`. Gentle is the design document's director 
 
 Actions a beat can run: `flag`, `unflag`, `tension` (rivalry, 0-100), `london` (multiplies the next year's pelt price and quota), `found_post`, and `news` (a sealed letter delivered after N days to a named addressee: the Factor at York Factory, the wintering partner, the postmaster at Oxford House or the chief of the band).
 
-If you start after a beat's date, it counts as already history: its flags hold but nobody is sent news of it. Campaign progress is part of the save ([[Save and Load]]).
+A beat dated before the world began (1 January 1811, when the world is created) counts as already history: its flags hold but nobody is sent news of it. Beats dated in 1811 before the player's first day (10 June, 12 July or 20 August, by starting path) are not history: they happen on the first day of play, so the blockade and Selkirk's grant are news on arrival. Campaign progress is part of the save ([[Save and Load]]).
 
 ## The historical script, beat by beat
+
+The thirteen beats of the main Pemmican War arc (the script also has nine dateless beats that act on the brigades: the war slowing the Montreal canoes, the Proclamation emptying their provisions, ambushes in the interior, the York boats late for the ship, and the canoes stood down after the union).
 
 | Beat | Date | Kind | Window / lead | Effect |
 |---|---|---|---|---|
@@ -77,7 +83,15 @@ Because the game's calendar starts in 1811, the two 1804-1805 beats are already 
 
 ## Writing your own
 
-Open the campaigns folder from the New Game page and edit `my-campaign.json`. Conditions available to `when` and `done_when`: `flag:NAME`, `!flag:NAME`, `beat:ID`, `post:NAME`, `after:YYYY-MM-DD`, `before:YYYY-MM-DD`, `dead:Person Name`, `tension>=N`, `tension<N`. The menu re-reads the folder when the page opens.
+Campaigns are written in a small C-like language and compiled to this JSON by the campaign tool, which also checks them and plays them forward without the game:
+
+```
+dotnet run --project tools/CampaignTool -- serve
+```
+
+opens an editor at <http://localhost:8765/>, with completion, live checking, a simulator and a graph; **Install in game** puts the campaign in the menu. Everything about it (the language, when each part of a beat runs, a cookbook of patterns, and references to every post, brigade run, item, person, flag and effect) is in the campaign scripting wiki, [`docs/wiki`](../../docs/wiki/Home.md).
+
+A campaign can also be written directly as JSON in the campaigns folder from the New Game page (`my-campaign.json`); the menu re-reads the folder when the page opens. The format is in the scripting wiki's *JSON format* page and in the folder's `README.txt`.
 
 ## See also
 

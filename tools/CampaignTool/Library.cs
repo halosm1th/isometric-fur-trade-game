@@ -134,34 +134,34 @@ public static class Library
 		});
 
 		// ---- conditions
-		Fn("", "chance", P1("percent:int"), "bool", "True this often (a percent), decided by the campaign's seed.", "chance(30)",
+		Fn("", "chance", P1("percent:int"), "bool", "True this often (a percent), decided by the campaign's seed. It rolls again every time it is asked: in AwakenWhen, chance(10) is a one-in-ten chance each day.", "chance(30)",
 			(c, s, a) => Pred("chance", CJson.Num(a.N("percent"))));
 		Fn("", "raw", P1("condition:string"), "bool", "A condition written in the game's own form, for anything the language has no word for yet.", "raw(\"tension>=40\")",
 			(c, s, a) => new CondV(a.S("condition").TrimStart().StartsWith("{") ? Tree.Parse(a.S("condition")) : a.S("condition")));
 
 		// ---- the world
-		Prop("world", "tension", "int", "How tense the colony and the companies are, 0-100.", "world.tension >= 50", (c, s, a) => Metric("tension"));
-		Prop("world", "standing", "int", "The player's standing with their company.", "world.standing < 10", (c, s, a) => Metric("standing"));
+		Prop("world", "tension", "int", "How close the two companies are to blows, 0-100. It starts at 20, falls by 1.2 a day on its own, and at 70 or more the companies are at open hostility.", "world.tension >= 50", (c, s, a) => Metric("tension"));
+		Prop("world", "standing", "int", "The player's standing with their company (the local player; 0 if there is none).", "world.standing < 10", (c, s, a) => Metric("standing"));
 		Prop("world", "month", "int", "The month, 1-12.", "world.month == 6", (c, s, a) => Metric("month"));
 		Prop("world", "year", "int", "The year.", "world.year >= 1818", (c, s, a) => Metric("year"));
 		Prop("world", "day", "int", "The day of the month.", "world.day == 1", (c, s, a) => Metric("day"));
 		Prop("world", "dayOfYear", "int", "The day of the year, 1-366.", "world.dayOfYear > 200", (c, s, a) => Metric("day_of_year"));
-		Prop("world", "convoysActive", "int", "How many brigades are on the rivers.", "world.convoysActive == 0", (c, s, a) => Metric("convoys_active"));
+		Prop("world", "convoysActive", "int", "How many brigade crossings are on the rivers now (not yet arrived).", "world.convoysActive == 0", (c, s, a) => Metric("convoys_active"));
 		Prop("world", "date", "Date", "Today. Compare it with a date: world.date >= date(1816, 6, 19).", "world.date < date(1812, 1, 1)", (c, s, a) => new DateQ());
 		Prop("world", "season", "Season", "The river's season. Compare it with Season.Winter and so on.", "world.season == Season.Winter", (c, s, a) => new QueryV("season"));
-		Prop("world", "playerFaction", "Company", "Which company the player works for.", "world.playerFaction == Company.HBC", (c, s, a) => new QueryV("player_faction"));
-		Fn("world", "stock", P1("post:string", "item:Item"), "int", "How much of an item a post's ledger holds.", "world.stock(\"York Factory\", Item.Rum) < 20", (c, s, a) => Metric("stock", a.S("post"), a.S("item")));
-		Fn("world", "furs", P1("post:string"), "int", "The furs in a post's ledger.", "world.furs(\"York Factory\") > 500", (c, s, a) => Metric("furs", a.S("post")));
-		Fn("world", "hasPost", P1("place:string"), "bool", "True once a post stands there.", "world.hasPost(\"Fort William\")", (c, s, a) => Pred("post", a.S("place")));
-		Fn("world", "isDead", P1("name:string"), "bool", "True once the named person is dead.", "world.isDead(\"Miles Macdonell\")", (c, s, a) => Pred("dead", a.S("name")));
+		Prop("world", "playerFaction", "Company", "Which company a player works for: in multiplayer, true if any player does.", "world.playerFaction == Company.HBC", (c, s, a) => new QueryV("player_faction"));
+		Fn("world", "stock", P1("post:string", "item:Item"), "int", "How many pieces of an item a post's ledger holds. A post that does not stand has no ledger and answers nothing, so every comparison with it is false.", "world.stock(\"York Factory\", Item.Rum) < 20", (c, s, a) => Metric("stock", a.S("post"), a.S("item")));
+		Fn("world", "furs", P1("post:string"), "int", "The furs in a post's ledger, in Made Beaver.", "world.furs(\"York Factory\") > 500", (c, s, a) => Metric("furs", a.S("post")));
+		Fn("world", "hasPost", P1("place:string"), "bool", "True while a post stands there: founded by the start year and not given up, or founded since (by the script, or on 1 January of its year with postsByFoundingYear).", "world.hasPost(\"Fort William\")", (c, s, a) => Pred("post", a.S("place")));
+		Fn("world", "isDead", P1("name:string"), "bool", "True once the person with exactly this name is dead. Names are written as the game shows them (\"Mr. William Auld\", \"Maskwa (chief)\"); a name nobody in the world has is never dead.", "world.isDead(\"Miles Macdonell\")", (c, s, a) => Pred("dead", a.S("name")));
 		Fn("world", "inMonths", P1("first:int", "last:int?"), "bool", "True in these months of the year (a range if two are given).", "world.inMonths(6, 8)",
 			(c, s, a) => Pred("month", a.Has("last") ? $"{a.I("first")}-{a.I("last")}" : $"{a.I("first")}"));
-		Fn("world", "raiseTension", P1("amount:int", "why:string?"), "effect", "Raise (or, if negative, lower) the tension, with a line for the log.", "world.raiseTension(10, \"the colony is armed\")",
+		Fn("world", "raiseTension", P1("amount:int", "why:string?"), "effect", "Raise (or, if negative, lower) the tension, with a line for the log. The result is kept within 0-100.", "world.raiseTension(10, \"the colony is armed\")",
 			(c, s, a) => Fx(c, "tension", ("add", a.N("amount")), ("why", a.Has("why") ? a.S("why") : null)));
-		Fn("world", "setLondon", P1("price:float", "quota:float"), "effect", "Set the London market's price and quota multipliers.", "world.setLondon(0.85, 0.85)",
+		Fn("world", "setLondon", P1("price:float", "quota:float"), "effect", "Multiply next year's London price and quota at York Factory (1 leaves one alone). They compound: two calls of 0.9 make 0.81.", "world.setLondon(0.85, 0.85)",
 			(c, s, a) => Fx(c, "london", ("price", a.N("price")), ("quota", a.N("quota"))));
-		Fn("world", "foundPost", P1("place:string"), "effect", "A post is founded there.", "world.foundPost(\"Fort William\")", (c, s, a) => Fx(c, "found_post", ("place", a.S("place"))));
-		Fn("world", "addStock", P1("post:string", "item:Item", "amount:int"), "effect", "Put goods in (or, if negative, take them out of) a post's ledger.", "world.addStock(\"York Factory\", Item.Rum, -5)",
+		Fn("world", "foundPost", P1("place:string"), "effect", "A post on the world map is founded there and appears in the world.", "world.foundPost(\"Fort William\")", (c, s, a) => Fx(c, "found_post", ("place", a.S("place"))));
+		Fn("world", "addStock", P1("post:string", "item:Item", "amount:int"), "effect", "Put goods in (or, if negative, take them out of) a post's ledger. Nothing happens if the post does not stand.", "world.addStock(\"York Factory\", Item.Rum, -5)",
 			(c, s, a) => Fx(c, "stock", ("post", a.S("post")), ("item", a.S("item")), ("add", a.N("amount"))));
 
 		// ---- the player
@@ -176,35 +176,35 @@ public static class Library
 		// ---- beats
 		Prop("Beat", "done", "bool", "True once the beat has happened.", "SevenOaks.done", (c, s, a) => Pred("beat", ((BeatV)s).Id));
 		Prop("Beat", "count", "int", "How many times the beat has happened (it can repeat).", "Raid.count >= 2", (c, s, a) => Metric("count", ((BeatV)s).Id));
-		Prop("Beat", "age", "int", "Days since the beat last happened.", "SevenOaks.age > 90", (c, s, a) => Metric("beat_age", ((BeatV)s).Id));
+		Prop("Beat", "age", "int", "Days since the beat last happened (99999 if it never has).", "SevenOaks.age > 90", (c, s, a) => Metric("beat_age", ((BeatV)s).Id));
 
 		// ---- brigades
 		Fn("", "brigade", P1("run:string"), "Brigade", "A brigade run on the rivers, by name (Data/World/brigade_runs.json).", "brigade(\"the York boats\").isLate", (c, s, a) => new BrigadeV(a.S("run")));
 		foreach (var (name, pred, doc) in new[]
 		{
-			("isLate", "convoy_late", "has missed its day"), ("isLost", "convoy_lost", "has been lost"), ("isRobbed", "convoy_robbed", "has been robbed"),
-			("wasTurnedBack", "convoy_turned_back", "was turned back"), ("isOut", "convoy_out", "is out on the river"), ("isIn", "convoy_in", "has arrived"),
+			("isLate", "convoy_late", "has missed its day (until it arrives or sets out again)"), ("isLost", "convoy_lost", "has lost pieces on this crossing"), ("isRobbed", "convoy_robbed", "was robbed on this crossing"),
+			("wasTurnedBack", "convoy_turned_back", "was turned back on this crossing"), ("isOut", "convoy_out", "has set out at least once (it stays true: on the river now is isOut && !isIn)"), ("isIn", "convoy_in", "has arrived (until it sets out again)"),
 			("isWintering", "convoy_wintering", "is wintering on the way"),
 		})
 			Prop("Brigade", name, "bool", $"True when the brigade {doc}.", $"brigade(\"the York boats\").{name}", (c, s, a) => Pred(pred, ((BrigadeV)s).Run));
-		Prop("Brigade", "daysLate", "int", "How many days late the brigade is.", "brigade(\"the York boats\").daysLate > 10", (c, s, a) => Metric("convoy_days_late", ((BrigadeV)s).Run));
-		Prop("Brigade", "daysOut", "int", "How many days the brigade has been out.", "brigade(\"the York boats\").daysOut > 40", (c, s, a) => Metric("convoy_days_out", ((BrigadeV)s).Run));
-		Fn("Brigade", "delay", P1("days:int?"), "effect", "Hold the brigade up.", "brigade(\"the York boats\").delay(4)", (c, s, a) => Fx(c, "brigade", ("run", ((BrigadeV)s).Run), ("effect", "delay"), ("days", a.Has("days") ? a.N("days") : null)));
-		Fn("Brigade", "turnBack", P1("days:int?"), "effect", "Turn the brigade back.", "brigade(\"the York boats\").turnBack()", (c, s, a) => Fx(c, "brigade", ("run", ((BrigadeV)s).Run), ("effect", "turn_back"), ("days", a.Has("days") ? a.N("days") : null)));
-		Fn("Brigade", "lose", P1(), "effect", "The brigade is lost with all hands and goods.", "brigade(\"the York boats\").lose()", (c, s, a) => Fx(c, "brigade", ("run", ((BrigadeV)s).Run), ("effect", "lose")));
-		Fn("Brigade", "cancel", P1(), "effect", "The brigade does not sail this year.", "brigade(\"the York boats\").cancel()", (c, s, a) => Fx(c, "brigade", ("run", ((BrigadeV)s).Run), ("effect", "cancel")));
-		Fn("Brigade", "launch", P1("leg:int?"), "effect", "Send the brigade out now, from a leg of its route.", "brigade(\"the York boats\").launch()", (c, s, a) => Fx(c, "brigade", ("run", ((BrigadeV)s).Run), ("effect", "launch"), ("leg", a.Has("leg") ? a.N("leg") : null)));
+		Prop("Brigade", "daysLate", "int", "How many days late the brigade's crossing is (0 when it is not on the river).", "brigade(\"the York boats\").daysLate > 10", (c, s, a) => Metric("convoy_days_late", ((BrigadeV)s).Run));
+		Prop("Brigade", "daysOut", "int", "How many days the brigade's crossing has been out (0 when it is not on the river).", "brigade(\"the York boats\").daysOut > 40", (c, s, a) => Metric("convoy_days_out", ((BrigadeV)s).Run));
+		Fn("Brigade", "delay", P1("days:int?"), "effect", "Hold the brigade on the bank for some days (5 if not given).", "brigade(\"the York boats\").delay(4)", (c, s, a) => Fx(c, "brigade", ("run", ((BrigadeV)s).Run), ("effect", "delay"), ("days", a.Has("days") ? a.N("days") : null)));
+		Fn("Brigade", "turnBack", P1("days:int?"), "effect", "Turn the brigade back toward the post it left. (The game does not use days.)", "brigade(\"the York boats\").turnBack()", (c, s, a) => Fx(c, "brigade", ("run", ((BrigadeV)s).Run), ("effect", "turn_back"), ("days", a.Has("days") ? a.N("days") : null)));
+		Fn("Brigade", "lose", P1(), "effect", "Half of every kind of piece the brigade carries is lost on the road; the boats go on.", "brigade(\"the York boats\").lose()", (c, s, a) => Fx(c, "brigade", ("run", ((BrigadeV)s).Run), ("effect", "lose")));
+		Fn("Brigade", "cancel", P1(), "effect", "Stand down the crossing now on the road: its pieces go back on the books of the post that loaded them. Later crossings still run.", "brigade(\"the York boats\").cancel()", (c, s, a) => Fx(c, "brigade", ("run", ((BrigadeV)s).Run), ("effect", "cancel")));
+		Fn("Brigade", "launch", P1("leg:int?"), "effect", "Send one crossing of the run out now: leg is its place in the run's list of legs, counting from 0.", "brigade(\"the York boats\").launch()", (c, s, a) => Fx(c, "brigade", ("run", ((BrigadeV)s).Run), ("effect", "launch"), ("leg", a.Has("leg") ? a.N("leg") : null)));
 
 		// ---- effects
 		Fn("", "news", P1("from:string", "to:Person", "subject:string", "text:string", "days:int", "company:Company?"), "effect",
-			"A letter arrives for the player after some days.", "news(from: \"Montreal\", to: Person.Partner, subject: \"war\", text: \"...\", days: 75, company: Company.NWC)",
+			"A sealed letter, sent now. After some days it reaches the first living person it is addressed to (it waits if there is nobody), and it is known only once it is read; reading it raises the flag heard:<this beat's id>.", "news(from: \"Montreal\", to: Person.Partner, subject: \"war\", text: \"...\", days: 75, company: Company.NWC)",
 			(c, s, a) => Fx(c, "news", ("from", a.S("from")), ("to", a["to"] is EnumV pe ? Persons[pe.Value] : a.S("to")), ("subject", a.S("subject")), ("text", a.S("text")), ("days", a.N("days")), ("company", a.Has("company") ? Co(a["company"]) : null)));
-		Fn("", "say", P1("text:string", "to:Company?"), "effect", "A line in the log, for one company or for everyone.", "say(\"The boats are overdue.\", Company.HBC)",
+		Fn("", "say", P1("text:string", "to:Company?"), "effect", "A line in the journal of every player of one company (or of everyone), spoken over their heads.", "say(\"The boats are overdue.\", Company.HBC)",
 			(c, s, a) => Fx(c, "say", ("text", a.S("text")), ("to", a.Has("to") ? Co(a["to"]) : null)));
 		Fn("", "shout", P1("text:string", "to:Company?"), "effect", "Like say, but as a headline.", "shout(\"The governor is dead!\")",
 			(c, s, a) => Fx(c, "say", ("text", a.S("text")), ("to", a.Has("to") ? Co(a["to"]) : null), ("headline", true)));
-		Fn("", "trigger", P1("beat:Beat"), "effect", "Make another beat happen now.", "trigger(TheEnd)", (c, s, a) => Fx(c, "trigger", ("beat", a.S("beat"))));
-		Fn("", "after", P1("delay:Days", "then:Lambda"), "effect", "Do something some days from now.", "after(days(10), () => trigger(TheEnd))",
+		Fn("", "trigger", P1("beat:Beat"), "effect", "Make another beat happen at the end of today: its OnActivate runs whatever its date, requirements, ActivateWhen, or cancellation.", "trigger(TheEnd)", (c, s, a) => Fx(c, "trigger", ("beat", a.S("beat"))));
+		Fn("", "after", P1("delay:Days", "then:Lambda"), "effect", "Do something some days from now (saved with the game).", "after(days(10), () => trigger(TheEnd))",
 			(c, s, a) =>
 			{
 				var body = new List<object>();
