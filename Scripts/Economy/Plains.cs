@@ -40,6 +40,7 @@ public static class Plains
     public static void Reset()
     {
         _lastDay = -1; _hourAcc = 1f; _live.Clear(); Feuds.Clear(); _raids.Clear(); _tonight.Clear();
+        Gardens.Reset(); MarketNews.Reset();
         foreach (var v in _views.Values) if (GodotObject.IsInstanceValid(v)) v.QueueFree();
         _views.Clear();
         BuffaloRun.Active.Clear(); BuffaloRun.LastRun.Clear();
@@ -268,7 +269,7 @@ public static class Plains
         {
             foreach (var c in Camps.All)
                 if (c.Ledger != null && Gardens.IsTown(c.Ledger))
-                    GD.Print($"[plains] {cal.DateString}   {c.Name}: {c.Ledger.Stores.Count(ItemId.Corn)} corn, {c.Ledger.Herd.Horses} horses, {c.Ledger.Stores.Count(ItemId.Musket)} guns, {c.Ledger.Stores.Count(ItemId.TradeGoods)} goods, {c.Ledger.Stores.Count(ItemId.DriedMeat)} dried meat");
+                    GD.Print($"[plains] {cal.DateString}   {c.Name}: {Gardens.Report(c.Ledger)}; {c.Ledger.Stores.Count(ItemId.Corn)} corn,{c.Ledger.Herd.Horses} horses, {c.Ledger.Stores.Count(ItemId.Musket)} guns, {c.Ledger.Stores.Count(ItemId.TradeGoods)} goods, {c.Ledger.Stores.Count(ItemId.DriedMeat)} dried meat");
             var herds = new List<string>();
             foreach (var s in Sim.Ecology?.Sites ?? new List<SpawnSite>()) if (s.Species == Species.Buffalo) herds.Add($"{s.Count:0}");
             int horses = 0; foreach (var h in Horses.All()) horses += h.Herd.Horses;
@@ -334,6 +335,7 @@ public static class Plains
         post.Stores.Remove(ItemId.TradeGoods, pay);
         b.Stores.Add(ItemId.TradeGoods, pay);
         post.GoodsPaidMb += pay;
+        MarketNews.Meet(b, post);   // the camp at the post: they trade news of the towns with the pemmican
         string by = b.Herd.Carts > 0 ? $"in {b.Herd.Carts} carts" : b.Herd.Horses > 0 ? "on the travois" : "on their backs";
         Chronicle.Event($"{cb.Name} brought {lot} pemmican to {post.Title} {by}.", IsoGrid.ToWorld(post.AccessCell), subject: cb.Name, weight: 0.5f);
         if (NearPlayer(IsoGrid.ToWorld(post.AccessCell), 6000f))
@@ -637,12 +639,14 @@ public static class Plains
     {
         var f = new Godot.Collections.Dictionary(); foreach (var kv in Feuds) f[kv.Key] = kv.Value;
         var l = new Godot.Collections.Dictionary(); foreach (var kv in BuffaloRun.LastRun) l[kv.Key] = kv.Value;
-        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l };
+        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save() };
     }
 
     public static void Load(Godot.Collections.Dictionary d)
     {
         Feuds.Clear(); BuffaloRun.LastRun.Clear();
+        Gardens.Load(d != null && d.ContainsKey("gardens") ? d["gardens"].AsGodotDictionary() : null);
+        MarketNews.Load(d != null && d.ContainsKey("news") ? d["news"].AsGodotDictionary() : null);
         if (d == null) return;
         if (d.ContainsKey("feuds")) foreach (var kv in d["feuds"].AsGodotDictionary()) Feuds[kv.Key.AsString()] = kv.Value.AsSingle();
         if (d.ContainsKey("lastRun")) foreach (var kv in d["lastRun"].AsGodotDictionary()) BuffaloRun.LastRun[kv.Key.AsString()] = kv.Value.AsInt32();

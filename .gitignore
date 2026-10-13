@@ -7,3 +7,6 @@ Exports/
 
 # Raw Freesound downloads (~550 MB); the cut clips the game uses are in assets/audio/
 assets/external/soundFX/
+
+# Obsidian's per-session window layout
+WIKI/.obsidian/workspace.json

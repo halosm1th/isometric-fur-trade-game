@@ -60,6 +60,23 @@
 [ext_resource type="Texture2D" uid="uid://cjqonbapycsm1" path="res://assets/tiles/props/fur_bale.png" id="tex_59"]
 [ext_resource type="Texture2D" uid="uid://bilb01rr20eiv" path="res://assets/tiles/buildings/roof.png" id="tex_60"]
 [ext_resource type="Texture2D" uid="uid://bxmjfk00ihrh8" path="res://assets/tiles/furniture/bed.png" id="tex_61"]
+[ext_resource type="Texture2D" uid="uid://cifeh5q1vu2ml" path="res://assets/tiles/props/saskatoon_bush.png" id="tex_p99"]
+[ext_resource type="Texture2D" uid="uid://cqv4u3mevde2g" path="res://assets/tiles/props/saskatoon_picked.png" id="tex_p100"]
+[ext_resource type="Texture2D" uid="uid://dku3c6fawwgg5" path="res://assets/tiles/props/cranberry_patch.png" id="tex_p101"]
+[ext_resource type="Texture2D" uid="uid://bupbnw5ebx1p3" path="res://assets/tiles/props/cranberry_picked.png" id="tex_p102"]
+[ext_resource type="Texture2D" uid="uid://c0tw3vdolwe0l" path="res://assets/tiles/props/rosehip_bush.png" id="tex_p103"]
+[ext_resource type="Texture2D" uid="uid://fwjsno1q05uv" path="res://assets/tiles/props/rosehip_bare.png" id="tex_p104"]
+[ext_resource type="Texture2D" uid="uid://4hp15422glp" path="res://assets/tiles/props/bushes_snow.png" id="tex_p105"]
+[ext_resource type="Texture2D" uid="uid://bny081ek82o6y" path="res://assets/tiles/props/berry_basket.png" id="tex_p106"]
+[ext_resource type="Texture2D" uid="uid://c18nwnvtxfn07" path="res://assets/tiles/props/earth_lodge.png" id="tex_p107"]
+[ext_resource type="Texture2D" uid="uid://dkiqqtjtsjdy1" path="res://assets/tiles/props/earth_lodge_winter.png" id="tex_p108"]
+[ext_resource type="Texture2D" uid="uid://bobhxu72se6hv" path="res://assets/tiles/props/garden_plot.png" id="tex_p109"]
+[ext_resource type="Texture2D" uid="uid://ug6ux4uyoub2" path="res://assets/tiles/props/garden_harvested.png" id="tex_p110"]
+[ext_resource type="Texture2D" uid="uid://c2svs25roa4t4" path="res://assets/tiles/props/corn_scaffold.png" id="tex_p111"]
+[ext_resource type="Texture2D" uid="uid://bhusabxl2rcn6" path="res://assets/tiles/props/cache_pit.png" id="tex_p112"]
+[ext_resource type="Texture2D" uid="uid://doo0rq5pwlpng" path="res://assets/tiles/props/village_palisade.png" id="tex_p113"]
+[ext_resource type="Texture2D" uid="uid://cvlgnd2316mlc" path="res://assets/tiles/props/bullboat.png" id="tex_p114"]
+[ext_resource type="Texture2D" uid="uid://duvb75qes842k" path="res://assets/tiles/props/corn_mortar.png" id="tex_p115"]
 [ext_resource type="Texture2D" uid="uid://dnvs75uw6u32x" path="res://assets/tiles/landscape/prairie.png" id="tex_r70"]
 [ext_resource type="Texture2D" uid="uid://brojudmninnqf" path="res://assets/tiles/landscape/tallgrass.png" id="tex_r71"]
 [ext_resource type="Texture2D" uid="uid://wapi8ce05n5" path="res://assets/tiles/landscape/parkland.png" id="tex_r72"]
@@ -87,23 +104,6 @@
 [ext_resource type="Texture2D" uid="uid://dmpwdjg8x5led" path="res://assets/tiles/props/aspen.png" id="tex_r97"]
 [ext_resource type="Texture2D" uid="uid://d3yvsywxqysjh" path="res://assets/tiles/props/jackpine.png" id="tex_r98"]
 [ext_resource type="Texture2D" uid="uid://hdspbdutg87d" path="res://assets/tiles/landscape/road.png" id="tex_road"]
-[ext_resource type="Texture2D" uid="uid://cifeh5q1vu2ml" path="res://assets/tiles/props/saskatoon_bush.png" id="tex_p99"]
-[ext_resource type="Texture2D" uid="uid://cqv4u3mevde2g" path="res://assets/tiles/props/saskatoon_picked.png" id="tex_p100"]
-[ext_resource type="Texture2D" uid="uid://dku3c6fawwgg5" path="res://assets/tiles/props/cranberry_patch.png" id="tex_p101"]
-[ext_resource type="Texture2D" uid="uid://bupbnw5ebx1p3" path="res://assets/tiles/props/cranberry_picked.png" id="tex_p102"]
-[ext_resource type="Texture2D" uid="uid://c0tw3vdolwe0l" path="res://assets/tiles/props/rosehip_bush.png" id="tex_p103"]
-[ext_resource type="Texture2D" uid="uid://fwjsno1q05uv" path="res://assets/tiles/props/rosehip_bare.png" id="tex_p104"]
-[ext_resource type="Texture2D" uid="uid://4hp15422glp" path="res://assets/tiles/props/bushes_snow.png" id="tex_p105"]
-[ext_resource type="Texture2D" uid="uid://bny081ek82o6y" path="res://assets/tiles/props/berry_basket.png" id="tex_p106"]
-[ext_resource type="Texture2D" uid="uid://c18nwnvtxfn07" path="res://assets/tiles/props/earth_lodge.png" id="tex_p107"]
-[ext_resource type="Texture2D" uid="uid://dkiqqtjtsjdy1" path="res://assets/tiles/props/earth_lodge_winter.png" id="tex_p108"]
-[ext_resource type="Texture2D" uid="uid://bobhxu72se6hv" path="res://assets/tiles/props/garden_plot.png" id="tex_p109"]
-[ext_resource type="Texture2D" uid="uid://ug6ux4uyoub2" path="res://assets/tiles/props/garden_harvested.png" id="tex_p110"]
-[ext_resource type="Texture2D" uid="uid://c2svs25roa4t4" path="res://assets/tiles/props/corn_scaffold.png" id="tex_p111"]
-[ext_resource type="Texture2D" uid="uid://bhusabxl2rcn6" path="res://assets/tiles/props/cache_pit.png" id="tex_p112"]
-[ext_resource type="Texture2D" uid="uid://doo0rq5pwlpng" path="res://assets/tiles/props/village_palisade.png" id="tex_p113"]
-[ext_resource type="Texture2D" uid="uid://cvlgnd2316mlc" path="res://assets/tiles/props/bullboat.png" id="tex_p114"]
-[ext_resource type="Texture2D" uid="uid://duvb75qes842k" path="res://assets/tiles/props/corn_mortar.png" id="tex_p115"]
 
 [sub_resource type="TileSetAtlasSource" id="Atlas_grass"]
 texture = ExtResource("tex_1")
@@ -123,8 +123,104 @@ texture_region_size = Vector2i(128, 256)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, 86)
 
+[sub_resource type="TileSetAtlasSource" id="Atlas_p100"]
+texture = ExtResource("tex_p100")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p101"]
+texture = ExtResource("tex_p101")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p102"]
+texture = ExtResource("tex_p102")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p103"]
+texture = ExtResource("tex_p103")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p104"]
+texture = ExtResource("tex_p104")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p105"]
+texture = ExtResource("tex_p105")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p106"]
+texture = ExtResource("tex_p106")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p107"]
+texture = ExtResource("tex_p107")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p108"]
+texture = ExtResource("tex_p108")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p109"]
+texture = ExtResource("tex_p109")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
 [sub_resource type="TileSetAtlasSource" id="Atlas_wall_door_E"]
 texture = ExtResource("tex_12")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p110"]
+texture = ExtResource("tex_p110")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p111"]
+texture = ExtResource("tex_p111")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p112"]
+texture = ExtResource("tex_p112")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p113"]
+texture = ExtResource("tex_p113")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p114"]
+texture = ExtResource("tex_p114")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_p115"]
+texture = ExtResource("tex_p115")
 texture_region_size = Vector2i(128, 256)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, 86)
@@ -635,102 +731,6 @@ texture_region_size = Vector2i(128, 256)
 
 [sub_resource type="TileSetAtlasSource" id="Atlas_p99"]
 texture = ExtResource("tex_p99")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p100"]
-texture = ExtResource("tex_p100")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p101"]
-texture = ExtResource("tex_p101")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p102"]
-texture = ExtResource("tex_p102")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p103"]
-texture = ExtResource("tex_p103")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p104"]
-texture = ExtResource("tex_p104")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p105"]
-texture = ExtResource("tex_p105")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p106"]
-texture = ExtResource("tex_p106")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p107"]
-texture = ExtResource("tex_p107")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p108"]
-texture = ExtResource("tex_p108")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p109"]
-texture = ExtResource("tex_p109")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p110"]
-texture = ExtResource("tex_p110")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p111"]
-texture = ExtResource("tex_p111")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p112"]
-texture = ExtResource("tex_p112")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p113"]
-texture = ExtResource("tex_p113")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p114"]
-texture = ExtResource("tex_p114")
-texture_region_size = Vector2i(128, 256)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, 86)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_p115"]
-texture = ExtResource("tex_p115")
 texture_region_size = Vector2i(128, 256)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, 86)
