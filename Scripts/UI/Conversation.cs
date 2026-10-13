@@ -309,6 +309,7 @@ public class Conversation
         if (ownLeader || (ownMan && canCommand) || npc.Following == _player || CanAskAlong(npc)) AddOption("Work and orders...", () => ShowWork(npc));
         if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster)
             AddOption("Trade", () => ShowTrade(npc));
+        if (Economy.HorseTrade.Options(npc, _player).Count > 0) AddOption("Horses...", () => ShowHorses(npc));
         if (npc.IsFemale && _player.Needs.Health < 70f && !_player.IsDead)
             AddOption("Ask her to see to your wounds", () => ShowTopics(Treat(npc)));
         AddOption("Give a gift", () => ShowGive(npc));
@@ -673,6 +674,16 @@ public class Conversation
             AddOption("Ask to be taken back into the Company's service", () => ShowCompanies(npc, Return(npc)));
         if (npc.Role == Role.NwcPartner && _player.Faction == Faction.NWC && GameCalendar.Instance.Month < 7 && _player.Standing >= 20f)
             AddOption("Write to the partners at Fort William...", () => ShowCouncilLetter(npc));
+        AddOption("Back", () => ShowTopics(Greeting(npc)));
+    }
+
+    // Buying, giving and borrowing horses (Economy/HorseTrade).
+    private void ShowHorses(Npc npc, string said = null)
+    {
+        var herd = npc.HomeStores?.Herd;
+        _text = said ?? (herd != null ? $"{npc.DisplayName}'s people have {herd.Describe()}." : $"{npc.DisplayName} waits.");
+        ClearOptions();
+        foreach (var (label, act) in Economy.HorseTrade.Options(npc, _player)) AddOption(label, () => ShowHorses(npc, act()));
         AddOption("Back", () => ShowTopics(Greeting(npc)));
     }
 

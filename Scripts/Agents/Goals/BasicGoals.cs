@@ -33,6 +33,9 @@ public class GoToGoal : Goal
             return GoalStatus.Done;
         }
         if (npc.MoveFailed) return GoalStatus.Failed;
+        // Stopped short with no path left: something interrupted the walk (a
+        // drink, a word with somebody) and cleared it. Take it up again.
+        if (!npc.HasPath && !npc.Arrived && !npc.SetDestination(Target)) return GoalStatus.Failed;
         _stall += dt;
         if (_stall > 90f) return GoalStatus.Failed;
         return GoalStatus.Running;

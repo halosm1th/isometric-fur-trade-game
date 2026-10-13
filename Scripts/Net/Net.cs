@@ -425,7 +425,7 @@ public partial class Net : Node
             if (_snapshotTimer <= 0f)
             {
                 _snapshotTimer = 1f / 20f;
-                RpcId(1, nameof(PlayerMove), LocalPlayer.GlobalPosition, LocalPlayer.CurrentAnimation, LocalPlayer.FlipH, LocalPlayer.IsSneaking, LocalPlayer.IsSprinting);
+                RpcId(1, nameof(PlayerMove), LocalPlayer.GlobalPosition, LocalPlayer.NetAnim, LocalPlayer.FlipH, LocalPlayer.IsSneaking, LocalPlayer.IsSprinting);
             }
         }
     }
@@ -438,7 +438,7 @@ public partial class Net : Node
         {
             if (!IsInstanceValid(a)) continue;
             if (a is Npc bg && bg.Tier == Core.Tier.Background) continue;   // nothing to send about a man who isn't moving
-            arr.Add(new Godot.Collections.Array { a.NetId, a.GlobalPosition.X, a.GlobalPosition.Y, a.CurrentAnimation, a.FlipH, a is PlayerController pl && pl.Aboard != null });
+            arr.Add(new Godot.Collections.Array { a.NetId, a.GlobalPosition.X, a.GlobalPosition.Y, a.NetAnim, a.FlipH, a is PlayerController pl && pl.Aboard != null });
             if (arr.Count >= 12) { Rpc(nameof(Snapshot), arr); arr = new Godot.Collections.Array(); }
         }
         if (arr.Count > 0) Rpc(nameof(Snapshot), arr);
@@ -453,7 +453,7 @@ public partial class Net : Node
             int id = (int)row[0];
             if (!Agents.TryGetValue(id, out var a) || !IsInstanceValid(a)) continue;
             if (a == LocalPlayer) continue;   // we own our own movement
-            a.ApplySnapshot(new Vector2((float)row[1], (float)row[2]), (string)row[3], (bool)row[4]);
+            a.ApplyNetSnapshot(new Vector2((float)row[1], (float)row[2]), (string)row[3], (bool)row[4]);
             if (a is PlayerController pp && row.Count > 5) pp.SetAfloatMirror((bool)row[5]);
         }
     }
@@ -467,7 +467,8 @@ public partial class Net : Node
         {
             // Trusting the client with its own feet; sanity-clamp the step.
             if (p.GlobalPosition.DistanceTo(pos) < 600f) p.GlobalPosition = pos;
-            p.ApplySnapshot(pos, anim, flip);
+            // His horse is the server's to say; only his feet are his own.
+            p.ApplySnapshot(pos, Agent.StripMount(anim), flip);
             p.SetRemoteMotion(sneaking, sprinting);
         }
     }

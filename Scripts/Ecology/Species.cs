@@ -38,7 +38,9 @@ public static class SpeciesInfo
         // hundred pounds of meat he can butcher off it. The robe is the
         // winter hide. Nothing here is drawn yet - the caribou's frames
         // stand in for it until the sheet comes.
-        { Species.Buffalo, new("Buffalo", Diet.Prey, 200f, 260f, 25f, 400f, 1.2f, 0.3f, 0.25f, "res://Scenes/Animals/CaribouFrames.tres") },
+        // A hunted ground fills again quickly from the wider plains behind it;
+        // a count here is the herd in a camp's reach (Economy/Plains.BuffaloPerHead).
+        { Species.Buffalo, new("Buffalo", Diet.Prey, 200f, 260f, 25f, 400f, 1.2f, 1.4f, 0.25f, "res://Scenes/Animals/CaribouFrames.tres") },
     };
     public static SpeciesDef Of(Species s) => Defs[s];
 

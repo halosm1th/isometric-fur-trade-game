@@ -13,6 +13,8 @@ namespace IsometricFurTradeGame.Scripts.Economy;
 public partial class Household : Node
 {
     public readonly Inventory Stores = new();
+    // Its horses (design doc 12.3): none at all for most of the country.
+    public readonly Herd Herd = new();
     public Vector2I AccessCell;
     public Vector2I WoodpileCell;
     public readonly List<Vector2I> HearthCells = new();

@@ -36,6 +36,7 @@ public partial class TradingPostLedger : FortLedger
         Stores.Add(ItemId.FishingLine, 2);
         Stores.Add(ItemId.BeaverPelt, 4);
         KnowsTheCountry = true;
+        Horses.Seed(this);
         DirectiveText = "Hold the post, keep the Indians in your interest, and send the returns out with the brigade.";
     }
 

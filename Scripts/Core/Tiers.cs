@@ -93,7 +93,7 @@ public static class Tiers
         // his own door with the day's work undone, which is why nothing ever
         // came back from the goose marsh.
         if (n.Brain.Has<CourierGoal>() || n.Brain.Has<RaidGoal>() || n.Brain.Has<AmbushGoal>() || n.Brain.Has<RoadGoal>() || n.Brain.Has<RescueGoal>() || n.Brain.Has<LookForGoal>()
-            || n.Brain.Has<HuntSiteGoal>())
+            || n.Brain.Has<HuntSiteGoal>() || n.Brain.Has<BuffaloRunGoal>() || n.Brain.Has<HorseRaidGoal>())
             return;
         n.Tier = Tier.Background;
         n.Brain.Clear(n);

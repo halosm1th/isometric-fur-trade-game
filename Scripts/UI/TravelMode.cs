@@ -76,6 +76,8 @@ public partial class TravelMode : Control
         _planning = false;
         if (route == null || route.Count < 2) { Say(frozen ? "There's no way there that you can see." : "There's no way there on foot that you can see - open water lies between. Wait for the freeze-up, or go by canoe."); return; }
         _route = route; _leg = 1; _start = _player.GlobalPosition;
+        // Your horse is to hand: you ride.
+        if (_player.HasHorse && !_player.Mounted && _player.GlobalPosition.DistanceTo(_player.HorsePicket) < PlayerController.RemountReachPx * 1.5f) Net.Net.I?.Act("mount");
         _dest = NearestPlaceName(target) ?? "the waypoint";
         _alreadyNear.Clear(); _placesAtStart.Clear();
         foreach (var n in Sim.Npcs) if (n.GlobalPosition.DistanceTo(_player.GlobalPosition) < 1400f) _alreadyNear.Add(n);
@@ -85,7 +87,8 @@ public partial class TravelMode : Control
         if (cam != null) { _savedZoom = cam.Zoom; cam.Zoom = _savedZoom * 0.55f; }
         Active = true;
         float km = 0f; for (int i = 1; i < route.Count; i++) km += route[i - 1].DistanceTo(route[i]) / WorldMap.PxPerKm;
-        Say($"You set out for {_dest}: about {km:0} km, {km / (KmPerGameHour * 24f):0.#} days. G or any step of your own stops.");
+        float pace = KmPerGameHour * (_player.HasHorse && _player.HorsePicket.DistanceTo(_player.GlobalPosition) < PlayerController.RemountReachPx * 1.5f || _player.Mounted ? 2.2f : 1f);
+        Say($"You set out for {_dest}{(pace > KmPerGameHour ? " on horseback" : "")}: about {km:0} km, {km / (pace * 24f):0.#} days. G or any step of your own stops.");
     }
 
     private void Stop(string why)
@@ -97,6 +100,10 @@ public partial class TravelMode : Control
         if (cam != null) cam.Zoom = _savedZoom;
         if (why != "") Say(why);
     }
+
+    // On horseback the march goes as the ground lets the horse go: two and a
+    // half times a walker on the grass, slower than one in the muskeg.
+    private float Pace() => _player.Mounted ? Mathf.Clamp(_player.GroundFactor(out _), 0.5f, 2.6f) : 1f;
 
     private void Say(string text) { GD.Print($"[travel] {GameCalendar.Instance?.DateString} {text}"); _player?.EmitSignal(PlayerController.SignalName.Notice, text); }
 
@@ -117,9 +124,9 @@ public partial class TravelMode : Control
         if (Net.Net.IsServer && cal != null)
         {
             if (cal.SkipRemaining < 0.5f) cal.SkipHours(0.5f - cal.SkipRemaining);
-            moved = cal.DeltaGameHours * KmPerGameHour * WorldMap.PxPerKm;
+            moved = cal.DeltaGameHours * KmPerGameHour * WorldMap.PxPerKm * Pace();
         }
-        else moved = SpeedPx * (float)delta;
+        else moved = SpeedPx * (float)delta * Pace();
         float budget = moved;
         while (budget > 0f && _leg < _route.Count)
         {

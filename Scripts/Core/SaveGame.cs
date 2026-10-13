@@ -97,6 +97,8 @@ public static class SaveGame
             ["items"] = Sim.Spawner?.GoneItems() ?? new GArr(),
             ["canoes"] = Canoes(),
             ["brigades"] = World.Brigades.Save(),
+            ["herds"] = Horses.Save(HomeKey),
+            ["plains"] = Plains.Save(),
             ["ship"] = Ship(),
             ["npcs"] = Npcs(),
             ["players"] = Players(),
@@ -316,6 +318,7 @@ public static class SaveGame
             d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline;
             var known = new GArr(); foreach (var s in p.KnownSites) known.Add(s);
             d["knownSites"] = known;
+            d["horse"] = p.PackHorse();
             var belief = new GDict(); foreach (var kv in p.SiteBelief) belief[kv.Key] = new GArr { kv.Value.X, kv.Value.Y };
             d["belief"] = belief;
             var journal = new GArr(); foreach (var j in p.Journal) journal.Add(j);
@@ -534,6 +537,8 @@ public static class SaveGame
 
             // The brigades last, because they claim their men by name.
             World.Brigades.Load(d.ContainsKey("brigades") ? d["brigades"].AsGodotArray() : null);
+            if (d.ContainsKey("herds")) Horses.Load(d["herds"].AsGodotDictionary(), HomeOf);
+            Plains.Load(d.ContainsKey("plains") ? d["plains"].AsGodotDictionary() : null);
 
             _savedPlayers.Clear();
             foreach (var pv in d["players"].AsGodotArray()) { var pd = pv.AsGodotDictionary(); _savedPlayers[S(pd, "name")] = pd; }
@@ -571,6 +576,7 @@ public static class SaveGame
         p.Task.Kind = (TaskKind)t[0].AsInt32(); p.Task.Need = t[1].AsInt32(); p.Task.Done = t[2].AsInt32(); p.Task.DayAssigned = t[3].AsInt32();
         p.Task.Intent = S(d, "taskIntent"); p.Task.Deadline = I(d, "taskDeadline");
         p.KnownSites.Clear(); foreach (var s in d["knownSites"].AsGodotArray()) p.KnownSites.Add(s.AsString());
+        p.RestoreHorse(d.ContainsKey("horse") ? d["horse"].AsGodotArray() : null);
         p.SiteBelief.Clear(); foreach (var kv in d["belief"].AsGodotDictionary()) p.SiteBelief[kv.Key.AsString()] = CellOf(kv.Value.AsGodotArray());
         p.Journal.Clear(); foreach (var j in d["journal"].AsGodotArray()) p.Journal.Add(j.AsString());
         p.Known.Clear(); foreach (var k in d["known"].AsGodotArray()) p.Known.Add(k.AsString());

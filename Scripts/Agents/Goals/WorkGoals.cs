@@ -32,7 +32,7 @@ public class HuntSiteGoal : Goal
     private bool StaysOut(Npc npc)
     {
         if (npc.HomeStores == null) return false;
-        float pxPerHour = Mathf.Max(200f, npc.MoveSpeed * 10f);   // his pace per game hour at the baseline clock
+        float pxPerHour = Mathf.Max(200f, npc.MoveSpeed * 10f) * (npc.Mounted ? 2.5f : 1f);   // his pace per game hour at the baseline clock
         float walk = World.IsoGrid.ToWorld(npc.HomeStores.AccessCell).DistanceTo(_site.WorldPos) * 1.25f;   // no road runs straight
         return 2f * (walk / pxPerHour) + 2.5f > 9f;
     }
@@ -42,9 +42,13 @@ public class HuntSiteGoal : Goal
     public override void OnEnter(Npc npc)
     {
         _weaponBefore = npc.PreferredWeapon;
+        // Out to the herd, or to any ground a long way off, he rides if the
+        // household has a horse to spare (design doc 12.3).
+        if (_site.Species == Species.Buffalo || npc.HomeStores != null && _site.WorldPos.DistanceTo(IsoGrid.ToWorld(npc.HomeStores.AccessCell)) > 1500f)
+            Economy.Plains.TakeHorse(npc);
         if ((_site.Species == Species.Beaver || _site.Species == Species.Wolf) && npc.Inventory.Has(ItemId.Bow)) npc.PreferredWeapon = ItemId.Bow;
     }
-    public override void OnExit(Npc npc) { npc.PreferredWeapon = _weaponBefore; npc.StopMoving(); }
+    public override void OnExit(Npc npc) { npc.PreferredWeapon = _weaponBefore; npc.StopMoving(); Economy.Plains.ReturnHorse(npc); }
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {
@@ -73,7 +77,7 @@ public class HuntSiteGoal : Goal
                 if (HerdHere(npc))
                 {
                     npc.HomeStores?.Believe(_site.Name, _site.Cell);
-                    Chronicle.Event($"{npc.DisplayName} found the caribou again, {Direction(_believed, _site.Cell)} of the old ground.", npc.GlobalPosition, npc, _site.Name, 1f);
+                    Chronicle.Event($"{npc.DisplayName} found the {(_site.Species == Species.Buffalo ? "buffalo" : "caribou")} again, {Direction(_believed, _site.Cell)} of the old ground.", npc.GlobalPosition, npc, _site.Name, 1f);
                     _phase = 2;
                     return GoalStatus.Running;
                 }

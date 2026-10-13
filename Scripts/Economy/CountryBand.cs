@@ -32,6 +32,7 @@ public partial class CountryBand : BandLedger
         Stores.Add(ItemId.Firewood, 20);
         Stores.Add(ItemId.Water, 10);
         Stores.Add(ItemId.BeaverPelt, Country.IsFamily ? 2 : 8);
+        Horses.Seed(this);
     }
 
     public override void _Process(double delta)

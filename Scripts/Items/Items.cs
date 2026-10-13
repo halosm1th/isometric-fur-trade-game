@@ -202,6 +202,7 @@ public class Inventory
 
     public bool Remove(ItemId id, int n = 1)
     {
+        if (n <= 0) return true;   // nothing to take (a debtor paying nothing)
         if (Count(id) < n) return false;
         _stacks[id] -= n;
         if (_stacks[id] == 0)

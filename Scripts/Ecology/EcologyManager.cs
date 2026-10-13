@@ -34,7 +34,9 @@ public class SpawnSite
 
     public void HerdPassage(int month)
     {
-        if (!IsMobile || IsDead) return;
+        // The caribou pass through a country twice a year; the buffalo are on
+        // the plains the year round, only moving between their grounds.
+        if (!IsMobile || IsDead || Species == Species.Buffalo) return;
         bool pass = month == 9 || month == 10 || month == 4 || month == 5;
         if (pass && !Passing)
         {
@@ -54,7 +56,7 @@ public class SpawnSite
     public float Migrate(int month)
     {
         if (!IsMobile || IsDead) return 0f;
-        if (_scattered && month == 5) { _scattered = false; Count = Mathf.Max(Count, Capacity * 0.4f); Sim.Notice($"{Name}: the caribou have come back into the country with the spring."); }
+        if (_scattered && month == 5) { _scattered = false; Count = Mathf.Max(Count, Capacity * 0.4f); Sim.Notice($"{Name}: the {Beasts} have come back into the country with the spring."); }
         if (month != _driftMonth) { _driftMonth = month; _drift = new Vector2I(GD.RandRange(-3, 3), GD.RandRange(-6, 6)); }
         var target = Route[Mathf.Clamp(month - 1, 0, Route.Length - 1)] + _drift;
         var d = target - Cell;
@@ -105,6 +107,8 @@ public class SpawnSite
     public bool IsDead => BreedingCapacity <= 0f;
     public SpeciesDef Def => SpeciesInfo.Of(Species);
 
+    private string Beasts => Species == Species.Buffalo ? "buffalo" : "caribou";
+
     public int LiveCount
     {
         get { Live.RemoveAll(a => a == null || !GodotObject.IsInstanceValid(a) || a.IsDead); return Live.Count; }
@@ -136,7 +140,7 @@ public class SpawnSite
                 _scattered = true;
                 Passing = false;
                 Count = 1f;   // gone: the ground is bare till the herd passes again
-                Sim.Notice($"{Name}: the deer have been worked so hard they have quit this country. Nothing will be had here till they pass again.");
+                Sim.Notice($"{Name}: the {Beasts} have been worked so hard they have quit this country. Nothing will be had here till they come again.");
             }
             return;
         }
@@ -355,6 +359,7 @@ public partial class EcologyManager : Node2D
         Economy.Rivalry.DailyTick(cal.Day);
         Mail.Tick(cal.DeltaGameHours);
         Campaign.Tick();
+        Economy.Plains.Tick();
         // Traps work at night.
         int day = cal.Day;
         if (day != _lastTrapDay && cal.Hour >= 5f)

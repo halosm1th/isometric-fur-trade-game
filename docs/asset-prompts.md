@@ -154,6 +154,34 @@ A sprite sheet of a North American plains buffalo (bison) in 1811, in the same i
 
 ---
 
+## Priority 4b: the horse, the travois and the Red River cart, which the code has
+
+Horses are in the code (`Economy/Herd.cs`, `Economy/Plains.cs`, `Agents/Mount.cs`): every plains camp and every parkland post owns a herd, hunters ride out to the buffalo and the communal run is ridden, raiders cut horses out of each other's herds at night, the player buys, borrows, rides and loses them, and the Métis haul their pemmican to the posts in carts. **There is no horse art at all**: a horse is drawn as the caribou sheet tinted to a horse's coat, and the rider is the walking figure lifted onto its back. The code loads `Scenes/Animals/HorseFrames.tres` the moment it exists, with the rows `idle_*`, `walk_*`, `run_*` and `graze_*` in the four directions `se`, `ne`, `sw`, `nw` (the slicer mirrors `se`/`ne` into `sw`/`nw`), and stops tinting it.
+
+Attach a finished frame from `assets/sprites/animals/caribou/`, `Cree man with bow.jpg` and one of the newer men (`assets/sprites/blackfoot/idle_front.png`) for scale. ANIMAL HEADER, then one sheet each:
+
+**The horse, bare and saddled** (the main sheet):
+
+```
+A sprite sheet of an Indian pony of the northern plains in 1811, in the same isometric three-quarter view and pixel style as the reference: a small, tough, short-backed horse about fourteen hands, its back level with the chest of the 110-pixel man in the reference, a heavy mane and tail, unshod. Draw it with a pad saddle of buckskin stuffed with buffalo hair and a single rawhide rein looped round the lower jaw - the way the plains peoples rode - and nothing else. Rows, each labelled, each in two directions DOWN-RIGHT and UP-RIGHT: IDLE (4 frames, standing, ear and tail flicks); GRAZE (4 frames, head down cropping grass, lifting it once); WALK (6 frames); RUN (6 frames, full gallop, mane and tail streaming); DEATH (5 frames, going down on its side). Then the same IDLE row once more in each of four coats so the herd is not all one horse: a BAY, a GREY, a BLACK-AND-WHITE PAINT and a BUCKSKIN DUN.
+```
+
+**The horse ridden** (so the rider sits in the saddle instead of standing on the horse's back):
+
+```
+The same pony as the first sheet, now ridden by a plains hunter in breechcloth, leggings and a buffalo-hide shirt, his legs down either side of the pad saddle, a bow cased at his back, holding the rein in his left hand. Rows, each labelled, each DOWN-RIGHT and UP-RIGHT: RIDE IDLE (4 frames, horse standing, rider looking about); RIDE WALK (6 frames); RIDE GALLOP (6 frames, rider leaning forward); RIDE SHOOT (5 frames, at a full gallop, drawing and loosing an arrow to the right side, as in the buffalo run); and a single frame of the same pony with an empty pad saddle and the rein trailing, standing PICKETED to a stake.
+```
+
+**The travois and the Red River cart** (PROP HEADER, not the animal header):
+
+```
+Two sheets of the plains' carrying in 1811. A HORSE TRAVOIS: two long lodgepoles crossed over a pony's withers and dragging behind on the ground, a platform of netted rawhide lashed across them loaded with rolled lodge covers and parfleches; draw it hitched to the pony (WALK, 6 frames, DOWN-RIGHT and UP-RIGHT) and unhitched, lying on the ground. A RED RIVER CART: an all-wood two-wheeled Métis cart, the wheels taller than a man (about 120 pixels), dished and with twelve spokes, no iron anywhere, rawhide lashings, the box loaded with pemmican bags of buffalo hide; draw it drawn by a single ox in harness (WALK, 6 frames, DOWN-RIGHT and UP-RIGHT), standing unhitched, and as an icon-sized PEMMICAN BAG (a taut rectangular rawhide bag sewn shut, ninety pounds) for the inventory.
+```
+
+Wiring note for whoever slices these: the ridden sheet replaces both the horse and the rider while mounted, so `Mount.cs` will want a second `SpriteFrames` (`HorseRiddenFrames.tres`) and to hide the rider's own sprite when it is loaded; the plain horse sheet needs nothing but the `.tres`.
+
+---
+
 ## Priority 5: animals the code does not have yet
 
 Do these only once `Ecology/Species.cs` grows past its seven species (caribou, goose, beaver, wolf, hare, ptarmigan, buffalo) — there is no point drawing an animal the simulation cannot spawn.
@@ -172,6 +200,7 @@ moose, black bear, polar bear (it walks the shore at York Factory in autumn), re
 | 3 | LARGE FIRE row, redone on magenta | drawn on a baked-in wall | `props/campfire.png`, `fire.jpg` |
 | 3 | Weather, combat, aurora, fire, smoke sheets | drawn, not cut or wired | slicing job |
 | 4 | **Buffalo** (idle, walk, run, charge, death, cow, calf, robe) | `Species.Buffalo` is in the code and hunted; it is drawn as a caribou | an `animals/caribou/` frame + `Cree man with bow.jpg` |
+| 4b | **Horse** (bare, four coats, ridden, picketed), **travois**, **Red River cart**, pemmican bag | horses are ridden, raided and traded in the code; drawn as a tinted caribou | an `animals/caribou/` frame + `Cree man with bow.jpg` + a `blackfoot/` frame |
 | 5 | Moose, bear, fox, marten, lynx, muskrat, sled dogs | only when `Species.cs` grows | `Cree man with bow.jpg` + a wolf frame |
 
 **Delivered and removed from this file (2026-10-13):** the Factor sheet (`assets/sprites/factor/`); Ojibwe, Blackfoot, Dakota, Dene, Plateau, Coast and Mandan men; the York Factory reference painting and the whitewashed log walls and palisade (`NEW HBC ASSETS/HBc YOrk Factory PIc.jpg`, `Facotry Segment Sprites.jpg`; the same sheet's weathered set, gates, grey floor and steep roof are drawn but not cut: see the wiring backlog); the berries, corn and spruce-beer icons; the berry bushes and berry basket; the Mandan earth lodges, corn scaffolds, gardens, cache pit, bullboat, mortar and village palisade.

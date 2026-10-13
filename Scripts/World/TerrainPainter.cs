@@ -394,6 +394,37 @@ public partial class TerrainPainter : TileMapLayer
         return 1f;
     }
 
+    // A horse's pace over the ground (design doc 12.3), as SpeedFactorAt is a
+    // walker's: three times a man on foot over the open grass, a little better
+    // than him in the bush, worse in the muskeg and in the deep snow of the
+    // woods. The whole reason the plains peoples and the canoe peoples lived as
+    // differently as they did.
+    public float RideFactorAt(Vector2 worldPos, out bool slippery)
+    {
+        slippery = false;
+        var cell = IsoGrid.FromWorld(worldPos);
+        int src = SourceFor(cell);
+        if (src == SourceIce || src == SourceWaterIce) { slippery = true; return 1.3f; }
+        if (src == SourceRoad || src == SourceDirt) return 2.4f;
+        var g = WorldMap.At(cell);
+        bool trees = WorldLayout.ForestAt(cell);
+        float f = g switch
+        {
+            Ground.Grassland or Ground.TallGrass => 2.8f,
+            Ground.Parkland => trees ? 1.4f : 2.4f,
+            Ground.Tundra => 1.8f,
+            Ground.Lowland => 0.6f,               // the muskeg: a horse bogs to the belly
+            Ground.Cordillera => trees ? 0.9f : 1.3f,
+            Ground.Ford => 0.9f,
+            _ => trees ? 1.05f : 1.6f,            // the bush and the rock
+        };
+        if (src == SourceMuskeg) f = Mathf.Min(f, 0.6f);
+        if (src == SourceHill || src == SourceMountain) f = Mathf.Min(f, 1.2f);
+        // Snow: the wind keeps the plains bare enough; in the woods it lies deep.
+        if (_frozen) f *= g is Ground.Grassland or Ground.TallGrass ? 0.75f : 0.55f;
+        return f;
+    }
+
     // Open water: what blocks a walker (ice doesn't).
     public bool IsWater(Vector2I cell) => !_frozen && !Wharf.Contains(cell) && WorldMap.IsWater(cell);
 

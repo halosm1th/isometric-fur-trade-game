@@ -479,6 +479,9 @@ public partial class Npc : Agent
         return true;
     }
 
+    // Walking a path just now (not stopped, not arrived).
+    public bool HasPath => _pathIndex < _path.Count;
+
     public void StopMoving()
     {
         _path.Clear();
@@ -525,7 +528,7 @@ public partial class Npc : Agent
         if (_steer != Vector2.Zero)
         {
             IsSprinting = _steerRun;
-            Velocity = _steer * EffectiveSpeed * motion * (Sim.Terrain?.SpeedFactorAt(GlobalPosition, Inventory.IsWorn(ItemId.Snowshoes), out _) ?? 1f);
+            Velocity = _steer * EffectiveSpeed * motion * GroundFactor(out _);
             MoveAndSlide();
             _steer = Vector2.Zero;
             return;
@@ -566,7 +569,7 @@ public partial class Npc : Agent
         }
 
         var before = GlobalPosition;
-        float step = EffectiveSpeed * motion;
+        float step = EffectiveSpeed * motion * (Mounted ? GroundFactor(out _) : 1f);
         // Don't overshoot the waypoint when time is running fast.
         if (step * dt > to.Length()) step = to.Length() / Mathf.Max(dt, 1e-4f);
         Velocity = to.Normalized() * step;
@@ -593,6 +596,16 @@ public partial class Npc : Agent
         if (_sinceEatAnim < 0.9f) return; // let one-shot anims play
         var v = Velocity;
         string target;
+        // In the saddle he sits: the horse does the walking.
+        if (Mounted)
+        {
+            if (v.LengthSquared() >= 4f) { _sprite.FlipH = v.X < 0f; _facing = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f ? "walk_side" : v.Y < -0.3f * v.Length() ? "walk_back" : "walk"; }
+            target = _facing == "walk_side" ? "idle_side" : _facing == "walk_back" ? "idle_back" : "idle";
+            if (!_sprite.SpriteFrames.HasAnimation(target)) target = "idle";
+            if (_sprite.Animation != target) _sprite.Play(target);
+            _sprite.SpeedScale = 1f;
+            return;
+        }
         if (v.LengthSquared() < 4f)
         {
             // Stood still, he stays facing the way he was going.

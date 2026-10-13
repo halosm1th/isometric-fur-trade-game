@@ -146,6 +146,7 @@ public partial class BandLedger : Household
 			foreach (var st in WorldLayout.SitesNear(Camp, WorldLayout.HomeCountryPx)) KnownSites.Add(st.Name);
 			KnowsTheCountry = true;
 			StandingWithCompany = 40f; StandingWithNwc = 45f;
+			Herd.Horses = 14;   // horse-poor beside the Blackfoot, and raided for what they have
 			return;
 		}
 
