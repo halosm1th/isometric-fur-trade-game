@@ -465,14 +465,29 @@ def lay_out(G, places, extras, atlas):
     rng = _random.Random(1811)
     named = [(p["name"], cell_world(*p["cell"])) for p in places if p.get("kind") == "post"] + [(c["name"], cell_world(*c["centre"])) for c in camps if c["kind"] == "band"]
     used_names = set(x["name"] for x in sites)
+    COMPASS = ["east", "north-east", "north", "north-west", "west", "south-west", "south", "south-east"]
+    def bearing(frm, to):
+        a = math.degrees(math.atan2(-(to[1] - frm[1]), to[0] - frm[0])) % 360   # screen up is north
+        return COMPASS[int((a + 22.5) // 45) % 8]
+    def unique(kind, choices):
+        for where in choices:
+            n = f"{kind} ({where})"
+            if n not in used_names: used_names.add(n); return n
+        base = f"{kind} ({choices[-1]})"; k = 2
+        while f"{base} {k}" in used_names: k += 1
+        used_names.add(f"{base} {k}"); return f"{base} {k}"
     def site_name(kind, c):
+        # Named the way a man would give the way: the nearest post or camp,
+        # and which way and how far from it.
         w = cell_world(*c)
-        near = min(named, key=lambda q: math.dist(q[1], w))
-        km_away = math.dist(near[1], w) / PX_PER_KM
-        where = near[0] if km_away < 60 else f"{near[0]} country"
-        base = f"{kind} ({where})"; n = base; k = 2
-        while n in used_names: n = f"{base} {k}"; k += 1
-        used_names.add(n); return n
+        by = sorted(named, key=lambda q: math.dist(q[1], w))
+        choices = []
+        for place, at in by[:3]:
+            km_away = math.dist(at, w) / PX_PER_KM
+            if km_away < 25: choices.append(place)
+            d = bearing(at, w)
+            choices.append(f"{d} of {place}" if km_away < 120 else f"{round(km_away / 10) * 10} km {d} of {place}")
+        return unique(kind, choices)
     def shore(c): return dry(c) and any(g(n) in ("River", "Lake") for n in (DR(c), DL(c), UL(c), UR(c)))
     def inside(c): return 0 <= c[0] < cols and 0 <= c[1] < rows
     def WorldLayout_bank(c): return dry(c) and any(inside(n) and g(n) in ("River", "Lake") for n in (DR(c), DL(c), UL(c), UR(c), DR(DR(c)), UL(UL(c))))
@@ -560,10 +575,9 @@ def lay_out(G, places, extras, atlas):
             route.append(list(cell if dry(cell) else b_winter))
         w = cell_world(*b_summer)
         near = min(hills, key=lambda q: math.dist(q[1], w)) if hills else None
-        where = near[0] if near and math.dist(near[1], w) < 6000 else camp["name"].replace(" of the", "").replace("Métis", "Métis country,")
-        name = f"Buffalo plain ({where})"; k = 2
-        while name in used_names: name = f"Buffalo plain ({where}) {k}"; k += 1
-        used_names.add(name)
+        people = camp["name"].replace("Métis of the ", "").replace("Métis at ", "").replace("Métis", "")
+        choices = ([near[0], f"{near[0]}, {people}"] if near and math.dist(near[1], w) < 6000 else []) + [f"{people} country", f"{bearing(cell_world(*c), w)} of the {people} camp"]
+        name = unique("Buffalo plain", choices)
         country.append(dict(name=name, species="Buffalo", cell=list(b_winter), count=rng.randint(160, 200), capacity=260, radius=rng.choice([900, 1100, 1300]), route=route))
         herds += 1
     sites.extend(country)

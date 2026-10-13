@@ -1842,7 +1842,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dease Lake)",
+    "name": "Beaver lodge (south-west of Dease Lake)",
     "species": "Beaver",
     "cell": [
      6,
@@ -1854,7 +1854,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Dease Lake)",
+    "name": "Wolf den (west of Dease Lake)",
     "species": "Wolf",
     "cell": [
      9,
@@ -1866,7 +1866,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nelson (BC) country)",
+    "name": "Beaver lodge (150 km north-west of Fort Nelson (BC))",
     "species": "Beaver",
     "cell": [
      111,
@@ -1878,7 +1878,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nelson (BC) country) 2",
+    "name": "Beaver lodge (140 km north-west of Fort Nelson (BC))",
     "species": "Beaver",
     "cell": [
      126,
@@ -1890,7 +1890,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Nelson (BC) country)",
+    "name": "Woodland caribou (140 km north of Fort Nelson (BC))",
     "species": "Caribou",
     "cell": [
      162,
@@ -1902,7 +1902,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort Chipewyan country)",
+    "name": "Ptarmigan flats (310 km north-west of Fort Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      282,
@@ -1914,7 +1914,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort Chipewyan country) 2",
+    "name": "Ptarmigan flats (290 km north-west of Fort Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      306,
@@ -1926,7 +1926,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Chipewyan country)",
+    "name": "Wolf den (240 km north of Fort Chipewyan)",
     "species": "Wolf",
     "cell": [
      330,
@@ -1938,7 +1938,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort Chipewyan country) 3",
+    "name": "Ptarmigan flats (230 km north of Fort Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      336,
@@ -1950,7 +1950,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort Chipewyan country) 4",
+    "name": "Ptarmigan flats (220 km north of Fort Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      360,
@@ -1962,7 +1962,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort Chipewyan country) 5",
+    "name": "Ptarmigan flats (250 km north-east of Fort Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      390,
@@ -1974,7 +1974,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Chipewyan country) 2",
+    "name": "Wolf den (300 km north-east of Fort Chipewyan)",
     "species": "Wolf",
     "cell": [
      414,
@@ -1986,7 +1986,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Chipewyan country)",
+    "name": "Ptarmigan flats (360 km north-east of Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      546,
@@ -1998,7 +1998,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort) country)",
+    "name": "Ptarmigan flats (400 km north-west of Churchill (Pr. of Wales Fort))",
     "species": "Ptarmigan",
     "cell": [
      561,
@@ -2010,7 +2010,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort) country) 2",
+    "name": "Ptarmigan flats (260 km north-west of Churchill (Pr. of Wales Fort))",
     "species": "Ptarmigan",
     "cell": [
      612,
@@ -2022,7 +2022,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Great Whale River country)",
+    "name": "Goose marsh (410 km north-west of Great Whale River)",
     "species": "Goose",
     "cell": [
      930,
@@ -2034,7 +2034,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Great Whale River country)",
+    "name": "Woodland caribou (440 km north of Great Whale River)",
     "species": "Caribou",
     "cell": [
      936,
@@ -2046,7 +2046,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Great Whale River country)",
+    "name": "Ptarmigan flats (360 km north of Great Whale River)",
     "species": "Ptarmigan",
     "cell": [
      963,
@@ -2058,7 +2058,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dease Lake) 2",
+    "name": "Beaver lodge (south of Dease Lake)",
     "species": "Beaver",
     "cell": [
      15,
@@ -2070,7 +2070,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dease Lake country)",
+    "name": "Beaver lodge (south-east of Dease Lake)",
     "species": "Beaver",
     "cell": [
      36,
@@ -2082,7 +2082,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Sekani country)",
+    "name": "Wolf den (170 km north of Sekani)",
     "species": "Wolf",
     "cell": [
      72,
@@ -2094,7 +2094,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort Chipewyan country) 6",
+    "name": "Ptarmigan flats (200 km north of Fort Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      345,
@@ -2106,7 +2106,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort Chipewyan country) 7",
+    "name": "Ptarmigan flats (200 km north-east of Fort Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      384,
@@ -2118,7 +2118,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Chipewyan country)",
+    "name": "Wolf den (280 km north-west of Chipewyan)",
     "species": "Wolf",
     "cell": [
      420,
@@ -2130,7 +2130,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Chipewyan country) 2",
+    "name": "Ptarmigan flats (260 km north of Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      480,
@@ -2142,7 +2142,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Chipewyan country) 3",
+    "name": "Ptarmigan flats (290 km north-east of Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      525,
@@ -2154,7 +2154,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Chipewyan country) 4",
+    "name": "Ptarmigan flats (310 km north-east of Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      543,
@@ -2166,7 +2166,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort) country) 3",
+    "name": "Ptarmigan flats (350 km north-west of Churchill (Pr. of Wales Fort))",
     "species": "Ptarmigan",
     "cell": [
      558,
@@ -2178,7 +2178,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Churchill (Pr. of Wales Fort) country)",
+    "name": "Wolf den (250 km north-west of Churchill (Pr. of Wales Fort))",
     "species": "Wolf",
     "cell": [
      609,
@@ -2190,7 +2190,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Great Whale River country) 2",
+    "name": "Goose marsh (370 km north-west of Great Whale River)",
     "species": "Goose",
     "cell": [
      933,
@@ -2202,7 +2202,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Great Whale River country) 2",
+    "name": "Ptarmigan flats (370 km north-west of Great Whale River)",
     "species": "Ptarmigan",
     "cell": [
      933,
@@ -2214,7 +2214,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Great Whale River country)",
+    "name": "Wolf den (350 km north of Great Whale River)",
     "species": "Wolf",
     "cell": [
      942,
@@ -2226,7 +2226,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Great Whale River country) 3",
+    "name": "Ptarmigan flats (300 km north of Great Whale River)",
     "species": "Ptarmigan",
     "cell": [
      981,
@@ -2238,7 +2238,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Great Whale River country) 2",
+    "name": "Wolf den (340 km north of Great Whale River)",
     "species": "Wolf",
     "cell": [
      963,
@@ -2250,7 +2250,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Great Whale River country) 3",
+    "name": "Wolf den (280 km north of Great Whale River)",
     "species": "Wolf",
     "cell": [
      996,
@@ -2262,7 +2262,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sekani country)",
+    "name": "Beaver lodge (160 km north-west of Sekani)",
     "species": "Beaver",
     "cell": [
      39,
@@ -2274,7 +2274,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sekani country) 2",
+    "name": "Beaver lodge (north of Sekani)",
     "species": "Beaver",
     "cell": [
      63,
@@ -2286,7 +2286,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sekani country) 3",
+    "name": "Beaver lodge (140 km north of Fort Connolly)",
     "species": "Beaver",
     "cell": [
      75,
@@ -2298,7 +2298,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Chipewyan country)",
+    "name": "Beaver lodge (north-west of Fort Chipewyan)",
     "species": "Beaver",
     "cell": [
      330,
@@ -2310,7 +2310,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Chipewyan country) 3",
+    "name": "Wolf den (150 km north-east of Fort Chipewyan)",
     "species": "Wolf",
     "cell": [
      375,
@@ -2322,7 +2322,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Chipewyan country) 5",
+    "name": "Ptarmigan flats (150 km north-west of Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      441,
@@ -2334,7 +2334,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Chipewyan country) 6",
+    "name": "Ptarmigan flats (160 km north of Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      480,
@@ -2346,7 +2346,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Chipewyan country) 7",
+    "name": "Ptarmigan flats (180 km north-east of Chipewyan)",
     "species": "Ptarmigan",
     "cell": [
      507,
@@ -2358,7 +2358,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Chipewyan country) 8",
+    "name": "Ptarmigan flats (360 km west of Churchill (Pr. of Wales Fort))",
     "species": "Ptarmigan",
     "cell": [
      546,
@@ -2370,7 +2370,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Churchill (Pr. of Wales Fort) country) 2",
+    "name": "Wolf den (140 km north-west of Churchill (Pr. of Wales Fort))",
     "species": "Wolf",
     "cell": [
      621,
@@ -2382,7 +2382,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Churchill (Pr. of Wales Fort) country)",
+    "name": "Goose marsh (130 km north-west of Churchill (Pr. of Wales Fort))",
     "species": "Goose",
     "cell": [
      639,
@@ -2394,7 +2394,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Churchill (Pr. of Wales Fort) country) 3",
+    "name": "Wolf den (north-west of Churchill (Pr. of Wales Fort))",
     "species": "Wolf",
     "cell": [
      636,
@@ -2406,7 +2406,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Great Whale River country) 3",
+    "name": "Goose marsh (280 km north-west of Great Whale River)",
     "species": "Goose",
     "cell": [
      921,
@@ -2418,7 +2418,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Great Whale River country) 4",
+    "name": "Goose marsh (250 km north of Great Whale River)",
     "species": "Goose",
     "cell": [
      975,
@@ -2430,7 +2430,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Great Whale River country) 5",
+    "name": "Goose marsh (210 km north of Great Whale River)",
     "species": "Goose",
     "cell": [
      984,
@@ -2442,7 +2442,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Great Whale River country) 4",
+    "name": "Ptarmigan flats (220 km north of Great Whale River)",
     "species": "Ptarmigan",
     "cell": [
      984,
@@ -2454,7 +2454,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sekani country) 4",
+    "name": "Beaver lodge (170 km north-west of Fort Connolly)",
     "species": "Beaver",
     "cell": [
      30,
@@ -2466,7 +2466,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sekani)",
+    "name": "Beaver lodge (north-east of Sekani)",
     "species": "Beaver",
     "cell": [
      87,
@@ -2478,7 +2478,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Nelson (BC) country)",
+    "name": "Wolf den (south of Fort Nelson (BC))",
     "species": "Wolf",
     "cell": [
      147,
@@ -2490,7 +2490,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dene (Beaver) country)",
+    "name": "Beaver lodge (north-east of Dene (Beaver))",
     "species": "Beaver",
     "cell": [
      243,
@@ -2502,7 +2502,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dene (Beaver) country) 2",
+    "name": "Beaver lodge (180 km north-east of Dene (Beaver))",
     "species": "Beaver",
     "cell": [
      273,
@@ -2514,7 +2514,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Chipewyan country) 2",
+    "name": "Beaver lodge (140 km west of Fort Chipewyan)",
     "species": "Beaver",
     "cell": [
      306,
@@ -2526,7 +2526,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Chipewyan country) 4",
+    "name": "Wolf den (180 km west of Fort Chipewyan)",
     "species": "Wolf",
     "cell": [
      294,
@@ -2538,7 +2538,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Chipewyan)",
+    "name": "Beaver lodge (west of Fort Chipewyan)",
     "species": "Beaver",
     "cell": [
      333,
@@ -2550,7 +2550,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Chipewyan) 2",
+    "name": "Beaver lodge (380 km east of Dene (Beaver))",
     "species": "Beaver",
     "cell": [
      336,
@@ -2562,7 +2562,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Chipewyan) 3",
+    "name": "Beaver lodge (east of Fort Chipewyan)",
     "species": "Beaver",
     "cell": [
      363,
@@ -2574,7 +2574,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Chipewyan)",
+    "name": "Woodland caribou (south-east of Fort Chipewyan)",
     "species": "Caribou",
     "cell": [
      363,
@@ -2586,7 +2586,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Chipewyan country) 3",
+    "name": "Beaver lodge (160 km east of Fort Chipewyan)",
     "species": "Beaver",
     "cell": [
      399,
@@ -2598,7 +2598,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Chipewyan country) 4",
+    "name": "Beaver lodge (200 km east of Fort Chipewyan)",
     "species": "Beaver",
     "cell": [
      411,
@@ -2610,7 +2610,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Chipewyan country)",
+    "name": "Beaver lodge (north-west of Chipewyan)",
     "species": "Beaver",
     "cell": [
      450,
@@ -2622,7 +2622,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Chipewyan)",
+    "name": "Beaver lodge (north-east of Chipewyan)",
     "species": "Beaver",
     "cell": [
      477,
@@ -2634,7 +2634,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Chipewyan) 2",
+    "name": "Beaver lodge (410 km north of Lac la Ronge)",
     "species": "Beaver",
     "cell": [
      480,
@@ -2646,7 +2646,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Chipewyan country) 2",
+    "name": "Wolf den (north-east of Chipewyan)",
     "species": "Wolf",
     "cell": [
      498,
@@ -2658,7 +2658,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Churchill (Pr. of Wales Fort) country)",
+    "name": "Woodland caribou (250 km west of Churchill (Pr. of Wales Fort))",
     "species": "Caribou",
     "cell": [
      576,
@@ -2670,7 +2670,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort) country) 4",
+    "name": "Ptarmigan flats (west of Churchill (Pr. of Wales Fort))",
     "species": "Ptarmigan",
     "cell": [
      621,
@@ -2682,7 +2682,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort))",
+    "name": "Ptarmigan flats (east of Churchill (Pr. of Wales Fort))",
     "species": "Ptarmigan",
     "cell": [
      669,
@@ -2694,7 +2694,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Churchill (Pr. of Wales Fort) country) 2",
+    "name": "Goose marsh (east of Churchill (Pr. of Wales Fort))",
     "species": "Goose",
     "cell": [
      675,
@@ -2706,7 +2706,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Great Whale River country) 6",
+    "name": "Goose marsh (160 km north of Great Whale River)",
     "species": "Goose",
     "cell": [
      990,
@@ -2718,7 +2718,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Babine country)",
+    "name": "Beaver lodge (130 km north of Fort Babine)",
     "species": "Beaver",
     "cell": [
      27,
@@ -2730,7 +2730,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Connolly country)",
+    "name": "Wolf den (west of Fort Connolly)",
     "species": "Wolf",
     "cell": [
      51,
@@ -2742,7 +2742,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sekani) 2",
+    "name": "Beaver lodge (east of Sekani)",
     "species": "Beaver",
     "cell": [
      87,
@@ -2754,7 +2754,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dene (Beaver))",
+    "name": "Beaver lodge (east of Dene (Beaver))",
     "species": "Beaver",
     "cell": [
      234,
@@ -2766,7 +2766,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Dene (Beaver) country)",
+    "name": "Wolf den (160 km east of Dene (Beaver))",
     "species": "Wolf",
     "cell": [
      270,
@@ -2778,7 +2778,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Chipewyan country)",
+    "name": "Woodland caribou (south-west of Fort Chipewyan)",
     "species": "Caribou",
     "cell": [
      327,
@@ -2790,7 +2790,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Chipewyan) 4",
+    "name": "Beaver lodge (south-west of Fort Chipewyan)",
     "species": "Beaver",
     "cell": [
      336,
@@ -2802,7 +2802,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Chipewyan country) 2",
+    "name": "Woodland caribou (south of Fort Chipewyan)",
     "species": "Caribou",
     "cell": [
      351,
@@ -2814,7 +2814,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Churchill (Pr. of Wales Fort) country) 4",
+    "name": "Wolf den (south-west of Churchill (Pr. of Wales Fort))",
     "species": "Wolf",
     "cell": [
      633,
@@ -2826,7 +2826,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (York Factory country)",
+    "name": "Goose marsh (north-west of York Factory)",
     "species": "Goose",
     "cell": [
      687,
@@ -2838,7 +2838,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Churchill (Pr. of Wales Fort) country) 5",
+    "name": "Ptarmigan flats (south-east of Churchill (Pr. of Wales Fort))",
     "species": "Ptarmigan",
     "cell": [
      678,
@@ -2850,7 +2850,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Great Whale River country) 7",
+    "name": "Goose marsh (180 km west of Great Whale River)",
     "species": "Goose",
     "cell": [
      930,
@@ -2862,7 +2862,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Great Whale River country) 5",
+    "name": "Ptarmigan flats (170 km west of Great Whale River)",
     "species": "Ptarmigan",
     "cell": [
      933,
@@ -2874,7 +2874,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Great Whale River country) 8",
+    "name": "Goose marsh (north of Great Whale River)",
     "species": "Goose",
     "cell": [
      993,
@@ -2886,7 +2886,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Babine country) 2",
+    "name": "Beaver lodge (west of Fort Babine)",
     "species": "Beaver",
     "cell": [
      12,
@@ -2898,7 +2898,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Connolly)",
+    "name": "Wolf den (south of Fort Connolly)",
     "species": "Wolf",
     "cell": [
      66,
@@ -2910,7 +2910,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Connolly country)",
+    "name": "Beaver lodge (south-east of Fort Connolly)",
     "species": "Beaver",
     "cell": [
      87,
@@ -2922,7 +2922,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort McLeod country)",
+    "name": "Beaver lodge (120 km north-east of Fort McLeod)",
     "species": "Beaver",
     "cell": [
      129,
@@ -2934,7 +2934,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dunvegan country)",
+    "name": "Beaver lodge (150 km north-west of Dunvegan)",
     "species": "Beaver",
     "cell": [
      153,
@@ -2946,7 +2946,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Chipewyan country) 3",
+    "name": "Woodland caribou (150 km south of Fort Chipewyan)",
     "species": "Caribou",
     "cell": [
      354,
@@ -2958,7 +2958,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Chipewyan country) 4",
+    "name": "Woodland caribou (220 km south-east of Fort Chipewyan)",
     "species": "Caribou",
     "cell": [
      405,
@@ -2970,7 +2970,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Chipewyan country) 2",
+    "name": "Beaver lodge (170 km south-west of Chipewyan)",
     "species": "Beaver",
     "cell": [
      426,
@@ -2982,7 +2982,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Chipewyan country) 3",
+    "name": "Beaver lodge (south-east of Chipewyan)",
     "species": "Beaver",
     "cell": [
      483,
@@ -2994,7 +2994,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Chipewyan country) 4",
+    "name": "Beaver lodge (190 km south-east of Chipewyan)",
     "species": "Beaver",
     "cell": [
      513,
@@ -3006,7 +3006,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Chipewyan country)",
+    "name": "Woodland caribou (260 km south-east of Chipewyan)",
     "species": "Caribou",
     "cell": [
      540,
@@ -3018,7 +3018,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Churchill (Pr. of Wales Fort) country)",
+    "name": "Beaver lodge (290 km south-west of Churchill (Pr. of Wales Fort))",
     "species": "Beaver",
     "cell": [
      579,
@@ -3030,7 +3030,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Churchill (Pr. of Wales Fort) country) 2",
+    "name": "Woodland caribou (220 km south-west of Churchill (Pr. of Wales Fort))",
     "species": "Caribou",
     "cell": [
      594,
@@ -3042,7 +3042,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Churchill (Pr. of Wales Fort) country) 3",
+    "name": "Woodland caribou (130 km south of Churchill (Pr. of Wales Fort))",
     "species": "Caribou",
     "cell": [
      657,
@@ -3054,7 +3054,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (York Factory)",
+    "name": "Goose marsh (200 km south-east of Churchill (Pr. of Wales Fort))",
     "species": "Goose",
     "cell": [
      693,
@@ -3066,7 +3066,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (York Factory)",
+    "name": "Ptarmigan flats (north-west of York Factory)",
     "species": "Ptarmigan",
     "cell": [
      690,
@@ -3078,7 +3078,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (York Factory country) 2",
+    "name": "Goose marsh (north-east of York Factory)",
     "species": "Goose",
     "cell": [
      717,
@@ -3090,7 +3090,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (York Factory country) 3",
+    "name": "Goose marsh (230 km north of Swampy Cree)",
     "species": "Goose",
     "cell": [
      726,
@@ -3102,7 +3102,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort Severn country)",
+    "name": "Ptarmigan flats (150 km north-west of Fort Severn)",
     "species": "Ptarmigan",
     "cell": [
      768,
@@ -3114,7 +3114,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Great Whale River country) 9",
+    "name": "Goose marsh (130 km west of Great Whale River)",
     "species": "Goose",
     "cell": [
      945,
@@ -3126,7 +3126,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Great Whale River country) 6",
+    "name": "Ptarmigan flats (130 km west of Great Whale River)",
     "species": "Ptarmigan",
     "cell": [
      945,
@@ -3138,7 +3138,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Great Whale River)",
+    "name": "Ptarmigan flats (south-west of Great Whale River)",
     "species": "Ptarmigan",
     "cell": [
      978,
@@ -3150,7 +3150,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Great Whale River)",
+    "name": "Wolf den (south-west of Great Whale River)",
     "species": "Wolf",
     "cell": [
      975,
@@ -3174,7 +3174,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort McLeod)",
+    "name": "Beaver lodge (north of Fort McLeod)",
     "species": "Beaver",
     "cell": [
      102,
@@ -3186,7 +3186,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dunvegan country) 2",
+    "name": "Beaver lodge (north-west of Dunvegan)",
     "species": "Beaver",
     "cell": [
      180,
@@ -3198,7 +3198,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dunvegan)",
+    "name": "Beaver lodge (east of Dunvegan)",
     "species": "Beaver",
     "cell": [
      210,
@@ -3210,7 +3210,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dunvegan country) 3",
+    "name": "Beaver lodge (150 km north-west of Lesser Slave Lake Ho.)",
     "species": "Beaver",
     "cell": [
      216,
@@ -3222,7 +3222,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Lesser Slave Lake Ho. country)",
+    "name": "Woodland caribou (north-east of Lesser Slave Lake Ho.)",
     "species": "Caribou",
     "cell": [
      279,
@@ -3234,7 +3234,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Lesser Slave Lake Ho. country)",
+    "name": "Wolf den (140 km north-east of Lesser Slave Lake Ho.)",
     "species": "Wolf",
     "cell": [
      270,
@@ -3246,7 +3246,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Chipewyan country) 5",
+    "name": "Beaver lodge (220 km south of Fort Chipewyan)",
     "species": "Beaver",
     "cell": [
      336,
@@ -3258,7 +3258,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Ile-a-la-Crosse country)",
+    "name": "Beaver lodge (130 km north of Ile-a-la-Crosse)",
     "species": "Beaver",
     "cell": [
      393,
@@ -3270,7 +3270,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Ile-a-la-Crosse country)",
+    "name": "Woodland caribou (190 km north-east of Ile-a-la-Crosse)",
     "species": "Caribou",
     "cell": [
      435,
@@ -3282,7 +3282,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Chipewyan country) 5",
+    "name": "Beaver lodge (200 km south-east of Chipewyan)",
     "species": "Beaver",
     "cell": [
      495,
@@ -3294,7 +3294,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Chipewyan country) 6",
+    "name": "Beaver lodge (230 km south-east of Chipewyan)",
     "species": "Beaver",
     "cell": [
      513,
@@ -3306,7 +3306,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Woodland Cree country)",
+    "name": "Beaver lodge (230 km north of Woodland Cree)",
     "species": "Beaver",
     "cell": [
      567,
@@ -3318,7 +3318,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Woodland Cree country) 2",
+    "name": "Beaver lodge (240 km north-east of Woodland Cree)",
     "species": "Beaver",
     "cell": [
      576,
@@ -3330,7 +3330,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (York Factory country)",
+    "name": "Beaver lodge (south-west of York Factory)",
     "species": "Beaver",
     "cell": [
      684,
@@ -3342,7 +3342,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (York Factory country)",
+    "name": "Ptarmigan flats (south of York Factory)",
     "species": "Ptarmigan",
     "cell": [
      690,
@@ -3366,7 +3366,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (York Factory) 2",
+    "name": "Goose marsh (York Factory)",
     "species": "Goose",
     "cell": [
      696,
@@ -3378,7 +3378,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (York Factory country)",
+    "name": "Wolf den (south-east of York Factory)",
     "species": "Wolf",
     "cell": [
      714,
@@ -3390,7 +3390,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort Severn country) 2",
+    "name": "Ptarmigan flats (north of Fort Severn)",
     "species": "Ptarmigan",
     "cell": [
      795,
@@ -3402,7 +3402,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Fort George (Chisasibi) country)",
+    "name": "Goose marsh (260 km west of Fort George (Chisasibi))",
     "species": "Goose",
     "cell": [
      900,
@@ -3414,7 +3414,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort George (Chisasibi) country)",
+    "name": "Ptarmigan flats (290 km west of Fort George (Chisasibi))",
     "species": "Ptarmigan",
     "cell": [
      891,
@@ -3426,7 +3426,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort George (Chisasibi) country)",
+    "name": "Wolf den (north of Fort George (Chisasibi))",
     "species": "Wolf",
     "cell": [
      978,
@@ -3438,7 +3438,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Great Whale River country) 7",
+    "name": "Ptarmigan flats (south of Great Whale River)",
     "species": "Ptarmigan",
     "cell": [
      984,
@@ -3450,7 +3450,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Lesser Slave Lake Ho. country) 2",
+    "name": "Woodland caribou (150 km east of Lesser Slave Lake Ho.)",
     "species": "Caribou",
     "cell": [
      297,
@@ -3462,7 +3462,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Lesser Slave Lake Ho. country)",
+    "name": "Beaver lodge (200 km east of Lesser Slave Lake Ho.)",
     "species": "Beaver",
     "cell": [
      312,
@@ -3474,7 +3474,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Ile-a-la-Crosse country)",
+    "name": "Wolf den (north of Ile-a-la-Crosse)",
     "species": "Wolf",
     "cell": [
      399,
@@ -3486,7 +3486,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Woodland Cree country) 3",
+    "name": "Beaver lodge (220 km north-west of Woodland Cree)",
     "species": "Beaver",
     "cell": [
      504,
@@ -3498,7 +3498,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Oxford House country)",
+    "name": "Beaver lodge (120 km north-east of Oxford House)",
     "species": "Beaver",
     "cell": [
      669,
@@ -3510,7 +3510,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Oxford House country)",
+    "name": "Woodland caribou (130 km north-east of Oxford House)",
     "species": "Caribou",
     "cell": [
      666,
@@ -3522,7 +3522,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Oxford House country) 2",
+    "name": "Beaver lodge (130 km north-east of Oxford House)",
     "species": "Beaver",
     "cell": [
      672,
@@ -3534,7 +3534,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Swampy Cree country)",
+    "name": "Wolf den (north of Swampy Cree)",
     "species": "Wolf",
     "cell": [
      711,
@@ -3570,7 +3570,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort Severn country) 3",
+    "name": "Ptarmigan flats (140 km east of Fort Severn)",
     "species": "Ptarmigan",
     "cell": [
      840,
@@ -3582,7 +3582,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Severn country)",
+    "name": "Woodland caribou (200 km east of Fort Severn)",
     "species": "Caribou",
     "cell": [
      858,
@@ -3594,7 +3594,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Fort George (Chisasibi) country) 2",
+    "name": "Goose marsh (250 km west of Fort George (Chisasibi))",
     "species": "Goose",
     "cell": [
      903,
@@ -3606,7 +3606,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort George (Chisasibi))",
+    "name": "Ptarmigan flats (north-west of Fort George (Chisasibi))",
     "species": "Ptarmigan",
     "cell": [
      966,
@@ -3618,7 +3618,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort George (Chisasibi))",
+    "name": "Beaver lodge (east of Fort George (Chisasibi))",
     "species": "Beaver",
     "cell": [
      996,
@@ -3630,7 +3630,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Dakelh (Carrier) country)",
+    "name": "Woodland caribou (170 km south-west of Dakelh (Carrier))",
     "species": "Caribou",
     "cell": [
      6,
@@ -3642,7 +3642,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Fraser)",
+    "name": "Wolf den (south of Fort Fraser)",
     "species": "Wolf",
     "cell": [
      66,
@@ -3654,7 +3654,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort George (BC))",
+    "name": "Beaver lodge (north-east of Fort George (BC))",
     "species": "Beaver",
     "cell": [
      105,
@@ -3666,7 +3666,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort George (BC) country)",
+    "name": "Beaver lodge (east of Fort George (BC))",
     "species": "Beaver",
     "cell": [
      123,
@@ -3678,7 +3678,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Dunvegan country)",
+    "name": "Wolf den (160 km south-west of Dunvegan)",
     "species": "Wolf",
     "cell": [
      168,
@@ -3690,7 +3690,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Assiniboine)",
+    "name": "Beaver lodge (north-east of Fort Assiniboine)",
     "species": "Beaver",
     "cell": [
      270,
@@ -3714,7 +3714,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Ile-a-la-Crosse country) 2",
+    "name": "Beaver lodge (east of Ile-a-la-Crosse)",
     "species": "Beaver",
     "cell": [
      429,
@@ -3726,7 +3726,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Lac la Ronge country)",
+    "name": "Woodland caribou (north-west of Lac la Ronge)",
     "species": "Caribou",
     "cell": [
      444,
@@ -3750,7 +3750,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Woodland Cree country)",
+    "name": "Wolf den (north-west of Woodland Cree)",
     "species": "Wolf",
     "cell": [
      528,
@@ -3762,7 +3762,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Woodland Cree country)",
+    "name": "Woodland caribou (north-east of Woodland Cree)",
     "species": "Caribou",
     "cell": [
      573,
@@ -3774,7 +3774,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Woodland Cree country) 2",
+    "name": "Wolf den (north of Woodland Cree)",
     "species": "Wolf",
     "cell": [
      555,
@@ -3786,7 +3786,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Oxford House country) 3",
+    "name": "Beaver lodge (west of Oxford House)",
     "species": "Beaver",
     "cell": [
      615,
@@ -3798,7 +3798,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Oxford House country) 4",
+    "name": "Beaver lodge (north-west of Oxford House)",
     "species": "Beaver",
     "cell": [
      636,
@@ -3810,7 +3810,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Oxford House country) 5",
+    "name": "Beaver lodge (north-east of Oxford House)",
     "species": "Beaver",
     "cell": [
      663,
@@ -3822,7 +3822,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Severn country) 2",
+    "name": "Woodland caribou (130 km south-east of Fort Severn)",
     "species": "Caribou",
     "cell": [
      822,
@@ -3834,7 +3834,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort Severn country) 4",
+    "name": "Ptarmigan flats (200 km east of Fort Severn)",
     "species": "Ptarmigan",
     "cell": [
      858,
@@ -3846,7 +3846,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Albany Fort country)",
+    "name": "Ptarmigan flats (200 km north-west of Albany Fort)",
     "species": "Ptarmigan",
     "cell": [
      897,
@@ -3858,7 +3858,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Fort George (Chisasibi)) 2",
+    "name": "Ptarmigan flats (south of Fort George (Chisasibi))",
     "species": "Ptarmigan",
     "cell": [
      981,
@@ -3870,7 +3870,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Dakelh (Carrier) country)",
+    "name": "Goose marsh (220 km south-west of Dakelh (Carrier))",
     "species": "Goose",
     "cell": [
      0,
@@ -3882,7 +3882,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Alexandria (BC))",
+    "name": "Beaver lodge (north of Fort Alexandria (BC))",
     "species": "Beaver",
     "cell": [
      93,
@@ -3894,7 +3894,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Alexandria (BC) country)",
+    "name": "Wolf den (north-east of Fort Alexandria (BC))",
     "species": "Wolf",
     "cell": [
      117,
@@ -3906,7 +3906,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort George (BC) country) 2",
+    "name": "Beaver lodge (150 km south-east of Fort George (BC))",
     "species": "Beaver",
     "cell": [
      138,
@@ -3918,7 +3918,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Jasper House country)",
+    "name": "Beaver lodge (150 km north-west of Jasper House)",
     "species": "Beaver",
     "cell": [
      144,
@@ -3930,7 +3930,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Jasper House country) 2",
+    "name": "Beaver lodge (north-east of Jasper House)",
     "species": "Beaver",
     "cell": [
      207,
@@ -3942,7 +3942,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Assiniboine country)",
+    "name": "Beaver lodge (west of Fort Assiniboine)",
     "species": "Beaver",
     "cell": [
      237,
@@ -3954,7 +3954,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Assiniboine) 2",
+    "name": "Beaver lodge (140 km north-west of Edmonton House)",
     "species": "Beaver",
     "cell": [
      249,
@@ -3966,7 +3966,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Assiniboine country) 2",
+    "name": "Beaver lodge (east of Fort Assiniboine)",
     "species": "Beaver",
     "cell": [
      291,
@@ -3978,7 +3978,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort George country)",
+    "name": "Wolf den (north of Fort George)",
     "species": "Wolf",
     "cell": [
      324,
@@ -3990,7 +3990,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Green Lake country)",
+    "name": "Woodland caribou (north-west of Green Lake)",
     "species": "Caribou",
     "cell": [
      381,
@@ -4002,7 +4002,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Lac la Ronge) 2",
+    "name": "Beaver lodge (east of Lac la Ronge)",
     "species": "Beaver",
     "cell": [
      465,
@@ -4014,7 +4014,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Norway House country)",
+    "name": "Beaver lodge (north of Norway House)",
     "species": "Beaver",
     "cell": [
      597,
@@ -4026,7 +4026,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Oxford House country) 2",
+    "name": "Woodland caribou (south of Oxford House)",
     "species": "Caribou",
     "cell": [
      642,
@@ -4038,7 +4038,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Oxford House country) 6",
+    "name": "Beaver lodge (east of Oxford House)",
     "species": "Beaver",
     "cell": [
      669,
@@ -4050,7 +4050,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Oxford House country) 7",
+    "name": "Beaver lodge (north of Island Lake House)",
     "species": "Beaver",
     "cell": [
      675,
@@ -4062,7 +4062,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Island Lake House country)",
+    "name": "Woodland caribou (north-east of Island Lake House)",
     "species": "Caribou",
     "cell": [
      693,
@@ -4074,7 +4074,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Swampy Cree country) 2",
+    "name": "Wolf den (south-east of Swampy Cree)",
     "species": "Wolf",
     "cell": [
      741,
@@ -4086,7 +4086,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Albany Fort country) 2",
+    "name": "Ptarmigan flats (260 km north-east of Martin Falls)",
     "species": "Ptarmigan",
     "cell": [
      885,
@@ -4098,7 +4098,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Albany Fort country) 3",
+    "name": "Ptarmigan flats (140 km north-west of Albany Fort)",
     "species": "Ptarmigan",
     "cell": [
      909,
@@ -4110,7 +4110,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Albany Fort country)",
+    "name": "Goose marsh (150 km north-west of Albany Fort)",
     "species": "Goose",
     "cell": [
      918,
@@ -4122,7 +4122,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Albany Fort country) 4",
+    "name": "Ptarmigan flats (north-west of Albany Fort)",
     "species": "Ptarmigan",
     "cell": [
      915,
@@ -4134,7 +4134,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Albany Fort country)",
+    "name": "Wolf den (north-west of Albany Fort)",
     "species": "Wolf",
     "cell": [
      915,
@@ -4146,7 +4146,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Albany Fort country) 2",
+    "name": "Goose marsh (north-east of Albany Fort)",
     "species": "Goose",
     "cell": [
      954,
@@ -4158,7 +4158,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Fort George (Chisasibi) country) 3",
+    "name": "Goose marsh (130 km south-east of Fort George (Chisasibi))",
     "species": "Goose",
     "cell": [
      996,
@@ -4170,7 +4170,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Tsilhqot'in country)",
+    "name": "Wolf den (120 km north-west of Tsilhqot'in)",
     "species": "Wolf",
     "cell": [
      21,
@@ -4182,7 +4182,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Alexandria (BC)) 2",
+    "name": "Beaver lodge (Fort Alexandria (BC))",
     "species": "Beaver",
     "cell": [
      90,
@@ -4194,7 +4194,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Jasper House country) 3",
+    "name": "Beaver lodge (north-west of Jasper House)",
     "species": "Beaver",
     "cell": [
      162,
@@ -4206,7 +4206,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Jasper House)",
+    "name": "Beaver lodge (north of Jasper House)",
     "species": "Beaver",
     "cell": [
      186,
@@ -4218,7 +4218,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Jasper House country) 4",
+    "name": "Beaver lodge (210 km north-west of Rocky Mountain House)",
     "species": "Beaver",
     "cell": [
      195,
@@ -4230,7 +4230,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Augustus)",
+    "name": "Beaver lodge (north-east of Fort Augustus)",
     "species": "Beaver",
     "cell": [
      294,
@@ -4266,7 +4266,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Lac la Ronge country)",
+    "name": "Beaver lodge (south-west of Lac la Ronge)",
     "species": "Beaver",
     "cell": [
      444,
@@ -4278,7 +4278,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Lac la Ronge country)",
+    "name": "Wolf den (south-east of Lac la Ronge)",
     "species": "Wolf",
     "cell": [
      471,
@@ -4290,7 +4290,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Cumberland House)",
+    "name": "Beaver lodge (west of Cumberland House)",
     "species": "Beaver",
     "cell": [
      501,
@@ -4302,7 +4302,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Cumberland House country)",
+    "name": "Woodland caribou (north-west of Cumberland House)",
     "species": "Caribou",
     "cell": [
      483,
@@ -4314,7 +4314,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Cumberland House) 2",
+    "name": "Beaver lodge (north of Cumberland House)",
     "species": "Beaver",
     "cell": [
      510,
@@ -4326,7 +4326,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (The Pas (Le Pas) country)",
+    "name": "Beaver lodge (north-east of The Pas (Le Pas))",
     "species": "Beaver",
     "cell": [
      549,
@@ -4338,7 +4338,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (The Pas (Le Pas) country) 2",
+    "name": "Beaver lodge (east of The Pas (Le Pas))",
     "species": "Beaver",
     "cell": [
      561,
@@ -4362,7 +4362,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Island Lake House) 2",
+    "name": "Beaver lodge (south-east of Island Lake House)",
     "species": "Beaver",
     "cell": [
      672,
@@ -4374,7 +4374,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Oji-Cree country)",
+    "name": "Beaver lodge (150 km north of Oji-Cree)",
     "species": "Beaver",
     "cell": [
      753,
@@ -4386,7 +4386,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Martin Falls country)",
+    "name": "Woodland caribou (170 km north-east of Martin Falls)",
     "species": "Caribou",
     "cell": [
      879,
@@ -4398,7 +4398,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Albany Fort country) 5",
+    "name": "Ptarmigan flats (west of Albany Fort)",
     "species": "Ptarmigan",
     "cell": [
      906,
@@ -4434,7 +4434,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Alexandria (BC)) 3",
+    "name": "Beaver lodge (south of Fort Alexandria (BC))",
     "species": "Beaver",
     "cell": [
      90,
@@ -4446,7 +4446,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Jasper House country) 5",
+    "name": "Beaver lodge (west of Jasper House)",
     "species": "Beaver",
     "cell": [
      162,
@@ -4458,7 +4458,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Jasper House) 2",
+    "name": "Beaver lodge (south-east of Jasper House)",
     "species": "Beaver",
     "cell": [
      189,
@@ -4470,7 +4470,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Rocky Mountain House country)",
+    "name": "Beaver lodge (north of Rocky Mountain House)",
     "species": "Beaver",
     "cell": [
      246,
@@ -4482,7 +4482,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Vermilion) 2",
+    "name": "Beaver lodge (south-east of Fort Vermilion)",
     "species": "Beaver",
     "cell": [
      345,
@@ -4506,7 +4506,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Manchester House country)",
+    "name": "Wolf den (east of Manchester House)",
     "species": "Wolf",
     "cell": [
      396,
@@ -4518,7 +4518,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort a la Corne country)",
+    "name": "Beaver lodge (west of Fort a la Corne)",
     "species": "Beaver",
     "cell": [
      447,
@@ -4530,7 +4530,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Plains Cree country)",
+    "name": "Wolf den (north-east of Plains Cree)",
     "species": "Wolf",
     "cell": [
      438,
@@ -4542,7 +4542,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort a la Corne)",
+    "name": "Beaver lodge (north-west of Fort a la Corne)",
     "species": "Beaver",
     "cell": [
      459,
@@ -4554,7 +4554,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Nipawi)",
+    "name": "Beaver lodge (north-east of Nipawi)",
     "species": "Beaver",
     "cell": [
      483,
@@ -4566,7 +4566,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Nipawi)",
+    "name": "Wolf den (east of Nipawi)",
     "species": "Wolf",
     "cell": [
      489,
@@ -4578,7 +4578,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (The Pas (Le Pas))",
+    "name": "Beaver lodge (west of The Pas (Le Pas))",
     "species": "Beaver",
     "cell": [
      522,
@@ -4590,7 +4590,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (The Pas (Le Pas)) 2",
+    "name": "Beaver lodge (The Pas (Le Pas))",
     "species": "Beaver",
     "cell": [
      537,
@@ -4602,7 +4602,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (The Pas (Le Pas) country) 3",
+    "name": "Beaver lodge (150 km east of Cumberland House)",
     "species": "Beaver",
     "cell": [
      555,
@@ -4626,7 +4626,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Oji-Cree)",
+    "name": "Wolf den (north-west of Oji-Cree)",
     "species": "Wolf",
     "cell": [
      720,
@@ -4638,7 +4638,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Oji-Cree country) 2",
+    "name": "Beaver lodge (170 km east of Oji-Cree)",
     "species": "Beaver",
     "cell": [
      786,
@@ -4650,7 +4650,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Martin Falls country)",
+    "name": "Wolf den (190 km north-west of Martin Falls)",
     "species": "Wolf",
     "cell": [
      801,
@@ -4662,7 +4662,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Albany Fort)",
+    "name": "Beaver lodge (south-west of Albany Fort)",
     "species": "Beaver",
     "cell": [
      930,
@@ -4674,7 +4674,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Albany Fort) 2",
+    "name": "Goose marsh (south-west of Albany Fort)",
     "species": "Goose",
     "cell": [
      930,
@@ -4686,7 +4686,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Albany Fort country) 6",
+    "name": "Ptarmigan flats (south-west of Albany Fort)",
     "species": "Ptarmigan",
     "cell": [
      924,
@@ -4698,7 +4698,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Albany Fort country) 7",
+    "name": "Ptarmigan flats (south-east of Albany Fort)",
     "species": "Ptarmigan",
     "cell": [
      960,
@@ -4710,7 +4710,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Secwépemc (Shuswap) country)",
+    "name": "Beaver lodge (west of Secwépemc (Shuswap))",
     "species": "Beaver",
     "cell": [
      87,
@@ -4722,7 +4722,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Secwépemc (Shuswap) country) 2",
+    "name": "Beaver lodge (130 km east of Secwépemc (Shuswap))",
     "species": "Beaver",
     "cell": [
      162,
@@ -4734,7 +4734,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Jasper House country) 6",
+    "name": "Beaver lodge (140 km south of Jasper House)",
     "species": "Beaver",
     "cell": [
      186,
@@ -4746,7 +4746,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Rocky Mountain House country) 2",
+    "name": "Beaver lodge (west of Rocky Mountain House)",
     "species": "Beaver",
     "cell": [
      210,
@@ -4758,7 +4758,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Rocky Mountain House country)",
+    "name": "Wolf den (130 km west of Rocky Mountain House)",
     "species": "Wolf",
     "cell": [
      204,
@@ -4770,7 +4770,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Manchester House) 2",
+    "name": "Beaver lodge (south-east of Manchester House)",
     "species": "Beaver",
     "cell": [
      381,
@@ -4782,7 +4782,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Hudson House country)",
+    "name": "Beaver lodge (south-west of Hudson House)",
     "species": "Beaver",
     "cell": [
      396,
@@ -4794,7 +4794,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Carlton House)",
+    "name": "Beaver lodge (south-west of Carlton House)",
     "species": "Beaver",
     "cell": [
      414,
@@ -4806,7 +4806,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Hudson House)",
+    "name": "Wolf den (south of Hudson House)",
     "species": "Wolf",
     "cell": [
      408,
@@ -4818,7 +4818,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort a la Corne) 2",
+    "name": "Beaver lodge (Fort a la Corne)",
     "species": "Beaver",
     "cell": [
      462,
@@ -4830,7 +4830,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Swan River House country)",
+    "name": "Beaver lodge (north-east of Swan River House)",
     "species": "Beaver",
     "cell": [
      549,
@@ -4842,7 +4842,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Swan River House country) 2",
+    "name": "Beaver lodge (130 km south-east of The Pas (Le Pas))",
     "species": "Beaver",
     "cell": [
      555,
@@ -4854,7 +4854,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Norway House country) 2",
+    "name": "Beaver lodge (140 km south of Norway House)",
     "species": "Beaver",
     "cell": [
      615,
@@ -4866,7 +4866,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Oji-Cree country)",
+    "name": "Wolf den (120 km east of Oji-Cree)",
     "species": "Wolf",
     "cell": [
      774,
@@ -4890,7 +4890,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Martin Falls) 2",
+    "name": "Beaver lodge (east of Martin Falls)",
     "species": "Beaver",
     "cell": [
      864,
@@ -4902,7 +4902,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Martin Falls country) 2",
+    "name": "Woodland caribou (north-east of Martin Falls)",
     "species": "Caribou",
     "cell": [
      870,
@@ -4914,7 +4914,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Henley House country)",
+    "name": "Wolf den (north-west of Henley House)",
     "species": "Wolf",
     "cell": [
      879,
@@ -4926,7 +4926,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Henley House country)",
+    "name": "Beaver lodge (north-east of Henley House)",
     "species": "Beaver",
     "cell": [
      903,
@@ -4938,7 +4938,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Henley House country) 2",
+    "name": "Beaver lodge (150 km south-west of Albany Fort)",
     "species": "Beaver",
     "cell": [
      912,
@@ -4950,7 +4950,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Moose Factory country)",
+    "name": "Woodland caribou (south-west of Moose Factory)",
     "species": "Caribou",
     "cell": [
      957,
@@ -4962,7 +4962,7 @@
     "route": null
    },
    {
-    "name": "Ptarmigan flats (Moose Factory)",
+    "name": "Ptarmigan flats (south of Moose Factory)",
     "species": "Ptarmigan",
     "cell": [
      969,
@@ -4974,7 +4974,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Coast Salish country)",
+    "name": "Goose marsh (north of Coast Salish)",
     "species": "Goose",
     "cell": [
      36,
@@ -4986,7 +4986,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Tsilhqot'in country)",
+    "name": "Woodland caribou (150 km south of Tsilhqot'in)",
     "species": "Caribou",
     "cell": [
      48,
@@ -4998,7 +4998,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Nlaka'pamux)",
+    "name": "Beaver lodge (north of Nlaka'pamux)",
     "species": "Beaver",
     "cell": [
      87,
@@ -5010,7 +5010,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Kamloops country)",
+    "name": "Wolf den (east of Fort Kamloops)",
     "species": "Wolf",
     "cell": [
      138,
@@ -5022,7 +5022,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Kootenay House country)",
+    "name": "Beaver lodge (160 km north-west of Kootenay House)",
     "species": "Beaver",
     "cell": [
      168,
@@ -5034,7 +5034,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sarcee (Tsuut'ina) country)",
+    "name": "Beaver lodge (west of Sarcee (Tsuut'ina))",
     "species": "Beaver",
     "cell": [
      228,
@@ -5046,7 +5046,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Dauphin country)",
+    "name": "Beaver lodge (north of Fort Dauphin)",
     "species": "Beaver",
     "cell": [
      567,
@@ -5058,7 +5058,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Manitoba House country)",
+    "name": "Beaver lodge (150 km north of Manitoba House)",
     "species": "Beaver",
     "cell": [
      597,
@@ -5070,7 +5070,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Manitoba House country) 2",
+    "name": "Beaver lodge (140 km north-east of Manitoba House)",
     "species": "Beaver",
     "cell": [
      618,
@@ -5082,7 +5082,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Bas de la Riviere country)",
+    "name": "Beaver lodge (170 km north of Fort Bas de la Riviere)",
     "species": "Beaver",
     "cell": [
      624,
@@ -5094,7 +5094,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Oji-Cree country) 3",
+    "name": "Beaver lodge (south of Oji-Cree)",
     "species": "Beaver",
     "cell": [
      732,
@@ -5106,7 +5106,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Oji-Cree country)",
+    "name": "Woodland caribou (south of Oji-Cree)",
     "species": "Caribou",
     "cell": [
      741,
@@ -5118,7 +5118,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Osnaburgh House country)",
+    "name": "Wolf den (120 km west of Osnaburgh House)",
     "species": "Wolf",
     "cell": [
      732,
@@ -5142,7 +5142,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Osnaburgh House country) 2",
+    "name": "Wolf den (west of Osnaburgh House)",
     "species": "Wolf",
     "cell": [
      744,
@@ -5154,7 +5154,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Osnaburgh House country)",
+    "name": "Beaver lodge (north-east of Osnaburgh House)",
     "species": "Beaver",
     "cell": [
      789,
@@ -5166,7 +5166,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Osnaburgh House country) 3",
+    "name": "Wolf den (north-east of Osnaburgh House)",
     "species": "Wolf",
     "cell": [
      786,
@@ -5178,7 +5178,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Gloucester House)",
+    "name": "Beaver lodge (north of Gloucester House)",
     "species": "Beaver",
     "cell": [
      825,
@@ -5190,7 +5190,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Martin Falls) 3",
+    "name": "Beaver lodge (south-west of Martin Falls)",
     "species": "Beaver",
     "cell": [
      843,
@@ -5202,7 +5202,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Coast Salish country)",
+    "name": "Woodland caribou (north-west of Coast Salish)",
     "species": "Caribou",
     "cell": [
      3,
@@ -5214,7 +5214,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Coast Salish country) 2",
+    "name": "Goose marsh (north-west of Fort Langley)",
     "species": "Goose",
     "cell": [
      30,
@@ -5226,7 +5226,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Langley country)",
+    "name": "Wolf den (north-west of Fort Langley)",
     "species": "Wolf",
     "cell": [
      45,
@@ -5238,7 +5238,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Kootenay House country) 2",
+    "name": "Beaver lodge (140 km west of Kootenay House)",
     "species": "Beaver",
     "cell": [
      168,
@@ -5262,7 +5262,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Kootenay House country) 3",
+    "name": "Beaver lodge (north-east of Kootenay House)",
     "species": "Beaver",
     "cell": [
      228,
@@ -5274,7 +5274,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Chesterfield House country)",
+    "name": "Wolf den (west of Chesterfield House)",
     "species": "Wolf",
     "cell": [
      321,
@@ -5298,7 +5298,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Dauphin country) 2",
+    "name": "Beaver lodge (north-east of Fort Dauphin)",
     "species": "Beaver",
     "cell": [
      570,
@@ -5310,7 +5310,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Manitoba House country)",
+    "name": "Wolf den (north of Manitoba House)",
     "species": "Wolf",
     "cell": [
      594,
@@ -5322,7 +5322,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Manitoba House country) 3",
+    "name": "Beaver lodge (north-east of Manitoba House)",
     "species": "Beaver",
     "cell": [
      618,
@@ -5334,7 +5334,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Lac Seul House country)",
+    "name": "Beaver lodge (140 km north-west of Lac Seul House)",
     "species": "Beaver",
     "cell": [
      702,
@@ -5346,7 +5346,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Osnaburgh House country) 2",
+    "name": "Beaver lodge (west of Osnaburgh House)",
     "species": "Beaver",
     "cell": [
      741,
@@ -5358,7 +5358,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Lac Seul House)",
+    "name": "Woodland caribou (north of Lac Seul House)",
     "species": "Caribou",
     "cell": [
      732,
@@ -5370,7 +5370,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Lac Seul House country)",
+    "name": "Wolf den (north of Lac Seul House)",
     "species": "Wolf",
     "cell": [
      735,
@@ -5382,7 +5382,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Osnaburgh House) 2",
+    "name": "Beaver lodge (south-west of Osnaburgh House)",
     "species": "Beaver",
     "cell": [
      768,
@@ -5394,7 +5394,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Gloucester House country)",
+    "name": "Beaver lodge (south-west of Gloucester House)",
     "species": "Beaver",
     "cell": [
      810,
@@ -5406,7 +5406,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Osnaburgh House country)",
+    "name": "Woodland caribou (east of Osnaburgh House)",
     "species": "Caribou",
     "cell": [
      795,
@@ -5418,7 +5418,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Gloucester House country) 2",
+    "name": "Beaver lodge (south of Gloucester House)",
     "species": "Beaver",
     "cell": [
      816,
@@ -5430,7 +5430,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Martin Falls country) 3",
+    "name": "Woodland caribou (south of Martin Falls)",
     "species": "Caribou",
     "cell": [
      861,
@@ -5442,7 +5442,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Gloucester House country)",
+    "name": "Woodland caribou (140 km east of Gloucester House)",
     "species": "Caribou",
     "cell": [
      864,
@@ -5454,7 +5454,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Brunswick House country)",
+    "name": "Woodland caribou (north-west of Brunswick House)",
     "species": "Caribou",
     "cell": [
      927,
@@ -5466,7 +5466,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Fort Victoria)",
+    "name": "Goose marsh (north of Fort Victoria)",
     "species": "Goose",
     "cell": [
      30,
@@ -5490,7 +5490,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Langley country)",
+    "name": "Beaver lodge (east of Fort Langley)",
     "species": "Beaver",
     "cell": [
      78,
@@ -5502,7 +5502,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Syilx (Okanagan) country)",
+    "name": "Beaver lodge (east of Syilx (Okanagan))",
     "species": "Beaver",
     "cell": [
      162,
@@ -5514,7 +5514,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Kootenay House country)",
+    "name": "Wolf den (south-west of Kootenay House)",
     "species": "Wolf",
     "cell": [
      189,
@@ -5526,7 +5526,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Kootenay House) 2",
+    "name": "Beaver lodge (south of Kootenay House)",
     "species": "Beaver",
     "cell": [
      210,
@@ -5538,7 +5538,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Kootenay (Ktunaxa))",
+    "name": "Wolf den (north-west of Kootenay (Ktunaxa))",
     "species": "Wolf",
     "cell": [
      195,
@@ -5550,7 +5550,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Manitoba House)",
+    "name": "Beaver lodge (west of Manitoba House)",
     "species": "Beaver",
     "cell": [
      585,
@@ -5562,7 +5562,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Manitoba House) 2",
+    "name": "Beaver lodge (south-east of Manitoba House)",
     "species": "Beaver",
     "cell": [
      606,
@@ -5574,7 +5574,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Bas de la Riviere country)",
+    "name": "Wolf den (west of Fort Bas de la Riviere)",
     "species": "Wolf",
     "cell": [
      621,
@@ -5586,7 +5586,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Bas de la Riviere)",
+    "name": "Beaver lodge (south-east of Fort Bas de la Riviere)",
     "species": "Beaver",
     "cell": [
      651,
@@ -5598,7 +5598,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Rat Portage country)",
+    "name": "Beaver lodge (north-west of Rat Portage)",
     "species": "Beaver",
     "cell": [
      672,
@@ -5610,7 +5610,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Gloucester House country) 3",
+    "name": "Beaver lodge (160 km south-east of Osnaburgh House)",
     "species": "Beaver",
     "cell": [
      807,
@@ -5622,7 +5622,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort William country)",
+    "name": "Beaver lodge (150 km north of Fort William)",
     "species": "Beaver",
     "cell": [
      816,
@@ -5634,7 +5634,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Gloucester House country) 2",
+    "name": "Woodland caribou (south of Gloucester House)",
     "species": "Caribou",
     "cell": [
      834,
@@ -5646,7 +5646,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Brunswick House country) 2",
+    "name": "Woodland caribou (160 km south-east of Brunswick House)",
     "species": "Caribou",
     "cell": [
      981,
@@ -5658,7 +5658,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Fort Victoria country)",
+    "name": "Goose marsh (south-east of Fort Victoria)",
     "species": "Goose",
     "cell": [
      48,
@@ -5670,7 +5670,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Langley country) 2",
+    "name": "Wolf den (south-east of Fort Langley)",
     "species": "Wolf",
     "cell": [
      81,
@@ -5682,7 +5682,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Colvile country)",
+    "name": "Beaver lodge (north-east of Fort Colvile)",
     "species": "Beaver",
     "cell": [
      162,
@@ -5694,7 +5694,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Assiniboine country)",
+    "name": "Wolf den (160 km south-west of Assiniboine)",
     "species": "Wolf",
     "cell": [
      426,
@@ -5706,7 +5706,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort la Reine)",
+    "name": "Beaver lodge (west of Fort la Reine)",
     "species": "Beaver",
     "cell": [
      588,
@@ -5718,7 +5718,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Bas de la Riviere) 2",
+    "name": "Beaver lodge (south of Fort Bas de la Riviere)",
     "species": "Beaver",
     "cell": [
      648,
@@ -5730,7 +5730,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Lac Seul House) 2",
+    "name": "Woodland caribou (south-west of Lac Seul House)",
     "species": "Caribou",
     "cell": [
      726,
@@ -5742,7 +5742,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Lac Seul House country) 2",
+    "name": "Wolf den (south of Lac Seul House)",
     "species": "Wolf",
     "cell": [
      735,
@@ -5754,7 +5754,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Lac Seul House country)",
+    "name": "Woodland caribou (south-east of Lac Seul House)",
     "species": "Caribou",
     "cell": [
      759,
@@ -5766,7 +5766,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Ojibwa (Anishinaabe) country)",
+    "name": "Beaver lodge (north of Ojibwa (Anishinaabe))",
     "species": "Beaver",
     "cell": [
      777,
@@ -5778,7 +5778,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Ojibwa (Anishinaabe) country)",
+    "name": "Woodland caribou (north of Ojibwa (Anishinaabe))",
     "species": "Caribou",
     "cell": [
      780,
@@ -5790,7 +5790,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort William country) 2",
+    "name": "Beaver lodge (130 km north of Fort William)",
     "species": "Beaver",
     "cell": [
      813,
@@ -5802,7 +5802,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort William country) 3",
+    "name": "Beaver lodge (170 km north-east of Fort William)",
     "species": "Beaver",
     "cell": [
      858,
@@ -5814,7 +5814,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Michipicoten country)",
+    "name": "Beaver lodge (140 km north-west of Michipicoten)",
     "species": "Beaver",
     "cell": [
      873,
@@ -5826,7 +5826,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Michipicoten country)",
+    "name": "Woodland caribou (north-east of Michipicoten)",
     "species": "Caribou",
     "cell": [
      930,
@@ -5838,7 +5838,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Brunswick House country)",
+    "name": "Beaver lodge (south of Brunswick House)",
     "species": "Beaver",
     "cell": [
      939,
@@ -5850,7 +5850,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Brunswick House country) 3",
+    "name": "Woodland caribou (south-east of Brunswick House)",
     "species": "Caribou",
     "cell": [
      951,
@@ -5862,7 +5862,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Brunswick House country)",
+    "name": "Wolf den (200 km south-east of Brunswick House)",
     "species": "Wolf",
     "cell": [
      975,
@@ -5874,7 +5874,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Brunswick House country) 4",
+    "name": "Woodland caribou (220 km south-east of Brunswick House)",
     "species": "Caribou",
     "cell": [
      996,
@@ -5886,7 +5886,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Fort Nisqually country)",
+    "name": "Goose marsh (west of Fort Nisqually)",
     "species": "Goose",
     "cell": [
      6,
@@ -5898,7 +5898,7 @@
     "route": null
    },
    {
-    "name": "Goose marsh (Fort Nisqually)",
+    "name": "Goose marsh (north-east of Fort Nisqually)",
     "species": "Goose",
     "cell": [
      45,
@@ -5910,7 +5910,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Nisqually)",
+    "name": "Woodland caribou (east of Fort Nisqually)",
     "species": "Caribou",
     "cell": [
      45,
@@ -5922,7 +5922,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Okanogan country)",
+    "name": "Beaver lodge (north-west of Fort Okanogan)",
     "species": "Beaver",
     "cell": [
      93,
@@ -5934,7 +5934,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Okanogan)",
+    "name": "Beaver lodge (south-east of Fort Okanogan)",
     "species": "Beaver",
     "cell": [
      117,
@@ -5946,7 +5946,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Okanogan)",
+    "name": "Woodland caribou (west of Fort Okanogan)",
     "species": "Caribou",
     "cell": [
      96,
@@ -5958,7 +5958,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Okanogan country) 2",
+    "name": "Beaver lodge (south-west of Fort Colvile)",
     "species": "Beaver",
     "cell": [
      126,
@@ -5970,7 +5970,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Colvile country) 2",
+    "name": "Beaver lodge (south of Fort Colvile)",
     "species": "Beaver",
     "cell": [
      144,
@@ -6006,7 +6006,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Rainy Lake House)",
+    "name": "Beaver lodge (north of Rainy Lake House)",
     "species": "Beaver",
     "cell": [
      714,
@@ -6018,7 +6018,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Rainy Lake House) 2",
+    "name": "Beaver lodge (east of Rainy Lake House)",
     "species": "Beaver",
     "cell": [
      729,
@@ -6030,7 +6030,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Ojibwa (Anishinaabe) country) 2",
+    "name": "Beaver lodge (north-west of Ojibwa (Anishinaabe))",
     "species": "Beaver",
     "cell": [
      765,
@@ -6042,7 +6042,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Ojibwa (Anishinaabe))",
+    "name": "Beaver lodge (north-west of Fort William)",
     "species": "Beaver",
     "cell": [
      777,
@@ -6054,7 +6054,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Okanogan country) 3",
+    "name": "Beaver lodge (south-west of Fort Okanogan)",
     "species": "Beaver",
     "cell": [
      93,
@@ -6066,7 +6066,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Okanogan country)",
+    "name": "Wolf den (south-west of Fort Okanogan)",
     "species": "Wolf",
     "cell": [
      90,
@@ -6078,7 +6078,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Spokane House country)",
+    "name": "Beaver lodge (north-west of Spokane House)",
     "species": "Beaver",
     "cell": [
      141,
@@ -6090,7 +6090,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Spokane House country) 2",
+    "name": "Beaver lodge (east of Spokane House)",
     "species": "Beaver",
     "cell": [
      183,
@@ -6102,7 +6102,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Piegan country)",
+    "name": "Wolf den (north of Fort Piegan)",
     "species": "Wolf",
     "cell": [
      309,
@@ -6114,7 +6114,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Métis at Pembina country)",
+    "name": "Wolf den (south-east of Métis at Pembina)",
     "species": "Wolf",
     "cell": [
      654,
@@ -6126,7 +6126,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Rainy Lake House country)",
+    "name": "Beaver lodge (west of Rainy Lake House)",
     "species": "Beaver",
     "cell": [
      693,
@@ -6138,7 +6138,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Rainy Lake House country)",
+    "name": "Wolf den (west of Rainy Lake House)",
     "species": "Wolf",
     "cell": [
      696,
@@ -6150,7 +6150,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Rainy Lake House) 3",
+    "name": "Beaver lodge (150 km north-east of Red Lake Post)",
     "species": "Beaver",
     "cell": [
      723,
@@ -6162,7 +6162,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Ojibwa (Anishinaabe) country) 2",
+    "name": "Woodland caribou (south-west of Ojibwa (Anishinaabe))",
     "species": "Caribou",
     "cell": [
      753,
@@ -6174,7 +6174,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Grand Portage country)",
+    "name": "Beaver lodge (south-west of Grand Portage)",
     "species": "Beaver",
     "cell": [
      786,
@@ -6186,7 +6186,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort William)",
+    "name": "Beaver lodge (south of Fort William)",
     "species": "Beaver",
     "cell": [
      810,
@@ -6198,7 +6198,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sault Ste. Marie country)",
+    "name": "Beaver lodge (north-west of Sault Ste. Marie)",
     "species": "Beaver",
     "cell": [
      924,
@@ -6210,7 +6210,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nez Perces country)",
+    "name": "Beaver lodge (120 km north-west of Fort Nez Perces)",
     "species": "Beaver",
     "cell": [
      93,
@@ -6222,7 +6222,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nez Perces country) 2",
+    "name": "Beaver lodge (north of Fort Nez Perces)",
     "species": "Beaver",
     "cell": [
      105,
@@ -6234,7 +6234,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nez Perces country) 3",
+    "name": "Beaver lodge (north-east of Fort Nez Perces)",
     "species": "Beaver",
     "cell": [
      138,
@@ -6246,7 +6246,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Spokane House country)",
+    "name": "Woodland caribou (south of Spokane House)",
     "species": "Caribou",
     "cell": [
      153,
@@ -6258,7 +6258,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Red Lake Post)",
+    "name": "Beaver lodge (west of Red Lake Post)",
     "species": "Beaver",
     "cell": [
      675,
@@ -6270,7 +6270,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Red Lake Post country)",
+    "name": "Woodland caribou (south of Red Lake Post)",
     "species": "Caribou",
     "cell": [
      678,
@@ -6282,7 +6282,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Red Lake Post country)",
+    "name": "Beaver lodge (south-east of Red Lake Post)",
     "species": "Beaver",
     "cell": [
      702,
@@ -6294,7 +6294,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Rainy Lake House country) 2",
+    "name": "Wolf den (south of Rainy Lake House)",
     "species": "Wolf",
     "cell": [
      723,
@@ -6306,7 +6306,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Rainy Lake House country) 3",
+    "name": "Wolf den (130 km south-east of Rainy Lake House)",
     "species": "Wolf",
     "cell": [
      750,
@@ -6318,7 +6318,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Grand Portage country) 2",
+    "name": "Beaver lodge (south-east of Grand Portage)",
     "species": "Beaver",
     "cell": [
      825,
@@ -6330,7 +6330,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Grand Portage country) 3",
+    "name": "Beaver lodge (190 km south-east of Grand Portage)",
     "species": "Beaver",
     "cell": [
      855,
@@ -6342,7 +6342,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Michilimackinac country)",
+    "name": "Beaver lodge (170 km west of Michilimackinac)",
     "species": "Beaver",
     "cell": [
      885,
@@ -6354,7 +6354,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sault Ste. Marie country) 2",
+    "name": "Beaver lodge (160 km west of Sault Ste. Marie)",
     "species": "Beaver",
     "cell": [
      888,
@@ -6366,7 +6366,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Sault Ste. Marie country)",
+    "name": "Woodland caribou (west of Sault Ste. Marie)",
     "species": "Caribou",
     "cell": [
      909,
@@ -6378,7 +6378,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Sault Ste. Marie)",
+    "name": "Beaver lodge (west of Sault Ste. Marie)",
     "species": "Beaver",
     "cell": [
      921,
@@ -6402,7 +6402,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (La Cloche country)",
+    "name": "Beaver lodge (west of La Cloche)",
     "species": "Beaver",
     "cell": [
      972,
@@ -6426,7 +6426,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Vancouver)",
+    "name": "Beaver lodge (south-west of Fort Vancouver)",
     "species": "Beaver",
     "cell": [
      15,
@@ -6438,7 +6438,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Vancouver country)",
+    "name": "Beaver lodge (east of Fort Vancouver)",
     "species": "Beaver",
     "cell": [
      45,
@@ -6450,7 +6450,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nez Perces country) 4",
+    "name": "Beaver lodge (150 km west of Fort Nez Perces)",
     "species": "Beaver",
     "cell": [
      66,
@@ -6462,7 +6462,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nez Perces country) 5",
+    "name": "Beaver lodge (west of Fort Nez Perces)",
     "species": "Beaver",
     "cell": [
      84,
@@ -6474,7 +6474,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nez Perces)",
+    "name": "Beaver lodge (240 km south of Fort Okanogan)",
     "species": "Beaver",
     "cell": [
      102,
@@ -6486,7 +6486,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Nez Perces)",
+    "name": "Wolf den (south-west of Fort Nez Perces)",
     "species": "Wolf",
     "cell": [
      102,
@@ -6498,7 +6498,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nez Perces) 2",
+    "name": "Beaver lodge (180 km south-west of Spokane House)",
     "species": "Beaver",
     "cell": [
      120,
@@ -6510,7 +6510,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Salish (Flathead) country)",
+    "name": "Woodland caribou (south of Salish (Flathead))",
     "species": "Caribou",
     "cell": [
      231,
@@ -6522,7 +6522,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Shoshone country)",
+    "name": "Beaver lodge (north of Shoshone)",
     "species": "Beaver",
     "cell": [
      285,
@@ -6534,7 +6534,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort McKenzie country)",
+    "name": "Woodland caribou (south-west of Fort McKenzie)",
     "species": "Caribou",
     "cell": [
      276,
@@ -6546,7 +6546,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Red Lake Post country)",
+    "name": "Wolf den (south-west of Red Lake Post)",
     "species": "Wolf",
     "cell": [
      666,
@@ -6558,7 +6558,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Red Lake Post country) 2",
+    "name": "Beaver lodge (south of Red Lake Post)",
     "species": "Beaver",
     "cell": [
      684,
@@ -6570,7 +6570,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Red Lake Post country) 2",
+    "name": "Wolf den (south of Red Lake Post)",
     "species": "Wolf",
     "cell": [
      690,
@@ -6582,7 +6582,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Red Lake Post country) 3",
+    "name": "Beaver lodge (130 km south-east of Red Lake Post)",
     "species": "Beaver",
     "cell": [
      717,
@@ -6594,7 +6594,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Red Lake Post country) 4",
+    "name": "Beaver lodge (180 km south-east of Red Lake Post)",
     "species": "Beaver",
     "cell": [
      720,
@@ -6606,7 +6606,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Grand Portage country) 4",
+    "name": "Beaver lodge (200 km south-west of Grand Portage)",
     "species": "Beaver",
     "cell": [
      759,
@@ -6618,7 +6618,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Grand Portage country) 5",
+    "name": "Beaver lodge (160 km south-west of Grand Portage)",
     "species": "Beaver",
     "cell": [
      783,
@@ -6630,7 +6630,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Grand Portage country)",
+    "name": "Woodland caribou (190 km south-west of Grand Portage)",
     "species": "Caribou",
     "cell": [
      771,
@@ -6642,7 +6642,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Grand Portage country) 6",
+    "name": "Beaver lodge (160 km south of Grand Portage)",
     "species": "Beaver",
     "cell": [
      792,
@@ -6654,7 +6654,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Grand Portage country) 2",
+    "name": "Woodland caribou (150 km south-east of Grand Portage)",
     "species": "Caribou",
     "cell": [
      828,
@@ -6666,7 +6666,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Grand Portage country)",
+    "name": "Wolf den (130 km south of Grand Portage)",
     "species": "Wolf",
     "cell": [
      816,
@@ -6678,7 +6678,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Menominee country)",
+    "name": "Beaver lodge (160 km north-east of Menominee)",
     "species": "Beaver",
     "cell": [
      885,
@@ -6690,7 +6690,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Michilimackinac country) 2",
+    "name": "Beaver lodge (160 km west of Michilimackinac)",
     "species": "Beaver",
     "cell": [
      891,
@@ -6702,7 +6702,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Michilimackinac)",
+    "name": "Beaver lodge (south-east of Michilimackinac)",
     "species": "Beaver",
     "cell": [
      954,
@@ -6714,7 +6714,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Michilimackinac)",
+    "name": "Woodland caribou (south of Michilimackinac)",
     "species": "Caribou",
     "cell": [
      936,
@@ -6726,7 +6726,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Odawa (Ottawa) country)",
+    "name": "Beaver lodge (south-east of Odawa (Ottawa))",
     "species": "Beaver",
     "cell": [
      972,
@@ -6738,7 +6738,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Nez Perces country)",
+    "name": "Woodland caribou (190 km south-west of Fort Nez Perces)",
     "species": "Caribou",
     "cell": [
      63,
@@ -6750,7 +6750,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Nez Perces country) 2",
+    "name": "Woodland caribou (140 km south-west of Fort Nez Perces)",
     "species": "Caribou",
     "cell": [
      78,
@@ -6762,7 +6762,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Nez Perces country)",
+    "name": "Wolf den (220 km south-east of Fort Nez Perces)",
     "species": "Wolf",
     "cell": [
      171,
@@ -6774,7 +6774,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Shoshone)",
+    "name": "Beaver lodge (north-east of Shoshone)",
     "species": "Beaver",
     "cell": [
      291,
@@ -6786,7 +6786,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Crow country)",
+    "name": "Woodland caribou (north of Crow)",
     "species": "Caribou",
     "cell": [
      375,
@@ -6798,7 +6798,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Union country)",
+    "name": "Wolf den (130 km south of Fort Union)",
     "species": "Wolf",
     "cell": [
      474,
@@ -6810,7 +6810,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Berthold country)",
+    "name": "Woodland caribou (south of Fort Berthold)",
     "species": "Caribou",
     "cell": [
      513,
@@ -6822,7 +6822,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Arikara country)",
+    "name": "Woodland caribou (north-west of Arikara)",
     "species": "Caribou",
     "cell": [
      543,
@@ -6834,7 +6834,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Arikara country)",
+    "name": "Beaver lodge (north of Arikara)",
     "species": "Beaver",
     "cell": [
      552,
@@ -6846,7 +6846,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Dakota (Santee Sioux) country)",
+    "name": "Woodland caribou (north-west of Dakota (Santee Sioux))",
     "species": "Caribou",
     "cell": [
      651,
@@ -6858,7 +6858,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dakota (Santee Sioux) country)",
+    "name": "Beaver lodge (160 km north-east of Dakota (Santee Sioux))",
     "species": "Beaver",
     "cell": [
      702,
@@ -6870,7 +6870,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dakota (Santee Sioux) country) 2",
+    "name": "Beaver lodge (220 km north-east of Dakota (Santee Sioux))",
     "species": "Beaver",
     "cell": [
      723,
@@ -6882,7 +6882,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Menominee country) 2",
+    "name": "Beaver lodge (north-east of Menominee)",
     "species": "Beaver",
     "cell": [
      873,
@@ -6894,7 +6894,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Michilimackinac country) 3",
+    "name": "Beaver lodge (120 km south-west of Michilimackinac)",
     "species": "Beaver",
     "cell": [
      918,
@@ -6906,7 +6906,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Michilimackinac country) 4",
+    "name": "Beaver lodge (190 km south-east of Michilimackinac)",
     "species": "Beaver",
     "cell": [
      981,
@@ -6918,7 +6918,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Michilimackinac country)",
+    "name": "Wolf den (150 km south-east of Michilimackinac)",
     "species": "Wolf",
     "cell": [
      972,
@@ -6930,7 +6930,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Vancouver country) 2",
+    "name": "Beaver lodge (200 km south of Fort Vancouver)",
     "species": "Beaver",
     "cell": [
      3,
@@ -6942,7 +6942,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Vancouver country)",
+    "name": "Woodland caribou (170 km south of Fort Vancouver)",
     "species": "Caribou",
     "cell": [
      15,
@@ -6954,7 +6954,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Nez Perces country) 3",
+    "name": "Woodland caribou (160 km south-west of Fort Nez Perces)",
     "species": "Caribou",
     "cell": [
      81,
@@ -6966,7 +6966,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Nez Perces country) 4",
+    "name": "Woodland caribou (150 km south of Fort Nez Perces)",
     "species": "Caribou",
     "cell": [
      102,
@@ -6978,7 +6978,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nez Perces country) 6",
+    "name": "Beaver lodge (210 km south-east of Fort Nez Perces)",
     "species": "Beaver",
     "cell": [
      147,
@@ -6990,7 +6990,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Nez Perces country) 5",
+    "name": "Woodland caribou (220 km south-east of Fort Nez Perces)",
     "species": "Caribou",
     "cell": [
      153,
@@ -7002,7 +7002,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Shoshone) 2",
+    "name": "Beaver lodge (Shoshone)",
     "species": "Beaver",
     "cell": [
      288,
@@ -7014,7 +7014,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Shoshone)",
+    "name": "Woodland caribou (east of Shoshone)",
     "species": "Caribou",
     "cell": [
      300,
@@ -7026,7 +7026,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Manuel Lisa country)",
+    "name": "Wolf den (west of Fort Manuel Lisa)",
     "species": "Wolf",
     "cell": [
      537,
@@ -7050,7 +7050,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dakota (Santee Sioux) country) 3",
+    "name": "Beaver lodge (140 km east of Dakota (Santee Sioux))",
     "species": "Beaver",
     "cell": [
      708,
@@ -7062,7 +7062,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dakota (Santee Sioux) country) 4",
+    "name": "Beaver lodge (170 km east of Dakota (Santee Sioux))",
     "species": "Beaver",
     "cell": [
      720,
@@ -7074,7 +7074,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Dakota (Santee Sioux) country)",
+    "name": "Wolf den (270 km east of Dakota (Santee Sioux))",
     "species": "Wolf",
     "cell": [
      750,
@@ -7086,7 +7086,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Menominee country)",
+    "name": "Woodland caribou (west of Menominee)",
     "species": "Caribou",
     "cell": [
      825,
@@ -7098,7 +7098,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Michilimackinac country)",
+    "name": "Woodland caribou (130 km south of Michilimackinac)",
     "species": "Caribou",
     "cell": [
      945,
@@ -7110,7 +7110,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Michilimackinac country) 5",
+    "name": "Beaver lodge (230 km south-east of Michilimackinac)",
     "species": "Beaver",
     "cell": [
      972,
@@ -7122,7 +7122,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Michilimackinac country) 2",
+    "name": "Wolf den (200 km south-east of Michilimackinac)",
     "species": "Wolf",
     "cell": [
      963,
@@ -7134,7 +7134,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Michilimackinac country) 6",
+    "name": "Beaver lodge (240 km south-east of Michilimackinac)",
     "species": "Beaver",
     "cell": [
      993,
@@ -7146,7 +7146,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Vancouver country) 3",
+    "name": "Beaver lodge (240 km south of Fort Vancouver)",
     "species": "Beaver",
     "cell": [
      9,
@@ -7158,7 +7158,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Nez Perces country) 6",
+    "name": "Woodland caribou (190 km south of Fort Nez Perces)",
     "species": "Caribou",
     "cell": [
      117,
@@ -7170,7 +7170,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Nez Perces country) 2",
+    "name": "Wolf den (260 km south of Fort Nez Perces)",
     "species": "Wolf",
     "cell": [
      108,
@@ -7182,7 +7182,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nez Perces country) 7",
+    "name": "Beaver lodge (260 km south-east of Fort Nez Perces)",
     "species": "Beaver",
     "cell": [
      147,
@@ -7194,7 +7194,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Shoshone country)",
+    "name": "Woodland caribou (310 km west of Shoshone)",
     "species": "Caribou",
     "cell": [
      189,
@@ -7206,7 +7206,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Shoshone country) 2",
+    "name": "Woodland caribou (240 km west of Shoshone)",
     "species": "Caribou",
     "cell": [
      210,
@@ -7218,7 +7218,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Shoshone country) 2",
+    "name": "Beaver lodge (south of Shoshone)",
     "species": "Beaver",
     "cell": [
      282,
@@ -7230,7 +7230,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Shoshone country) 3",
+    "name": "Woodland caribou (130 km south of Shoshone)",
     "species": "Caribou",
     "cell": [
      270,
@@ -7242,7 +7242,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Shoshone country) 3",
+    "name": "Beaver lodge (130 km south of Shoshone)",
     "species": "Beaver",
     "cell": [
      294,
@@ -7254,7 +7254,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Shoshone country) 4",
+    "name": "Woodland caribou (south of Shoshone)",
     "species": "Caribou",
     "cell": [
      294,
@@ -7266,7 +7266,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Crow)",
+    "name": "Woodland caribou (south-east of Crow)",
     "species": "Caribou",
     "cell": [
      396,
@@ -7278,7 +7278,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Manuel Lisa country) 2",
+    "name": "Wolf den (north of Lakota (Teton Sioux))",
     "species": "Wolf",
     "cell": [
      534,
@@ -7290,7 +7290,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Dakota (Santee Sioux) country) 5",
+    "name": "Beaver lodge (240 km east of Dakota (Santee Sioux))",
     "species": "Beaver",
     "cell": [
      741,
@@ -7302,7 +7302,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Ho-Chunk (Winnebago) country)",
+    "name": "Beaver lodge (220 km west of Ho-Chunk (Winnebago))",
     "species": "Beaver",
     "cell": [
      765,
@@ -7314,7 +7314,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Ho-Chunk (Winnebago) country) 2",
+    "name": "Beaver lodge (210 km west of Ho-Chunk (Winnebago))",
     "species": "Beaver",
     "cell": [
      768,
@@ -7326,7 +7326,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Menominee country) 2",
+    "name": "Woodland caribou (south-west of Menominee)",
     "species": "Caribou",
     "cell": [
      831,
@@ -7338,7 +7338,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Ho-Chunk (Winnebago) country)",
+    "name": "Wolf den (north of Ho-Chunk (Winnebago))",
     "species": "Wolf",
     "cell": [
      822,
@@ -7350,7 +7350,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Menominee country) 3",
+    "name": "Beaver lodge (south of Menominee)",
     "species": "Beaver",
     "cell": [
      858,
@@ -7362,7 +7362,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Menominee country) 4",
+    "name": "Beaver lodge (south-east of Menominee)",
     "species": "Beaver",
     "cell": [
      879,
@@ -7374,7 +7374,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Menominee country) 3",
+    "name": "Woodland caribou (270 km south-east of Menominee)",
     "species": "Caribou",
     "cell": [
      924,
@@ -7386,7 +7386,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nez Perces country) 8",
+    "name": "Beaver lodge (310 km south of Fort Nez Perces)",
     "species": "Beaver",
     "cell": [
      93,
@@ -7398,7 +7398,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Nez Perces country) 3",
+    "name": "Wolf den (290 km south of Fort Nez Perces)",
     "species": "Wolf",
     "cell": [
      132,
@@ -7410,7 +7410,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Fort Nez Perces country) 9",
+    "name": "Beaver lodge (320 km south of Fort Nez Perces)",
     "species": "Beaver",
     "cell": [
      144,
@@ -7422,7 +7422,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Fort Nez Perces country) 4",
+    "name": "Wolf den (320 km south-east of Fort Nez Perces)",
     "species": "Wolf",
     "cell": [
      165,
@@ -7434,7 +7434,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Shoshone country) 5",
+    "name": "Woodland caribou (200 km south-west of Shoshone)",
     "species": "Caribou",
     "cell": [
      240,
@@ -7446,7 +7446,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Shoshone country) 4",
+    "name": "Beaver lodge (180 km south-east of Shoshone)",
     "species": "Beaver",
     "cell": [
      309,
@@ -7458,7 +7458,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Crow country) 2",
+    "name": "Woodland caribou (160 km south-west of Crow)",
     "species": "Caribou",
     "cell": [
      360,
@@ -7470,7 +7470,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Cheyenne country)",
+    "name": "Wolf den (180 km west of Cheyenne)",
     "species": "Wolf",
     "cell": [
      438,
@@ -7482,7 +7482,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Lakota (Teton Sioux))",
+    "name": "Beaver lodge (north-east of Lakota (Teton Sioux))",
     "species": "Beaver",
     "cell": [
      540,
@@ -7494,7 +7494,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Fort Manuel Lisa country)",
+    "name": "Woodland caribou (south of Fort Manuel Lisa)",
     "species": "Caribou",
     "cell": [
      564,
@@ -7506,7 +7506,7 @@
     "route": null
    },
    {
-    "name": "Woodland caribou (Dakota (Santee Sioux) country) 2",
+    "name": "Woodland caribou (160 km south-west of Dakota (Santee Sioux))",
     "species": "Caribou",
     "cell": [
      630,
@@ -7518,7 +7518,7 @@
     "route": null
    },
    {
-    "name": "Wolf den (Ho-Chunk (Winnebago) country) 2",
+    "name": "Wolf den (220 km west of Ho-Chunk (Winnebago))",
     "species": "Wolf",
     "cell": [
      765,
@@ -7542,7 +7542,7 @@
     "route": null
    },
    {
-    "name": "Beaver lodge (Menominee country) 5",
+    "name": "Beaver lodge (240 km south-east of Menominee)",
     "species": "Beaver",
     "cell": [
      912,
@@ -7554,7 +7554,7 @@
     "route": null
    },
    {
-    "name": "Caribou herd (Fort Nelson (BC) country)",
+    "name": "Caribou herd (130 km north-east of Fort Nelson (BC))",
     "species": "Caribou",
     "cell": [
      180,
@@ -7615,7 +7615,7 @@
     ]
    },
    {
-    "name": "Caribou herd (Dene (Beaver) country)",
+    "name": "Caribou herd (250 km north of Dene (Beaver))",
     "species": "Caribou",
     "cell": [
      240,
@@ -7676,7 +7676,7 @@
     ]
    },
    {
-    "name": "Caribou herd (Fort Chipewyan country)",
+    "name": "Caribou herd (200 km north-west of Fort Chipewyan)",
     "species": "Caribou",
     "cell": [
      300,
@@ -7737,7 +7737,7 @@
     ]
    },
    {
-    "name": "Caribou herd (Fort Chipewyan country) 2",
+    "name": "Caribou herd (320 km north-east of Dene (Beaver))",
     "species": "Caribou",
     "cell": [
      300,
@@ -7798,7 +7798,7 @@
     ]
    },
    {
-    "name": "Caribou herd (Fort Chipewyan country) 3",
+    "name": "Caribou herd (north of Fort Chipewyan)",
     "species": "Caribou",
     "cell": [
      360,
@@ -7859,7 +7859,7 @@
     ]
    },
    {
-    "name": "Caribou herd (Fort Chipewyan country) 4",
+    "name": "Caribou herd (380 km north-west of Chipewyan)",
     "species": "Caribou",
     "cell": [
      360,
@@ -7920,7 +7920,7 @@
     ]
    },
    {
-    "name": "Hare flats (Rocky Mountain House)",
+    "name": "Hare flats (south of Rocky Mountain House)",
     "species": "Hare",
     "cell": [
      246,
@@ -7932,7 +7932,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Edmonton House)",
+    "name": "Hare flats (south of Edmonton House)",
     "species": "Hare",
     "cell": [
      278,
@@ -7944,7 +7944,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Augustus)",
+    "name": "Hare flats (south-east of Fort Augustus)",
     "species": "Hare",
     "cell": [
      298,
@@ -7956,7 +7956,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Vermilion)",
+    "name": "Hare flats (south-west of Fort Vermilion)",
     "species": "Hare",
     "cell": [
      330,
@@ -7968,7 +7968,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Vermilion) 2",
+    "name": "Hare flats (Fort Vermilion)",
     "species": "Hare",
     "cell": [
      330,
@@ -7980,7 +7980,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Vermilion) 3",
+    "name": "Hare flats (south-east of Buckingham House)",
     "species": "Hare",
     "cell": [
      329,
@@ -7992,7 +7992,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Pitt)",
+    "name": "Hare flats (south-west of Fort Pitt)",
     "species": "Hare",
     "cell": [
      352,
@@ -8004,7 +8004,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Manchester House)",
+    "name": "Hare flats (south-east of Manchester House)",
     "species": "Hare",
     "cell": [
      383,
@@ -8016,7 +8016,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Hudson House)",
+    "name": "Hare flats (south of Hudson House)",
     "species": "Hare",
     "cell": [
      409,
@@ -8028,7 +8028,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Hudson House) 2",
+    "name": "Hare flats (south-west of Carlton House)",
     "species": "Hare",
     "cell": [
      410,
@@ -8040,7 +8040,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (South Branch House)",
+    "name": "Hare flats (south-west of South Branch House)",
     "species": "Hare",
     "cell": [
      419,
@@ -8052,7 +8052,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort a la Corne)",
+    "name": "Hare flats (south-west of Fort a la Corne)",
     "species": "Hare",
     "cell": [
      456,
@@ -8064,7 +8064,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort a la Corne) 2",
+    "name": "Hare flats (Fort a la Corne)",
     "species": "Hare",
     "cell": [
      465,
@@ -8076,7 +8076,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Chesterfield House)",
+    "name": "Hare flats (south of Chesterfield House)",
     "species": "Hare",
     "cell": [
      346,
@@ -8088,7 +8088,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Cumberland House)",
+    "name": "Hare flats (south-east of Cumberland House)",
     "species": "Hare",
     "cell": [
      517,
@@ -8100,7 +8100,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (The Pas (Le Pas))",
+    "name": "Hare flats (south-west of The Pas (Le Pas))",
     "species": "Hare",
     "cell": [
      520,
@@ -8112,7 +8112,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Pelly)",
+    "name": "Hare flats (south of Fort Pelly)",
     "species": "Hare",
     "cell": [
      514,
@@ -8124,7 +8124,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Pelly) 2",
+    "name": "Hare flats (east of Fort Pelly)",
     "species": "Hare",
     "cell": [
      529,
@@ -8136,7 +8136,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Dauphin)",
+    "name": "Hare flats (south of Fort Dauphin)",
     "species": "Hare",
     "cell": [
      556,
@@ -8148,7 +8148,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Nut Lake)",
+    "name": "Hare flats (south of Nut Lake)",
     "species": "Hare",
     "cell": [
      489,
@@ -8160,7 +8160,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Esperance)",
+    "name": "Hare flats (south of Fort Esperance)",
     "species": "Hare",
     "cell": [
      522,
@@ -8172,7 +8172,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Qu'Appelle)",
+    "name": "Hare flats (south-east of Fort Qu'Appelle)",
     "species": "Hare",
     "cell": [
      488,
@@ -8184,7 +8184,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Ellice)",
+    "name": "Hare flats (south of Fort Ellice)",
     "species": "Hare",
     "cell": [
      531,
@@ -8196,7 +8196,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Brandon House)",
+    "name": "Hare flats (south-west of Brandon House)",
     "species": "Hare",
     "cell": [
      557,
@@ -8208,7 +8208,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Brandon House) 2",
+    "name": "Hare flats (Brandon House)",
     "species": "Hare",
     "cell": [
      561,
@@ -8220,7 +8220,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Brandon House) 3",
+    "name": "Hare flats (south of Brandon House)",
     "species": "Hare",
     "cell": [
      561,
@@ -8232,7 +8232,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Souris)",
+    "name": "Hare flats (south of Fort Souris)",
     "species": "Hare",
     "cell": [
      576,
@@ -8244,7 +8244,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Alexandria)",
+    "name": "Hare flats (south of Fort Alexandria)",
     "species": "Hare",
     "cell": [
      525,
@@ -8256,7 +8256,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort la Reine)",
+    "name": "Hare flats (south-west of Fort la Reine)",
     "species": "Hare",
     "cell": [
      588,
@@ -8268,7 +8268,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort la Reine) 2",
+    "name": "Hare flats (south-west of Portage la Prairie)",
     "species": "Hare",
     "cell": [
      591,
@@ -8280,7 +8280,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Manitoba House)",
+    "name": "Hare flats (south-west of Manitoba House)",
     "species": "Hare",
     "cell": [
      582,
@@ -8292,7 +8292,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Gibraltar)",
+    "name": "Hare flats (south-west of Fort Gibraltar)",
     "species": "Hare",
     "cell": [
      619,
@@ -8304,7 +8304,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Gibraltar) 2",
+    "name": "Hare flats (south of Fort Gibraltar)",
     "species": "Hare",
     "cell": [
      623,
@@ -8328,7 +8328,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Douglas)",
+    "name": "Hare flats (east of Fort Douglas)",
     "species": "Hare",
     "cell": [
      638,
@@ -8340,7 +8340,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Bas de la Riviere)",
+    "name": "Hare flats (south-east of Fort Bas de la Riviere)",
     "species": "Hare",
     "cell": [
      651,
@@ -8352,7 +8352,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Métis at Pembina)",
+    "name": "Hare flats (south of Métis at Pembina)",
     "species": "Hare",
     "cell": [
      634,
@@ -8364,7 +8364,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Turtle River House)",
+    "name": "Hare flats (south-east of Turtle River House)",
     "species": "Hare",
     "cell": [
      638,
@@ -8376,7 +8376,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Norway House)",
+    "name": "Hare flats (south of Norway House)",
     "species": "Hare",
     "cell": [
      602,
@@ -8388,7 +8388,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (York Factory)",
+    "name": "Hare flats (south of York Factory)",
     "species": "Hare",
     "cell": [
      696,
@@ -8400,7 +8400,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Osnaburgh House)",
+    "name": "Hare flats (south-west of Osnaburgh House)",
     "species": "Hare",
     "cell": [
      759,
@@ -8412,7 +8412,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Gloucester House)",
+    "name": "Hare flats (south of Gloucester House)",
     "species": "Hare",
     "cell": [
      826,
@@ -8424,7 +8424,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Martin Falls)",
+    "name": "Hare flats (south-east of Martin Falls)",
     "species": "Hare",
     "cell": [
      858,
@@ -8436,7 +8436,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Henley House)",
+    "name": "Hare flats (south-east of Henley House)",
     "species": "Hare",
     "cell": [
      895,
@@ -8448,7 +8448,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Albany Fort)",
+    "name": "Hare flats (south of Albany Fort)",
     "species": "Hare",
     "cell": [
      942,
@@ -8460,7 +8460,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Lac Seul House)",
+    "name": "Hare flats (south-west of Lac Seul House)",
     "species": "Hare",
     "cell": [
      723,
@@ -8472,7 +8472,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Red Lake Post)",
+    "name": "Hare flats (south-west of Red Lake Post)",
     "species": "Hare",
     "cell": [
      672,
@@ -8484,7 +8484,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort McKenzie)",
+    "name": "Hare flats (south-east of Fort McKenzie)",
     "species": "Hare",
     "cell": [
      302,
@@ -8496,7 +8496,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Benton)",
+    "name": "Hare flats (south-east of Fort Benton)",
     "species": "Hare",
     "cell": [
      325,
@@ -8508,7 +8508,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Union)",
+    "name": "Hare flats (south-east of Fort Union)",
     "species": "Hare",
     "cell": [
      479,
@@ -8520,7 +8520,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Manuel Lisa)",
+    "name": "Hare flats (south-east of Fort Manuel Lisa)",
     "species": "Hare",
     "cell": [
      567,
@@ -8532,7 +8532,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Moose Factory)",
+    "name": "Hare flats (south-east of Moose Factory)",
     "species": "Hare",
     "cell": [
      982,
@@ -8544,7 +8544,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Severn)",
+    "name": "Hare flats (south of Fort Severn)",
     "species": "Hare",
     "cell": [
      792,
@@ -8556,7 +8556,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Churchill (Pr. of Wales Fort))",
+    "name": "Hare flats (south of Churchill (Pr. of Wales Fort))",
     "species": "Hare",
     "cell": [
      656,
@@ -8568,7 +8568,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Oxford House)",
+    "name": "Hare flats (south-east of Oxford House)",
     "species": "Hare",
     "cell": [
      656,
@@ -8580,7 +8580,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Island Lake House)",
+    "name": "Hare flats (south of Island Lake House)",
     "species": "Hare",
     "cell": [
      669,
@@ -8592,7 +8592,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Ile-a-la-Crosse)",
+    "name": "Hare flats (south-east of Ile-a-la-Crosse)",
     "species": "Hare",
     "cell": [
      407,
@@ -8604,7 +8604,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Chipewyan)",
+    "name": "Hare flats (south-west of Fort Chipewyan)",
     "species": "Hare",
     "cell": [
      345,
@@ -8616,7 +8616,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Green Lake)",
+    "name": "Hare flats (south of Green Lake)",
     "species": "Hare",
     "cell": [
      401,
@@ -8628,7 +8628,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Lac la Ronge)",
+    "name": "Hare flats (south-east of Lac la Ronge)",
     "species": "Hare",
     "cell": [
      462,
@@ -8640,7 +8640,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Assiniboine)",
+    "name": "Hare flats (south of Fort Assiniboine)",
     "species": "Hare",
     "cell": [
      261,
@@ -8652,7 +8652,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Lesser Slave Lake Ho.)",
+    "name": "Hare flats (south-west of Lesser Slave Lake Ho.)",
     "species": "Hare",
     "cell": [
      243,
@@ -8664,7 +8664,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Dunvegan)",
+    "name": "Hare flats (south-west of Dunvegan)",
     "species": "Hare",
     "cell": [
      190,
@@ -8688,7 +8688,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Rainy Lake House)",
+    "name": "Hare flats (south-east of Rainy Lake House)",
     "species": "Hare",
     "cell": [
      722,
@@ -8700,7 +8700,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Rat Portage)",
+    "name": "Hare flats (south of Rat Portage)",
     "species": "Hare",
     "cell": [
      686,
@@ -8724,7 +8724,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Michilimackinac)",
+    "name": "Hare flats (south-west of Michilimackinac)",
     "species": "Hare",
     "cell": [
      933,
@@ -8736,7 +8736,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Qu'Appelle) 2",
+    "name": "Hare flats (Fort Qu'Appelle)",
     "species": "Hare",
     "cell": [
      479,
@@ -8748,7 +8748,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort McKenzie) 2",
+    "name": "Hare flats (south of Fort McKenzie)",
     "species": "Hare",
     "cell": [
      299,
@@ -8760,7 +8760,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Berthold)",
+    "name": "Hare flats (south-west of Fort Berthold)",
     "species": "Hare",
     "cell": [
      505,
@@ -8772,7 +8772,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Great Whale River)",
+    "name": "Hare flats (south of Great Whale River)",
     "species": "Hare",
     "cell": [
      985,
@@ -8784,7 +8784,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Michipicoten)",
+    "name": "Hare flats (south of Michipicoten)",
     "species": "Hare",
     "cell": [
      917,
@@ -8796,7 +8796,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Brunswick House)",
+    "name": "Hare flats (south of Brunswick House)",
     "species": "Hare",
     "cell": [
      937,
@@ -8808,7 +8808,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Vancouver)",
+    "name": "Hare flats (south of Fort Vancouver)",
     "species": "Hare",
     "cell": [
      24,
@@ -8820,7 +8820,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Nisqually)",
+    "name": "Hare flats (south-east of Fort Nisqually)",
     "species": "Hare",
     "cell": [
      40,
@@ -8832,7 +8832,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Nez Perces)",
+    "name": "Hare flats (south-east of Fort Nez Perces)",
     "species": "Hare",
     "cell": [
      121,
@@ -8844,7 +8844,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Spokane House)",
+    "name": "Hare flats (south-east of Spokane House)",
     "species": "Hare",
     "cell": [
      167,
@@ -8856,7 +8856,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Okanogan)",
+    "name": "Hare flats (south of Fort Okanogan)",
     "species": "Hare",
     "cell": [
      108,
@@ -8868,7 +8868,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Kootenay House)",
+    "name": "Hare flats (south of Kootenay House)",
     "species": "Hare",
     "cell": [
      207,
@@ -8880,7 +8880,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Flathead House)",
+    "name": "Hare flats (south of Flathead House)",
     "species": "Hare",
     "cell": [
      235,
@@ -8892,7 +8892,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Kamloops)",
+    "name": "Hare flats (south-west of Fort Kamloops)",
     "species": "Hare",
     "cell": [
      113,
@@ -8904,7 +8904,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Alexandria (BC))",
+    "name": "Hare flats (south-west of Fort Alexandria (BC))",
     "species": "Hare",
     "cell": [
      85,
@@ -8916,7 +8916,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort George (BC))",
+    "name": "Hare flats (south-west of Fort George (BC))",
     "species": "Hare",
     "cell": [
      90,
@@ -8928,7 +8928,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort St. James)",
+    "name": "Hare flats (south-east of Fort St. James)",
     "species": "Hare",
     "cell": [
      79,
@@ -8940,7 +8940,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Fraser)",
+    "name": "Hare flats (south-east of Fort Fraser)",
     "species": "Hare",
     "cell": [
      76,
@@ -8952,7 +8952,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort McLeod)",
+    "name": "Hare flats (south-west of Fort McLeod)",
     "species": "Hare",
     "cell": [
      94,
@@ -8964,7 +8964,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Langley)",
+    "name": "Hare flats (south-east of Fort Langley)",
     "species": "Hare",
     "cell": [
      67,
@@ -8976,7 +8976,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Victoria)",
+    "name": "Hare flats (south-west of Fort Victoria)",
     "species": "Hare",
     "cell": [
      22,
@@ -8988,7 +8988,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Connolly)",
+    "name": "Hare flats (south of Fort Connolly)",
     "species": "Hare",
     "cell": [
      68,
@@ -9000,7 +9000,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Babine)",
+    "name": "Hare flats (south-west of Fort Babine)",
     "species": "Hare",
     "cell": [
      31,
@@ -9024,7 +9024,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Dease Lake)",
+    "name": "Hare flats (south of Dease Lake)",
     "species": "Hare",
     "cell": [
      17,
@@ -9036,7 +9036,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Chilcotin)",
+    "name": "Hare flats (south-east of Fort Chilcotin)",
     "species": "Hare",
     "cell": [
      75,
@@ -9048,7 +9048,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Blackfoot)",
+    "name": "Hare flats (south-east of Blackfoot)",
     "species": "Hare",
     "cell": [
      303,
@@ -9060,7 +9060,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Blood (Kainai))",
+    "name": "Hare flats (south of Blood (Kainai))",
     "species": "Hare",
     "cell": [
      263,
@@ -9072,7 +9072,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Peigan (Piikani))",
+    "name": "Hare flats (south-west of Peigan (Piikani))",
     "species": "Hare",
     "cell": [
      258,
@@ -9084,7 +9084,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Sarcee (Tsuut'ina))",
+    "name": "Hare flats (south of Sarcee (Tsuut'ina))",
     "species": "Hare",
     "cell": [
      251,
@@ -9096,7 +9096,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Gros Ventre)",
+    "name": "Hare flats (south-west of Gros Ventre)",
     "species": "Hare",
     "cell": [
      343,
@@ -9108,7 +9108,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (South Branch House) 2",
+    "name": "Hare flats (south-east of South Branch House)",
     "species": "Hare",
     "cell": [
      434,
@@ -9120,7 +9120,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Woodland Cree)",
+    "name": "Hare flats (south-east of Woodland Cree)",
     "species": "Hare",
     "cell": [
      552,
@@ -9132,7 +9132,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Swampy Cree)",
+    "name": "Hare flats (south-west of Swampy Cree)",
     "species": "Hare",
     "cell": [
      714,
@@ -9144,7 +9144,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Assiniboine)",
+    "name": "Hare flats (south-east of Assiniboine)",
     "species": "Hare",
     "cell": [
      477,
@@ -9156,7 +9156,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Sarcee (Tsuut'ina)) 2",
+    "name": "Hare flats (Sarcee (Tsuut'ina))",
     "species": "Hare",
     "cell": [
      251,
@@ -9168,7 +9168,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Plains Ojibwa (Saulteaux))",
+    "name": "Hare flats (south-west of Plains Ojibwa (Saulteaux))",
     "species": "Hare",
     "cell": [
      653,
@@ -9180,7 +9180,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Ojibwa (Anishinaabe))",
+    "name": "Hare flats (south of Ojibwa (Anishinaabe))",
     "species": "Hare",
     "cell": [
      783,
@@ -9192,7 +9192,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Dakota (Santee Sioux))",
+    "name": "Hare flats (south of Dakota (Santee Sioux))",
     "species": "Hare",
     "cell": [
      665,
@@ -9204,7 +9204,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Clark)",
+    "name": "Hare flats (south-west of Fort Clark)",
     "species": "Hare",
     "cell": [
      531,
@@ -9216,7 +9216,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Berthold) 2",
+    "name": "Hare flats (south-east of Fort Berthold)",
     "species": "Hare",
     "cell": [
      518,
@@ -9228,7 +9228,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Arikara)",
+    "name": "Hare flats (south-west of Arikara)",
     "species": "Hare",
     "cell": [
      551,
@@ -9240,7 +9240,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Crow)",
+    "name": "Hare flats (south-east of Crow)",
     "species": "Hare",
     "cell": [
      390,
@@ -9252,7 +9252,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Shoshone)",
+    "name": "Hare flats (south of Shoshone)",
     "species": "Hare",
     "cell": [
      279,
@@ -9264,7 +9264,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Kootenay (Ktunaxa))",
+    "name": "Hare flats (south-east of Kootenay (Ktunaxa))",
     "species": "Hare",
     "cell": [
      214,
@@ -9276,7 +9276,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Salish (Flathead))",
+    "name": "Hare flats (south-west of Salish (Flathead))",
     "species": "Hare",
     "cell": [
      211,
@@ -9288,7 +9288,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Chipewyan)",
+    "name": "Hare flats (south of Chipewyan)",
     "species": "Hare",
     "cell": [
      466,
@@ -9300,7 +9300,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Coast Salish)",
+    "name": "Hare flats (south-west of Coast Salish)",
     "species": "Hare",
     "cell": [
      18,
@@ -9312,7 +9312,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Dakelh (Carrier))",
+    "name": "Hare flats (south-west of Dakelh (Carrier))",
     "species": "Hare",
     "cell": [
      48,
@@ -9336,7 +9336,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Connolly) 2",
+    "name": "Hare flats (Fort Connolly)",
     "species": "Hare",
     "cell": [
      68,
@@ -9348,7 +9348,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Secwépemc (Shuswap))",
+    "name": "Hare flats (south-east of Secwépemc (Shuswap))",
     "species": "Hare",
     "cell": [
      128,
@@ -9360,7 +9360,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Syilx (Okanagan))",
+    "name": "Hare flats (south-west of Syilx (Okanagan))",
     "species": "Hare",
     "cell": [
      118,
@@ -9372,7 +9372,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Cheyenne)",
+    "name": "Hare flats (south-east of Cheyenne)",
     "species": "Hare",
     "cell": [
      505,
@@ -9384,7 +9384,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Oji-Cree)",
+    "name": "Hare flats (south-east of Oji-Cree)",
     "species": "Hare",
     "cell": [
      748,
@@ -9396,7 +9396,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Menominee)",
+    "name": "Hare flats (south-east of Menominee)",
     "species": "Hare",
     "cell": [
      852,
@@ -9408,7 +9408,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Pembina Post)",
+    "name": "Hare flats (north-west of Pembina Post)",
     "species": "Hare",
     "cell": [
      623,
@@ -9420,7 +9420,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Pembina Post) 2",
+    "name": "Hare flats (south of Pembina Post)",
     "species": "Hare",
     "cell": [
      624,
@@ -9432,7 +9432,7 @@
     "route": null
    },
    {
-    "name": "Hare flats (Fort Esperance) 2",
+    "name": "Hare flats (Fort Esperance)",
     "species": "Hare",
     "cell": [
      523,
@@ -9444,7 +9444,7 @@
     "route": null
    },
    {
-    "name": "Buffalo plain (Blackfoot)",
+    "name": "Buffalo plain (Blackfoot country)",
     "species": "Buffalo",
     "cell": [
      310,
@@ -9505,7 +9505,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Blood (Kainai))",
+    "name": "Buffalo plain (Blood (Kainai) country)",
     "species": "Buffalo",
     "cell": [
      266,
@@ -9566,7 +9566,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Peigan (Piikani))",
+    "name": "Buffalo plain (Peigan (Piikani) country)",
     "species": "Buffalo",
     "cell": [
      302,
@@ -9627,7 +9627,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Sarcee (Tsuut'ina))",
+    "name": "Buffalo plain (Sarcee (Tsuut'ina) country)",
     "species": "Buffalo",
     "cell": [
      264,
@@ -9810,7 +9810,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Nakoda (Stoney))",
+    "name": "Buffalo plain (Nakoda (Stoney) country)",
     "species": "Buffalo",
     "cell": [
      253,
@@ -9871,7 +9871,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Dakota (Santee Sioux))",
+    "name": "Buffalo plain (Dakota (Santee Sioux) country)",
     "species": "Buffalo",
     "cell": [
      704,
@@ -9932,7 +9932,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Lakota (Teton Sioux))",
+    "name": "Buffalo plain (Lakota (Teton Sioux) country)",
     "species": "Buffalo",
     "cell": [
      547,
@@ -10115,7 +10115,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Arikara)",
+    "name": "Buffalo plain (Arikara country)",
     "species": "Buffalo",
     "cell": [
      553,
@@ -10176,7 +10176,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Crow)",
+    "name": "Buffalo plain (Crow country)",
     "species": "Buffalo",
     "cell": [
      378,
@@ -10237,7 +10237,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Shoshone)",
+    "name": "Buffalo plain (Shoshone country)",
     "species": "Buffalo",
     "cell": [
      289,
@@ -10298,7 +10298,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Cheyenne)",
+    "name": "Buffalo plain (Cheyenne country)",
     "species": "Buffalo",
     "cell": [
      540,
@@ -10359,7 +10359,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Métis country, Forks)",
+    "name": "Buffalo plain (Forks country)",
     "species": "Buffalo",
     "cell": [
      627,
@@ -10420,7 +10420,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Métis country, at Pembina)",
+    "name": "Buffalo plain (Pembina country)",
     "species": "Buffalo",
     "cell": [
      626,
@@ -10481,7 +10481,7 @@
     ]
    },
    {
-    "name": "Buffalo plain (Moose Mountain) 2",
+    "name": "Buffalo plain (Moose Mountain, Qu'Appelle)",
     "species": "Buffalo",
     "cell": [
      515,
