@@ -319,6 +319,26 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--spawn=") && NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => { GlobalPosition = IsoGrid.ToWorld(TerrainPainter.NamedSpot(spot)); _netTarget = GlobalPosition; _teleported = true; GD.Print($"[dev] host moved to {spot} {Cell}"); }; }
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
 			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
+			// Dev: `-- --fx` plays each of the combat effects beside you in
+			// turn, so they can be looked at without staging a fight.
+			if (arg == "--fx")
+				for (int i = 0; i < 5; i++)
+				{
+					int k = i;
+					GetTree().CreateTimer(4.0 + k * 1.6).Timeout += () =>
+					{
+						var at = GlobalPosition + new Vector2(120f, 0f);
+						switch (k)
+						{
+							case 0: Agents.CombatFx.Musket(this, at); break;
+							case 1: Agents.CombatFx.Missed(this, at); break;
+							case 2: Agents.CombatFx.Blood(this, 30f); break;
+							case 3: Agents.CombatFx.Pool(this); break;
+							default: Agents.CombatFx.Shot(this, at, true); break;
+						}
+						GD.Print($"[dev] fx {k}");
+					};
+				}
 			// Dev: `--provoke=8` keeps swinging, every two seconds, so a fight runs its course.
 			if (arg.StartsWith("--provoke=") && int.TryParse(arg.Substring(10), out int blows)) for (int i = 0; i < blows; i++) GetTree().CreateTimer(3.0 + i * 2.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			// Dev: `--talkto=Name` stands you beside that person and opens the talk.

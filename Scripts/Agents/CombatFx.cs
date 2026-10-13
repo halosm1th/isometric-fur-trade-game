@@ -23,19 +23,21 @@ public static class CombatFx
         return a;
     }
 
-    // One run of an effect at a place in the world, and then it is gone.
-    private static void Play(Node host, string name, int count, Vector2 at, float fps = 14f,
+    // One run of an effect on a body, and then it is gone. The effect hangs
+    // off the agent itself rather than off the scene, so it is drawn in the
+    // same place in the order as he is and goes with him when he goes.
+    private static void Play(Agent anchor, string name, int count, Vector2 offset, float fps = 14f,
         float scale = 1f, bool flip = false, int z = 31, float fade = 0f)
     {
         var frames = Frames(name, count);
         if (frames.Length == 0 || frames[0] == null) return;
         var s = new Sprite2D
         {
-            Texture = frames[0], GlobalPosition = at, ZIndex = z, ZAsRelative = false,
+            Texture = frames[0], Position = offset, ZIndex = z,
             Scale = new Vector2(flip ? -scale : scale, scale),
         };
-        host.AddChild(s);
-        var tree = host.GetTree();
+        anchor.AddChild(s);
+        var tree = anchor.GetTree();
         for (int i = 1; i < frames.Length; i++)
         {
             int k = i;
@@ -44,62 +46,56 @@ public static class CombatFx
         tree.CreateTimer(frames.Length / fps + fade).Timeout += () => { if (GodotObject.IsInstanceValid(s)) s.QueueFree(); };
     }
 
-    private static Node Host(Agent a) => a?.GetTree()?.CurrentScene;
-
     // Powder in the pan, then at the muzzle: the flash and the great cloud
     // of white smoke a flintlock made, which is half of why a volley was
     // fired at close range and then the men went in with what they had.
     public static void Musket(Agent from, Vector2 toward)
     {
-        var host = Host(from);
-        if (host == null) return;
+        if (from == null || !from.IsInsideTree()) return;
         bool left = toward.X < from.GlobalPosition.X;
-        var muzzle = from.GlobalPosition + new Vector2(left ? -46f : 46f, -46f);
-        Play(host, "pan_flash", 2, from.GlobalPosition + new Vector2(left ? -14f : 14f, -52f), 22f, 0.5f, left, 32);
-        Play(host, "muzzle_flash", 3, muzzle, 11f, 0.75f, left, 32);
+        Play(from, "pan_flash", 2, new Vector2(left ? -14f : 14f, -52f), 22f, 0.5f, left, 32);
+        Play(from, "muzzle_flash", 3, new Vector2(left ? -46f : 46f, -46f), 11f, 0.75f, left, 32);
     }
 
     // A ball that went wide: dust off the ground where it struck.
     public static void Missed(Agent from, Vector2 at)
     {
-        var host = Host(from);
-        if (host != null) Play(host, "impact_dust", 3, at + new Vector2(GD.RandRange(-26, 26), GD.RandRange(-6, 10)), 9f, 0.7f, GD.Randf() < 0.5f, 6);
+        if (from == null || !from.IsInsideTree()) return;
+        var off = at - from.GlobalPosition + new Vector2(GD.RandRange(-26, 26), GD.RandRange(-6, 10));
+        Play(from, "impact_dust", 3, off, 9f, 0.7f, GD.Randf() < 0.5f, 20);
     }
 
     // A blade or a club: the arc of the stroke.
     public static void Swing(Agent from, Agent target)
     {
-        var host = Host(from);
-        if (host == null) return;
+        if (from == null || target == null || !from.IsInsideTree()) return;
         bool left = target.GlobalPosition.X < from.GlobalPosition.X;
-        Play(host, "slash", 4, (from.GlobalPosition + target.GlobalPosition) / 2f + new Vector2(0, -48f), 20f, 0.8f, left);
+        Play(from, "slash", 4, (target.GlobalPosition - from.GlobalPosition) / 2f + new Vector2(0, -48f), 20f, 0.8f, left);
     }
 
     // A blow that told.
     public static void Blood(Agent who, float amount)
     {
-        var host = Host(who);
-        if (host == null || amount < 3f) return;
-        Play(host, "blood_hit", 4, who.GlobalPosition + new Vector2(0, -44f), 16f, Mathf.Clamp(0.45f + amount / 70f, 0.5f, 1.1f), GD.Randf() < 0.5f);
+        if (who == null || !who.IsInsideTree() || amount < 3f) return;
+        Play(who, "blood_hit", 4, new Vector2(0, -44f), 16f, Mathf.Clamp(0.45f + amount / 70f, 0.5f, 1.1f), GD.Randf() < 0.5f);
     }
 
     // And the ground where he fell. This one stays: it is drawn under
     // everything and left there.
     public static void Pool(Agent who)
     {
-        var host = Host(who);
-        if (host == null) return;
+        if (who == null || !who.IsInsideTree()) return;
         var frames = Frames("blood_pool", 3);
         if (frames.Length < 3 || frames[2] == null) return;
         var s = new Sprite2D
         {
-            Texture = frames[0], GlobalPosition = who.GlobalPosition + new Vector2(0, -4f),
-            ZIndex = 1, ZAsRelative = false, Scale = new Vector2(0.5f, 0.5f), Modulate = new Color(1, 1, 1, 0.85f),
+            Texture = frames[0], Position = new Vector2(0, -2f), ZIndex = 0,
+            Scale = new Vector2(0.34f, 0.34f), Modulate = new Color(1, 1, 1, 0.8f),
         };
-        host.AddChild(s);
-        var tree = host.GetTree();
-        tree.CreateTimer(0.5).Timeout += () => { if (GodotObject.IsInstanceValid(s)) { s.Texture = frames[1]; s.Scale = new Vector2(0.6f, 0.6f); } };
-        tree.CreateTimer(1.6).Timeout += () => { if (GodotObject.IsInstanceValid(s)) { s.Texture = frames[2]; s.Scale = new Vector2(0.65f, 0.65f); } };
+        who.AddChild(s);
+        var tree = who.GetTree();
+        tree.CreateTimer(0.5).Timeout += () => { if (GodotObject.IsInstanceValid(s)) { s.Texture = frames[1]; s.Scale = new Vector2(0.38f, 0.38f); } };
+        tree.CreateTimer(1.6).Timeout += () => { if (GodotObject.IsInstanceValid(s)) { s.Texture = frames[2]; s.Scale = new Vector2(0.44f, 0.44f); } };
     }
 
     public static void Shot(Agent from, Vector2 to, bool musket)
