@@ -89,3 +89,5 @@ Press **Install in game** (or run `... -- install mycampaign.camp`). That writes
 - [The language guide](Language-Guide) for everything the syntax can do.
 - [Examples](Examples): five small campaigns that each teach one thing, and one long one.
 - [Library reference](Library-Reference) when you need the name of something.
+- [World reference](World-Reference) for the posts, brigade runs, items and people a script can name.
+- [Cookbook](Cookbook) for the patterns most campaigns need, and [Pitfalls](Pitfalls) before you write a long one.

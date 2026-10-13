@@ -15,12 +15,12 @@ public static class LangDocs
 
 	public static readonly Hook[] Hooks =
 	{
-		new("AwakenWhen", "when", true, "A beat only does anything on the days this holds (and its requirements are met). The first such day it wakes, and OnAwaken runs. Leave it out and the beat is awake from the start."),
+		new("AwakenWhen", "when", true, "A beat only does anything on the days this holds (and its requirements are met). The first such day it wakes, and OnAwaken runs; a dateless beat counts its delay from then. Leave it out and the beat is awake from the start."),
 		new("OnAwaken", "on_awaken", false, "What happens at the moment the beat wakes, once. A repeating beat does it again each time round."),
-		new("OnApproach", "pressure", false, "Pressure on the world as the beat's day draws near: it runs once, when the lead time before the date begins. This is how a beat makes the world ready for itself."),
-		new("ActivateWhen", "activate_when", true, "A last condition the beat waits for once it is due. If it does not hold the beat is due but not yet happening."),
+		new("OnApproach", "pressure", false, "Pressure on the world as the beat's day draws near: it runs once, on the first awake day within the lead time before the date (Steady adherence and up; never at Gentle). This is how a beat makes the world ready for itself."),
+		new("ActivateWhen", "activate_when", true, "A last condition the beat waits for once it is due, and that a forced event waits for too. If it does not hold the beat is due but not yet happening. trigger() does not ask it."),
 		new("OnActivate", "happens", false, "What the beat does when it happens."),
-		new("ResolveWhen", "done_when", true, "The world got there by itself: while this holds, the beat is over without OnActivate running."),
+		new("ResolveWhen", "done_when", true, "The world got there by itself: asked every day the beat is awake, even long before its date. The first day it holds, OnResolve runs and the beat is over without OnActivate running."),
 		new("OnResolve", "on_resolve", false, "What happens when the world resolves the beat."),
 		new("CancelWhen", "cancel_when", true, "The beat can no longer happen. Checked before everything else, on every day, whatever the adherence."),
 		new("OnCancel", "on_cancel", false, "What happens when the beat is cancelled."),
@@ -32,7 +32,7 @@ public static class LangDocs
 		new("description", "string", "A few sentences about the campaign, shown under its name."),
 		new("note", "string", "A note kept in the JSON, for whoever opens it. Free text."),
 		new("seed", "int", "The seed for the script's dice (chance, random). The same seed gives the same history."),
-		new("postsByFoundingYear", "bool", "When true, posts appear in the world on 1 January of the year they were founded."),
+		new("postsByFoundingYear", "bool", "When true, posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only if a beat founds it."),
 	};
 
 	public static readonly Arg[] BeatArgs =
@@ -41,12 +41,12 @@ public static class LangDocs
 		new("title", "string", "What the log and the news call the beat. Defaults to the id."),
 		new("kind", "Kind", "Fixed, Conditional, Event or Pressure. Almost never written: it is derived from what the beat has (see the guide)."),
 		new("date", "Date", "The day the beat is due. A beat with no date is due the moment it wakes, plus its delay."),
-		new("window", "Days", "How long the world has to do the beat itself after its date before it is forced (Firm and Strict adherence)."),
-		new("lead", "Days", "How long before its date the beat's pressure (OnApproach) begins. Default 30."),
-		new("delay", "Days", "For a beat with no date: days after waking before it is due."),
-		new("repeat", "Days", "The beat comes round again this many days after it happened, and can happen again."),
+		new("window", "Days", "How long the world has to do the beat itself after its date before it is forced: Strict forces it one window late, Firm two windows late. Default 60 days."),
+		new("lead", "Days", "How long before its date the beat's pressure (OnApproach) begins, and its rumour is first told. Default 30 days."),
+		new("delay", "Days", "For a beat with no date: days after waking before it is due. Default 0."),
+		new("repeat", "Days", "The beat comes round again this many days after it happened: a dated beat's date moves on by this much, a dateless beat sleeps this long."),
 		new("rumour", "string", "What the player is told while the beat is stirring or its day draws near: one line for the journal's \"What is stirring\" list, written as something a person at the post could have heard. The beat's own title is never shown there, so a rumour is the only thing that says anything before the beat happens."),
-		new("keywords", "string[]", "Words the news director looks for when it chooses what to tell the player. Free text."),
+		new("keywords", "string[]", "Words the news director looks for when it chooses what to tell the player, from 120 days before a dated beat's date until two windows after it. Free text."),
 	};
 
 	public static readonly string[] Keywords = { "campaign", "beat", "const", "void", "if", "else", "for", "foreach", "in", "true", "false" };
@@ -84,6 +84,7 @@ public static class LangDocs
 		sb.Append("Types: `int` is a whole number, `float` any number, `string` text, `bool` a condition or true/false. ");
 		sb.Append("A *Days* is a length of time, `days(10)`; a *Date* is `date(1816, 6, 19)`. ");
 		sb.Append("*effect* means the call changes the world, so it belongs in an effect hook (`OnActivate` ...) and not in a condition.\n\n");
+		sb.Append("The names you pass in (posts, brigade runs, items, people, letter addressees) are listed in the [World reference](World-Reference); what each effect really does once the game carries it out is in [Effects in the game](Effects-in-the-Game); the flags the game raises by itself are in [State, flags and variables](State-Flags-and-Variables).\n\n");
 		sb.Append("## Beat header\n\n| Argument | Type | What it is |\n|---|---|---|\n");
 		foreach (var a in BeatArgs) sb.Append($"| `{a.Name}` | `{a.Type}` | {a.Summary} |\n");
 		sb.Append("\n## Campaign header\n\n| Argument | Type | What it is |\n|---|---|---|\n");

@@ -1,6 +1,6 @@
 # Examples
 
-All of these are in `tools/CampaignTool/examples` (small ones) and `tools/CampaignTool/src` (campaigns the game ships). Open them in the [web editor](Web-Editor), or read them here. Each one compiles and checks clean; a test keeps it that way.
+All of these are in `tools/CampaignTool/examples` (small ones) and `tools/CampaignTool/src` (campaigns the game ships). Open them in the [web editor](Web-Editor), or read them here. Each one compiles and checks clean; a test keeps it that way. For short patterns rather than whole campaigns, see the [Cookbook](Cookbook), which ends with a complete eight-beat campaign explained part by part.
 
 ## 1. A first beat
 

@@ -20,6 +20,8 @@ AwakenWhen() => player.deeds("escort") >= 2;
 
 `player.did(kind)` is true once the player has done it at least once; `player.deeds(kind)` is how many times. Under the hood a deed raises the flag `deed:<kind>` and adds one to the variable of the same name, so both are saved with the game and `raw("...")` and `flags.has("deed:truce")` see them too.
 
+The game also answers some deeds itself, whatever the campaign: a truce brings the tension down by 35 at once, and the raid itself, when it reaches the stores, raises it by 6 to 12 (see [Effects in the game](Effects-in-the-Game#tension)). In the [simulator](Simulation-Scenarios) a deed changes nothing but the deed itself.
+
 A deed is how the world answers the player. The long campaigns use them like this:
 
 - **Seven Oaks can be averted.** In `company-years`, a quiet spring *or* a brokered truce cancels the beat. In `the-long-peace` a truce turns the Pemmican Proclamation into a *bargain*, and the war beats never wake.
@@ -48,6 +50,8 @@ Things to know when you write rumours:
 - **Only the rumour is shown, never the beat's title or anything it will do.** A rumour is the only thing the player learns before the beat happens, so it is where you decide how much to give away: *"Grant's riders are gathering"* hints; *"Seven Oaks will happen on 19 June"* spoils it.
 - **A beat with no rumour is silent.** That is the normal case: keep rumours for what you want the player to be able to feel coming, and to *act on*.
 - **A rumour that depends on the world is a promise.** `PemmicanBargain` has the rumour *"The colony's governor and the partners at Fort Gibraltar are said to be talking terms"* and wakes only when the peace holds. If you cancel a beat, its rumour goes too, so the player is never left waiting for something that is not coming.
+- A rumour on a beat that can never happen stays in the journal for good: an event with no `ResolveWhen` under Steady adherence is the usual case. See [Pitfalls](Pitfalls#rumours-are-promises).
+- The list is ordered by how near each beat is, soonest first.
 - In multiplayer the host builds the list each day and sends it to the others.
 
 ## Where each lives

@@ -28,17 +28,21 @@ Every hook is optional, and a beat with none is perfectly legal (it exists to be
 
 ## One day, in order
 
-Each day the game takes every beat that has not finished, in the order they are written, and asks:
+Each day (on the server, once the calendar turns) the game does this, and nothing else:
 
-1. **Cancelled?** If `CancelWhen` holds, the beat is cancelled: `OnCancel` runs and it is over. This happens before anything else, on every day, whatever the adherence: a cancelled beat cannot be forced.
-2. **Awake?** The beat needs everything in its `[Requires]` to have happened, *and* `AwakenWhen` to hold. If not, it sleeps and nothing else is asked. (A beat is awake on the days these hold; if they stop holding it goes back to sleep.)
-3. **First day awake?** `OnAwaken` runs, once.
-4. **Resolved by the world?** If `ResolveWhen` holds, `OnResolve` runs and the beat is over without `OnActivate` ever running. This is how an *event* the world produced by itself is recognised.
-5. **Is it time to press?** A beat is **due** on its `date` (a dateless beat is due `delay` days after it woke). `OnApproach` runs once, when today is within `lead` days of the due day (30 by default). Under the *Gentle* adherence it never runs.
-6. **Is it due?** If not, that is all for today.
-7. **Happen.** What follows depends on the beat's *kind*.
+1. **Timers.** Effects waiting on an `after(...)` whose day has come run first.
+2. **Every beat, in the order they are written.** Beats that are done, cancelled, or resting between repeats are skipped. For each of the others:
+   1. **Cancelled?** If `CancelWhen` holds, `OnCancel` runs and the beat is over for good. This is asked even of a beat that is still asleep, whatever the adherence: a cancelled beat cannot be forced (only `trigger` can still make it happen).
+   2. **Awake?** Everything in its `[Requires]` must be done (or raised as flags), *and* `AwakenWhen` must hold. If not, nothing more is asked of it today. A beat that was awake and stops being so simply pauses: it does not run `OnAwaken` again, and a dateless one keeps counting its `delay` from the day it first woke.
+   3. **First day awake?** `OnAwaken` runs, once (once per round, for a repeating beat).
+   4. **Resolved by the world?** If `ResolveWhen` holds, `OnResolve` runs and the beat is over without `OnActivate` ever running. This is asked every awake day, **not only once it is due**: guard it with a date if it should not be possible early.
+   5. **Too early?** The beat is **due** on its `date` (a dateless beat: the day it first woke, plus `delay`). Until `lead` days before that (30 by default), nothing more today.
+   6. **Pressure.** The first day within the lead, `OnApproach` runs, once per round, at **Steady** adherence and above.
+   7. **Not yet due?** Then that is all for today.
+   8. **Happen.** What follows depends on the beat's *kind* (next section). If it happens, its flag is raised, its count goes up, and the log notes it.
+3. **Triggered beats.** Beats that a `trigger(...)` asked for today happen now, at the end of the day: their `OnActivate` runs whatever their date, requires, `AwakenWhen` or `ActivateWhen`, and even if they were cancelled. A beat already done is skipped. Triggers can chain (a triggered beat that triggers another), up to twenty rounds in a day.
 
-Beats that other beats `trigger(...)` happen at the end of the day, whatever their date, even if they are asleep.
+Because the beats are taken in order, a flag raised by one beat is seen by the beats written *after* it the same day, and by those *before* it the next day.
 
 ## The four kinds
 
@@ -50,7 +54,9 @@ The kind is [worked out from what the beat has](Language-Guide#the-kind-is-worke
 
 **Event** (a date, with a `window`, a `lead`, `OnApproach` or `ResolveWhen`): *the world is given the chance to do it itself.* The game applies `OnApproach` pressure as the day nears and watches `ResolveWhen`. If the day comes and the world has not done it, whether it is made to happen depends on the adherence (next section), and then only once `ActivateWhen` holds. The Pemmican Proclamation, Seven Oaks.
 
-**Pressure** (no `OnActivate`): it never happens as such; it only presses on the world through `OnApproach`. The lawless years.
+  An event with no `ResolveWhen` gives the world no way to do it, so under Gentle and Steady it is never done: it stays awake (its rumour saying *any day now*) and everything that requires it waits. Give such a beat a `ResolveWhen`, a `CancelWhen`, or `kind: Kind.Fixed` (see [Pitfalls](Pitfalls#an-event-with-no-resolvewhen-never-happens-at-steady)).
+
+**Pressure** (no `OnActivate`): it never happens as such; it only presses on the world through `OnApproach`. On its due day it is over (its flag is raised, so later beats can require it); at Gentle it is over without pressing at all. The lawless years.
 
 ## Adherence: how hard the campaign holds the world
 
@@ -63,11 +69,18 @@ The player (or the server) chooses how closely the world is held to the script:
 | **Firm** | runs | forced when `2 × window` days late |
 | **Strict** | runs | forced when `window` days late |
 
-Fixed and conditional beats are the same at every level. When an event is *forced*, `OnActivate` runs and the log says so (`[forced] ...`).
+Fixed and conditional beats are the same at every level, except that their `OnApproach` is skipped at Gentle. When an event is *forced*, `OnActivate` runs and the log says so (`[forced] ...`).
+
+For example, an event dated 1 June with `window: days(30)` that the world has not done is forced on **1 July** at Strict and on **31 July** at Firm, and never at Steady or Gentle. With no `window`, the window is 60 days. A forced event still waits for its `ActivateWhen`.
 
 ## Repeating beats
 
-`repeat: days(n)` lets a beat come round again `n` days after it happened. A dated beat's date moves on by `n`; a dateless beat sleeps for `n` days, then may wake again. `OnAwaken` runs again each time round; `Beat.count` says how many times it has happened.
+`repeat: days(n)` lets a beat come round again after it has happened (or been resolved by the world):
+
+- a **dated** beat's date moves on by `n` from its *date*, not from the day it happened, so a yearly beat keeps its calendar even if it was late one year (and one dated in the past [catches up](Pitfalls#a-repeating-beat-dated-in-the-past-catches-up));
+- a **dateless** beat rests for `n` days from the day it happened, then may wake again.
+
+Each time round it starts fresh: `OnAwaken` and `OnApproach` run again. `Beat.count` says how many times it has happened, and `Beat.done` is **false** between rounds (use `count` or `age`). A cancelled repeating beat is over for good.
 
 ```c
 beat BoatsOverdue(repeat: days(300)) {
@@ -84,8 +97,14 @@ Read as a story: *when the boats are late in summer, the Factor worries; if they
 
 ## Requires, flags and beat names
 
-`[A, B]` after a beat's header means the beat is not awake until A and B have happened. A name in the list is a beat, or a flag (a string). When a beat finishes, a flag with its id is raised, so `flags.has("seven-oaks")` and `SevenOaks.done` are the same question.
+`[A, B]` after a beat's header means the beat is not awake until A and B have happened. A name in the list is a beat, or a flag (a string). When a beat finishes, a flag with its id is raised, so `flags.has("seven-oaks")` and `SevenOaks.done` are the same question. A **cancelled** beat raises no flag, so whatever requires it never wakes; raise a flag of your own in `OnCancel` if something should follow from the cancellation. The flags the game raises by itself (`late:the York boats`, `heard:<beat id>`, `deed:truce`, `open_hostility` ...) can be required too: see [State, flags and variables](State-Flags-and-Variables#flags-the-game-raises-by-itself).
+
+## Rumours and keywords
+
+A beat's `rumour:` is listed in the player's journal (*What is stirring*) while the beat is awake and unfinished, and for a dated beat only from `lead` days before its date. It is tagged *any day now* once due, *within a fortnight* (14 days or less), *within weeks* (45 or less), *in the coming months* (120 or less), else *before long*. See [Player deeds and rumours](Player-Deeds-and-Rumours).
+
+A dated beat's `keywords:` are listened for by the news director from 120 days before its date until two windows after it, while it is not done: talk that mentions them is told to the player first.
 
 ## What the game remembers
 
-A saved game keeps which beats are done, cancelled and awake, when each woke, the campaign's flags and variables, and what is waiting on an `after(...)`. The script itself is not saved: loading a game reads the campaign's JSON again, so a campaign can be corrected between sessions.
+A saved game keeps which beats are done, cancelled and awake, when each woke, the campaign's flags and variables, the dice, what is waiting on an `after(...)` and the letters still on the road. The script itself is not saved: loading a game reads the campaign's JSON again, so a campaign can be corrected between sessions (with care: see [loading a saved game](State-Flags-and-Variables#loading-a-saved-game)). A new game starts by treating every beat dated before its first day as [history](State-Flags-and-Variables#history-before-the-start).
