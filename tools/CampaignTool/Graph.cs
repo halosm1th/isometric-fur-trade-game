@@ -30,11 +30,11 @@ public static class Graph
 		{
 			string id = Tree.S(b["id"]);
 			foreach (var r in Tree.AsList(b.GetValueOrDefault("requires"))) { edges.Add((Tree.S(r), id, "requires")); Add(reads, Tree.S(r), id); }
-			foreach (var key in new[] { "when", "done_when" })
+			foreach (var key in new[] { "when", "activate_when", "done_when", "cancel_when" })
 				foreach (var c in Tree.AsList(b.GetValueOrDefault(key)))
 					foreach (var atom in Checker.Atoms(c))
 						if (atom.Kind == 'p' && (atom.Name == "flag" || atom.Name == "beat") && atom.Args.Count > 0) Add(reads, atom.Args[0], id);
-			Walk(b.GetValueOrDefault("pressure"), id); Walk(b.GetValueOrDefault("happens"), id);
+			foreach (var key in new[] { "on_awaken", "pressure", "happens", "on_resolve", "on_cancel" }) Walk(b.GetValueOrDefault(key), id);
 		}
 		foreach (var (flag, setters) in sets)
 			foreach (var s in setters)

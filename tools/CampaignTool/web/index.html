@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campaign Editor</title>
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+<header>
+  <div class="brand">Campaign Editor</div>
+  <div id="fileName" class="file-name">no file</div>
+  <span id="dirty" class="dirty" hidden>unsaved</span>
+  <div class="spacer"></div>
+  <span id="status" class="status">ready</span>
+  <button id="btnNew" title="Start a new campaign">New</button>
+  <button id="btnSave" title="Save (Ctrl+S)">Save</button>
+  <button id="btnInstall" class="primary" title="Compile into Campaigns/ where the game finds it">Install in game</button>
+</header>
+<main>
+  <aside id="files" aria-label="Files"></aside>
+  <section class="editor-pane">
+    <div id="banner" class="banner" hidden></div>
+    <div class="editor" id="editor">
+      <div id="gutter" class="gutter" aria-hidden="true"></div>
+      <div class="code">
+        <pre id="highlight" aria-hidden="true"></pre>
+        <textarea id="input" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Campaign script"></textarea>
+        <div id="hover" class="hover" hidden></div>
+        <ul id="complete" class="complete" hidden></ul>
+      </div>
+    </div>
+  </section>
+  <section class="side" aria-label="Results">
+    <nav class="tabs" role="tablist">
+      <button data-tab="problems" class="active" role="tab">Problems <span id="problemCount" class="count"></span></button>
+      <button data-tab="json" role="tab">JSON</button>
+      <button data-tab="sim" role="tab">Simulate</button>
+      <button data-tab="graph" role="tab">Graph</button>
+      <button data-tab="ref" role="tab">Reference</button>
+    </nav>
+    <div id="tab-problems" class="tabbody"></div>
+    <div id="tab-json" class="tabbody" hidden></div>
+    <div id="tab-sim" class="tabbody" hidden></div>
+    <div id="tab-graph" class="tabbody" hidden></div>
+    <div id="tab-ref" class="tabbody" hidden></div>
+  </section>
+</main>
+<script src="editor.js"></script>
+</body>
+</html>

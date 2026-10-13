@@ -1,0 +1,69 @@
+{
+  "about": "What the world might do across the Company Years, for the simulator: tension climbing to Seven Oaks and falling after the union, the York boats late in some summers, a boat lost now and then, Edmonton House running short in 1818, a bad run of years in the mid 1820s.",
+  "start": "1811-08-20",
+  "end": "1830-12-31",
+  "adherence": "Steady",
+  "player_faction": "HBC",
+  "tension": {
+    "1811-01-01": 15,
+    "1813-01-01": 25,
+    "1814-01-01": 40,
+    "1815-06-01": 55,
+    "1816-06-01": 80,
+    "1818-01-01": 65,
+    "1820-01-01": 75,
+    "1821-04-01": 10,
+    "1824-01-01": 30,
+    "1825-06-01": 60,
+    "1827-01-01": 20
+  },
+  "stocks": {
+    "Edmonton House|TradeGoods": 6
+  },
+  "random_events": [
+    {
+      "flag": "late:the York boats",
+      "per_year": 0.5,
+      "months": "7-9",
+      "clear_after_days": 25
+    },
+    {
+      "flag": "lost:the York boats",
+      "per_year": 0.12,
+      "months": "6-9",
+      "clear_after_days": 60
+    },
+    {
+      "flag": "wintering:the Athabasca brigade",
+      "per_year": 0.2,
+      "months": "9-10",
+      "clear_after_days": 120
+    }
+  ],
+  "events": [
+    {
+      "on": "1814-01-08",
+      "flag": "pemmican_proclamation"
+    },
+    {
+      "on": "1815-06-25",
+      "flag": "colony_dispersed"
+    },
+    {
+      "on": "1816-06-19",
+      "flag": "seven_oaks"
+    },
+    {
+      "on": "1816-06-19",
+      "flag": "governor_killed"
+    },
+    {
+      "on": "1819-06-20",
+      "flag": "grand_rapids"
+    },
+    {
+      "on": "1821-03-26",
+      "flag": "merger"
+    }
+  ]
+}

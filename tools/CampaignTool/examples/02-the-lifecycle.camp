@@ -1,0 +1,64 @@
+// The life of a beat: every hook once.
+//
+//   AwakenWhen     the beat wakes the first time this holds
+//   OnAwaken       what happens at that moment
+//   OnApproach     pressure on the world as the beat's day draws near
+//   ActivateWhen   a last condition the beat waits for, once it is due
+//   OnActivate     what the beat does when it happens
+//   ResolveWhen    the world got there by itself: the beat is over
+//   OnResolve      what happens when it is
+//   CancelWhen     the beat can no longer happen
+//   OnCancel       what happens when it is
+//
+// Every one is optional. A hook whose name ends in When is a condition (write
+// it with =>); the rest are blocks of effects.
+
+campaign TheLifecycle(
+    title: "The life of a beat",
+    description: "The nine hooks, in one beat."
+);
+
+const int hot = 50;
+
+beat Embargo(
+    title: "The Company embargoes the Red River pemmican",
+    date: date(1814, 1, 8),
+    window: days(60),     // how long the world has to do it itself before it is forced
+    lead: days(120)       // how long before the date the pressure begins
+) {
+    AwakenWhen() => flags.has("colony_founded");
+    OnAwaken() {
+        say("A rumour has come up the river that the colony means to hold its pemmican.", Company.HBC);
+    }
+
+    OnApproach() {
+        world.raiseTension(10, "the embargo is expected");
+    }
+
+    ActivateWhen() => world.tension >= hot;
+    OnActivate() {
+        flags.set("embargo");
+        world.raiseTension(20, "the embargo");
+    }
+
+    ResolveWhen() => flags.has("embargo");
+    OnResolve() {
+        say("The embargo came without anyone's order.", Company.NWC);
+    }
+
+    CancelWhen() => flags.has("colony_abandoned");
+    OnCancel() {
+        say("There is no colony left to embargo anything.");
+    }
+}
+
+// Nobody reads colony_founded or colony_abandoned in this file, so the checker
+// would warn that nothing sets them. These two beats set them.
+beat Colony(date: date(1812, 8, 30)) {
+    OnActivate() { flags.set("colony_founded"); }
+}
+
+beat Abandoned(date: date(1813, 6, 1), kind: Kind.Conditional) [Colony] {
+    AwakenWhen() => world.tension >= 99;
+    OnActivate() { flags.set("colony_abandoned"); }
+}

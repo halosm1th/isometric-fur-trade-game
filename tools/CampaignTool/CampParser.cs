@@ -415,7 +415,19 @@ public sealed class CampParser
 				{
 					Next(); Next(); Next();
 					var lam = new LambdaExpr { At = t.At };
-					if (At("{")) lam.Block = ParseBlock(); else lam.Body = ParseExpr();
+					if (At("{")) lam.Block = ParseBlock();
+					else
+					{
+						var body = ParseExpr();
+						// () => mood++  and  () => mood += 2  are one-statement blocks
+						if (Cur.Kind == T.Symbol && Cur.Text is "=" or "+=" or "-=" or "++" or "--")
+						{
+							var a = new AssignStmt { At = body.At, Target = body, Op = Next().Text };
+							if (a.Op.Length == 1 || a.Op[1] == '=') a.Value = ParseExpr();
+							lam.Block = new BlockStmt { At = body.At, Body = { a } };
+						}
+						else lam.Body = body;
+					}
 					return lam;
 				}
 				{

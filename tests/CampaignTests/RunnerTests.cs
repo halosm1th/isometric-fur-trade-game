@@ -73,6 +73,19 @@ public class RunnerTests
 	}
 
 	[Fact]
+	public void ActivateWhenAlsoGatesAnEventThatIsForced()
+	{
+		var doc = Doc(B("a", "event", "1815-01-01", ("window_days", 30.0), ("activate_when", L("tension>=50")), ("happens", L(Say("happened")))));
+		var (r, h) = Make(doc, D("1814-06-01"), Adherence.Strict);
+		Days(r, h, D("1814-06-01"), D("1815-06-01"));
+		Assert.Empty(h.Said);                       // its grace has long run out, but the gate is shut
+		h.Tension = 70;
+		Days(r, h, D("1815-06-02"), D("1815-06-03"));
+		Assert.Equal(new[] { "happened" }, h.Said);
+		Assert.Equal("forced", r.Fired.Single().How);
+	}
+
+	[Fact]
 	public void ResolveWhenSkipsTheBeatAndRunsOnResolve()
 	{
 		var doc = Doc(B("a", "event", "1815-01-01", ("done_when", L("tension>=90")), ("on_resolve", L(Say("resolved"))), ("happens", L(Say("happened")))));

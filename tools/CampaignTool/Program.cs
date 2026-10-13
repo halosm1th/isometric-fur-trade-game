@@ -11,7 +11,7 @@ public static class Program
 {
 	private const string Usage = @"Campaign scripts: write them as a program, check them, draw them, play them forward.
 
-  CampaignTool compile   story.camp [-o story.json]   the program -> the JSON the game reads (checks it first)
+  CampaignTool compile   story.camp [-o story.json]   the script -> the JSON the game reads (checks it first)
   CampaignTool decompile story.json [-o story.camp]   the other way, to move an old script across
   CampaignTool check     story.camp|story.json        errors and warnings (-v for notes, --strict to fail on warnings)
   CampaignTool graph     story.camp|story.json        the beats and what leads to what (mermaid; --dot for graphviz)
@@ -19,6 +19,8 @@ public static class Program
                                                       --adherence Gentle|Steady|Firm|Strict --start D --end D --log --state
   CampaignTool install   story.camp                   compile into Campaigns/ where the game finds it
   CampaignTool build                                  compile every tools/CampaignTool/src/*.camp into Campaigns/
+  CampaignTool serve     [--port 8765]                the web editor, at http://localhost:8765/
+  CampaignTool docs      [-o file]                    write the wiki's library reference (docs/wiki/Library-Reference.md)
 
 Run as: dotnet run --project tools/CampaignTool -- check story.camp";
 
@@ -33,7 +35,7 @@ Run as: dotnet run --project tools/CampaignTool -- check story.camp";
 	{
 		public List<string> Files = new();
 		public string Output, Scenario, Start, End, Adherence;
-		public int Runs = 1;
+		public int Runs = 1, Port = 8765;
 		public uint? Seed;
 		public bool Force, Strict, Verbose, Dot, Log, State, Json;
 	}
@@ -50,6 +52,7 @@ Run as: dotnet run --project tools/CampaignTool -- check story.camp";
 				case "--start": o.Start = a[++i]; break;
 				case "--end": o.End = a[++i]; break;
 				case "--adherence": o.Adherence = a[++i]; if (!Sim.Levels.ContainsKey(o.Adherence)) throw new CampError($"adherence is one of {string.Join(", ", Sim.Levels.Keys)}"); break;
+				case "--port": o.Port = int.Parse(a[++i]); break;
 				case "--runs": o.Runs = int.Parse(a[++i]); break;
 				case "--seed": o.Seed = uint.Parse(a[++i]); break;
 				case "--force": o.Force = true; break;
@@ -146,6 +149,16 @@ Run as: dotnet run --project tools/CampaignTool -- check story.camp";
 						Console.WriteLine($"built Campaigns/{name}.json from src/{Path.GetFileName(path)}");
 					}
 					return bad > 0 ? 1 : 0;
+				}
+			case "serve":
+				return new WebServer(o.Port).Run();
+			case "docs":
+				{
+					string outp = o.Output ?? Path.Combine(Known.Root, "docs/wiki/Library-Reference.md");
+					Directory.CreateDirectory(Path.GetDirectoryName(outp));
+					File.WriteAllText(outp, LangDocs.ReferenceMarkdown());
+					Console.WriteLine($"wrote {outp}");
+					return 0;
 				}
 			case "graph":
 				Console.Write(Graph.Render(Load(File1(o)), o.Dot));

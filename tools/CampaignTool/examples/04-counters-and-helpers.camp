@@ -1,0 +1,73 @@
+// Counters, helper functions, loops, dice and delays.
+//
+// A script can count (int, float), and name things it uses often (const), and
+// give a name to a few lines it writes over and over (a function). Loops and
+// constants are worked out when the script is compiled, so they cost the game
+// nothing: a loop is a way of writing a beat for each year, not something the
+// game runs.
+
+campaign CountersAndHelpers(
+    title: "Counters, helpers and loops",
+    description: "Everything that makes a long script short."
+);
+
+int incidents;                    // a counter the game keeps; it starts at 0
+int grudge = 2;                   // ... or somewhere else
+
+const int bad = 3;                // a name for a number
+const string london = "the Governor and Committee, London";
+
+// A function with a body is inlined wherever it is called. void means it does
+// something; a type means it works out a value (written with =>).
+void letter(string subject, string text) {
+    news(from: london, to: Person.Factor, subject: subject, text: text, days: 40);
+}
+
+bool tense() => world.tension >= 50;
+
+// A loop writes a beat for each year.
+foreach (int year in 1816..1819) {
+    beat Ship(
+        id: "ship-" + year,
+        title: "The ship comes in, " + year,
+        date: date(year, 8, 20)
+    ) {
+        OnActivate() {
+            letter("the " + year + " letter", "Returns are expected to answer in " + (year + 1) + ".");
+        }
+    }
+}
+
+beat Ambush(title: "An ambush on the road", repeat: days(60)) {
+    AwakenWhen() => tense() && chance(30);
+    OnActivate() {
+        incidents++;                         // also: incidents += 2; incidents = 0;
+
+        // a die: the weights are 35, 25 and 40 out of 100
+        random(
+            option(35, () => brigade("the Saskatchewan canoes").turnBack()),
+            option(25, () => brigade("the York boats").delay(6)),
+            option(40, () => say("Shots were heard, but nothing came of it."))
+        );
+
+        if (incidents >= bad) {
+            // something that happens a fortnight later
+            after(days(14), () => {
+                shout("Three ambushes in a season: the partners demand soldiers.", Company.NWC);
+                world.raiseTension(5, "the partners demand soldiers");
+            });
+        }
+    }
+}
+
+// A compile-time condition picks one branch when the script is compiled.
+const bool quiet = false;
+beat Fort(date: date(1818, 6, 1)) {
+    OnActivate() {
+        if (quiet) {
+            say("A quiet summer.");
+        } else {
+            say("A loud summer.");
+        }
+    }
+}

@@ -222,10 +222,10 @@ public sealed class CampaignRunner
 					if (Level == Adherence.Gentle || Pressured.Contains(b.Id)) Finish(b, "as pressure", false, host);
 					break;
 				default:
-					// An event the world may still produce itself; once its grace has run out it is made to happen.
+					// An event the world may still produce itself; once its grace has run out it is made to happen (when ActivateWhen allows).
 					int grace = Math.Max(b.Window, 1);
 					bool force = Level == Adherence.Strict && today >= due + grace || Level == Adherence.Firm && today >= due + 2 * grace;
-					if (force) { CampaignLogic.Run(b.Happens, State, host); Finish(b, "forced", true, host); }
+					if (force && CampaignLogic.All(b.ActivateWhen, State, host)) { CampaignLogic.Run(b.Happens, State, host); Finish(b, "forced", true, host); }
 					break;
 			}
 		}
