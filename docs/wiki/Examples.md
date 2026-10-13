@@ -34,9 +34,29 @@ Learn: `int x;`, `x++`, `const`, `void f(...) {}`, `bool f() => ...`, `foreach (
 
 `src/historical.camp` (installed as `Campaigns/historical.json`). The 1811-1821 arc as the game plays it: thirteen dated beats (the blockade, Selkirk's grant, the war, the Proclamation, Seven Oaks, the union) followed by nine beats that act on the brigades. About 450 lines.
 
+## Blood on the Bay (action from the first hour)
+
+`src/blood-on-the-bay.camp`. Thirty-three beats, and the first lands the moment you step off the ship at York Factory (20 August 1811): a squall swamps the outfit, thieves are at the landing two days later, the Nor'Westers are at the gate by the 28th, the first brigade is ambushed on the Hayes within a fortnight, then a fire, a raid on the stores, hunger and a siege. A test holds it to *no lull longer than a week* before winter.
+
+It is also a campaign you can end: `player.did("truce")` turns the siege into a standoff, and riding a brigade in (`"escort"`) breaks the blockade of the river and brings relief. Two simulator worlds show the roads: `blood-on-the-bay.scenario.json` (nobody keeps the peace) and `blood-on-the-bay-peace.scenario.json`.
+
+Learn: how to make a campaign dense (a `foreach` of weekly troubles, dateless beats woken by what the world did, `kind: Kind.Fixed` on a dated beat that has `OnApproach` pressure but must happen anyway), and branching with `CancelWhen`.
+
+## The Long Peace (a branching campaign)
+
+`src/the-long-peace.camp`. Thirty beats, 1811-1821. The same grant, the same settlers and the same blockade as the historical script, but the war is only a possibility. If the player brokers a truce (`player.did("truce")`) or the tension is low, the Pemmican Proclamation becomes a *bargain*, the colony is not dispersed and Seven Oaks is *averted*; if not, the historical beats are waiting on the tension and happen as before. Two simulator worlds show both roads: `the-long-peace.scenario.json` (a truce) and `the-long-peace-at-war.scenario.json` (none).
+
+Learn: `player.did`, `CancelWhen` as a branch, `rumour:`, a `foreach` that writes the seasons (freshet and low water, rolled with `chance` and `random`).
+
+## The Rivers Run (a brigades campaign)
+
+`src/the-rivers-run.camp`. Eighteen beats about the York boats, the Saskatchewan brigade, the Montreal canoes and the Athabasca brigade: late, lost, robbed and wintering, an early ice each autumn, and a counter (`troubles`) that makes the Committee ask questions. Riding a brigade in or carrying a packet (`player.did("escort")`, `"courier"`) is noticed by the boatmen.
+
+Learn: brigade conditions (`isLate`, `daysLate`, `isRobbed`, `isWintering`) and effects (`delay`, `turnBack`), the full lifecycle on a repeating beat, and counters.
+
 ## The Company Years (the long one)
 
-`src/company-years.camp` (installed as `Campaigns/company-years.json`). Fifty-six beats over twenty years, 1811-1830, in five acts:
+`src/company-years.camp` (installed as `Campaigns/company-years.json`). Fifty-nine beats over twenty years, 1811-1830, in five acts:
 
 | Act | Years | What happens |
 |---|---|---|

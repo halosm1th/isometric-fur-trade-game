@@ -47,6 +47,15 @@ public sealed class CampaignState
 	public readonly List<CampaignTimer> Timers = new();
 	public readonly List<string> Forced = new();   // beats an action asked to happen now
 	public uint Seed = 20240611;
+
+	// Something a player did that the story should know of: "truce", "escort",
+	// "raid". It raises the flag deed:<kind> and counts in the variable of the
+	// same name, so a script can ask whether (flags.has) or how often (var).
+	public void Deed(string kind)
+	{
+		Flags.Add("deed:" + kind);
+		Vars["deed:" + kind] = Vars.GetValueOrDefault("deed:" + kind) + 1;
+	}
 }
 
 public static class CampaignLogic
@@ -87,7 +96,7 @@ public static class CampaignLogic
 		["convoy_turned_back"] = "turned:", ["convoy_out"] = "out:", ["convoy_in"] = "in:",
 	};
 
-	private static readonly HashSet<string> FlagPrefixes = new() { "heard", "late", "lost", "robbed", "turned", "out", "in" };
+	private static readonly HashSet<string> FlagPrefixes = new() { "heard", "late", "lost", "robbed", "turned", "out", "in", "deed" };
 
 	public static bool AllIn(string[] xs, Func<string, bool> f) { foreach (var x in xs) if (!f(x)) return false; return true; }
 

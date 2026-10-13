@@ -1241,6 +1241,7 @@ public class Conversation
         var sent = Economy.Rivalry.OrderRaid(leader, from, target, 3);
         if (sent.Count == 0) return "\"I have no men to spare for it today.\"";
         _player.AssignTask(TaskKind.Raid, 4);
+        Core.Campaign.Deed("raid");
         leader.ChangeRapport(_player, 4f);
         return $"\"Very well. {string.Join(", ", sent.ConvertAll(n => n.DisplayName))} go with you - muskets, and no shooting unless they shoot first. Bring back what you can carry.\"";
     }
@@ -1257,6 +1258,7 @@ public class Conversation
             return "\"A truce? After what your people have done? Go back and tell your master we remember.\"";
         }
         Economy.Rivalry.Raise(-35f, "a truce agreed");
+        Core.Campaign.Deed("truce");
         leader.ChangeRapport(_player, 10f);
         Chronicle.Event($"{_player.DisplayName} and {leader.DisplayName} agreed a truce between the companies.", leader.GlobalPosition, _player, weight: 1.5f);
         return $"\"Neither of us profits from this. Tell your master the {(leader.Faction == Faction.NWC ? "North West Company" : "Company")} will keep to its own side of the river if he keeps to his.\" The rivalry stands at {Economy.Rivalry.Describe()} now ({t:0} to {Economy.Rivalry.Tension:0}).";

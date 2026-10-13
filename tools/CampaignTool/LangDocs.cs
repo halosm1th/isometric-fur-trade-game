@@ -45,6 +45,7 @@ public static class LangDocs
 		new("lead", "Days", "How long before its date the beat's pressure (OnApproach) begins. Default 30."),
 		new("delay", "Days", "For a beat with no date: days after waking before it is due."),
 		new("repeat", "Days", "The beat comes round again this many days after it happened, and can happen again."),
+		new("rumour", "string", "What the player is told while the beat is stirring or its day draws near: one line for the journal's \"What is stirring\" list, written as something a person at the post could have heard. The beat's own title is never shown there, so a rumour is the only thing that says anything before the beat happens."),
 		new("keywords", "string[]", "Words the news director looks for when it chooses what to tell the player. Free text."),
 	};
 
@@ -69,7 +70,7 @@ public static class LangDocs
 			("beatArgs", BeatArgs.Select(a => (object)Tree.Dict(("name", a.Name), ("type", a.Type), ("summary", a.Summary))).ToList()),
 			("headerArgs", HeaderArgs.Select(a => (object)Tree.Dict(("name", a.Name), ("type", a.Type), ("summary", a.Summary))).ToList()),
 			("keywords", Keywords.Cast<object>().ToList()), ("types", Types.Cast<object>().ToList()),
-			("objects", Tree.List("world", "flags")));
+			("objects", Tree.List("world", "flags", "player")));
 	}
 
 	// The wiki's Library-Reference page, written from the table.
@@ -104,6 +105,7 @@ public static class LangDocs
 		Section("Functions", "Called by name, anywhere.", Library.Of("").Where(m => m.Kind == "function"));
 		Section("world", "The state of the world: asked in conditions, changed in effects.", Library.Of("world"));
 		Section("flags", "Named switches the campaign raises and lowers.", Library.Of("flags"));
+		Section("player", "What the player has done, as the campaign has been told of it: the game records a *deed* when the player brokers a truce (`truce`), leads or joins a raid (`raid`), rides a brigade to its landing (`escort`) or carries a packet through (`courier`).", Library.Of("player"));
 		Section("A beat", "A beat's own name is a value: `SevenOaks.done`. Beats are written in `[...]` after the header to be required, and passed to `trigger(...)`.", Library.Of("Beat"));
 		Section("A brigade", "`brigade(\"name\")` is one of the runs in `Data/World/brigade_runs.json`.", Library.Of("Brigade"));
 

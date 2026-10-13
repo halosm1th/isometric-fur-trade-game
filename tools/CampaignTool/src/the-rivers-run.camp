@@ -1,0 +1,195 @@
+// The Rivers Run, 1811-1821.
+//
+// A campaign about the brigades: the York boats, the Saskatchewan brigade, the
+// Montreal canoes, the Athabasca brigade. Each year has the same seasons; what
+// changes is what the world does to them. The players' own deeds (riding a
+// brigade in, carrying a packet) are how they get a say.
+//
+// Every beat here reads or acts on brigade("...") - isLate, isLost, daysLate,
+// delay(), turnBack(), launch() - and the lifecycle hooks do the work:
+//
+//   AwakenWhen  - the condition under which the brigade's trouble begins
+//   OnAwaken    - the first sign of it (always a rumour on the wharf)
+//   ActivateWhen- how bad it must get before the world takes notice
+//   ResolveWhen - the brigade got in by itself: the beat is over
+//   CancelWhen  - the season has ended
+
+campaign TheRiversRun(
+    title: "The Rivers Run, 1811-1821",
+    description: "A campaign about the brigades on the rivers: high water, low " +
+                 "water, early freezes, boats lost and boats late - and what " +
+                 "the Factor does about it.",
+    seed: 1812,
+    postsByFoundingYear: true
+);
+
+int troubles;
+const string yorkBoats = "the York boats";
+const string saskBrigade = "the Saskatchewan brigade";
+const string montreal = "the Montreal canoes";
+const string athabasca = "the Athabasca brigade";
+
+bool summer() => world.inMonths(6, 9);
+bool autumn() => world.inMonths(9, 11);
+
+// ---------------------------------------------------------------- the York boats
+
+beat YorkBoatsLate(
+    id: "york-boats-late",
+    title: "The York boats are late",
+    repeat: days(280),
+    rumour: "The York boats are not yet in, and the Factor walks the wharf."
+) {
+    AwakenWhen() => brigade(yorkBoats).isLate && summer();
+    OnAwaken() { say("The York boats are overdue.", Company.HBC); }
+    ActivateWhen() => brigade(yorkBoats).daysLate >= 10;
+    OnActivate() {
+        troubles++;
+        world.setLondon(1, 0.95);
+        shout("The York boats are still not in, and the ship will go home light.", Company.HBC);
+    }
+    ResolveWhen() => brigade(yorkBoats).isIn;
+    OnResolve() { say("The York boats are in at last.", Company.HBC); }
+}
+
+beat YorkBoatsLost(
+    id: "york-boats-lost",
+    title: "A boat lost on the Hayes",
+    repeat: days(300)
+) {
+    AwakenWhen() => brigade(yorkBoats).isLost;
+    OnActivate() {
+        troubles++;
+        world.setLondon(0.97, 0.92);
+        news(from: "Norway House", to: Person.Factor, subject: "a boat lost on the Hayes",
+             text: "A boat has gone down at the rapids with its pieces, and men with it. The Committee will want to know why.",
+             days: 20, company: Company.HBC);
+    }
+}
+
+// ---------------------------------------------------------------- the Saskatchewan
+
+beat SaskatchewanRobbed(
+    id: "saskatchewan-robbed",
+    title: "The Saskatchewan brigade is robbed",
+    repeat: days(365),
+    rumour: "A party of strangers has been seen on the Saskatchewan, and not for trade."
+) {
+    AwakenWhen() => brigade(saskBrigade).isRobbed;
+    OnActivate() {
+        troubles++;
+        world.raiseTension(4, "the Saskatchewan brigade robbed");
+        shout("The Saskatchewan brigade has been stripped on the road. Somebody means the Company harm.", Company.HBC);
+    }
+}
+
+// ---------------------------------------------------------------- the canoes
+
+beat MontrealCanoesStopped(
+    id: "montreal-canoes-stopped",
+    title: "The Montreal canoes are stopped at the carrying places",
+    repeat: days(120)
+) {
+    AwakenWhen() => summer() && world.date < date(1815, 1, 1);
+    OnActivate() {
+        brigade(montreal).delay(3);
+        if (chance(30)) {
+            brigade(montreal).turnBack();
+            say("The war on the lakes has turned the Montreal canoes back.", Company.NWC);
+        }
+    }
+}
+
+beat AthabascaWinters(
+    id: "athabasca-winters",
+    title: "The Athabasca brigade winters on the road",
+    repeat: days(365),
+    rumour: "The Athabasca men are racing the freeze, and it is not certain they will make Chipewyan."
+) {
+    AwakenWhen() => brigade(athabasca).isWintering;
+    OnActivate() {
+        troubles++;
+        world.addStock("Fort Chipewyan", Item.Pemmican, -20);
+        shout("The Athabasca brigade could not make the portage before the freeze. The men winter where they stand.", Company.NWC);
+    }
+}
+
+// ---------------------------------------------------------------- the years
+
+// Every year the freshet, low water and the first ice: dice decide how hard.
+foreach (int year in 1812..1820) {
+    beat Ice(
+        id: "early-ice-" + year,
+        title: "The first ice, " + year,
+        date: date(year, 10, 20),
+        rumour: "The ponds are skinning over early, and the late brigades will be racing the freeze."
+    ) {
+        OnActivate() {
+            if (chance(30)) {
+                brigade(athabasca).delay(8);
+                brigade(saskBrigade).delay(5);
+                say("The ice came early this year and the late brigades are fighting it.", Company.All);
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------- what the world makes of it
+
+// After enough trouble the Committee asks questions.
+beat TheCommitteeAsks(
+    id: "the-committee-asks",
+    title: "The Committee asks about the brigades",
+    repeat: days(540),
+    rumour: "A letter from the Committee is on its way about the state of the river transport."
+) {
+    AwakenWhen() => troubles >= 4;
+    OnActivate() {
+        troubles = 0;
+        news(from: "the Governor and Committee, London", to: Person.Factor, subject: "the brigades",
+             text: "The Committee has counted the boats lost and late and does not like the sum. A careful man would find out why.",
+             days: 60);
+        world.raiseTension(2, "the Committee is displeased");
+    }
+}
+
+// The player's own part: riding a brigade in is noticed.
+beat TheBoatmenTalk(
+    id: "the-boatmen-talk",
+    title: "The boatmen talk of the man who rode with them",
+    repeat: days(365),
+    rumour: "The boatmen say the Factor's man is not afraid of the rapids."
+) {
+    AwakenWhen() => player.did("escort") && summer();
+    OnActivate() {
+        world.raiseTension(-2, "the brigades are steadier");
+        say("The boatmen speak of the man who rode in with them: where he goes, the boats keep their dates.", Company.HBC);
+    }
+}
+
+beat TheCourierIsKnown(
+    id: "the-courier-is-known",
+    title: "A man who can be trusted with a packet",
+    repeat: days(365),
+    rumour: "It is said you are the one to trust with a packet over the portage."
+) {
+    AwakenWhen() => player.did("courier");
+    OnActivate() {
+        world.raiseTension(-1, "the packets come through");
+        say("A packet has been carried through the portages and come out dry: the clerks speak well of the man who did it.", Company.HBC);
+    }
+}
+
+beat TheMerger(
+    id: "the-merger",
+    title: "The companies are made one; the canoes are stood down",
+    date: date(1821, 3, 26),
+    rumour: "The two companies are said to be joining, and the canoes will not run again."
+) {
+    OnActivate() {
+        flags.set("merger");
+        brigade(montreal).cancel();
+        brigade(athabasca).cancel();
+        shout("The two companies are one. The canoes are stood down, and the brigades will run under a single flag.", Company.NWC);
+    }
+}

@@ -1,0 +1,566 @@
+{
+  "title": "The Rivers Run, 1811-1821",
+  "description": "A campaign about the brigades on the rivers: high water, low water, early freezes, boats lost and boats late - and what the Factor does about it.",
+  "seed": 1812,
+  "posts_by_founding_year": true,
+  "beats": [
+    {
+      "id": "york-boats-late",
+      "title": "The York boats are late",
+      "kind": "conditional",
+      "repeat_days": 280,
+      "rumour": "The York boats are not yet in, and the Factor walks the wharf.",
+      "when": [
+        "convoy_late:the York boats",
+        "month:6-9"
+      ],
+      "on_awaken": [
+        {
+          "do": "say",
+          "text": "The York boats are overdue.",
+          "to": "HBC"
+        }
+      ],
+      "activate_when": [
+        "convoy_days_late(the York boats) >= 10"
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "troubles"
+        },
+        {
+          "do": "london",
+          "price": 1,
+          "quota": 0.95
+        },
+        {
+          "do": "say",
+          "text": "The York boats are still not in, and the ship will go home light.",
+          "to": "HBC",
+          "headline": true
+        }
+      ],
+      "done_when": [
+        "convoy_in:the York boats"
+      ],
+      "on_resolve": [
+        {
+          "do": "say",
+          "text": "The York boats are in at last.",
+          "to": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "york-boats-lost",
+      "title": "A boat lost on the Hayes",
+      "kind": "conditional",
+      "repeat_days": 300,
+      "when": [
+        "convoy_lost:the York boats"
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "troubles"
+        },
+        {
+          "do": "london",
+          "price": 0.97,
+          "quota": 0.92
+        },
+        {
+          "do": "news",
+          "from": "Norway House",
+          "to": "the Factor at York Factory",
+          "subject": "a boat lost on the Hayes",
+          "text": "A boat has gone down at the rapids with its pieces, and men with it. The Committee will want to know why.",
+          "days": 20,
+          "company": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "saskatchewan-robbed",
+      "title": "The Saskatchewan brigade is robbed",
+      "kind": "conditional",
+      "repeat_days": 365,
+      "rumour": "A party of strangers has been seen on the Saskatchewan, and not for trade.",
+      "when": [
+        "convoy_robbed:the Saskatchewan brigade"
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "troubles"
+        },
+        {
+          "do": "tension",
+          "add": 4,
+          "why": "the Saskatchewan brigade robbed"
+        },
+        {
+          "do": "say",
+          "text": "The Saskatchewan brigade has been stripped on the road. Somebody means the Company harm.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "montreal-canoes-stopped",
+      "title": "The Montreal canoes are stopped at the carrying places",
+      "kind": "conditional",
+      "repeat_days": 120,
+      "when": [
+        "month:6-9",
+        "before:1815-01-01"
+      ],
+      "happens": [
+        {
+          "do": "brigade",
+          "run": "the Montreal canoes",
+          "effect": "delay",
+          "days": 3
+        },
+        {
+          "do": "if",
+          "cond": "chance:30",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Montreal canoes",
+              "effect": "turn_back"
+            },
+            {
+              "do": "say",
+              "text": "The war on the lakes has turned the Montreal canoes back.",
+              "to": "NWC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "athabasca-winters",
+      "title": "The Athabasca brigade winters on the road",
+      "kind": "conditional",
+      "repeat_days": 365,
+      "rumour": "The Athabasca men are racing the freeze, and it is not certain they will make Chipewyan.",
+      "when": [
+        "convoy_wintering:the Athabasca brigade"
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "troubles"
+        },
+        {
+          "do": "stock",
+          "post": "Fort Chipewyan",
+          "item": "Pemmican",
+          "add": -20
+        },
+        {
+          "do": "say",
+          "text": "The Athabasca brigade could not make the portage before the freeze. The men winter where they stand.",
+          "to": "NWC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "early-ice-1812",
+      "title": "The first ice, 1812",
+      "kind": "fixed",
+      "date": "1812-10-20",
+      "rumour": "The ponds are skinning over early, and the late brigades will be racing the freeze.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:30",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Athabasca brigade",
+              "effect": "delay",
+              "days": 8
+            },
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 5
+            },
+            {
+              "do": "say",
+              "text": "The ice came early this year and the late brigades are fighting it.",
+              "to": "all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "early-ice-1813",
+      "title": "The first ice, 1813",
+      "kind": "fixed",
+      "date": "1813-10-20",
+      "rumour": "The ponds are skinning over early, and the late brigades will be racing the freeze.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:30",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Athabasca brigade",
+              "effect": "delay",
+              "days": 8
+            },
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 5
+            },
+            {
+              "do": "say",
+              "text": "The ice came early this year and the late brigades are fighting it.",
+              "to": "all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "early-ice-1814",
+      "title": "The first ice, 1814",
+      "kind": "fixed",
+      "date": "1814-10-20",
+      "rumour": "The ponds are skinning over early, and the late brigades will be racing the freeze.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:30",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Athabasca brigade",
+              "effect": "delay",
+              "days": 8
+            },
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 5
+            },
+            {
+              "do": "say",
+              "text": "The ice came early this year and the late brigades are fighting it.",
+              "to": "all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "early-ice-1815",
+      "title": "The first ice, 1815",
+      "kind": "fixed",
+      "date": "1815-10-20",
+      "rumour": "The ponds are skinning over early, and the late brigades will be racing the freeze.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:30",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Athabasca brigade",
+              "effect": "delay",
+              "days": 8
+            },
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 5
+            },
+            {
+              "do": "say",
+              "text": "The ice came early this year and the late brigades are fighting it.",
+              "to": "all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "early-ice-1816",
+      "title": "The first ice, 1816",
+      "kind": "fixed",
+      "date": "1816-10-20",
+      "rumour": "The ponds are skinning over early, and the late brigades will be racing the freeze.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:30",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Athabasca brigade",
+              "effect": "delay",
+              "days": 8
+            },
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 5
+            },
+            {
+              "do": "say",
+              "text": "The ice came early this year and the late brigades are fighting it.",
+              "to": "all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "early-ice-1817",
+      "title": "The first ice, 1817",
+      "kind": "fixed",
+      "date": "1817-10-20",
+      "rumour": "The ponds are skinning over early, and the late brigades will be racing the freeze.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:30",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Athabasca brigade",
+              "effect": "delay",
+              "days": 8
+            },
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 5
+            },
+            {
+              "do": "say",
+              "text": "The ice came early this year and the late brigades are fighting it.",
+              "to": "all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "early-ice-1818",
+      "title": "The first ice, 1818",
+      "kind": "fixed",
+      "date": "1818-10-20",
+      "rumour": "The ponds are skinning over early, and the late brigades will be racing the freeze.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:30",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Athabasca brigade",
+              "effect": "delay",
+              "days": 8
+            },
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 5
+            },
+            {
+              "do": "say",
+              "text": "The ice came early this year and the late brigades are fighting it.",
+              "to": "all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "early-ice-1819",
+      "title": "The first ice, 1819",
+      "kind": "fixed",
+      "date": "1819-10-20",
+      "rumour": "The ponds are skinning over early, and the late brigades will be racing the freeze.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:30",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Athabasca brigade",
+              "effect": "delay",
+              "days": 8
+            },
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 5
+            },
+            {
+              "do": "say",
+              "text": "The ice came early this year and the late brigades are fighting it.",
+              "to": "all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "early-ice-1820",
+      "title": "The first ice, 1820",
+      "kind": "fixed",
+      "date": "1820-10-20",
+      "rumour": "The ponds are skinning over early, and the late brigades will be racing the freeze.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:30",
+          "then": [
+            {
+              "do": "brigade",
+              "run": "the Athabasca brigade",
+              "effect": "delay",
+              "days": 8
+            },
+            {
+              "do": "brigade",
+              "run": "the Saskatchewan brigade",
+              "effect": "delay",
+              "days": 5
+            },
+            {
+              "do": "say",
+              "text": "The ice came early this year and the late brigades are fighting it.",
+              "to": "all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "the-committee-asks",
+      "title": "The Committee asks about the brigades",
+      "kind": "conditional",
+      "repeat_days": 540,
+      "rumour": "A letter from the Committee is on its way about the state of the river transport.",
+      "when": [
+        "var(troubles) >= 4"
+      ],
+      "happens": [
+        {
+          "do": "set",
+          "var": "troubles",
+          "to": 0
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the brigades",
+          "text": "The Committee has counted the boats lost and late and does not like the sum. A careful man would find out why.",
+          "days": 60
+        },
+        {
+          "do": "tension",
+          "add": 2,
+          "why": "the Committee is displeased"
+        }
+      ]
+    },
+    {
+      "id": "the-boatmen-talk",
+      "title": "The boatmen talk of the man who rode with them",
+      "kind": "conditional",
+      "repeat_days": 365,
+      "rumour": "The boatmen say the Factor's man is not afraid of the rapids.",
+      "when": [
+        "flag:deed:escort",
+        "month:6-9"
+      ],
+      "happens": [
+        {
+          "do": "tension",
+          "add": -2,
+          "why": "the brigades are steadier"
+        },
+        {
+          "do": "say",
+          "text": "The boatmen speak of the man who rode in with them: where he goes, the boats keep their dates.",
+          "to": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "the-courier-is-known",
+      "title": "A man who can be trusted with a packet",
+      "kind": "conditional",
+      "repeat_days": 365,
+      "rumour": "It is said you are the one to trust with a packet over the portage.",
+      "when": [
+        "flag:deed:courier"
+      ],
+      "happens": [
+        {
+          "do": "tension",
+          "add": -1,
+          "why": "the packets come through"
+        },
+        {
+          "do": "say",
+          "text": "A packet has been carried through the portages and come out dry: the clerks speak well of the man who did it.",
+          "to": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "the-merger",
+      "title": "The companies are made one; the canoes are stood down",
+      "kind": "fixed",
+      "date": "1821-03-26",
+      "rumour": "The two companies are said to be joining, and the canoes will not run again.",
+      "happens": [
+        {
+          "do": "flag",
+          "name": "merger"
+        },
+        {
+          "do": "brigade",
+          "run": "the Montreal canoes",
+          "effect": "cancel"
+        },
+        {
+          "do": "brigade",
+          "run": "the Athabasca brigade",
+          "effect": "cancel"
+        },
+        {
+          "do": "say",
+          "text": "The two companies are one. The canoes are stood down, and the brigades will run under a single flag.",
+          "to": "NWC",
+          "headline": true
+        }
+      ]
+    }
+  ]
+}

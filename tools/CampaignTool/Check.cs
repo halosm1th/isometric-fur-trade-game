@@ -37,7 +37,7 @@ public sealed class Atom
 public static class Checker
 {
 	private static readonly string[] Kinds = BeatKinds.All;
-	private static readonly string[] BeatKeys = { "id", "title", "kind", "date", "window_days", "lead_days", "delay_days", "repeat_days", "requires", "keywords", "when", "on_awaken", "pressure", "activate_when", "happens", "done_when", "on_resolve", "cancel_when", "on_cancel" };
+	private static readonly string[] BeatKeys = { "id", "title", "kind", "date", "window_days", "lead_days", "delay_days", "repeat_days", "requires", "keywords", "rumour", "when", "on_awaken", "pressure", "activate_when", "happens", "done_when", "on_resolve", "cancel_when", "on_cancel" };
 	private static readonly HashSet<string> FlagWords = new() { "heard", "late", "lost", "robbed", "turned", "out", "in" };
 	private static readonly Regex CompareRe = new(@"^\s*([a-z_]+)\s*(?:\(([^)]*)\))?\s*(>=|<=|==|!=|>|<)\s*(-?\d+(?:\.\d+)?)\s*$");
 	private static readonly Regex CallRe = new(@"^\s*([a-z_]+)\s*\(([^)]*)\)\s*$");
@@ -140,6 +140,8 @@ public static class Checker
 		foreach (var (name, wheres) in facts.FlagsSet)
 			if (!facts.FlagsRead.ContainsKey(name) && !ids.ContainsKey(name)) rep.Info(wheres[0], $"sets flag '{name}', which nothing reads (fine if it is only for the log)");
 		foreach (var (name, wheres) in facts.VarsRead)
+			if (name.StartsWith("deed:")) continue;   // the game counts the player's deeds
+			else
 			if (!facts.VarsSet.ContainsKey(name)) rep.Warn(wheres[0], $"reads variable '{name}', which nothing sets (it will always be 0)");
 
 		Cycles(beats, ids, rep);

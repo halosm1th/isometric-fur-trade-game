@@ -145,6 +145,7 @@ public partial class JournalPanel : Control
         if (_player == null) { _journal.Text = ""; return; }
         var lines = _player.Journal;
         var sb = new System.Text.StringBuilder();
+        sb.Append(Core.Campaign.JournalText);
         FillAmbitions(sb);
         for (int i = lines.Count - 1; i >= 0; i--) sb.AppendLine(lines[i]);
         _journal.Text = sb.Length == 0 ? "Nothing yet worth the ink. Only what you see with your own eyes goes in here." : sb.ToString();

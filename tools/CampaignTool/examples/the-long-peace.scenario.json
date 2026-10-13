@@ -1,0 +1,23 @@
+{
+  "about": "A world where the player brokers a truce in 1813: the bargain, the averted Seven Oaks, the coalition.",
+  "start": "1811-08-20",
+  "end": "1821-12-31",
+  "adherence": "Steady",
+  "player_faction": "HBC",
+  "tension": {
+    "1811-01-01": 15,
+    "1813-01-01": 30,
+    "1815-01-01": 35,
+    "1820-01-01": 20
+  },
+  "events": [
+    {
+      "on": "1813-05-01",
+      "deed": "truce"
+    },
+    {
+      "on": "1821-03-26",
+      "flag": "merger"
+    }
+  ]
+}

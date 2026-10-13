@@ -15,7 +15,7 @@ dotnet run --project tools/CampaignTool -- <command> [file] [options]
 | `decompile Campaigns/x.json [-o x.camp]` | The other way: write an old JSON campaign as a script. The script compiles back to exactly that JSON. |
 | `graph story.camp` | The beats and what leads to what, as a mermaid flowchart (`--dot` for graphviz). |
 | `sim story.camp --scenario s.json` | Play the campaign forward; see [Simulation scenarios](Simulation-Scenarios). |
-| `serve [--port N]` | Start the [web editor](Web-Editor). |
+| `serve` (or `serve --port 8800`) | Start the [web editor](Web-Editor). |
 | `docs [-o file]` | Write the [Library reference](Library-Reference) from the library table. |
 
 Any command that takes a script also takes a `.json` campaign.

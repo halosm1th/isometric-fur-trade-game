@@ -307,6 +307,22 @@ public class BeatTests
 	}
 
 	[Fact]
+	public void ARumourIsKeptAndRoundTrips()
+	{
+		var b = Beat("", "date: date(1816, 6, 19), rumour: \"Men are gathering at the Forks.\"");
+		Assert.Equal("Men are gathering at the Forks.", b["rumour"]);
+		var doc = Doc(B("a", "event", "1816-06-19", ("rumour", "A rumour that is long enough to need breaking over two lines of the page, so it does.")));
+		Assert.True(Tree.Same(doc, Compile(Decompiler.Decompile(doc, "T"))));
+	}
+
+	[Fact]
+	public void PlayerDeedsAreAskedThroughTheFlagAndTheCounter()
+	{
+		Assert.Equal("flag:deed:truce", When("player.did(\"truce\")"));
+		Assert.Equal("var(deed:escort) >= 2", When("player.deeds(\"escort\") >= 2"));
+	}
+
+	[Fact]
 	public void AllNineHooksMapToTheirKeys()
 	{
 		var b = Beat(@"

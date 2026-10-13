@@ -18,6 +18,7 @@ Types: `int` is a whole number, `float` any number, `string` text, `bool` a cond
 | `lead` | `Days` | How long before its date the beat's pressure (OnApproach) begins. Default 30. |
 | `delay` | `Days` | For a beat with no date: days after waking before it is due. |
 | `repeat` | `Days` | The beat comes round again this many days after it happened, and can happen again. |
+| `rumour` | `string` | What the player is told while the beat is stirring or its day draws near: one line for the journal's "What is stirring" list, written as something a person at the post could have heard. The beat's own title is never shown there, so a rumour is the only thing that says anything before the beat happens. |
 | `keywords` | `string[]` | Words the news director looks for when it chooses what to tell the player. Free text. |
 
 ## Campaign header
@@ -406,6 +407,31 @@ Lower a flag.
 
 ```c
 flags.clear("calm")
+```
+
+
+## player
+
+What the player has done, as the campaign has been told of it: the game records a *deed* when the player brokers a truce (`truce`), leads or joins a raid (`raid`), rides a brigade to its landing (`escort`) or carries a packet through (`courier`).
+
+### `player.did(deed)`
+
+`player.did(string deed) : bool`
+
+True once the player has done this at least once: truce, raid, escort or courier.
+
+```c
+player.did("truce")
+```
+
+### `player.deeds(deed)`
+
+`player.deeds(string deed) : int`
+
+How many times the player has done it.
+
+```c
+player.deeds("escort") >= 2
 ```
 
 
