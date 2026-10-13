@@ -6,10 +6,10 @@ using System.Text.RegularExpressions;
 
 namespace IsometricFurTradeGame.Scripts.Core;
 
-// The campaign's language (see Campaigns/README and tools/campaign): conditions
+// The campaign's language (see tools/CampaignTool/README.md): conditions
 // and actions as plain data, evaluated here with nothing of the engine in
 // sight, so the same cases can be run by a unit test and by the Python
-// authoring tool (tools/campaign/conformance.json) and agree.
+// authoring tool (tools/CampaignTool, tests/CampaignTests) all use it.
 //
 // A condition is
 //   "flag:x"  "!flag:x"  "tension>=40"  "stock(Cumberland House, TradeGoods) < 10"   (the compact string)
@@ -66,7 +66,7 @@ public static class CampaignLogic
 	}
 
 	// ---- the roll ----------------------------------------------------------------
-	// A small linear generator, written the same way in tools/campaign, so a
+	// A small linear generator, so a script simulated by tools/CampaignTool
 	// simulated campaign rolls what the game will roll.
 
 	public static double Roll(CampaignState st)

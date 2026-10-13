@@ -1,5 +1,5 @@
 {
- "about": "Cases the campaign language must agree on. Run by tools/campaign/run_conformance.py and tests/CampaignTests. State dates are ISO; world metrics are keyed 'name' or 'name(arg,arg)', facts 'name(arg)'.",
+ "about": "Cases the campaign language must agree on. Run by tests/CampaignTests (dotnet test). State dates are ISO; world metrics are keyed 'name' or 'name(arg,arg)', facts 'name(arg)'.",
  "cases": [
   {
    "name": "flag set",

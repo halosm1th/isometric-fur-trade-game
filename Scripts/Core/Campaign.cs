@@ -501,8 +501,8 @@ Actions:
       Addressees: a person's name, or the Factor at York Factory, the
       postmaster at Oxford House, the wintering partner, the chief of the band.
 
-More than flags (see tools/campaign/README.md, which also has a tool for writing, checking and
-playing scripts forward without the game):
+More than flags (see tools/CampaignTool/README.md: a Pascal-like language for writing scripts, and a tool
+that checks them and plays them forward without the game):
   Conditions also take { ""all"": [..] }, { ""any"": [..] }, { ""not"": c }, a fact
   { ""p"": ""convoy_late"", ""a"": [""the York boats""] } or a number
   { ""m"": ""stock"", ""a"": [""York Factory"", ""Rum""], ""op"": ""<"", ""v"": 10 }; in a string,

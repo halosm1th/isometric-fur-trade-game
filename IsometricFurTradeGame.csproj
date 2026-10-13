@@ -5,7 +5,8 @@
     <RootNamespace>IsometricFurTradeGame</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <!-- tests/ is a separate console project (tests/CampaignTests); the game does not compile it. -->
+    <!-- tests/ and tools/CampaignTool are separate projects; the game does not compile them. -->
     <Compile Remove="tests/**" />
+    <Compile Remove="tools/**" />
   </ItemGroup>
 </Project>
