@@ -1,8 +1,10 @@
 # Audio Prompts for Gemini
 
-Music, ambience and sound effects the game needs, written as prompts to paste into Gemini. It's the sound version of `asset-prompts.md`. Written 2026-10-10. **Updated 2026-10-11:** the first batch is in the game: six Gemini music tracks and 27 Freesound effects, played by the `Audio` autoload in `Scripts/Core/Audio.cs`. The section **In the game now** below says what exists and when it plays. Everything else in this file is still wanted.
+Last verified against the repo: 2026-10-13
 
-The game hooks each prompt is meant for are named where they exist: `SkyState` (Clear, Overcast, Snow, Blizzard, Rain, Storm) in `Core/Weather.cs`, `Season` (Winter, Breakup, OpenWater, FreezeUp) in `Core/GameCalendar.cs`, the four `Species` in `Ecology/Species.cs`, and the campaign beats in `Campaigns/historical.json`.
+Music, ambience and sound effects the game needs, written as prompts to paste into Gemini. It's the sound version of `asset-prompts.md`. Written 2026-10-10. **Updated 2026-10-13:** the first batch is in the game: 70 files in `assets/audio/` (six Gemini music tracks, 10 ambient loops, 52 effects and 2 UI sounds; Freesound CC0 clips plus synthesised stand-ins), played by the `Audio` autoload in `Scripts/Core/Audio.cs`. The section **In the game now** below says what exists and when it plays. Everything else in this file is still wanted; a row whose ID is marked **(in game)** below is delivered, fully or as a stand-in or a single take (see the table for which).
+
+The game hooks each prompt is meant for are named where they exist: `SkyState` (Clear, Overcast, Snow, Blizzard, Rain, Storm) in `Core/Weather.cs`, `Season` (Winter, Breakup, OpenWater, FreezeUp) in `Core/GameCalendar.cs`, the seven `Species` in `Ecology/Species.cs` (caribou, goose, beaver, wolf, hare, ptarmigan, buffalo), and the campaign beats in `Campaigns/historical.json`.
 
 ---
 
@@ -21,7 +23,7 @@ Cree, Assiniboine, Ojibwe and other nations' songs belong to those communities. 
 
 ---
 
-## In the game now (2026-10-11)
+## In the game now (verified 2026-10-13 against `Core/Audio.cs` and `assets/audio/`)
 
 **How it works.** `Core/Audio.cs` is an autoload with three buses under Master (**Music**, **Ambience**, **Effects**), each with a slider in Settings > Sound.
 - Sounds the simulation already makes reach it through `Sim.ShowNoise`, which runs on every machine in co-op: footsteps, shots, blows, axes, a fire being lit.
@@ -29,7 +31,7 @@ Cree, Assiniboine, Ojibwe and other nations' songs belong to those communities. 
 - A sound is asked for by name: `step_snow` picks one of `step_snow_01..09` at random. **Dropping in more numbered takes needs no code.**
 - Run with `-- --audiotrace` to print every sound as it starts.
 
-The raw downloads stay in `assets/external/soundFX/` (git-ignored, and hidden from Godot by a `.gdignore`). The cut clips are in `assets/audio/`. Credits and licences are in `assets/audio/CREDITS.md`.
+The raw downloads were kept in `assets/external/soundFX/` (git-ignored; not present in the checkout this was verified against, and no `.gdignore` exists under `assets/external/`, so that claim is unverified). The cut clips are in `assets/audio/`. Credits and licences are in `assets/audio/CREDITS.md`.
 
 | Doc ID | File(s) in `assets/audio/` | When it plays |
 |---|---|---|
@@ -117,12 +119,12 @@ These carry the most weight: the game feels dead without them.
 
 | ID | Prompt (after SFX HEADER) |
 |---|---|
-| `step_snow_01..05` | A single footstep in a soft leather moccasin on deep dry powder snow at minus 30: a soft squeaky crunch. |
-| `step_snow_crust_01..05` | A single moccasin footstep breaking through a wind crust on old snow: a brittle crack and then a crunch. |
+| `step_snow_01..05` **(in game)** | A single footstep in a soft leather moccasin on deep dry powder snow at minus 30: a soft squeaky crunch. |
+| `step_snow_crust_01..05` **(in game)** | A single moccasin footstep breaking through a wind crust on old snow: a brittle crack and then a crunch. |
 | `step_snowshoe_01..05` | A single stride on wooden-framed, rawhide-laced snowshoes on deep snow: a soft whump, a slight creak of the lacing, the tail dragging. |
-| `step_planks_01..05` | A single footstep in a leather shoe on a thick, old, slightly loose wooden plank floor indoors: a hollow knock with a small creak. |
+| `step_planks_01..05` **(in game)** | A single footstep in a leather shoe on a thick, old, slightly loose wooden plank floor indoors: a hollow knock with a small creak. |
 | `step_boardwalk_01..05` | A single footstep on an outdoor wooden boardwalk raised over wet ground: hollow, slightly springy. |
-| `step_mud_01..05` | A single moccasin footstep in wet muskeg mud and moss: a squelch and suck. |
+| `step_mud_01..05` **(in game)** | A single moccasin footstep in wet muskeg mud and moss: a squelch and suck. |
 | `step_dirt_01..05` | A single footstep on packed dry earth and gravel. |
 | `step_ice_01..05` | A single moccasin footstep on bare river ice dusted with snow: a hard, slightly hollow tap and a faint scrape. |
 | `step_shallows_01..05` | A single footstep wading ankle-deep in cold river water over stones. |
@@ -134,24 +136,24 @@ The game crossfades between these by `Season` and `SkyState`.
 | ID | When | Prompt (after AMBIENT HEADER) |
 |---|---|---|
 | `amb_winter_calm` | Winter, Clear | Deep subarctic winter, minus 35, perfectly still air. Almost silent: a very faint high wind in the spruce tops, the occasional crack of a tree splitting in the frost, a distant raven croak every 20 seconds or so. Vast and empty. |
-| `amb_winter_wind` | Winter, Overcast or Snow | A steady moderate wind across open snow and frozen muskeg, hissing drifting snow, gusts moaning through a log palisade and stunted spruce. Cold and lonely, not stormy. |
-| `amb_blizzard` | Blizzard | A full Hudson Bay blizzard: a roaring, shrieking wind with heavy gusts, snow hammering against log walls, a loose shutter rattling now and then. Dangerous and overwhelming. |
+| `amb_winter_wind` **(in game)** | Winter, Overcast or Snow | A steady moderate wind across open snow and frozen muskeg, hissing drifting snow, gusts moaning through a log palisade and stunted spruce. Cold and lonely, not stormy. |
+| `amb_blizzard` **(in game)** | Blizzard | A full Hudson Bay blizzard: a roaring, shrieking wind with heavy gusts, snow hammering against log walls, a loose shutter rattling now and then. Dangerous and overwhelming. |
 | `amb_blizzard_indoors` | Blizzard, inside a building | The same blizzard heard from inside a thick-walled log house: the wind muffled and booming, the walls creaking, a fire crackling quietly close by. Safe but besieged. |
 | `amb_breakup` | Breakup | Late May on a big subarctic river during ice breakup: grinding, groaning and booming ice floes, rushing meltwater, dripping eaves, flocks of geese calling as they pass high overhead, the first songbirds. |
 | `amb_summer_day` | OpenWater, Clear | A short subarctic summer afternoon by a wide brown river: steady clouds of mosquitoes and blackflies whining, a light breeze in willows and tamarack, the river lapping, gulls and terns far off, the odd white-throated sparrow. |
 | `amb_summer_night` | OpenWater, night | A subarctic summer night that never gets fully dark: frogs and toads in the muskeg, mosquitoes, a loon calling far off across the water, a quiet river. |
 | `amb_freezeup` | FreezeUp | A raw grey October day on the Bay coast: a cold wind off the sea, waves on a shingle shore, skeins of geese calling overhead heading south, dry grass hissing. Restless and urgent. |
-| `amb_rain` | Rain | Steady cold rain on wet ground, moss and a shingled roof, water running off eaves into puddles. |
+| `amb_rain` **(in game)** | Rain | Steady cold rain on wet ground, moss and a shingled roof, water running off eaves into puddles. |
 | `amb_storm` | Storm | A summer thunderstorm over flat muskeg: heavy rain, rolling distant thunder, gusting wind. |
 | `amb_shore` | Near the coast | Small grey waves breaking on the flat tidal mudflats and gravel of the Hudson Bay shore, gulls, a wide-open sea wind. |
-| `amb_river` | Near a river | A wide, slow, cold river: a steady low rush with small eddies lapping against a muddy bank. |
+| `amb_river` **(in game)** | Near a river | A wide, slow, cold river: a steady low rush with small eddies lapping against a muddy bank. |
 | `amb_forest` | In the bush | Inside dense spruce forest in autumn: wind high in the treetops, very little at ground level, a woodpecker tapping, a red squirrel chattering, a grey jay. |
 
 ### 1.3 Inside the fort (AMBIENT, 60 s, LOOP)
 
 | ID | Prompt (after AMBIENT HEADER) |
 |---|---|
-| `amb_fort_yard_day` | The yard of a busy wooden fur-trade fort on a working day, heard from the middle: an axe splitting firewood in the distance, a cooper hammering on a barrel, a sled dog barking, a door slamming, wood creaking, footsteps on boardwalks. Indistinct human murmur only, no words. |
+| `amb_fort_yard_day` **(in game)** | The yard of a busy wooden fur-trade fort on a working day, heard from the middle: an axe splitting firewood in the distance, a cooper hammering on a barrel, a sled dog barking, a door slamming, wood creaking, footsteps on boardwalks. Indistinct human murmur only, no words. |
 | `amb_mens_house` | Inside a crowded log bunkhouse in winter at night: a stove ticking and crackling, men snoring, a cough, a bunk creaking, wind outside. |
 | `amb_store` | Inside a log trade store: quiet, a stove, the creak of floorboards, a bale of furs dropped on a counter now and then, a pendulum clock ticking. |
 | `amb_camp_cree` | A Cree family camp of hide and birchbark lodges in the forest at evening: a fire crackling, dogs, wood being chopped, children playing far off (laughter, no words), a kettle. No music, no chanting. |
@@ -160,10 +162,10 @@ The game crossfades between these by `Season` and `SkyState`.
 
 | ID | Prompt |
 |---|---|
-| `fire_hearth_loop` | AMBIENT HEADER, 30 s: a small wood fire in an open stone hearth, close: steady crackle, soft hiss of spruce sap, occasional pop, no wind. |
+| `fire_hearth_loop` **(in game)** | AMBIENT HEADER, 30 s: a small wood fire in an open stone hearth, close: steady crackle, soft hiss of spruce sap, occasional pop, no wind. |
 | `fire_large_loop` | AMBIENT HEADER, 30 s: a big outdoor bonfire of dry spruce: roaring, crackling, sparks snapping. |
-| `fire_building_loop` | AMBIENT HEADER, 30 s: a log building fully on fire: a deep roar, timbers cracking, embers falling, glass bursting once. (For `World/Fire.cs` and `Blaze.cs`.) |
-| `fire_light` | SFX HEADER, 2 s: striking flint against a steel fire-striker twice, a spark catching in dry tinder, a small whoosh as it takes. |
+| `fire_building_loop` **(in game)** | AMBIENT HEADER, 30 s: a log building fully on fire: a deep roar, timbers cracking, embers falling, glass bursting once. (For `World/Fire.cs` and `Blaze.cs`.) |
+| `fire_light` **(in game)** | SFX HEADER, 2 s: striking flint against a steel fire-striker twice, a spark catching in dry tinder, a small whoosh as it takes. |
 | `fire_add_log` | SFX HEADER, 1.5 s: a split log dropped onto a burning fire, a thump and a burst of crackling. |
 | `fire_douse` | SFX HEADER, 2 s: a bucket of water thrown on a fire: a loud hiss and steam. |
 
@@ -177,10 +179,10 @@ Muskets are one-shot weapons (design doc 15.3): the shot must sound heavy and fi
 
 | ID | Length | Prompt (after SFX HEADER) |
 |---|---|---|
-| `musket_fire_01..03` | 2 s | A single shot from an 1800s flintlock trade musket outdoors: the snap of the flint and a split-second pan flash, then a deep heavy boom with a rolling echo across open country. |
+| `musket_fire_01..03` **(in game)** | 2 s | A single shot from an 1800s flintlock trade musket outdoors: the snap of the flint and a split-second pan flash, then a deep heavy boom with a rolling echo across open country. |
 | `musket_misfire` | 0.6 s | A flintlock that flashes in the pan but fails to fire: a sharp click, a short fizzing hiss, nothing more. |
 | `musket_click` | 0.4 s | Cocking the hammer of a flintlock musket: two crisp mechanical clicks. |
-| `musket_reload` | 6 s | Reloading a flintlock musket: biting a paper cartridge, pouring powder down the barrel, ramming the ball home with an iron ramrod (three scraping thrusts), priming the pan, closing the frizzen. |
+| `musket_reload` **(in game)** | 6 s | Reloading a flintlock musket: biting a paper cartridge, pouring powder down the barrel, ramming the ball home with an iron ramrod (three scraping thrusts), priming the pan, closing the frizzen. |
 | `pistol_fire` | 1.5 s | A flintlock pistol shot: sharper and lighter than a musket. |
 | `bow_draw` | 1 s | Drawing a wooden hunting bow: creak of wood and sinew string. |
 | `bow_release_01..03` | 0.6 s | Releasing an arrow from a wooden bow: a twang and a quick whoosh. |
@@ -188,16 +190,16 @@ Muskets are one-shot weapons (design doc 15.3): the shot must sound heavy and fi
 | `arrow_hit_wood` | 0.4 s | An arrow thunking into a wooden post and quivering. |
 | `knife_slash_01..03` | 0.4 s | A heavy knife swung through the air and cutting cloth. |
 | `tomahawk_swing_01..03` | 0.5 s | A small iron trade axe swung hard and striking. |
-| `punch_01..05` | 0.3 s | A bare-fisted punch landing on a body in a brawl: a meaty thud. |
-| `body_fall` | 1 s | A man falling to the ground in a heavy wool coat on packed snow. |
+| `punch_01..05` **(in game)** | 0.3 s | A bare-fisted punch landing on a body in a brawl: a meaty thud. |
+| `body_fall` **(in game)** | 1 s | A man falling to the ground in a heavy wool coat on packed snow. |
 | `grunt_hurt_01..05` | 0.5 s | A man grunting in pain when struck. One short grunt, no words. |
-| `musket_distant` | 3 s | A musket shot heard from a mile away across a frozen river: a muffled flat pop and a long faint echo. (`NoiseRing.cs` already models gunshots being heard at a distance.) |
+| `musket_distant` **(in game)** | 3 s | A musket shot heard from a mile away across a frozen river: a muffled flat pop and a long faint echo. (`NoiseRing.cs` already models gunshots being heard at a distance.) |
 
 ### 2.2 Work and survival (SFX)
 
 | ID | Length | Prompt (after SFX HEADER) |
 |---|---|---|
-| `axe_chop_01..05` | 0.6 s | A felling axe biting into a frozen spruce log. |
+| `axe_chop_01..05` **(in game)** | 0.6 s | A felling axe biting into a frozen spruce log. |
 | `wood_split_01..03` | 1 s | A split log falling apart onto a chopping block and the pieces clattering. |
 | `saw_loop` | 4 s | A two-man pit saw cutting through a log, steady strokes (loopable). |
 | `hammer_nail_01..03` | 0.5 s | A hammer driving an iron nail into planking. |
@@ -230,40 +232,40 @@ Muskets are one-shot weapons (design doc 15.3): the shot must sound heavy and fi
 |---|---|
 | `paddle_stroke_01..05` | SFX HEADER, 1 s: a single wooden canoe paddle stroke: blade entering water, a strong pull, dripping on the recovery. |
 | `canoe_glide_loop` | AMBIENT HEADER, 30 s: sitting in a birchbark canoe gliding on a calm river: water chuckling against the bark hull, gentle rocking. |
-| `brigade_paddling_loop` | AMBIENT HEADER, 30 s: eight men paddling a big freight canoe in rhythm, about one stroke a second, water rushing past, no singing. |
+| `brigade_paddling_loop` **(in game)** | AMBIENT HEADER, 30 s: eight men paddling a big freight canoe in rhythm, about one stroke a second, water rushing past, no singing. |
 | `york_boat_oars_loop` | AMBIENT HEADER, 30 s: a heavy wooden York boat rowed by six men with long sweeps: oars thudding in their tholes, creaking timbers, water. |
 | `rapids_loop` | AMBIENT HEADER, 30 s: standing beside a long stretch of river rapids: loud white water over rocks. |
 | `sled_run_loop` | AMBIENT HEADER, 30 s: a dog sled running across packed snow: runners hissing, dogs panting, harness bells jingling faintly. |
 | `dogs_bark_01..03` | SFX HEADER, 2 s: a pack of sled dogs barking excitedly. |
 | `dogs_howl` | SFX HEADER, 6 s: sled dogs at a fort howling together at night. |
-| `ship_creak_loop` | AMBIENT HEADER, 30 s: on deck of a wooden sailing ship at anchor: timbers creaking, rigging slapping, small waves against the hull. |
+| `ship_creak_loop` **(in game)** | AMBIENT HEADER, 30 s: on deck of a wooden sailing ship at anchor: timbers creaking, rigging slapping, small waves against the hull. |
 | `anchor_drop` | SFX HEADER, 5 s: a ship's anchor dropped: a heavy iron chain rattling out through a hawse hole, a splash. |
 
 ---
 
 ## Priority 3: animals
 
-All of these are SFX HEADER, mono. Animals in the code now: caribou, goose, beaver, wolf. Hare and ptarmigan have art. The rest are for when they're added (see `world-content-needed.md`).
+All of these are SFX HEADER, mono. Animals in the code now: caribou, goose, beaver, wolf, hare, ptarmigan and buffalo; of those only wolf, goose, raven and loon have sound in the game, and hare, ptarmigan, caribou, beaver and buffalo (`bison_*` rows) are still silent. The rest are for when they're added (see `world-content-needed.md`).
 
 | ID | Prompt |
 |---|---|
 | `goose_honk_01..05` | (2 s) A single Canada goose honking on the ground. |
-| `geese_flock_overhead` | (8 s) A big V of Canada geese flying low overhead, many honking, wingbeats audible as they pass. |
+| `geese_flock_overhead` **(in game)** | (8 s) A big V of Canada geese flying low overhead, many honking, wingbeats audible as they pass. |
 | `geese_takeoff` | (3 s) A flock of geese bursting up off a marsh in alarm: wings beating, splashing, honking. |
 | `geese_flight_marsh_loop` | (AMBIENT, 60 s, LOOP) The autumn passage on a Hudson Bay marsh: thousands of geese on the water and in the air at once, a continuous wash of honking with nearer birds over it and wingbeats passing. Not a single flock - the whole flight, heard from a goose tent at the edge of the marsh. |
 | `caribou_grunt_01..03` | (1.5 s) A caribou's low snorting grunt. |
 | `caribou_herd_loop` | (AMBIENT, 30 s) A herd of caribou passing: many hooves clicking (caribou ankle tendons click when they walk), grunting, snow crunching. |
 | `beaver_tail_slap` | (1.5 s) A beaver slapping its tail on still pond water in alarm: a loud flat crack and splash. |
 | `beaver_gnaw` | (3 s) A beaver gnawing through a green aspen trunk. |
-| `wolf_howl_01..03` | (6 s) A single grey wolf howling far off on a still winter night. |
-| `wolf_pack_howl` | (10 s) A wolf pack howling together in the distance. |
-| `wolf_growl` | (2 s) A wolf snarling close up, about to attack. |
-| `wolf_bite` | (0.5 s) A wolf lunging and snapping its jaws. |
+| `wolf_howl_01..03` **(in game)** | (6 s) A single grey wolf howling far off on a still winter night. |
+| `wolf_pack_howl` **(in game)** | (10 s) A wolf pack howling together in the distance. |
+| `wolf_growl` **(in game)** | (2 s) A wolf snarling close up, about to attack. |
+| `wolf_bite` **(in game)** | (0.5 s) A wolf lunging and snapping its jaws. |
 | `wolf_yelp_death` | (1.5 s) A wounded wolf yelping. |
 | `ptarmigan_call` | (2 s) A willow ptarmigan's rattling, croaking "go-back go-back" call. |
 | `hare_squeal` | (1 s) A snowshoe hare's thin scream when caught. |
-| `raven_croak_01..03` | (1.5 s) A common raven's deep croak. |
-| `loon_call` | (5 s) A common loon's tremolo and wail across a lake. |
+| `raven_croak_01..03` **(in game)** | (1.5 s) A common raven's deep croak. |
+| `loon_call` **(in game)** | (5 s) A common loon's tremolo and wail across a lake. |
 | `moose_call` | (3 s) A bull moose grunt / cow moose call in autumn. |
 | `bear_growl` | (2 s) A black bear huffing and growling. |
 | `polar_bear_chuff` | (2 s) A polar bear chuffing and growling. |
@@ -271,7 +273,7 @@ All of these are SFX HEADER, mono. Animals in the code now: caribou, goose, beav
 | `bison_stampede` | (8 s) A buffalo herd stampeding: thunder of hooves building, ground shaking. |
 | `horse_whinny` | (2 s) A horse whinnying. |
 | `horse_gallop_loop` | (AMBIENT, 10 s) A horse galloping across prairie sod. |
-| `mosquitoes_close` | (AMBIENT, 15 s) A cloud of mosquitoes whining right next to the ear. |
+| `mosquitoes_close` **(in game)** | (AMBIENT, 15 s) A cloud of mosquitoes whining right next to the ear. |
 
 ---
 
@@ -279,16 +281,16 @@ All of these are SFX HEADER, mono. Animals in the code now: caribou, goose, beav
 
 | ID | Length | When | Prompt (after SFX HEADER) |
 |---|---|---|---|
-| `ship_cannon_salute` | 6 s | The supply ship arrives (`World/Ship.cs`) | A ship's cannon fired in salute, then two seconds later the fort's small cannon answering: two deep booms with long echoes across the water. |
-| `ship_bell` | 4 s | Ship arrives / departs | A ship's brass bell rung in pairs: ding-ding, ding-ding. |
-| `fort_bell_work` | 4 s | Start / end of the working day | A small iron bell on a post in a fort yard rung briskly to call the men. |
-| `fort_bell_alarm` | 6 s | Fire, raid | The same iron bell rung frantically and without rhythm, an alarm. |
+| `ship_cannon_salute` **(in game)** | 6 s | The supply ship arrives (`World/Ship.cs`) | A ship's cannon fired in salute, then two seconds later the fort's small cannon answering: two deep booms with long echoes across the water. |
+| `ship_bell` **(in game)** | 4 s | Ship arrives / departs | A ship's brass bell rung in pairs: ding-ding, ding-ding. |
+| `fort_bell_work` **(in game)** | 4 s | Start / end of the working day | A small iron bell on a post in a fort yard rung briskly to call the men. |
+| `fort_bell_alarm` **(in game)** | 6 s | Fire, raid | The same iron bell rung frantically and without rhythm, an alarm. |
 | `gate_open` | 3 s | Entering the fort | Heavy wooden palisade gates swung open on iron hinges, creaking, a bar lifted. |
-| `door_open_01..03` | 1.5 s | Buildings | A plank door on iron strap hinges opening and thumping shut. |
+| `door_open_01..03` **(in game)** | 1.5 s | Buildings | A plank door on iron strap hinges opening and thumping shut. |
 | `shutter_bang` | 0.6 s | Wind | A wooden shutter banging in the wind. |
-| `ice_crack_boom` | 4 s | Freeze-up / breakup | A huge sheet of river ice cracking with a deep boom and a long eerie twang across the surface. |
+| `ice_crack_boom` **(in game)** | 4 s | Freeze-up / breakup | A huge sheet of river ice cracking with a deep boom and a long eerie twang across the surface. |
 | `ice_break_through` | 3 s | Falling through ice | Thin ice cracking and giving way under a man, a heavy splash, a gasp. |
-| `tree_fall` | 5 s | Felling | A spruce tree cracking and falling, crashing through branches and thudding on snow. |
+| `tree_fall` **(in game)** | 5 s | Felling | A spruce tree cracking and falling, crashing through branches and thudding on snow. |
 | `death_sting` | — | A death | (Use music cue `stinger_death` below.) |
 | `news_letter` | 2 s | A message arrives (`Core/Message.cs`) | A folded, wax-sealed letter being broken open: the seal cracking, stiff paper unfolding. |
 | `trade_coins` | 1 s | A trade closes (`Economy/Barter.cs`) | Small wooden made-beaver tokens and a few metal trade goods set down on a counter. |
@@ -308,7 +310,7 @@ All of these are SFX HEADER, mono. Animals in the code now: caribou, goose, beav
 | `ui_click` | 0.1 s | A soft, dry click like a wooden button or a quill tapped on a desk. |
 | `ui_hover` | 0.05 s | A very faint paper rustle. |
 | `ui_open_journal` | 0.8 s | A leather-bound ledger book opened, pages riffling. |
-| `ui_page_turn_01..03` | 0.5 s | A single page of thick rag paper turned. |
+| `ui_page_turn_01..03` **(in game)** | 0.5 s | A single page of thick rag paper turned. |
 | `ui_close_journal` | 0.5 s | A leather-bound book shut with a soft thump. |
 | `ui_quill_write` | 1.5 s | A quill pen scratching a quick line on paper. |
 | `ui_notice` | 0.6 s | A small brass hand bell rung once, softly. (Notices and new goals.) |
@@ -325,11 +327,11 @@ All of these are SFX HEADER, mono. Animals in the code now: caribou, goose, beav
 
 Paste the MUSIC HEADER first. Keep in-world music quiet; the design wants silence and wind most of the time, with music as a reward or a warning.
 
-### 6.1 Menus: Done
+### 6.1 Menus: main menu in game, the other two still wanted
 
 | ID | Length | Brief (after MUSIC HEADER) |
 |---|---|---|
-| `mus_main_menu` | 2 min, LOOP | Main menu over the painting of York Factory at dusk. Slow (60 bpm), wistful and wide: a lone fiddle playing a slow Scottish air in a minor key over a low cello drone, a wooden flute answering in the second half, a soft frame drum like a distant heartbeat entering near the end. Lonely, cold, proud, homesick. Ends returning to the opening phrase. |
+| `mus_main_menu` **(in game)** | 2 min, LOOP | Main menu over the painting of York Factory at dusk. Slow (60 bpm), wistful and wide: a lone fiddle playing a slow Scottish air in a minor key over a low cello drone, a wooden flute answering in the second half, a soft frame drum like a distant heartbeat entering near the end. Lonely, cold, proud, homesick. Ends returning to the opening phrase. |
 | `mus_new_game` | 1 min, LOOP | Character creation. The main menu theme's melody played gently on solo tin whistle with a little harmonium underneath. Thoughtful, hopeful, unhurried. |
 | `mus_credits` | 3 min | End credits after 1821. The main theme slowly, then building into a full reel with fiddle, flute, bodhran and stomping, then fading back to the lone fiddle. Bittersweet: an era ending. |
 
@@ -337,17 +339,17 @@ Paste the MUSIC HEADER first. Keep in-world music quiet; the design wants silenc
 
 | ID | Length | Brief |
 |---|---|---|
-| `mus_winter` | 90 s | Deep winter. Very sparse and slow, almost silent: long held cello notes, a few soft high fiddle harmonics like frost, lots of space between phrases. Isolation, endurance, beauty in the cold. |
-| `mus_breakup` | 90 s | Ice breakup and the return of the geese. Starts hushed, warms gradually: tin whistle melody rising, pizzicato cello like dripping water, light frame drum at the end. Relief and renewal. |
-| `mus_summer` | 90 s | The short open-water summer. A relaxed, lilting 6/8 tune on fiddle and wooden flute, jaw harp now and then. Busy, warm, a bit restless. |
-| `mus_freezeup` | 90 s | Autumn freeze-up, the ship has gone. A slow minor-key fiddle lament over a drone, a sense of doors closing. The last of the light. |
+| `mus_winter` **(in game)** | 90 s | Deep winter. Very sparse and slow, almost silent: long held cello notes, a few soft high fiddle harmonics like frost, lots of space between phrases. Isolation, endurance, beauty in the cold. |
+| `mus_breakup` **(in game)** | 90 s | Ice breakup and the return of the geese. Starts hushed, warms gradually: tin whistle melody rising, pizzicato cello like dripping water, light frame drum at the end. Relief and renewal. |
+| `mus_summer` **(in game)** | 90 s | The short open-water summer. A relaxed, lilting 6/8 tune on fiddle and wooden flute, jaw harp now and then. Busy, warm, a bit restless. |
+| `mus_freezeup` **(in game)** | 90 s | Autumn freeze-up, the ship has gone. A slow minor-key fiddle lament over a drone, a sense of doors closing. The last of the light. |
 
 ### 6.3 Places and people
 
 | ID | Length | Brief |
 |---|---|---|
-| `mus_mens_house_reel:Done` | 2 min, LOOP | The men's house on a Saturday night. A fast, joyful Orkney / Scottish reel on solo fiddle with foot-stomping on wooden floorboards and hand claps, slightly rough and drunken. Played in the room, not a concert. |
-| `mus_mens_house_jig` | 2 min, LOOP | Same scene, a different tune: a 6/8 jig on fiddle with spoons and a tin whistle joining. |
+| `mus_mens_house_reel` **(in game)** | 2 min, LOOP | The men's house on a Saturday night. A fast, joyful Orkney / Scottish reel on solo fiddle with foot-stomping on wooden floorboards and hand claps, slightly rough and drunken. Played in the room, not a concert. |
+| `mus_mens_house_jig` **(in game)** | 2 min, LOOP | Same scene, a different tune: a 6/8 jig on fiddle with spoons and a tin whistle joining. |
 | `mus_hogmanay` | 2 min | New Year's at the post (Hogmanay, the biggest feast of the fort year). A rousing reel on fiddle and bagpipe drone, stomping and cheering crowd (no words). |
 | `mus_metis_fiddle` | 2 min, LOOP | A Métis-style fiddle tune (Red River Jig style): driving, crooked phrasing with extra and dropped beats, heavy foot-tapping as percussion. Placeholder until it can be licensed from a Métis fiddler. |
 | `mus_cree_camp_drum` | 90 s, LOOP | Heard from across a camp at evening: a single hand drum played in a steady even beat (about 2 beats a second), distant and soft. Strictly drum only: no singing, no chanting, no flutes, no "tribal" film-score elements. Placeholder (see the note on Indigenous music above). |

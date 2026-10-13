@@ -30,7 +30,7 @@ public readonly record struct BuildingDef(BuildingKind Kind, string Name, Vector
 public readonly record struct SiteDef(string Name, Species Species, Vector2I Cell, int Count, int Capacity, float RadiusPx, Vector2I[] Route = null);
 
 // Where everything is, in cells. The country itself is WorldMap (the whole
-// play area from real geography, half scale); this is where the hand-built
+// play area from real geography, 40 px a km); this is where the hand-built
 // places sit in it - each post keeps its shape, and build_world.py found the
 // nearest dry spot to its real position (Data/World/world.json, "layout").
 // Both painters and the population read from here.

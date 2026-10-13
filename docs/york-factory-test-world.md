@@ -1,10 +1,21 @@
 # York Factory test world — what's in it and how to drive it
 
-*Written after the overnight build session (Sept 2026). Everything here is placeholder art and first-pass numbers; the point is that the loops run end to end so they can be watched and tuned.*
+*Written after the overnight build session (Sept 2026). Art is a mix of finished sprite sheets and placeholder tiles, and the numbers are first-pass; the point is that the loops run end to end so they can be watched and tuned.*
+
+Last verified against the code: 2026-10-13
+
+**What changed in that pass (the code is the source of truth; the WIKI/ folder is the cross-reference):**
+- Clock is 30 s per game hour (was 10); a day is 12 minutes of play. Uneven pacing and the date a new game starts on are now described.
+- The world is the whole western fur-trade country from `Data/World/world.json`: 1002 x 2361 cells at 40 px/km (was 80 x 320 / 80 x 460 at 20 px/km). All the old hand-written cell coordinates (Oxford House 36,396; camps 14,140 / 23,100 and so on) are gone; anchors now come from `world.json`'s `layout` block.
+- Four start roads (HBC, NWC, Cree, Assiniboine/other nation) each with a set date, instead of the HBC-only start.
+- Controls table corrected against `project.godot` and `Keybinds.cs`: `G` set-out, map waypoints, zoom keys, rebinding, the Esc menu's real contents, `R` now hands over to an heir; duplicate rows removed.
+- Multiplayer menu wording, the 8-client limit, and the save path (the `Godotpp_userdata` typo) fixed; autosave added.
+- Brigade pace, ship fever chance, Oxford House position and dev-arg `--spawn` examples corrected; "Known gaps" relabelled (message objects exist; art is partly final).
+- Items I could not re-check are listed at the end under "Not re-verified".
 
 ## Playing together
 
-The main menu offers **Play alone**, **Host a game** (port 7777, up to 8), **Join a game** (ip or ip:port) and **Run a dedicated server**. Solo is just a host with nobody else connected - one code path.
+The main menu offers **Continue** (when a quicksave exists), **New game** (a campaign page, then the "Who you are" character page, then **Begin** - this is playing alone), **Multiplayer** (**Host a new game**, port 7777; **Join** with ip or ip:port; **Run a dedicated server**), **Settings** and **Quit**. The server accepts up to 8 clients (`CreateServer(port, 8)`). Solo is just a host with nobody else connected - one code path.
 
 - The **host/server runs the whole simulation**: every NPC and animal brain, the ledgers, the ecology, the clock, the weather, the ship. Clients render what the server tells them and send requests.
 - A client **owns its own player's movement**; everything that touches the world (E, hotbar, attacks, trade, talk) is a request the server carries out, with the result sent back as a notice. Needs, inventory, standing and task are mirrored to the owner a few times a second.
@@ -12,18 +23,18 @@ The main menu offers **Play alone**, **Host a game** (port 7777, up to 8), **Joi
 - **Tab** opens chat; Enter sends; Esc cancels.
 - The F1 console belongs to the host.
 - Late joiners get the world state on arrival (agents, open doors, felled trees, clock, weather).
-- Death: R asks the server to respawn you at the gate as a new hand (−5 standing, fresh kit).
+- Death: R asks the server to hand the world to your heir (see *Children and succession* below), per player; it is not a reset.
 - Windows will ask once to allow Godot through the firewall when you host; friends on the internet need port 7777 UDP forwarded or a VPN like Tailscale/Hamachi.
 
-Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--name=Name`. On a client `--spawn=depot` asks the server to move you there (debug builds), `--talk` opens a conversation after 4 s, `--provoke` picks a fight.
+Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--name=Name`, `--menu=settings|controls|multiplayer|newgame|character`. On a client `--spawn=depot` asks the server to move you there (debug builds only), `--talk` opens a conversation after 4 s, `--provoke` picks a fight.
 
 ## Controls
 
 | Key | Action |
 |---|---|
 | W A S D / arrows | walk |
-| Shift | sprint (1.7× speed, ~2.4× hunger) |
-| Ctrl | sneak: half speed, animals notice you at less than half the distance, a first stroke on an unaware target does 2.5× |
+| Shift | sprint (1.7× speed, ~2.4× hunger activity vs 1.5× walking; footsteps carry 420 px) |
+| Ctrl | sneak: 0.45× speed, footsteps carry 45 px, animals notice you at less than half the distance, a first stroke on an unaware target does 2.5× |
 | E | context action: talk to a person · **bed** (sleep till 07:00 at night, rest an hour by day) · pick up · loot a body / butcher a carcass · woodpile (stack or take firewood) · warehouse (stow goods/furs) · stores counter (draw a ration when short) · ship (shoulder cargo) · open/close door · look at a fire |
 | 1–9 | use hotbar slot (eat / drink / feed a fire / ready a weapon / read clothing) |
 | Mouse wheel + Enter | select and use hotbar slot |
@@ -32,45 +43,46 @@ Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--nam
 | F11 | full screen (also in the main and pause menus; the UI is laid out at 1280x720 and scales, so 1920x1080 is ×1.5) |
 | F | attack the nearest hostile |
 | Q | drink (from water, or melt snow at a fire in winter) |
-| Z | wait an hour; at night, sleep until 07:00 |
+| Z | wait an hour by day (06:00-19:00); from 19:00 to 06:00 sleep until 07:00. A bed (E) does the night version from 17:00 |
 | T | hold for fast-forward (×40) |
-| Space | stop / start the clock (host only; everyone's clock follows; bodies stop too) |
-| [ / ] | slower / faster clock - doubles or halves the seconds per game hour (host only; shown on the calendar) |
+| Space | stop / start the clock (host only; everyone's clock follows; bodies stop too; the calendar shows `|| PAUSED`) |
+| [ / ] | slower / faster clock - doubles or halves the seconds per game hour, clamped to 0.5-120 s (host only; shown on the calendar as `(N s/hour)` when it is not the old 10 s baseline) |
 | Tab | chat |
 | J / L / I | your book: **Journal** (what you witnessed, dated) · **Log** (everything the world announced, timestamped - the old scrolling top-left log now lives here; only the newest line or two flash on screen) · **Pack** (every item with weight, worth and what it does) |
-| F1 | test console: now also a **World log** section with the last 30 notices (nothing flashes in the corner any more) |
-| Esc | pause menu: resume, key bindings (read from the InputMap), save, main menu, exit. Alone, time stops; hosting or joined, the world goes on |
-| M | map: coast, river, posts, the road, the camp where it stands, the sites you know (a herd where you last heard of it), other players, the ship. **Drag to pan, wheel to zoom**; opens centred on you |
-| H | help: controls and the gist |
-| F1 | test console (host only) |
-| F5 / F9 | quick save / quick load (host only; clients are reloaded and re-seated) |
-| R | restart after death |
-| Esc | close a menu |
+| F1 | test console (host only; sections are tabs, Player first): has a **World log** section with the last 30 notices (nothing flashes in the corner any more) |
+| Esc | closes the topmost panel (help, journal, map, dialogue) first; otherwise the pause menu: Resume, *What you mean to do...* (ambitions), Save (F5, host only), Settings (Display / Game / Sound / Controls tabs - the Controls tab rebinds keys, two slots per action), Main menu, Exit. Alone, time stops; hosting or joined, the world goes on |
+| M | map of the whole country as you know it (fogged where unexplored): coast, rivers, posts, the road, camps, the sites you know (a herd where you last heard of it), other players, the ship. **Drag to pan, wheel to zoom** (0.6x-8x); opens centred on you. **Left click** sets a waypoint, **right click** clears it |
+| G | set out for the map waypoint (travel mode over the whole country; any step of your own stops it). Registered at runtime, not in the rebinding list |
+| H | help: controls and the gist, showing your current bindings |
+| F5 / F9 | quick save / quick load (host only; clients are reloaded and re-seated). F5, F9, F11 and Esc cannot be rebound |
+| R | after death: hand the world to your heir |
+| Ctrl + wheel, Ctrl + = / - / 0 | zoom the world view in / out / reset |
 
 The Factor gives you a task each morning (bottom-left). Doing it raises your standing with the Company; ignoring it costs a little.
 
 ## The clock
 
-10 real seconds = 1 game hour (day = 4 min, year ≈ 24 h of play). Time runs on the calendar autoload; agents scale their walking speed with the clock so fast-forward and the `Z` skip still resolve their days (a crude version of the design doc's lazy resolution).
+30 real seconds = 1 game hour (`GameCalendar.SecondsPerGameHour`; day = 12 min of play, a 365-day year is about 73 h at the base rate before pacing). The F1 console and the host's `[` / `]` keys change it (0.5-120 s). Time runs on the calendar autoload. **Uneven pacing** (on by default) divides the displayed speed by a factor clamped 0.25-3: the ship docked x2.2, Breakup x1.5, July-August x1.3, nights x0.45 (x0.3 in winter), winter days x0.65, blizzard or gale x0.8, people near you x1.2-1.5, a fight x2.5. Hold `T` for x40; waiting or sleeping skips at x400; the river road and travel mode run at least x6. Agents scale their walking speed against a 10 s/hour baseline (`MotionScale`) so fast-forward and the `Z` skip still resolve their days (a crude version of the design doc's lazy resolution); at the 30 s default that scale sits at 1.
 
-Start date: 1 January 1811. Ship arrives 20 August, sails 15 September.
+Start date: the calendar defaults to 1 January 1811, 09:00, but the first character in a world sets the date by road in (see *Who you are and how you arrive*): **HBC 20 August, 07:00** (the ship's day), **NWC 12 July** (the brigade's day), **Cree / Assiniboine / another nation 10 June** (the summer camp by the post). Annual events: Breakup 5 June, summer bison hunt 15 June, brigade 12 July, ship arrives 20 August and sails 15 September, fall bison hunt 15 October, freeze-up 10 November.
 
-## The world (Scripts/World/WorldLayout.cs)
+## The world (Scripts/World/WorldLayout.cs, Scripts/World/WorldMap.cs)
 
-80 × 320 cells (10 240 px square). Everything is placed by cell in `WorldLayout` — buildings, wharf, camp, sites, trail — and the two painters regenerate the map from it on load (`AutoGenerate = true`). To hand-edit: untick **AutoGenerate** on both `Ground` and `YSort/Structures`, save, paint.
+The play area is no longer a 80 × 320 test strip. It is the whole western fur-trade country, Hudson Bay to the Pacific and the Missouri to Athabasca, imported from the Pemmican Empire atlas by `tools/world/build_world.py` into `Data/World/world.json` and `Data/World/ground.png`: **1002 × 2361 cells at 40 px/km** (`px_per_km`; one cell is 128 px wide, about 3.2 km), fogged on the map until explored. `WorldLayout` holds the hand-built places as offsets from anchors read from `world.json`'s `layout` block (`fort_top` 677,532; `nwc_top` 675,642; `outpost_top` 646,882; `cree_winter` 667,606; `cree_summer` 700,594; `assiniboine_winter` 639,920; `assiniboine_summer` 689,528 - cell coordinates), so a re-import moves them together. Both painters still regenerate the map from that data on load (`AutoGenerate = true`). To hand-edit: untick **AutoGenerate** on both `Ground` and `YSort/Structures`, save, paint.
 
-- **York Factory**: palisade with a gate; **Trading room** (Factor, clerks, hearth, counter), **Warehouse** (fur bales, cargo), **Men's house** (labourers and the post's women, hearth). Woodpile in the yard.
-- **Wharf** running out onto the bay; the ship ties up at its end.
-- **River** down the east side; three **beaver lodges** on it.
-- **Cree camp**: five tipis round a fire, west along a trail from the gate.
+- **York Factory**: a 22 × 34 palisade with a gate in the river wall and ten buildings. The three the test loops lean on: **Trading room** (the code's `Depot`, "Indian trading shop": Factor, clerks, hearth, counter), **Warehouse** (the code's name for "the Depot": fur bales, cargo, the storeroom chest) and **Men's house** (labourers and the post's women, hearth). Also the Chief Factor's house, clerks' house, summer mess, provision store, guest house, and outside the palisade a boat shed and a powder magazine. Woodpile in the yard. See `WIKI/Locations/York Factory.md` for the building table.
+- **Wharf**: a 14-cell boardwalk out through the river gate; the ship ties up at its end.
+- **River**: the Hayes; three **beaver lodges** up it near York (upper, bend, lower), more at Knee Lake and Oxford.
+- **Cree camp**: five tipis round a fire. It is at the winter camp in the bush for most of the year and moves to the summer camp on the trail beside the post (see *The band's seasons*). A 5-point trail runs from the gate toward the winter camp.
 - **Forest** south and west (trees are passable but slow; woodcutters fell them).
-- **Sites**: caribou yard (SW), goose marsh (NE shore), beaver lodges, wolf den (far SW).
+- **Sites**: a caribou herd on a seasonal route, the goose marsh (NE of the fort), beaver lodges, a wolf den far to the south. `world.json` carries about 635 wildlife sites for the whole country (caribou, goose, beaver, wolf, hare, ptarmigan, buffalo), most of them background-only until a player is near.
+- **Elsewhere**: Oxford House and the Nor'Westers' house are hand-laid (below); other posts are laid out by `Scripts/World/Posts.cs` from the atlas (`--noposts` turns them off), and the other peoples' camps by `Scripts/World/Camps.cs` (`--nocamps`; `--spawn=Mandan` and similar jump to one).
 
 ## People (Scripts/World/Population.cs)
 
 Everyone is an `Npc` on a goal stack (`Scripts/Agents/Goals`). Tier 0 needs (warmth, thirst, hunger) interrupt anything; the most urgent one wins. Being attacked or seeing a predator pushes fight-or-flee.
 
-- **HBC**: Mr. William Auld (Factor), two clerks, six Orkney labourers, three women. Live in the post, draw rations from its stores.
+- **HBC**: Mr. William Auld (Factor), two clerks (John Fidler, Alex Kennedy), six Orkney labourers, three women, placed in the York scene as `NpcSpawn` markers. Live in the post, draw rations from its stores. The same scene places several hundred more named people at the other posts, camps and brigades, so the world starts with close to a thousand souls (most of them background, see *Simulation tiers*).
 - **Cree band**: chief Maskwa, four hunters, four women, two unmarried daughters (Kimiwan — the chief's; Wawatew — Wapistan's). Live at the camp, draw on the band's cache.
 - **Ship's crew**: eight, spawned when the ship docks.
 
@@ -133,7 +145,7 @@ Three things you can do about it, all through the ordinary verbs. **Outwork him*
 
 ## The brigade (design doc 12.1, 12.2, 18.3)
 
-`World/Brigade.cs`. Twice a year the river road carries a brigade: **the autumn outfit** up to Oxford House once the ship has been unloaded (goods, muskets, blankets, traps, rum and salt geese), and **the spring returns** down as soon as the ice is out (the winter's furs). A brigade is men, canoes and a manifest moving along the road - the open water resolved in numbers at about a twentieth of the road a day upstream and twice that coming down, slower with a heavy load, a thin crew or a storm, and frozen in where it lies if freeze-up catches it short.
+`World/Brigade.cs`. Twice a year the river road carries a brigade: **the autumn outfit** up to Oxford House once the ship has been unloaded (goods, muskets, blankets, traps, rum and salt geese), and **the spring returns** down as soon as the ice is out (the winter's furs). A brigade is men, canoes and a manifest moving along the road - the open water resolved in numbers at about 5.5% of the road a day upstream and 9.5% coming down (scaled by crew size), slower with a heavy load, a thin crew or a storm, and frozen in where it lies if freeze-up catches it short.
 
 The carrying places of the Hayes - **Rock Portage** at four tenths of the way (the depot where the York boats gave way to canoes, so everything was transshipped as well as carried: two days of it), **Borwick's Falls** on the Hill River, and **Trout Falls** between Knee Lake and Oxford Lake - are where things happen to it. Hill's Gates and Robinson Portage are *above* Oxford House on the road to Norway House and were never on this leg; they were in the list by mistake until the map session corrected it from the sources. The brigade reads the list and the fractions from the atlas, so if the road is re-traced the carries move with it. The canoes come out of the water, the pieces go over on men's backs (two days at the heavy ones), and **anyone who means to stop you knows exactly where you will be**: with bad blood between the houses the other company may be waiting, and takes half the manifest into its own store, raising the tension and landing in your journal with the cause named - *the other house knew which day you would be on the carrying place*. The director paces those interceptions like any other heavy beat.
 
@@ -296,7 +308,7 @@ Rum and ale carry intoxication (35 / 12), which wears off at 8 an hour. Drunk: s
 
 ## Fever (design doc 13.5)
 
-When the ship docks there's a one-in-three chance a sailor has fever. It spreads between people standing together (more so indoors), lasts 6-11 days, costs ~8 health a day and appetite, weakens the arm. Survivors are immune for the year. Talk to someone feverish and you're told to keep your distance.
+When the ship docks there's a 35% chance a sailor has fever. It spreads between people standing together (more so indoors), lasts 6-11 days, costs ~8 health a day and appetite, weakens the arm. Survivors are immune for the year. Talk to someone feverish and you're told to keep your distance.
 
 ## Fire (design doc 18.4)
 
@@ -382,15 +394,15 @@ The saving: a fortnight that cost **63 s of pathfinding and 548 slow calls** bef
 
 ## Oxford House and the river road (design doc 3.9's far outpost, 10.1.2, 18.3)
 
-The map is now 80 × **460** cells. A day's march south along the west bank sits **Oxford House** (`WorldLayout.OutpostTop` 36,396): a palisade, one house (hearth, counter, bunks, bales), a woodpile, its own books (`Economy/OutpostLedger.cs`, `Sim.Outpost`, in `Sim.Posts()`), a **postmaster** (Mr. James Sutherland - `Role.Postmaster`, runs the same `Delegation` loop as the Factor over *his* household), three men and a wife. Two rich lodges lie near it (Knee Lake, Oxford); the wolf den moved south. **Inland bands** trade there abstractly once a week (furs for goods by the price; bare shelves send them to the Canadians and count as furs lost).
+Up the Hayes, 316 km by the traced river road (about 295 km in a straight line), sits **Oxford House** (`WorldLayout.OutpostTop`, anchor `outpost_top` 646,882 in `world.json`): a palisade, one house (hearth, counter, bunks, bales), a woodpile, its own books (`Economy/OutpostLedger.cs`, `Sim.Outpost`, in `Sim.Posts()`), a **postmaster** (Mr. James Sutherland - `Role.Postmaster`, runs the same `Delegation` loop as the Factor over *his* household), three men and a wife. Two rich lodges lie near it (Knee Lake, Oxford); the wolf den moved south. **Inland bands** trade there abstractly once a week (furs for goods by the price; bare shelves send them to the Canadians and count as furs lost).
 
 **The river road** (`WorldLayout.RiverRoad`, dashed on the map) runs gate to gate. `RoadGoal` walks NPCs along it. Every month the postmaster sends a man down with the **furs and a report** (`CourierGoal` + `Letters.OutpostReport`: furs, food days, men fit, news); Auld reads it at his desk and his belief about the inland post updates (F1 → *Oxford House*). If **no report reaches York in 45 days** he sends two men up the road to see (`LookForGoal` by the road, reporting back). After the ship sails the Factor sends the **fall outfit** inland with two men and written orders (`Delegation.OrderSupply`). Everything is on the men: a courier killed on the road has the furs and the packet on his body.
 
-**You**: at the road head on the bank below either gate the prompt reads *E Take the river road…* - **travel mode**: you march waypoint to waypoint while the clock runs at 6× for everyone (`GameCalendar.TravelBoost`); E or any step ends it. About 13 game hours York → Oxford House; take food and a capote. Volunteer to the Factor: *"Send me up to Oxford House with the outfit"* (standing 12) - ten pieces, a letter for Sutherland, the *Courier* task (stow them at the outpost chest), and you're **posted inland**: Sutherland gives your morning orders and his chest is yours; ask him to send you back to the Bay. `--spawn=outpost|road`, F1 *Oxford House* buttons (send the outfit now, teleports). Households: men now belong to a *post* (`HomeStores`), not just a company; each post's leader is `Household.Leader`.
+**You**: at the road head on the bank below either gate the prompt reads *E Take the river road…* - **travel mode**: you march waypoint to waypoint while the clock runs at 6× for everyone (`GameCalendar.TravelBoost`); E or any step ends it. It is a long march (the road is 316 km gate to gate); take food and a capote. Volunteer to the Factor: *"Send me up to Oxford House with the outfit"* (standing 12) - ten pieces, a letter for Sutherland, the *Courier* task (stow them at the outpost chest), and you're **posted inland**: Sutherland gives your morning orders and his chest is yours; ask him to send you back to the Bay. `--spawn=outpost|road`, F1 *Oxford House* buttons (send the outfit now, teleports). Households: men now belong to a *post* (`HomeStores`), not just a company; each post's leader is `Household.Leader`.
 
 ## The Assiniboine and the nations (design doc 7.2, 13.1)
 
-A second band (`BandLedger` is generic now: nation, name, camp, its own standing and debt with each company, `Sim.Bands`). The **Assiniboine** - Tchatka's people, with the new sheets (`AssiniboineFrames.tres`: walk, bow, musket) - winter upland near Oxford House (16,424) and come down the river road on 1 July to camp on the trail below York (22,118) for the trading season, back on 1 September. Their cache fills with **pemmican** from the buffalo country while they winter (14 a week), and the chief sells it at the posts (`FortLedger.BuyProvisions`: two pemmican for a piece of goods, only when the mess is under 60 days) - the plains provisioning of the design doc, feeding Oxford House. Each band has a **standing with the other** (65, allies of old): hunters of the two nations meeting on the same ground trade hard words (Chronicle, -2 each), it mends 0.3 a day, and under 25 the bands are **at odds** - their hunters treat each other as enemies in the bush. You can carry tobacco between the camps (*Speak for peace with…*, rapport 15, 3 goods, +15). Nakoda is its own tongue (`AssiniboineFluency`; an Assiniboine wife or a Cree wife interprets). Blood debts, grudges, restitution and marriage all work per band.
+A second band (`BandLedger` is generic now: nation, name, camp, its own standing and debt with each company, `Sim.Bands`). The **Assiniboine** - Tchatka's people, with the new sheets (`AssiniboineFrames.tres`: walk, bow, musket) - winter upland near Oxford House (anchor `assiniboine_winter`, cell 639,920) and come down the river road on 1 July to camp on the trail below York (`assiniboine_summer`, cell 689,528) for the trading season, back on 1 September. Their cache fills with **pemmican** from the buffalo country while they winter (14 a week), and the chief sells it at the posts (`FortLedger.BuyProvisions`: two pemmican for a piece of goods, only when the mess is under 60 days) - the plains provisioning of the design doc, feeding Oxford House. Each band has a **standing with the other** (65, allies of old): hunters of the two nations meeting on the same ground trade hard words (Chronicle, -2 each), it mends 0.3 a day, and under 25 the bands are **at odds** - their hunters treat each other as enemies in the bush. You can carry tobacco between the camps (*Speak for peace with…*, rapport 15, 3 goods, +15). Nakoda is its own tongue (`AssiniboineFluency`; an Assiniboine wife or a Cree wife interprets). Blood debts, grudges, restitution and marriage all work per band.
 
 **The Nor'Westers on the river road** (design doc 10.3, 12.2): with tension ≥ 55 (or the council's sanction) Cameron sends two men to lie up a day's march out for the Company's inland packet (`AmbushGoal`, 30 hours): they fall on any Company man carrying papers or four furs, strip the body, and the partner reads what he shouldn't. Guards and couriers with muskets shoot back.
 
@@ -430,7 +442,7 @@ The caribou site is now a **herd**: each month it makes for that month's ground 
 
 ## The band's seasons (design doc 6)
 
-At **Breakup** (5 June) the band strikes camp and pitches the tipis on the trail beside the post (`WorldLayout.SummerCamp`, 23,100) for the trading season; at **Freeze-up** (10 November) they go back to the winter camp in the bush (14,140). The cells, the campfire hearth, the cache, the woodpile, everyone's bed and work cell move; clients and late joiners get the repaint. `WorldLayout.CampCentre` is wherever they are now.
+At **Breakup** (5 June) the band strikes camp and pitches the tipis on the trail beside the post (`WorldLayout.SummerCamp`, anchor `cree_summer`, cell 700,594) for the trading season; at **Freeze-up** (10 November) they go back to the winter camp in the bush (`cree_winter`, cell 667,606). The cells, the campfire hearth, the cache, the woodpile, everyone's bed and work cell move; clients and late joiners get the repaint. `WorldLayout.CampCentre` is wherever they are now.
 
 ## Orders and company (design doc 3.9)
 
@@ -444,7 +456,7 @@ Saskatoon, lowbush cranberry and rosehip are flora like trees: scattered by regi
 
 `Species.Buffalo`: 260 health, as fast as a man can run, four hundred pounds of meat (70 pieces - more than one man can carry, so the kill is a place the camp comes to) and a `BuffaloRobe`, or a holed hide if it was shot. A plains camp hunts buffalo before caribou (`EcologyManager.BestBigGame`, which is knowledge-filtered, so nobody at York has heard of a buffalo ground). `-- --buffalo` drops four beside you; F1 has the same button.
 
-**Two things are not there.** The herds: there are no buffalo `WildlifeSite` nodes in the exterior scene yet, so until someone places them on the grassland and the parkland with their twelve-month routes, the species exists and nothing in the world is a buffalo. And **there is no horse in the game at all** - no mount, no mounted hunt, no horse as property. The plains peoples walk.
+**One thing is still not there.** The herds are: `world.json` now carries 18 buffalo sites on the grassland and parkland with twelve-month routes (capacity about 260 each), drawn with the caribou sprite for want of their own, and a plains camp hunts them before caribou. But **there is no horse in the game at all** - no mount, no mounted hunt, no horse as property. The plains peoples walk.
 
 ## Scurvy (design doc 13.5)
 
@@ -456,7 +468,7 @@ When the ship docks she lands enough Orkneymen to bring the post back to six lab
 
 ## Save and load
 
-`Core/SaveGame.cs`. **F5** writes `user://saves/quicksave.json` (`%APPDATA%\Godotpp_userdata\IsometricFurTradeGame\saves\`); **F9** reloads the world from it. The map regenerates from `WorldLayout`; the save restores what has drifted: the date and weather, tension, the camp's position, every ledger and household (stores, prices, quota, debts, standing, known sites and beliefs, raid dates), every site (count, breeding, browse, position, traplines), hearth fuel, open doors and felled/burnt cells, picked-up items, canoes, the ship (state, position, cargo, hold), every NPC (position, needs, kit, age, fever, personality, appearance, spouse/father/children, rapport, memories, assigned task, dead where they lay) and every player by name (needs, kit, standing, rank, task, known sites, journal, spouse). A player who joins later gets their character back when their name matches. Clients are told to reload and re-seat themselves. Main menu: *Continue alone* / *Continue and host* when a quicksave exists. Dev: `--load`, `--autosave=SECONDS`, `--autoload=SECONDS`.
+`Core/SaveGame.cs`. **F5** writes `user://saves/quicksave.json` (on Windows `%APPDATA%\Godot\app_userdata\IsometricFurTradeGame\saves\`; `settings.cfg` sits beside the `saves` folder); the pause menu's Save button and the autosave (Settings > Game: off, or every 5/10/20/30 real minutes, default 10; host or solo only) write the same file. **F9** reloads the world from it. There is one slot; the main menu shows **Continue** with a one-line summary when it exists. The map regenerates from `WorldLayout` and `world.json`; the save restores what has drifted: the date and weather, tension, the camp's position, every ledger and household (stores, prices, quota, debts, standing, known sites and beliefs, raid dates), every site (count, breeding, browse, position, traplines), hearth fuel, open doors and felled/burnt cells, picked-up items, canoes, the ship (state, position, cargo, hold), every NPC (position, needs, kit, age, fever, personality, appearance, spouse/father/children, rapport, memories, assigned task, dead where they lay) and every player by name (needs, kit, standing, rank, task, known sites, journal, spouse). A player who joins later gets their character back when their name matches. Clients are told to reload and re-seat themselves. Main menu: *Continue alone* / *Continue and host* when a quicksave exists. Dev: `--load`, `--autosave=SECONDS`, `--autoload=SECONDS`.
 
 ## Food chain
 
@@ -468,7 +480,7 @@ Calendar (speed, skip hours/days/months, set date, blizzard/clear/gale), Player 
 
 ## Command-line dev args (after `--`)
 
-`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y|<post name>|<camp name>` (any camp of the country by name, e.g. `--spawn=Mandan`, and a bare cell, e.g. `--spawn=538,1959`) (e.g. `31,86` is the yard) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--buffalo` (four head beside you) · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2` · `--nodirector` · `--brawl` · `--provoke=N` · `--dumpbook=S` · `--quitafter=S` · `--ambition=RiseAtThePost|FoundAPost|MarryIn|PrivateTrade|DriveOffTheRival|KeepTheBandWhole` · `--standing=N`
+`--spawn=depot|warehouse|menshouse|wharf|berth|camp|caribou|geese|beaver|wolves|x,y|<post name>|<camp name>` (also `nwc|outpost|assiniboine|road|ford|hares|ptarmigan`, any post or place on the map by name, e.g. `--spawn="Fort William"`, any camp of the country by name, e.g. `--spawn=Mandan`, and a bare cell, e.g. `--spawn=538,1959`; the York yard is around cell 690,545) · `--hour=H` · `--date=YYYY-MM-DD` · `--speed=SECONDS_PER_HOUR` · `--trace` (print everyone's state every game hour) · `--ship` (bring the ship in now) · `--wolves` · `--buffalo` (four head beside you) · `--scarcity` · `--tension=N` · `--herdmoved` · `--follow` (nearest person follows you, then you're moved outside the gate) · `--scurvy` · `--load` · `--autosave=S` · `--autoload=S` · `--provoke` · `--talk` · `--blaze` · `--son` · `--killme=S` · `--talkto=Name` · `--pick=0,3,1` (press those dialogue options, 0-based, from eight seconds in) · `--talktrace` (print every screen of a conversation) · `--kit=BeaverPelt:8,Rum:2` · `--nodirector` · `--brawl` · `--provoke=N` · `--dumpbook=S` · `--quitafter=S` · `--ambition=RiseAtThePost|FoundAPost|MarryIn|PrivateTrade|DriveOffTheRival|KeepTheBandWhole` · `--standing=N`
 
 ## Barks and shared memory (design doc P.4, P.8)
 
@@ -508,8 +520,15 @@ Dev args for menus: `--snap=S1,S2` saves the screen to `user://snap_N.png` at th
 
 ## Known gaps / next
 
-- Art is placeholder everywhere new (trees, tipis, ship, women/factor recolours, item icons).
+- Art is a mix: many NPC sheets, the player, animals and item icons are final, but terrain and regional ground tiles are recolours of one grass tile, buildings use a single flat roof tile and Kenney furniture, and buffalo borrow the caribou sprite (`WIKI/Development/Asset Inventory.md` has the full list).
 - Roofs are flat placeholder planes; the front wall still fades when you're inside.
 - Player's own weapons have no swing animation; shots are a line and a flash.
-- Delegation is a fixed playbook, not a planner; no message objects yet (orders take effect immediately, except London's, which wait for the ship).
-- Balance numbers (need rates, site sizes, prices) are first guesses. Use `--trace` runs at `--speed=1` to watch a week in a few minutes.
+- Delegation is a fixed playbook, not a planner. Message objects exist (`Core/Message.cs`, see *Messages*), but not every order travels as one: the Factor's morning orders still take effect immediately; London's directive and the Fort William minutes go by ship and brigade.
+- No horses, no slavery (§9.2), no crafting or smithing, no smallpox/measles; founding a new post is not built (see `WIKI/Development/Development Status.md`).
+- Balance numbers (need rates, site sizes, prices) are first guesses. Use `--trace` runs at `--speed=1` to watch a week in a few minutes. Note the 30 s default is slower than the 10 s the numbers were first tuned at.
+
+## Not re-verified (2026-10-13)
+
+Checked against the code in the pass above: the clock and calendar constants, annual events, start dates, key bindings and input map, pause/main menu contents, multiplayer port and client limit, save path and autosave, world size and scale, anchors in `world.json`, camp positions, the starting cast at York, ship crew rules and fever chance, brigade pace and portage fractions, tier radii (3200/4200 px), carry capacity, canoe pace and capacity, goose-hunt dates, dev-arg names and the `--spawn` names.
+
+Taken as written, not re-checked line by line: the numeric tuning in the economy, ecology, barter, nerve, director, council, marriage, grudge, lie, favour and rumour sections; the performance timings (270-600 ms, 145 fps and so on, measured on the author's machine at the time and at the old 10 s clock); the berry, fishing, deer-passage and scurvy numbers; the table of F1 console contents (sections are now tabs; button labels drift); the York-to-Oxford travel time on the river road (the old "about 13 game hours" was dropped because the map was rescaled and the clock slowed since it was measured). Two sections (*What costs a frame* and *Who is near a point*) overlap and could be merged.
