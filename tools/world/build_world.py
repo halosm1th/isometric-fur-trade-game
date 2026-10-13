@@ -545,8 +545,11 @@ def lay_out(G, places, extras, atlas):
     for camp in camps:
         if camp["kind"] != "band" or camp["nation"] not in PLAINS: continue
         c = tuple(camp["centre"])
-        b_summer = find(c, lambda n: g(n) in ("Grassland", "TallGrass") and not WorldLayout_bank(n), 90)
-        b_winter = find(c, lambda n: g(n) == "Parkland" or (g(n) in ("Grassland", "TallGrass", "Boreal") and WorldLayout_bank(n)), 90)
+        # Out on the plains, a journey from camp - the hunt went to the herd.
+        cw = cell_world(*c)
+        away = lambda n, px: math.dist(cell_world(*n), cw) >= px
+        b_summer = find(c, lambda n: g(n) in ("Grassland", "TallGrass") and not WorldLayout_bank(n) and away(n, 4000), 110)
+        b_winter = find(c, lambda n: (g(n) == "Parkland" or (g(n) in ("Grassland", "TallGrass", "Boreal") and WorldLayout_bank(n))) and away(n, 2500), 110)
         if not b_summer or not b_winter: continue
         if math.dist(cell_world(*b_summer), york) < 30000 or math.dist(cell_world(*b_winter), york) < 30000: continue
         route = []

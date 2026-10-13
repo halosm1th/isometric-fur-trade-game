@@ -660,10 +660,10 @@ position = Vector2(0, -64)
 
 [node name="Moose Factory" type="Node2D" parent="Cast/Posts" unique_id=976360167]
 
-[node name="Mr William McIntosh" type="Node2D" parent="Cast/Posts/Moose Factory"]
+[node name="Mr George Cameron" type="Node2D" parent="Cast/Posts/Moose Factory"]
 position = Vector2(125120, 36640)
 script = ExtResource("30_npcspawn")
-DisplayName = "Mr. William McIntosh"
+DisplayName = "Mr. George Cameron"
 Role = 4
 Faction = 0
 Home = 5
@@ -672,13 +672,13 @@ Leader = true
 Frames = ExtResource("32_factor")
 Inventory = "Musket, Capote, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Mr William McIntosh"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Mr George Cameron"]
 position = Vector2(832, 416)
 
-[node name="Robert Cromartie clerk" type="Node2D" parent="Cast/Posts/Moose Factory"]
+[node name="Joseph Ballenden clerk" type="Node2D" parent="Cast/Posts/Moose Factory"]
 position = Vector2(125440, 36800)
 script = ExtResource("30_npcspawn")
-DisplayName = "Robert Cromartie (clerk)"
+DisplayName = "Joseph Ballenden (clerk)"
 Role = 2
 Faction = 0
 Home = 5
@@ -686,13 +686,13 @@ PostName = "Moose Factory"
 Frames = ExtResource("32_hbc")
 Inventory = "Capote, Knife, Bread"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Robert Cromartie clerk"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Joseph Ballenden clerk"]
 position = Vector2(512, 320)
 
-[node name="Alexander Inkster" type="Node2D" parent="Cast/Posts/Moose Factory"]
+[node name="Adam Rendall" type="Node2D" parent="Cast/Posts/Moose Factory"]
 position = Vector2(125120, 37408)
 script = ExtResource("30_npcspawn")
-DisplayName = "Alexander Inkster"
+DisplayName = "Adam Rendall"
 Role = 2
 Faction = 0
 Home = 5
@@ -700,13 +700,13 @@ PostName = "Moose Factory"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2, Musket"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Alexander Inkster"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Adam Rendall"]
 position = Vector2(-384, -128)
 
-[node name="Joseph Budge" type="Node2D" parent="Cast/Posts/Moose Factory"]
+[node name="David Bichan" type="Node2D" parent="Cast/Posts/Moose Factory"]
 position = Vector2(125184, 37440)
 script = ExtResource("30_npcspawn")
-DisplayName = "Joseph Budge"
+DisplayName = "David Bichan"
 Role = 2
 Faction = 0
 Home = 5
@@ -714,13 +714,13 @@ PostName = "Moose Factory"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Joseph Budge"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/David Bichan"]
 position = Vector2(-384, -128)
 
-[node name="Adam Cromartie" type="Node2D" parent="Cast/Posts/Moose Factory"]
+[node name="Alexander Garrick" type="Node2D" parent="Cast/Posts/Moose Factory"]
 position = Vector2(125248, 37472)
 script = ExtResource("30_npcspawn")
-DisplayName = "Adam Cromartie"
+DisplayName = "Alexander Garrick"
 Role = 2
 Faction = 0
 Home = 5
@@ -728,13 +728,13 @@ PostName = "Moose Factory"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Adam Cromartie"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Alexander Garrick"]
 position = Vector2(-384, -128)
 
-[node name="William Omand" type="Node2D" parent="Cast/Posts/Moose Factory"]
+[node name="Hugh Moar" type="Node2D" parent="Cast/Posts/Moose Factory"]
 position = Vector2(125312, 37504)
 script = ExtResource("30_npcspawn")
-DisplayName = "William Omand"
+DisplayName = "Hugh Moar"
 Role = 2
 Faction = 0
 Home = 5
@@ -742,13 +742,13 @@ PostName = "Moose Factory"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/William Omand"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Hugh Moar"]
 position = Vector2(-576, -224)
 
-[node name="William Harper" type="Node2D" parent="Cast/Posts/Moose Factory"]
+[node name="Magnus Halcro" type="Node2D" parent="Cast/Posts/Moose Factory"]
 position = Vector2(125376, 37536)
 script = ExtResource("30_npcspawn")
-DisplayName = "William Harper"
+DisplayName = "Magnus Halcro"
 Role = 2
 Faction = 0
 Home = 5
@@ -756,13 +756,13 @@ PostName = "Moose Factory"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/William Harper"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Magnus Halcro"]
 position = Vector2(-576, -224)
 
-[node name="Hugh Sinclair" type="Node2D" parent="Cast/Posts/Moose Factory"]
+[node name="Magnus Inkster" type="Node2D" parent="Cast/Posts/Moose Factory"]
 position = Vector2(125056, 37440)
 script = ExtResource("30_npcspawn")
-DisplayName = "Hugh Sinclair"
+DisplayName = "Magnus Inkster"
 Role = 2
 Faction = 0
 Home = 5
@@ -770,13 +770,13 @@ PostName = "Moose Factory"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Hugh Sinclair"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Magnus Inkster"]
 position = Vector2(-192, -96)
 
-[node name="Isabella Bird" type="Node2D" parent="Cast/Posts/Moose Factory"]
+[node name="Nancy Mowat" type="Node2D" parent="Cast/Posts/Moose Factory"]
 position = Vector2(125120, 37472)
 script = ExtResource("30_npcspawn")
-DisplayName = "Isabella Bird"
+DisplayName = "Nancy Mowat"
 Role = 3
 Faction = 0
 Home = 5
@@ -787,13 +787,13 @@ Female = true
 Tint = Color(1, 0.8, 0.85, 1)
 Inventory = "PointBlanket, Knife"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Isabella Bird"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Nancy Mowat"]
 position = Vector2(64, 32)
 
-[node name="Elizabeth Gibson" type="Node2D" parent="Cast/Posts/Moose Factory"]
+[node name="Mary Cromartie" type="Node2D" parent="Cast/Posts/Moose Factory"]
 position = Vector2(125184, 37504)
 script = ExtResource("30_npcspawn")
-DisplayName = "Elizabeth Gibson"
+DisplayName = "Mary Cromartie"
 Role = 3
 Faction = 0
 Home = 5
@@ -804,7 +804,7 @@ Female = true
 Tint = Color(1, 0.8, 0.85, 1)
 Inventory = "PointBlanket, Knife"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Elizabeth Gibson"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Moose Factory/Mary Cromartie"]
 position = Vector2(0, 0)
 
 [node name="Albany Fort" type="Node2D" parent="Cast/Posts" unique_id=931611973]
@@ -1014,10 +1014,10 @@ position = Vector2(64, 96)
 
 [node name="Cumberland House" type="Node2D" parent="Cast/Posts" unique_id=978220236]
 
-[node name="Mr George Leith" type="Node2D" parent="Cast/Posts/Cumberland House"]
+[node name="Mr William Robertson" type="Node2D" parent="Cast/Posts/Cumberland House"]
 position = Vector2(65792, 33216)
 script = ExtResource("30_npcspawn")
-DisplayName = "Mr. George Leith"
+DisplayName = "Mr. William Robertson"
 Role = 4
 Faction = 0
 Home = 5
@@ -1026,13 +1026,13 @@ Leader = true
 Frames = ExtResource("32_factor")
 Inventory = "Musket, Capote, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Mr George Leith"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Mr William Robertson"]
 position = Vector2(-192, -416)
 
-[node name="Robert Halcro" type="Node2D" parent="Cast/Posts/Cumberland House"]
+[node name="Charles Tait" type="Node2D" parent="Cast/Posts/Cumberland House"]
 position = Vector2(65152, 32896)
 script = ExtResource("30_npcspawn")
-DisplayName = "Robert Halcro"
+DisplayName = "Charles Tait"
 Role = 2
 Faction = 0
 Home = 5
@@ -1040,13 +1040,13 @@ PostName = "Cumberland House"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2, Musket"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Robert Halcro"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Charles Tait"]
 position = Vector2(192, 224)
 
-[node name="Donald Gibson" type="Node2D" parent="Cast/Posts/Cumberland House"]
+[node name="George Spence" type="Node2D" parent="Cast/Posts/Cumberland House"]
 position = Vector2(65216, 32928)
 script = ExtResource("30_npcspawn")
-DisplayName = "Donald Gibson"
+DisplayName = "George Spence"
 Role = 2
 Faction = 0
 Home = 5
@@ -1054,13 +1054,13 @@ PostName = "Cumberland House"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Donald Gibson"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/George Spence"]
 position = Vector2(192, 224)
 
-[node name="Andrew Linklater" type="Node2D" parent="Cast/Posts/Cumberland House"]
+[node name="Donald Kirkness" type="Node2D" parent="Cast/Posts/Cumberland House"]
 position = Vector2(65280, 32960)
 script = ExtResource("30_npcspawn")
-DisplayName = "Andrew Linklater"
+DisplayName = "Donald Kirkness"
 Role = 2
 Faction = 0
 Home = 5
@@ -1068,13 +1068,13 @@ PostName = "Cumberland House"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Andrew Linklater"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Donald Kirkness"]
 position = Vector2(192, 224)
 
-[node name="David Bird" type="Node2D" parent="Cast/Posts/Cumberland House"]
+[node name="Alexander Clouston" type="Node2D" parent="Cast/Posts/Cumberland House"]
 position = Vector2(65344, 32992)
 script = ExtResource("30_npcspawn")
-DisplayName = "David Bird"
+DisplayName = "Alexander Clouston"
 Role = 2
 Faction = 0
 Home = 5
@@ -1082,13 +1082,13 @@ PostName = "Cumberland House"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/David Bird"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Alexander Clouston"]
 position = Vector2(0, 128)
 
-[node name="Isabella Clouston" type="Node2D" parent="Cast/Posts/Cumberland House"]
+[node name="Isabella Sinclair" type="Node2D" parent="Cast/Posts/Cumberland House"]
 position = Vector2(65408, 33024)
 script = ExtResource("30_npcspawn")
-DisplayName = "Isabella Clouston"
+DisplayName = "Isabella Sinclair"
 Role = 3
 Faction = 0
 Home = 5
@@ -1099,7 +1099,7 @@ Female = true
 Tint = Color(1, 0.8, 0.85, 1)
 Inventory = "PointBlanket, Knife"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Isabella Clouston"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Cumberland House/Isabella Sinclair"]
 position = Vector2(-192, -32)
 
 [node name="Gloucester House" type="Node2D" parent="Cast/Posts" unique_id=1591291637]
@@ -1734,10 +1734,10 @@ position = Vector2(64, 96)
 
 [node name="Fort Chipewyan" type="Node2D" parent="Cast/Posts" unique_id=951594858]
 
-[node name="Mr George Henry" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
+[node name="Mr Andrew Shaw" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
 position = Vector2(45312, 12672)
 script = ExtResource("30_npcspawn")
-DisplayName = "Mr. George Henry"
+DisplayName = "Mr. Andrew Shaw"
 Role = 4
 Faction = 4
 Home = 5
@@ -1746,13 +1746,13 @@ Leader = true
 Frames = ExtResource("32_factor")
 Inventory = "Musket, Capote, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Mr George Henry"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Mr Andrew Shaw"]
 position = Vector2(0, 0)
 
-[node name="Hugh Cameron clerk" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
+[node name="David Leith clerk" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
 position = Vector2(45760, 12896)
 script = ExtResource("30_npcspawn")
-DisplayName = "Hugh Cameron (clerk)"
+DisplayName = "David Leith (clerk)"
 Role = 2
 Faction = 4
 Home = 5
@@ -1760,13 +1760,13 @@ PostName = "Fort Chipewyan"
 Frames = ExtResource("32_hbc")
 Inventory = "Capote, Knife, Bread"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Hugh Cameron clerk"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/David Leith clerk"]
 position = Vector2(-448, -160)
 
-[node name="Augustin Paradis" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
+[node name="Alexis Gingras" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
 position = Vector2(44800, 12800)
 script = ExtResource("30_npcspawn")
-DisplayName = "Augustin Paradis"
+DisplayName = "Alexis Gingras"
 Role = 12
 Faction = 4
 Home = 5
@@ -1774,13 +1774,13 @@ PostName = "Fort Chipewyan"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2, Musket"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Augustin Paradis"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Alexis Gingras"]
 position = Vector2(320, 224)
 
-[node name="Toussaint Lapierre" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
+[node name="Basile Nolin" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
 position = Vector2(44864, 12832)
 script = ExtResource("30_npcspawn")
-DisplayName = "Toussaint Lapierre"
+DisplayName = "Basile Nolin"
 Role = 12
 Faction = 4
 Home = 5
@@ -1788,13 +1788,13 @@ PostName = "Fort Chipewyan"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Toussaint Lapierre"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Basile Nolin"]
 position = Vector2(320, 224)
 
-[node name="Augustin Nolin" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
+[node name="Jean-Baptiste Dumas" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
 position = Vector2(44928, 12864)
 script = ExtResource("30_npcspawn")
-DisplayName = "Augustin Nolin"
+DisplayName = "Jean-Baptiste Dumas"
 Role = 12
 Faction = 4
 Home = 5
@@ -1802,13 +1802,13 @@ PostName = "Fort Chipewyan"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Augustin Nolin"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Jean-Baptiste Dumas"]
 position = Vector2(320, 224)
 
-[node name="Jean-Baptiste Gingras" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
+[node name="Pierre Beaulieu" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
 position = Vector2(44992, 12896)
 script = ExtResource("30_npcspawn")
-DisplayName = "Jean-Baptiste Gingras"
+DisplayName = "Pierre Beaulieu"
 Role = 12
 Faction = 4
 Home = 5
@@ -1816,13 +1816,13 @@ PostName = "Fort Chipewyan"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Jean-Baptiste Gingras"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Pierre Beaulieu"]
 position = Vector2(128, 128)
 
-[node name="Isabella Trottier" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
+[node name="Margaret Allard" type="Node2D" parent="Cast/Posts/Fort Chipewyan"]
 position = Vector2(45056, 12928)
 script = ExtResource("30_npcspawn")
-DisplayName = "Isabella Trottier"
+DisplayName = "Margaret Allard"
 Role = 3
 Faction = 4
 Home = 5
@@ -1833,7 +1833,7 @@ Female = true
 Tint = Color(1, 0.8, 0.85, 1)
 Inventory = "PointBlanket, Knife"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Isabella Trottier"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Chipewyan/Margaret Allard"]
 position = Vector2(-192, -32)
 
 [node name="Brunswick House" type="Node2D" parent="Cast/Posts" unique_id=605048595]
@@ -2379,10 +2379,10 @@ position = Vector2(64, 96)
 
 [node name="Edmonton House" type="Node2D" parent="Cast/Posts" unique_id=1151641917]
 
-[node name="Mr David Leith" type="Node2D" parent="Cast/Posts/Edmonton House"]
+[node name="Mr Alexander Ross" type="Node2D" parent="Cast/Posts/Edmonton House"]
 position = Vector2(36736, 33536)
 script = ExtResource("30_npcspawn")
-DisplayName = "Mr. David Leith"
+DisplayName = "Mr. Alexander Ross"
 Role = 4
 Faction = 0
 Home = 5
@@ -2391,13 +2391,13 @@ Leader = true
 Frames = ExtResource("32_factor")
 Inventory = "Musket, Capote, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Mr David Leith"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Mr Alexander Ross"]
 position = Vector2(-448, 224)
 
-[node name="Joseph Cromartie clerk" type="Node2D" parent="Cast/Posts/Edmonton House"]
+[node name="Joseph Budge clerk" type="Node2D" parent="Cast/Posts/Edmonton House"]
 position = Vector2(36480, 33792)
 script = ExtResource("30_npcspawn")
-DisplayName = "Joseph Cromartie (clerk)"
+DisplayName = "Joseph Budge (clerk)"
 Role = 2
 Faction = 0
 Home = 5
@@ -2405,13 +2405,13 @@ PostName = "Edmonton House"
 Frames = ExtResource("32_hbc")
 Inventory = "Capote, Knife, Bread"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Joseph Cromartie clerk"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Joseph Budge clerk"]
 position = Vector2(-192, 32)
 
-[node name="William Tait" type="Node2D" parent="Cast/Posts/Edmonton House"]
+[node name="Robert Budge" type="Node2D" parent="Cast/Posts/Edmonton House"]
 position = Vector2(36800, 34016)
 script = ExtResource("30_npcspawn")
-DisplayName = "William Tait"
+DisplayName = "Robert Budge"
 Role = 2
 Faction = 0
 Home = 5
@@ -2419,13 +2419,13 @@ PostName = "Edmonton House"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2, Musket"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/William Tait"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Robert Budge"]
 position = Vector2(-320, -32)
 
-[node name="Peter Budge" type="Node2D" parent="Cast/Posts/Edmonton House"]
+[node name="William Sinclair" type="Node2D" parent="Cast/Posts/Edmonton House"]
 position = Vector2(36864, 34048)
 script = ExtResource("30_npcspawn")
-DisplayName = "Peter Budge"
+DisplayName = "William Sinclair"
 Role = 2
 Faction = 0
 Home = 5
@@ -2433,13 +2433,13 @@ PostName = "Edmonton House"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Peter Budge"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/William Sinclair"]
 position = Vector2(-320, -32)
 
-[node name="Thomas Groat" type="Node2D" parent="Cast/Posts/Edmonton House"]
+[node name="Alexander Taylor" type="Node2D" parent="Cast/Posts/Edmonton House"]
 position = Vector2(36928, 34080)
 script = ExtResource("30_npcspawn")
-DisplayName = "Thomas Groat"
+DisplayName = "Alexander Taylor"
 Role = 2
 Faction = 0
 Home = 5
@@ -2447,13 +2447,13 @@ PostName = "Edmonton House"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Thomas Groat"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Alexander Taylor"]
 position = Vector2(-320, -32)
 
-[node name="Alexander Ballenden" type="Node2D" parent="Cast/Posts/Edmonton House"]
+[node name="Adam Linklater" type="Node2D" parent="Cast/Posts/Edmonton House"]
 position = Vector2(36992, 34112)
 script = ExtResource("30_npcspawn")
-DisplayName = "Alexander Ballenden"
+DisplayName = "Adam Linklater"
 Role = 2
 Faction = 0
 Home = 5
@@ -2461,13 +2461,13 @@ PostName = "Edmonton House"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Alexander Ballenden"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Adam Linklater"]
 position = Vector2(-512, -128)
 
-[node name="Donald Halcro" type="Node2D" parent="Cast/Posts/Edmonton House"]
+[node name="Andrew Halcro" type="Node2D" parent="Cast/Posts/Edmonton House"]
 position = Vector2(37056, 34144)
 script = ExtResource("30_npcspawn")
-DisplayName = "Donald Halcro"
+DisplayName = "Andrew Halcro"
 Role = 2
 Faction = 0
 Home = 5
@@ -2475,13 +2475,13 @@ PostName = "Edmonton House"
 Frames = ExtResource("32_lab")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Donald Halcro"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Andrew Halcro"]
 position = Vector2(-512, -128)
 
-[node name="Marguerite Ballenden" type="Node2D" parent="Cast/Posts/Edmonton House"]
+[node name="Christina Cromartie" type="Node2D" parent="Cast/Posts/Edmonton House"]
 position = Vector2(36736, 34048)
 script = ExtResource("30_npcspawn")
-DisplayName = "Marguerite Ballenden"
+DisplayName = "Christina Cromartie"
 Role = 3
 Faction = 0
 Home = 5
@@ -2492,13 +2492,13 @@ Female = true
 Tint = Color(1, 0.8, 0.85, 1)
 Inventory = "PointBlanket, Knife"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Marguerite Ballenden"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Christina Cromartie"]
 position = Vector2(128, 64)
 
-[node name="Margaret Omand" type="Node2D" parent="Cast/Posts/Edmonton House"]
+[node name="Josephte Spence" type="Node2D" parent="Cast/Posts/Edmonton House"]
 position = Vector2(36800, 34080)
 script = ExtResource("30_npcspawn")
-DisplayName = "Margaret Omand"
+DisplayName = "Josephte Spence"
 Role = 3
 Faction = 0
 Home = 5
@@ -2509,7 +2509,7 @@ Female = true
 Tint = Color(1, 0.8, 0.85, 1)
 Inventory = "PointBlanket, Knife"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Margaret Omand"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Edmonton House/Josephte Spence"]
 position = Vector2(64, 32)
 
 [node name="Fort Augustus" type="Node2D" parent="Cast/Posts" unique_id=445273449]
@@ -3103,10 +3103,10 @@ position = Vector2(64, 96)
 
 [node name="Fort William" type="Node2D" parent="Cast/Posts" unique_id=758018465]
 
-[node name="Mr Adam Fraser partner" type="Node2D" parent="Cast/Posts/Fort William"]
+[node name="Mr Adam Ross partner" type="Node2D" parent="Cast/Posts/Fort William"]
 position = Vector2(103040, 52544)
 script = ExtResource("30_npcspawn")
-DisplayName = "Mr. Adam Fraser (partner)"
+DisplayName = "Mr. Adam Ross (partner)"
 Role = 4
 Faction = 4
 Home = 5
@@ -3115,13 +3115,13 @@ Leader = true
 Frames = ExtResource("32_factor")
 Inventory = "Musket, Capote, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Mr Adam Fraser partner"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Mr Adam Ross partner"]
 position = Vector2(-1024, 512)
 
-[node name="Donald McIntosh clerk" type="Node2D" parent="Cast/Posts/Fort William"]
+[node name="Adam Fraser clerk" type="Node2D" parent="Cast/Posts/Fort William"]
 position = Vector2(103424, 52736)
 script = ExtResource("30_npcspawn")
-DisplayName = "Donald McIntosh (clerk)"
+DisplayName = "Adam Fraser (clerk)"
 Role = 2
 Faction = 4
 Home = 5
@@ -3129,13 +3129,13 @@ PostName = "Fort William"
 Frames = ExtResource("32_hbc")
 Inventory = "Capote, Knife, Bread"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Donald McIntosh clerk"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Adam Fraser clerk"]
 position = Vector2(-1408, 384)
 
-[node name="Augustin Lambert" type="Node2D" parent="Cast/Posts/Fort William"]
+[node name="Jacques Delorme" type="Node2D" parent="Cast/Posts/Fort William"]
 position = Vector2(103168, 53632)
 script = ExtResource("30_npcspawn")
-DisplayName = "Augustin Lambert"
+DisplayName = "Jacques Delorme"
 Role = 12
 Faction = 4
 Home = 5
@@ -3143,13 +3143,13 @@ PostName = "Fort William"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2, Musket"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Augustin Lambert"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Jacques Delorme"]
 position = Vector2(-704, -160)
 
-[node name="Joseph Gingras" type="Node2D" parent="Cast/Posts/Fort William"]
+[node name="Alexis Paradis" type="Node2D" parent="Cast/Posts/Fort William"]
 position = Vector2(103232, 53664)
 script = ExtResource("30_npcspawn")
-DisplayName = "Joseph Gingras"
+DisplayName = "Alexis Paradis"
 Role = 12
 Faction = 4
 Home = 5
@@ -3157,13 +3157,13 @@ PostName = "Fort William"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Joseph Gingras"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Alexis Paradis"]
 position = Vector2(-704, -160)
 
-[node name="Francois Belanger" type="Node2D" parent="Cast/Posts/Fort William"]
+[node name="Antoine Primeau" type="Node2D" parent="Cast/Posts/Fort William"]
 position = Vector2(103296, 53696)
 script = ExtResource("30_npcspawn")
-DisplayName = "Francois Belanger"
+DisplayName = "Antoine Primeau"
 Role = 12
 Faction = 4
 Home = 5
@@ -3171,13 +3171,13 @@ PostName = "Fort William"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Francois Belanger"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Antoine Primeau"]
 position = Vector2(-704, -160)
 
-[node name="Louis Laroque" type="Node2D" parent="Cast/Posts/Fort William"]
+[node name="Augustin Lafleur" type="Node2D" parent="Cast/Posts/Fort William"]
 position = Vector2(103360, 53728)
 script = ExtResource("30_npcspawn")
-DisplayName = "Louis Laroque"
+DisplayName = "Augustin Lafleur"
 Role = 12
 Faction = 4
 Home = 5
@@ -3185,13 +3185,13 @@ PostName = "Fort William"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Louis Laroque"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Augustin Lafleur"]
 position = Vector2(-896, -256)
 
-[node name="Jacques Plante" type="Node2D" parent="Cast/Posts/Fort William"]
+[node name="Etienne Lapierre" type="Node2D" parent="Cast/Posts/Fort William"]
 position = Vector2(103424, 53760)
 script = ExtResource("30_npcspawn")
-DisplayName = "Jacques Plante"
+DisplayName = "Etienne Lapierre"
 Role = 12
 Faction = 4
 Home = 5
@@ -3199,13 +3199,13 @@ PostName = "Fort William"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Jacques Plante"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Etienne Lapierre"]
 position = Vector2(-896, -256)
 
-[node name="Etienne Boucher" type="Node2D" parent="Cast/Posts/Fort William"]
+[node name="Alexis Primeau" type="Node2D" parent="Cast/Posts/Fort William"]
 position = Vector2(103104, 53664)
 script = ExtResource("30_npcspawn")
-DisplayName = "Etienne Boucher"
+DisplayName = "Alexis Primeau"
 Role = 12
 Faction = 4
 Home = 5
@@ -3213,13 +3213,13 @@ PostName = "Fort William"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Etienne Boucher"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Alexis Primeau"]
 position = Vector2(-512, -128)
 
-[node name="Mary Allard" type="Node2D" parent="Cast/Posts/Fort William"]
+[node name="Elizabeth Laroque" type="Node2D" parent="Cast/Posts/Fort William"]
 position = Vector2(103168, 53696)
 script = ExtResource("30_npcspawn")
-DisplayName = "Mary Allard"
+DisplayName = "Elizabeth Laroque"
 Role = 3
 Faction = 4
 Home = 5
@@ -3230,13 +3230,13 @@ Female = true
 Tint = Color(1, 0.8, 0.85, 1)
 Inventory = "PointBlanket, Knife"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Mary Allard"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Elizabeth Laroque"]
 position = Vector2(64, 32)
 
-[node name="Christina Allard" type="Node2D" parent="Cast/Posts/Fort William"]
+[node name="Isabella Vandal" type="Node2D" parent="Cast/Posts/Fort William"]
 position = Vector2(103232, 53728)
 script = ExtResource("30_npcspawn")
-DisplayName = "Christina Allard"
+DisplayName = "Isabella Vandal"
 Role = 3
 Faction = 4
 Home = 5
@@ -3247,7 +3247,7 @@ Female = true
 Tint = Color(1, 0.8, 0.85, 1)
 Inventory = "PointBlanket, Knife"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Christina Allard"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort William/Isabella Vandal"]
 position = Vector2(0, 0)
 
 [node name="Dunvegan" type="Node2D" parent="Cast/Posts" unique_id=1045374892]
@@ -3540,10 +3540,10 @@ position = Vector2(64, 96)
 
 [node name="Fort Gibraltar" type="Node2D" parent="Cast/Posts" unique_id=1827389055]
 
-[node name="Mr James Grant" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
+[node name="Mr Hugh Ross" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
 position = Vector2(81408, 50624)
 script = ExtResource("30_npcspawn")
-DisplayName = "Mr. James Grant"
+DisplayName = "Mr. Hugh Ross"
 Role = 4
 Faction = 4
 Home = 5
@@ -3552,13 +3552,13 @@ Leader = true
 Frames = ExtResource("32_factor")
 Inventory = "Musket, Capote, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Mr James Grant"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Mr Hugh Ross"]
 position = Vector2(-448, 160)
 
-[node name="Donald Sutherland clerk" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
+[node name="Donald Campbell clerk" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
 position = Vector2(81152, 50816)
 script = ExtResource("30_npcspawn")
-DisplayName = "Donald Sutherland (clerk)"
+DisplayName = "Donald Campbell (clerk)"
 Role = 2
 Faction = 4
 Home = 5
@@ -3566,13 +3566,13 @@ PostName = "Fort Gibraltar"
 Frames = ExtResource("32_hbc")
 Inventory = "Capote, Knife, Bread"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Donald Sutherland clerk"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Donald Campbell clerk"]
 position = Vector2(-192, 32)
 
-[node name="Francois Delorme" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
+[node name="Michel Beaulieu" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
 position = Vector2(81472, 51040)
 script = ExtResource("30_npcspawn")
-DisplayName = "Francois Delorme"
+DisplayName = "Michel Beaulieu"
 Role = 12
 Faction = 4
 Home = 5
@@ -3580,13 +3580,13 @@ PostName = "Fort Gibraltar"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2, Musket"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Francois Delorme"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Michel Beaulieu"]
 position = Vector2(-256, -64)
 
-[node name="Louis Lafleur" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
+[node name="Alexis Lambert" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
 position = Vector2(81536, 51072)
 script = ExtResource("30_npcspawn")
-DisplayName = "Louis Lafleur"
+DisplayName = "Alexis Lambert"
 Role = 12
 Faction = 4
 Home = 5
@@ -3594,13 +3594,13 @@ PostName = "Fort Gibraltar"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Louis Lafleur"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Alexis Lambert"]
 position = Vector2(-256, -64)
 
-[node name="Jean-Baptiste Charbonneau" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
+[node name="Antoine Paradis" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
 position = Vector2(81600, 51104)
 script = ExtResource("30_npcspawn")
-DisplayName = "Jean-Baptiste Charbonneau"
+DisplayName = "Antoine Paradis"
 Role = 12
 Faction = 4
 Home = 5
@@ -3608,13 +3608,13 @@ PostName = "Fort Gibraltar"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Jean-Baptiste Charbonneau"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Antoine Paradis"]
 position = Vector2(-256, -64)
 
-[node name="Jean-Baptiste Morin" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
+[node name="Antoine Delorme" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
 position = Vector2(81664, 51136)
 script = ExtResource("30_npcspawn")
-DisplayName = "Jean-Baptiste Morin"
+DisplayName = "Antoine Delorme"
 Role = 12
 Faction = 4
 Home = 5
@@ -3622,13 +3622,13 @@ PostName = "Fort Gibraltar"
 Frames = ExtResource("32_factor")
 Inventory = "Capote, Knife, Pemmican:2"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Jean-Baptiste Morin"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Antoine Delorme"]
 position = Vector2(-448, -160)
 
-[node name="Elizabeth Boucher" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
+[node name="Isabella Paradis" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
 position = Vector2(81728, 51168)
 script = ExtResource("30_npcspawn")
-DisplayName = "Elizabeth Boucher"
+DisplayName = "Isabella Paradis"
 Role = 3
 Faction = 4
 Home = 5
@@ -3639,13 +3639,13 @@ Female = true
 Tint = Color(1, 0.8, 0.85, 1)
 Inventory = "PointBlanket, Knife"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Elizabeth Boucher"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Isabella Paradis"]
 position = Vector2(-192, -32)
 
-[node name="Christina Lapierre" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
+[node name="Jane Primeau" type="Node2D" parent="Cast/Posts/Fort Gibraltar"]
 position = Vector2(81408, 51072)
 script = ExtResource("30_npcspawn")
-DisplayName = "Christina Lapierre"
+DisplayName = "Jane Primeau"
 Role = 3
 Faction = 4
 Home = 5
@@ -3656,7 +3656,7 @@ Female = true
 Tint = Color(1, 0.8, 0.85, 1)
 Inventory = "PointBlanket, Knife"
 
-[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Christina Lapierre"]
+[node name="Work" type="Marker2D" parent="Cast/Posts/Fort Gibraltar/Jane Primeau"]
 position = Vector2(128, 64)
 
 [node name="Flathead House" type="Node2D" parent="Cast/Posts" unique_id=1635488492]
@@ -21689,28 +21689,28 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blackfoot"]
-position = Vector2(-768, 1408)
+position = Vector2(-896, 0)
 
 [node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blackfoot"]
-position = Vector2(-1536, 3008)
+position = Vector2(-1920, 0)
 
 [node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blackfoot"]
-position = Vector2(-2048, 3968)
+position = Vector2(-2560, 0)
 
 [node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blackfoot"]
-position = Vector2(-2048, 3968)
+position = Vector2(-2560, 0)
 
 [node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blackfoot"]
-position = Vector2(-2048, 3968)
+position = Vector2(-2560, 0)
 
 [node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blackfoot"]
-position = Vector2(-2048, 3968)
+position = Vector2(-2560, 0)
 
 [node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blackfoot"]
-position = Vector2(-1280, 2368)
+position = Vector2(-1536, 0)
 
 [node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blackfoot"]
-position = Vector2(-512, 1024)
+position = Vector2(-640, 0)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blackfoot"]
 position = Vector2(0, 0)
@@ -21734,28 +21734,28 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blood Kainai"]
-position = Vector2(-128, 1024)
+position = Vector2(-256, -320)
 
 [node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blood Kainai"]
-position = Vector2(-256, 2240)
+position = Vector2(-512, -768)
 
 [node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blood Kainai"]
-position = Vector2(-256, 2944)
+position = Vector2(-768, -1024)
 
 [node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blood Kainai"]
-position = Vector2(-256, 2944)
+position = Vector2(-768, -1024)
 
 [node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blood Kainai"]
-position = Vector2(-256, 2944)
+position = Vector2(-768, -1024)
 
 [node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blood Kainai"]
-position = Vector2(-256, 2944)
+position = Vector2(-768, -1024)
 
 [node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blood Kainai"]
-position = Vector2(-128, 1792)
+position = Vector2(-512, -576)
 
 [node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blood Kainai"]
-position = Vector2(0, 768)
+position = Vector2(0, 0)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Blood Kainai"]
 position = Vector2(0, 0)
@@ -21779,34 +21779,34 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Peigan Piikani"]
-position = Vector2(-1536, 1216)
+position = Vector2(-1664, -192)
 
 [node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Peigan Piikani"]
-position = Vector2(-3328, 2624)
+position = Vector2(-3584, -384)
 
 [node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Peigan Piikani"]
-position = Vector2(-4352, 3456)
+position = Vector2(-4864, -512)
 
 [node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Peigan Piikani"]
-position = Vector2(-4352, 3456)
+position = Vector2(-4864, -512)
 
 [node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Peigan Piikani"]
-position = Vector2(-4352, 3456)
+position = Vector2(-4864, -512)
 
 [node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Peigan Piikani"]
-position = Vector2(-4352, 3456)
+position = Vector2(-4864, -512)
 
 [node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Peigan Piikani"]
-position = Vector2(-2560, 2112)
+position = Vector2(-2944, -320)
 
 [node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Peigan Piikani"]
-position = Vector2(-1024, 896)
+position = Vector2(-1280, -128)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Peigan Piikani"]
 position = Vector2(0, 0)
 
 [node name="Buffalo plain Sarcee Tsuutina" type="Node2D" parent="Wildlife/Country"]
-position = Vector2(32320, 43360)
+position = Vector2(33856, 45024)
 script = ExtResource("31_site")
 SiteName = "Buffalo plain (Sarcee (Tsuut'ina))"
 Species = 6
@@ -21824,28 +21824,28 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Sarcee Tsuutina"]
-position = Vector2(0, -128)
+position = Vector2(-384, -2112)
 
 [node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Sarcee Tsuutina"]
-position = Vector2(0, -256)
+position = Vector2(-768, -4480)
 
 [node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Sarcee Tsuutina"]
-position = Vector2(0, -384)
+position = Vector2(-1024, -6016)
 
 [node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Sarcee Tsuutina"]
-position = Vector2(0, -384)
+position = Vector2(-1024, -6016)
 
 [node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Sarcee Tsuutina"]
-position = Vector2(0, -384)
+position = Vector2(-1024, -6016)
 
 [node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Sarcee Tsuutina"]
-position = Vector2(0, -384)
+position = Vector2(-1024, -6016)
 
 [node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Sarcee Tsuutina"]
-position = Vector2(0, -192)
+position = Vector2(-640, -3584)
 
 [node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Sarcee Tsuutina"]
-position = Vector2(0, -64)
+position = Vector2(-256, -1472)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Sarcee Tsuutina"]
 position = Vector2(0, 0)
@@ -21869,34 +21869,34 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Cypress Hills"]
-position = Vector2(1024, 896)
+position = Vector2(768, -448)
 
 [node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Cypress Hills"]
-position = Vector2(2176, 1920)
+position = Vector2(1664, -1024)
 
 [node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Cypress Hills"]
-position = Vector2(2816, 2560)
+position = Vector2(2304, -1408)
 
 [node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Cypress Hills"]
-position = Vector2(2816, 2560)
+position = Vector2(2304, -1408)
 
 [node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Cypress Hills"]
-position = Vector2(2816, 2560)
+position = Vector2(2304, -1408)
 
 [node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Cypress Hills"]
-position = Vector2(2816, 2560)
+position = Vector2(2304, -1408)
 
 [node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Cypress Hills"]
-position = Vector2(1664, 1536)
+position = Vector2(1408, -832)
 
 [node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Cypress Hills"]
-position = Vector2(640, 640)
+position = Vector2(640, -320)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Cypress Hills"]
 position = Vector2(0, 0)
 
 [node name="Buffalo plain Touchwood Hills" type="Node2D" parent="Wildlife/Country"]
-position = Vector2(60672, 48320)
+position = Vector2(63232, 48704)
 script = ExtResource("31_site")
 SiteName = "Buffalo plain (Touchwood Hills)"
 Species = 6
@@ -21914,34 +21914,34 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Touchwood Hills"]
-position = Vector2(-128, 256)
+position = Vector2(-1152, -1280)
 
 [node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Touchwood Hills"]
-position = Vector2(-128, 512)
+position = Vector2(-2432, -2752)
 
 [node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Touchwood Hills"]
-position = Vector2(-256, 640)
+position = Vector2(-3328, -3712)
 
 [node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Touchwood Hills"]
-position = Vector2(-256, 640)
+position = Vector2(-3328, -3712)
 
 [node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Touchwood Hills"]
-position = Vector2(-256, 640)
+position = Vector2(-3328, -3712)
 
 [node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Touchwood Hills"]
-position = Vector2(-256, 640)
+position = Vector2(-3328, -3712)
 
 [node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Touchwood Hills"]
-position = Vector2(-128, 384)
+position = Vector2(-2048, -2240)
 
 [node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Touchwood Hills"]
-position = Vector2(-128, 192)
+position = Vector2(-896, -896)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Touchwood Hills"]
 position = Vector2(0, 0)
 
 [node name="Buffalo plain Nakoda Stoney" type="Node2D" parent="Wildlife/Country"]
-position = Vector2(31744, 42944)
+position = Vector2(32512, 43584)
 script = ExtResource("31_site")
 SiteName = "Buffalo plain (Nakoda (Stoney))"
 Species = 6
@@ -21959,28 +21959,28 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Nakoda Stoney"]
-position = Vector2(128, -704)
+position = Vector2(-256, 448)
 
 [node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Nakoda Stoney"]
-position = Vector2(384, -1536)
+position = Vector2(-640, 960)
 
 [node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Nakoda Stoney"]
-position = Vector2(512, -2048)
+position = Vector2(-768, 1280)
 
 [node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Nakoda Stoney"]
-position = Vector2(512, -2048)
+position = Vector2(-768, 1280)
 
 [node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Nakoda Stoney"]
-position = Vector2(512, -2048)
+position = Vector2(-768, 1280)
 
 [node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Nakoda Stoney"]
-position = Vector2(512, -2048)
+position = Vector2(-768, 1280)
 
 [node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Nakoda Stoney"]
-position = Vector2(256, -1216)
+position = Vector2(-512, 768)
 
 [node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Nakoda Stoney"]
-position = Vector2(128, -512)
+position = Vector2(-128, 320)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Nakoda Stoney"]
 position = Vector2(0, 0)
@@ -22031,7 +22031,7 @@ position = Vector2(-1536, -512)
 position = Vector2(0, 0)
 
 [node name="Buffalo plain Lakota Teton Sioux" type="Node2D" parent="Wildlife/Country"]
-position = Vector2(69120, 74368)
+position = Vector2(70144, 73984)
 script = ExtResource("31_site")
 SiteName = "Buffalo plain (Lakota (Teton Sioux))"
 Species = 6
@@ -22049,124 +22049,124 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Lakota Teton Sioux"]
-position = Vector2(-1024, -3584)
+position = Vector2(-1408, -3456)
 
 [node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Lakota Teton Sioux"]
-position = Vector2(-2304, -7680)
+position = Vector2(-3072, -7360)
 
 [node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Lakota Teton Sioux"]
-position = Vector2(-3072, -10240)
+position = Vector2(-4096, -9856)
 
 [node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Lakota Teton Sioux"]
-position = Vector2(-3072, -10240)
+position = Vector2(-4096, -9856)
 
 [node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Lakota Teton Sioux"]
-position = Vector2(-3072, -10240)
+position = Vector2(-4096, -9856)
 
 [node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Lakota Teton Sioux"]
-position = Vector2(-3072, -10240)
+position = Vector2(-4096, -9856)
 
 [node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Lakota Teton Sioux"]
-position = Vector2(-1792, -6144)
+position = Vector2(-2432, -5888)
 
 [node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Lakota Teton Sioux"]
-position = Vector2(-768, -2560)
+position = Vector2(-1024, -2432)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Lakota Teton Sioux"]
 position = Vector2(0, 0)
 
-[node name="Buffalo plain Mandan" type="Node2D" parent="Wildlife/Country"]
-position = Vector2(68736, 62976)
+[node name="Buffalo plain Turtle Mountain" type="Node2D" parent="Wildlife/Country"]
+position = Vector2(69760, 65152)
 script = ExtResource("31_site")
-SiteName = "Buffalo plain (Mandan)"
+SiteName = "Buffalo plain (Turtle Mountain)"
 Species = 6
 Count = 182
 Capacity = 260
 RadiusPx = 900.0
 
-[node name="Jan" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mandan"]
+[node name="Jan" type="Marker2D" parent="Wildlife/Country/Buffalo plain Turtle Mountain"]
 position = Vector2(0, 0)
 
-[node name="Feb" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mandan"]
+[node name="Feb" type="Marker2D" parent="Wildlife/Country/Buffalo plain Turtle Mountain"]
 position = Vector2(0, 0)
 
-[node name="Mar" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mandan"]
+[node name="Mar" type="Marker2D" parent="Wildlife/Country/Buffalo plain Turtle Mountain"]
 position = Vector2(0, 0)
 
-[node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mandan"]
-position = Vector2(128, -64)
+[node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Turtle Mountain"]
+position = Vector2(-512, -2240)
 
-[node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mandan"]
-position = Vector2(256, -192)
+[node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Turtle Mountain"]
+position = Vector2(-1024, -4800)
 
-[node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mandan"]
-position = Vector2(256, -256)
+[node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Turtle Mountain"]
+position = Vector2(-1280, -6400)
 
-[node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mandan"]
-position = Vector2(256, -256)
+[node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Turtle Mountain"]
+position = Vector2(-1280, -6400)
 
-[node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mandan"]
-position = Vector2(256, -256)
+[node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Turtle Mountain"]
+position = Vector2(-1280, -6400)
 
-[node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mandan"]
-position = Vector2(256, -256)
+[node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Turtle Mountain"]
+position = Vector2(-1280, -6400)
 
-[node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mandan"]
-position = Vector2(128, -128)
+[node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Turtle Mountain"]
+position = Vector2(-768, -3840)
 
-[node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mandan"]
-position = Vector2(0, -64)
-
-[node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mandan"]
+[node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Turtle Mountain"]
 position = Vector2(0, 0)
 
-[node name="Buffalo plain Hidatsa" type="Node2D" parent="Wildlife/Country"]
-position = Vector2(67008, 61792)
+[node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Turtle Mountain"]
+position = Vector2(0, 0)
+
+[node name="Buffalo plain Moose Mountain" type="Node2D" parent="Wildlife/Country"]
+position = Vector2(64448, 60768)
 script = ExtResource("31_site")
-SiteName = "Buffalo plain (Hidatsa)"
+SiteName = "Buffalo plain (Moose Mountain)"
 Species = 6
 Count = 191
 Capacity = 260
 RadiusPx = 1300.0
 
-[node name="Jan" type="Marker2D" parent="Wildlife/Country/Buffalo plain Hidatsa"]
+[node name="Jan" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain"]
 position = Vector2(0, 0)
 
-[node name="Feb" type="Marker2D" parent="Wildlife/Country/Buffalo plain Hidatsa"]
+[node name="Feb" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain"]
 position = Vector2(0, 0)
 
-[node name="Mar" type="Marker2D" parent="Wildlife/Country/Buffalo plain Hidatsa"]
+[node name="Mar" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain"]
 position = Vector2(0, 0)
 
-[node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Hidatsa"]
-position = Vector2(0, -192)
+[node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain"]
+position = Vector2(768, -1216)
 
-[node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Hidatsa"]
-position = Vector2(0, -384)
+[node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain"]
+position = Vector2(1536, -2560)
 
-[node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Hidatsa"]
-position = Vector2(0, -512)
+[node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain"]
+position = Vector2(2048, -3456)
 
-[node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Hidatsa"]
-position = Vector2(0, -512)
+[node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain"]
+position = Vector2(2048, -3456)
 
-[node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Hidatsa"]
-position = Vector2(0, -512)
+[node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain"]
+position = Vector2(2048, -3456)
 
-[node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Hidatsa"]
-position = Vector2(0, -512)
+[node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain"]
+position = Vector2(2048, -3456)
 
-[node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Hidatsa"]
-position = Vector2(0, -320)
+[node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain"]
+position = Vector2(1280, -2048)
 
-[node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Hidatsa"]
-position = Vector2(0, -128)
+[node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain"]
+position = Vector2(512, -832)
 
-[node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Hidatsa"]
+[node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain"]
 position = Vector2(0, 0)
 
 [node name="Buffalo plain Arikara" type="Node2D" parent="Wildlife/Country"]
-position = Vector2(71424, 69056)
+position = Vector2(70912, 66240)
 script = ExtResource("31_site")
 SiteName = "Buffalo plain (Arikara)"
 Species = 6
@@ -22184,28 +22184,28 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Arikara"]
-position = Vector2(-256, -1984)
+position = Vector2(-128, -960)
 
 [node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Arikara"]
-position = Vector2(-640, -4224)
+position = Vector2(-128, -2112)
 
 [node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Arikara"]
-position = Vector2(-768, -5632)
+position = Vector2(-256, -2816)
 
 [node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Arikara"]
-position = Vector2(-768, -5632)
+position = Vector2(-256, -2816)
 
 [node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Arikara"]
-position = Vector2(-768, -5632)
+position = Vector2(-256, -2816)
 
 [node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Arikara"]
-position = Vector2(-768, -5632)
+position = Vector2(-256, -2816)
 
 [node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Arikara"]
-position = Vector2(-512, -3392)
+position = Vector2(-128, -1664)
 
 [node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Arikara"]
-position = Vector2(-128, -1408)
+position = Vector2(-128, -704)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Arikara"]
 position = Vector2(0, 0)
@@ -22256,7 +22256,7 @@ position = Vector2(256, 768)
 position = Vector2(0, 0)
 
 [node name="Buffalo plain Shoshone" type="Node2D" parent="Wildlife/Country"]
-position = Vector2(36800, 68128)
+position = Vector2(37056, 65824)
 script = ExtResource("31_site")
 SiteName = "Buffalo plain (Shoshone)"
 Species = 6
@@ -22274,28 +22274,28 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
-position = Vector2(128, -1792)
-
-[node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
-position = Vector2(384, -3904)
-
-[node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
-position = Vector2(512, -5248)
-
-[node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
-position = Vector2(512, -5248)
-
-[node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
-position = Vector2(512, -5248)
-
-[node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
-position = Vector2(512, -5248)
-
-[node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
 position = Vector2(0, 0)
 
+[node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
+position = Vector2(128, -2176)
+
+[node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
+position = Vector2(256, -2944)
+
+[node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
+position = Vector2(256, -2944)
+
+[node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
+position = Vector2(256, -2944)
+
+[node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
+position = Vector2(256, -2944)
+
+[node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
+position = Vector2(128, -1728)
+
 [node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
-position = Vector2(128, -1280)
+position = Vector2(0, 0)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Shoshone"]
 position = Vector2(0, 0)
@@ -22346,7 +22346,7 @@ position = Vector2(-1792, -2368)
 position = Vector2(0, 0)
 
 [node name="Buffalo plain Mtis country Forks" type="Node2D" parent="Wildlife/Country"]
-position = Vector2(80576, 52448)
+position = Vector2(80320, 54880)
 script = ExtResource("31_site")
 SiteName = "Buffalo plain (Métis country, Forks)"
 Species = 6
@@ -22364,34 +22364,34 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country Forks"]
-position = Vector2(128, 0)
+position = Vector2(384, 576)
 
 [node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country Forks"]
-position = Vector2(384, 0)
+position = Vector2(896, 1152)
 
 [node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country Forks"]
-position = Vector2(512, 0)
+position = Vector2(1280, 1536)
 
 [node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country Forks"]
-position = Vector2(512, 0)
+position = Vector2(1280, 1536)
 
 [node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country Forks"]
-position = Vector2(512, 0)
+position = Vector2(1280, 1536)
 
 [node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country Forks"]
-position = Vector2(512, 0)
+position = Vector2(1280, 1536)
 
 [node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country Forks"]
-position = Vector2(256, 0)
+position = Vector2(768, 960)
 
 [node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country Forks"]
-position = Vector2(128, 0)
+position = Vector2(384, 384)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country Forks"]
 position = Vector2(0, 0)
 
 [node name="Buffalo plain Mtis country at Pembina" type="Node2D" parent="Wildlife/Country"]
-position = Vector2(80704, 54944)
+position = Vector2(80192, 52640)
 script = ExtResource("31_site")
 SiteName = "Buffalo plain (Métis country, at Pembina)"
 Species = 6
@@ -22409,73 +22409,73 @@ position = Vector2(0, 0)
 position = Vector2(0, 0)
 
 [node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country at Pembina"]
-position = Vector2(128, 0)
+position = Vector2(128, 2240)
 
 [node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country at Pembina"]
-position = Vector2(384, 0)
+position = Vector2(384, 4736)
 
 [node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country at Pembina"]
-position = Vector2(512, 0)
+position = Vector2(512, 6272)
 
 [node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country at Pembina"]
-position = Vector2(512, 0)
+position = Vector2(512, 6272)
 
 [node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country at Pembina"]
-position = Vector2(512, 0)
+position = Vector2(512, 6272)
 
 [node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country at Pembina"]
-position = Vector2(512, 0)
+position = Vector2(512, 6272)
 
 [node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country at Pembina"]
-position = Vector2(256, 0)
+position = Vector2(256, 3776)
 
 [node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country at Pembina"]
-position = Vector2(128, 0)
+position = Vector2(128, 1600)
 
 [node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Mtis country at Pembina"]
 position = Vector2(0, 0)
 
-[node name="Buffalo plain Duck Mountain" type="Node2D" parent="Wildlife/Country"]
-position = Vector2(67776, 47776)
+[node name="Buffalo plain Moose Mountain 2" type="Node2D" parent="Wildlife/Country"]
+position = Vector2(65984, 45728)
 script = ExtResource("31_site")
-SiteName = "Buffalo plain (Duck Mountain)"
+SiteName = "Buffalo plain (Moose Mountain) 2"
 Species = 6
 Count = 174
 Capacity = 260
 RadiusPx = 1300.0
 
-[node name="Jan" type="Marker2D" parent="Wildlife/Country/Buffalo plain Duck Mountain"]
+[node name="Jan" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain 2"]
 position = Vector2(0, 0)
 
-[node name="Feb" type="Marker2D" parent="Wildlife/Country/Buffalo plain Duck Mountain"]
+[node name="Feb" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain 2"]
 position = Vector2(0, 0)
 
-[node name="Mar" type="Marker2D" parent="Wildlife/Country/Buffalo plain Duck Mountain"]
+[node name="Mar" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain 2"]
 position = Vector2(0, 0)
 
-[node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Duck Mountain"]
-position = Vector2(-256, 128)
+[node name="Apr" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain 2"]
+position = Vector2(128, 2240)
 
-[node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Duck Mountain"]
-position = Vector2(-640, 192)
+[node name="May" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain 2"]
+position = Vector2(384, 4736)
 
-[node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Duck Mountain"]
-position = Vector2(-768, 256)
+[node name="Jun" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain 2"]
+position = Vector2(512, 6272)
 
-[node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Duck Mountain"]
-position = Vector2(-768, 256)
+[node name="Jul" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain 2"]
+position = Vector2(512, 6272)
 
-[node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Duck Mountain"]
-position = Vector2(-768, 256)
+[node name="Aug" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain 2"]
+position = Vector2(512, 6272)
 
-[node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Duck Mountain"]
-position = Vector2(-768, 256)
+[node name="Sep" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain 2"]
+position = Vector2(512, 6272)
 
-[node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Duck Mountain"]
-position = Vector2(-512, 192)
+[node name="Oct" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain 2"]
+position = Vector2(256, 3776)
 
-[node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Duck Mountain"]
-position = Vector2(-128, 64)
+[node name="Nov" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain 2"]
+position = Vector2(128, 1600)
 
-[node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Duck Mountain"]
+[node name="Dec" type="Marker2D" parent="Wildlife/Country/Buffalo plain Moose Mountain 2"]
 position = Vector2(0, 0)
