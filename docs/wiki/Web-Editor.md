@@ -1,7 +1,7 @@
 # The web editor
 
 ```
-dotnet run --project tools/CampaignTool -- serve [--port 8765]
+dotnet run --project tools/CampaignTool -- serve
 ```
 
 opens an editor at <http://localhost:8765/>. It runs on your machine (nothing is sent anywhere), uses the same compiler, checker and simulator as the command-line tool, and edits the real files in the repository.

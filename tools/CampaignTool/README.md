@@ -38,7 +38,7 @@ dotnet run --project tools/CampaignTool -- build                     # every src
 dotnet run --project tools/CampaignTool -- decompile Campaigns/x.json -o x.camp   # write an old JSON campaign as a script
 dotnet run --project tools/CampaignTool -- graph     story.camp      # mermaid; --dot for graphviz
 dotnet run --project tools/CampaignTool -- sim       story.camp --scenario s.json [--runs 200] [--adherence Strict] [--log] [--state] [--json]
-dotnet run --project tools/CampaignTool -- serve     [--port 8765]   # the web editor
+dotnet run --project tools/CampaignTool -- serve                    # the web editor (add --port 8800 to change the port)
 dotnet run --project tools/CampaignTool -- docs                      # write docs/wiki/Library-Reference.md
 ```
 

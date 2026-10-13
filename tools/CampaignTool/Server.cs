@@ -15,8 +15,8 @@ namespace CampaignTool;
 public sealed class WebServer
 {
 	private readonly string _root = Known.Root;
-	private string Tool => Path.Combine(_root, "tools/CampaignTool");
-	private string Web => Path.Combine(Tool, "web");
+	private string Tool => Path.GetFullPath(Path.Combine(_root, "tools", "CampaignTool"));
+	private string Web => Path.GetFullPath(Path.Combine(Tool, "web"));
 	private readonly HttpListener _http = new();
 	private readonly int _port;
 
