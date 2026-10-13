@@ -60,10 +60,10 @@ A player of the same company hears of the brigade at once if he went with it, ot
 
 ## Tips
 
-- Send the outfit only after the ship is unloaded; empty stores at the far post are a failure the Factor is held to.
+- The outfit leaves from 18 September, after the ship has been unloaded; the returns leave from 8 June once the river is open.
 - Load plenty of provisions and salted geese.
 - Do not send a brigade when the rivalry is hot, or go with it.
-- Spruce gum and rum make the world go round; a brigade out of gum is a lost cargo.
+- A brigade out of gum is a lost cargo: gum is only as plentiful as the crew is large.
 
 ## Design notes
 
