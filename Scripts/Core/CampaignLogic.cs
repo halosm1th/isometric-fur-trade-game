@@ -89,6 +89,8 @@ public static class CampaignLogic
 
 	private static readonly HashSet<string> FlagPrefixes = new() { "heard", "late", "lost", "robbed", "turned", "out", "in" };
 
+	public static bool AllIn(string[] xs, Func<string, bool> f) { foreach (var x in xs) if (!f(x)) return false; return true; }
+
 	public static bool All(object conds, CampaignState st, ICampaignWorld w)
 	{
 		if (conds == null) return true;
