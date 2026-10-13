@@ -15,17 +15,19 @@ The country of the fur trade runs on animals. Beaver pay the Company's accounts,
 
 ## The seven species
 
-| Species | Image | Health | Speed | Diet | Drops | Page |
-|---|---|---|---|---|---|---|
-| Caribou | ![[animal-caribou.png\|90]] | 70 | 170 | Prey | Fresh meat x18, caribou hide | [[Caribou]] |
-| Buffalo | (caribou sprites) | 260 | 200 | Prey | Fresh meat x70, buffalo robe | [[Buffalo]] |
-| Beaver | ![[animal-beaver.png\|90]] | 20 | 90 | Prey | Beaver pelt, fresh meat x3 | [[Beaver]] |
-| Wolf | ![[animal-wolf.png\|90]] | 50 | 230 | Predator | Wolf pelt | [[Wolf]] |
-| Goose | ![[animal-goose.png\|90]] | 8 | 140 | Prey | Goose x4 (x8 if shot into a flock) | [[Goose]] |
-| Snowshoe hare | ![[animal-hare.png\|90]] | 5 | 210 | Prey | Hare | [[Hare]] |
-| Willow ptarmigan | ![[animal-ptarmigan.png\|90]] | 3 | 150 | Prey | Ptarmigan (x3 if shot into a flock) | [[Ptarmigan]] |
+| Species | Health | Speed | Diet | Drops | Page |
+|---|---|---|---|---|---|
+| Caribou | 70 | 170 | Prey | Fresh meat x18, caribou hide | [[Caribou]] |
+| Buffalo | 260 | 200 | Prey | Fresh meat x70, buffalo robe | [[Buffalo]] |
+| Beaver | 20 | 90 | Prey | Beaver pelt, fresh meat x3 | [[Beaver]] |
+| Wolf | 50 | 230 | Predator | Wolf pelt | [[Wolf]] |
+| Goose | 8 | 140 | Prey | Goose x4 (x8 if shot into a flock) | [[Goose]] |
+| Snowshoe hare | 5 | 210 | Prey | Hare | [[Hare]] |
+| Willow ptarmigan | 3 | 150 | Prey | Ptarmigan (x3 if shot into a flock) | [[Ptarmigan]] |
 
 All figures are from `Scripts/Ecology/Species.cs`. Speed is in pixels per second at ordinary time.
+
+![[animal-caribou.png|110]] ![[animal-beaver.png|110]] ![[animal-wolf.png|110]] ![[animal-goose.png|110]] ![[animal-hare.png|110]] ![[animal-ptarmigan.png|110]]
 
 ## How wildlife works, in short
 
