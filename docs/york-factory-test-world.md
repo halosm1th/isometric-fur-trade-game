@@ -1,10 +1,21 @@
 # York Factory test world — what's in it and how to drive it
 
-*Written after the overnight build session (Sept 2026). Everything here is placeholder art and first-pass numbers; the point is that the loops run end to end so they can be watched and tuned.*
+*Written after the overnight build session (Sept 2026). Art is a mix of finished sprite sheets and placeholder tiles, and the numbers are first-pass; the point is that the loops run end to end so they can be watched and tuned.*
+
+Last verified against the code: 2026-10-13
+
+**What changed in that pass (the code is the source of truth; the WIKI/ folder is the cross-reference):**
+- Clock is 30 s per game hour (was 10); a day is 12 minutes of play. Uneven pacing and the date a new game starts on are now described.
+- The world is the whole western fur-trade country from `Data/World/world.json`: 1002 x 2361 cells at 40 px/km (was 80 x 320 / 80 x 460 at 20 px/km). All the old hand-written cell coordinates (Oxford House 36,396; camps 14,140 / 23,100 and so on) are gone; anchors now come from `world.json`'s `layout` block.
+- Four start roads (HBC, NWC, Cree, Assiniboine/other nation) each with a set date, instead of the HBC-only start.
+- Controls table corrected against `project.godot` and `Keybinds.cs`: `G` set-out, map waypoints, zoom keys, rebinding, the Esc menu's real contents, `R` now hands over to an heir; duplicate rows removed.
+- Multiplayer menu wording, the 8-client limit, and the save path (the `Godotpp_userdata` typo) fixed; autosave added.
+- Brigade pace, ship fever chance, Oxford House position and dev-arg `--spawn` examples corrected; "Known gaps" relabelled (message objects exist; art is partly final).
+- Items I could not re-check are listed at the end under "Not re-verified".
 
 ## Playing together
 
-The main menu offers **Play alone**, **Host a game** (port 7777, up to 8), **Join a game** (ip or ip:port) and **Run a dedicated server**. Solo is just a host with nobody else connected - one code path.
+The main menu offers **Continue** (when a quicksave exists), **New game** (a campaign page, then the "Who you are" character page, then **Begin** - this is playing alone), **Multiplayer** (**Host a new game**, port 7777; **Join** with ip or ip:port; **Run a dedicated server**), **Settings** and **Quit**. The server accepts up to 8 clients (`CreateServer(port, 8)`). Solo is just a host with nobody else connected - one code path.
 
 - The **host/server runs the whole simulation**: every NPC and animal brain, the ledgers, the ecology, the clock, the weather, the ship. Clients render what the server tells them and send requests.
 - A client **owns its own player's movement**; everything that touches the world (E, hotbar, attacks, trade, talk) is a request the server carries out, with the result sent back as a notice. Needs, inventory, standing and task are mirrored to the owner a few times a second.
@@ -12,18 +23,18 @@ The main menu offers **Play alone**, **Host a game** (port 7777, up to 8), **Joi
 - **Tab** opens chat; Enter sends; Esc cancels.
 - The F1 console belongs to the host.
 - Late joiners get the world state on arrival (agents, open doors, felled trees, clock, weather).
-- Death: R asks the server to respawn you at the gate as a new hand (−5 standing, fresh kit).
+- Death: R asks the server to hand the world to your heir (see *Children and succession* below), per player; it is not a reset.
 - Windows will ask once to allow Godot through the firewall when you host; friends on the internet need port 7777 UDP forwarded or a VPN like Tailscale/Hamachi.
 
-Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--name=Name`. On a client `--spawn=depot` asks the server to move you there (debug builds), `--talk` opens a conversation after 4 s, `--provoke` picks a fight.
+Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--name=Name`, `--menu=settings|controls|multiplayer|newgame|character`. On a client `--spawn=depot` asks the server to move you there (debug builds only), `--talk` opens a conversation after 4 s, `--provoke` picks a fight.
 
 ## Controls
 
 | Key | Action |
 |---|---|
 | W A S D / arrows | walk |
-| Shift | sprint (1.7× speed, ~2.4× hunger) |
-| Ctrl | sneak: half speed, animals notice you at less than half the distance, a first stroke on an unaware target does 2.5× |
+| Shift | sprint (1.7× speed, ~2.4× hunger activity vs 1.5× walking; footsteps carry 420 px) |
+| Ctrl | sneak: 0.45× speed, footsteps carry 45 px, animals notice you at less than half the distance, a first stroke on an unaware target does 2.5× |
 | E | context action: talk to a person · **bed** (sleep till 07:00 at night, rest an hour by day) · pick up · loot a body / butcher a carcass · woodpile (stack or take firewood) · warehouse (stow goods/furs) · stores counter (draw a ration when short) · ship (shoulder cargo) · open/close door · look at a fire |
 | 1–9 | use hotbar slot (eat / drink / feed a fire / ready a weapon / read clothing) |
 | Mouse wheel + Enter | select and use hotbar slot |
@@ -32,28 +43,28 @@ Dev args: `--solo`, `--host`, `--server` (dedicated), `--join=ip[:port]`, `--nam
 | F11 | full screen (also in the main and pause menus; the UI is laid out at 1280x720 and scales, so 1920x1080 is ×1.5) |
 | F | attack the nearest hostile |
 | Q | drink (from water, or melt snow at a fire in winter) |
-| Z | wait an hour; at night, sleep until 07:00 |
+| Z | wait an hour by day (06:00-19:00); from 19:00 to 06:00 sleep until 07:00. A bed (E) does the night version from 17:00 |
 | T | hold for fast-forward (×40) |
-| Space | stop / start the clock (host only; everyone's clock follows; bodies stop too) |
-| [ / ] | slower / faster clock - doubles or halves the seconds per game hour (host only; shown on the calendar) |
+| Space | stop / start the clock (host only; everyone's clock follows; bodies stop too; the calendar shows `|| PAUSED`) |
+| [ / ] | slower / faster clock - doubles or halves the seconds per game hour, clamped to 0.5-120 s (host only; shown on the calendar as `(N s/hour)` when it is not the old 10 s baseline) |
 | Tab | chat |
 | J / L / I | your book: **Journal** (what you witnessed, dated) · **Log** (everything the world announced, timestamped - the old scrolling top-left log now lives here; only the newest line or two flash on screen) · **Pack** (every item with weight, worth and what it does) |
-| F1 | test console: now also a **World log** section with the last 30 notices (nothing flashes in the corner any more) |
-| Esc | pause menu: resume, key bindings (read from the InputMap), save, main menu, exit. Alone, time stops; hosting or joined, the world goes on |
-| M | map: coast, river, posts, the road, the camp where it stands, the sites you know (a herd where you last heard of it), other players, the ship. **Drag to pan, wheel to zoom**; opens centred on you |
-| H | help: controls and the gist |
-| F1 | test console (host only) |
-| F5 / F9 | quick save / quick load (host only; clients are reloaded and re-seated) |
-| R | restart after death |
-| Esc | close a menu |
+| F1 | test console (host only; sections are tabs, Player first): has a **World log** section with the last 30 notices (nothing flashes in the corner any more) |
+| Esc | closes the topmost panel (help, journal, map, dialogue) first; otherwise the pause menu: Resume, *What you mean to do...* (ambitions), Save (F5, host only), Settings (Display / Game / Sound / Controls tabs - the Controls tab rebinds keys, two slots per action), Main menu, Exit. Alone, time stops; hosting or joined, the world goes on |
+| M | map of the whole country as you know it (fogged where unexplored): coast, rivers, posts, the road, camps, the sites you know (a herd where you last heard of it), other players, the ship. **Drag to pan, wheel to zoom** (0.6x-8x); opens centred on you. **Left click** sets a waypoint, **right click** clears it |
+| G | set out for the map waypoint (travel mode over the whole country; any step of your own stops it). Registered at runtime, not in the rebinding list |
+| H | help: controls and the gist, showing your current bindings |
+| F5 / F9 | quick save / quick load (host only; clients are reloaded and re-seated). F5, F9, F11 and Esc cannot be rebound |
+| R | after death: hand the world to your heir |
+| Ctrl + wheel, Ctrl + = / - / 0 | zoom the world view in / out / reset |
 
 The Factor gives you a task each morning (bottom-left). Doing it raises your standing with the Company; ignoring it costs a little.
 
 ## The clock
 
-10 real seconds = 1 game hour (day = 4 min, year ≈ 24 h of play). Time runs on the calendar autoload; agents scale their walking speed with the clock so fast-forward and the `Z` skip still resolve their days (a crude version of the design doc's lazy resolution).
+30 real seconds = 1 game hour (`GameCalendar.SecondsPerGameHour`; day = 12 min of play, a 365-day year is about 73 h at the base rate before pacing). The F1 console and the host's `[` / `]` keys change it (0.5-120 s). Time runs on the calendar autoload. **Uneven pacing** (on by default) divides the displayed speed by a factor clamped 0.25-3: the ship docked x2.2, Breakup x1.5, July-August x1.3, nights x0.45 (x0.3 in winter), winter days x0.65, blizzard or gale x0.8, people near you x1.2-1.5, a fight x2.5. Hold `T` for x40; waiting or sleeping skips at x400; the river road and travel mode run at least x6. Agents scale their walking speed against a 10 s/hour baseline (`MotionScale`) so fast-forward and the `Z` skip still resolve their days (a crude version of the design doc's lazy resolution); at the 30 s default that scale sits at 1.
 
-Start date: 1 January 1811. Ship arrives 20 August, sails 15 September.
+Start date: the calendar defaults to 1 January 1811, 09:00, but the first character in a world sets the date by road in (see *Who you are and how you arrive*): **HBC 20 August, 07:00** (the ship's day), **NWC 12 July** (the brigade's day), **Cree / Assiniboine / another nation 10 June** (the summer camp by the post). Annual events: Breakup 5 June, summer bison hunt 15 June, brigade 12 July, ship arrives 20 August and sails 15 September, fall bison hunt 15 October, freeze-up 10 November.
 
 ## The world (Scripts/World/WorldLayout.cs)
 
