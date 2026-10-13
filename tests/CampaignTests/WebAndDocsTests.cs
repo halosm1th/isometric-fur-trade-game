@@ -21,7 +21,7 @@ public class DocsTests
 
 	[Fact]
 	public void TheLibraryReferenceIsWhatTheTableWrites() =>
-		Assert.True(Read("docs/wiki/Library-Reference.md") == LangDocs.ReferenceMarkdown(), "docs/wiki/Library-Reference.md is stale: run  dotnet run --project tools/CampaignTool -- docs");
+		Assert.True(Read("docs/wiki/Library-Reference.md").Replace("\r\n", "\n") == LangDocs.ReferenceMarkdown(), "docs/wiki/Library-Reference.md is stale: run  dotnet run --project tools/CampaignTool -- docs");
 
 	[Fact]
 	public void EveryCompleteScriptInTheDocsCompilesAndChecks()
