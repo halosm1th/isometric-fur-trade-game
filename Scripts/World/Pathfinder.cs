@@ -146,6 +146,35 @@ public class Pathfinder
         return r;
     }
 
+    // Is `goal` shut in a small pocket (a fenced plot, a room with no way
+    // in) that `start` is outside of? Searching toward such a goal from the
+    // open country used to spend the whole budget - hundreds of milliseconds
+    // on one frame - before giving up; flooding the pocket from the goal's
+    // side says so in a few dozen cells. Steps are symmetric (walls block
+    // their edge from both sides, doors open both ways), so a pocket that
+    // can't get out can't be got into. Only small pockets are flooded; a
+    // goal with room round it is left to the search.
+    private const int PocketLimit = 400;
+    private readonly HashSet<Vector2I> _pocket = new();
+    private readonly Queue<Vector2I> _pocketQueue = new();
+
+    private bool Enclosed(Vector2I goal, Vector2I start)
+    {
+        _pocket.Clear(); _pocketQueue.Clear();
+        _pocket.Add(goal); _pocketQueue.Enqueue(goal);
+        while (_pocketQueue.Count > 0)
+        {
+            var c = _pocketQueue.Dequeue();
+            foreach (var (n, cost, _) in Neighbours(c))
+            {
+                if (cost < 0f || !_pocket.Add(n)) continue;
+                if (n == start || _pocket.Count > PocketLimit) return false;
+                _pocketQueue.Enqueue(n);
+            }
+        }
+        return true;
+    }
+
     private List<Vector2I> FindPathInner(Vector2I start, Vector2I goal)
     {
         var result = new List<Vector2I>();
@@ -154,6 +183,7 @@ public class Pathfinder
         if (g == null) return result;
         goal = g.Value;
         if (start == goal) { result.Add(goal); return result; }
+        if (IsWalkable(start) && Enclosed(goal, start)) return result;
 
         var open = new PriorityQueue<Vector2I, float>();
         var cameFrom = new Dictionary<Vector2I, Vector2I>();
