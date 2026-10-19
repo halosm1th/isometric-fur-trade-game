@@ -62,21 +62,37 @@ public partial class InventorySlot : Panel
         AddChild(_count);
     }
 
+    // What the slot last showed. Refresh runs every frame for the hotbar, and
+    // setting a label, an icon or a style is a call into the engine (a style
+    // override relays the slot out), so only what changed is set.
+    private string _keyShown, _countShown;
+    private bool _wornShown;
+    private StyleBox _styleShown;
+
     public void Refresh(PlayerController p, string keyLabel)
     {
         var slot = p?.Inventory.Slot(Index);
-        _key.Text = keyLabel ?? "";
+        keyLabel ??= "";
+        if (keyLabel != _keyShown) { _key.Text = keyLabel; _keyShown = keyLabel; }
         if (slot is var (id, n) && slot != null)
         {
-            _icon.Texture = IconFor(id);
-            _count.Text = n > 1 ? n.ToString() : "";
+            if (_shown != id) _icon.Texture = IconFor(id);
+            string count = n > 1 ? n.ToString() : "";
+            if (count != _countShown) { _count.Text = count; _countShown = count; }
             bool worn = p.Inventory.IsWorn(id);
-            _icon.Modulate = worn ? new Color(0.85f, 1f, 0.85f) : Colors.White;
+            if (_shown != id || worn != _wornShown) { _icon.Modulate = worn ? new Color(0.85f, 1f, 0.85f) : Colors.White; _wornShown = worn; }
             if (_shown != id || Engine.GetFramesDrawn() % 30 == 0) TooltipText = Describe(p, id, n);
             _shown = id;
         }
-        else { _icon.Texture = null; _count.Text = ""; TooltipText = ""; _shown = null; }
-        if (!_dropHover) AddThemeStyleboxOverride("panel", Selected ? SelectedStyle : Hotbar ? HotbarStyle : Plain);
+        else if (_shown != null || _countShown != "")
+        {
+            _icon.Texture = null; _count.Text = ""; TooltipText = ""; _shown = null; _countShown = "";
+        }
+        if (!_dropHover)
+        {
+            var style = Selected ? SelectedStyle : Hotbar ? HotbarStyle : Plain;
+            if (style != _styleShown) { AddThemeStyleboxOverride("panel", style); _styleShown = style; }
+        }
     }
 
     public static string Describe(PlayerController p, ItemId id, int n)
@@ -131,7 +147,7 @@ public partial class InventorySlot : Panel
     public override bool _CanDropData(Vector2 atPosition, Variant data)
     {
         bool ok = data.VariantType == Variant.Type.Dictionary && data.AsGodotDictionary().ContainsKey("inv_slot");
-        if (ok && !_dropHover) { _dropHover = true; AddThemeStyleboxOverride("panel", DropStyle); }
+        if (ok && !_dropHover) { _dropHover = true; AddThemeStyleboxOverride("panel", DropStyle); _styleShown = DropStyle; }
         return ok;
     }
 

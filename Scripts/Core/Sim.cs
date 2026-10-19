@@ -86,6 +86,14 @@ public static class Sim
         Audio.Noise(pos, radius, kind);
         var parent = Player?.GetParent() as Node2D;
         if (parent == null) return;
+        // Only rings you could see: every footstep in the country used to get
+        // a ring, drawn every frame wherever it was.
+        var vp = parent.GetViewport();
+        if (vp != null)
+        {
+            var seen = vp.GetCanvasTransform().AffineInverse() * vp.GetVisibleRect();
+            if (!seen.Grow(radius).HasPoint(pos)) return;
+        }
         var ring = new World.NoiseRing { Position = pos, Radius = radius, ZIndex = 5 };
         if (kind == "shot") { ring.Tint = new Color(1f, 0.85f, 0.5f, 0.7f); ring.Life = 1.1f; }
         else if (kind == "step") ring.Tint = new Color(1f, 1f, 1f, 0.16f);

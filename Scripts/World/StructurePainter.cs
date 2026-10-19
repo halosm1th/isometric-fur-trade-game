@@ -62,10 +62,55 @@ public partial class StructurePainter : TileMapLayer
     private readonly List<Hearth> _hearths = new();
     private readonly Dictionary<Vector2I, Hearth> _hearthByCell = new();
 
+    // The hearths bucketed by where they stand. Every body asks how warm it
+    // is every frame, and asking every fire in the country (every post's and
+    // every camp's) was the largest single cost in a frame; a fire warms only
+    // within its OuterRadius, so only the buckets round you are looked at.
+    // Fires don't move: a hearth is put in when it is made and taken out
+    // when it goes.
+    private const float HearthBucket = 512f;
+    private readonly Dictionary<long, List<Hearth>> _hearthGrid = new();
+    private static long HearthKey(int bx, int by) => ((long)bx << 32) ^ (uint)by;
+    private static long HearthKeyOf(Vector2 p) => HearthKey(Mathf.FloorToInt(p.X / HearthBucket), Mathf.FloorToInt(p.Y / HearthBucket));
+
+    private void AddHearth(Hearth hearth, Vector2I cell)
+    {
+        AddChild(hearth);
+        hearth.WorldPos = hearth.GlobalPosition;
+        _hearths.Add(hearth);
+        _hearthByCell[cell] = hearth;
+        long k = HearthKeyOf(hearth.WorldPos);
+        if (!_hearthGrid.TryGetValue(k, out var list)) _hearthGrid[k] = list = new List<Hearth>(4);
+        list.Add(hearth);
+    }
+
+    private void RemoveHearth(Hearth hearth, Vector2I cell)
+    {
+        _hearths.Remove(hearth);
+        _hearthByCell.Remove(cell);
+        if (_hearthGrid.TryGetValue(HearthKeyOf(hearth.WorldPos), out var list)) list.Remove(hearth);
+        hearth.QueueFree();
+    }
+
     // One roof layer per building, drawn above everything; it fades away
     // while the player is under it (design doc 18.1: a roof is a property
     // of the cells, and this is what it looks like from outside).
     private readonly List<(BuildingDef building, TileMapLayer roof)> _roofs = new();
+    // Beside each roof (same index): the cells it covers, and how opaque it is
+    // now. Every frame each roof is asked whether the player is under it; the
+    // set answers that at once (the building's own Contains walks the cells),
+    // and the alpha kept here means the engine is only told when it changes.
+    private readonly List<HashSet<Vector2I>> _roofCells = new();
+    private readonly List<float> _roofAlpha = new();
+
+    private void AddRoof(BuildingDef b, TileMapLayer roof)
+    {
+        var cells = new HashSet<Vector2I>();
+        foreach (var cell in IsoGrid.Rhombus(b.Top, b.Width, b.Depth)) { roof.SetCell(cell, SourceRoof, Vector2I.Zero); cells.Add(cell); }
+        _roofs.Add((b, roof));
+        _roofCells.Add(cells);
+        _roofAlpha.Add(roof.Modulate.A);
+    }
 
     // Kept for older callers; the layout is the source of truth.
     public Vector2I GateCell => WorldLayout.GateCell;
@@ -98,18 +143,29 @@ public partial class StructurePainter : TileMapLayer
 
     public override void _Process(double delta)
     {
-        if (Engine.IsEditorHint() || _front == null || _player == null) return;
+        if (Engine.IsEditorHint()) return;
+        var vp = GetViewport();
+        if (vp != null) Hearth.View = (vp.GetCanvasTransform().AffineInverse() * vp.GetVisibleRect()).Grow(Hearth.MaxReach);
+        for (int i = 0; i < _hearths.Count; i++) _hearths[i].Tick(delta);
+        if (_front == null || _player == null) return;
         float target = IsSheltered(_player.Position) ? IndoorFrontAlpha : 1f;
         var m = _front.Modulate;
         m.A = Mathf.MoveToward(m.A, target, (float)delta * 4f);
         _front.Modulate = m;
 
         var playerCell = LocalToMap(_player.Position);
-        foreach (var (b, roof) in _roofs)
+        var dl = IsoGrid.DownLeft(playerCell); var dr = IsoGrid.DownRight(playerCell);
+        for (int i = 0; i < _roofs.Count; i++)
         {
-            bool under = b.Contains(playerCell) || b.Contains(IsoGrid.DownLeft(playerCell)) || b.Contains(IsoGrid.DownRight(playerCell));
+            var cells = _roofCells[i];
+            bool under = cells.Contains(playerCell) || cells.Contains(dl) || cells.Contains(dr);
+            float was = _roofAlpha[i];
+            float now = Mathf.MoveToward(was, under ? 0f : 1f, (float)delta * 4f);
+            if (now == was) continue;
+            _roofAlpha[i] = now;
+            var roof = _roofs[i].roof;
             var rm = roof.Modulate;
-            rm.A = Mathf.MoveToward(rm.A, under ? 0f : 1f, (float)delta * 4f);
+            rm.A = now;
             roof.Modulate = rm;
         }
     }
@@ -125,9 +181,8 @@ public partial class StructurePainter : TileMapLayer
             var roof = new TileMapLayer { TileSet = TileSet, ZIndex = 5, ZAsRelative = false, Name = $"Roof_{b.Kind}", Position = new Vector2(0, -RoofLift) };
             // Two extra courses toward the viewer so the lifted roof still
             // covers the front of the room from above.
-            foreach (var cell in IsoGrid.Rhombus(b.Top, b.Width, b.Depth)) roof.SetCell(cell, SourceRoof, Vector2I.Zero);
+            AddRoof(b, roof);
             host.AddChild(roof);
-            _roofs.Add((b, roof));
         }
     }
 
@@ -150,14 +205,13 @@ public partial class StructurePainter : TileMapLayer
     {
         _hearths.Clear();
         _hearthByCell.Clear();
+        _hearthGrid.Clear();
         foreach (var cell in GetUsedCells())
         {
             if (!Hearths.Contains(GetCellSourceId(cell))) continue;
             var hearth = new Hearth { Position = MapToLocal(cell), Name = $"Hearth_{cell.X}_{cell.Y}", Cell = cell };
             if (GetCellSourceId(cell) == SourceCampfire) hearth.FuelHours = 4f;
-            AddChild(hearth);
-            _hearths.Add(hearth);
-            _hearthByCell[cell] = hearth;
+            AddHearth(hearth, cell);
         }
     }
 
@@ -168,11 +222,19 @@ public partial class StructurePainter : TileMapLayer
     public float HeatAt(Vector2 worldPos, out bool enclosed)
     {
         float best = 0f; enclosed = false;
-        foreach (var h in _hearths)
-        {
-            float v = h.HeatAt(worldPos);
-            if (v > best) { best = v; enclosed = h.Enclosed; }
-        }
+        int x0 = Mathf.FloorToInt((worldPos.X - Hearth.MaxReach) / HearthBucket), x1 = Mathf.FloorToInt((worldPos.X + Hearth.MaxReach) / HearthBucket);
+        int y0 = Mathf.FloorToInt((worldPos.Y - Hearth.MaxReach) / HearthBucket), y1 = Mathf.FloorToInt((worldPos.Y + Hearth.MaxReach) / HearthBucket);
+        for (int bx = x0; bx <= x1; bx++)
+            for (int by = y0; by <= y1; by++)
+            {
+                if (!_hearthGrid.TryGetValue(HearthKey(bx, by), out var list)) continue;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    var h = list[i];
+                    float v = h.HeatAt(worldPos);
+                    if (v > best) { best = v; enclosed = h.Enclosed; }
+                }
+            }
         return best;
     }
 
@@ -181,11 +243,18 @@ public partial class StructurePainter : TileMapLayer
     public Hearth HearthNear(Vector2 worldPos, float reach = 140f)
     {
         Hearth best = null;
-        foreach (var h in _hearths)
-        {
-            float d = h.GlobalPosition.DistanceTo(worldPos);
-            if (d < reach) { reach = d; best = h; }
-        }
+        int x0 = Mathf.FloorToInt((worldPos.X - reach) / HearthBucket), x1 = Mathf.FloorToInt((worldPos.X + reach) / HearthBucket);
+        int y0 = Mathf.FloorToInt((worldPos.Y - reach) / HearthBucket), y1 = Mathf.FloorToInt((worldPos.Y + reach) / HearthBucket);
+        for (int bx = x0; bx <= x1; bx++)
+            for (int by = y0; by <= y1; by++)
+            {
+                if (!_hearthGrid.TryGetValue(HearthKey(bx, by), out var list)) continue;
+                foreach (var h in list)
+                {
+                    float d = h.WorldPos.DistanceTo(worldPos);
+                    if (d < reach) { reach = d; best = h; }
+                }
+            }
         return best;
     }
 
@@ -278,9 +347,8 @@ public partial class StructurePainter : TileMapLayer
             foreach (var b in roofed)
             {
                 var roof = new TileMapLayer { TileSet = TileSet, ZIndex = 5, ZAsRelative = false, Name = $"Roof_{(p.Name + "_" + b.Name).Replace(' ', '_').Replace('.', '_').Replace('\'', '_')}", Position = new Vector2(0, -RoofLift) };
-                foreach (var cell in IsoGrid.Rhombus(b.Top, b.Width, b.Depth)) roof.SetCell(cell, SourceRoof, Vector2I.Zero);
+                AddRoof(b, roof);
                 host.AddChild(roof);
-                _roofs.Add((b, roof));
             }
         }
         RebuildCollision();
@@ -610,7 +678,7 @@ public partial class StructurePainter : TileMapLayer
         {
             EraseCell(cell);
             net?.BroadcastCell(0, cell, -1);
-            if (_hearthByCell.TryGetValue(cell, out var old)) { _hearths.Remove(old); _hearthByCell.Remove(cell); old.QueueFree(); }
+            if (_hearthByCell.TryGetValue(cell, out var old)) RemoveHearth(old, cell);
         }
         foreach (var (cell, source) in CampCells(to))
         {
@@ -619,9 +687,7 @@ public partial class StructurePainter : TileMapLayer
             if (source == SourceCampfire)
             {
                 var hearth = new Hearth { Position = MapToLocal(cell), Name = $"Hearth_{cell.X}_{cell.Y}", Cell = cell, FuelHours = 4f, Enclosed = false };
-                AddChild(hearth);
-                _hearths.Add(hearth);
-                _hearthByCell[cell] = hearth;
+                AddHearth(hearth, cell);
             }
         }
         _camps[band] = to;
@@ -655,9 +721,7 @@ public partial class StructurePainter : TileMapLayer
     {
         if (_hearthByCell.TryGetValue(cell, out var have)) return have;
         var hearth = new Hearth { Position = MapToLocal(cell), Name = $"Hearth_{cell.X}_{cell.Y}", Cell = cell, FuelHours = fuel, Enclosed = false };
-        AddChild(hearth);
-        _hearths.Add(hearth);
-        _hearthByCell[cell] = hearth;
+        AddHearth(hearth, cell);
         return hearth;
     }
 
@@ -683,7 +747,9 @@ public partial class StructurePainter : TileMapLayer
         if (!IsTree(cell)) return false;
         if (IsTreeSource(GetCellSourceId(cell))) EraseCell(cell);
         _felled.Add(cell);
-        RebuildCollision();
+        // No collision to rebuild: bush has none (ShapesFor), and rebuilding
+        // every shape in the world for each tree a woodcutter dropped was a
+        // hitch every time.
         Net.Net.I?.BroadcastCell(0, cell, -1);
         return true;
     }
@@ -861,7 +927,7 @@ public partial class StructurePainter : TileMapLayer
         int dir = src - (isOpen ? SourceDoorOpenN : SourceDoorN);
         int now = (isOpen ? SourceDoorN : SourceDoorOpenN) + dir;
         layer.SetCell(cell, now, Vector2I.Zero);
-        RebuildCollision();
+        RebuildCollisionAt(cell);
         Net.Net.I?.BroadcastCell(layer == this ? 0 : 1, cell, now);
     }
 
@@ -878,7 +944,7 @@ public partial class StructurePainter : TileMapLayer
         if (layer == 0 && source < 0 && IsTree(cell)) _felled.Add(cell);
         if (source < 0) l.EraseCell(cell); else l.SetCell(cell, source, Vector2I.Zero);
         if (layer == 0 && source == SourceCampfire) { EnsureHearth(cell, 0f); if (!_campfires.Contains(cell)) _campfires.Add(cell); }
-        RebuildCollision();
+        RebuildCollisionAt(cell);
     }
 
     // A late joiner needs every cell that differs from the generated map:
@@ -999,7 +1065,7 @@ public partial class StructurePainter : TileMapLayer
             if (roof.GetCellSourceId(cell) >= 0) { roof.EraseCell(cell); Net.Net.I?.BroadcastCell(3, cell, -1); }
         }
         _felled.Add(cell);
-        RebuildCollision();
+        RebuildCollisionAt(cell);
     }
 
     // ---- walkability (for pathfinding) --------------------------------------
@@ -1076,6 +1142,11 @@ public partial class StructurePainter : TileMapLayer
         return _layers;
     }
 
+    // Each cell's collision shapes, so one cell that changes (a door opened,
+    // a wall burnt) is redone on its own. Rebuilding every shape in the world
+    // each time anybody walked through a door was the worst hitch in a frame.
+    private readonly Dictionary<Vector2I, List<CollisionShape2D>> _shapesAt = new();
+
     private void RebuildCollision()
     {
         if (_body == null) return;
@@ -1083,16 +1154,30 @@ public partial class StructurePainter : TileMapLayer
         {
             child.Free();
         }
+        _shapesAt.Clear();
         foreach (var layer in Layers())
         {
-            foreach (var cell in layer.GetUsedCells())
-            {
-                foreach (var shape in ShapesFor(layer.GetCellSourceId(cell)))
-                {
-                    _body.AddChild(new CollisionShape2D { Shape = shape, Position = MapToLocal(cell) });
-                }
-            }
+            foreach (var cell in layer.GetUsedCells()) AddShapes(layer, cell);
         }
+    }
+
+    private void AddShapes(TileMapLayer layer, Vector2I cell)
+    {
+        foreach (var shape in ShapesFor(layer.GetCellSourceId(cell)))
+        {
+            var node = new CollisionShape2D { Shape = shape, Position = MapToLocal(cell) };
+            _body.AddChild(node);
+            if (!_shapesAt.TryGetValue(cell, out var list)) _shapesAt[cell] = list = new List<CollisionShape2D>(2);
+            list.Add(node);
+        }
+    }
+
+    // Just this cell's shapes, from whatever is on it now in every layer.
+    private void RebuildCollisionAt(Vector2I cell)
+    {
+        if (_body == null) return;
+        if (_shapesAt.Remove(cell, out var old)) foreach (var node in old) if (IsInstanceValid(node)) node.Free();
+        foreach (var layer in Layers()) if (layer.GetCellSourceId(cell) >= 0) AddShapes(layer, cell);
     }
 
     // Edge tiles get a thin strip along their edge, so the rest of the cell
