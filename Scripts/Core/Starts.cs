@@ -127,6 +127,7 @@ public static class Starts
             if (!seen.Contains("mates")) hub.Add($"Talk with {a} and {b}", () => { seen.Add("mates"); return Mates(); });
             if (!seen.Contains("sailor")) hub.Add($"See what {sailor} wants", () => { seen.Add("sailor"); return Sailor(); });
             if (!seen.Contains("mate")) hub.Add(bySloop ? "Ask the master about the Factory" : "Ask the mate about the Factory", () => { seen.Add("mate"); return Mate(); });
+            if (!seen.Contains("churchill")) hub.Add(bySloop ? "Talk with the Churchill people aboard" : "Watch the ship call at Churchill", () => { seen.Add("churchill"); return Churchill(); });
             hub.Add(bySloop ? "Turn in. The sloop will be in by morning." : "Turn in. The ship will be in by morning.", () => Arrive());
             return hub;
         }
@@ -147,6 +148,40 @@ public static class Starts
             .Add("Tell the mate.", () => { p.Standing += 3f; Note(p, $"You told the mate {sailor} was trading brandy on his own account. The Company will think well of it; the crew will not."); return new ScenePage { Title = "The mate", Text = $"The mate takes it down. {sailor} looks at you across the deck for the rest of the day." }.Add("Back", Hub); });
         ScenePage Mate() => new ScenePage { Title = bySloop ? "The master" : "The mate", Text = $"\"{factor}'s the Factor - an old Bay man, hard but fair, and he'll want you the hour you land. Watch {rival}: he wants the next place going and he'll not thank a new man for crowding him. And keep off the Canadians across the river - {partner}'s people. There's been bad blood since the winter.\"" }
             .Add("Thank him", () => { Note(p, $"The mate's advice: report to {factor} at once; {rival} wants the next place going; keep clear of {partner}'s Nor'Westers."); return Hub(); });
+        // Churchill (the owner's opening: the ship calls there before York).
+        // Prince of Wales Fort was taken by the French in 1782 without a shot
+        // and its walls blown where they could be; the Company lives since in
+        // a wooden factory up the river. The river's Cree name is Missinipi.
+        string clerk = "James Spence";
+        var atChurchill = new HashSet<string>();
+        ScenePage Churchill()
+        {
+            var page = new ScenePage
+            {
+                Title = "Churchill",
+                Text = atChurchill.Count > 0 ? "The boat from Churchill rides alongside while the last of the outfit goes over the side."
+                    : bySloop ? $"The sloop came out of the Churchill three days ago. Besides {a}, {b} and you she carries {clerk}, a clerk of six winters at Churchill who is bound for York and then the Saskatchewan, the Churchill packet, and the man who piloted her over the bar, a Cree of the Churchill homeguard."
+                    : $"The ship stands in to the mouth of the Churchill River to land the Churchill outfit before she runs down the coast to York. On the point, the great stone walls of Prince of Wales Fort stand empty: the French took it in 1782 without a shot fired and blew what they could. The Company's people live now in the wooden factory five miles up the river. A boat comes off with the Churchill packet, a clerk going down to York, and a Cree pilot at the steering oar.",
+            };
+            if (!atChurchill.Contains("clerk")) page.Add($"Talk with {clerk}, the Churchill clerk", () => { atChurchill.Add("clerk"); return ChurchillClerk(); });
+            if (!atChurchill.Contains("pilot")) page.Add("Sit with the pilot", () => { atChurchill.Add("pilot"); return Pilot(); });
+            if (!atChurchill.Contains("packet") && Sim.Fort?.Leader is Npc master) page.Add($"Offer to carry the Churchill packet to {factor}", () => { atChurchill.Add("packet"); return Packet(master); });
+            page.Add("Back to the rail", Hub);
+            return page;
+        }
+        ScenePage ChurchillClerk() => new ScenePage { Title = clerk, Text = $"{clerk} has been six winters at Churchill and is glad to be leaving it. \"They'll send you inland, a strong lad like you. If it's the Saskatchewan, it'll be Edmonton House - and the Nor'Westers' Fort Augustus stands so near it you could throw a stone from one gate to the other. The Cree of the Beaver Hills trade with whichever house treats them better that year, and the Blackfoot come in when they choose and not before. And the Canadians - friendly over a dram, and they'll have your best hunter away the next morning.\"" }
+            .Add("Ask what a new man should know", () => { Note(p, $"{clerk}, a Churchill clerk: inland it will likely be Edmonton House, beside the Nor'Westers' Fort Augustus; the Beaver Hills Cree trade with whichever house treats them better; the Blackfoot come when they choose."); return new ScenePage { Title = clerk, Text = "\"Learn the tongue. Keep your word to the Indians and your powder dry. Never let the master see you idle, and never let the Canadians see you drunk.\" He grins. \"The rest you'll learn the hard way, like the rest of us.\"" }.Add("Back", Churchill); })
+            .Add("Back", Churchill);
+        ScenePage Pilot() => new ScenePage { Title = "The pilot", Text = "The pilot is a Cree man of the Churchill homeguard, who has brought the Company's boats over the bar since before you were born. He says little in English. When you point at the river he says \"Missinipi\" - the big water - and waits until you can say it back." }
+            .Add("Say it back until he nods", () => { p.CreeFluency = Mathf.Min(1f, p.CreeFluency + 0.03f); Note(p, "A Cree pilot at Churchill taught you the river's name: Missinipi, the big water."); return new ScenePage { Title = "The pilot", Text = "He nods at last, and gives you two more words - for goose, and for tobacco - which you mean to remember." }.Add("Back", Churchill); })
+            .Add("Back", Churchill);
+        ScenePage Packet(Npc master)
+        {
+            p.Mail.Add(new Message { Kind = "letter", From = "the master at Churchill", To = master.DisplayName, Company = Faction.HBC, Subject = "the Churchill packet", Text = "Churchill's returns and its wants for the year, and a word for the new man who carried this: he was handy in the boat." });
+            Note(p, $"You carry the Churchill packet for {factor}.");
+            return new ScenePage { Title = clerk, Text = $"\"Good lad.\" {clerk} hands you an oilskin packet tied with tape. \"Into {factor}'s own hand, mind. Not the clerk's.\"" }.Add("Back", Churchill);
+        }
+
         ScenePage Arrive() => new ScenePage { Title = "York Factory", Text = $"Morning. The {(bySloop ? "sloop" : "ship")} comes up the Hayes on the tide and makes fast at the Factory's wharf. Palisade, flag, smoke from the chimneys, and every soul in the place come down to the shore. Your first order is in your pocket: report to {factor}." }
             .Add("Step ashore", () =>
             {

@@ -119,7 +119,10 @@ public static partial class Checker
 						CheckActions(c.GetValueOrDefault("do"), $"{cw} > do", rep, facts, world);
 						Target(Tree.S(c.GetValueOrDefault("goto")), cw);
 					}
-					if (choices.Count > 0 && choices.OfType<Dictionary<string, object>>().All(c => Tree.AsList(c.GetValueOrDefault("when")).Count > 0))
+					var whens = choices.OfType<Dictionary<string, object>>().Select(c => Tree.AsList(c.GetValueOrDefault("when"))).ToList();
+					// Two choices whose conditions are each other's opposites cover every case.
+					bool covered = whens.Any(a => a.Count == 1 && whens.Any(b => b.Count == 1 && Negates(a[0], b[0])));
+					if (choices.Count > 0 && whens.All(w => w.Count > 0) && !covered)
 						rep.Warn(sw, "every choice has a when: if none holds, the player has nothing to say and the step waits");
 				}
 			}
@@ -130,6 +133,11 @@ public static partial class Checker
 			if (!questIds.ContainsKey(name)) foreach (var w in wheres) rep.Error(w, $"names quest '{name}', which this campaign does not have");
 		QuestCycles(questIds, rep);
 	}
+
+	// Is b exactly "not a" (as the compiler writes it: {"not": a}, or "!" before a fact)?
+	private static bool Negates(object a, object b) =>
+		b is Dictionary<string, object> nd && nd.Count == 1 && nd.TryGetValue("not", out var inner) && Tree.Same(inner, a)
+		|| b is string sb && a is string sa && sb == "!" + sa;
 
 	private static void QuestCycles(Dictionary<string, Dictionary<string, object>> quests, Report rep)
 	{

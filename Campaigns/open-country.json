@@ -1,0 +1,7 @@
+{
+  "title": "The Open Country (free roam)",
+  "description": "The country from 1811 as history runs it, and no story but your own. For playing together, or for wandering: trade, hunt, travel, and take what side you like.",
+  "seed": 1811,
+  "extends": "historical",
+  "beats": []
+}

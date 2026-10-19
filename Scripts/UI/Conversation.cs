@@ -235,7 +235,7 @@ public class Conversation
         {
             Role.Factor => "the Factor, master of this post",
             Role.Clerk => "a clerk of the Company",
-            Role.Postmaster => "postmaster of Oxford House, the Company's inland post",
+            Role.Postmaster => npc.HomeStores is Economy.TradingPostLedger tp ? $"master of {tp.Post.Name}, the {(tp.Post.Company == "NWC" ? "North West Company" : "Company")}'s post" : "postmaster of Oxford House, the Company's inland post",
             Role.Labourer => "a Company labourer",
             Role.Woman => "a woman of the post",
             Role.CreeChief => "leading man of the band camped by the river",
@@ -394,7 +394,7 @@ public class Conversation
             AddOption(Spoken(c.Label, npc), () =>
             {
                 Core.Quests.Choose(_player, q, st, cc);
-                _text = Spoken(cc.Reply != "" ? cc.Reply : "", npc);
+                _text = Spoken(cc.Reply != "" ? cc.Reply : $"{npc.DisplayName} nods.", npc);
                 ClearOptions();
                 FollowOn(npc, q, st);
             });

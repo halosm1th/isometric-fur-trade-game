@@ -389,6 +389,16 @@ public static class Quests
 		return $"{q.Title}: {Describe(q.Objectives[best.At], best)}";
 	}
 
+	// Is this the person the HUD's step (or an offer) is about? (Dev: --talkto=@quest.)
+	public static bool IsFocusPerson(PlayerController p, Npc npc)
+	{
+		QuestState best = null;
+		foreach (var st in p.Quests.States.Values)
+			if (st.Status == QuestStatus.Active && (best == null || st.StepDay >= best.StepDay)) best = st;
+		if (best != null && Def(best.Id) is { } q && best.At < q.Objectives.Count && Matches(q.Objectives[best.At].Who, npc)) return true;
+		return OffersFrom(p, npc).Count > 0;
+	}
+
 	// Where the HUD's objective is, if it is somewhere.
 	public static Vector2? FocusTarget(PlayerController p)
 	{

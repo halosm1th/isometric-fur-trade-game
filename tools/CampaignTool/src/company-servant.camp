@@ -1,0 +1,321 @@
+// The Company's Servant: the HBC story, from the ship to the Saskatchewan.
+//
+// The owner's opening (2026-10-18): the ship crosses the Bay and calls at
+// Churchill (Core/Starts.cs, on deck), lands at York; you report to the
+// Factor, help unload, and are sent inland - to Edmonton House, where the
+// Nor'Westers' Fort Augustus stands beside it and the Beaver Hills Cree
+// (Amiskwaciwiyiniwak) come in to trade. Quests drive you to deal with the
+// Nor'Westers, as a friend or an enemy, and with the Company's Cree allies,
+// who in time invite you on the hunt. The war, and the Pemmican War that it
+// slowly becomes, are the next chapters: this file ends the first with the
+// flag beaver_hills_raided, which they will take up.
+//
+// It is built on the historical campaign (extends), so the history's beats -
+// the colony, the proclamation, Seven Oaks, the merger - run under the story.
+
+campaign CompanysServant(
+    title: "The Company's Servant",
+    description: "Off the ship at York with a five-year contract and the Factor's eye " +
+                 "on you, then up the rivers to Edmonton House, where the Nor'Westers " +
+                 "live a stone's throw away and the Beaver Hills Cree decide whose " +
+                 "friends they are. The HBC story; the history runs underneath it.",
+    seed: 1811,
+    extends: "historical"
+);
+
+const string edmonton = "Edmonton House";
+const string augustus = "Fort Augustus";
+const string master = "leader@Edmonton House";
+const string partner = "partner@Fort Augustus";
+const string beaverHills = "Beaver Hills Cree (Amiskwacîwiyiniwak)";
+const string chief = "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)";
+
+// ================================================================ the story's spine
+
+questline Servant(
+    title: "The Company's Servant",
+    summary: "From the ship at York to the Company's books at Edmonton House.",
+    forCompany: Company.HBC
+) {
+    quest Landfall(
+        title: "Report to the Factor",
+        summary: "You are the Company's newest servant, and the Factor will want you the hour you land."
+    ) {
+        talk Report(who: Person.Factor, text: "Find the Factor and report to him") {
+            Says() => "{npc} looks you over as he would a new axe. \"So you're the Orkney lad. " +
+                      "Five years, the contract says. Can you carry, and can you hold your tongue?\"";
+            // In the ship's season there is the ship to unload; the rest of the
+            // year the post wants wood, and the story need never wait on the ship.
+            choice Keen(
+                label: "\"I can do both, sir. Put me to work.\"",
+                reply: "\"Good. The ship's boats are at the landing. Every piece to the warehouse, and none of it opened.\"",
+                when: world.inMonths(8, 9),
+                goto: Unload
+            ) {
+                player.addStanding(2);
+            }
+            choice KeenOffSeason(
+                label: "\"I can do both, sir. Put me to work.\"",
+                reply: "\"Good. The woodpile is a disgrace. Six loads before you eat.\"",
+                when: !world.inMonths(8, 9),
+                goto: Wood
+            ) {
+                player.addStanding(2);
+            }
+            choice Trade(
+                label: "\"I signed on for the trade, sir, not the warehouse.\"",
+                reply: "\"Every man who ever traded here began in the warehouse. So will you.\"",
+                when: world.inMonths(8, 9),
+                goto: Unload
+            ) {
+                player.addStanding(-1);
+                flags.set("wants_the_trade");
+            }
+            choice TradeOffSeason(
+                label: "\"I signed on for the trade, sir, not the woodpile.\"",
+                reply: "\"Every man who ever traded here began at the woodpile. So will you.\"",
+                when: !world.inMonths(8, 9),
+                goto: Wood
+            ) {
+                player.addStanding(-1);
+                flags.set("wants_the_trade");
+            }
+        }
+        task Unload(
+            task: Task.CarryCargo,
+            count: 6,
+            text: "Carry six lots from the ship's boats to the warehouse",
+            next: Orders
+        );
+        task Wood(task: Task.Firewood, count: 6, text: "Bring six loads of firewood to the woodpile");
+        talk Orders(who: Person.Factor, text: "Report back to the Factor") {
+            Says() => "{npc} hardly looks up from his ledger. \"You'll do. Edmonton House wants hands, and " +
+                      "a man who can carry and keep his mouth shut is worth two who can't. You're for the Saskatchewan.\"";
+            choice AskEdmonton(
+                label: "\"Edmonton House, sir?\"",
+                reply: "\"On the North Saskatchewan, a thousand miles up. The Nor'Westers have Fort Augustus beside it - " +
+                       "near enough to hear them sing. The Beaver Hills Cree trade there, and the Blackfoot when they please.\"",
+                goto: Orders
+            );
+            choice AskHow(
+                label: "\"How do I get there?\"",
+                reply: "\"The York boats go up to Cumberland House on the fifth of September; from there you'll find your way. " +
+                       "Or walk, if you're a fool. The river is the road.\"",
+                goto: Orders
+            );
+            choice Go(label: "\"I'll go, sir.\"", reply: "\"Of course you will. The storeman will give you your outfit.\"");
+        }
+        OnComplete() {
+            player.postTo(edmonton);
+            player.give(Item.Tobacco, 6);
+            player.give(Item.TradeGoods, 4);
+            player.note("You are on the books of Edmonton House now: six twists of tobacco and four pieces of goods for the road.");
+        }
+    }
+
+    quest UpTheRivers(
+        title: "Up the rivers",
+        summary: "A thousand miles of river between York and Edmonton House."
+    ) [Landfall] {
+        reach Edmonton(
+            place: edmonton,
+            radius: 700,
+            text: "Go inland to Edmonton House (the York boats leave for Cumberland House on 5 September)"
+        );
+    }
+
+    quest Edmonton(
+        title: "Edmonton House",
+        summary: "Report to the master of Edmonton House."
+    ) [UpTheRivers] {
+        talk Report(who: master, text: "Report to the master of Edmonton House") {
+            Says() => "{npc} reads the York letter twice. \"One more mouth, and the winter coming. Well. " +
+                      "You'll learn two things here or you'll go home in a box: the Nor'Westers across the way, " +
+                      "and the Cree who decide whether we eat. Go and look at both.\"";
+            choice Yes(label: "\"I'll go and see them, sir.\"");
+        }
+    }
+}
+
+// ================================================================ the other house
+
+questline TheOtherHouse(
+    title: "The Other House",
+    summary: "The Nor'Westers at Fort Augustus, a stone's throw from your gate.",
+    forCompany: Company.HBC
+) {
+    quest Neighbours(
+        title: "The neighbours",
+        summary: "Call at Fort Augustus and see what kind of men the Nor'Westers are."
+    ) [Edmonton] {
+        talk Call(who: partner, text: "Call on the master of Fort Augustus") {
+            Says() => "{npc} meets you at his gate with a pipe in his hand. \"So York has sent another " +
+                      "clerk to count our canoes. Come in, if you're coming. We don't bite before dinner.\"";
+            choice Friendly(label: "Share his pipe and the news from the Bay", goto: TellFriendly) {
+                player.addRapport(partner, 15);
+                flags.set("nwc_friendly");
+            }
+            choice Guarded(label: "Pay your respects and say as little as you can", goto: TellGuarded);
+            choice Hostile(label: "Tell him to keep his men away from the Company's hunters", goto: TellHostile) {
+                player.addRapport(partner, -15);
+                flags.set("nwc_hostile");
+                world.raiseTension(3, "a Company man warned off the Nor'Westers at Fort Augustus");
+            }
+        }
+        talk TellFriendly(who: master, text: "Tell your master how it went", next: "complete") {
+            Says() => "\"Friendly, was he? He is always friendly. Drink his rum and keep your counsel - " +
+                      "every word you give him is a word the Company paid for.\"";
+        }
+        talk TellGuarded(who: master, text: "Tell your master how it went", next: "complete") {
+            Says() => "\"Said little and heard much? That's the way of it. You'll do here.\"";
+        }
+        talk TellHostile(who: master, text: "Tell your master how it went") {
+            Says() => "\"You told him that? To his face?\" {npc} laughs despite himself. \"Well, he knows where " +
+                      "we stand now. Mind your back on the river.\"";
+        }
+        OnComplete() { player.addStanding(1); }
+    }
+
+    // Friend: a winter's truce in the rum trade, if both masters can be brought to it.
+    quest QuietArrangement(
+        title: "A quiet arrangement",
+        summary: "The Nor'Westers' master proposes that neither house carry rum to the Beaver Hills camp this winter, " +
+                 "so the Cree trade for goods and not for drink. He asks you to put it to your master.",
+        giver: partner
+    ) [Neighbours] {
+        StartWhen() => flags.has("nwc_friendly");
+        talk PutIt(who: master, text: "Put the Nor'Westers' offer to your master") {
+            Says() => "{npc} hears you out with his arms folded. \"No rum to the Beaver Hills camp, theirs or ours. " +
+                      "And how do I know they'll keep to it?\"";
+            choice Argue(label: "Argue for it: a sober camp hunts, and pays its debts", goto: Agreed) {
+                flags.set("nwc_truce");
+                world.raiseTension(-6, "the houses at Edmonton agree to carry no rum to the Beaver Hills camp");
+                world.addRegard(beaverHills, 4);
+            }
+            choice Against(label: "Advise against it: the Canadians will break it at the first chance", goto: Refused) {
+                flags.set("nwc_truce_refused");
+            }
+        }
+        talk Agreed(who: partner, text: "Take your master's answer to Fort Augustus", next: "complete") {
+            Says() => "\"He agreed? Then you've done a better day's work than either of us.\" {npc} gives you his hand. " +
+                      "\"No rum to the Beaver Hills this winter. Let's see who keeps it.\"";
+        }
+        talk Refused(who: partner, text: "Take your master's answer to Fort Augustus") {
+            Says() => "{npc} shrugs. \"I thought as much. Well, the Cree will drink our rum, then, and pay our debts.\"";
+        }
+        OnComplete() { player.addRapport(partner, 10); }
+    }
+
+    // Enemy: get the Company's goods to the camp before the Nor'Westers' runners do.
+    quest SpoilingTheTrade(
+        title: "Ahead of the Canadians",
+        summary: "The Nor'Westers are sending goods out to the Beaver Hills camp. Your master wants the Company's there first.",
+        giver: master
+    ) [Neighbours] {
+        StartWhen() => flags.has("nwc_hostile");
+        OnStart() { player.give(Item.TradeGoods, 4); }
+        bring Goods(
+            who: chief,
+            item: Item.TradeGoods,
+            count: 4,
+            text: "Carry four pieces of goods to the Beaver Hills Cree before the Nor'Westers' runners"
+        ) {
+            Says() => "{npc} looks over the goods. \"The Canadians promised us the same. You came first.\"";
+            OnDone() {
+                world.addRegard(beaverHills, 5);
+                world.raiseTension(4, "the Company beat the Nor'Westers to the Beaver Hills camp");
+                player.addRapport(partner, -10);
+            }
+        }
+        talk Back(who: master, text: "Tell your master the goods are in") {
+            Says() => "\"Good. They'll be sour across the way tonight. Sleep with your knife.\"";
+        }
+        OnComplete() { player.addStanding(3); }
+    }
+}
+
+// ================================================================ the Company's friends
+
+questline CompanysFriends(
+    title: "The Company's Friends",
+    summary: "The Beaver Hills Cree, who trade at Edmonton House - and decide whether it eats.",
+    forCompany: Company.HBC
+) {
+    quest TobaccoAndTalk(
+        title: "Tobacco and talk",
+        summary: "Go out to the Beaver Hills Cree camp and make yourself known, as is proper."
+    ) [Edmonton] {
+        reach Camp(place: beaverHills, radius: 600, text: "Go out to the Beaver Hills Cree camp");
+        bring Tobacco(who: chief, item: Item.Tobacco, count: 2, text: "Give the chief tobacco, as is proper") {
+            Says() => "{npc} takes the tobacco, fills a pipe, and passes it to you before he says a word.";
+        }
+        talk Council(who: chief, text: "Sit with the chief and hear him out") {
+            Says() => "\"The Company's men come and go,\" {npc} says through the smoke. \"Some keep their word. " +
+                      "At the last moon the Blackfoot took twenty of our horses, and the Canadians across the river sold them powder. " +
+                      "What is the Company's friendship worth?\"";
+            choice Listen(label: "Say the Company's friendship is not only for trade, and mean it") {
+                world.addRegard(beaverHills, 5);
+                player.addRapport(chief, 10);
+            }
+            choice Guns(label: "Promise them the Company's guns") {
+                flags.set("promised_guns");
+                world.addRegard(beaverHills, 8);
+                player.addRapport(chief, 5);
+            }
+            choice Words(label: "Ask him to teach you the words for it, in Cree") {
+                world.addRegard(beaverHills, 3);
+                player.addRapport(chief, 12);
+            }
+        }
+        OnComplete() { player.note("You have sat in council with the Beaver Hills Cree."); }
+    }
+
+    quest TheInvitation(
+        title: "The invitation",
+        summary: "The buffalo are near, and the Beaver Hills Cree are riding out. Their chief asks whether the Company's man rides with them.",
+        giver: chief
+    ) [TobaccoAndTalk] {
+        // The band thinks well of the Company, or the chief of you: a band's
+        // regard drifts with its hunger, so what you did counts as well.
+        StartWhen() => world.regard(beaverHills) >= 55 || player.rapport(chief) >= 14;
+        talk Accept(who: chief, text: "Answer the chief's invitation") {
+            Says() => "\"We ride when the scouts come back,\" {npc} says. \"A man who hunts with us eats with us.\"";
+            choice Ride(label: "\"I'll ride with you.\"", goto: Hunt) {
+                player.addRapport(chief, 5);
+            }
+            choice Leave(label: "\"I must ask my master's leave first.\"", goto: AskLeave);
+        }
+        talk AskLeave(who: master, text: "Ask your master's leave to ride with the Cree", next: Hunt) {
+            Says() => "\"Go, and bring back meat. A man the Cree hunt with is worth ten the Cree don't.\"";
+        }
+        hunt Hunt(species: "Buffalo", count: 1, text: "Ride with the Beaver Hills Cree and bring down a buffalo");
+        talk Feast(who: chief, text: "Eat with the chief after the hunt") {
+            Says() => "The meat is shared out, and {npc} gives you the tongue, the best of it. \"You ride like a white man, " +
+                      "but you ride with us. When the grass is green the Blackfoot will come for horses again. " +
+                      "Then we will see who stands with us.\"";
+        }
+        OnComplete() {
+            world.addRegard(beaverHills, 10);
+            flags.set("rode_with_beaver_hills");
+            player.note("You rode with the Beaver Hills Cree and ate at their fire. They will remember who stood with them.");
+        }
+    }
+}
+
+// ================================================================ toward the war
+
+// Some months after the hunt the Blackfoot raid the camp for horses: the next
+// chapter (the war, and the Pemmican War it becomes) begins from this flag.
+beat HorsesTaken(
+    title: "The Blackfoot take horses from the Beaver Hills camp",
+    delay: days(150),
+    rumour: "The Beaver Hills Cree are watching their horse herd at night."
+) {
+    AwakenWhen() => TheInvitation.done;
+    OnActivate() {
+        flags.set("beaver_hills_raided");
+        world.addRegard(beaverHills, -5);
+        say("Word comes in to Edmonton House: Blackfoot raiders have run off the Beaver Hills Cree horse herd, " +
+            "and a young man is dead. The chief's people are asking for you.", Company.HBC);
+    }
+}
