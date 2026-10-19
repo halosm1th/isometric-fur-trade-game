@@ -17,7 +17,7 @@ public partial class HelpPanel : Control
         $"{Core.Keybinds.HotbarKeys()}  use a hotbar slot     mouse wheel + {K("hotbar_use")}  pick and use     {K("drink")}  drink\n" +
         $"Left click  strike whoever is under the cursor      {K("attack_nearest")}  strike the nearest hostile\n" +
         $"{K("wait")}  wait an hour (sleep at night)     {K("time_fast")}  hold to fast-forward     {K("chat")}  chat\n" +
-        $"{K("pause_clock")}  stop/start the clock (host)     {K("clock_slower")} / {K("clock_faster")}  slower / faster clock (host)\n" +
+        $"{K("pause_clock")}  stop/start the clock (host)     {K("clock_slower")} / {K("clock_faster")}  slower / faster clock (host; or the buttons under the date)\n" +
         $"{K("journal")}  journal      {K("log")}  log      {K("inventory")}  pack (drag items between squares; right-click uses or wears)      {K("map")}  map      {K("debug_menu")}  test console (host)      F5 / F9  save / load (host)\n" +
         $"{K("restart")}  begin again after death      Esc  menu (settings, keys)      F11  full screen      Ctrl + wheel  zoom      {K("help")}  this\n\n" +
         "You are the Company's new hand at York Factory. Keep warm (a hearth, a capote), fed and watered;\n" +

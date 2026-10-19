@@ -61,7 +61,7 @@ What `E` does, in order of priority: take the river road at a road head; talk to
 | Slower clock | `[` (doubles seconds per game hour) |
 | Faster clock | `]` (halves it) |
 
-Limited to 0.5 - 120 seconds per game hour. The calendar HUD shows `|| PAUSED`, a `>>` while fast-forwarding, or the current seconds-per-hour. See [[Calendar and Seasons]].
+The same three are buttons under the date in the calendar HUD - `<<`, `||` (`>` while stopped) and `>>` - with the pace beside them: `x1` at the usual 30 seconds per game hour, `x2` twice as fast, `x0.5` half, `Paused` when stopped, and the fast-forward pace while `T` is held. Limited to 0.5 - 120 seconds per game hour (x60 to x0.25). Only the host's buttons work; a joined player's are greyed out. See [[Calendar and Seasons]].
 
 ## Reserved keys (cannot be rebound)
 
