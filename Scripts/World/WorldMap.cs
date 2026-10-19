@@ -33,7 +33,10 @@ public static class WorldMap
     private static byte[] _ground = new byte[1];
     private static Godot.Collections.Dictionary _layout = new();
     private static Godot.Collections.Dictionary _projection = new();
-    public static bool Loaded => _projection.ContainsKey("lat0");
+    // Read out of the projection once, at load: every lookup in the Godot
+    // dictionary by name made a Variant, and Loaded is asked every frame.
+    public static bool Loaded { get; private set; }
+    private static double _lat1, _lat2, _lat0, _lon0, _x0Km, _yTopKm;
 
     static WorldMap() => Load();
 
@@ -45,6 +48,13 @@ public static class WorldMap
         var meta = json.Data.AsGodotDictionary();
         _layout = meta["layout"].AsGodotDictionary();
         _projection = meta["projection"].AsGodotDictionary();
+        Loaded = _projection.ContainsKey("lat0");
+        if (Loaded)
+        {
+            _lat1 = _projection["lat1"].AsDouble(); _lat2 = _projection["lat2"].AsDouble();
+            _lat0 = _projection["lat0"].AsDouble(); _lon0 = _projection["lon0"].AsDouble();
+            _x0Km = _projection["x0_km"].AsDouble(); _yTopKm = _projection["ytop_km"].AsDouble();
+        }
         PxPerKm = (float)meta["px_per_km"].AsDouble();
         GroundImage = img;
         Columns = img.GetWidth(); Rows = img.GetHeight();
@@ -187,12 +197,12 @@ public static class WorldMap
     public static (double Lon, double Lat) LonLatOf(Vector2 world)
     {
         double r(double d) => d * Math.PI / 180.0;
-        double lat1 = _projection["lat1"].AsDouble(), lat2 = _projection["lat2"].AsDouble(), lat0 = _projection["lat0"].AsDouble(), lon0 = _projection["lon0"].AsDouble();
+        double lat1 = _lat1, lat2 = _lat2, lat0 = _lat0, lon0 = _lon0;
         double n = Math.Log(Math.Cos(r(lat1)) / Math.Cos(r(lat2))) / Math.Log(Math.Tan(Math.PI / 4 + r(lat2) / 2) / Math.Tan(Math.PI / 4 + r(lat1) / 2));
         double f = Math.Cos(r(lat1)) * Math.Pow(Math.Tan(Math.PI / 4 + r(lat1) / 2), n) / n;
         double rho0 = 6371.0 * f / Math.Pow(Math.Tan(Math.PI / 4 + r(lat0) / 2), n);
-        double x = world.X / PxPerKm + _projection["x0_km"].AsDouble();
-        double y = _projection["ytop_km"].AsDouble() - world.Y / PxPerKm;
+        double x = world.X / PxPerKm + _x0Km;
+        double y = _yTopKm - world.Y / PxPerKm;
         double rho = Math.Sign(n) * Math.Sqrt(x * x + (rho0 - y) * (rho0 - y));
         double th = Math.Atan2(x, rho0 - y);
         double lat = 2.0 * Math.Atan(Math.Pow(6371.0 * f / rho, 1.0 / n)) - Math.PI / 2;
@@ -204,13 +214,13 @@ public static class WorldMap
     public static Vector2I CellOf(double lon, double lat)
     {
         double r(double d) => d * Math.PI / 180.0;
-        double lat1 = _projection["lat1"].AsDouble(), lat2 = _projection["lat2"].AsDouble(), lat0 = _projection["lat0"].AsDouble(), lon0 = _projection["lon0"].AsDouble();
+        double lat1 = _lat1, lat2 = _lat2, lat0 = _lat0, lon0 = _lon0;
         double n = Math.Log(Math.Cos(r(lat1)) / Math.Cos(r(lat2))) / Math.Log(Math.Tan(Math.PI / 4 + r(lat2) / 2) / Math.Tan(Math.PI / 4 + r(lat1) / 2));
         double f = Math.Cos(r(lat1)) * Math.Pow(Math.Tan(Math.PI / 4 + r(lat1) / 2), n) / n;
         double rho(double la) => 6371.0 * f / Math.Pow(Math.Tan(Math.PI / 4 + r(la) / 2), n);
         double th = n * r(lon - lon0), p = rho(lat);
         double x = p * Math.Sin(th), y = rho(lat0) - p * Math.Cos(th);
-        var world = new Vector2((float)((x - _projection["x0_km"].AsDouble()) * PxPerKm), (float)((_projection["ytop_km"].AsDouble() - y) * PxPerKm));
+        var world = new Vector2((float)((x - _x0Km) * PxPerKm), (float)((_yTopKm - y) * PxPerKm));
         return IsoGrid.FromWorld(world);
     }
 }

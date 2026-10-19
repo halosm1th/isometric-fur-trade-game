@@ -157,26 +157,66 @@ public static class Sim
         }
     }
 
-    public static IEnumerable<Agent> AgentsWithin(Vector2 pos, float radius)
+    // A struct, walked with foreach, so the question makes no garbage: it is
+    // asked by every animal and every man every frame, and the iterator it
+    // used to return was one of the largest things the collector swept.
+    public static AgentsNear AgentsWithin(Vector2 pos, float radius)
     {
         BuildGrid();
-        float r2 = radius * radius;
-        int x0 = Mathf.FloorToInt((pos.X - radius) / Bucket), x1 = Mathf.FloorToInt((pos.X + radius) / Bucket);
-        int y0 = Mathf.FloorToInt((pos.Y - radius) / Bucket), y1 = Mathf.FloorToInt((pos.Y + radius) / Bucket);
-        for (int bx = x0; bx <= x1; bx++)
+        return new AgentsNear(pos, radius);
+    }
+
+    public readonly struct AgentsNear : IEnumerable<Agent>
+    {
+        private readonly Vector2 _pos;
+        private readonly float _radius;
+        public AgentsNear(Vector2 pos, float radius) { _pos = pos; _radius = radius; }
+        public Enumerator GetEnumerator() => new(_pos, _radius);
+        IEnumerator<Agent> IEnumerable<Agent>.GetEnumerator() => GetEnumerator();
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public struct Enumerator : IEnumerator<Agent>
         {
-            for (int by = y0; by <= y1; by++)
+            private readonly Vector2 _pos;
+            private readonly float _r2;
+            private readonly int _x0, _x1, _y0, _y1;
+            private int _bx, _by, _i;
+            private List<Agent> _list;
+            public Agent Current { get; private set; }
+            object System.Collections.IEnumerator.Current => Current;
+
+            public Enumerator(Vector2 pos, float radius)
             {
-                if (!_grid.TryGetValue(Key(bx, by), out var list)) continue;
-                for (int i = 0; i < list.Count; i++)
+                _pos = pos; _r2 = radius * radius;
+                _x0 = Mathf.FloorToInt((pos.X - radius) / Bucket); _x1 = Mathf.FloorToInt((pos.X + radius) / Bucket);
+                _y0 = Mathf.FloorToInt((pos.Y - radius) / Bucket); _y1 = Mathf.FloorToInt((pos.Y + radius) / Bucket);
+                _bx = _x0; _by = _y0 - 1; _i = 0; _list = null; Current = null;
+            }
+
+            public bool MoveNext()
+            {
+                while (true)
                 {
-                    var a = list[i];
-                    // The bucket was filled this frame, but a caller may have
-                    // killed somebody since.
-                    if (a == null || !GodotObject.IsInstanceValid(a) || a.IsDead) continue;
-                    if (a.GlobalPosition.DistanceSquaredTo(pos) <= r2) yield return a;
+                    if (_list != null)
+                    {
+                        while (_i < _list.Count)
+                        {
+                            var a = _list[_i++];
+                            // The bucket was filled this frame, but a caller may have
+                            // killed somebody since.
+                            if (a == null || !GodotObject.IsInstanceValid(a) || a.IsDead) continue;
+                            if (a.GlobalPosition.DistanceSquaredTo(_pos) <= _r2) { Current = a; return true; }
+                        }
+                        _list = null;
+                    }
+                    // Next bucket, column by column as before.
+                    if (++_by > _y1) { _by = _y0; if (++_bx > _x1) { Current = null; return false; } }
+                    if (_grid.TryGetValue(Key(_bx, _by), out var list)) { _list = list; _i = 0; }
                 }
             }
+
+            public void Reset() { _bx = _x0; _by = _y0 - 1; _i = 0; _list = null; Current = null; }
+            public void Dispose() { }
         }
     }
 }

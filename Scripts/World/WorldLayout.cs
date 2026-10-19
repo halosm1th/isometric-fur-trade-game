@@ -20,7 +20,10 @@ public readonly record struct BuildingDef(BuildingKind Kind, string Name, Vector
     }
     public bool Contains(Vector2I c)
     {
-        foreach (var x in IsoGrid.Rhombus(Top, Width, Depth)) if (x == c) return true;
+        // Walked cell by cell without an iterator: asked every frame.
+        for (int i = 0; i < Width; i++)
+            for (int j = 0; j < Depth; j++)
+                if (IsoGrid.Cell(Top, i, j) == c) return true;
         return false;
     }
 }

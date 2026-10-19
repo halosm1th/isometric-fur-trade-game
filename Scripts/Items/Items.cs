@@ -248,8 +248,12 @@ public class Inventory
     public (ItemId id, int count)? Slot(int i) =>
         i >= 0 && i < _order.Count && _order[i] != null ? (_order[i].Value, _stacks[_order[i].Value]) : null;
 
-    public float TotalWeightLbs =>
-        _stacks.Sum(kv => Items.Of(kv.Key).WeightLbs * kv.Value);
+    // Plain loops, not LINQ: these are asked of every body every frame, and
+    // each LINQ call was an iterator and a delegate for the collector.
+    public float TotalWeightLbs
+    {
+        get { float w = 0f; foreach (var kv in _stacks) w += Items.Of(kv.Key).WeightLbs * kv.Value; return w; }
+    }
 
     public float TotalValueMb =>
         _stacks.Sum(kv => Items.Of(kv.Key).ValueMb * kv.Value);
@@ -262,9 +266,19 @@ public class Inventory
     public void ToggleWorn(ItemId id) { if (!Unworn.Remove(id)) Unworn.Add(id); }
 
     // Sum of everything worn. Layers stack, which is how the real kit worked.
-    public float ClothingWarmth =>
-        _stacks.Where(kv => Items.Of(kv.Key).Kind == ItemKind.Clothing && !Unworn.Contains(kv.Key))
-               .Sum(kv => Items.Of(kv.Key).Warmth * kv.Value);
+    public float ClothingWarmth
+    {
+        get
+        {
+            float w = 0f;
+            foreach (var kv in _stacks)
+            {
+                var def = Items.Of(kv.Key);
+                if (def.Kind == ItemKind.Clothing && !Unworn.Contains(kv.Key)) w += def.Warmth * kv.Value;
+            }
+            return w;
+        }
+    }
 
     // Drag a stack from one slot to another: an empty slot takes it, an
     // occupied one swaps places. The hotbar is the first nine slots.

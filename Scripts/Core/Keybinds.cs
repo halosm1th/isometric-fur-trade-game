@@ -139,9 +139,16 @@ public static class Keybinds
     }
 
     // The first key for an action, for hints like "E  Talk to ...".
+    // Remembered until a binding changes (Version): the HUD asks for its hints
+    // every frame, and each answer was an array and a string from the engine.
+    // An unbound action is not remembered, in case it is bound by code later.
+    private static readonly Dictionary<string, string> _keyFor = new();
+    private static int _keyForVersion = -1;
     public static string KeyFor(string action)
     {
-        foreach (var k in Current(action)) if (k != Key.None) return Name(k);
+        if (_keyForVersion != Version) { _keyFor.Clear(); _keyForVersion = Version; }
+        if (_keyFor.TryGetValue(action, out var known)) return known;
+        foreach (var k in Current(action)) if (k != Key.None) return _keyFor[action] = Name(k);
         return "(unbound)";
     }
 

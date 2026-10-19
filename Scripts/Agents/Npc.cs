@@ -183,6 +183,7 @@ public partial class Npc : Agent
     public string PendingReport; public string PendingReportSite; public Vector2I? PendingReportCell;
 
     private AnimatedSprite2D _sprite;
+    private SpriteAnims _anims;
     private Label _label;
     private RoleBehaviour _behaviour;
 
@@ -203,6 +204,7 @@ public partial class Npc : Agent
     public override void _Ready()
     {
         _sprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
+        if (_sprite != null) _anims = new SpriteAnims(_sprite);
         _label = GetNodeOrNull<Label>("NameLabel");
         if (_label != null) _label.Text = DisplayName;
         _behaviour = RoleBehaviour.For(Role);
@@ -245,14 +247,14 @@ public partial class Npc : Agent
         if (_label != null) _label.Text = DisplayName;
     }
 
-    public override string CurrentAnimation => _sprite?.Animation ?? "idle";
+    public override string CurrentAnimation => _anims?.Current ?? "idle";
     public override bool FlipH => _sprite?.FlipH ?? false;
 
     private Vector2 _netTarget; private bool _netHasTarget;
     public override void ApplySnapshot(Vector2 pos, string anim, bool flip)
     {
         _netTarget = pos; _netHasTarget = true;
-        if (_sprite != null && _sprite.SpriteFrames != null && _sprite.SpriteFrames.HasAnimation(anim) && _sprite.Animation != anim) _sprite.Play(anim);
+        if (_anims != null && _anims.Has(anim)) _anims.Play(anim);
         if (_sprite != null) _sprite.FlipH = flip;
     }
 
@@ -651,8 +653,8 @@ public partial class Npc : Agent
         {
             if (v.LengthSquared() >= 4f) { _sprite.FlipH = v.X < 0f; _facing = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f ? "walk_side" : v.Y < -0.3f * v.Length() ? "walk_back" : "walk"; }
             target = _facing == "walk_side" ? "idle_side" : _facing == "walk_back" ? "idle_back" : "idle";
-            if (!_sprite.SpriteFrames.HasAnimation(target)) target = "idle";
-            if (_sprite.Animation != target) _sprite.Play(target);
+            if (!_anims.Has(target)) target = "idle";
+            _anims.Play(target);
             _sprite.SpeedScale = 1f;
             return;
         }
@@ -663,13 +665,13 @@ public partial class Npc : Agent
         }
         else
         {
-            bool side = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f && _sprite.SpriteFrames.HasAnimation("walk_side");
+            bool side = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f && _anims.Has("walk_side");
             target = side ? "walk_side" : (v.Y < -0.3f * v.Length() ? "walk_back" : "walk");
             _sprite.FlipH = v.X < 0f;
             _facing = target;
         }
-        if (!_sprite.SpriteFrames.HasAnimation(target)) target = "idle";
-        if (_sprite.Animation != target) _sprite.Play(target);
+        if (!_anims.Has(target)) target = "idle";
+        _anims.Play(target);
         _sprite.SpeedScale = IsSprinting ? 1.6f : 1f;
     }
 
