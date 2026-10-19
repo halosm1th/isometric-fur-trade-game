@@ -32,7 +32,7 @@ public static class BeatKinds
 	}
 }
 
-internal sealed class Compiler
+internal sealed partial class Compiler
 {
 	private sealed record Inst(BeatDecl Decl, Env Env, string Id);
 
@@ -44,7 +44,7 @@ internal sealed class Compiler
 		("CancelWhen", "cancel_when", true), ("OnCancel", "on_cancel", false),
 	};
 
-	private static readonly string[] ValueTypes = { "int", "float", "string", "bool", "Date", "Days", "Company", "Person", "Item", "Season", "Kind", "Beat", "Brigade", "string[]", "int[]" };
+	private static readonly string[] ValueTypes = { "int", "float", "string", "bool", "Date", "Days", "Company", "Person", "Item", "Season", "Kind", "Beat", "Brigade", "Quest", "Task", "string[]", "int[]" };
 
 	private readonly ScriptAst _ast;
 	private readonly Env _globals = new();
@@ -84,6 +84,7 @@ internal sealed class Compiler
 			_res.BeatNames[inst.Id] = inst.Decl.Name;
 		}
 		root["beats"] = beats;
+		if (_lines.Count > 0) root["questlines"] = CompileLines();
 		return _res;
 	}
 
@@ -102,7 +103,8 @@ internal sealed class Compiler
 				case "note": root["note"] = Text(v, a); break;
 				case "seed": root["seed"] = v is double d && d >= 0 && d == Math.Floor(d) ? d : throw new CampError("seed must be a whole number", a.Value.At); break;
 				case "postsByFoundingYear": if (v is true) root["posts_by_founding_year"] = true; else if (v is not false) throw new CampError("postsByFoundingYear is true or false", a.Value.At); break;
-				default: throw new CampError($"the campaign header has no '{a.Name}'.{Suggest(a.Name, new[] { "title", "description", "note", "seed", "postsByFoundingYear" })} (its values are title, description, note, seed, postsByFoundingYear)", a.NameAt);
+				case "extends": root["extends"] = v is string ex && ex.Length > 0 ? ex : throw new CampError("extends names another campaign by its id (its file name), e.g. \"historical\"", a.Value.At); break;
+				default: throw new CampError($"the campaign header has no '{a.Name}'.{Suggest(a.Name, new[] { "title", "description", "note", "seed", "postsByFoundingYear", "extends" })} (its values are title, description, note, seed, postsByFoundingYear, extends)", a.NameAt);
 			}
 		}
 		if (!titled) throw new CampError("the campaign needs a title: campaign " + c.Name + "(title: \"...\")", c.At);
@@ -146,6 +148,10 @@ internal sealed class Compiler
 					break;
 				case BeatDecl b:
 					_insts.Add(new Inst(b, env, BeatId(b, env)));
+					break;
+				case QuestLineDecl ql:
+					if (env != _globals) throw new CampError("a questline belongs at the top of the campaign, not inside a loop", ql.At);
+					DeclareLine(ql, env);
 					break;
 				case LoopDecl l:
 					if (l.For != null)
@@ -470,6 +476,8 @@ internal sealed class Compiler
 	private object Resolve(NameExpr n, Env env)
 	{
 		if (env.TryGet(n.Name, out var v)) return v;
+		if (_steps != null && _steps.TryGetValue(n.Name, out var stepId)) return new StepV(n.Name, stepId);
+		if (_questIds.TryGetValue(n.Name, out var questId)) return new QuestV(n.Name, questId);
 		if (_vars.ContainsKey(n.Name)) return new VarV(n.Name);
 		if (_byName.TryGetValue(n.Name, out var id))
 			return id != null ? new BeatV(n.Name, id) : throw new CampError($"more than one beat is called {n.Name}; use its id as a string", n.At);
@@ -500,7 +508,7 @@ internal sealed class Compiler
 
 	private string OwnerOf(object tv, Expr at) => tv switch
 	{
-		ObjV o => o.Type, BeatV => "Beat", BrigadeV => "Brigade",
+		ObjV o => o.Type, BeatV => "Beat", BrigadeV => "Brigade", QuestV => "Quest",
 		_ => throw new CampError($"{Describe(tv)} has no members", at.At),
 	};
 
@@ -767,6 +775,7 @@ internal sealed class Compiler
 	{
 		double d => $"the number {CJson.Num(d)}", string s => $"the text \"{s}\"", bool b => $"{(b ? "true" : "false")}", DateV d => $"the date {d}",
 		DaysV d => $"{CJson.Num(d.N)} days", BeatV b => $"the beat {b.Name}", BrigadeV b => $"the brigade \"{b.Run}\"", EnumV e => $"{e.Type}.{e.Value}",
+		QuestV q => $"the quest {q.Name}", StepV st => $"the step {st.Name}",
 		ObjV o => o.Type, TypeNameV t => $"the type {t.Name}", VarV vv => $"the variable {vv.Name}", MetricV m => "a number from the world",
 		QueryV => "a name from the world", DateQ => "today's date", CondV => "a condition", Unit => "an effect", LambdaV => "a block", OptionV => "an option",
 		ArrV => "a list", null => "nothing", _ => v.ToString(),

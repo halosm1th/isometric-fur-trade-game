@@ -34,7 +34,7 @@ public sealed class Atom
 	public List<string> Args = new();
 }
 
-public static class Checker
+public static partial class Checker
 {
 	private static readonly string[] Kinds = BeatKinds.All;
 	private static readonly string[] BeatKeys = { "id", "title", "kind", "date", "window_days", "lead_days", "delay_days", "repeat_days", "requires", "keywords", "rumour", "when", "on_awaken", "pressure", "activate_when", "happens", "done_when", "on_resolve", "cancel_when", "on_cancel" };
@@ -44,7 +44,7 @@ public static class Checker
 
 	private sealed class Facts
 	{
-		public readonly Dictionary<string, List<string>> FlagsSet = new(), FlagsRead = new(), VarsSet = new(), VarsRead = new(), Triggers = new();
+		public readonly Dictionary<string, List<string>> FlagsSet = new(), FlagsRead = new(), VarsSet = new(), VarsRead = new(), Triggers = new(), QuestsRead = new();
 		public static void Add(Dictionary<string, List<string>> d, string k, string where) { if (!d.TryGetValue(k, out var l)) d[k] = l = new(); l.Add(where); }
 	}
 
@@ -121,6 +121,8 @@ public static class Checker
 			foreach (var r in Tree.AsList(b.GetValueOrDefault("requires"))) Facts.Add(facts.FlagsRead, Tree.S(r), where);
 		}
 
+		CheckQuests(doc, rep, facts, world);
+
 		foreach (var (t, wheres) in facts.Triggers)
 			if (!ids.ContainsKey(t)) foreach (var w in wheres) rep.Error(w, $"trigger of unknown beat '{t}'");
 		var settable = new HashSet<string>(facts.FlagsSet.Keys);
@@ -163,6 +165,8 @@ public static class Checker
 				else if (a.Name == "post" && !world.Posts.Contains(arg) && arg != "York Factory" && arg != "Oxford House") rep.Error(where, $"post '{arg}' is not on the map");
 				else if (a.Name == "month" && !Regex.IsMatch(arg, @"^\d{1,2}(-\d{1,2})?$")) rep.Error(where, $"month:{arg} should be a month number or a range like 6-8");
 				else if (a.Name == "chance" && !double.TryParse(arg, NumberStyles.Float, CultureInfo.InvariantCulture, out _)) rep.Error(where, $"chance:{arg} needs a percentage");
+				else if (a.Name is "quest" or "quest_active" or "quest_failed") Facts.Add(facts.QuestsRead, arg, where);
+				else if (a.Name == "posted" && !world.Ledgers.Contains(arg)) rep.Error(where, $"posted: '{arg}' is not a post with books");
 				else if (a.Name.StartsWith("convoy_") && a.Name != "convoy_wintering" && !world.Runs.ContainsKey(arg)) rep.Error(where, $"'{arg}' is not a brigade run (known: {string.Join(", ", world.Runs.Keys.OrderBy(x => x, StringComparer.Ordinal))})");
 			}
 			else
@@ -240,6 +244,21 @@ public static class Checker
 					break;
 				case "tension":
 					if (a.GetValueOrDefault("add") is double t && Math.Abs(t) > 100) rep.Warn(w, $"tension {t:+0.##;-0.##} is more than the whole 0-100 scale");
+					break;
+				case "posting":
+					if (!world.Ledgers.Contains(Tree.S(a.GetValueOrDefault("place")))) rep.Error(w, $"posting: '{Tree.S(a.GetValueOrDefault("place"))}' is not a post with books");
+					break;
+				case "regard":
+					if (!world.Camps.Contains(Tree.S(a.GetValueOrDefault("place")))) rep.Error(w, $"regard: '{Tree.S(a.GetValueOrDefault("place"))}' is not a camp of the country");
+					break;
+				case "give": case "take":
+					if (!world.Items.Contains(Tree.S(a.GetValueOrDefault("item")))) rep.Error(w, $"{verb}: '{Tree.S(a.GetValueOrDefault("item"))}' is not an item");
+					break;
+				case "rapport":
+					CheckWho(Tree.S(a.GetValueOrDefault("who")), w, rep, world);
+					break;
+				case "start_quest": case "end_quest":
+					Facts.Add(facts.QuestsRead, Tree.S(a.GetValueOrDefault("quest")), w);
 					break;
 			}
 		}

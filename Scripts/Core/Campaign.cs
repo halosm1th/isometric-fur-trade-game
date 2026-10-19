@@ -135,13 +135,27 @@ public static class Campaign
     private static void LoadScript()
     {
         _runner.Load(new CampaignScript()); Title = "No script"; Description = "";
+        Quests.Load(null);
         if (Id == "none") return;
         var path = PathOf(Id);
         var d = path == null ? null : Read(path);
         if (d == null) { GD.PushWarning($"[campaign] no script '{Id}' - running with none"); Id = "none"; return; }
         var script = CampaignScript.Parse(ToDict(d), Id);
+        // A story built on another campaign plays that one's beats too (its
+        // own beats win where the ids meet), so it shares the history's war.
+        if (script.Extends != "" && script.Extends != Id && PathOf(script.Extends) is string basePath && Read(basePath) is { } bd)
+        {
+            var baseScript = CampaignScript.Parse(ToDict(bd), script.Extends);
+            var own = new HashSet<string>();
+            foreach (var b in script.Beats) own.Add(b.Id);
+            int i = 0;
+            foreach (var b in baseScript.Beats) if (!own.Contains(b.Id)) script.Beats.Insert(i++, b);
+            foreach (var kv in baseScript.InitialVars) script.InitialVars.TryAdd(kv.Key, kv.Value);
+            script.PostsByFoundingYear |= baseScript.PostsByFoundingYear;
+        }
         Title = script.Title; Description = script.Description;
         _runner.Load(script);
+        Quests.Load(script.QuestLines);
     }
 
     // ---- the script as plain data -------------------------------------------------
@@ -269,7 +283,9 @@ public static class Campaign
             switch (name)
             {
                 case "tension": return Economy.Rivalry.Tension;
-                case "standing": return (Sim.Player as Player.PlayerController)?.Standing ?? 0;
+                case "standing": return (Actor ?? Sim.Player as Player.PlayerController)?.Standing ?? 0;
+                case "rapport": { var who = Actor ?? Sim.Player as Player.PlayerController; foreach (var n in Sim.Npcs) if (Quests.Matches(arg, n)) return n.RapportWith(who); return 0; }
+                case "regard": return Quests.HouseholdAt(arg) is Economy.BandLedger band ? band.StandingWithCompany : double.NaN;
                 case "stock": return a.Length > 1 && Convoys.Ledger(arg) is { } led && Enum.TryParse<ItemId>(a[1], out var id) ? led.Stores.Count(id) : double.NaN;
                 case "furs": return Convoys.Ledger(arg)?.FursInStoreMb ?? double.NaN;
                 case "convoys_active": { int n = 0; foreach (var c in Convoys.All) if (c.Now != ConvoyState.Arrived) n++; return n; }
@@ -290,10 +306,17 @@ public static class Campaign
                 case "player_faction": return Sim.Players().Any(p => p.Faction.ToString().Equals(arg, StringComparison.OrdinalIgnoreCase));
                 case "season": return GameCalendar.Instance?.CurrentSeason.ToString().Equals(arg, StringComparison.OrdinalIgnoreCase) ?? false;
                 case "convoy_wintering": return Convoys.Find(arg)?.Now == ConvoyState.Wintering;
+                // Quests: asked of the player a quest runs for, or of anyone when a beat asks.
+                case "quest": return Actor != null ? Actor.Quests.IsDone(arg) : Sim.Players().Any(p => p.Quests.IsDone(arg));
+                case "quest_active": return Actor != null ? Actor.Quests.IsActive(arg) : Sim.Players().Any(p => p.Quests.IsActive(arg));
+                case "quest_failed": return (Actor != null ? new[] { Actor } : Sim.Players().ToArray()).Any(p => p.Quests.States.TryGetValue(arg, out var qs) && qs.Status == QuestStatus.Failed);
+                case "posted": return (Actor ?? Sim.Player as Player.PlayerController)?.PostedTo == arg;
             }
             GD.PushWarning($"[campaign] unknown condition '{name}'");
             return false;
         }
+
+        private static IEnumerable<Player.PlayerController> Targets() => Actor != null ? new[] { Actor } : Sim.Players();
 
         private static string S(Dictionary<string, object> a, string k, string def = "") => a.TryGetValue(k, out var v) ? CampaignLogic.Str(v) : def;
         private static double N(Dictionary<string, object> a, string k, double def = 0) => a.TryGetValue(k, out var v) ? CampaignLogic.Num(v) : def;
@@ -343,6 +366,16 @@ public static class Campaign
                     }
                     if (a.TryGetValue("headline", out var hl) && hl is true) Sim.Headline(text);
                     break;
+                // What a quest does to the player it runs for (or, from a beat, every player).
+                case "posting": foreach (var p in Targets()) p.PostTo(S(a, "place")); break;
+                case "standing": foreach (var p in Targets()) p.Standing += (float)N(a, "add"); break;
+                case "rapport": foreach (var p in Targets()) foreach (var n in Sim.Npcs) if (Quests.Matches(S(a, "who"), n)) n.ChangeRapport(p, (float)N(a, "add")); break;
+                case "regard": if (Quests.HouseholdAt(S(a, "place")) is Economy.BandLedger band) band.StandingWithCompany = Mathf.Clamp(band.StandingWithCompany + (float)N(a, "add"), 0f, 100f); break;
+                case "give": if (Enum.TryParse<ItemId>(S(a, "item"), true, out var gid)) foreach (var p in Targets()) p.Inventory.Add(gid, (int)N(a, "count", 1)); break;
+                case "take": if (Enum.TryParse<ItemId>(S(a, "item"), true, out var tid)) foreach (var p in Targets()) p.Inventory.Remove(tid, Math.Min((int)N(a, "count", 1), p.Inventory.Count(tid))); break;
+                case "start_quest": if (Quests.Def(S(a, "quest")) is { } sq) foreach (var p in Targets()) Quests.Start(p, sq); break;
+                case "end_quest": foreach (var p in Targets()) Quests.FinishById(p, S(a, "quest"), !(a.TryGetValue("failed", out var fl) && fl is true)); break;
+                case "note": foreach (var p in Targets()) { p.Journal.Add($"{GameCalendar.Instance?.DateString}: {S(a, "text")}"); p.Say(S(a, "text")); } break;
                 default: GD.PushWarning($"[campaign] {beat}: unknown action '{name}'"); break;
             }
         }
@@ -361,6 +394,24 @@ public static class Campaign
     // ---- conditions ----------------------------------------------------------------
 
     public static void Flag(string name) { if (Net.Net.IsServer) _flags.Add(name); }
+
+    // A quest's conditions and actions are the language's, asked and done on
+    // behalf of one player (Actor): "standing" is theirs, "posting" moves them.
+    public static Player.PlayerController Actor { get; private set; }
+    public static bool Check(List<object> cond, Player.PlayerController who)
+    {
+        if (cond == null) return true;
+        var was = Actor; Actor = who;
+        try { return CampaignLogic.All(cond, _st, _world); }
+        finally { Actor = was; }
+    }
+    public static void RunFor(Player.PlayerController who, List<object> actions)
+    {
+        if (actions == null || actions.Count == 0 || !Net.Net.IsServer) return;
+        var was = Actor; Actor = who;
+        try { CampaignLogic.Run(actions, _st, _world); }
+        finally { Actor = was; }
+    }
     public static void Unflag(string name) { if (Net.Net.IsServer) _flags.Remove(name); }
     public static bool Has(string name) => _flags.Contains(name);
 

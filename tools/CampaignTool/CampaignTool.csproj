@@ -12,5 +12,6 @@
     <!-- The game's own campaign code: pure C#, so the tool runs exactly what the game runs. -->
     <Compile Include="../../Scripts/Core/CampaignLogic.cs" Link="Game/CampaignLogic.cs" />
     <Compile Include="../../Scripts/Core/CampaignRunner.cs" Link="Game/CampaignRunner.cs" />
+    <Compile Include="../../Scripts/Core/QuestScript.cs" Link="Game/QuestScript.cs" />
   </ItemGroup>
 </Project>

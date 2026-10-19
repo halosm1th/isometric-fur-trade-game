@@ -263,6 +263,7 @@ public partial class Animal : Agent
         base.TakeDamage(amount, from);
         _hurtFlash = 0.15f;
         if (wasAlive && IsDead && from != null && from.Weapon == Items.ItemId.Musket) ShotDead = true;
+        if (wasAlive && IsDead && from is Player.PlayerController hunter) Core.Quests.OnKill(hunter, Species.ToString());
     }
 
     // Which animation to play for a kind of motion facing a way. The answer

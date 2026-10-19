@@ -7,6 +7,7 @@
 - [Getting started](Getting-Started)
 - [Language guide](Language-Guide)
 - [Beats and the lifecycle](Beats-and-the-Lifecycle)
+- [Quests](Quests)
 - [Cookbook](Cookbook)
 - [Examples](Examples)
 

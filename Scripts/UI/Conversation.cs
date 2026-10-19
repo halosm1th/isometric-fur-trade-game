@@ -273,6 +273,19 @@ public class Conversation
         bool ownMan = npc.Faction == _player.Faction && (npc.Role == Role.Labourer || npc.Role == Role.Voyageur);
         bool canCommand = _player.Rank == "clerk" || _player.Rank == "postmaster" || _player.Standing >= 35f;
 
+        // A quest's business with this person comes first of all, then what
+        // they would ask of you (Core/Quests.cs).
+        foreach (var (q, st, o) in Core.Quests.TopicsWith(_player, npc))
+        {
+            var (qq, ss, oo) = (q, st, o);
+            string what = o.Kind == "bring" ? $"Give {npc.DisplayName} {o.Count} {ItemLabel(o.Item, o.Count)}" : o.Dialogue?.Choices.Count > 0 || o.Text == "" ? "Speak of it" : o.Text;
+            AddOption($"[{q.Title}] {what}", () => ShowQuestTalk(npc, qq, ss, oo));
+        }
+        foreach (var q in Core.Quests.OffersFrom(_player, npc))
+        {
+            var qq = q;
+            AddOption($"[New] {q.Title}", () => ShowOffer(npc, qq));
+        }
         // What's pressing comes first: a letter to hand over, a debt to settle.
         if (npc.Role == Role.CreeChief && (_player.Task.Kind == TaskKind.DeliverLetter && !_player.Task.IsComplete && _player.Task.Done == 0 || HasMailFor(npc)))
             AddOption("Hand him the Factor's letter", () => ShowTopics(DeliverLetter(npc)));
@@ -330,6 +343,75 @@ public class Conversation
         if (npc.Faction != Faction.HBC || npc.Role == Role.Labourer)
             AddOption("Threaten them", () => ShowTopics(Threaten(npc)));
         AddOption("Leave", Close);
+    }
+
+    // ---- quests -----------------------------------------------------------------------
+
+    private static string ItemLabel(string item, int n) =>
+        System.Enum.TryParse<ItemId>(item, true, out var id) ? Items.Items.Of(id).Name.ToLower() : item;
+
+    private string Spoken(string text, Npc npc) => (text ?? "").Replace("{player}", _player.DisplayName).Replace("{npc}", npc.DisplayName);
+
+    private void ShowOffer(Npc npc, Core.QuestDef q)
+    {
+        _text = Spoken(q.Summary != "" ? q.Summary : $"{npc.DisplayName} has something to ask of you.", npc);
+        ClearOptions();
+        AddOption("Take it on", () => { Core.Quests.Start(_player, q); ShowTopics($"You take it on: {q.Title}."); });
+        AddOption("Not now", () => ShowTopics(Greeting(npc)));
+        AddOption("Refuse", () => { Core.Quests.Decline(_player, q); npc.ChangeRapport(_player, -2f); ShowTopics($"{npc.DisplayName} takes the refusal without a word."); });
+    }
+
+    // A talk objective: what they say, and the choices it offers (each may send
+    // the quest elsewhere). A bring objective: hand it over. When the next
+    // objective is more talk with the same person, it follows on at once.
+    private void ShowQuestTalk(Npc npc, Core.QuestDef q, Core.QuestState st, Core.QuestObjective o, string before = null)
+    {
+        ClearOptions();
+        if (o.Kind == "bring")
+        {
+            if (!Core.Quests.Bring(_player, npc, q, st, o))
+            {
+                _text = $"You haven't {o.Count} {ItemLabel(o.Item, o.Count)} to give.";
+                AddOption("Back", () => ShowTopics(Greeting(npc)));
+                return;
+            }
+            _text = Spoken(o.Dialogue?.Text is { Length: > 0 } t ? t : $"{npc.DisplayName} takes the {ItemLabel(o.Item, o.Count)}.", npc);
+            FollowOn(npc, q, st);
+            return;
+        }
+        string said = Spoken(o.Dialogue?.Text is { Length: > 0 } dt ? dt : o.Text, npc);
+        _text = before != null ? before + "\n\n" + said : said;
+        var choices = Core.Quests.ChoicesFor(_player, o);
+        if (choices.Count == 0)
+        {
+            Core.Quests.Advance(_player, q, st);
+            FollowOn(npc, q, st);
+            return;
+        }
+        foreach (var c in choices)
+        {
+            var cc = c;
+            AddOption(Spoken(c.Label, npc), () =>
+            {
+                Core.Quests.Choose(_player, q, st, cc);
+                _text = Spoken(cc.Reply != "" ? cc.Reply : "", npc);
+                ClearOptions();
+                FollowOn(npc, q, st);
+            });
+        }
+        AddOption("Not now", () => ShowTopics(Greeting(npc)));
+    }
+
+    private void FollowOn(Npc npc, Core.QuestDef q, Core.QuestState st)
+    {
+        if (st.Status == Core.QuestStatus.Active && st.At < q.Objectives.Count && q.Objectives[st.At] is { } next
+            && next.Kind == "talk" && Core.Quests.Matches(next.Who, npc))
+        {
+            ShowQuestTalk(npc, q, st, next, _text != "" ? _text : null);
+            return;
+        }
+        ClearOptions();
+        AddOption("Back", () => ShowTopics(Greeting(npc)));
     }
 
     private bool CanAskAlong(Npc npc) => !npc.IsFemale && npc.Role != Role.Factor && npc.Role != Role.NwcPartner && npc.Role != Role.Clerk && npc.Role != Role.Sailor;

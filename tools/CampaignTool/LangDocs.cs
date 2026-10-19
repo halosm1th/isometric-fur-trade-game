@@ -33,7 +33,63 @@ public static class LangDocs
 		new("note", "string", "A note kept in the JSON, for whoever opens it. Free text."),
 		new("seed", "int", "The seed for the script's dice (chance, random). The same seed gives the same history."),
 		new("postsByFoundingYear", "bool", "When true, posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only if a beat founds it."),
+		new("extends", "string", "Another campaign (by its id, the file's name) whose beats this one plays as well: a story with quest lines can be built on \"historical\" and share its war. Where both have a beat of the same id, this campaign's wins."),
 	};
+
+	// Quests (see the Quests page of the guide).
+	public static readonly Hook[] QuestHooks =
+	{
+		new("StartWhen", "start_when", true, "A quest starts (or is offered by its giver) only once this holds, and what it requires is done."),
+		new("FailWhen", "fail_when", true, "Asked all the while the quest is under way: the first time it holds, the quest fails."),
+		new("OnStart", "on_start", false, "What happens when the quest starts."),
+		new("OnComplete", "on_complete", false, "What happens when the quest is done."),
+		new("OnFail", "on_fail", false, "What happens when the quest fails."),
+	};
+	public static readonly Hook[] StepHooks =
+	{
+		new("Says", "dialogue.text", true, "What the person says when the player raises the step with them (a talk or bring step): Says() => \"...\";"),
+		new("Done", "cond", true, "The step's condition: a when step is done once it holds (when Name(...) => condition; is the short form)."),
+		new("OnDone", "on_done", false, "What happens when the step is done, before the quest moves on."),
+	};
+	public static readonly Arg[] LineArgs =
+	{
+		new("id", "string", "The line's id, if it is not to be its name."),
+		new("title", "string", "The line's name in the journal. Required."),
+		new("summary", "string", "A line about what the story is."),
+		new("forCompany", "Company", "Only players of this company (Company.HBC or Company.NWC) are given the line's quests. Each quest can say otherwise."),
+	};
+	public static readonly Arg[] QuestArgs =
+	{
+		new("id", "string", "The quest's id, if it is not to be its name."),
+		new("title", "string", "The quest's name in the journal and on the screen. Required."),
+		new("summary", "string", "What the quest is: shown when it starts, or when its giver offers it."),
+		new("giver", "Person", "Someone who offers the quest when spoken to (Person.Factor, \"leader@Edmonton House\", a name). Without one, the quest starts by itself once it may."),
+		new("forCompany", "Company", "Only players of this company get the quest (default: the line's)."),
+	};
+	public static readonly Arg[] StepArgs =
+	{
+		new("id", "string", "The step's id, if it is not to be its name."),
+		new("text", "string", "What the player is told to do, on the screen and in the journal."),
+		new("who", "Person", "talk, bring: the person (a name, Person.Factor, or a role at a place: \"leader@Edmonton House\", \"chief@<camp>\", \"partner@Fort Augustus\")."),
+		new("place", "string", "reach: a post, a camp or a place on the map."),
+		new("radius", "int", "reach: how near counts as there, in pixels (default 400)."),
+		new("item", "Item", "bring, have: what."),
+		new("count", "int", "bring, have: how many; task: how much of the work; hunt: how many beasts (default 1)."),
+		new("task", "Task", "task: the work handed out, as the Factor would (Task.CarryCargo ...)."),
+		new("convoy", "string", "task Task.Brigade: the brigade run to go with."),
+		new("dest", "string", "task Task.Brigade: where the boats are bound (default: the run's next landing)."),
+		new("species", "string", "hunt: what to kill (Buffalo, Caribou ...; empty for anything)."),
+		new("days", "int", "wait: how many days."),
+		new("next", "Step", "Where the quest goes after this step (another step, \"complete\" or \"fail\"); default the next one written."),
+	};
+	public static readonly Arg[] ChoiceArgs =
+	{
+		new("label", "string", "What the player says. Required."),
+		new("reply", "string", "What comes back."),
+		new("when", "bool", "The choice is offered only while this holds."),
+		new("goto", "Step", "Where the quest goes when this is chosen (a step, \"complete\" or \"fail\"); default the step after."),
+	};
+	public static readonly string[] StepKinds = { "talk", "reach", "task", "bring", "have", "hunt", "when", "wait" };
 
 	public static readonly Arg[] BeatArgs =
 	{
@@ -49,8 +105,8 @@ public static class LangDocs
 		new("keywords", "string[]", "Words the news director looks for when it chooses what to tell the player, from 120 days before a dated beat's date until two windows after it. Free text."),
 	};
 
-	public static readonly string[] Keywords = { "campaign", "beat", "const", "void", "if", "else", "for", "foreach", "in", "true", "false" };
-	public static readonly string[] Types = { "int", "float", "string", "bool", "Date", "Days", "Company", "Person", "Item", "Season", "Kind", "Beat", "Brigade" };
+	public static readonly string[] Keywords = { "campaign", "beat", "questline", "quest", "choice", "talk", "reach", "task", "bring", "have", "hunt", "when", "wait", "const", "void", "if", "else", "for", "foreach", "in", "true", "false" };
+	public static readonly string[] Types = { "int", "float", "string", "bool", "Date", "Days", "Company", "Person", "Item", "Season", "Kind", "Beat", "Brigade", "Quest", "Task" };
 
 	// The editor reads this once.
 	public static Dictionary<string, object> LibraryJson()
@@ -69,6 +125,8 @@ public static class LangDocs
 			("hooks", Hooks.Select(h => (object)Tree.Dict(("name", h.Name), ("key", h.Key), ("condition", h.Condition), ("summary", h.Summary))).ToList()),
 			("beatArgs", BeatArgs.Select(a => (object)Tree.Dict(("name", a.Name), ("type", a.Type), ("summary", a.Summary))).ToList()),
 			("headerArgs", HeaderArgs.Select(a => (object)Tree.Dict(("name", a.Name), ("type", a.Type), ("summary", a.Summary))).ToList()),
+			("questHooks", QuestHooks.Concat(StepHooks).Select(h => (object)Tree.Dict(("name", h.Name), ("key", h.Key), ("condition", h.Condition), ("summary", h.Summary))).ToList()),
+			("questArgs", LineArgs.Concat(QuestArgs).Concat(StepArgs).Concat(ChoiceArgs).GroupBy(a => a.Name).Select(g => (object)Tree.Dict(("name", g.Key), ("type", g.First().Type), ("summary", g.First().Summary))).ToList()),
 			("keywords", Keywords.Cast<object>().ToList()), ("types", Types.Cast<object>().ToList()),
 			("objects", Tree.List("world", "flags", "player")));
 	}
@@ -91,6 +149,17 @@ public static class LangDocs
 		foreach (var a in HeaderArgs) sb.Append($"| `{a.Name}` | `{a.Type}` | {a.Summary} |\n");
 		sb.Append("\n## Hooks\n\n| Hook | Kind | What it does |\n|---|---|---|\n");
 		foreach (var h in Hooks) sb.Append($"| `{h.Name}()` | {(h.Condition ? "condition (`=>`)" : "effects (`{ }`)")} | {h.Summary} |\n");
+		void Table(string title, Arg[] args)
+		{
+			sb.Append($"\n## {title}\n\n| Argument | Type | What it is |\n|---|---|---|\n");
+			foreach (var a in args) sb.Append($"| `{a.Name}` | `{a.Type}` | {a.Summary} |\n");
+		}
+		Table("Questline header", LineArgs);
+		Table("Quest header", QuestArgs);
+		Table($"Step header ({string.Join(", ", StepKinds)})", StepArgs);
+		Table("Choice header", ChoiceArgs);
+		sb.Append("\n## Quest and step hooks\n\n| Hook | Kind | What it does |\n|---|---|---|\n");
+		foreach (var h in QuestHooks.Concat(StepHooks)) sb.Append($"| `{h.Name}()` | {(h.Condition ? "condition (`=>`)" : "effects (`{ }`)")} | {h.Summary} |\n");
 
 		void Section(string title, string intro, IEnumerable<Member> ms)
 		{
@@ -109,6 +178,7 @@ public static class LangDocs
 		Section("player", "What the player has done, as the campaign has been told of it: the game records a *deed* when the player brokers a truce (`truce`), leads or joins a raid (`raid`), rides a brigade to its landing (`escort`) or carries a packet through (`courier`).", Library.Of("player"));
 		Section("A beat", "A beat's own name is a value: `SevenOaks.done`. Beats are written in `[...]` after the header to be required, and passed to `trigger(...)`.", Library.Of("Beat"));
 		Section("A brigade", "`brigade(\"name\")` is one of the runs in `Data/World/brigade_runs.json`.", Library.Of("Brigade"));
+		Section("A quest", "A quest's own name is a value: `Landfall.done`. Quests are written in `[...]` after a quest's header to be required.", Library.Of("Quest"));
 
 		sb.Append("\n## Named values\n\n");
 		foreach (var kv in Library.EnumDocs)

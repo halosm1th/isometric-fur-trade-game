@@ -32,6 +32,7 @@ The names you pass in (posts, brigade runs, items, people, letter addressees) ar
 | `note` | `string` | A note kept in the JSON, for whoever opens it. Free text. |
 | `seed` | `int` | The seed for the script's dice (chance, random). The same seed gives the same history. |
 | `postsByFoundingYear` | `bool` | When true, posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only if a beat founds it. |
+| `extends` | `string` | Another campaign (by its id, the file's name) whose beats this one plays as well: a story with quest lines can be built on "historical" and share its war. Where both have a beat of the same id, this campaign's wins. |
 
 ## Hooks
 
@@ -46,6 +47,65 @@ The names you pass in (posts, brigade runs, items, people, letter addressees) ar
 | `OnResolve()` | effects (`{ }`) | What happens when the world resolves the beat. |
 | `CancelWhen()` | condition (`=>`) | The beat can no longer happen. Checked before everything else, on every day, whatever the adherence. |
 | `OnCancel()` | effects (`{ }`) | What happens when the beat is cancelled. |
+
+## Questline header
+
+| Argument | Type | What it is |
+|---|---|---|
+| `id` | `string` | The line's id, if it is not to be its name. |
+| `title` | `string` | The line's name in the journal. Required. |
+| `summary` | `string` | A line about what the story is. |
+| `forCompany` | `Company` | Only players of this company (Company.HBC or Company.NWC) are given the line's quests. Each quest can say otherwise. |
+
+## Quest header
+
+| Argument | Type | What it is |
+|---|---|---|
+| `id` | `string` | The quest's id, if it is not to be its name. |
+| `title` | `string` | The quest's name in the journal and on the screen. Required. |
+| `summary` | `string` | What the quest is: shown when it starts, or when its giver offers it. |
+| `giver` | `Person` | Someone who offers the quest when spoken to (Person.Factor, "leader@Edmonton House", a name). Without one, the quest starts by itself once it may. |
+| `forCompany` | `Company` | Only players of this company get the quest (default: the line's). |
+
+## Step header (talk, reach, task, bring, have, hunt, when, wait)
+
+| Argument | Type | What it is |
+|---|---|---|
+| `id` | `string` | The step's id, if it is not to be its name. |
+| `text` | `string` | What the player is told to do, on the screen and in the journal. |
+| `who` | `Person` | talk, bring: the person (a name, Person.Factor, or a role at a place: "leader@Edmonton House", "chief@<camp>", "partner@Fort Augustus"). |
+| `place` | `string` | reach: a post, a camp or a place on the map. |
+| `radius` | `int` | reach: how near counts as there, in pixels (default 400). |
+| `item` | `Item` | bring, have: what. |
+| `count` | `int` | bring, have: how many; task: how much of the work; hunt: how many beasts (default 1). |
+| `task` | `Task` | task: the work handed out, as the Factor would (Task.CarryCargo ...). |
+| `convoy` | `string` | task Task.Brigade: the brigade run to go with. |
+| `dest` | `string` | task Task.Brigade: where the boats are bound (default: the run's next landing). |
+| `species` | `string` | hunt: what to kill (Buffalo, Caribou ...; empty for anything). |
+| `days` | `int` | wait: how many days. |
+| `next` | `Step` | Where the quest goes after this step (another step, "complete" or "fail"); default the next one written. |
+
+## Choice header
+
+| Argument | Type | What it is |
+|---|---|---|
+| `label` | `string` | What the player says. Required. |
+| `reply` | `string` | What comes back. |
+| `when` | `bool` | The choice is offered only while this holds. |
+| `goto` | `Step` | Where the quest goes when this is chosen (a step, "complete" or "fail"); default the step after. |
+
+## Quest and step hooks
+
+| Hook | Kind | What it does |
+|---|---|---|
+| `StartWhen()` | condition (`=>`) | A quest starts (or is offered by its giver) only once this holds, and what it requires is done. |
+| `FailWhen()` | condition (`=>`) | Asked all the while the quest is under way: the first time it holds, the quest fails. |
+| `OnStart()` | effects (`{ }`) | What happens when the quest starts. |
+| `OnComplete()` | effects (`{ }`) | What happens when the quest is done. |
+| `OnFail()` | effects (`{ }`) | What happens when the quest fails. |
+| `Says()` | condition (`=>`) | What the person says when the player raises the step with them (a talk or bring step): Says() => "..."; |
+| `Done()` | condition (`=>`) | The step's condition: a when step is done once it holds (when Name(...) => condition; is the short form). |
+| `OnDone()` | effects (`{ }`) | What happens when the step is done, before the quest moves on. |
 
 ## Functions
 
@@ -376,6 +436,26 @@ Put goods in (or, if negative, take them out of) a post's ledger. Nothing happen
 world.addStock("York Factory", Item.Rum, -5)
 ```
 
+### `world.regard(place)`
+
+`world.regard(string place) : int`
+
+How a band (by its camp's name) regards the Company, 0-100.
+
+```c
+world.regard("Beaver Hills Cree") >= 60
+```
+
+### `world.addRegard(place, amount)`
+
+`world.addRegard(string place, int amount) : effect`
+
+Change how a band (by its camp's name) regards the Company; kept within 0-100.
+
+```c
+world.addRegard("Beaver Hills Cree", 5)
+```
+
 
 ## flags
 
@@ -434,6 +514,86 @@ How many times the player has done it.
 
 ```c
 player.deeds("escort") >= 2
+```
+
+### `player.posted(place)`
+
+`player.posted(string place) : bool`
+
+True when the player (the one a quest runs for; from a beat, any player) is on the books of that post.
+
+```c
+player.posted("Edmonton House")
+```
+
+### `player.rapport(who)`
+
+`player.rapport(string who) : int`
+
+What the person makes of the player, -100 to 100. Who is a name, or a role at a place: "leader@Fort Augustus", "chief@Beaver Hills Cree".
+
+```c
+player.rapport("leader@Fort Augustus") > 20
+```
+
+### `player.postTo(place)`
+
+`player.postTo(string place) : effect`
+
+Put the player on the books of another post: it is their home from now on (its stores, its master, its men).
+
+```c
+player.postTo("Edmonton House")
+```
+
+### `player.addStanding(amount)`
+
+`player.addStanding(int amount) : effect`
+
+Raise (or, if negative, lower) the player's standing with their company.
+
+```c
+player.addStanding(3)
+```
+
+### `player.addRapport(who, amount)`
+
+`player.addRapport(string who, int amount) : effect`
+
+Change what someone makes of the player. Who is a name or a role at a place, as for rapport.
+
+```c
+player.addRapport("leader@Fort Augustus", 10)
+```
+
+### `player.give(item, count?)`
+
+`player.give(Item item, int count?) : effect`
+
+Put something in the player's pack (1 if no count).
+
+```c
+player.give(Item.Tobacco, 2)
+```
+
+### `player.take(item, count?)`
+
+`player.take(Item item, int count?) : effect`
+
+Take something from the player's pack, as much as they have up to the count.
+
+```c
+player.take(Item.Rum)
+```
+
+### `player.note(text)`
+
+`player.note(string text) : effect`
+
+A line in the player's journal, said over their head.
+
+```c
+player.note("Mr. Bird wants you at the hunt.")
 ```
 
 
@@ -617,6 +777,71 @@ brigade("the York boats").launch()
 ```
 
 
+## A quest
+
+A quest's own name is a value: `Landfall.done`. Quests are written in `[...]` after a quest's header to be required.
+
+### `Quest.done`
+
+`Quest.done : bool`
+
+True once the quest is done (for the player it runs for; from a beat, any player).
+
+```c
+Landfall.done
+```
+
+### `Quest.active`
+
+`Quest.active : bool`
+
+True while the quest is under way.
+
+```c
+Landfall.active
+```
+
+### `Quest.failed`
+
+`Quest.failed : bool`
+
+True once the quest has failed.
+
+```c
+Landfall.failed
+```
+
+### `Quest.start()`
+
+`Quest.start() : effect`
+
+Start the quest now, whatever it requires and whoever gives it.
+
+```c
+TheHunt.start()
+```
+
+### `Quest.complete()`
+
+`Quest.complete() : effect`
+
+End the quest as done.
+
+```c
+TheHunt.complete()
+```
+
+### `Quest.fail()`
+
+`Quest.fail() : effect`
+
+End the quest as failed.
+
+```c
+TheHunt.fail()
+```
+
+
 ## Named values
 
 - **`Company`**: The two companies (and everyone): Company.HBC, Company.NWC, Company.All.
@@ -628,5 +853,7 @@ brigade("the York boats").launch()
 - **`Kind`**: The beat kinds, for the kind: argument when the derived one is not what you want: Kind.Fixed, Conditional, Event, Pressure.
   Values: `Kind.Fixed`, `Kind.Conditional`, `Kind.Event`, `Kind.Pressure`
 - **`Item`**: A trade good: Item.Rum, Item.Pemmican ... every item the game knows.
+- **`Task`**: The work a quest step can hand the player, as the Factor would: Task.CarryCargo, Task.Firewood, Task.Brigade ... (Player/PlayerTask.cs).
+  Values: `Task.Firewood`, `Task.CarryCargo`, `Task.DriveOffAnimals`, `Task.DeliverLetter`, `Task.Raid`, `Task.Report`, `Task.Courier`, `Task.Geese`, `Task.Brigade`
 
 Items: `Ale`, `Awl`, `Axe`, `Beads`, `BeaverPelt`, `Berries`, `Bow`, `Bread`, `BuffaloRobe`, `Capote`, `CaribouHide`, `Corn`, `DriedGoose`, `DriedMeat`, `Firewood`, `Fish`, `FishingLine`, `FishingNet`, `Flint`, `Goose`, `Hare`, `HideCoat`, `IceChisel`, `Kettle`, `Knife`, `MbToken`, `Musket`, `PackBasket`, `Pemmican`, `PointBlanket`, `Powder`, `Ptarmigan`, `Rum`, `SaltGeese`, `ShotHide`, `ShotPelt`, `Snowshoes`, `SpruceBeer`, `SteelTrap`, `Stroud`, `ThinPelt`, `Tobacco`, `Tomahawk`, `TradeGoods`, `Tumpline`, `Venison`, `Water`, `WolfPelt`.

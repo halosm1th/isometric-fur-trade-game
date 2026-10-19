@@ -29,7 +29,7 @@ let vocab = { keywords: new Set(), types: new Set(), hooks: new Set(), globals: 
 function buildVocab() {
   const L = state.lib;
   vocab = {
-    keywords: new Set(L.keywords), types: new Set(L.types), hooks: new Set(L.hooks.map(h => h.name)),
+    keywords: new Set(L.keywords), types: new Set(L.types), hooks: new Set(L.hooks.concat(L.questHooks || []).map(h => h.name)),
     globals: new Set(L.members.filter(m => m.owner === '' && m.kind === 'function').map(m => m.name)),
     objects: new Set(L.objects), enums: new Set(Object.keys(L.enums)), enumValues: L.enums,
   };
@@ -37,7 +37,7 @@ function buildVocab() {
 
 function declared(src) {
   const beats = new Set(), fns = new Set(), names = new Set();
-  for (const m of src.matchAll(/\bbeat\s+([A-Za-z_]\w*)/g)) beats.add(m[1]);
+  for (const m of src.matchAll(/\b(?:beat|quest|questline)\s+([A-Za-z_]\w*)/g)) beats.add(m[1]);
   for (const m of src.matchAll(/\b(?:void|bool|int|float|string|Date|Days|Company|Person|Item|Season|Kind|Beat|Brigade)\s+([A-Za-z_]\w*)\s*\(/g)) fns.add(m[1]);
   for (const m of src.matchAll(/\b(?:const\s+)?(?:int|float|string|bool|Date|Days|Company|Person|Item|Season|Kind|Beat|Brigade)\s+([A-Za-z_]\w*)\s*(?:=|;)/g)) names.add(m[1]);
   return { beats, fns, names };
@@ -59,7 +59,7 @@ function tokenize(src) {
       let k = e; while (k < src.length && (src[k] === ' ' || src[k] === '\t')) k++;
       const next = src[k] || '';
       const p = prev && prev.t, pp = prev2 && prev2.t;
-      if (p === 'beat') cls = 'beat';
+      if (p === 'beat' || p === 'quest' || p === 'questline') cls = 'beat';
       else if (vocab.keywords.has(t)) cls = 'kw';
       else if (vocab.hooks.has(t) && next === '(') cls = 'hook';
       else if (p === '.') cls = vocab.enums.has(pp) ? 'enumv' : 'member';
@@ -305,7 +305,7 @@ function completionsAt(src, pos, force) {
   // inside a beat's braces the hooks are offered; at the top level the declarations
   const depth = braceDepth(before);
   if (depth === 1 && insideBeat(before)) for (const h of L.hooks) add(h.name, 'hook', h.condition ? 'condition' : 'effects', h.summary, h.name + (h.condition ? '() => ' : '() {\n        \n    }'));
-  if (depth === 0) { add('beat', 'keyword', 'declaration', 'A thing that may happen to the world.', 'beat '); add('const', 'keyword', 'declaration', 'A name for a value known when the script is compiled.', 'const '); add('foreach', 'keyword', 'loop', 'Write a declaration for each value.', 'foreach (int i in 1..3) '); }
+  if (depth === 0) { add('beat', 'keyword', 'declaration', 'A thing that may happen to the world.', 'beat '); add('questline', 'keyword', 'declaration', 'A line of quests for the player: questline Name(title: "...") { quest ... }', 'questline '); add('const', 'keyword', 'declaration', 'A name for a value known when the script is compiled.', 'const '); add('foreach', 'keyword', 'loop', 'Write a declaration for each value.', 'foreach (int i in 1..3) '); }
   if (depth >= 1) for (const k of ['if', 'else', 'for', 'foreach']) add(k, 'keyword', 'statement', '');
   for (const m of L.members.filter(m => m.owner === '' && m.kind === 'function')) add(m.name, 'function', m.signature, m.doc, m.name + '(');
   for (const o of L.objects) add(o, 'object', 'object', o === 'world' ? 'The state of the world.' : 'Named switches.', o);

@@ -89,7 +89,8 @@ Run as: dotnet run --project tools/CampaignTool -- check story.camp";
 		var rep = Checker.Check(doc);
 		string name = Path.GetFileName(path);
 		foreach (var line in rep.Lines(verbose)) Console.Error.WriteLine($"{name}: {line}");
-		if (!quiet) Console.Error.WriteLine($"{name}: {Tree.AsList(doc.GetValueOrDefault("beats")).Count} beats, {rep.Errors.Count} errors, {rep.Warnings.Count} warnings");
+		int quests = Tree.AsList(doc.GetValueOrDefault("questlines")).OfType<Dictionary<string, object>>().Sum(l => Tree.AsList(l.GetValueOrDefault("quests")).Count);
+		if (!quiet) Console.Error.WriteLine($"{name}: {Tree.AsList(doc.GetValueOrDefault("beats")).Count} beats{(quests > 0 ? $", {quests} quests" : "")}, {rep.Errors.Count} errors, {rep.Warnings.Count} warnings");
 		return rep;
 	}
 

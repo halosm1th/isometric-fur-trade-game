@@ -11466,6 +11466,16 @@
     "people": 12
    },
    {
+    "name": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+    "nation": "Cree",
+    "kind": "band",
+    "centre": [
+     292,
+     1056
+    ],
+    "people": 12
+   },
+   {
     "name": "Woodland Cree",
     "nation": "Cree",
     "kind": "band",

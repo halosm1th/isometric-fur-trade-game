@@ -35,8 +35,13 @@ public class PlayerTask
         _ => "",
     } + (Intent != "" ? $" - {Intent}" : "") + (OwnWay ? " [your own way]" : "");
 
+    // Told of every piece of work of a kind, assigned or not: a quest that
+    // asks for six lots carried counts them whatever the Factor said today.
+    public System.Action<TaskKind, int> Counted;
+
     public void Progress(TaskKind kind, int n)
     {
+        Counted?.Invoke(kind, n);
         if (Kind != kind || IsComplete) return;
         Done += n;
         if (IsComplete) Sim.Notice("Task done. The Factor will hear of it.");

@@ -29,6 +29,8 @@ public readonly record struct DateV(int Y, int M, int D) : IComparable<DateV>
 public readonly record struct DaysV(double N);
 public sealed record BeatV(string Name, string Id);
 public sealed record BrigadeV(string Run);
+public sealed record QuestV(string Name, string Id);       // a quest, by its name in the script
+public sealed record StepV(string Name, string Id);        // a step of the quest being compiled (for goto and next)
 public sealed record EnumV(string Type, string Value);
 public sealed record ObjV(string Type);                 // world, flags
 public sealed record TypeNameV(string Name);            // Company, Person, Item ...

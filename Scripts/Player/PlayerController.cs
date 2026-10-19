@@ -42,6 +42,11 @@ public partial class PlayerController : Agent
 	// Standing with the Company (design doc 3.6): slow, bureaucratic, reviewed by results.
 	public float Standing = 10f;
 	public readonly PlayerTask Task = new();
+	// The campaign's quests for this player (Core/Quests.cs); on a joined
+	// player's own machine, the lines the server sends for the journal.
+	public readonly Core.QuestLog Quests = new();
+	public List<string> QuestLines = new();
+	private float _questTick;
 	public readonly HashSet<string> KnownSites = new();
 	public readonly Dictionary<string, Vector2I> SiteBelief = new();
 	// Things you've seen happen (keys into the Chronicle).
@@ -157,7 +162,18 @@ public partial class PlayerController : Agent
 	public int LastGiftToKinYear = 0;
 	public bool TravellingServer;   // the owner is on the road: the clock marches
 	public int RideId;              // the brigade (World/Convoys.cs) whose boats he is sitting in, 0 for none; the owner's machine follows them
-	public Economy.FortLedger HomePost => IsBandPerson ? null : Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;   // born to a band: no company post
+	public Economy.FortLedger HomePost => IsBandPerson ? null : PostedTo != "" && World.Convoys.Ledger(PostedTo) is { } posted ? posted : Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;   // born to a band: no company post
+
+	// Posted to a post of the country by name (a quest's "posting"): its books
+	// are his home from then on, wherever his company first set him down.
+	public string PostedTo = "";
+	public void PostTo(string place)
+	{
+		if (string.IsNullOrEmpty(place) || World.Convoys.Ledger(place) == null) { GD.PushWarning($"[quest] no post called '{place}' to post {DisplayName} to"); return; }
+		PostedTo = place;
+		Journal.Add($"{GameCalendar.Instance?.DateString}: You are posted to {place}.");
+		Say($"You are on the books of {place} now.");
+	}
 	public bool WantsToDefect;
 
 	// Afloat: which canoe carries you (server), mirrored as a flag.
@@ -348,6 +364,8 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--kit=") && NetHub.IsServer) { foreach (string part in arg.Substring(6).Split(',')) { var bits = part.Split(':'); if (!System.Enum.TryParse<ItemId>(bits[0], true, out var kid)) continue; int howMany = bits.Length > 1 && int.TryParse(bits[1], out int c) ? c : 1; Inventory.Add(kid, howMany); GD.Print($"[dev] {howMany} x {Items.Items.Of(kid).Name} in your pack"); } }
 			// Dev: `--dumpbook=S` prints your journal to the console at that second.
 			if (arg.StartsWith("--dumpbook=") && double.TryParse(arg.Substring(11), out double bsecs) && NetHub.IsServer) GetTree().CreateTimer(bsecs).Timeout += () => { GD.Print("[book] " + DisplayName + "'s journal:"); foreach (string line in Journal) GD.Print("[book] " + line); };
+			// Dev: `--quest=<quest>[:<step>]` starts a quest at a step (Core/Quests.DevJump).
+			if (arg.StartsWith("--quest=") && NetHub.IsServer) { var qa = arg.Substring(8).Split(':'); GetTree().CreateTimer(3.0).Timeout += () => Core.Quests.DevJump(this, qa[0], qa.Length > 1 ? qa[1] : null); }
 			// Dev: `--quitafter=S` closes the game cleanly after S seconds, so a
 			// test run ends without the runtime being killed mid-print.
 			if (arg.StartsWith("--quitafter=") && double.TryParse(arg.Substring(12), out double qsecs)) GetTree().CreateTimer(qsecs).Timeout += () => { GD.Print("[dev] quitting after " + qsecs + "s"); GetTree().Quit(); };
@@ -369,7 +387,7 @@ public partial class PlayerController : Agent
 				foreach (var n in Sim.Npcs) { if (n == null) continue; if (n.Visible) live++; else hidden++; }
 				GD.Print($"[census] {(NetHub.IsServer ? "server" : "client")} agents={Sim.Agents.Count} npcs={Sim.Npcs.Count} (visible {live}, hidden {hidden}) animals={Sim.Animals.Count} players={PlayerCount()}");
 				GD.Print($"[census] ground: water={Sim.Terrain?.IsWaterOrIce(Cell)} walkable={Sim.Paths?.IsWalkable(Cell)} map={World.WorldMap.At(Cell)}");
-				GD.Print($"[census] me={DisplayName} rank={Rank} at {Cell} h{Needs.Health:0} f{Needs.Hunger:0} w{Needs.Warmth:0} t{Needs.Thirst:0} standing={Standing:0} task=\"{(Task.Kind == TaskKind.None ? "none" : Task.Describe())}\" inv={Inventory.SlotCount} journal={Journal.Count}");
+				GD.Print($"[census] me={DisplayName} rank={Rank} at {Cell} h{Needs.Health:0} f{Needs.Hunger:0} w{Needs.Warmth:0} t{Needs.Thirst:0} standing={Standing:0} task=\"{(Task.Kind == TaskKind.None ? "none" : Task.Describe())}\" inv={Inventory.SlotCount} journal={Journal.Count} posted=\"{PostedTo}\" quests=[{string.Join(" | ", Core.Quests.Summary(this))}]");
 				foreach (var o in Sim.Players()) if (o != this) GD.Print($"[census] also here: {o.DisplayName} at {o.Cell} h{o.Needs.Health:0}");
 			};
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
@@ -665,6 +683,7 @@ public partial class PlayerController : Agent
 	public override void _PhysicsProcess(double delta)
 	{
 		if (NetHub.IsServer) { SeenAcross(); MarriageTick(); CaptiveTick(); CountStores(); CountPrivate(); PostKeep((float)delta); HorseTick((float)delta); }
+		if (NetHub.IsServer && (_questTick -= (float)delta) <= 0f) { _questTick = 0.4f; Task.Counted ??= (k, n) => Core.Quests.OnTask(this, k, n); Core.Quests.Tick(this); }
 		base._PhysicsProcess(delta);
 		float dt = (float)delta;
 		if (IsServerCopy) ServerCanoeTick();
@@ -806,6 +825,7 @@ public partial class PlayerController : Agent
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["ride"] = RideId, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
 			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["skills"] = new float[] { Skills.Hunting, Skills.Trapping, Skills.Trade, Skills.Woodcraft }, ["furs"] = BelievedFursMb, ["quota"] = BelievedQuotaMb, ["counted"] = LastCountedDay, ["unworn"] = UnwornList(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
+			["quests"] = new Godot.Collections.Array(Core.Quests.Summary(this).ConvertAll(s => (Variant)s)),
 			["horse"] = PackHorse(),
 		};
 		_oneShotAnim = ""; _teleported = false;
@@ -820,6 +840,7 @@ public partial class PlayerController : Agent
 		foreach (var e in (Godot.Collections.Array)d["inv"]) { var row = (Godot.Collections.Array)e; if (row.Count > 2) Inventory.AddAt((int)row[2], (ItemId)(int)row[0], (int)row[1]); else Inventory.Add((ItemId)(int)row[0], (int)row[1]); }
 		Standing = (float)d["standing"];
 		TaskText = (string)d["task"];
+		if (d.TryGetValue("quests", out var qv)) { QuestLines.Clear(); foreach (var q in qv.AsGodotArray()) QuestLines.Add(q.AsString()); }
 		_clientCooldown = (float)d["cd"];
 		string anim = (string)d["anim"];
 		if (anim != "") _oneShotAnim = anim;

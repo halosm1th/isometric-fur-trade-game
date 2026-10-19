@@ -145,6 +145,15 @@ public partial class JournalPanel : Control
         if (_player == null) { _journal.Text = ""; return; }
         var lines = _player.Journal;
         var sb = new System.Text.StringBuilder();
+        // The campaign's quests: what is under way (and its next step), then
+        // what is finished. The server has them; a joined player is sent them.
+        var quests = Net.Net.IsServer ? Core.Quests.Summary(_player) : _player.QuestLines;
+        if (quests.Count > 0)
+        {
+            sb.AppendLine("[color=#dcb][b]Quests[/b][/color]");
+            foreach (var q in quests) sb.AppendLine("   " + q);
+            sb.AppendLine();
+        }
         sb.Append(Core.Campaign.JournalText);
         FillAmbitions(sb);
         for (int i = lines.Count - 1; i >= 0; i--) sb.AppendLine(lines[i]);

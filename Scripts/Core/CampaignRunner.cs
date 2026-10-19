@@ -38,6 +38,10 @@ public sealed class CampaignScript
 	public uint? Seed;
 	public readonly Dictionary<string, double> InitialVars = new();   // variables that start at something other than 0
 	public readonly List<CampaignBeat> Beats = new();
+	// Another campaign whose beats this one plays as well (a story built on
+	// the historical one shares its war), and what this one asks of players.
+	public string Extends = "";
+	public readonly List<QuestLine> QuestLines = new();
 
 	public static CampaignScript Parse(Dictionary<string, object> root, string fallbackTitle = "")
 	{
@@ -47,6 +51,8 @@ public sealed class CampaignScript
 			PostsByFoundingYear = root.TryGetValue("posts_by_founding_year", out var pby) && pby is true,
 		};
 		if (root.TryGetValue("seed", out var sd)) s.Seed = (uint)(long)CampaignLogic.Num(sd);
+		s.Extends = Text(root, "extends", "");
+		s.QuestLines.AddRange(QuestParse.Lines(root.GetValueOrDefault("questlines")));
 		if (root.GetValueOrDefault("vars") is Dictionary<string, object> vars) foreach (var kv in vars) s.InitialVars[kv.Key] = CampaignLogic.Num(kv.Value);
 		if (root.GetValueOrDefault("beats") is not List<object> beats) return s;
 		foreach (var bo in beats)

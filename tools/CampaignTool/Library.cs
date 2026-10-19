@@ -64,12 +64,14 @@ public static class Library
 		["Season"] = "The river's season, for world.season: Season.Breakup, OpenWater, FreezeUp, Winter.",
 		["Kind"] = "The beat kinds, for the kind: argument when the derived one is not what you want: Kind.Fixed, Conditional, Event, Pressure.",
 		["Item"] = "A trade good: Item.Rum, Item.Pemmican ... every item the game knows.",
+		["Task"] = "The work a quest step can hand the player, as the Factor would: Task.CarryCargo, Task.Firewood, Task.Brigade ... (Player/PlayerTask.cs).",
 	};
 
 	public static IEnumerable<string> EnumValues(string type) => type switch
 	{
 		"Company" => Companies, "Person" => Persons.Keys, "Season" => Seasons, "Kind" => Kinds,
 		"Item" => Known.World.Items.OrderBy(x => x, StringComparer.Ordinal),
+		"Task" => Known.World.Tasks,
 		_ => Array.Empty<string>(),
 	};
 
@@ -120,6 +122,8 @@ public static class Library
 	private static string Co(object v) => v is EnumV e ? Library.CompanyJson[e.Value] : CJson.Join(v);
 
 	private static MetricV Metric(string name, params string[] args) => new(name, args.ToList());
+	// A person for a quest: Person.Factor and friends by their short names, else the text as written.
+	internal static string Who(object v) => v is EnumV { Type: "Person" } e ? e.Value : CJson.Join(v);
 	private static CondV Pred(string name, string arg) => new(CJson.Predicate(name, new() { arg }));
 
 	static Library()
@@ -167,6 +171,25 @@ public static class Library
 		// ---- the player
 		Fn("player", "did", P1("deed:string"), "bool", "True once the player has done this at least once: truce, raid, escort or courier.", "player.did(\"truce\")", (c, s, a) => Pred("flag", "deed:" + a.S("deed")));
 		Fn("player", "deeds", P1("deed:string"), "int", "How many times the player has done it.", "player.deeds(\"escort\") >= 2", (c, s, a) => Metric("var", "deed:" + a.S("deed")));
+
+		Fn("player", "posted", P1("place:string"), "bool", "True when the player (the one a quest runs for; from a beat, any player) is on the books of that post.", "player.posted(\"Edmonton House\")", (c, s, a) => Pred("posted", a.S("place")));
+		Fn("player", "rapport", P1("who:string"), "int", "What the person makes of the player, -100 to 100. Who is a name, or a role at a place: \"leader@Fort Augustus\", \"chief@Beaver Hills Cree\".", "player.rapport(\"leader@Fort Augustus\") > 20", (c, s, a) => Metric("rapport", Who(a["who"])));
+		Fn("player", "postTo", P1("place:string"), "effect", "Put the player on the books of another post: it is their home from now on (its stores, its master, its men).", "player.postTo(\"Edmonton House\")", (c, s, a) => Fx(c, "posting", ("place", a.S("place"))));
+		Fn("player", "addStanding", P1("amount:int"), "effect", "Raise (or, if negative, lower) the player's standing with their company.", "player.addStanding(3)", (c, s, a) => Fx(c, "standing", ("add", a.N("amount"))));
+		Fn("player", "addRapport", P1("who:string", "amount:int"), "effect", "Change what someone makes of the player. Who is a name or a role at a place, as for rapport.", "player.addRapport(\"leader@Fort Augustus\", 10)", (c, s, a) => Fx(c, "rapport", ("who", Who(a["who"])), ("add", a.N("amount"))));
+		Fn("player", "give", P1("item:Item", "count:int?"), "effect", "Put something in the player's pack (1 if no count).", "player.give(Item.Tobacco, 2)", (c, s, a) => Fx(c, "give", ("item", a.S("item")), ("count", a.Has("count") ? a.N("count") : null)));
+		Fn("player", "take", P1("item:Item", "count:int?"), "effect", "Take something from the player's pack, as much as they have up to the count.", "player.take(Item.Rum)", (c, s, a) => Fx(c, "take", ("item", a.S("item")), ("count", a.Has("count") ? a.N("count") : null)));
+		Fn("player", "note", P1("text:string"), "effect", "A line in the player's journal, said over their head.", "player.note(\"Mr. Bird wants you at the hunt.\")", (c, s, a) => Fx(c, "note", ("text", a.S("text"))));
+		Fn("world", "regard", P1("place:string"), "int", "How a band (by its camp's name) regards the Company, 0-100.", "world.regard(\"Beaver Hills Cree\") >= 60", (c, s, a) => Metric("regard", a.S("place")));
+		Fn("world", "addRegard", P1("place:string", "amount:int"), "effect", "Change how a band (by its camp's name) regards the Company; kept within 0-100.", "world.addRegard(\"Beaver Hills Cree\", 5)", (c, s, a) => Fx(c, "regard", ("place", a.S("place")), ("add", a.N("amount"))));
+
+		// ---- quests
+		Prop("Quest", "done", "bool", "True once the quest is done (for the player it runs for; from a beat, any player).", "Landfall.done", (c, s, a) => Pred("quest", ((QuestV)s).Id));
+		Prop("Quest", "active", "bool", "True while the quest is under way.", "Landfall.active", (c, s, a) => Pred("quest_active", ((QuestV)s).Id));
+		Prop("Quest", "failed", "bool", "True once the quest has failed.", "Landfall.failed", (c, s, a) => Pred("quest_failed", ((QuestV)s).Id));
+		Fn("Quest", "start", P1(), "effect", "Start the quest now, whatever it requires and whoever gives it.", "TheHunt.start()", (c, s, a) => Fx(c, "start_quest", ("quest", ((QuestV)s).Id)));
+		Fn("Quest", "complete", P1(), "effect", "End the quest as done.", "TheHunt.complete()", (c, s, a) => Fx(c, "end_quest", ("quest", ((QuestV)s).Id)));
+		Fn("Quest", "fail", P1(), "effect", "End the quest as failed.", "TheHunt.fail()", (c, s, a) => Fx(c, "end_quest", ("quest", ((QuestV)s).Id), ("failed", true)));
 
 		// ---- flags
 		Fn("flags", "has", P1("name:string"), "bool", "True when the flag is raised.", "flags.has(\"governor_killed\")", (c, s, a) => Pred("flag", a.S("name")));
