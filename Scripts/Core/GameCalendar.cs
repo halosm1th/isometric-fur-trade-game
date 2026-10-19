@@ -87,12 +87,20 @@ public partial class GameCalendar : Node
     // Simulation stays sane if no frame ever covers more than this.
     private const float MaxDeltaHours = 0.25f;
 
-    // How much faster than the baseline clock (10 s per game hour) time is
+    // How much faster than the usual clock (NormalSecondsPerGameHour) time is
     // running right now. NPCs and animals scale their movement by this so a
     // sped-up world still resolves their days (design doc 18.2's lazy
-    // resolution, done crudely). 1 at normal speed.
+    // resolution, done crudely). 1 at normal speed. (The baseline was a 10 s
+    // hour, left behind when the usual pace became 30 s: nobody walked faster
+    // until the clock ran three times the usual pace.)
     public float MotionScale { get; private set; } = 1f;
-    private const float BaselineSecondsPerHour = 10f;
+    private const float BaselineSecondsPerHour = NormalSecondsPerGameHour;
+
+    // The pace someone chose: the host's clock against the usual (the HUD's
+    // x2), and the fast-forward while it is held. Not the uneven pacing of
+    // quiet nights, which nobody asked for: the player's legs follow this.
+    public float ClockPace =>
+        NormalSecondsPerGameHour / SecondsPerGameHour * (!_clientMode && !Paused && Input.IsActionPressed("time_fast") ? FastForwardMultiplier : 1f);
 
     // Fractional day-of-year, useful for anything seasonal.
     public float DayOfYear

@@ -724,7 +724,12 @@ public partial class PlayerController : Agent
 		if (IsAfloat) { ground = 1.5f * (Aboard != null && Aboard.Overloaded ? 0.6f : Aboard != null ? Mathf.Lerp(1f, 0.75f, Aboard.LoadLbs / Canoe.CapacityLbs) : 1f); slippery = false; }
 		// On the road the march is compressed with the clock (design doc 18.3).
 		float travelBoost = _travel != null ? Mathf.Clamp(NetHub.IsServer ? GameCalendar.Instance.MotionScale : GameCalendar.TravelBoost, 1f, 8f) : 1f;
-		var want = input * EffectiveSpeed * ground * travelBoost;
+		// Your legs keep pace with a faster clock, as everyone else's do: at x2
+		// you cover twice the ground in a real second (up to x8; past that the
+		// world's walks are resolved, not walked). A slower clock leaves you
+		// your own pace: it is for longer days, not slow motion.
+		float clockBoost = Mathf.Clamp(GameCalendar.Instance.ClockPace, 1f, 8f);
+		var want = input * EffectiveSpeed * ground * Mathf.Max(travelBoost, clockBoost);
 		// Ice: no grip. You keep going the way you were going.
 		Velocity = slippery ? Velocity.Lerp(want, 0.06f) : want;
 		if (input.X != 0) _sprite.FlipH = input.X < 0;

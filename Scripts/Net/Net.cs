@@ -121,8 +121,17 @@ public partial class Net : Node
     {
         if (!IsServer) { Sim.NoticeLocal("Only the host can set the pace."); return; }
         var cal = GameCalendar.Instance; if (cal == null) return;
-        SetClock(HostPaused, Mathf.Clamp(cal.SecondsPerGameHour * factor, 0.5f, 120f));
+        // The pace moves in whole steps (x1/4, x1/2, x1, x2 ... x64), so
+        // slowing down always comes back to the usual pace: halving and
+        // doubling a clamped number of seconds used to land on x0.94.
+        int step = PaceStep(cal.SecondsPerGameHour) + (factor < 1f ? 1 : -1);
+        step = Mathf.Clamp(step, MinPaceStep, MaxPaceStep);
+        SetClock(HostPaused, GameCalendar.NormalSecondsPerGameHour / Mathf.Pow(2f, step));
     }
+    public const int MinPaceStep = -2, MaxPaceStep = 6;   // x1/4 .. x64
+    // Which step a clock is nearest: 0 is the usual pace, 1 twice as fast.
+    public static int PaceStep(float secondsPerHour) =>
+        Mathf.RoundToInt(Mathf.Log(GameCalendar.NormalSecondsPerGameHour / secondsPerHour) / Mathf.Log(2f));
     private void SetClock(bool paused, float secondsPerHour)
     {
         ApplyClock(paused, secondsPerHour);

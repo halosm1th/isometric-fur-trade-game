@@ -102,11 +102,12 @@ public partial class CalendarHud : Label
         else _pace.Text = pace >= 1f ? $"x{pace:0.#}" : $"x{pace:0.##}";
         _pause.Text = paused ? ">" : "||";
 
-        // At the ends of the host's range (Net.ChangeSpeed: 0.5 to 120 s an
-        // hour) a button would do nothing more.
-        _slower.Disabled = !host || secondsPerHour >= 120f;
+        // At the ends of the host's range (Net.ChangeSpeed: x1/4 to x64) a
+        // button would do nothing more.
+        int step = Net.Net.PaceStep(secondsPerHour);
+        _slower.Disabled = !host || step <= Net.Net.MinPaceStep;
         _pause.Disabled = !host;
-        _faster.Disabled = !host || secondsPerHour <= 0.5f;
+        _faster.Disabled = !host || step >= Net.Net.MaxPaceStep;
 
         string who = host ? "" : "\n(Only the host can change the clock.)";
         _slower.TooltipText = $"Slower clock ({Keybinds.KeyFor("clock_slower")}){who}";
