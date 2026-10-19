@@ -1065,10 +1065,15 @@ public partial class StructurePainter : TileMapLayer
 
     // ---- collision ------------------------------------------------------
 
-    private IEnumerable<TileMapLayer> Layers()
+    // An array, not an iterator: the pathfinder asks about walls thousands of
+    // times a search, and each iterator was garbage for the collector.
+    private TileMapLayer[] _layers;
+    private TileMapLayer[] Layers()
     {
-        yield return this;
-        if (_front != null) yield return _front;
+        int want = _front != null ? 2 : 1;
+        if (_layers == null || _layers.Length != want || (want == 2 && _layers[1] != _front))
+            _layers = want == 2 ? new TileMapLayer[] { this, _front } : new TileMapLayer[] { this };
+        return _layers;
     }
 
     private void RebuildCollision()

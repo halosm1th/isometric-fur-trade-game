@@ -460,19 +460,41 @@ public partial class Npc : Agent
 
     // ---- movement API used by goals --------------------------------------------
 
+    // A long way is worked out over a few frames (Pathfinder.Search): while
+    // it is, he stands and thinks, and counts as having somewhere to go.
+    private Pathfinder.Search _search;
+
     public bool SetDestination(Vector2I cell)
     {
         var paths = Sim.Paths;
         if (paths == null) return false;
+        // Asked again for where he is already working out the way to: carry on.
+        if (_search != null && _search.Destination == cell) return true;
+        DropSearch();
         var start = Cell;
-        var path = paths.FindPath(start, cell);
         MoveFailed = false;
         _repaths = 0;
+        var s = paths.Begin(start, cell);
+        if (!s.Done)
+        {
+            _search = s;
+            _path.Clear(); _pathIndex = 0; _destination = cell;
+            Arrived = false; _stuckTime = 0f;
+            return true;
+        }
+        var path = s.Result;
+        paths.Release(s);
+        return TakePath(path, start, cell);
+    }
+
+    private bool TakePath(List<Vector2I> path, Vector2I start, Vector2I cell)
+    {
+        var paths = Sim.Paths;
         if (path.Count == 0)
         {
             // Already there, or unreachable.
-            if (start == cell || (paths.NearestWalkable(cell) is Vector2I nw && nw == start)) { Arrived = true; _path.Clear(); return true; }
-            MoveFailed = true; Arrived = false;
+            if (start == cell || (paths?.NearestWalkable(cell) is Vector2I nw && nw == start)) { Arrived = true; _path.Clear(); return true; }
+            MoveFailed = true; Arrived = false; _path.Clear();
             return false;
         }
         _path = path; _pathIndex = 0; _destination = cell;
@@ -480,11 +502,34 @@ public partial class Npc : Agent
         return true;
     }
 
-    // Walking a path just now (not stopped, not arrived).
-    public bool HasPath => _pathIndex < _path.Count;
+    private void DropSearch()
+    {
+        if (_search == null) return;
+        Sim.Paths?.Release(_search);
+        _search = null;
+    }
+
+    // Work on a way still being worked out. True once he has his answer
+    // (a path, arrived, or failed); false while he is still thinking.
+    private bool SettleSearch(bool now)
+    {
+        if (_search == null) return true;
+        var paths = Sim.Paths;
+        if (paths == null) { _search = null; return true; }
+        if (now) paths.Complete(_search);
+        else if (!paths.Continue(_search)) return false;
+        var path = _search.Result; var cell = _search.Destination;
+        DropSearch();
+        TakePath(path, Cell, cell);
+        return true;
+    }
+
+    // Walking a path just now (or working out the way to walk).
+    public bool HasPath => _search != null || _pathIndex < _path.Count;
 
     public void StopMoving()
     {
+        DropSearch();
         _path.Clear();
         _steer = Vector2.Zero;
         Velocity = Vector2.Zero;
@@ -507,7 +552,7 @@ public partial class Npc : Agent
         if (d < 160f) { SteerDirect(target - GlobalPosition, true); return; }
         _chaseRepath -= dt;
         var cell = IsoGrid.FromWorld(target);
-        if (_path.Count == 0 || Arrived || (_destination != cell && _chaseRepath <= 0f))
+        if (!HasPath || Arrived || (_destination != cell && _chaseRepath <= 0f))
         {
             _chaseRepath = 0.5f;
             SetDestination(cell);
@@ -525,6 +570,10 @@ public partial class Npc : Agent
         IsSprinting = false;
         if (Sleeping || Conversing) { Velocity = Vector2.Zero; return; }
         float motion = GameCalendar.Instance?.MotionScale ?? 1f;
+
+        // Still working out the way: a little more of it this frame. When
+        // time is skipping the walk is resolved at once, so the way is too.
+        if (_search != null && !SettleSearch(skipping || motion > 8f) && _steer == Vector2.Zero) { Velocity = Vector2.Zero; return; }
 
         if (_steer != Vector2.Zero)
         {
