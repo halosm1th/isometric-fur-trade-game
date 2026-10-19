@@ -43,20 +43,7 @@ public partial class Hearth : Node2D
 
     public override void _Ready()
     {
-        // Additive lights use the texture's colour, so the edge must go to
-        // black, not just transparent, or the whole square lights up.
-        var grad = new Gradient();
-        grad.SetColor(0, new Color(1f, 0.72f, 0.38f, 1f));
-        grad.SetColor(1, new Color(0f, 0f, 0f, 0f));
-        grad.AddPoint(0.35f, new Color(0.7f, 0.4f, 0.15f, 1f));
-        var tex = new GradientTexture2D
-        {
-            Gradient = grad,
-            Fill = GradientTexture2D.FillEnum.Radial,
-            FillFrom = new Vector2(0.5f, 0.5f),
-            FillTo = new Vector2(0.5f, 0f),
-            Width = 256, Height = 256,
-        };
+        var tex = Glow;
         _light = new PointLight2D
         {
             Texture = tex,
@@ -122,6 +109,34 @@ public partial class Hearth : Node2D
     // processed before its children), instead of each fire asking.
     public static Rect2 View = new(-1e9f, -1e9f, 2e9f, 2e9f);
     private static bool InView(Vector2 at) => View.HasPoint(at);
+
+    // One glow for every fire. Each hearth used to make its own 256 x 256
+    // texture - with a fire in every post and camp in the country that was
+    // hundreds of megabytes of video memory, and twice that while a save was
+    // loading (the old world and the new), which ran small cards out.
+    private static GradientTexture2D _glowTex;
+    private static GradientTexture2D Glow
+    {
+        get
+        {
+            if (_glowTex != null) return _glowTex;
+            // Additive lights use the texture's colour, so the edge must go to
+            // black, not just transparent, or the whole square lights up.
+            var grad = new Gradient();
+            grad.SetColor(0, new Color(1f, 0.72f, 0.38f, 1f));
+            grad.SetColor(1, new Color(0f, 0f, 0f, 0f));
+            grad.AddPoint(0.35f, new Color(0.7f, 0.4f, 0.15f, 1f));
+            _glowTex = new GradientTexture2D
+            {
+                Gradient = grad,
+                Fill = GradientTexture2D.FillEnum.Radial,
+                FillFrom = new Vector2(0.5f, 0.5f),
+                FillTo = new Vector2(0.5f, 0f),
+                Width = 256, Height = 256,
+            };
+            return _glowTex;
+        }
+    }
 
     public float HeatAt(Vector2 worldPos)
     {
