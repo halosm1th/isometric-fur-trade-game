@@ -320,6 +320,7 @@ public static class Campaign
                 case "standing": return (Actor ?? Sim.Player as Player.PlayerController)?.Standing ?? 0;
                 case "rapport": { var who = Actor ?? Sim.Player as Player.PlayerController; foreach (var n in Sim.Npcs) if (Quests.Matches(arg, n)) return n.RapportWith(who); return 0; }
                 case "regard": return Quests.HouseholdAt(arg) is Economy.BandLedger band ? band.StandingWithCompany : double.NaN;
+                case "feud": return a.Length > 1 && Quests.HouseholdAt(a[0]) is { } fh && Quests.HouseholdAt(a[1]) is { } fa ? Economy.Plains.Feud(fh, fa) : double.NaN;
                 case "stock": return a.Length > 1 && Convoys.Ledger(arg) is { } led && Enum.TryParse<ItemId>(a[1], out var id) ? led.Stores.Count(id) : double.NaN;
                 case "furs": return Convoys.Ledger(arg)?.FursInStoreMb ?? double.NaN;
                 case "convoys_active": { int n = 0; foreach (var c in Convoys.All) if (c.Now != ConvoyState.Arrived) n++; return n; }
@@ -345,6 +346,7 @@ public static class Campaign
                 case "quest_active": return Actor != null ? Actor.Quests.IsActive(arg) : Sim.Players().Any(p => p.Quests.IsActive(arg));
                 case "quest_failed": return (Actor != null ? new[] { Actor } : Sim.Players().ToArray()).Any(p => p.Quests.States.TryGetValue(arg, out var qs) && qs.Status == QuestStatus.Failed);
                 case "posted": return (Actor ?? Sim.Player as Player.PlayerController)?.PostedTo == arg;
+                case "at_peace": return a.Length > 1 && Economy.War.AtPeace(Quests.HouseholdAt(a[0]), Quests.HouseholdAt(a[1]));
             }
             GD.PushWarning($"[campaign] unknown condition '{name}'");
             return false;
@@ -410,6 +412,14 @@ public static class Campaign
                 case "start_quest": if (Quests.Def(S(a, "quest")) is { } sq) foreach (var p in Targets()) Quests.Start(p, sq); break;
                 case "end_quest": foreach (var p in Targets()) Quests.FinishById(p, S(a, "quest"), !(a.TryGetValue("failed", out var fl) && fl is true)); break;
                 case "note": foreach (var p in Targets()) { p.Journal.Add($"{GameCalendar.Instance?.DateString}: {S(a, "text")}"); p.Say(S(a, "text")); } break;
+                // The war (Economy/War.cs): a camp's men ride against a camp or a post; peace between two; an old score heated.
+                case "war_party":
+                    if (Quests.HouseholdAt(S(a, "from")) is Economy.BandLedger wf && Quests.HouseholdAt(S(a, "against")) is { } wa)
+                        Economy.War.Launch(wf, wa, S(a, "why"), a.TryGetValue("with_player", out var wp) && wp is true ? Actor ?? Sim.Player as Player.PlayerController : null);
+                    else GD.PushWarning($"[campaign] {beat}: war_party from '{S(a, "from")}' against '{S(a, "against")}': no such camp or post");
+                    break;
+                case "truce": Economy.War.Truce(Quests.HouseholdAt(S(a, "a")), Quests.HouseholdAt(S(a, "b")), (int)N(a, "days", 365)); break;
+                case "feud": Economy.Plains.HeatFeud(Quests.HouseholdAt(S(a, "holder")), Quests.HouseholdAt(S(a, "against")), (float)N(a, "add", 1)); break;
                 default: GD.PushWarning($"[campaign] {beat}: unknown action '{name}'"); break;
             }
         }

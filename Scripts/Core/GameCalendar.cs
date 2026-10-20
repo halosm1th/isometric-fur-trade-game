@@ -95,6 +95,11 @@ public partial class GameCalendar : Node
     // until the clock ran three times the usual pace.)
     public float MotionScale { get; private set; } = 1f;
     private const float BaselineSecondsPerHour = NormalSecondsPerGameHour;
+    // Past this, a day goes by too fast for anyone to have walked it: live
+    // bodies stop thinking and walks are resolved at once (Npc), and the
+    // tiers hurry. 24 against the 30 s hour is the 8 the old 10 s baseline
+    // used - about a second and a quarter to the game hour.
+    public const float LazyMotion = 24f;
 
     // The pace someone chose: the host's clock against the usual (the HUD's
     // x2), and the fast-forward while it is held. Not the uneven pacing of

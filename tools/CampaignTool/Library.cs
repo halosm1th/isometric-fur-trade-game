@@ -184,6 +184,22 @@ public static class Library
 		Fn("world", "regard", P1("place:string"), "int", "How a band (by its camp's name) regards the Company, 0-100.", "world.regard(\"Beaver Hills Cree\") >= 60", (c, s, a) => Metric("regard", a.S("place")));
 		Fn("world", "addRegard", P1("place:string", "amount:int"), "effect", "Change how a band (by its camp's name) regards the Company; kept within 0-100.", "world.addRegard(\"Beaver Hills Cree\", 5)", (c, s, a) => Fx(c, "regard", ("place", a.S("place")), ("add", a.N("amount"))));
 
+		Fn("world", "happened", P1("beat:string"), "bool", "True once a beat has happened, by its id: a beat of this campaign, or of the one it extends (\"seven-oaks\").", "world.happened(\"seven-oaks\")", (c, s, a) => Pred("beat", a.S("beat")));
+
+		// ---- the war (Economy/War.cs)
+		Fn("world", "warParty", P1("from:string", "against:string", "why:string?", "withPlayer:bool?"), "effect",
+			"A camp's fighting men ride against a camp or a post. Far from every player the fight is settled at once in numbers (men, guns, the defender's ground); near one, or with the player riding along (withPlayer: true), its men ride and fight for real. When it is over the flags war:<from>:won (or lost, or turned_back) and war:<from>:<against>:<outcome> are raised.",
+			"world.warParty(\"Beaver Hills Cree (Amiskwac\u00eewiyiniwak)\", \"Blackfoot\", why: \"for the horses\", withPlayer: true)",
+			(c, s, a) => Fx(c, "war_party", ("from", a.S("from")), ("against", a.S("against")), ("why", a.Has("why") ? a.S("why") : null), ("with_player", a.Has("withPlayer") && a["withPlayer"] is true ? true : null)));
+		Fn("world", "truce", P1("a:string", "b:string", "days:int?"), "effect", "Two peoples (camps or posts by name) make peace: no horse raids or war parties between them for that long (365 days if not given), and their old scores are laid down.", "world.truce(\"Beaver Hills Cree (Amiskwac\u00eewiyiniwak)\", \"Blackfoot\", 365)",
+			(c, s, a) => Fx(c, "truce", ("a", a.S("a")), ("b", a.S("b")), ("days", a.Has("days") ? a.N("days") : null)));
+		Fn("world", "heatFeud", P1("holder:string", "against:string", "amount:int?"), "effect", "The holder's old score against the other grows (0-10): at 4 and more they ride against them, in the season, unless there is a truce.", "world.heatFeud(\"Blackfoot\", \"Beaver Hills Cree (Amiskwac\u00eewiyiniwak)\", 3)",
+			(c, s, a) => Fx(c, "feud", ("holder", a.S("holder")), ("against", a.S("against")), ("add", a.Has("amount") ? a.N("amount") : null)));
+		Fn("world", "feud", P1("holder:string", "against:string"), "int", "How hot the holder's score against the other is, 0-10.", "world.feud(\"Blackfoot\", \"Beaver Hills Cree (Amiskwac\u00eewiyiniwak)\") >= 4", (c, s, a) => Metric("feud", a.S("holder"), a.S("against")));
+		Fn("world", "atPeace", P1("a:string", "b:string"), "bool", "True while two peoples have a truce.", "world.atPeace(\"Beaver Hills Cree (Amiskwac\u00eewiyiniwak)\", \"Blackfoot\")", (c, s, a) => new CondV(CJson.Predicate("at_peace", new() { a.S("a"), a.S("b") })));
+		Fn("world", "wonWar", P1("band:string"), "bool", "True once a war party of that camp has won a fight.", "world.wonWar(\"Blackfoot\")", (c, s, a) => Pred("flag", "war:" + a.S("band") + ":won"));
+		Fn("world", "lostWar", P1("band:string"), "bool", "True once a war party of that camp has been beaten.", "world.lostWar(\"Blackfoot\")", (c, s, a) => Pred("flag", "war:" + a.S("band") + ":lost"));
+
 		// ---- quests
 		Prop("Quest", "done", "bool", "True once the quest is done (for the player it runs for; from a beat, any player).", "Landfall.done", (c, s, a) => Pred("quest", ((QuestV)s).Id));
 		Prop("Quest", "active", "bool", "True while the quest is under way.", "Landfall.active", (c, s, a) => Pred("quest_active", ((QuestV)s).Id));
@@ -287,6 +303,23 @@ public static class Library
 		["world.addStock.item"] = "Which item: Item.Rum, Item.Pemmican ...",
 		["world.addStock.amount"] = "How many pieces to add; negative takes them away (never below 0).",
 		["world.regard.place"] = "A band, by its camp's name: \"Beaver Hills Cree (Amiskwacîwiyiniwak)\" ...",
+		["world.happened.beat"] = "A beat's id, of this campaign or the one it extends: \"seven-oaks\", \"pemmican-proclamation\" ...",
+		["world.warParty.from"] = "The camp whose fighting men ride out, by its camp's name: \"Beaver Hills Cree (Amiskwacîwiyiniwak)\", \"Métis of the Forks\" ...",
+		["world.warParty.against"] = "Who they ride against: another camp, or a post by its exact name (\"Brandon House\").",
+		["world.warParty.why"] = "What they ride for, for the log and the news: \"for their dead and their horses\".",
+		["world.warParty.withPlayer"] = "true: the player (the one a quest runs for) rides with them, and the fight is fought for real.",
+		["world.truce.a"] = "One side: a camp, or a post by its exact name.",
+		["world.truce.b"] = "The other side: a camp, or a post by its exact name.",
+		["world.truce.days"] = "How long the peace holds, in days (365 if not given).",
+		["world.heatFeud.holder"] = "Who holds the grievance: a camp (or a post) by name.",
+		["world.heatFeud.against"] = "Who it is held against: a camp, or a post by its exact name.",
+		["world.heatFeud.amount"] = "How much hotter it grows, out of 10 (1 if not given). At 4 and more the holder rides against them in the season.",
+		["world.feud.holder"] = "Who holds the grievance: a camp (or a post) by name.",
+		["world.feud.against"] = "Who it is held against: a camp, or a post by its exact name.",
+		["world.atPeace.a"] = "One side: a camp, or a post by its exact name.",
+		["world.atPeace.b"] = "The other side: a camp, or a post by its exact name.",
+		["world.wonWar.band"] = "The camp whose war party it was, by its camp's name.",
+		["world.lostWar.band"] = "The camp whose war party it was, by its camp's name.",
 		["world.addRegard.place"] = "A band, by its camp's name.",
 		["world.addRegard.amount"] = "How much to change the band's regard for the Company (kept within 0-100); negative lowers it.",
 		["player.did.deed"] = "Which deed: \"truce\", \"raid\", \"escort\" or \"courier\".",

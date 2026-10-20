@@ -319,3 +319,200 @@ beat HorsesTaken(
             "and a young man is dead. The chief's people are asking for you.", Company.HBC);
     }
 }
+
+// ================================================================ chapter 2: the war
+
+const string blackfoot = "Blackfoot";
+const string blackfootChief = "chief@Blackfoot";
+const string turnedBack = "war:Beaver Hills Cree (Amiskwacîwiyiniwak):turned_back";
+
+questline TheWar(
+    title: "The War",
+    summary: "The Beaver Hills Cree answer for their dead - with you, without you, or not at all.",
+    forCompany: Company.HBC
+) {
+    quest BloodForHorses(
+        title: "Blood for horses",
+        summary: "The Blackfoot have run off the Beaver Hills horses and killed a young man. " +
+                 "The chief asks whether the Company's man will ride with them.",
+        giver: chief
+    ) {
+        StartWhen() => flags.has("beaver_hills_raided");
+        talk Ask(who: chief, text: "Hear what the chief asks of you") {
+            Says() => "{npc} has cut his hair for the dead boy. \"They took our horses and they took my sister's son. " +
+                      "When the moon is full my young men ride to the Blackfoot lodges. You ate with us. Will you ride with us?\"";
+            choice Ride(label: "\"I'll ride with you.\"", goto: Riding) {
+                world.warParty(beaverHills, blackfoot, why: "for their dead and their horses", withPlayer: true);
+                flags.set("rode_to_war");
+            }
+            choice Powder(label: "\"I can't ride with you. But you'll have powder and ball.\"", goto: Arm);
+            choice Pipe(label: "\"Let me carry a pipe to the Blackfoot first.\"", goto: ToTheBlackfoot);
+            choice Refuse(label: "\"The Company's servants don't go to war.\"", goto: Refused) {
+                world.addRegard(beaverHills, -10);
+                player.addRapport(chief, -15);
+            }
+        }
+
+        // Riding with them.
+        when Riding(text: "Lead the Beaver Hills war party south to the Blackfoot camp", place: blackfoot) =>
+            world.wonWar(beaverHills) || world.lostWar(beaverHills) || flags.has(turnedBack);
+        talk Afterwards(who: chief, text: "Go back to the chief when the fighting is over", next: "complete") {
+            Says() => "The war party is home. {npc} sits apart from the drums with his pipe, and makes room for you beside him.";
+            choice Victory(label: "Sit at the victory dance", when: world.wonWar(beaverHills)) {
+                world.addRegard(beaverHills, 10);
+                flags.set("cree_war_won");
+            }
+            choice Mourning(label: "Sit with the mourners", when: !world.wonWar(beaverHills)) {
+                world.addRegard(beaverHills, 5);
+                flags.set("cree_war_lost");
+            }
+        }
+
+        // Arming them.
+        bring Arm(who: chief, item: Item.Powder, count: 4, text: "Bring the chief four horns of powder (the Edmonton store trades them)") {
+            Says() => "{npc} weighs the powder horns in his hands. \"The Company remembers its friends. So do we.\"";
+            OnDone() {
+                flags.set("armed_the_cree");
+                world.heatFeud(blackfoot, beaverHills, 2);
+                world.warParty(beaverHills, blackfoot, why: "with the Company's powder");
+            }
+        }
+        talk ArmReport(who: master, text: "Tell your master what you have done", next: "complete") {
+            Says() => "{npc} hears you out. \"London does not pay us to take sides in the Indians' wars. " +
+                      "But powder is trade, and the Blackfoot would have bought it from the Canadians anyway. " +
+                      "Only don't make a habit of it.\"";
+        }
+
+        // Making peace.
+        reach ToTheBlackfoot(place: blackfoot, radius: 700, text: "Carry a pipe to the Blackfoot camp, a long ride south");
+        bring Gifts(who: blackfootChief, item: Item.Tobacco, count: 2, text: "Give the Blackfoot chief tobacco") {
+            Says() => "{npc} smokes your tobacco and waits. He does not smile.";
+        }
+        talk Terms(who: blackfootChief, text: "Ask the Blackfoot for peace") {
+            Says() => "\"The Cree killed two of ours at the Red Deer last summer,\" {npc} says. \"Do they remember that? " +
+                      "Or does the Company only count the Cree dead?\"";
+            choice Year(label: "Ask for a year's peace, and the horses sent back", goto: PeaceBack) {
+                world.truce(beaverHills, blackfoot, 365);
+                player.addStanding(3);
+                flags.set("brokered_peace");
+            }
+            choice Demand(label: "Demand the horses back, or the Cree will come for them", goto: WarAnyway) {
+                world.heatFeud(blackfoot, beaverHills, 2);
+                world.warParty(beaverHills, blackfoot, why: "after the talks failed");
+            }
+        }
+        talk PeaceBack(who: chief, text: "Bring the Blackfoot answer to the Beaver Hills chief", next: "complete") {
+            Says() => "\"A year.\" {npc} turns the word over. \"Our young men will not like it. But a year is a year of hunting.\"";
+            OnDone() { world.addRegard(beaverHills, 5); }
+        }
+        talk WarAnyway(who: chief, text: "Tell the Beaver Hills chief the talks failed", next: "complete") {
+            Says() => "\"Then we have lost nothing but your tobacco.\" His young men are already painting their horses.";
+        }
+
+        // Staying out of it.
+        talk Refused(who: master, text: "Tell your master you stayed out of it") {
+            Says() => "\"Good. The Company trades with the Blackfoot too, and London hates a war that spoils the returns.\"";
+            OnDone() {
+                player.addStanding(2);
+                world.warParty(beaverHills, blackfoot, why: "without the Company's man");
+            }
+        }
+    }
+}
+
+// ================================================================ chapter 2: the Pemmican War
+
+questline PemmicanWar(
+    title: "The Pemmican War",
+    summary: "The war between the companies, fought over the pemmican of the plains, comes up the Saskatchewan.",
+    forCompany: Company.HBC
+) {
+    quest NewsFromTheForks(
+        title: "News from the Forks",
+        summary: "A letter has come up from Red River, and your master wants you.",
+        giver: master
+    ) [Edmonton] {
+        StartWhen() => world.happened("seven-oaks");
+        talk Hear(who: master, text: "Hear the news from Red River") {
+            Says() => "{npc} reads the letter twice before he speaks. \"Grant's Métis met Governor Semple at Seven Oaks. " +
+                      "Twenty of ours dead, and the governor with them. The Nor'Westers will say they were attacked. " +
+                      "Every post on this river is a fort now, theirs and ours.\"";
+            choice Ready(label: "\"What would you have me do, sir?\"", reply: "\"Go across and see what they mean to do. Then come and tell me.\"");
+        }
+        talk Across(who: partner, text: "Call at Fort Augustus, now that it has come to this") {
+            Says() => "{npc} has his men under arms at the gate. \"You've heard, then. Before God, it was not my doing. " +
+                      "What happens here is up to the two of us.\"";
+            choice Peace(label: "Agree that whatever happens at the Forks, Edmonton keeps the peace", when: player.rapport(partner) >= 0) {
+                world.raiseTension(-15, "the two houses at Edmonton agree to keep the peace whatever happens at Red River");
+                flags.set("edmonton_peace");
+            }
+            choice Answer(label: "Tell him the North West Company will answer for Seven Oaks") {
+                world.raiseTension(15, "a Company man promised the Nor'Westers at Edmonton a reckoning for Seven Oaks");
+                flags.set("edmonton_enemies");
+                player.addRapport(partner, -20);
+            }
+        }
+        talk Report(who: master, text: "Tell your master what was said") {
+            Says() => "{npc} nods slowly. \"Then we know where we stand, which is more than they know at the Forks.\"";
+        }
+    }
+}
+
+// The war spreads (the history's beats - the proclamation, the colony
+// dispersed, Seven Oaks - come from the historical campaign this extends).
+
+// Grant's Métis plundered Brandon House on 1 June 1816, on their way to the Forks.
+beat BrandonHousePlundered(
+    id: "brandon-house-plundered",
+    title: "Grant's Métis plunder Brandon House",
+    date: date(1816, 6, 1),
+    rumour: "Grant's riders are gathering on the Qu'Appelle, and Brandon House lies on their road."
+) ["colony-dispersed"] {
+    OnActivate() {
+        world.warParty("Métis of the Forks", "Brandon House", why: "for the North West Company and the pemmican");
+        shout("Grant's Métis have fallen on Brandon House and carried off its pemmican and furs.", Company.HBC);
+    }
+}
+
+// After Seven Oaks the Métis took Fort Douglas and sent the colonists down the lake.
+beat FortDouglasTaken(
+    id: "fort-douglas-taken",
+    title: "The Métis take Fort Douglas",
+    date: date(1816, 6, 21)
+) ["seven-oaks"] {
+    OnActivate() {
+        world.warParty("Métis of the Forks", "Fort Douglas", why: "after Seven Oaks");
+        say("After Seven Oaks the Métis take Fort Douglas, and the colonists are sent down the lake.", Company.All);
+    }
+}
+
+// Every summer from the proclamation on, the plains choose sides: old scores
+// heat, and the camps' own war parties ride (Economy/War.cs, weekly).
+beat ThePlainsTakeSides(
+    id: "plains-take-sides",
+    title: "The plains take sides",
+    date: date(1815, 5, 1),
+    repeat: days(365)
+) ["pemmican-proclamation"] {
+    OnActivate() {
+        world.heatFeud(blackfoot, beaverHills, 2);
+        world.heatFeud(beaverHills, blackfoot, 1);
+        world.heatFeud("Métis of the Qu'Appelle", "Brandon House", 3);
+        world.heatFeud("Métis at Pembina", "Fort Douglas", 2);
+        say("Up and down the plains the pemmican war has the camps choosing sides.", Company.HBC);
+    }
+}
+
+// Promise the Nor'Westers a reckoning, and they take theirs first.
+beat EdmontonPemmicanSeized(
+    id: "edmonton-pemmican-seized",
+    title: "The Nor'Westers seize Edmonton's pemmican",
+    delay: days(240)
+) ["seven-oaks"] {
+    AwakenWhen() => flags.has("edmonton_enemies");
+    OnActivate() {
+        world.addStock("Edmonton House", Item.Pemmican, -30);
+        world.raiseTension(10, "the Nor'Westers seized Edmonton's pemmican");
+        shout("The Nor'Westers have broken into Edmonton House's pemmican store in the night and carried off thirty bags.", Company.HBC);
+    }
+}

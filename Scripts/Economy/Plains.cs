@@ -44,6 +44,7 @@ public static class Plains
         foreach (var v in _views.Values) if (GodotObject.IsInstanceValid(v)) v.QueueFree();
         _views.Clear();
         BuffaloRun.Active.Clear(); BuffaloRun.LastRun.Clear();
+        War.Reset();
     }
 
     public static void Tick()
@@ -52,6 +53,7 @@ public static class Plains
         if (cal == null || !Net.Net.IsServer) return;
         float h = cal.DeltaGameHours;
         BuffaloRun.TickAll(h);
+        War.Tick(h);
         if (_raids.Count > 0) WatchRaids(h);
         _hourAcc += h;
         if (_hourAcc >= 1f) { _hourAcc = 0f; Hourly(cal); }
@@ -74,6 +76,14 @@ public static class Plains
         foreach (string arg in OS.GetCmdlineUserArgs())
         {
             if (arg == "--horseraid") _devRaid = true;
+            // Dev: `--war=<from camp>><against camp or post>` sends a war party, with you riding along.
+            if (arg.StartsWith("--war=") && arg.Substring(6).Split('>') is { Length: 2 } wp)
+            {
+                var from = Quests.HouseholdAt(wp[0]) as BandLedger; var against = Quests.HouseholdAt(wp[1]);
+                var rider = Sim.Player as Player.PlayerController;
+                GD.Print(from == null || against == null ? $"[war] no camp '{wp[0]}' or no camp/post '{wp[1]}'" : $"[war] sending {from.Name} against {War.NameOf(against)}");
+                if (from != null && against != null) War.Launch(from, against, "(dev)", rider);
+            }
             // Dev: `--climate` prints the night and day cold at a few places through the year.
             if (arg == "--climate")
                 foreach (var name in new[] { "York Factory", "Fort Gibraltar", "Edmonton House", "Fort William", "Fort Chipewyan", "Kootenay House" })
@@ -209,7 +219,7 @@ public static class Plains
                 if (riders.Count >= b.Herd.Free) break;
                 if (n.HomeStores != b || n.IsDead || n.Tier != Tier.Live || n.Sleeping || n.Away || n.IsFemale || n.HeldBy != null) continue;
                 if (n.Role is not (Role.CreeHunter or Role.CreeChief) || n.Needs.Health < 50f) continue;
-                if (n.Brain.Has<BuffaloRunGoal>() || n.Brain.Has<HorseRaidGoal>()) continue;
+                if (n.Brain.Has<BuffaloRunGoal>() || n.Brain.Has<HorseRaidGoal>() || n.Brain.Has<WarPartyGoal>()) continue;
                 riders.Add(n);
             }
             if (riders.Count < 2) { if (Log) GD.Print($"[plains] {cal.DateString} {b.Name}: only {riders.Count} riders fit to go (horses free {b.Herd.Free})"); continue; }
@@ -264,6 +274,7 @@ public static class Plains
             Freight(b, cal);
         }
         Raids(cal);
+        War.Weekly(cal);
         MissouriTrade.Week(cal);
         if (Log)
         {
@@ -361,6 +372,9 @@ public static class Plains
     private static string Key(Household a, Household b) => $"{NameOf(a)}|{NameOf(b)}";
     public static float Feud(Household holder, Household against) => Feuds.GetValueOrDefault(Key(holder, against));
     private static void Heat(Household holder, Household against, float by) => Feuds[Key(holder, against)] = Mathf.Min(10f, Feud(holder, against) + by);
+    // For war parties and the campaign (Economy/War.cs): an old score heated, or laid down.
+    public static void HeatFeud(Household holder, Household against, float by) { if (holder != null && against != null) Heat(holder, against, by); }
+    public static void CoolFeud(Household holder, Household against) { if (holder != null && against != null) Feuds.Remove(Key(holder, against)); }
 
     private static void Raids(GameCalendar cal)
     {
@@ -375,7 +389,7 @@ public static class Plains
             var at = IsoGrid.ToWorld(raider.Camp);
             foreach (var h in Horses.All())
             {
-                if (h == raider || h.Herd.Free < 3) continue;
+                if (h == raider || h.Herd.Free < 3 || War.AtPeace(raider, h)) continue;
                 bool post = h is FortLedger;
                 // The Cheyenne had come in with the Lakota by then.
                 if (NameOf(h).Contains("Cheyenne") && raider.Nation == Faction.Sioux || raider.Name.Contains("Cheyenne") && NationOf(h) == Faction.Sioux) continue;
@@ -451,7 +465,7 @@ public static class Plains
             foreach (var n in Sim.Npcs)
             {
                 if (raid.Party.Count >= 3) break;
-                if (n.HomeStores != raider || n.IsDead || n.Away || n.IsFemale || n.Role != Role.CreeHunter || n.HeldBy != null || n.Tier != Tier.Background) continue;
+                if (n.HomeStores != raider || n.IsDead || n.Away || n.IsFemale || n.Role != Role.CreeHunter || n.HeldBy != null || n.Tier != Tier.Background || n.Brain.Has<WarPartyGoal>()) continue;
                 n.Tier = Tier.Live;
                 n.ProcessMode = Node.ProcessModeEnum.Inherit;
                 n.Visible = true;
@@ -639,7 +653,7 @@ public static class Plains
     {
         var f = new Godot.Collections.Dictionary(); foreach (var kv in Feuds) f[kv.Key] = kv.Value;
         var l = new Godot.Collections.Dictionary(); foreach (var kv in BuffaloRun.LastRun) l[kv.Key] = kv.Value;
-        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save() };
+        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save(), ["war"] = War.Save() };
     }
 
     public static void Load(Godot.Collections.Dictionary d)
@@ -647,6 +661,7 @@ public static class Plains
         Feuds.Clear(); BuffaloRun.LastRun.Clear();
         Gardens.Load(d != null && d.ContainsKey("gardens") ? d["gardens"].AsGodotDictionary() : null);
         MarketNews.Load(d != null && d.ContainsKey("news") ? d["news"].AsGodotDictionary() : null);
+        War.Load(d != null && d.ContainsKey("war") ? d["war"].AsGodotDictionary() : null);
         if (d == null) return;
         if (d.ContainsKey("feuds")) foreach (var kv in d["feuds"].AsGodotDictionary()) Feuds[kv.Key.AsString()] = kv.Value.AsSingle();
         if (d.ContainsKey("lastRun")) foreach (var kv in d["lastRun"].AsGodotDictionary()) BuffaloRun.LastRun[kv.Key.AsString()] = kv.Value.AsInt32();

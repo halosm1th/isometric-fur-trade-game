@@ -284,7 +284,7 @@ public partial class Npc : Agent
         // re-running searches and paths every frame is doing it twice, for an
         // audience that cannot see him. He keeps his body and his position;
         // only the thinking stops until the clock is a man's again.
-        if (cal.MotionScale > 8f || cal.IsSkipping)
+        if (cal.MotionScale > GameCalendar.LazyMotion || cal.IsSkipping)
         {
             if (Brain.Tier0Goal() == null) { StopMoving(); return; }
         }
@@ -575,7 +575,7 @@ public partial class Npc : Agent
 
         // Still working out the way: a little more of it this frame. When
         // time is skipping the walk is resolved at once, so the way is too.
-        if (_search != null && !SettleSearch(skipping || motion > 8f) && _steer == Vector2.Zero) { Velocity = Vector2.Zero; return; }
+        if (_search != null && !SettleSearch(skipping || motion > GameCalendar.LazyMotion) && _steer == Vector2.Zero) { Velocity = Vector2.Zero; return; }
 
         if (_steer != Vector2.Zero)
         {
@@ -595,7 +595,7 @@ public partial class Npc : Agent
 
         // Time is skipping (sleeping, waiting) or running so fast that
         // physics would tunnel: resolve the walk lazily.
-        if (skipping || motion > 8f)
+        if (skipping || motion > GameCalendar.LazyMotion)
         {
             GlobalPosition = IsoGrid.ToWorld(_path[^1]);
             _path.Clear(); Arrived = true; Velocity = Vector2.Zero;

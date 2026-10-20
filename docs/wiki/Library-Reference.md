@@ -524,6 +524,111 @@ Change how a band (by its camp's name) regards the Company; kept within 0-100.
 world.addRegard("Beaver Hills Cree", 5)
 ```
 
+### `world.happened(beat)`
+
+`world.happened(string beat) : bool`
+
+True once a beat has happened, by its id: a beat of this campaign, or of the one it extends ("seven-oaks").
+
+- `beat` (string): A beat's id, of this campaign or the one it extends: "seven-oaks", "pemmican-proclamation" ...
+
+```c
+world.happened("seven-oaks")
+```
+
+### `world.warParty(from, against, why?, withPlayer?)`
+
+`world.warParty(string from, string against, string why?, bool withPlayer?) : effect`
+
+A camp's fighting men ride against a camp or a post. Far from every player the fight is settled at once in numbers (men, guns, the defender's ground); near one, or with the player riding along (withPlayer: true), its men ride and fight for real. When it is over the flags war:<from>:won (or lost, or turned_back) and war:<from>:<against>:<outcome> are raised.
+
+- `from` (string): The camp whose fighting men ride out, by its camp's name: "Beaver Hills Cree (Amiskwacîwiyiniwak)", "Métis of the Forks" ...
+- `against` (string): Who they ride against: another camp, or a post by its exact name ("Brandon House").
+- `why` (string, optional): What they ride for, for the log and the news: "for their dead and their horses".
+- `withPlayer` (bool, optional): true: the player (the one a quest runs for) rides with them, and the fight is fought for real.
+
+```c
+world.warParty("Beaver Hills Cree (Amiskwacîwiyiniwak)", "Blackfoot", why: "for the horses", withPlayer: true)
+```
+
+### `world.truce(a, b, days?)`
+
+`world.truce(string a, string b, int days?) : effect`
+
+Two peoples (camps or posts by name) make peace: no horse raids or war parties between them for that long (365 days if not given), and their old scores are laid down.
+
+- `a` (string): One side: a camp, or a post by its exact name.
+- `b` (string): The other side: a camp, or a post by its exact name.
+- `days` (int, optional): How long the peace holds, in days (365 if not given).
+
+```c
+world.truce("Beaver Hills Cree (Amiskwacîwiyiniwak)", "Blackfoot", 365)
+```
+
+### `world.heatFeud(holder, against, amount?)`
+
+`world.heatFeud(string holder, string against, int amount?) : effect`
+
+The holder's old score against the other grows (0-10): at 4 and more they ride against them, in the season, unless there is a truce.
+
+- `holder` (string): Who holds the grievance: a camp (or a post) by name.
+- `against` (string): Who it is held against: a camp, or a post by its exact name.
+- `amount` (int, optional): How much hotter it grows, out of 10 (1 if not given). At 4 and more the holder rides against them in the season.
+
+```c
+world.heatFeud("Blackfoot", "Beaver Hills Cree (Amiskwacîwiyiniwak)", 3)
+```
+
+### `world.feud(holder, against)`
+
+`world.feud(string holder, string against) : int`
+
+How hot the holder's score against the other is, 0-10.
+
+- `holder` (string): Who holds the grievance: a camp (or a post) by name.
+- `against` (string): Who it is held against: a camp, or a post by its exact name.
+
+```c
+world.feud("Blackfoot", "Beaver Hills Cree (Amiskwacîwiyiniwak)") >= 4
+```
+
+### `world.atPeace(a, b)`
+
+`world.atPeace(string a, string b) : bool`
+
+True while two peoples have a truce.
+
+- `a` (string): One side: a camp, or a post by its exact name.
+- `b` (string): The other side: a camp, or a post by its exact name.
+
+```c
+world.atPeace("Beaver Hills Cree (Amiskwacîwiyiniwak)", "Blackfoot")
+```
+
+### `world.wonWar(band)`
+
+`world.wonWar(string band) : bool`
+
+True once a war party of that camp has won a fight.
+
+- `band` (string): The camp whose war party it was, by its camp's name.
+
+```c
+world.wonWar("Blackfoot")
+```
+
+### `world.lostWar(band)`
+
+`world.lostWar(string band) : bool`
+
+True once a war party of that camp has been beaten.
+
+- `band` (string): The camp whose war party it was, by its camp's name.
+
+```c
+world.lostWar("Blackfoot")
+```
+
 
 ## flags
 

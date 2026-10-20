@@ -411,6 +411,7 @@ public static class Quests
 		return o.Kind switch
 		{
 			"reach" => WhereIs(o.Place),
+			"when" or "wait" or "hunt" or "task" when o.Place != "" => WhereIs(o.Place),   // a step that is done elsewhere can still say where
 			"talk" or "bring" => WhereIs(o.Who),
 			_ => null,
 		};

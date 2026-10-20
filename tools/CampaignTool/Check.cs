@@ -91,6 +91,15 @@ public static partial class Checker
 		if (doc.GetValueOrDefault("vars") is Dictionary<string, object> initial) foreach (var k in initial.Keys) Facts.Add(facts.VarsSet, k, "vars");
 		var beats = Tree.AsList(doc.GetValueOrDefault("beats")).Cast<Dictionary<string, object>>().ToList();
 		var ids = new Dictionary<string, Dictionary<string, object>>();
+		// A campaign built on another (extends) plays that one's beats too: they may be required and asked after.
+		var baseIds = new HashSet<string>();
+		if (doc.GetValueOrDefault("extends") is string ext && ext.Length > 0)
+		{
+			string basePath = System.IO.Path.Combine(Known.Root, "Campaigns", ext + ".json");
+			if (!System.IO.File.Exists(basePath)) rep.Error("campaign", $"extends '{ext}', but there is no Campaigns/{ext}.json");
+			else foreach (var bb in Tree.AsList(Tree.ParseObject(System.IO.File.ReadAllText(basePath)).GetValueOrDefault("beats")).OfType<Dictionary<string, object>>())
+				if (bb.TryGetValue("id", out var bid0)) baseIds.Add(Tree.S(bid0));
+		}
 		for (int i = 0; i < beats.Count; i++)
 		{
 			string bid = beats[i].TryGetValue("id", out var idv) ? Tree.S(idv) : $"beat{i}";
@@ -131,14 +140,14 @@ public static partial class Checker
 		CheckQuests(doc, rep, facts, world);
 
 		foreach (var (t, wheres) in facts.Triggers)
-			if (!ids.ContainsKey(t)) foreach (var w in wheres) rep.Error(w, $"trigger of unknown beat '{t}'");
+			if (!ids.ContainsKey(t) && !baseIds.Contains(t)) foreach (var w in wheres) rep.Error(w, $"trigger of unknown beat '{t}'");
 		var settable = new HashSet<string>(facts.FlagsSet.Keys);
-		settable.UnionWith(ids.Keys); settable.UnionWith(Known.EngineFlags);
+		settable.UnionWith(ids.Keys); settable.UnionWith(baseIds); settable.UnionWith(Known.EngineFlags);
 		foreach (var b in beats)
 			foreach (var ro in Tree.AsList(b.GetValueOrDefault("requires")))
 			{
 				string r = Tree.S(ro);
-				if (!ids.ContainsKey(r) && !settable.Contains(r) && !Known.EngineFlagPrefixes.Any(r.StartsWith))
+				if (!ids.ContainsKey(r) && !baseIds.Contains(r) && !settable.Contains(r) && !Known.EngineFlagPrefixes.Any(r.StartsWith))
 					rep.Error($"beat {Tree.S(b.GetValueOrDefault("id"))}", $"requires '{r}', which is not a beat and no action sets it as a flag");
 			}
 		foreach (var (name, wheres) in facts.FlagsRead)
@@ -154,7 +163,7 @@ public static partial class Checker
 			if (!facts.VarsSet.ContainsKey(name)) rep.Warn(wheres[0], $"reads variable '{name}', which nothing sets (it will always be 0)");
 
 		Cycles(beats, ids, rep);
-		Reachability(beats, ids, facts, rep);
+		Reachability(beats, ids, facts, rep, baseIds);
 		DateOrder(beats, ids, rep);
 		return rep;
 	}
@@ -264,6 +273,14 @@ public static partial class Checker
 				case "rapport":
 					CheckWho(Tree.S(a.GetValueOrDefault("who")), w, rep, world);
 					break;
+				case "war_party":
+					if (!world.Camps.Contains(Tree.S(a.GetValueOrDefault("from")))) rep.Error(w, $"war_party: '{Tree.S(a.GetValueOrDefault("from"))}' is not a camp of the country (a war party rides out from a camp)");
+					if (!world.Camps.Contains(Tree.S(a.GetValueOrDefault("against"))) && !world.Ledgers.Contains(Tree.S(a.GetValueOrDefault("against")))) rep.Error(w, $"war_party: '{Tree.S(a.GetValueOrDefault("against"))}' is not a camp or a post");
+					break;
+				case "truce": case "feud":
+					foreach (var k in verb == "truce" ? new[] { "a", "b" } : new[] { "holder", "against" })
+						if (!world.Camps.Contains(Tree.S(a.GetValueOrDefault(k))) && !world.Ledgers.Contains(Tree.S(a.GetValueOrDefault(k)))) rep.Error(w, $"{verb}: '{Tree.S(a.GetValueOrDefault(k))}' is not a camp or a post");
+					break;
 				case "start_quest": case "end_quest":
 					Facts.Add(facts.QuestsRead, Tree.S(a.GetValueOrDefault("quest")), w);
 					break;
@@ -292,9 +309,10 @@ public static partial class Checker
 		foreach (var n in graph.Keys.ToList()) Visit(n, new List<string>());
 	}
 
-	private static void Reachability(List<Dictionary<string, object>> beats, Dictionary<string, Dictionary<string, object>> ids, Facts facts, Report rep)
+	private static void Reachability(List<Dictionary<string, object>> beats, Dictionary<string, Dictionary<string, object>> ids, Facts facts, Report rep, HashSet<string> baseIds)
 	{
 		var possible = new HashSet<string>(Known.EngineFlags);
+		possible.UnionWith(baseIds);   // the beats of the campaign this one extends can happen
 		possible.UnionWith(facts.FlagsSet.Keys);
 		var dead = new HashSet<string>();
 		bool changed = true;
