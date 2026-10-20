@@ -78,7 +78,7 @@ public partial class TravelMode : Control
         _planning = true;
         Say("You look over the way ahead...");
         bool frozen = Sim.Terrain?.IsFrozen ?? false;
-        var route = await Routes.PlanAsync(_player.GlobalPosition, target, frozen);
+        var route = await Routes.PlanAsync(_player.GlobalPosition, target, frozen, swim: true);
         _planning = false;
         if (route == null || route.Count < 2) { Say(frozen ? "There's no way there that you can see." : "There's no way there on foot that you can see - open water lies between. Wait for the freeze-up, or go by canoe."); return; }
         _route = route; _leg = 1; _start = _player.GlobalPosition;

@@ -14,8 +14,16 @@ public static class Routes
 {
     private const int MaxExpansions = 2_500_000;
 
-    public static Task<List<Vector2>> PlanAsync(Vector2 from, Vector2 to, bool frozen) =>
-        Task.Run(() => Plan(IsoGrid.FromWorld(from), IsoGrid.FromWorld(to), frozen));
+    // swim: a man on the march (UI/TravelMode) may cross a river where he
+    // finds it - by raft, by a canoe borrowed on the bank, or swimming - at a
+    // steep price, so a crossing a few cells wide beats a long way round but
+    // nobody is routed down the river itself. Without it only the fords
+    // serve: men walked by the yard Pathfinder (war parties) cannot swim, and
+    // a route through the water would strand them on the bank. With fords
+    // only, Fort Douglas to Fort Gibraltar, across the Red, was 424 km.
+    public static Task<List<Vector2>> PlanAsync(Vector2 from, Vector2 to, bool frozen, bool swim = false) =>
+        Task.Run(() => Plan(IsoGrid.FromWorld(from), IsoGrid.FromWorld(to), frozen, swim));
+    private const float SwimCost = 12f;
 
     public static bool Passable(Vector2I c, bool frozen)
     {
@@ -33,7 +41,7 @@ public static class Routes
         return k;
     }
 
-    public static List<Vector2> Plan(Vector2I start, Vector2I goal, bool frozen)
+    public static List<Vector2> Plan(Vector2I start, Vector2I goal, bool frozen, bool swim = false)
     {
         if (!Passable(goal, frozen)) goal = Nearest(goal, frozen) ?? goal;
         if (!Passable(start, frozen)) start = Nearest(start, frozen) ?? start;
@@ -53,8 +61,9 @@ public static class Routes
             float d = dist[c];
             foreach (var (n, step) in Neighbours(c))
             {
-                if (closed.Contains(n) || !Passable(n, frozen)) continue;
-                float nd = d + step * Cost(n);
+                bool river = swim && !frozen && WorldMap.InBounds(n) && WorldMap.At(n) == Ground.River;
+                if (closed.Contains(n) || !river && !Passable(n, frozen)) continue;
+                float nd = d + step * (river ? SwimCost : Cost(n));
                 if (dist.TryGetValue(n, out float old) && old <= nd) continue;
                 dist[n] = nd; prev[n] = c;
                 open.Enqueue(n, nd + IsoGrid.ToWorld(n).DistanceTo(goalW) * 0.98f);
