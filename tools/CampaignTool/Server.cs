@@ -84,6 +84,7 @@ public sealed class WebServer
 			case "sim": Json(ctx, Sim(Tree.ParseObject(Body(req)))); return;
 			case "graph": Json(ctx, GraphOf(Body(req), req.QueryString["path"])); return;
 			case "install": Json(ctx, Install(Tree.ParseObject(Body(req)))); return;
+			case "play": Json(ctx, Play(Tree.ParseObject(Body(req)))); return;
 			// The Map tab: the world and its cast, its ground, and a campaign's places (MapData.cs).
 			case "world": Json(ctx, MapData.World()); return;
 			case "ground": Send(ctx, 200, "image/png", File.ReadAllBytes(Path.Combine(_root, "Data/World/ground.png"))); return;
@@ -309,6 +310,28 @@ public sealed class WebServer
 		string outp = Path.Combine(_root, "Campaigns", name + ".json");
 		File.WriteAllText(outp, Tree.Write(doc) + "\n");
 		return Tree.Dict(("installed", $"Campaigns/{name}.json"));
+	}
+
+	// Play in game (Launch.cs): install, then start the game at a quest step -
+	// the one named, or the one at the editor's caret. dry: only say how.
+	public Dictionary<string, object> Play(Dictionary<string, object> req)
+	{
+		string path = req.TryGetValue("path", out var pth) ? Tree.S(pth) : null;
+		var view = View(Tree.S(req["source"]), path);
+		string quest = req.TryGetValue("quest", out var qv) ? Tree.S(qv) : "", step = req.TryGetValue("step", out var sv) ? Tree.S(sv) : "";
+		if (quest.Length == 0)
+		{
+			int line = req.TryGetValue("line", out var lv) ? (int)Convert.ToDouble(lv) : 1;
+			(quest, step) = Launch.StepAt(view.Res, view.PathOf, path, line);
+			if (quest == null) throw new CampError("put the cursor in a quest (or on one of its steps), or click a step's pin on the map, to play from it");
+		}
+		var installed = Install(new Dictionary<string, object> { ["name"] = Path.GetFileNameWithoutExtension(view.Host ?? path ?? "campaign"), ["source"] = req["source"], ["path"] = path ?? "" });
+		string campaign = Path.GetFileNameWithoutExtension(Tree.S(installed["installed"]));
+		var plan = Launch.For(campaign, view.Res.Json, quest, step.Length > 0 ? step : null);
+		bool dry = req.TryGetValue("dry", out var dv) && dv is true;
+		string command = dry ? null : Launch.Start(plan);
+		return Tree.Dict(("quest", plan.Quest), ("step", plan.Step), ("road", plan.Road), ("spawn", plan.Spawn), ("date", plan.Date),
+			("args", plan.Args.Cast<object>().ToList()), ("why", plan.Why), ("command", command), ("installed", installed["installed"]));
 	}
 
 	// ---------------------------------------------------------------- plumbing

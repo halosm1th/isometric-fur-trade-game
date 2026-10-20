@@ -280,6 +280,20 @@ async function install() {
   } catch (e) { setStatus(e.message, 'bad'); }
 }
 
+// Play in game: install, then start the game at a quest step - the one named,
+// or the one under the cursor - on its road, its day, and its place (Launch.cs).
+async function play(quest, step) {
+  try {
+    if (el.input.value !== state.clean && state.path) await save();
+    const line = el.input.value.slice(0, el.input.selectionStart).split('\n').length;
+    setStatus('starting the game…');
+    const r = await post('play', { source: el.input.value, path: state.path || '', line, quest: quest || '', step: step || '' });
+    setStatus('playing: ' + r.why, 'ok');
+    el.status.title = r.command || '';
+    loadFiles();
+  } catch (e) { setStatus(e.message, 'bad'); }
+}
+
 // ------------------------------------------------------------------ autocomplete and hover
 
 function wordBefore(src, pos) {
@@ -733,7 +747,8 @@ function setupSplits() {
 
 // ------------------------------------------------------------------ start
 
-$('btnSave').onclick = save; $('btnInstall').onclick = install; $('btnNew').onclick = newFile;
+$('btnSave').onclick = save; $('btnInstall').onclick = install; $('btnNew').onclick = newFile; $('btnPlay').onclick = () => play();
+document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); play(); } });
 window.addEventListener('beforeunload', (ev) => { if (el.input.value !== state.clean) { ev.preventDefault(); ev.returnValue = ''; } });
 
 (async function start() {

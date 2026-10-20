@@ -150,3 +150,4 @@ body.ref-only .ref-page { display: block; }
 .map-legend i.dia { display: inline-block; width: 8px; height: 8px; transform: rotate(45deg); background: #ffcb6b; margin-right: 5px; border: 0; }
 .map-info { flex: none; max-height: 34%; overflow: auto; font-size: 13px; padding-top: 4px; }
 .map-cast { columns: 2 220px; font-size: 12.5px; }
+.map-info button.play { flex: none; align-self: center; padding: 2px 9px; font-size: 12px; }

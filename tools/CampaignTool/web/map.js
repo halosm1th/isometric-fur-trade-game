@@ -202,10 +202,11 @@ function renderInfo() {
   const pins = map.pins.filter(p => p.ok && p.at === name);
   const cast = map.castAt.get(name) || [];
   let h = `<div>${placeLine(s.place)}</div>`;
-  if (pins.length) h += `<h5>In this campaign</h5>` + pins.map(p => `<div class="problem" data-line="${p.line}" data-path="${esc(p.path || '')}"><span class="sev" style="color:${questColor(p.quest)}">${p.kind === 'effect' ? 'effect' : p.order > 0 ? 'step ' + p.order : 'giver'}</span><div class="msg">${esc(p.label)}<div class="at">${esc(p.who || p.place || '')} · ${p.path && p.path !== state.path ? esc(p.path.split('/').pop()) + ' ' : ''}line ${p.line}</div></div></div>`).join('');
+  if (pins.length) h += `<h5>In this campaign</h5>` + pins.map(p => `<div class="problem" data-line="${p.line}" data-path="${esc(p.path || '')}"><span class="sev" style="color:${questColor(p.quest)}">${p.kind === 'effect' ? 'effect' : p.order > 0 ? 'step ' + p.order : 'giver'}</span><div class="msg">${esc(p.label)}<div class="at">${esc(p.who || p.place || '')} · ${p.path && p.path !== state.path ? esc(p.path.split('/').pop()) + ' ' : ''}line ${p.line}</div></div>${p.group === 'quest' && p.step ? `<button class="play" data-quest="${esc(p.quest)}" data-step="${esc(p.step)}" title="Start the game at this step">▶ play</button>` : ''}</div>`).join('');
   h += cast.length ? `<h5>Who is here (${cast.length})</h5><div class="map-cast">${cast.map(c => `<div>${castLine(c)}</div>`).join('')}</div>` : `<h5>Who is here</h5><div class="dim">Nobody is placed here in the editor.</div>`;
   box.innerHTML = h;
   box.querySelectorAll('.problem[data-line]').forEach(d => d.onclick = () => jumpTo(d.dataset.path, +d.dataset.line));
+  box.querySelectorAll('button.play').forEach(b => b.onclick = (e) => { e.stopPropagation(); play(b.dataset.quest, b.dataset.step); });
 }
 
 // ---- painting ---------------------------------------------------------------------
