@@ -19,6 +19,7 @@
 </header>
 <main>
   <aside id="files" aria-label="Files"></aside>
+  <div class="split" id="splitFiles" role="separator" aria-orientation="vertical" aria-label="Resize the file list" title="Drag to resize (double-click to reset)" tabindex="0"></div>
   <section class="editor-pane">
     <div id="banner" class="banner" hidden></div>
     <div class="editor" id="editor">
@@ -31,6 +32,7 @@
       </div>
     </div>
   </section>
+  <div class="split" id="splitSide" role="separator" aria-orientation="vertical" aria-label="Resize the results panel" title="Drag to resize (double-click to reset)" tabindex="0"></div>
   <section class="side" aria-label="Results">
     <nav class="tabs" role="tablist">
       <button data-tab="problems" class="active" role="tab">Problems <span id="problemCount" class="count"></span></button>
@@ -46,6 +48,8 @@
     <div id="tab-ref" class="tabbody" hidden></div>
   </section>
 </main>
+<div id="refPage" class="ref-page" hidden></div>
+<div id="tip" class="tip" role="tooltip" hidden></div>
 <script src="editor.js"></script>
 </body>
 </html>

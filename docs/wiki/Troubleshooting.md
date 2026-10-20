@@ -86,6 +86,42 @@ A beat is dated before a beat it requires. It is not an error (it will happen on
 
 The checker found a beat waiting on a flag that no beat raises. Either a typo, or something outside the script. The flags the game raises itself (the brigade ones, `heard:...`, `deed:...`, `open_hostility`) are known to the checker and never warned about; a flag a scenario raises for testing is. If it is deliberate, nothing is wrong.
 
+## "start is the world's first day, date(year, month, day), but got ..." / "give start or startYear, not both"
+
+The campaign header's `start` is a date, `start: date(1815, 5, 1)`, and `startYear` a year, `startYear: 1815`. Use one or the other: see [a campaign's own start](World-Reference#a-campaigns-own-start).
+
+## "a quest belongs inside a questline" / "a questline holds quests ... not ..."
+
+Quests are written inside a `questline Name(title: "...") { ... }`, at the top of the file (not in a loop). A quest holds steps (`talk`, `bring`, `reach`, `have`, `task`, `hunt`, `when`, `wait`) and the hooks `StartWhen`, `FailWhen`, `OnStart`, `OnComplete`, `OnFail`; a step holds `Says`, `Done`, `OnDone` and `choice`s. See [Quests](Quests).
+
+## "a talk step needs who: ..." / "a reach step needs place: ..." / "a Brigade task needs convoy: ..."
+
+Each kind of step needs one thing: `talk` and `bring` a `who`, `bring` and `have` an `item`, `reach` a `place`, `task` a `task` (and `Task.Brigade` a `convoy`), `when` a condition, `wait` some `days`. See [kinds of step](Quests#kinds-of-step).
+
+## "'X' is not a post or a camp, so nobody is ... there" / "'role' is not a role the game knows"
+
+A `"role@place"` names a post that keeps books or a band camp, by its exact name ([Posts](World-Reference#posts), [Camps](World-Reference#camps-bands)), and a role the game knows ([Who, exactly](Quests#who-exactly)).
+
+## "goes to 'X', which is not a step of this quest" / "names quest 'X', which this campaign does not have"
+
+A `goto:` or `next:` names a step of the *same* quest, or `"complete"` or `"fail"`. A quest named in a condition or action (`X.done`, `X.start()`) must be in this file: quest lines are not taken from a campaign it `extends`.
+
+## A warning: "every choice has a when: if none holds, the player has nothing to say and the step waits"
+
+Give one choice no `when`, or two whose `when`s are each other's opposites, so the player always has something to say.
+
+## A note: "'Mr. X' is a person's name: it works only while someone of exactly that name is alive"
+
+Only a reminder. A role at a place (`"leader@Edmonton House"`) keeps working when the person dies; a name does not.
+
+## A quest never starts
+
+In order: is the player of its `forCompany`? Is every quest in its `[...]` done *by that player*? Does its `StartWhen` hold for them? If it has a `giver`, has the player spoken to that person (and not refused it)? Is the giver alive, and at that place? The simulator does not run quests, so try it in the game, starting it from the middle with `--quest=<quest>[:<step>]`: see [testing quests](Quests#testing-quests).
+
+## A quest step never finishes
+
+A `talk` or `bring` step finishes only when the player raises it with the right person: is `who` someone who is there (and alive)? A `bring` needs the whole `count` in the player's pack. A `reach` needs the player within `radius` (400 by default) of the place's door. A `task` counts only the work of that `Task`, from when the step began.
+
 ## A beat never happens in the simulator
 
 Look at the *never happened* list and ask, in order:

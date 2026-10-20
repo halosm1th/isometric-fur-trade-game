@@ -81,6 +81,13 @@ public static partial class Checker
 		var rep = new Report();
 		var facts = new Facts();
 		var world = Known.World;
+		if (doc.TryGetValue("start", out var startv))
+		{
+			string sd = Tree.S(startv);
+			if (!Regex.IsMatch(sd, @"^\d{4}-\d\d-\d\d$") || !DateTime.TryParseExact(sd, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _)) rep.Error("campaign", $"start '{sd}' is not a real day (YYYY-MM-DD)");
+			if (doc.ContainsKey("start_year")) rep.Error("campaign", "start and start_year are both given: the first day is one or the other");
+		}
+		if (doc.TryGetValue("start_year", out var syv) && !(syv is double syd && syd == Math.Floor(syd) && syd >= 1700 && syd <= 2100)) rep.Error("campaign", $"start_year '{Tree.S(syv)}' is not a year");
 		if (doc.GetValueOrDefault("vars") is Dictionary<string, object> initial) foreach (var k in initial.Keys) Facts.Add(facts.VarsSet, k, "vars");
 		var beats = Tree.AsList(doc.GetValueOrDefault("beats")).Cast<Dictionary<string, object>>().ToList();
 		var ids = new Dictionary<string, Dictionary<string, object>>();

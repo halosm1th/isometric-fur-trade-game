@@ -104,6 +104,24 @@ So `days` is how long news took to come that far: from London to the Bay by the 
 
 `say(text, to)` adds a dated line to the journal of every player of that company (`Company.HBC`, `Company.NWC`, or everyone if left out) and shows it to them as a notice. `shout(text, to)` does the same and also makes it a **headline** for everyone, which the [Director](https://github.com/halosm1th/isometric-fur-trade-game/blob/master/WIKI/Systems/The%20Director.md) counts toward its pacing. Players of neither company (the Cree and Assiniboine paths) hear only lines sent to everyone.
 
+## The player
+
+These effects act on a player: the one a quest runs for, or, when a **beat** does them, **every** player in the game (see [Quests and beats together](Quests#quests-and-beats-together)). They are mostly used from [quests](Quests).
+
+| Effect | What the game does |
+|---|---|
+| `player.postTo(place)` | the player is put on the books of that post (one that keeps books, by its exact name): its stores, its master and its men are theirs from now on, and their journal says "You are posted to ...". A place with no books logs a warning and does nothing. |
+| `player.addStanding(n)` | adds to the player's standing with their company (what `world.standing` reads). Negative lowers it. |
+| `player.addRapport(who, n)` | changes what that person (or, for `"role@place"`, every living person who fits) makes of the player, kept within -100 to 100. A quest's `bring` step adds 4, refusing a giver's quest takes 2. |
+| `player.give(item, n)` | puts `n` (default 1) of the item in the player's pack. |
+| `player.take(item, n)` | takes up to `n` (default 1) of the item from the pack: as many as the player has. |
+| `player.note(text)` | a dated line in the player's journal, also said over their head (like `say`, but to one player). |
+| `world.addRegard(camp, n)` | changes how a band regards the Company, kept within 0-100 (a band camp by its exact name: see [Camps](World-Reference#camps-bands)). |
+| `Q.start()` | starts the quest now, whatever it requires and whoever gives it (not again if the player already has it). |
+| `Q.complete()`, `Q.fail()` | ends the quest as done or failed, running its `OnComplete` or `OnFail`, if it is under way. |
+
+`world.standing` and `player.rapport(...)` read the same numbers these change.
+
 ## The log
 
 Every beat that happens is written to the campaign's log (with `[forced]` before the title if adherence made it happen, `[cancelled]` if it was cancelled), and printed to the game's console as `[campaign] date: title`. A `trigger` of a beat id that does not exist, an unknown action, or a stock effect on a post without books is a warning in the console. This is the place to look when a beat seems to have done nothing.

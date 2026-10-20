@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using IsometricFurTradeGame.Scripts.Agents;
 using IsometricFurTradeGame.Scripts.Items;
@@ -48,7 +49,9 @@ public static class Starts
             _worldDated = true;
             var cal = GameCalendar.Instance;
             int year = cal?.Year ?? 1811;
-            switch (p.StartPath)
+            // A campaign that names its first day has it on every path.
+            if (Campaign.StartDate is var (cy, cm, cd) && !OS.GetCmdlineUserArgs().Any(x => x.StartsWith("--date="))) cal?.SetDate(cy, cm, cd, 7f);
+            else switch (p.StartPath)
             {
                 case StartPath.HBC: cal?.SetDate(year, 8, 20, 7f); break;           // the ship's day
                 case StartPath.NWC: cal?.SetDate(year, 7, 12, 7f); break;           // the brigade's day

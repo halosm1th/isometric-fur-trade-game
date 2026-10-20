@@ -7,7 +7,7 @@ status: implemented
 
 # Campaigns and Adherence
 
-**Status:** Implemented. Code: `Scripts/Core/Campaign.cs`, `CampaignRunner.cs`, `CampaignLogic.cs`; scripts: `Campaigns/*.json`, written in the campaign language in `tools/CampaignTool/src/*.camp`. **To write campaigns, see the campaign scripting wiki in [`docs/wiki`](../../docs/wiki/Home.md)**: the language, a cookbook, and full references to every post, brigade, item, person and flag a script can use.
+**Status:** Implemented. Code: `Scripts/Core/Campaign.cs`, `CampaignRunner.cs`, `CampaignLogic.cs`; scripts: `Campaigns/*.json`, written in the campaign language in `tools/CampaignTool/src/*.camp`. **To write campaigns, see [[Campaign Scripting]]** (also in [`docs/wiki`](../../docs/wiki/Home.md)): the language, a cookbook, and full references to every post, brigade, item, person and flag a script can use.
 
 A **campaign** is a JSON file of dated *beats* (the blockade, the Pemmican Proclamation, Seven Oaks, the merger) that the [[The Director|director]] works toward. **Adherence** is a dial on how hard the world is held to that script. Both are chosen on the New Game page of the main menu. Nothing in a campaign is announced to you directly: every beat becomes a sealed letter that must arrive and be read ([[Information and Messages]]), so you hear about Seven Oaks weeks after it happens, from whoever carries the news.
 
@@ -16,6 +16,8 @@ A **campaign** is a JSON file of dated *beats* (the blockade, the Pemmican Procl
 | Choice | What it is |
 |---|---|
 | **No script** | The world runs on its own pressures. Posts that stand at the start date exist; later ones appear only if someone founds them. |
+| **The Company's Servant** (`company-servant.json`) | The HBC story's first chapter, with quests: off the ship at York, report to the Factor, carry the cargo, go up the rivers to Edmonton House, then deal with the Nor'Westers at Fort Augustus as friend or rival and win over the Beaver Hills Cree. The Pemmican War's beats run underneath (it extends the historical script). Three quest lines, eight quests. |
+| **The Open Country (free roam)** (`open-country.json`) | The history as the historical script runs it, and no story on top: for wandering, trading, or playing together on any side. |
 | **The Pemmican War, 1811-1821** (`historical.json`) | The shipped historical arc: Selkirk's colony, the Pemmican Proclamation, Seven Oaks, Fort William seized, the lawless years, and the union of the companies; then nine beats that act on the brigades. 22 beats. |
 | **The Company Years, 1811-1830** (`company-years.json`) | The long one, in five acts: the same arc, then Simpson's council, the Columbia and the Red River flood. Seven Oaks can be averted by a quiet spring or a truce. 59 beats. |
 | **The Long Peace, 1811-1821** (`the-long-peace.json`) | The same grant and blockade, but the war is only a possibility: a truce the player brokers turns the Proclamation into a bargain and Seven Oaks is averted. 30 beats. |
@@ -81,6 +83,12 @@ This file keeps the nine 1811-1821 beats above (without the three "interior war"
 
 Because the game's calendar starts in 1811, the two 1804-1805 beats are already in the past when a new world begins. The code marks past-dated beats as done at start, so on a default start the Lewis and Clark flags are set and the invasion conditional appears to become ready from day one, firing about 90 days in, with the warzone about 180 days after that. This is inferred from the code, not confirmed in play.
 
+## Quests and start dates
+
+A campaign can also hold **quests**: what it asks of each player (report to the Factor, go inland, bring the chief tobacco), offered by the people who give them or started by themselves, with choices that branch the story. The current step is on the HUD, every quest is at the top of the journal ([[Journal, Map and UI]]), and quest business comes first in a conversation ([[Dialogue and Conversation]]). Quests are per player and saved with each character.
+
+A campaign can set when its world **begins**: a particular day for every starting path, or only the year with each path keeping its own day (the ship on 20 August, the brigade on 12 July, the summer camp on 10 June). The menu shows "Begins ..." under such a campaign's description. Without one, the world begins in 1811. Whatever the start, beats dated before the first day of play are history.
+
 ## Writing your own
 
 Campaigns are written in a small C-like language and compiled to this JSON by the campaign tool, which also checks them and plays them forward without the game:
@@ -89,7 +97,7 @@ Campaigns are written in a small C-like language and compiled to this JSON by th
 dotnet run --project tools/CampaignTool -- serve
 ```
 
-opens an editor at <http://localhost:8765/>, with completion, live checking, a simulator and a graph; **Install in game** puts the campaign in the menu. Everything about it (the language, when each part of a beat runs, a cookbook of patterns, and references to every post, brigade run, item, person, flag and effect) is in the campaign scripting wiki, [`docs/wiki`](../../docs/wiki/Home.md).
+opens an editor at <http://localhost:8765/>, with completion, live checking, a simulator and a graph; **Install in game** puts the campaign in the menu. Everything about it (the language, when each part of a beat runs, a cookbook of patterns, and references to every post, brigade run, item, person, flag and effect) is in the campaign scripting wiki, [[Campaign Scripting]] (the same pages as [`docs/wiki`](../../docs/wiki/Home.md)).
 
 A campaign can also be written directly as JSON in the campaigns folder from the New Game page (`my-campaign.json`); the menu re-reads the folder when the page opens. The format is in the scripting wiki's *JSON format* page and in the folder's `README.txt`.
 
