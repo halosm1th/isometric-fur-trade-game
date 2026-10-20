@@ -377,6 +377,7 @@ public partial class EcologyManager : Node2D
         }
         foreach (var s in Sites) s.TickTraplines(cal.DeltaGameHours);
         Economy.Rivalry.DailyTick(cal.Day);
+        Economy.Union.Daily();
         Mail.Tick(cal.DeltaGameHours);
         Campaign.Tick();
         Economy.Plains.Tick();

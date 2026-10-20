@@ -141,7 +141,13 @@ public static class Quests
 	// ---- running ---------------------------------------------------------------------
 
 	private static bool ForPlayer(QuestDef q, PlayerController p) =>
-		string.IsNullOrEmpty(q.For) || q.For.Equals(p.Faction.ToString(), StringComparison.OrdinalIgnoreCase);
+		string.IsNullOrEmpty(q.For) || q.For.Equals(Road(p), StringComparison.OrdinalIgnoreCase);
+
+	// Whose story a player follows: his company's - but a Nor'Wester the union
+	// of 1821 made a Bay man keeps the North men's road to its end, and is not
+	// sent back to York to report to the Factor.
+	private static string Road(PlayerController p) =>
+		Economy.Union.Done && p.StartPath == StartPath.NWC && p.Faction == Agents.Faction.HBC ? "NWC" : p.Faction.ToString();
 
 	private static bool Available(QuestDef q, PlayerController p)
 	{

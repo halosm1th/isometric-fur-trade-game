@@ -15,13 +15,16 @@ namespace IsometricFurTradeGame.Scripts.Economy;
 public static class Rivalry
 {
     public static float Tension = 20f;
+    // After the union of 1821 (Economy/Union.cs) there is one company: nobody
+    // is anybody's rival, and there is no other post to raid.
+    public static bool United;
     public const float HostileAt = 70f;
     public static bool OpenHostility => Tension >= HostileAt;
     private static int _lastDecayDay = -1;
 
     public static void Raise(float amount, string why)
     {
-        if (!Net.Net.IsServer || amount == 0f) return;
+        if (!Net.Net.IsServer || amount == 0f || United) return;
         bool was = OpenHostility;
         Tension = Mathf.Clamp(Tension + amount, 0f, 100f);
         if (!was && OpenHostility) Campaign.Flag("open_hostility");
@@ -36,11 +39,11 @@ public static class Rivalry
         Tension = Mathf.Max(0f, Tension - 1.2f);
     }
 
-    public static Faction RivalOf(Faction f) => f == Faction.HBC ? Faction.NWC : f == Faction.NWC ? Faction.HBC : f;
+    public static Faction RivalOf(Faction f) => United && f is Faction.HBC or Faction.NWC ? Faction.Wild : f == Faction.HBC ? Faction.NWC : f == Faction.NWC ? Faction.HBC : f;
     public static FortLedger PostOf(Faction f) => f == Faction.HBC ? Sim.Fort : f == Faction.NWC ? Sim.Nwc : null;
-    public static bool AreRivals(Faction a, Faction b) => (a == Faction.HBC && b == Faction.NWC) || (a == Faction.NWC && b == Faction.HBC);
+    public static bool AreRivals(Faction a, Faction b) => !United && ((a == Faction.HBC && b == Faction.NWC) || (a == Faction.NWC && b == Faction.HBC));
 
-    public static string Describe() => Tension >= HostileAt ? "open hostility" : Tension >= 50f ? "bad blood" : Tension >= 25f ? "a cold rivalry" : "an uneasy peace";
+    public static string Describe() => United ? "one company now" : Tension >= HostileAt ? "open hostility" : Tension >= 50f ? "bad blood" : Tension >= 25f ? "a cold rivalry" : "an uneasy peace";
 
     // What a raiding party goes for, in order.
     private static readonly ItemId[] Loot = { ItemId.Pemmican, ItemId.DriedGoose, ItemId.DriedMeat, ItemId.Rum, ItemId.TradeGoods, ItemId.BeaverPelt, ItemId.Bread, ItemId.Musket };
