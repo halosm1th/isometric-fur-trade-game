@@ -11,7 +11,7 @@ namespace IsometricFurTradeGame.Scripts.UI;
 // "Talk" (design doc 3.6): a topic menu built from what this particular
 // person is, wants, and thinks of you. Runs on the server, where the
 // people actually live; the client only shows the text and the choices.
-public class Conversation
+public partial class Conversation
 {
     private readonly PlayerController _player;
     private Npc _npc;
@@ -260,7 +260,7 @@ public class Conversation
         if (state == "" && npc.Alerted > 0f && npc.Weapon != null) state = " He has not let go of his musket; something has him on his guard.";
         if (state == "") foreach (var l in Losses.All) if (l.Home == npc.HomeStores && l.Fresh) { state = $" His house is still short of {l.Name}; it is in his face."; break; }
         if (npc.IsBandPerson && !_player.HasInterpreterFor(npc)) _player.Learn(npc, 0.02f);   // every talk teaches a little
-        return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{busy}{state}{debt}{tongue}";
+        return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{AcquaintedLine(npc)}{busy}{state}{debt}{tongue}";
     }
 
     private void ShowTopics(string text)
@@ -424,6 +424,7 @@ public class Conversation
         AddOption("How do things stand?", () => ShowTalk(npc, AskNews(npc)));
         AddOption("Tell me about yourself", () => ShowTalk(npc, AskAboutThem(npc)));
         AddOption("What's the talk? (rumours)", () => ShowTalk(npc, AskGossip(npc)));
+        if (canTalk) AddOption("Get to know them...", () => ShowAcquaint(npc));
         if (canTalk) AddOption("Tell them something... (it needn't be true)", () => ShowLieWho(npc, false));
         if (canTalk && StoriesAboutMe(npc).Count > 0) AddOption("What are they saying about me?", () => ShowDeny(npc));
         if ((npc.IsBandPerson && npc.Role is Role.CreeChief or Role.CreeHunter) || npc.Role is Role.Labourer or Role.Voyageur or Role.NwcPartner)
@@ -1525,7 +1526,7 @@ public class Conversation
                     band.StandingWithCompany = Mathf.Min(100f, band.StandingWithCompany + 6f);
                     Core.Reveal.Lands(_player, $"{band.Name} have a gun of your selling, and they are at war.", "you sold a musket at the camp", 1.3f);
                 }
-                _player.Skills.Learn(ref _player.Skills.Trade, 0.012f);
+                _player.Skills.Learn(ref _player.Skills.Trade, 0.012f, "selling at the camps");
                 // Trading your own goods at a camp is private trade (design
                 // doc 3.6.1, 3.9): whoever sees it may carry the word, and the
                 // Factor reads his report when the ship sails.
@@ -1554,7 +1555,7 @@ public class Conversation
             {
                 counter.Remove(bought, buyN); _player.Inventory.Add(bought, buyN);
                 _player.Inventory.Remove(ItemId.TradeGoods, cost); counter.Add(ItemId.TradeGoods, cost);
-                _player.Skills.Learn(ref _player.Skills.Trade, 0.012f);
+                _player.Skills.Learn(ref _player.Skills.Trade, 0.012f, "buying furs at the camps");
                 // Furs bought at a camp with your own goods are the classic
                 // private trade (design doc 3.9 step 8): witnesses may carry it.
                 if (npc.IsBandPerson && Items.Items.Of(bought).Kind == ItemKind.Fur)

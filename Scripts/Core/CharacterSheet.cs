@@ -149,7 +149,8 @@ public static class CharacterSheet
         bg = Mathf.Clamp(bg, 0, bgs.Length - 1);
         pc.BackgroundTitle = bgs[bg].Title;
         bgs[bg].Apply(pc);
-        foreach (var t in traits) foreach (var def in AllTraits) if (def.Id == t) def.Apply(pc);
+        pc.TraitTitles.Clear();
+        foreach (var t in traits) foreach (var def in AllTraits) if (def.Id == t) { def.Apply(pc); pc.TraitTitles.Add(def.Title); }
         if (amb != AmbitionKind.None)
         {
             var cal = GameCalendar.Instance;

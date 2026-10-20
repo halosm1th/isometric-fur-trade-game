@@ -423,7 +423,7 @@ public partial class Agent : CharacterBody2D
             if (target.IsSprinting) missChance += 0.1f;
             if (IsSneaking && target.Unaware) missChance *= 0.4f;   // a steady rest and all the time in the world
         }
-        if (range > 100f) Skills.Learn(ref Skills.Hunting, 0.01f);
+        if (range > 100f) Skills.Learn(ref Skills.Hunting, 0.01f, this is Player.PlayerController ? "shooting at range" : null);
         if (IsSick) mult *= 0.6f;
         if (GD.Randf() < missChance) { CombatFx.Missed(this, target.GlobalPosition); OnAttackMissed(target); return false; }
         target.TakeDamage(damage * mult, this);

@@ -139,6 +139,7 @@ public partial class PlayerController : Agent
 	// the background on it, and the people you count as family.
 	public Core.StartPath StartPath = Core.StartPath.HBC;
 	public string BackgroundTitle = "";
+	public readonly List<string> TraitTitles = new();   // the traits chosen on the sheet, by title
 	public readonly List<string> KinNames = new();
 	public string HomeCamp = "";
 	// Which sheet the player is drawn from (design doc 5.4): set by the
@@ -1099,7 +1100,7 @@ public partial class PlayerController : Agent
 			{
 				var tree = Sim.Structures?.NearestTree(GlobalPosition, 150f);
 				if (tree == null) return "No tree within reach of the axe. The bush starts west and south of the post.";
-				if (Sim.Structures.FellTreeAt(tree.Value)) { Inventory.Add(ItemId.Firewood, Skills.Woodcraft >= 0.5f ? 6 : 4); Skills.Learn(ref Skills.Woodcraft, 0.02f); _busyUntil = Skills.Woodcraft >= 0.5f ? 0.8f : 1.2f; Chronicle.Event($"{DisplayName} felled a tree.", GlobalPosition, this, weight: 0.1f); return "You fell the spruce and split it: 4 firewood."; }
+				if (Sim.Structures.FellTreeAt(tree.Value)) { Inventory.Add(ItemId.Firewood, Skills.Woodcraft >= 0.5f ? 6 : 4); Skills.Learn(ref Skills.Woodcraft, 0.02f, "felling and splitting wood"); _busyUntil = Skills.Woodcraft >= 0.5f ? 0.8f : 1.2f; Chronicle.Event($"{DisplayName} felled a tree.", GlobalPosition, this, weight: 0.1f); return "You fell the spruce and split it: 4 firewood."; }
 				return "The axe glances off.";
 			}
 			case ItemKind.Tool when id == ItemId.Snowshoes:
@@ -1168,7 +1169,7 @@ public partial class PlayerController : Agent
 				if (site.IsDead) return "This lodge is dead. Nothing will come to a trap here.";
 				int n = Inventory.TakeUpTo(ItemId.SteelTrap, 6);
 				var line = site.SetTraps(TrapOwner, n, Skills.Trapping);
-				Skills.Learn(ref Skills.Trapping, 0.02f);
+				Skills.Learn(ref Skills.Trapping, 0.02f, "setting traps");
 				Chronicle.Event($"{DisplayName} set traps at {site.Name}.", GlobalPosition, this, weight: 0.5f);
 				return $"You set {n} traps at {site.Name} ({line.Traps} on your line). Come back tomorrow.";
 			}

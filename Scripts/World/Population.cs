@@ -99,6 +99,14 @@ public partial class Population : Node2D
 		// Several may be given. A way to drive dialogue without a keyboard.
 		foreach (string arg in OS.GetCmdlineUserArgs())
 			if (arg.StartsWith("--converse=")) _conversations.Add(arg.Substring(11));
+		// Dev aid: `-- --rapport=Name:40` - that person thinks this well of the
+		// local player from the start (to reach talk that wants trust).
+		foreach (string arg in OS.GetCmdlineUserArgs())
+			if (arg.StartsWith("--rapport=") && arg.LastIndexOf(':') is int colon and > 10 && float.TryParse(arg.Substring(colon + 1), out float amount))
+			{
+				string who = arg.Substring(10, colon - 10);
+				GetTree().CreateTimer(3.0).Timeout += () => { foreach (var n in Sim.Npcs) if (n.DisplayName == who && Sim.Player is Agent p) { n.ChangeRapport(p, amount); GD.Print($"[dev] {who} thinks {n.RapportWith(p):0} of you"); } };
+			}
 		if (Net.Net.IsServer) CallDeferred(nameof(SpawnAll));
 	}
 

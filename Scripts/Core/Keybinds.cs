@@ -20,7 +20,7 @@ public static class Keybinds
         ("hotbar_use", "Use the selected hotbar slot"),
         ("hotbar_1", "Hotbar slot 1"), ("hotbar_2", "Hotbar slot 2"), ("hotbar_3", "Hotbar slot 3"), ("hotbar_4", "Hotbar slot 4"), ("hotbar_5", "Hotbar slot 5"),
         ("hotbar_6", "Hotbar slot 6"), ("hotbar_7", "Hotbar slot 7"), ("hotbar_8", "Hotbar slot 8"), ("hotbar_9", "Hotbar slot 9"),
-        ("inventory", "Your pack"), ("journal", "Journal"), ("map", "Map"), ("log", "The log"), ("chat", "Chat"), ("help", "Help"),
+        ("inventory", "Your pack"), ("character", "Yourself (body, skills, standing)"), ("journal", "Journal"), ("map", "Map"), ("log", "The log"), ("chat", "Chat"), ("help", "Help"),
         ("time_fast", "Hold to fast-forward"), ("pause_clock", "Stop / start the clock (host)"), ("clock_slower", "Slower clock (host)"), ("clock_faster", "Faster clock (host)"),
         ("restart", "Begin again after death"), ("debug_menu", "Test console (host)"),
     };
