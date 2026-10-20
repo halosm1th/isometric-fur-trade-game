@@ -106,7 +106,7 @@
     {
       "id": "pemmican-proclamation",
       "title": "Governor Macdonell's Pemmican Proclamation",
-      "kind": "event",
+      "kind": "fixed",
       "date": "1814-01-08",
       "window_days": 60,
       "lead_days": 120,
@@ -155,15 +155,12 @@
           "text": "Governor Macdonell has proclaimed that no pemmican may be taken out of Assiniboia. The Nor'Westers are furious; keep your people close.",
           "days": 120
         }
-      ],
-      "done_when": [
-        "flag:pemmican_proclamation"
       ]
     },
     {
       "id": "colony-dispersed",
       "title": "The Red River Colony attacked and dispersed",
-      "kind": "event",
+      "kind": "fixed",
       "date": "1815-06-25",
       "window_days": 60,
       "requires": [
@@ -201,15 +198,12 @@
           "text": "The settlers at Red River have been driven off and their houses burned. Some are coming down to the Bay.",
           "days": 40
         }
-      ],
-      "done_when": [
-        "flag:colony_dispersed"
       ]
     },
     {
       "id": "seven-oaks",
       "title": "The Battle of Seven Oaks: Governor Semple and twenty colonists killed",
-      "kind": "event",
+      "kind": "fixed",
       "date": "1816-06-19",
       "window_days": 45,
       "requires": [
@@ -261,9 +255,6 @@
           "days": 60,
           "company": "NWC"
         }
-      ],
-      "done_when": [
-        "flag:seven_oaks"
       ]
     },
     {
@@ -271,7 +262,7 @@
       "title": "Lord Selkirk marches on Fort William and arrests the partners",
       "kind": "conditional",
       "lead_days": 0,
-      "delay_days": 420,
+      "delay_days": 55,
       "requires": [
         "seven-oaks"
       ],
@@ -334,7 +325,7 @@
     {
       "id": "interior-war-1818",
       "title": "The lawless years: posts burned, brigades stopped",
-      "kind": "pressure",
+      "kind": "fixed",
       "date": "1818-06-01",
       "requires": [
         "seven-oaks"
@@ -355,7 +346,7 @@
     {
       "id": "interior-war-1819",
       "title": "The lawless years: Grand Rapids",
-      "kind": "pressure",
+      "kind": "fixed",
       "date": "1819-06-01",
       "requires": [
         "seven-oaks"
@@ -376,7 +367,7 @@
     {
       "id": "interior-war-1820",
       "title": "The lawless years: both companies near the end of their means",
-      "kind": "pressure",
+      "kind": "fixed",
       "date": "1820-06-01",
       "requires": [
         "seven-oaks"
@@ -402,7 +393,7 @@
     {
       "id": "merger",
       "title": "The union of the Hudson's Bay and North West Companies",
-      "kind": "event",
+      "kind": "fixed",
       "date": "1821-03-26",
       "window_days": 120,
       "lead_days": 365,
@@ -448,9 +439,6 @@
           "days": 75,
           "company": "NWC"
         }
-      ],
-      "done_when": [
-        "flag:merger"
       ]
     },
     {
