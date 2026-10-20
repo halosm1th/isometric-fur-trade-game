@@ -195,4 +195,15 @@ public class RunnerTests
 		Assert.True(CampaignLogic.Eval("var(deed:truce) >= 2", st, new Host()));
 		Assert.False(CampaignLogic.Eval("var(deed:truce) >= 3", st, new Host()));
 	}
+
+	// A repeating beat whose first date is long past when the game begins
+	// comes round once, then on its next day - not once a day until caught up.
+	[Fact]
+	public void ARepeatFirstDatedInThePastComesRoundOnceThenNextYear()
+	{
+		var doc = Doc(B("yearly", "fixed", "1815-05-01", ("repeat_days", 365.0), ("happens", new List<object> { Say("again") })));
+		var (r, h) = Make(doc, D("1821-07-12"));
+		Days(r, h, D("1821-07-12"), D("1822-06-30"));
+		Assert.Equal(new[] { "again", "again" }, h.Said);
+	}
 }

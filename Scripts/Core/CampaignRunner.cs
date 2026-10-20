@@ -272,7 +272,15 @@ public sealed class CampaignRunner
 		if (b.RepeatDays > 0)
 		{
 			State.Done.Remove(b.Id); Pressured.Remove(b.Id); ReadySince.Remove(b.Id); Awakened.Remove(b.Id);
-			if (b.Date >= 0) Shift[b.Id] = Shift.GetValueOrDefault(b.Id) + b.RepeatDays;
+			// To its next day after today: a yearly beat first dated 1815 in a
+			// game begun in 1821 comes round once now, then next year - not
+			// once a day until its date has caught up with the calendar.
+			if (b.Date >= 0)
+			{
+				int shift = Shift.GetValueOrDefault(b.Id) + b.RepeatDays;
+				while (b.Date + shift <= State.Today) shift += b.RepeatDays;
+				Shift[b.Id] = shift;
+			}
 			else Cooldown[b.Id] = State.Today + b.RepeatDays;
 		}
 	}
