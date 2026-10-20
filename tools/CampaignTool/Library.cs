@@ -181,8 +181,8 @@ public static class Library
 		Fn("player", "give", P1("item:Item", "count:int?"), "effect", "Put something in the player's pack (1 if no count).", "player.give(Item.Tobacco, 2)", (c, s, a) => Fx(c, "give", ("item", a.S("item")), ("count", a.Has("count") ? a.N("count") : null)));
 		Fn("player", "take", P1("item:Item", "count:int?"), "effect", "Take something from the player's pack, as much as they have up to the count.", "player.take(Item.Rum)", (c, s, a) => Fx(c, "take", ("item", a.S("item")), ("count", a.Has("count") ? a.N("count") : null)));
 		Fn("player", "note", P1("text:string"), "effect", "A line in the player's journal, said over their head.", "player.note(\"Mr. Bird wants you at the hunt.\")", (c, s, a) => Fx(c, "note", ("text", a.S("text"))));
-		Fn("world", "regard", P1("place:string"), "int", "How a band (by its camp's name) regards the Company, 0-100.", "world.regard(\"Beaver Hills Cree\") >= 60", (c, s, a) => Metric("regard", a.S("place")));
-		Fn("world", "addRegard", P1("place:string", "amount:int"), "effect", "Change how a band (by its camp's name) regards the Company; kept within 0-100.", "world.addRegard(\"Beaver Hills Cree\", 5)", (c, s, a) => Fx(c, "regard", ("place", a.S("place")), ("add", a.N("amount"))));
+		Fn("world", "regard", P1("place:string"), "int", "How a band (by its camp's name) regards the company of the player asked for (the Bay, the Nor'Westers or the Americans; the Bay from a beat with no player), 0-100.", "world.regard(\"Beaver Hills Cree\") >= 60", (c, s, a) => Metric("regard", a.S("place")));
+		Fn("world", "addRegard", P1("place:string", "amount:int"), "effect", "Change how a band (by its camp's name) regards the player's company (the Bay's from a beat with no player); kept within 0-100.", "world.addRegard(\"Beaver Hills Cree\", 5)", (c, s, a) => Fx(c, "regard", ("place", a.S("place")), ("add", a.N("amount"))));
 
 		Fn("world", "happened", P1("beat:string"), "bool", "True once a beat has happened, by its id: a beat of this campaign, or of the one it extends (\"seven-oaks\").", "world.happened(\"seven-oaks\")", (c, s, a) => Pred("beat", a.S("beat")));
 
@@ -321,7 +321,7 @@ public static class Library
 		["world.wonWar.band"] = "The camp whose war party it was, by its camp's name.",
 		["world.lostWar.band"] = "The camp whose war party it was, by its camp's name.",
 		["world.addRegard.place"] = "A band, by its camp's name.",
-		["world.addRegard.amount"] = "How much to change the band's regard for the Company (kept within 0-100); negative lowers it.",
+		["world.addRegard.amount"] = "How much to change the band's regard for that company (kept within 0-100); negative lowers it.",
 		["player.did.deed"] = "Which deed: \"truce\", \"raid\", \"escort\" or \"courier\".",
 		["player.deeds.deed"] = "Which deed: \"truce\", \"raid\", \"escort\" or \"courier\".",
 		["player.posted.place"] = "A post that keeps books, by its exact name.",

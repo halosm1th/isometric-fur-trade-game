@@ -319,7 +319,8 @@ public static class Campaign
                 case "tension": return Economy.Rivalry.Tension;
                 case "standing": return (Actor ?? Sim.Player as Player.PlayerController)?.Standing ?? 0;
                 case "rapport": { var who = Actor ?? Sim.Player as Player.PlayerController; foreach (var n in Sim.Npcs) if (Quests.Matches(arg, n)) return n.RapportWith(who); return 0; }
-                case "regard": return Quests.HouseholdAt(arg) is Economy.BandLedger band ? band.StandingWithCompany : double.NaN;
+                // A band's regard for the company of the player asked for (the Nor'Westers' own account for a Nor'Wester).
+                case "regard": return Quests.HouseholdAt(arg) is Economy.BandLedger band ? band.StandingWith((Actor ?? Sim.Player as Player.PlayerController)?.Faction ?? Faction.HBC) : double.NaN;
                 case "feud": return a.Length > 1 && Quests.HouseholdAt(a[0]) is { } fh && Quests.HouseholdAt(a[1]) is { } fa ? Economy.Plains.Feud(fh, fa) : double.NaN;
                 case "stock": return a.Length > 1 && Convoys.Ledger(arg) is { } led && Enum.TryParse<ItemId>(a[1], out var id) ? led.Stores.Count(id) : double.NaN;
                 case "furs": return Convoys.Ledger(arg)?.FursInStoreMb ?? double.NaN;
@@ -406,7 +407,7 @@ public static class Campaign
                 case "posting": foreach (var p in Targets()) p.PostTo(S(a, "place")); break;
                 case "standing": foreach (var p in Targets()) p.Standing += (float)N(a, "add"); break;
                 case "rapport": foreach (var p in Targets()) foreach (var n in Sim.Npcs) if (Quests.Matches(S(a, "who"), n)) n.ChangeRapport(p, (float)N(a, "add")); break;
-                case "regard": if (Quests.HouseholdAt(S(a, "place")) is Economy.BandLedger band) band.StandingWithCompany = Mathf.Clamp(band.StandingWithCompany + (float)N(a, "add"), 0f, 100f); break;
+                case "regard": if (Quests.HouseholdAt(S(a, "place")) is Economy.BandLedger band) band.AddStandingWith((Actor ?? Sim.Player as Player.PlayerController)?.Faction ?? Faction.HBC, (float)N(a, "add")); break;
                 case "give": if (Enum.TryParse<ItemId>(S(a, "item"), true, out var gid)) foreach (var p in Targets()) p.Inventory.Add(gid, (int)N(a, "count", 1)); break;
                 case "take": if (Enum.TryParse<ItemId>(S(a, "item"), true, out var tid)) foreach (var p in Targets()) p.Inventory.Remove(tid, Math.Min((int)N(a, "count", 1), p.Inventory.Count(tid))); break;
                 case "start_quest": if (Quests.Def(S(a, "quest")) is { } sq) foreach (var p in Targets()) Quests.Start(p, sq); break;

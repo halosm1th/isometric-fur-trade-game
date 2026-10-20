@@ -30,6 +30,16 @@ public partial class BandLedger : Household
 	// How the band feels about the Company: fed and fairly paid, it trades;
 	// starved or shot at, it stops coming (design doc 3.6, 10.5).
 	public float StandingWithCompany = 50f;
+	// How the band thinks of a company: the Nor'Westers and the Americans
+	// have their own accounts with it; everyone else (the Bay, and after the
+	// union the Nor'Westers too) the Company's.
+	public float StandingWith(Agents.Faction f) => f switch { Agents.Faction.NWC => StandingWithNwc, Agents.Faction.American => StandingWithAmericans, _ => StandingWithCompany };
+	public void AddStandingWith(Agents.Faction f, float add)
+	{
+		if (f == Agents.Faction.NWC) StandingWithNwc = Mathf.Clamp(StandingWithNwc + add, 0f, 100f);
+		else if (f == Agents.Faction.American) StandingWithAmericans = Mathf.Clamp(StandingWithAmericans + add, 0f, 100f);
+		else StandingWithCompany = Mathf.Clamp(StandingWithCompany + add, 0f, 100f);
+	}
 	// ...and with the Nor'Westers across the river.
 	public float StandingWithNwc = 50f;
 	public float DebtNwcMb;

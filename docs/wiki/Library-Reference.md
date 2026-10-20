@@ -504,7 +504,7 @@ world.addStock("York Factory", Item.Rum, -5)
 
 `world.regard(string place) : int`
 
-How a band (by its camp's name) regards the Company, 0-100.
+How a band (by its camp's name) regards the company of the player asked for (the Bay, the Nor'Westers or the Americans; the Bay from a beat with no player), 0-100.
 
 - `place` (string): A band, by its camp's name: "Beaver Hills Cree (Amiskwacîwiyiniwak)" ...
 
@@ -516,10 +516,10 @@ world.regard("Beaver Hills Cree") >= 60
 
 `world.addRegard(string place, int amount) : effect`
 
-Change how a band (by its camp's name) regards the Company; kept within 0-100.
+Change how a band (by its camp's name) regards the player's company (the Bay's from a beat with no player); kept within 0-100.
 
 - `place` (string): A band, by its camp's name.
-- `amount` (int): How much to change the band's regard for the Company (kept within 0-100); negative lowers it.
+- `amount` (int): How much to change the band's regard for that company (kept within 0-100); negative lowers it.
 
 ```c
 world.addRegard("Beaver Hills Cree", 5)
