@@ -28,6 +28,11 @@ const string amLisa = "leader@Fort Manuel Lisa";
 const string amArikaraChief = "chief@Arikara";
 const string amMandanChief = "chief@Mandan";
 const string amBlackfootChief = "chief@Blackfoot";
+const string amArikara = "Arikara";
+const string amMandan = "Mandan";
+const string amBlackfoot = "Blackfoot";
+// world.regard / world.addRegard read and change a band's regard for the player's
+// own company: for an American, how that people feel about the Americans.
 
 // ================================================================ 1. the Astorians
 
@@ -139,14 +144,17 @@ questline TheAstorians(
                       "Now you both want our beaver. What do the Bostons give that the North men do not?\"";
             choice Price(label: "Promise a fair price, and a house that will still be here in ten winters") {
                 player.addRapport(amSyilxChief, 10);
+                world.addRegard(amSyilx, 5);
                 flags.set("am_syilx_promise");
             }
             choice Guns(label: "Promise guns, for their war with the people to the south") {
                 player.addRapport(amSyilxChief, 6);
+                world.addRegard(amSyilx, 8);
                 flags.set("am_promised_guns");
             }
             choice Learn(label: "Ask him to teach you the river - its fisheries, its trails, its names") {
                 player.addRapport(amSyilxChief, 12);
+                world.addRegard(amSyilx, 3);
                 flags.set("am_learned_river");
             }
         }
@@ -168,6 +176,7 @@ questline TheAstorians(
             Says() => "{npc} looks at the goods, and at the trail east. \"The North man is a day behind you. The Bostons came first.\"";
             OnDone() {
                 player.addRapport(amSyilxChief, 8);
+                world.addRegard(amSyilx, 5);
                 player.addRapport(amSpokaneMaster, -10);
                 flags.set("am_beat_the_northmen");
             }
@@ -275,17 +284,19 @@ questline TheWarComesWest(
         bring Presents(who: amArikaraChief, item: Item.TradeGoods, count: 4, text: "Carry the presents to the Arikara chief") {
             Says() => "{npc} turns a British medal over in his fingers while he looks at your goods. \"The red-coat traders came " +
                       "from the north with this. Now the Americans come up the river with these. Every summer, a new father.\"";
-            OnDone() { player.addRapport(amArikaraChief, 8); }
+            OnDone() { player.addRapport(amArikaraChief, 8); world.addRegard(amArikara, 6); }
         }
         talk Mandan(who: amMandanChief, text: "Sit with the Mandan chief") {
             Says() => "\"The North men from the Assiniboine have traded at our towns since my father's time,\" {npc} says. " +
                       "\"Now the British want us to fight for them, and the Americans want us to sit still. What do the Americans offer?\"";
             choice Trade(label: "Promise American traders on the river every summer, war or no war") {
                 player.addRapport(amMandanChief, 10);
+                world.addRegard(amMandan, 6);
                 flags.set("am_promised_river_trade");
             }
             choice Warn(label: "Remind him the British left their Indian allies alone to make their peace in '83") {
                 player.addRapport(amMandanChief, 4);
+                world.addRegard(amMandan, 3);
                 flags.set("am_warned_of_the_british");
             }
         }
@@ -311,6 +322,8 @@ questline TheWarComesWest(
             }
             choice Arms(label: "Arm the river nations and hold the Missouri against them", goto: "complete") {
                 flags.set("am_blackfoot_war");
+                world.addRegard(amBlackfoot, -15);
+                world.addRegard(amArikara, 5);
             }
             choice Walls(label: "Keep the men inside the walls and the trade close to home this year", goto: "complete") {
                 flags.set("am_held_the_fort");
@@ -321,6 +334,7 @@ questline TheWarComesWest(
                       "without asking. The North men at least come to trade. Come to trade, Boston, and we will see.\"";
             OnDone() {
                 player.addRapport(amBlackfootChief, 10);
+                world.addRegard(amBlackfoot, 10);
                 flags.set("am_smoked_with_the_blackfoot");
             }
         }
@@ -371,6 +385,7 @@ questline TheWarComesWest(
                 when: flags.has("am_syilx_promise") || flags.has("am_learned_river")
             ) {
                 player.addRapport(amSyilxChief, 15);
+                world.addRegard(amSyilx, 10);
                 flags.set("am_kept_faith");
             }
             choice Guns(
@@ -379,10 +394,12 @@ questline TheWarComesWest(
             ) {
                 player.take(Item.Musket, 1);
                 player.addRapport(amSyilxChief, 12);
+                world.addRegard(amSyilx, 8);
                 flags.set("am_kept_faith");
             }
             choice Shrug(label: "Tell him the North men will do as well by him") {
                 player.addRapport(amSyilxChief, -10);
+                world.addRegard(amSyilx, -15);
                 flags.set("am_broke_faith");
             }
         }
@@ -445,7 +462,7 @@ questline TheLastYears(
             choice Home(label: "Go home to the States, by the Missouri, at last") {
                 flags.set("am_went_home");
             }
-            choice Syilx(label: "Stay on the Okanogan, with the Syilx", when: flags.has("am_kept_faith")) {
+            choice Syilx(label: "Stay on the Okanogan, with the Syilx", when: flags.has("am_kept_faith") || world.regard(amSyilx) >= 70) {
                 flags.set("am_stayed_with_the_syilx");
                 player.addRapport(amSyilxChief, 10);
             }
@@ -471,6 +488,9 @@ questline TheLastYears(
             if (flags.has("am_took_nwc_wages")) player.note("You drew the North West Company's wages on the Columbia through the war that made you their enemy.");
             if (flags.has("am_freeman")) player.note("You were a free man on the Columbia, nobody's servant, through the years of the North men.");
             if (flags.has("am_kept_faith")) player.note("The Syilx remember the Boston who kept his word after his company sold its house.");
+            if (world.regard(amSyilx) >= 65) player.note("The Syilx still speak well of the Bostons, and of you by name.");
+            if (world.regard(amArikara) >= 60 && world.regard(amMandan) >= 60) player.note("The Arikara and the Mandan count the Americans their friends on the river.");
+            if (world.regard(amBlackfoot) < 35) player.note("The Blackfoot are at war with every American on the upper Missouri.");
             if (flags.has("am_broke_faith")) player.note("The Syilx remember the Bostons' promises went with the Bostons' house.");
             if (flags.has("am_ashleys_man")) player.note("You went up the Missouri with Ashley's men, into the mountains and the rendezvous, a trapper and nobody's servant.");
             if (flags.has("am_american_fur")) player.note("You signed with Mr. Astor again, ten years and a war later. The American Fur Company had the river now.");

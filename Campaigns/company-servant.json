@@ -3555,6 +3555,11 @@
                         "add": 10
                       },
                       {
+                        "do": "regard",
+                        "place": "Syilx (Okanagan)",
+                        "add": 5
+                      },
+                      {
                         "do": "flag",
                         "name": "am_syilx_promise"
                       }
@@ -3569,6 +3574,11 @@
                         "add": 6
                       },
                       {
+                        "do": "regard",
+                        "place": "Syilx (Okanagan)",
+                        "add": 8
+                      },
+                      {
                         "do": "flag",
                         "name": "am_promised_guns"
                       }
@@ -3581,6 +3591,11 @@
                         "do": "rapport",
                         "who": "chief@Syilx (Okanagan)",
                         "add": 12
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Syilx (Okanagan)",
+                        "add": 3
                       },
                       {
                         "do": "flag",
@@ -3634,6 +3649,11 @@
                   "do": "rapport",
                   "who": "chief@Syilx (Okanagan)",
                   "add": 8
+                },
+                {
+                  "do": "regard",
+                  "place": "Syilx (Okanagan)",
+                  "add": 5
                 },
                 {
                   "do": "rapport",
@@ -3900,6 +3920,11 @@
                   "do": "rapport",
                   "who": "chief@Arikara",
                   "add": 8
+                },
+                {
+                  "do": "regard",
+                  "place": "Arikara",
+                  "add": 6
                 }
               ]
             },
@@ -3920,6 +3945,11 @@
                         "add": 10
                       },
                       {
+                        "do": "regard",
+                        "place": "Mandan",
+                        "add": 6
+                      },
+                      {
                         "do": "flag",
                         "name": "am_promised_river_trade"
                       }
@@ -3932,6 +3962,11 @@
                         "do": "rapport",
                         "who": "chief@Mandan",
                         "add": 4
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Mandan",
+                        "add": 3
                       },
                       {
                         "do": "flag",
@@ -3991,6 +4026,16 @@
                       {
                         "do": "flag",
                         "name": "am_blackfoot_war"
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Blackfoot",
+                        "add": -15
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Arikara",
+                        "add": 5
                       }
                     ],
                     "goto": "complete"
@@ -4022,6 +4067,11 @@
                 {
                   "do": "rapport",
                   "who": "chief@Blackfoot",
+                  "add": 10
+                },
+                {
+                  "do": "regard",
+                  "place": "Blackfoot",
                   "add": 10
                 },
                 {
@@ -4144,6 +4194,11 @@
                         "add": 15
                       },
                       {
+                        "do": "regard",
+                        "place": "Syilx (Okanagan)",
+                        "add": 10
+                      },
+                      {
                         "do": "flag",
                         "name": "am_kept_faith"
                       }
@@ -4166,6 +4221,11 @@
                         "add": 12
                       },
                       {
+                        "do": "regard",
+                        "place": "Syilx (Okanagan)",
+                        "add": 8
+                      },
+                      {
                         "do": "flag",
                         "name": "am_kept_faith"
                       }
@@ -4178,6 +4238,11 @@
                         "do": "rapport",
                         "who": "chief@Syilx (Okanagan)",
                         "add": -10
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Syilx (Okanagan)",
+                        "add": -15
                       },
                       {
                         "do": "flag",
@@ -4328,7 +4393,19 @@
                   {
                     "label": "Stay on the Okanogan, with the Syilx",
                     "when": [
-                      "flag:am_kept_faith"
+                      {
+                        "any": [
+                          "flag:am_kept_faith",
+                          {
+                            "m": "regard",
+                            "a": [
+                              "Syilx (Okanagan)"
+                            ],
+                            "op": ">=",
+                            "v": 70
+                          }
+                        ]
+                      }
                     ],
                     "do": [
                       {
@@ -4467,6 +4544,48 @@
                 {
                   "do": "note",
                   "text": "The Syilx remember the Boston who kept his word after his company sold its house."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": {
+                "m": "regard",
+                "a": [
+                  "Syilx (Okanagan)"
+                ],
+                "op": ">=",
+                "v": 65
+              },
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Syilx still speak well of the Bostons, and of you by name."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": {
+                "all": [
+                  "regard(Arikara) >= 60",
+                  "regard(Mandan) >= 60"
+                ]
+              },
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Arikara and the Mandan count the Americans their friends on the river."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "regard(Blackfoot) < 35",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Blackfoot are at war with every American on the upper Missouri."
                 }
               ]
             },
