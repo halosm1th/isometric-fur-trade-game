@@ -143,7 +143,7 @@ function scheduleCheck() { clearTimeout(checkTimer); setStatus('…'); checkTime
 async function runCheck() {
   const seq = ++checkSeq, src = el.input.value;
   try {
-    const res = await post('check', src);
+    const res = await post('check' + pathQuery(), src);
     if (seq !== checkSeq) return;
     state.check = res;
     const errors = (res.error ? 1 : 0) + (res.problems || []).filter(p => p.severity === 'error').length;
@@ -175,6 +175,15 @@ function renderJson() {
   const b = $('copyJson'); if (b) b.onclick = () => navigator.clipboard && navigator.clipboard.writeText(c.json).then(() => setStatus('copied', 'ok'));
 }
 
+// The file the editor shows, for the server: a part is checked inside the campaign that includes it.
+const pathQuery = () => state.path ? '?path=' + encodeURIComponent(state.path) : '';
+
+// A line in this file, or in another (a part, or the campaign that includes it).
+async function jumpTo(path, line) {
+  if (path && state.path && path !== state.path) { await openFile(path); }
+  jump(line, 1);
+}
+
 function jump(line, col) {
   const src = el.input.value, off = lineColToOffset(src, line, col || 1);
   el.input.focus(); el.input.setSelectionRange(off, off);
@@ -188,13 +197,13 @@ async function loadFiles() {
   const j = await api('files');
   state.files = j.files;
   state.scenarios = j.files.filter(f => f.kind === 'scenario');
-  const groups = [['source', 'Campaigns'], ['example', 'Examples'], ['json', 'Shipped as JSON']];
+  const groups = [['source', 'Campaigns'], ['part', 'Parts (included)'], ['example', 'Examples'], ['json', 'Shipped as JSON']];
   let h = '';
   for (const [kind, title] of groups) {
     const list = state.files.filter(f => f.kind === kind);
     if (!list.length) continue;
     h += `<h4>${title}</h4>`;
-    for (const f of list) h += `<a data-path="${esc(f.path)}" class="${f.path === state.path ? 'current' : ''}" title="${esc(f.path)}">${esc(f.name)}${f.kind === 'source' && f.installed ? '<span class="tag">installed</span>' : ''}</a>`;
+    for (const f of list) h += `<a data-path="${esc(f.path)}" class="${f.path === state.path ? 'current' : ''}" title="${esc(f.path)}">${esc(f.name)}${f.kind === 'source' && f.installed ? '<span class="tag">installed</span>' : ''}${f.kind === 'part' ? `<span class="tag">${f.host ? 'in ' + esc(f.host.split('/').pop()) : 'not included'}</span>` : ''}</a>`;
   }
   el.files.innerHTML = h;
   el.files.querySelectorAll('a').forEach(a => a.onclick = () => openFile(a.dataset.path));
@@ -266,7 +275,7 @@ async function install() {
   try {
     if (el.input.value !== state.clean) await save();
     const base = (state.path || 'campaign').split('/').pop().replace(/\.camp$/, '');
-    const r = await post('install', { name: base, source: el.input.value });
+    const r = await post('install', { name: base, source: el.input.value, path: state.path || '' });
     setStatus('installed ' + r.installed, 'ok'); loadFiles();
   } catch (e) { setStatus(e.message, 'bad'); }
 }
@@ -546,7 +555,7 @@ async function runSim() {
     let scenario = '';
     const sp = $('simScenario').value;
     if (sp) scenario = (await api('file?path=' + encodeURIComponent(sp))).text;
-    state.sim = await post('sim', { source: el.input.value, scenario, adherence: $('simAdh').value, seed: $('simSeed').value });
+    state.sim = await post('sim', { source: el.input.value, path: state.path || '', scenario, adherence: $('simAdh').value, seed: $('simSeed').value });
     drawSim(state.sim);
   } catch (e) { out.innerHTML = `<div class="problem"><span class="sev error">error</span><div class="msg">${esc(e.message)}</div></div>`; }
 }
@@ -571,7 +580,7 @@ async function drawGraph() {
   const box = $('tab-graph');
   box.innerHTML = '<div class="empty">Drawing…</div>';
   let g;
-  try { g = await post('graph', el.input.value); } catch (e) { box.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
+  try { g = await post('graph' + pathQuery(), el.input.value); } catch (e) { box.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
   state.graph = g;
   const ids = new Map(g.nodes.map((n, i) => [n.id, i]));
   const edges = g.edges.filter(e => ids.has(e.from) && ids.has(e.to) && e.from !== e.to);
@@ -594,11 +603,11 @@ async function drawGraph() {
   }
   g.nodes.forEach((n, i) => {
     const p = pos[i], label = n.id.length > 24 ? n.id.slice(0, 23) + '…' : n.id;
-    svg += `<g class="node k-${esc(n.kind)}" data-line="${n.line}"><rect x="${p.x}" y="${p.y}" width="${W}" height="${H}" rx="6"/><text x="${p.x + 8}" y="${p.y + 13}">${esc(label)}</text><text x="${p.x + 8}" y="${p.y + 25}" style="fill:var(--dim)">${esc(n.date || n.kind)}</text><title>${esc(n.title)}</title></g>`;
+    svg += `<g class="node k-${esc(n.kind)}" data-line="${n.line}" data-path="${esc(n.path || '')}"><rect x="${p.x}" y="${p.y}" width="${W}" height="${H}" rx="6"/><text x="${p.x + 8}" y="${p.y + 13}">${esc(label)}</text><text x="${p.x + 8}" y="${p.y + 25}" style="fill:var(--dim)">${esc(n.date || n.kind)}</text><title>${esc(n.title)}</title></g>`;
   });
   svg += '</svg>';
   box.innerHTML = `<div class="legend"><span><i style="border-color:var(--builtin)"></i>fixed</span><span><i style="border-color:var(--hook)"></i>event</span><span><i style="border-color:var(--fn)"></i>conditional</span><span><i style="border-color:var(--obj)"></i>pressure</span><span>solid: requires &nbsp; dashed: triggers</span></div>${svg}`;
-  box.querySelectorAll('.node').forEach(n => n.onclick = () => jump(+n.dataset.line, 1));
+  box.querySelectorAll('.node').forEach(n => n.onclick = () => jumpTo(n.dataset.path, +n.dataset.line));
 }
 
 // The reference is built into the Reference tab, or (?view=reference) into a

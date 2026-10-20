@@ -10,7 +10,7 @@ opens an editor at <http://localhost:8765/>. It runs on your machine (nothing is
 
 ## The screen
 
-- **Left:** the files. *Campaigns* are the scripts in `tools/CampaignTool/src` (with a green *installed* tag when `Campaigns/<name>.json` exists), *Examples* are the small teaching scripts, and *Shipped as JSON* are campaigns that were written as JSON and have no script yet. Opening one of those *converts* it: you see the same campaign written in the language, and saving writes a new `src/<name>.camp`.
+- **Left:** the files. *Parts (included)* are the pieces in `tools/CampaignTool/src/parts` that a campaign's header includes (`include: "american-road"`), tagged with the campaign that includes them: opened, a part is checked, simulated and drawn on the map inside that campaign, *Install in game* installs that campaign, and clicking a problem or a pin that is in the other file opens it at the line. *Campaigns* are the scripts in `tools/CampaignTool/src` (with a green *installed* tag when `Campaigns/<name>.json` exists), *Examples* are the small teaching scripts, and *Shipped as JSON* are campaigns that were written as JSON and have no script yet. Opening one of those *converts* it: you see the same campaign written in the language, and saving writes a new `src/<name>.camp`.
 - **Middle:** the script, with line numbers. Errors are underlined in red; the line number goes red too.
 - **Right:** six tabs: **Problems**, **JSON**, **Simulate**, **Graph**, **Map**, **Reference**.
 

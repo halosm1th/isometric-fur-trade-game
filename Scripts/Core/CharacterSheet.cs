@@ -12,7 +12,7 @@ namespace IsometricFurTradeGame.Scripts.Core;
 // mean to make of themselves. Not a second stat system: every choice sets
 // the same skills, tongues, kit, standing, kin and ambitions any agent has.
 // Chosen on the new-game page; travels to the host with the player's name.
-public enum StartPath { HBC, NWC, Cree, Assiniboine, Nation }
+public enum StartPath { HBC, NWC, Cree, Assiniboine, Nation, American }   // new roads go on the end: saves keep the number
 
 public record BackgroundDef(string Title, string Blurb, Action<Player.PlayerController> Apply);
 public record TraitDef(string Id, string Title, string Blurb, Action<Player.PlayerController> Apply);
@@ -34,6 +34,7 @@ public static class CharacterSheet
         StartPath.Cree => "The Cree (Ininiwak) - born to the band by the Bay",
         StartPath.Assiniboine => "The Assiniboine (Nakoda) - born to the band upland",
         StartPath.Nation => "Another people of the country - born to a band of your choosing",
+        StartPath.American => "Mr. Astor's Pacific Fur Company - up the Columbia to Fort Okanogan",
         _ => "",
     };
 
@@ -44,6 +45,7 @@ public static class CharacterSheet
         StartPath.Cree => "You are of the band that hunts the lowlands and trades at the Bay. Your family, your hunting grounds, and two companies who want your furs.",
         StartPath.Assiniboine => "You are of the band that winters upland and brings pemmican and furs down to the posts. Your kin, your horses' country far west, and traders who need what you have.",
         StartPath.Nation => "Ojibwe, Dene, Blackfoot, Sioux, the Plateau and Coast peoples, the Missouri nations: any band camp in the country, far from York and the Pemmican War, with the traders of your own country's posts.",
+        StartPath.American => "You came round the Horn on the Tonquin, or overland with Mr. Hunt, to John Jacob Astor's new post at the Columbia's mouth, and now you go up the river with Mr. David Stuart to build the company's first house inland. The Nor'Westers are already in the country; the British and the Americans are a year from war.",
         _ => "",
     };
 
@@ -79,6 +81,15 @@ public static class CharacterSheet
                 pc => { pc.Skills.Trade = 0.4f; pc.Rank = "clerk"; pc.Standing = 30f; }),
             new("Freeman's son", "Metis, son of a freeman and a Cree mother. You know the country and the people better than the company does.",
                 pc => { pc.Skills.Hunting = 0.45f; pc.CreeFluency = 0.8f; Kin(pc, Sim.Band, 1, 25f); }),
+        },
+        StartPath.American => new BackgroundDef[]
+        {
+            new("Clerk from New York", "Mr. Astor's clerk, signed for five years at the counting house on Pearl Street. You can keep a ledger and read a contract; the country is another matter.",
+                pc => { pc.Skills.Trade = 0.4f; pc.Rank = "clerk"; pc.Standing = 30f; }),
+            new("Canadian in Astor's pay", "A voyageur from the St. Lawrence the Americans hired away from the Nor'Westers at Montreal. You know the canoe and the portage, and half the North men by name.",
+                pc => { pc.Skills.Woodcraft = 0.3f; pc.Skills.Hunting = 0.25f; pc.Inventory.Add(ItemId.Tumpline); }),
+            new("Kentucky hunter", "You came overland with Mr. Hunt's party, a long rifle and no patience for counting houses. You feed the post, and you know which way is east.",
+                pc => { pc.Skills.Hunting = 0.45f; pc.Skills.Woodcraft = 0.3f; pc.Inventory.Add(ItemId.Musket); }),
         },
         _ => new BackgroundDef[]
         {
@@ -127,7 +138,7 @@ public static class CharacterSheet
         if (path == StartPath.Nation && camp == null) path = StartPath.Cree;   // no such camp: the band by the Bay
         pc.HomeCamp = camp?.Name ?? "";
         pc.StartPath = path;
-        pc.Faction = path switch { StartPath.NWC => Faction.NWC, StartPath.Cree => Faction.Cree, StartPath.Assiniboine => Faction.Assiniboine, StartPath.Nation => camp.Nation, _ => Faction.HBC };
+        pc.Faction = path switch { StartPath.NWC => Faction.NWC, StartPath.Cree => Faction.Cree, StartPath.Assiniboine => Faction.Assiniboine, StartPath.Nation => camp.Nation, StartPath.American => Faction.American, _ => Faction.HBC };
         if (path == StartPath.Cree) pc.CreeFluency = 1f;
         if (path == StartPath.Assiniboine) { pc.AssiniboineFluency = 1f; pc.CreeFluency = Mathf.Max(pc.CreeFluency, 0.3f); }
         if (path == StartPath.Nation) { pc.CreeFluency = camp.Nation is Faction.Ojibwe or Faction.Metis ? 0.6f : 0.15f; pc.AssiniboineFluency = camp.Nation is Faction.Sioux ? 0.6f : 0.1f; Family(pc, camp); }
@@ -144,6 +155,13 @@ public static class CharacterSheet
             Kin(pc, BandOf(pc), 3, 50f);
         }
         if (path == StartPath.NWC) pc.FramesPath = "res://Scenes/Npc/RivalFrames.tres";   // the Nor'Westers' red
+        if (path == StartPath.American)
+        {
+            // On the books of Fort Okanogan from the first day: its stores, its master.
+            pc.FramesPath = "res://Scenes/Npc/VoyageurFrames.tres";
+            pc.PostedTo = "Fort Okanogan";
+            pc.CreeFluency = 0.05f;
+        }
         pc.ApplyLook();
         var bgs = BackgroundsFor(path);
         bg = Mathf.Clamp(bg, 0, bgs.Length - 1);

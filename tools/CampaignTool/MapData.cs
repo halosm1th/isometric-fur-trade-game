@@ -206,7 +206,8 @@ public static class MapData
 
 	// Every pin for a compiled campaign: quest givers and steps (in order, so the
 	// editor can draw the road), and the places beats and quests act on.
-	public static Dictionary<string, object> Pins(CompileResult res)
+	// pathOf: the file a program line is in and its line there (a part's lines are its own).
+	public static Dictionary<string, object> Pins(CompileResult res, Func<int, (string Path, int Line)> pathOf = null)
 	{
 		var pins = new List<object>();
 		var json = res.Json;
@@ -218,8 +219,9 @@ public static class MapData
 		void Pin(string group, string quest, string step, string label, string kind, string who, string place, int line, int order, string title = null)
 		{
 			var (spot, why) = Resolve(who, place);
+			var (file, fline) = pathOf?.Invoke(line) ?? (null, res.Where(line).Line);
 			pins.Add(Tree.Dict(("group", group), ("quest", quest), ("title", title ?? titles.GetValueOrDefault(quest ?? "", quest)), ("step", step), ("label", label), ("kind", kind), ("who", who), ("place", place ?? spot?.Name),
-				("line", (double)line), ("order", (double)order), ("ok", spot != null), ("why", why),
+				("line", (double)fline), ("path", file), ("order", (double)order), ("ok", spot != null), ("why", why),
 				("x", spot?.X), ("y", spot?.Y), ("at", spot?.Name)));
 		}
 		// Actions anywhere in a list, nested ones too (if/then/else, random options, after/then).

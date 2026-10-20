@@ -34,6 +34,7 @@ public static class Starts
         StartPath.NWC => "The North West Company's house, across from the Bay men. You are the partner's new man.",
         StartPath.Cree => "The Cree summer camp by the Bay men's house. These are your people.",
         StartPath.Assiniboine => "The Assiniboine camp. These are your people.",
+        StartPath.American => "Fort Okanogan, on the upper Columbia. You are Mr. Astor's man, a long way from New York.",
         _ => "York Factory, Hudson's Bay. You are the Company's new hand.",
     };
 
@@ -55,6 +56,7 @@ public static class Starts
             {
                 case StartPath.HBC: cal?.SetDate(year, 8, 20, 7f); break;           // the ship's day
                 case StartPath.NWC: cal?.SetDate(year, 7, 12, 7f); break;           // the brigade's day
+                case StartPath.American: cal?.SetDate(year, 9, 2, 7f); break;       // Mr. Stuart's party at the Okanogan
                 default: cal?.SetDate(year, 6, 10, 7f); break;   // the summer camp by the post
             }
             // The bands keep the season the date says: by the post from break-up to freeze-up.
@@ -65,6 +67,7 @@ public static class Starts
         {
             StartPath.HBC => Ship(p, pop, dating),
             StartPath.NWC => Brigade(p, pop, dating),
+            StartPath.American => Columbia(p, pop),
             _ => Camp(p),
         };
         // Open the prologue a moment after the world settles.
@@ -249,6 +252,60 @@ public static class Starts
             .Add("Thank him", () => { Note(p, $"The guide: report to {partner} on landing; the partners want {chief}'s band turned from {factor}'s Bay men to us this year."); return Hub(); });
         ScenePage Arrive() => new ScenePage { Title = $"{partner}'s house", Text = $"Noon. The brigade sweeps round the last bend singing, and the canoes run up on the landing below the North West Company's house. Across the river the Bay men's flag. Report to {partner}." }
             .Add("Step ashore", () => { Place(p, gate + new Vector2(60, 90)); Note(p, $"You came up with the brigade to {partner}'s house, with {a} and {b}. Report to {partner}."); return null; });
+        return Hub();
+    }
+
+    // ---- up the Columbia ----------------------------------------------------------------
+
+    // The Pacific Fur Company's first house inland (design doc 7.3): David
+    // Stuart's party went up the Columbia from Astoria in the summer of 1811
+    // and built Fort Okanogan where the Okanogan comes in. Two of the men
+    // with him were Ovide de Montigny, a Canadian, and Naukane, one of the
+    // Hawaiians the Tonquin signed on at the islands; both stay at the post.
+    private static ScenePage Columbia(Player.PlayerController p, Population pop)
+    {
+        var post = Posts.Named("Fort Okanogan");
+        var gate = post != null ? IsoGrid.ToWorld(post.GateOutside) : p.GlobalPosition;
+        p.SetStartPosition(Dry(gate + new Vector2(-260, 220)));
+        var mates = new List<Npc>();
+        if (pop != null && post?.Ledger != null)
+        {
+            var frames = GD.Load<SpriteFrames>("res://Scenes/Npc/VoyageurFrames.tres");
+            string[] names = { "Ovide de Montigny", "Naukane" };
+            for (int i = 0; i < names.Length; i++)
+            {
+                var v = pop.Spawn(names[i], Role.Labourer, Faction.American, IsoGrid.Cell(post.House.Top, 3 + i, 3), post.WoodpileCell, post.Ledger, frames, Posts.AmericanTint);
+                v.Inventory.Add(ItemId.Capote); v.Inventory.Add(ItemId.Knife); v.Inventory.Add(ItemId.Pemmican, 2);
+                v.GlobalPosition = gate + new Vector2(-200 + i * 40, 250);
+                Shared(v, p, $"{v.DisplayName} and {p.DisplayName} came up the Columbia from Astoria in Mr. Stuart's canoes.");
+                mates.Add(v);
+            }
+        }
+        p.AssignTask(Player.TaskKind.Report, 1, "you are Mr. Astor's new man at Fort Okanogan");
+        string master = Clean(post?.Ledger?.Leader?.DisplayName) ?? "Mr. Stuart";
+        string a = mates.Count > 0 ? Agents.Barks.CallName(mates[0]) : "Montigny", b = mates.Count > 1 ? mates[1].DisplayName : "Naukane";
+        var seen = new HashSet<string>();
+        ScenePage Hub()
+        {
+            var hub = new ScenePage { Title = "Below the Okanogan", Text = seen.Count == 0
+                ? $"{Month}. Two months up the Columbia from Astoria: the Cascades, the long portage at the Dalles, the falls where the river people fish from their scaffolds. The canoes are drawn up for the night under the dry hills. {master} is writing up his journal by the fire. {a} is smoking. {b} is singing something from the islands, low, to himself."
+                : "The fire burns down. Somewhere up the river a dog barks; there are lodges near." };
+            if (!seen.Contains("hawaiian")) hub.Add($"Sit with {b}", () => { seen.Add("hawaiian"); return Islander(); });
+            if (!seen.Contains("canadian")) hub.Add($"Ask {a} about the North men", () => { seen.Add("canadian"); return Canadian(); });
+            if (!seen.Contains("master")) hub.Add($"Ask {master} what the post is for", () => { seen.Add("master"); return Master(); });
+            hub.Add("Sleep. The Okanogan is a morning's paddle.", () => Arrive());
+            return hub;
+        }
+        ScenePage Islander() => new ScenePage { Title = b, Text = $"{b} came aboard the Tonquin at Oahu. \"The ship went north with Captain Thorn and did not come back,\" he says. \"The Indians at Clayoquot say she blew up. Every man. I was lucky - Mr. McDougall kept me at Astoria to cut wood.\" He looks at the river. \"Cold country. But the salmon are good.\"" }
+            .Add("Tell him you'll look out for each other", () => { if (mates.Count > 1) mates[1].ChangeRapport(p, 12f); Note(p, $"{b}, from Oahu, came out on the Tonquin before she was lost; you promised to look out for each other."); return Hub(); })
+            .Add("Back", Hub);
+        ScenePage Canadian() => new ScenePage { Title = a, Text = $"\"The North men?\" {a} spits into the fire. \"Mr. Thompson came down this river in July, past this very spot, with a Union Jack and a paper claiming it all for King George. He breakfasted with us at Astoria, très poli. And they have a house already at Spokane, east of here, with Finan McDonald in it. They were here first, and they mean us to know it.\"" }
+            .Add("\"Then we trade better than they do.\"", () => { if (mates.Count > 0) mates[0].ChangeRapport(p, 6f); Note(p, $"{a}: the Nor'Westers have Spokane House east of Okanogan, and David Thompson went down the Columbia in July claiming it for the King."); return Hub(); })
+            .Add("Back", Hub);
+        ScenePage Master() => new ScenePage { Title = master, Text = $"{master} closes his book. \"Mr. Astor means to have the whole trade of this coast: furs to Canton, tea and silk to New York, and a ship every year to supply us. Astoria is the depot; this is the first post inland. The Okanagan people - the Syilx - live up and down this river. If they trade with us, the house stands. If they take their furs to the North men at Spokane, it doesn't.\"" }
+            .Add("Thank him", () => { Note(p, $"{master}: Fort Okanogan is the Pacific Fur Company's first post inland; win the Syilx trade or lose it to the Nor'Westers at Spokane House."); return Hub(); });
+        ScenePage Arrive() => new ScenePage { Title = "Fort Okanogan", Text = $"Morning. The canoes turn up the mouth of the Okanogan to the flat where the men have cut the first logs for the house. Smoke from the Syilx lodges across the river. Report to {master}." }
+            .Add("Step ashore", () => { Place(p, gate + new Vector2(-60, 90)); Note(p, $"You came up the Columbia to Fort Okanogan with {master}, {a} and {b}. Report to {master}."); return null; });
         return Hub();
     }
 

@@ -332,7 +332,7 @@ public partial class Conversation
         if (npc.Needs.Hunger < 45f && _player.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
             AddOption($"Offer them something to eat ({Items.Items.Of(food).Name})", () => ShowTopics(OfferFood(npc, food)));
         if (npc.IsBandPerson && (npc.Role == Role.CreeChief || npc.Role == Role.CreeHunter)) AddOption("Family and marriage...", () => ShowFamily(npc));
-        if (leader && (Economy.Rivalry.AreRivals(npc.Faction, _player.Faction) || ownLeader && Sim.Nwc != null)) AddOption("The companies...", () => ShowCompanies(npc));
+        if (leader && (Economy.Rivalry.AreRivals(npc.Faction, _player.Faction) || ownLeader && Sim.Nwc != null && _player.Faction != Faction.American)) AddOption("The companies...", () => ShowCompanies(npc));
         // Held by the other side (design doc 9.1): buy your way out, or give your word.
         if (leader && _player.CaptiveOf != null && Economy.Rivalry.PostOf(npc.Faction) == _player.CaptiveOf)
         {

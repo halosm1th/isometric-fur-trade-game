@@ -60,6 +60,7 @@ campaign CompanysServant(
 | `seed` | The seed of the campaign's dice (`chance`, `random`). |
 | `postsByFoundingYear` | `true`: posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only when a beat founds it. |
 | `extends` | Another campaign's id (its file name, `"historical"`) whose beats this one plays as well. See [building on another campaign](Quests#building-on-another-campaign). |
+| `include` | Parts of this script kept in their own files: `include: "american-road"` reads `tools/CampaignTool/src/parts/american-road.camp` (several: `"a, b"`). A part has no header; its consts, beats and quest lines are this campaign's own, and it all compiles into one JSON. Errors in a part name the part and its own line. |
 | `start` | The world's first day, on every starting path: `date(1815, 5, 1)`. See [a campaign's own start](World-Reference#a-campaigns-own-start). |
 | `startYear` | Only the year: each starting path keeps its own day in it. Give `start` or `startYear`, not both. |
 

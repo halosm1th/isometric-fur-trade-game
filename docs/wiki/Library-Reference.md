@@ -34,6 +34,7 @@ The names you pass in (posts, brigade runs, items, people, letter addressees) ar
 | `postsByFoundingYear` | `bool` | When true, posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only if a beat founds it. |
 | `start` | `Date` | The world's first day, for every starting path: date(1815, 5, 1). Without it the world begins in 1811, on the starting path's own day (10 June, 12 July or 20 August). What the script dates before the first day is history. A developer's --date wins. |
 | `startYear` | `int` | Only the year the world begins in: each starting path keeps its own day (the ship on 20 August and so on) in that year. Give start or startYear, not both. |
+| `include` | `string` | Parts of this script kept in their own files, tools/CampaignTool/src/parts/<name>.camp (several: "a, b"). A part has no header: its consts, beats and quest lines are this campaign's own, compiled into one JSON. Opened in the editor, a part is checked, drawn and simulated inside the campaign that includes it. |
 | `extends` | `string` | Another campaign (by its id, the file's name) whose beats this one plays as well: a story with quest lines can be built on "historical" and share its war. Where both have a beat of the same id, this campaign's wins. |
 
 ## Hooks

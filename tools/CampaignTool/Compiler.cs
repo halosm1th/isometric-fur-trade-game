@@ -13,12 +13,79 @@ public sealed class CompileResult
 	public Dictionary<string, int> QuestLines = new();       // quest id -> line in the source
 	public Dictionary<string, int> StepLines = new();        // "quest id/step id" -> line in the source
 	public List<Diagnostic> Warnings = new();
+	// The parts the header includes (src/parts/<name>.camp), each with the line its
+	// lines are numbered from, and where the header names them.
+	public List<(string Name, int Base)> Parts = new();
+	public Span IncludeAt;
+
+	// Which file a line of the program is in: (null, line) for the campaign's own
+	// file, or (part name, its own line) for an included part.
+	public (string Part, int Line) Where(int line)
+	{
+		for (int i = Parts.Count - 1; i >= 0; i--) if (line > Parts[i].Base) return (Parts[i].Name, line - Parts[i].Base);
+		return (null, line);
+	}
 }
 
 public static class CampLang
 {
-	public static CompileResult Compile(string src) => new Compiler(CampParser.Parse(src)).Run();
 	public static Dictionary<string, object> CompileText(string src) => Compile(src).Json;
+
+	// An included part's lines are numbered from k * PartStride, so a span says its file.
+	public const int PartStride = 100000;
+	public static string PartsDir => System.IO.Path.Combine(Known.Root, "tools", "CampaignTool", "src", "parts");
+	public static string PartPath(string name) => $"tools/CampaignTool/src/parts/{name}.camp";
+
+	// The parts a campaign's header includes: include: "american-road" (several: "a, b").
+	public static List<string> IncludedParts(ScriptAst ast, out Span at)
+	{
+		at = default;
+		var inc = ast.Campaign?.Args.FirstOrDefault(a => a.Name == "include");
+		if (inc == null) return new List<string>();
+		if (inc.Value is not LitExpr { Value: string s }) throw new CampError("include names parts in src/parts by their file name, as text: include: \"american-road\"", inc.Value.At);
+		at = inc.Value.At;
+		var names = s.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+		foreach (var n in names) if (!System.Text.RegularExpressions.Regex.IsMatch(n, @"^[\w\-]+$")) throw new CampError($"'{n}' is not a part's name (letters, digits, - and _)", at);
+		return names;
+	}
+
+	// overrides: a part's text as it stands in the editor, in place of the file.
+	public static CompileResult Compile(string src, IReadOnlyDictionary<string, string> overrides = null)
+	{
+		var ast = CampParser.Parse(src);
+		var names = IncludedParts(ast, out var incAt);
+		var parts = new List<(string, int)>();
+		for (int k = 0; k < names.Count; k++)
+		{
+			string name = names[k], text;
+			if (overrides != null && overrides.TryGetValue(name, out var o)) text = o;
+			else
+			{
+				string file = System.IO.Path.Combine(PartsDir, name + ".camp");
+				if (!System.IO.File.Exists(file)) throw new CampError($"include: there is no part called '{name}' ({PartPath(name)})", incAt);
+				text = System.IO.File.ReadAllText(file);
+			}
+			int lineBase = (k + 1) * PartStride;
+			parts.Add((name, lineBase));
+			try { ast.Decls.AddRange(CampParser.ParsePart(text, lineBase).Decls); }
+			catch (CampError e) { throw InPart(e, name, lineBase); }
+		}
+		try
+		{
+			var res = new Compiler(ast).Run();
+			res.Parts = parts; res.IncludeAt = incAt;
+			return res;
+		}
+		catch (CampError e) when (e.Part == null && e.At.Line > PartStride)
+		{
+			var (name, lineBase) = parts.Last(p => e.At.Line > p.Item2);
+			throw InPart(e, name, lineBase);
+		}
+	}
+
+	// An error in a part: its own line, and the part named in the message.
+	private static CampError InPart(CampError e, string name, int lineBase) =>
+		e.Part != null ? e : new CampError($"in {PartPath(name)}: {e.Msg}", new Span(Math.Max(1, e.At.Line - lineBase), e.At.Col, e.At.Length)) { Part = name };
 }
 
 // The kind of a beat is worked out from what it has, so that most beats never say it.
@@ -105,6 +172,7 @@ internal sealed partial class Compiler
 				case "note": root["note"] = Text(v, a); break;
 				case "seed": root["seed"] = v is double d && d >= 0 && d == Math.Floor(d) ? d : throw new CampError("seed must be a whole number", a.Value.At); break;
 				case "postsByFoundingYear": if (v is true) root["posts_by_founding_year"] = true; else if (v is not false) throw new CampError("postsByFoundingYear is true or false", a.Value.At); break;
+				case "include": break;   // read before compiling (CampLang.Compile): the parts' declarations are the script's own
 				case "extends": root["extends"] = v is string ex && ex.Length > 0 ? ex : throw new CampError("extends names another campaign by its id (its file name), e.g. \"historical\"", a.Value.At); break;
 				case "start":
 					if (root.ContainsKey("start_year")) throw new CampError("give start or startYear, not both", a.NameAt);
@@ -120,7 +188,7 @@ internal sealed partial class Compiler
 		if (!titled) throw new CampError("the campaign needs a title: campaign " + c.Name + "(title: \"...\")", c.At);
 	}
 
-	private static readonly string[] HeaderArgs = { "title", "description", "note", "seed", "postsByFoundingYear", "extends", "start", "startYear" };
+	private static readonly string[] HeaderArgs = { "title", "description", "note", "seed", "postsByFoundingYear", "extends", "include", "start", "startYear" };
 
 	private string Text(object v, Arg a) => v is string s ? s : throw new CampError($"{a.Name} is text, but got {Describe(v)}", a.Value.At);
 

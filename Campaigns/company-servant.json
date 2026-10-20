@@ -3291,6 +3291,1270 @@
           ]
         }
       ]
+    },
+    {
+      "id": "TheAstorians",
+      "title": "The Astorians",
+      "summary": "Mr. Astor's Pacific Fur Company on the Columbia: a new house inland, the North men already in the country, and the Syilx trade to win.",
+      "for": "American",
+      "quests": [
+        {
+          "id": "AmLandfall",
+          "title": "Report to Mr. Stuart",
+          "summary": "You came up the Columbia with Mr. David Stuart to build the company's first house inland. He will want you the moment you land.",
+          "on_complete": [
+            {
+              "do": "posting",
+              "place": "Fort Okanogan"
+            },
+            {
+              "do": "give",
+              "item": "Tobacco",
+              "count": 6
+            },
+            {
+              "do": "give",
+              "item": "TradeGoods",
+              "count": 4
+            },
+            {
+              "do": "note",
+              "text": "You are on the books of Fort Okanogan: six twists of tobacco and four pieces of goods for the trade."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Report",
+              "kind": "talk",
+              "text": "Find Mr. Stuart and report to him",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "{npc} is marking out the stockade with a cord and stakes. \"There you are. Mr. Astor pays us to trade, but first we must have walls and a roof before the snow, and the men are few. Can you swing an axe, or only a pen?\"",
+                "choices": [
+                  {
+                    "label": "\"An axe, Mr. Stuart. Show me the logs.\"",
+                    "reply": "\"Good man. Six loads to the woodpile, and then we'll talk of the trade.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": 2
+                      }
+                    ],
+                    "goto": "Wood"
+                  },
+                  {
+                    "label": "\"I came to trade furs, not to cut wood.\"",
+                    "reply": "\"So did we all. The beaver will wait for you; the winter will not. Six loads.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -1
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_wants_the_trade"
+                      }
+                    ],
+                    "goto": "Wood"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Wood",
+              "kind": "task",
+              "text": "Bring six loads of firewood to the woodpile",
+              "count": 6,
+              "task": "Firewood"
+            },
+            {
+              "id": "Orders",
+              "kind": "talk",
+              "text": "Report back to Mr. Stuart",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "{npc} sits on a log with his journal on his knee. \"You'll do. Now listen. We are three thousand miles from Mr. Astor and six months from his ship. The North West Company has a house at Spokane, a few days east, and the Syilx - the Okanagan people - live all along this river. Everything we do this winter is about those two.\"",
+                "choices": [
+                  {
+                    "label": "\"Who keeps the North men's house?\"",
+                    "reply": "\"A partner and a few Canadians, and they know the country better than we do. They will be civil and they will try to buy every pelt between here and the mountains. Go and look at them.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"And the Syilx?\"",
+                    "reply": "\"They fish the river, hunt the hills, and have no reason to love any of us yet. Take tobacco and listen more than you talk. Their friendship is the whole of this post.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"What news from Astoria?\"",
+                    "reply": "\"The Tonquin is lost with every soul, and Mr. Hunt's overland party is not yet in. We are fewer than Mr. Astor meant, and further from help. So we must be cleverer.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"I'll start with the North men.\"",
+                    "reply": "\"Take what you need from the store. And remember whose wages you draw.\""
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmSpokaneCall",
+          "title": "The North men at Spokane",
+          "summary": "Ride east to the North West Company's Spokane House and see what kind of neighbours they are.",
+          "requires": [
+            "AmLandfall"
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Ride",
+              "kind": "reach",
+              "text": "Ride east to Spokane House",
+              "place": "Spokane House",
+              "radius": 700
+            },
+            {
+              "id": "Call",
+              "kind": "talk",
+              "text": "Call on the master of Spokane House",
+              "who": "leader@Spokane House",
+              "dialogue": {
+                "text": "{npc} gives you a chair, tea, and no information at all. \"An American. Mr. Astor's men are everywhere this year - Mr. Thompson met you at the river's mouth, I hear. Well. The country is wide. What brings you to Spokane?\"",
+                "choices": [
+                  {
+                    "label": "Share your tobacco and the news from Astoria, frankly",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Spokane House",
+                        "add": 15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_nwc_friendly"
+                      }
+                    ],
+                    "goto": "TellFriendly"
+                  },
+                  {
+                    "label": "Talk of the weather and the salmon, and watch his store",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_nwc_guarded"
+                      }
+                    ],
+                    "goto": "TellGuarded"
+                  },
+                  {
+                    "label": "Tell him the Columbia is American now, whatever Mr. Thompson nailed to a tree",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Spokane House",
+                        "add": -15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_nwc_hostile"
+                      }
+                    ],
+                    "goto": "TellHostile"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "TellFriendly",
+              "kind": "talk",
+              "text": "Tell Mr. Stuart how it went",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "\"Tea with the North men?\" {npc} smiles. \"No harm. They'll be friendlier than their partners in Montreal, and a friend at Spokane may be worth more than a pack of beaver some winter.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "TellGuarded",
+              "kind": "talk",
+              "text": "Tell Mr. Stuart how it went",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "\"You counted his bales and told him nothing. You'll make a trader.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "TellHostile",
+              "kind": "talk",
+              "text": "Tell Mr. Stuart how it went",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "{npc} winces. \"To his face. Well, now they know we mean to stay. Sleep with your rifle loaded.\""
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmSyilxTrade",
+          "title": "The Syilx",
+          "summary": "Cross the river to the Syilx camp and make the company known to the Okanagan people.",
+          "requires": [
+            "AmLandfall"
+          ],
+          "on_complete": [
+            {
+              "do": "flag",
+              "name": "am_syilx_friend"
+            },
+            {
+              "do": "note",
+              "text": "You have sat in council with the Syilx. Whether they trade with the Bostons or the North men is still to be seen."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Camp",
+              "kind": "reach",
+              "text": "Go to the Syilx camp on the Okanogan",
+              "place": "Syilx (Okanagan)",
+              "radius": 600
+            },
+            {
+              "id": "Tobacco",
+              "kind": "bring",
+              "text": "Give the chief tobacco",
+              "who": "chief@Syilx (Okanagan)",
+              "item": "Tobacco",
+              "count": 2,
+              "dialogue": {
+                "text": "{npc} takes the tobacco, smells it, and passes it to the men beside him. \"The Bostons' tobacco is good. The North men's is good too. We will see whose words are good.\""
+              }
+            },
+            {
+              "id": "Council",
+              "kind": "talk",
+              "text": "Sit in council with the chief",
+              "who": "chief@Syilx (Okanagan)",
+              "dialogue": {
+                "text": "\"You built a house on our river without asking,\" {npc} says. \"The North men did the same at Spokane. Now you both want our beaver. What do the Bostons give that the North men do not?\"",
+                "choices": [
+                  {
+                    "label": "Promise a fair price, and a house that will still be here in ten winters",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_syilx_promise"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Promise guns, for their war with the people to the south",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": 6
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_promised_guns"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Ask him to teach you the river - its fisheries, its trails, its names",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": 12
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_learned_river"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmAheadOfTheNorthmen",
+          "title": "Ahead of the North men",
+          "summary": "Spokane House has sent a man with goods to the Syilx. Mr. Stuart wants the company's goods in the chief's lodge first.",
+          "giver": "leader@Fort Okanogan",
+          "requires": [
+            "AmSpokaneCall",
+            "AmSyilxTrade"
+          ],
+          "start_when": [
+            "flag:am_nwc_hostile"
+          ],
+          "on_start": [
+            {
+              "do": "give",
+              "item": "TradeGoods",
+              "count": 4
+            }
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 3
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Goods",
+              "kind": "bring",
+              "text": "Carry four pieces of goods to the Syilx chief before the North men's",
+              "who": "chief@Syilx (Okanagan)",
+              "item": "TradeGoods",
+              "count": 4,
+              "dialogue": {
+                "text": "{npc} looks at the goods, and at the trail east. \"The North man is a day behind you. The Bostons came first.\""
+              },
+              "on_done": [
+                {
+                  "do": "rapport",
+                  "who": "chief@Syilx (Okanagan)",
+                  "add": 8
+                },
+                {
+                  "do": "rapport",
+                  "who": "leader@Spokane House",
+                  "add": -10
+                },
+                {
+                  "do": "flag",
+                  "name": "am_beat_the_northmen"
+                }
+              ]
+            },
+            {
+              "id": "Back",
+              "kind": "talk",
+              "text": "Tell Mr. Stuart the goods are in",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "\"First in the lodge. Spokane will hear of it by tonight, and they'll not forgive it.\""
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmRiverTruce",
+          "title": "News from the east",
+          "summary": "The master of Spokane House sends word: he has letters from Fort William, and something to say before winter.",
+          "giver": "leader@Spokane House",
+          "requires": [
+            "AmSpokaneCall"
+          ],
+          "start_when": [
+            "flag:am_nwc_friendly",
+            "after:1812-03-01"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear what the master of Spokane House has to say",
+              "who": "leader@Spokane House",
+              "dialogue": {
+                "text": "{npc} shuts the door. \"Letters from Fort William. There is talk in Montreal of war between King George and your Congress - ships stopped, sailors pressed, the Indians of the lakes. If it comes, there will be orders. I would rather we agreed now, you and I, that there is no war on this river.\"",
+                "choices": [
+                  {
+                    "label": "Agree: whatever London and Washington do, no blood between Okanogan and Spokane",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Spokane House",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_river_truce"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Thank him, and carry the news straight to Mr. Stuart",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_warned_stuart"
+                      }
+                    ],
+                    "goto": "Tell"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Tell",
+              "kind": "talk",
+              "text": "Carry the news of war to Mr. Stuart",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "{npc} reads your face before you speak. \"War? Then Astoria has no navy, no fort worth the name, and a British company on every side. Say nothing to the men yet.\""
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheWarComesWest",
+      "title": "The War Comes West",
+      "summary": "The United States and Britain at war, Astoria sold to the North men, and the choice of where an American belongs.",
+      "for": "American",
+      "quests": [
+        {
+          "id": "AmNewsOfWar",
+          "title": "War",
+          "summary": "Mr. McKenzie has come up from Astoria with news, and Mr. Stuart calls every man into the house.",
+          "requires": [
+            "AmLandfall"
+          ],
+          "start_when": [
+            "after:1813-01-15"
+          ],
+          "on_complete": [
+            {
+              "do": "if",
+              "cond": "flag:am_river_truce",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "Spokane House kept faith: no blood was shed between the two houses on the river when the war came."
+                }
+              ]
+            },
+            {
+              "do": "note",
+              "text": "The war has reached the Columbia, a year late, by canoe."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from Astoria",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "{npc} speaks to the whole house. \"The United States and Great Britain have been at war since June. A British frigate is coming for Astoria, and Mr. McDougall means to sell the whole concern to the North West Company before she can take it for nothing. Every man must choose: stay in the country under the North men, or go back to the States. I go east in the spring, over the mountains and down the Missouri.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll stay in this country, whoever's flag flies over the house.\"",
+                    "reply": "\"Many will. The North men need hands that know the river, and they'll pay. God keep you.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_stayed_columbia"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"I'll come east with you, Mr. Stuart. I'm an American.\"",
+                    "reply": "\"Then pack light. Mr. Lisa keeps a fort on the upper Missouri; it's the first American roof we'll see.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_went_east"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmTheRoadEast",
+          "title": "The road east",
+          "summary": "Over the mountains and down the Missouri to Manuel Lisa's fort, the first American post on the road home.",
+          "requires": [
+            "AmNewsOfWar"
+          ],
+          "start_when": [
+            "flag:am_went_east"
+          ],
+          "on_complete": [
+            {
+              "do": "posting",
+              "place": "Fort Manuel Lisa"
+            },
+            {
+              "do": "note",
+              "text": "You are on the books of Fort Manuel Lisa, on the upper Missouri."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Travel",
+              "kind": "reach",
+              "text": "Go east over the mountains and down to Fort Manuel Lisa on the Missouri",
+              "place": "Fort Manuel Lisa",
+              "radius": 900
+            },
+            {
+              "id": "Lisa",
+              "kind": "talk",
+              "text": "Present yourself to the master of Fort Manuel Lisa",
+              "who": "leader@Fort Manuel Lisa",
+              "dialogue": {
+                "text": "{npc} looks you up and down: the moccasins, the beard, the Columbia in your face. \"One of Astor's men, walked from the Pacific. Mother of God. The river is short of men who can do that. The British are sending medals and guns up from the lakes to every nation on the Missouri; I mean to keep them for the United States. Will you sign?\"",
+                "choices": [
+                  {
+                    "label": "Sign with the Missouri Fur Company",
+                    "reply": "\"Good. You'll earn it.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_signed_with_lisa"
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "leader@Fort Manuel Lisa",
+                        "add": 10
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Ask for work only until you can get word to Mr. Astor",
+                    "reply": "\"Astor! Astor is in New York counting his losses. But work is work.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_still_astors_man"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmTheRiverNations",
+          "title": "The river nations",
+          "summary": "British agents are carrying medals and guns to the Missouri nations. The master sends you to the Arikara and the Mandan with the United States' presents.",
+          "giver": "leader@Fort Manuel Lisa",
+          "requires": [
+            "AmTheRoadEast"
+          ],
+          "on_start": [
+            {
+              "do": "give",
+              "item": "TradeGoods",
+              "count": 4
+            },
+            {
+              "do": "give",
+              "item": "Tobacco",
+              "count": 2
+            }
+          ],
+          "on_complete": [
+            {
+              "do": "flag",
+              "name": "am_kept_the_missouri"
+            },
+            {
+              "do": "standing",
+              "add": 3
+            },
+            {
+              "do": "note",
+              "text": "The Arikara and the Mandan stayed out of the British war, and Mr. Lisa wrote to St. Louis that the Missouri was held."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Presents",
+              "kind": "bring",
+              "text": "Carry the presents to the Arikara chief",
+              "who": "chief@Arikara",
+              "item": "TradeGoods",
+              "count": 4,
+              "dialogue": {
+                "text": "{npc} turns a British medal over in his fingers while he looks at your goods. \"The red-coat traders came from the north with this. Now the Americans come up the river with these. Every summer, a new father.\""
+              },
+              "on_done": [
+                {
+                  "do": "rapport",
+                  "who": "chief@Arikara",
+                  "add": 8
+                }
+              ]
+            },
+            {
+              "id": "Mandan",
+              "kind": "talk",
+              "text": "Sit with the Mandan chief",
+              "who": "chief@Mandan",
+              "dialogue": {
+                "text": "\"The North men from the Assiniboine have traded at our towns since my father's time,\" {npc} says. \"Now the British want us to fight for them, and the Americans want us to sit still. What do the Americans offer?\"",
+                "choices": [
+                  {
+                    "label": "Promise American traders on the river every summer, war or no war",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Mandan",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_promised_river_trade"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Remind him the British left their Indian allies alone to make their peace in '83",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Mandan",
+                        "add": 4
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_warned_of_the_british"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmTheBlackfoot",
+          "title": "The Blackfoot",
+          "summary": "The Blackfoot killed the company's trappers at the Three Forks in 1810, and their war parties come down the Missouri. The master asks your counsel.",
+          "giver": "leader@Fort Manuel Lisa",
+          "requires": [
+            "AmTheRoadEast"
+          ],
+          "start_when": [
+            "after:1814-04-01"
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 2
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Council",
+              "kind": "talk",
+              "text": "Give the master your counsel on the Blackfoot",
+              "who": "leader@Fort Manuel Lisa",
+              "dialogue": {
+                "text": "{npc} spreads a map on the table. \"They took our horses at the Big Horn and our men at the Three Forks. The British at the Saskatchewan posts sell them guns. I can fight them, buy them, or wait behind these walls. Well?\"",
+                "choices": [
+                  {
+                    "label": "Send tobacco and an offer of trade to the Blackfoot - you'll carry it yourself",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_blackfoot_tobacco"
+                      },
+                      {
+                        "do": "give",
+                        "item": "Tobacco",
+                        "count": 2
+                      }
+                    ],
+                    "goto": "Carry"
+                  },
+                  {
+                    "label": "Arm the river nations and hold the Missouri against them",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_blackfoot_war"
+                      }
+                    ],
+                    "goto": "complete"
+                  },
+                  {
+                    "label": "Keep the men inside the walls and the trade close to home this year",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_held_the_fort"
+                      }
+                    ],
+                    "goto": "complete"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Carry",
+              "kind": "bring",
+              "text": "Carry tobacco to the Blackfoot",
+              "who": "chief@Blackfoot",
+              "item": "Tobacco",
+              "count": 2,
+              "dialogue": {
+                "text": "{npc} lets you live long enough to say why you came. Then he smokes your tobacco. \"Americans trap our rivers without asking. The North men at least come to trade. Come to trade, Boston, and we will see.\""
+              },
+              "on_done": [
+                {
+                  "do": "rapport",
+                  "who": "chief@Blackfoot",
+                  "add": 10
+                },
+                {
+                  "do": "flag",
+                  "name": "am_smoked_with_the_blackfoot"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "AmUnderTheNorthmen",
+          "title": "Under the North men's flag",
+          "summary": "Astoria is Fort George now, and the North West Company owns everything the Pacific Fur Company built. Go to Spokane House and ask for work.",
+          "requires": [
+            "AmNewsOfWar"
+          ],
+          "start_when": [
+            "flag:am_stayed_columbia"
+          ],
+          "objectives": [
+            {
+              "id": "Ride",
+              "kind": "reach",
+              "text": "Ride to Spokane House",
+              "place": "Spokane House",
+              "radius": 700
+            },
+            {
+              "id": "Ask",
+              "kind": "talk",
+              "text": "Ask the master of Spokane House for work",
+              "who": "leader@Spokane House",
+              "dialogue": {
+                "text": "{npc} has the bill of sale from Astoria on his table. \"So. Mr. Astor's men are the North West Company's men now, those that want to be. You know the Okanogan and its people. What do you want?\"",
+                "choices": [
+                  {
+                    "label": "\"Wages, and the Okanogan, if you'll have me.\"",
+                    "reply": "\"I'll have you. You were a fair neighbour.\"",
+                    "when": [
+                      {
+                        "not": "flag:am_nwc_hostile"
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Spokane House",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_took_nwc_wages"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Swallow your pride, and ask for wages",
+                    "reply": "He keeps you standing in the yard a long while. \"You told me the river was American. Well, it isn't. Half wages.\"",
+                    "when": [
+                      "flag:am_nwc_hostile"
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Spokane House",
+                        "add": 5
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_took_nwc_wages"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"Nothing. I'll trade on my own account, a free man.\"",
+                    "reply": "\"Free men starve in this country. But good luck to you.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_freeman"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmKeepFaith",
+          "title": "A promise on the Okanogan",
+          "summary": "The Bostons' house belongs to the North men now. The Syilx want to know what became of the Bostons' promises.",
+          "requires": [
+            "AmUnderTheNorthmen"
+          ],
+          "objectives": [
+            {
+              "id": "Council",
+              "kind": "talk",
+              "text": "Go to the Syilx chief",
+              "who": "chief@Syilx (Okanagan)",
+              "dialogue": {
+                "text": "{npc} is waiting for you. \"The Bostons sold their house to the North men. The Bostons' word went with it?\"",
+                "choices": [
+                  {
+                    "label": "Keep your word yourself: you'll trade fairly with them, whoever owns the house",
+                    "when": [
+                      {
+                        "any": [
+                          "flag:am_syilx_promise",
+                          "flag:am_learned_river"
+                        ]
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": 15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_kept_faith"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Bring him the guns you promised, from your own pack",
+                    "when": [
+                      "flag:am_promised_guns"
+                    ],
+                    "do": [
+                      {
+                        "do": "take",
+                        "item": "Musket",
+                        "count": 1
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": 12
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_kept_faith"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Tell him the North men will do as well by him",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": -10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_broke_faith"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheLastYears",
+      "title": "The Last Years",
+      "summary": "The early 1820s: on the Missouri a failing company and new men for the mountains; on the Columbia, one company and the Bay's.",
+      "for": "American",
+      "quests": [
+        {
+          "id": "AmTheMountainMen",
+          "title": "Enterprising young men",
+          "summary": "The company's credit in St. Louis is gone. General Ashley wants a hundred young men for the mountains, and Mr. Astor's American Fur Company is buying up the river.",
+          "giver": "leader@Fort Manuel Lisa",
+          "requires": [
+            "AmTheRoadEast"
+          ],
+          "start_when": [
+            "after:1821-09-01"
+          ],
+          "on_complete": [
+            {
+              "do": "flag",
+              "name": "am_road_ended"
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from St. Louis",
+              "who": "leader@Fort Manuel Lisa",
+              "dialogue": {
+                "text": "{npc} has the Missouri Gazette open on the table. \"Read it. 'To enterprising young men: the subscriber wishes to engage one hundred men to ascend the Missouri to its source.' Ashley and Henry. No posts, no Indians bringing furs - their own men trapping, and a rendezvous in the mountains. And Astor's American Fur Company is buying every house on the river that will sell. The old company is finished. What will you do?\"",
+                "choices": [
+                  {
+                    "label": "Go with Ashley's men to the mountains",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_ashleys_man"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Take the American Fur Company's offer, and stay on the river",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_american_fur"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"I was Mr. Astor's man when I came, and I am still.\" Write to his company yourself",
+                    "reply": "{npc} laughs. \"Ten years and you never stopped. Go on, then - he'll be glad of a man who walked from the Pacific for him.\"",
+                    "when": [
+                      "flag:am_still_astors_man"
+                    ],
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_american_fur"
+                      },
+                      {
+                        "do": "standing",
+                        "add": 3
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Stay with the old company to the end",
+                    "when": [
+                      "flag:am_signed_with_lisa"
+                    ],
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_loyal_to_the_end"
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "leader@Fort Manuel Lisa",
+                        "add": 15
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmOneCompanyOnTheColumbia",
+          "title": "The Bay comes to the Columbia",
+          "summary": "The North West Company is joined to the Hudson's Bay Company. The Columbia is the Bay's now, and its last Americans must decide where they belong.",
+          "giver": "leader@Spokane House",
+          "requires": [
+            "AmUnderTheNorthmen"
+          ],
+          "start_when": [
+            "after:1821-09-01"
+          ],
+          "on_complete": [
+            {
+              "do": "flag",
+              "name": "am_road_ended"
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news at Spokane House",
+              "who": "leader@Spokane House",
+              "dialogue": {
+                "text": "{npc} reads it out. \"The North West Company is joined to the Hudson's Bay Company. The Bay's charter, the Bay's governor. They'll send a man to look at every house on this river and decide what it's worth - and who.\" He looks at you. \"An American, ten years on the Columbia. What will you do?\"",
+                "choices": [
+                  {
+                    "label": "Take service with the Bay, if they'll have you",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_bay_man"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Go home to the States, by the Missouri, at last",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_went_home"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Stay on the Okanogan, with the Syilx",
+                    "when": [
+                      "flag:am_kept_faith"
+                    ],
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_stayed_with_the_syilx"
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": 10
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "TheEndOfTheRoad",
+          "title": "The end of the road",
+          "summary": "Ten years since you came up the Columbia with Mr. Stuart.",
+          "start_when": [
+            "flag:am_road_ended"
+          ],
+          "on_complete": [
+            {
+              "do": "if",
+              "cond": "flag:am_beat_the_northmen",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You beat the North men to the Syilx lodges in your first winter, and Spokane never forgave it."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_river_truce",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You and the master of Spokane House kept a war out of the Columbia that two governments had declared."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_kept_the_missouri",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Arikara and the Mandan stayed out of the British war. Mr. Lisa said it was your doing as much as his."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_smoked_with_the_blackfoot",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You carried tobacco into the Blackfoot camp and came out alive: few Americans could say it."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_blackfoot_war",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Missouri was held against the Blackfoot with the river nations' guns, and the war on the upper river went on."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_held_the_fort",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You counselled walls when the Blackfoot came, and the fort stood, and the trade went small."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": {
+                "all": [
+                  "flag:am_promised_river_trade",
+                  "flag:am_american_fur"
+                ]
+              },
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The traders came up the river every summer, as you promised the Mandan they would."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_warned_of_the_british",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "When the British made their peace at Ghent and left their Indian allies to theirs, the Mandan remembered who had told them so."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_took_nwc_wages",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You drew the North West Company's wages on the Columbia through the war that made you their enemy."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_freeman",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You were a free man on the Columbia, nobody's servant, through the years of the North men."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_kept_faith",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Syilx remember the Boston who kept his word after his company sold its house."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_broke_faith",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Syilx remember the Bostons' promises went with the Bostons' house."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_ashleys_man",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You went up the Missouri with Ashley's men, into the mountains and the rendezvous, a trapper and nobody's servant."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_american_fur",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You signed with Mr. Astor again, ten years and a war later. The American Fur Company had the river now."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_loyal_to_the_end",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You stayed with the old Missouri Fur Company to the end, and saw it out."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_bay_man",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You took the Bay's shilling: an American in the Hudson's Bay Company's service on the Columbia."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_went_home",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You went home to the States by the Missouri, ten years after you left New York."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_stayed_with_the_syilx",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You stayed on the Okanogan with the Syilx, and the companies came and went past your door."
+                }
+              ]
+            },
+            {
+              "do": "note",
+              "text": "So ends the American road. The country goes on."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Remember",
+              "kind": "wait",
+              "text": "Think back over ten years in the country",
+              "days": 1
+            }
+          ]
+        }
+      ]
     }
   ]
 }

@@ -220,7 +220,7 @@ public partial class JournalPanel : Control
         // Who you are.
         sb.AppendLine($"[font_size=15][b]{p.DisplayName}[/b][/font_size], {p.Age} years old");
         if (p.IsBandPerson) sb.AppendLine($"   Born to the {World.Camps.NationName(p.Faction)}{(p.HomeCamp != "" ? $", of {p.HomeCamp}" : "")}");
-        else sb.AppendLine($"   {Cap(p.Rank)} of {World.Posts.CompanyOf(p)}{(p.HomePost != null ? $", at {PlaceOf(p.HomePost)}" : "")}");
+        else sb.AppendLine($"   {Cap(p.Rank)} of {(p.HomePost is Economy.TradingPostLedger tp ? tp.Post.CompanyName : World.Posts.CompanyOf(p))}{(p.HomePost != null ? $", at {PlaceOf(p.HomePost)}" : "")}");
         if (p.BackgroundTitle != "") sb.AppendLine($"   {p.BackgroundTitle}{(p.TraitTitles.Count > 0 ? "; " + string.Join(", ", p.TraitTitles).ToLower() : "")}");
         if (!p.IsBandPerson)
         {

@@ -39,6 +39,8 @@ public sealed class CampParser
 	public CampParser(List<Token> toks) { _t = toks; }
 
 	public static ScriptAst Parse(string src) => new CampParser(CampLexer.Lex(src)).ParseScript();
+	// A part (src/parts/*.camp) included by a campaign: declarations only, no header.
+	public static ScriptAst ParsePart(string src, int lineBase) => new CampParser(CampLexer.Lex(src, lineBase)).ParsePartScript();
 
 	private Token Cur => _t[_p];
 	private Token PeekTok(int n = 1) => _t[Math.Min(_p + n, _t.Count - 1)];
@@ -80,6 +82,14 @@ public sealed class CampParser
 		Expect("(");
 		s.Campaign.Args = ParseArgs(")");
 		Expect(";", "';' after the campaign header");
+		while (Cur.Kind != T.Eof) s.Decls.Add(ParseDecl(topLevel: true));
+		return s;
+	}
+
+	private ScriptAst ParsePartScript()
+	{
+		var s = new ScriptAst();
+		if (At("campaign")) throw Err("a part has no campaign header: it is included by one (campaign ...(include: \"name\"))");
 		while (Cur.Kind != T.Eof) s.Decls.Add(ParseDecl(topLevel: true));
 		return s;
 	}

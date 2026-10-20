@@ -61,7 +61,7 @@ async function drawMap() {
 async function refreshMapPins() {
   if (!map.world) return;
   const seq = ++map.seq;
-  try { const r = await post('map', el.input.value); if (seq !== map.seq) return; map.pins = r.pins; map.error = ''; }
+  try { const r = await post('map' + pathQuery(), el.input.value); if (seq !== map.seq) return; map.pins = r.pins; map.error = ''; }
   catch (e) { if (seq !== map.seq) return; map.error = e.message; }
   const quests = [...new Map(map.pins.filter(p => p.group === 'quest').map(p => [p.quest, p.title || p.quest])).entries()];
   const sel = $('mapQuest'), cur = map.quest;
@@ -81,9 +81,9 @@ function renderMissing() {
   const bad = map.pins.filter(p => !p.ok && (!map.quest || p.quest === map.quest));
   let h = map.error ? `<div class="problem"><span class="sev error">error</span><div class="msg">The script does not compile, so its places cannot be drawn: ${esc(map.error)}</div></div>` : '';
   if (bad.length) h += `<div class="map-missing-head">${bad.length} name${bad.length > 1 ? 's' : ''} not on the map</div>` + bad.map((p, i) =>
-    `<div class="problem" data-i="${map.pins.indexOf(p)}"><span class="sev warning">nowhere</span><div class="msg">${esc(p.why)}<div class="at">${esc(p.label)} · line ${p.line}</div></div></div>`).join('');
+    `<div class="problem" data-i="${map.pins.indexOf(p)}"><span class="sev warning">nowhere</span><div class="msg">${esc(p.why)}<div class="at">${esc(p.label)} · ${p.path && p.path !== state.path ? esc(p.path.split('/').pop()) + ' ' : ''}line ${p.line}</div></div></div>`).join('');
   box.innerHTML = h;
-  box.querySelectorAll('.problem[data-i]').forEach(d => d.onclick = () => jump(map.pins[+d.dataset.i].line, 1));
+  box.querySelectorAll('.problem[data-i]').forEach(d => d.onclick = () => { const p = map.pins[+d.dataset.i]; jumpTo(p.path, p.line); });
 }
 
 // ---- view -------------------------------------------------------------------------
@@ -143,7 +143,7 @@ function wireCanvas(c) {
     if (wasDrag) return;
     const hit = hitTest(e.clientX - r.left, e.clientY - r.top);
     map.selected = hit; paintMap(); renderInfo();
-    if (hit && hit.pins && hit.pins.length === 1) jump(hit.pins[0].line, 1);
+    if (hit && hit.pins && hit.pins.length === 1) jumpTo(hit.pins[0].path, hit.pins[0].line);
   });
   c.addEventListener('pointerleave', () => { map.hover = null; $('mapTip').hidden = true; paintMap(); });
   c.addEventListener('keydown', (e) => {
@@ -202,10 +202,10 @@ function renderInfo() {
   const pins = map.pins.filter(p => p.ok && p.at === name);
   const cast = map.castAt.get(name) || [];
   let h = `<div>${placeLine(s.place)}</div>`;
-  if (pins.length) h += `<h5>In this campaign</h5>` + pins.map(p => `<div class="problem" data-line="${p.line}"><span class="sev" style="color:${questColor(p.quest)}">${p.kind === 'effect' ? 'effect' : p.order > 0 ? 'step ' + p.order : 'giver'}</span><div class="msg">${esc(p.label)}<div class="at">${esc(p.who || p.place || '')} · line ${p.line}</div></div></div>`).join('');
+  if (pins.length) h += `<h5>In this campaign</h5>` + pins.map(p => `<div class="problem" data-line="${p.line}" data-path="${esc(p.path || '')}"><span class="sev" style="color:${questColor(p.quest)}">${p.kind === 'effect' ? 'effect' : p.order > 0 ? 'step ' + p.order : 'giver'}</span><div class="msg">${esc(p.label)}<div class="at">${esc(p.who || p.place || '')} · ${p.path && p.path !== state.path ? esc(p.path.split('/').pop()) + ' ' : ''}line ${p.line}</div></div></div>`).join('');
   h += cast.length ? `<h5>Who is here (${cast.length})</h5><div class="map-cast">${cast.map(c => `<div>${castLine(c)}</div>`).join('')}</div>` : `<h5>Who is here</h5><div class="dim">Nobody is placed here in the editor.</div>`;
   box.innerHTML = h;
-  box.querySelectorAll('.problem[data-line]').forEach(d => d.onclick = () => jump(+d.dataset.line, 1));
+  box.querySelectorAll('.problem[data-line]').forEach(d => d.onclick = () => jumpTo(d.dataset.path, +d.dataset.line));
 }
 
 // ---- painting ---------------------------------------------------------------------

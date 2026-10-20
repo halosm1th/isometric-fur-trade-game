@@ -78,14 +78,16 @@ public sealed class WebServer
 					Json(ctx, Tree.Dict(("saved", rel)));
 					return;
 				}
-			case "check": Json(ctx, Check(Body(req))); return;
+			// ?path= says which file the editor shows: a part (src/parts) is checked,
+			// simulated and drawn inside the campaign that includes it.
+			case "check": Json(ctx, Check(Body(req), req.QueryString["path"])); return;
 			case "sim": Json(ctx, Sim(Tree.ParseObject(Body(req)))); return;
-			case "graph": Json(ctx, GraphOf(Body(req))); return;
+			case "graph": Json(ctx, GraphOf(Body(req), req.QueryString["path"])); return;
 			case "install": Json(ctx, Install(Tree.ParseObject(Body(req)))); return;
 			// The Map tab: the world and its cast, its ground, and a campaign's places (MapData.cs).
 			case "world": Json(ctx, MapData.World()); return;
 			case "ground": Send(ctx, 200, "image/png", File.ReadAllBytes(Path.Combine(_root, "Data/World/ground.png"))); return;
-			case "map": Json(ctx, MapData.Pins(CampLang.Compile(Body(req)))); return;
+			case "map": { var v = View(Body(req), req.QueryString["path"]); Json(ctx, MapData.Pins(v.Res, v.PathOf)); return; }
 		}
 		Send(ctx, 404, "application/json", Tree.Write(Tree.Dict(("error", "no such route"))));
 	}
@@ -113,6 +115,12 @@ public sealed class WebServer
 					("installed", kind == "source" && File.Exists(Path.Combine(_root, "Campaigns", Path.GetFileNameWithoutExtension(f) + ".json")))));
 			}
 		}
+		if (Directory.Exists(CampLang.PartsDir))
+			foreach (var f in Directory.GetFiles(CampLang.PartsDir, "*.camp").OrderBy(f => f, StringComparer.Ordinal))
+			{
+				string name = Path.GetFileNameWithoutExtension(f);
+				list.Add(Tree.Dict(("path", CampLang.PartPath(name)), ("name", Path.GetFileName(f)), ("kind", "part"), ("installed", false), ("host", HostOf(name))));
+			}
 		foreach (var f in Directory.GetFiles(Path.Combine(_root, "Campaigns"), "*.json").OrderBy(f => f, StringComparer.Ordinal))
 			if (!sources.Contains(Path.GetFileNameWithoutExtension(f)))
 				list.Add(Tree.Dict(("path", Path.GetRelativePath(_root, f).Replace('\\', '/')), ("name", Path.GetFileName(f)), ("kind", "json"), ("installed", true)));
@@ -151,40 +159,109 @@ public sealed class WebServer
 
 	private static readonly Regex BeatWhere = new(@"^beat (.+?)( > |$)");
 
-	public static Dictionary<string, object> Check(string source)
+	// ---------------------------------------------------------------- parts (src/parts)
+
+	public static string PartOf(string rel)
 	{
-		CompileResult res;
-		try { res = CampLang.Compile(source); }
+		rel = (rel ?? "").Replace('\\', '/');
+		return rel.StartsWith("tools/CampaignTool/src/parts/") && rel.EndsWith(".camp") ? Path.GetFileNameWithoutExtension(rel) : null;
+	}
+
+	// The campaign whose header includes a part (the first, if several do).
+	public static string HostOf(string part)
+	{
+		string src = Path.Combine(Known.Root, "tools", "CampaignTool", "src");
+		foreach (var f in Directory.GetFiles(src, "*.camp").OrderBy(f => f, StringComparer.Ordinal))
+		{
+			try { if (CampLang.IncludedParts(CampParser.Parse(File.ReadAllText(f)), out _).Contains(part)) return Path.GetRelativePath(Known.Root, f).Replace('\\', '/'); }
+			catch (CampError) { }
+		}
+		return null;
+	}
+
+	// What the editor shows, compiled: a campaign as it is, or a part inside the
+	// campaign that includes it (with the editor's text for the part). PathOf
+	// gives the file a program line is in and its line there.
+	public sealed record ViewResult(CompileResult Res, string Path, string Part, string Host, Func<int, (string Path, int Line)> PathOf);
+
+	public static ViewResult View(string source, string path)
+	{
+		string part = PartOf(path);
+		if (part == null)
+		{
+			var res = CampLang.Compile(source);
+			return new ViewResult(res, path, null, null, line => { var (p, l) = res.Where(line); return (p == null ? path : CampLang.PartPath(p), l); });
+		}
+		string host = HostOf(part) ?? throw new CampError($"no campaign includes this part: add include: \"{part}\" to a campaign's header in tools/CampaignTool/src");
+		var hres = CampLang.Compile(File.ReadAllText(Path.Combine(Known.Root, host)), new Dictionary<string, string> { [part] = source });
+		return new ViewResult(hres, path, part, host, line => { var (p, l) = hres.Where(line); return (p == null ? host : CampLang.PartPath(p), l); });
+	}
+
+	// The line a checker's "where" points at: the beat, the quest, or its step.
+	private static readonly Regex QuestWhere = new(@"^quest (.+?)(?: > step (.+?))?( > |$)");
+	private static int LineOf(string where, CompileResult res)
+	{
+		var m = BeatWhere.Match(where);
+		if (m.Success && res.BeatLines.TryGetValue(m.Groups[1].Value, out var l)) return l;
+		var q = QuestWhere.Match(where);
+		if (q.Success && q.Groups[2].Success && res.StepLines.TryGetValue($"{q.Groups[1].Value}/{q.Groups[2].Value}", out var sl)) return sl;
+		if (q.Success && res.QuestLines.TryGetValue(q.Groups[1].Value, out var ql)) return ql;
+		return 1;
+	}
+
+	public static Dictionary<string, object> Check(string source, string path = null)
+	{
+		ViewResult view;
+		try { view = View(source, path); }
 		catch (CampError e)
 		{
+			// Where the error is, in the file on screen: its own line if it is in this
+			// file, else the line that includes the part (or line 1, with the file named).
+			string part = PartOf(path);
+			int line = e.At.Line; string msg = e.Part != null && e.Part == part ? e.Msg.Replace($"in {CampLang.PartPath(part)}: ", "") : e.Msg;
+			if (part != null && e.Part != part) { msg = e.Part == null ? $"in {HostOf(part)}: line {e.At.Line}: {e.Msg}" : e.Msg; line = 1; }
+			else if (part == null && e.Part != null)
+			{
+				try { CampLang.IncludedParts(CampParser.Parse(source), out var at); line = at.Line; } catch (CampError) { line = 1; }
+				msg = $"line {e.At.Line} {e.Msg}";
+			}
 			return Tree.Dict(("ok", false),
-				("error", Tree.Dict(("line", (double)Math.Max(e.At.Line, 1)), ("col", (double)Math.Max(e.At.Col, 1)), ("length", (double)Math.Max(e.At.Length, 1)), ("message", e.Msg))),
+				("error", Tree.Dict(("line", (double)Math.Max(line, 1)), ("col", (double)Math.Max(e.Part == part ? e.At.Col : 1, 1)), ("length", (double)Math.Max(e.Part == part ? e.At.Length : 1, 1)), ("message", msg))),
 				("problems", new List<object>()), ("beats", 0.0));
 		}
+		var res = view.Res;
 		var rep = Checker.Check(res.Json);
 		var problems = new List<object>();
+		// A program line, as a line of the file on screen (else that file's include line, with the file named).
+		(int line, string prefix) Here(int line)
+		{
+			var (p, l) = view.PathOf(line);
+			if (p == (view.Path ?? p)) return (l, "");
+			int at = view.Part == null ? Math.Max(res.IncludeAt.Line, 1) : 1;
+			return (at, $"in {p}, line {l}: ");
+		}
 		void Add(string severity, IEnumerable<(string where, string msg)> items)
 		{
 			foreach (var (where, msg) in items)
 			{
 				var m = BeatWhere.Match(where);
-				int line = m.Success && res.BeatLines.TryGetValue(m.Groups[1].Value, out var l) ? l : 1;
-				problems.Add(Tree.Dict(("severity", severity), ("message", msg), ("where", where), ("line", (double)line),
+				var (line, prefix) = Here(LineOf(where, res));
+				problems.Add(Tree.Dict(("severity", severity), ("message", prefix + msg), ("where", where), ("line", (double)line),
 					("beat", m.Success ? m.Groups[1].Value : null)));
 			}
 		}
 		Add("error", rep.Errors); Add("warning", rep.Warnings); Add("note", rep.Infos);
 		var beatLines = new Dictionary<string, object>();
-		foreach (var kv in res.BeatLines) beatLines[kv.Key] = (double)kv.Value;
+		foreach (var kv in res.BeatLines) { var (p, l) = view.PathOf(kv.Value); if (p == (view.Path ?? p)) beatLines[kv.Key] = (double)l; }
 		return Tree.Dict(("ok", rep.Errors.Count == 0), ("error", null), ("problems", problems), ("beats", (double)Tree.AsList(res.Json["beats"]).Count),
-			("json", Tree.Write(res.Json)), ("beatLines", beatLines));
+			("json", Tree.Write(res.Json)), ("beatLines", beatLines), ("host", view.Host));
 	}
 
 	// ---------------------------------------------------------------- sim / graph / install
 
 	private Dictionary<string, object> Sim(Dictionary<string, object> req)
 	{
-		var doc = CampLang.CompileText(Tree.S(req["source"]));
+		var doc = View(Tree.S(req["source"]), req.TryGetValue("path", out var pth) ? Tree.S(pth) : null).Res.Json;
 		Dictionary<string, object> scenario = req.TryGetValue("scenario", out var sc) && Tree.S(sc).Trim().Length > 0 ? Tree.ParseObject(Tree.S(sc)) : null;
 		string adherence = req.TryGetValue("adherence", out var ad) && Tree.S(ad).Length > 0 ? Tree.S(ad) : null;
 		if (adherence != null && !CampaignTool.Sim.Levels.ContainsKey(adherence)) throw new CampError($"adherence is one of {string.Join(", ", CampaignTool.Sim.Levels.Keys)}");
@@ -207,21 +284,26 @@ public sealed class WebServer
 			("vars", runner.State.Vars.Where(kv => !kv.Key.StartsWith("count:")).OrderBy(kv => kv.Key, StringComparer.Ordinal).ToDictionary(kv => kv.Key, kv => (object)kv.Value)));
 	}
 
-	private static Dictionary<string, object> GraphOf(string source)
+	private static Dictionary<string, object> GraphOf(string source, string path = null)
 	{
-		var res = CampLang.Compile(source);
+		var view = View(source, path);
+		var res = view.Res;
 		var edges = Graph.Edges(res.Json, out var beats);
 		return Tree.Dict(
 			("nodes", beats.Select(b => (object)Tree.Dict(("id", Tree.S(b["id"])), ("title", Tree.S(b.GetValueOrDefault("title"))), ("kind", Tree.S(b.GetValueOrDefault("kind"))),
-				("date", Tree.S(b.GetValueOrDefault("date"))), ("line", (double)res.BeatLines.GetValueOrDefault(Tree.S(b["id"]), 1)))).ToList()),
+				("date", Tree.S(b.GetValueOrDefault("date"))), ("line", (double)view.PathOf(res.BeatLines.GetValueOrDefault(Tree.S(b["id"]), 1)).Line),
+				("path", view.PathOf(res.BeatLines.GetValueOrDefault(Tree.S(b["id"]), 1)).Path))).ToList()),
 			("edges", edges.Select(e => (object)Tree.Dict(("from", e.from), ("to", e.to), ("label", e.label))).ToList()));
 	}
 
 	private Dictionary<string, object> Install(Dictionary<string, object> req)
 	{
 		string name = Regex.Replace(Tree.S(req["name"]), @"\.camp$", "");
+		string path = req.TryGetValue("path", out var pth) ? Tree.S(pth) : null;
+		var view = View(Tree.S(req["source"]), path);
+		if (view.Host != null) name = Path.GetFileNameWithoutExtension(view.Host);   // a part installs the campaign that includes it
 		if (!Regex.IsMatch(name, @"^[\w\- ]+$")) throw new CampError("a campaign file name is letters, digits, spaces, - and _");
-		var doc = CampLang.CompileText(Tree.S(req["source"]));
+		var doc = view.Res.Json;
 		var rep = Checker.Check(doc);
 		if (rep.Errors.Count > 0) throw new CampError($"not installed: {rep.Errors.Count} errors (see Problems)");
 		string outp = Path.Combine(_root, "Campaigns", name + ".json");

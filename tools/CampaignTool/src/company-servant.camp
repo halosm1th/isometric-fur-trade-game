@@ -24,7 +24,8 @@ campaign CompanysServant(
                  "sent to Fort Souris, in the pemmican country where the Pemmican " +
                  "War begins. The history runs underneath both.",
     seed: 1811,
-    extends: "historical"
+    extends: "historical",
+    include: "american-road"   // the American road's quest lines (src/parts/american-road.camp)
 );
 
 const string edmonton = "Edmonton House";
