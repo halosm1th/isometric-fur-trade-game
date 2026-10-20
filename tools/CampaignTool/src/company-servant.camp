@@ -1013,3 +1013,305 @@ beat GrantGathers(
         say("Grant has called the Métis together at the Qu'Appelle. The Brûlés of the Souris are saddling their horses.", Company.NWC);
     }
 }
+
+// ================================================================ chapter 3: the lawless years and the union
+//
+// After Seven Oaks: Selkirk takes Fort William with his hired Swiss, the
+// war goes on in arrests and ambushes (Grand Rapids, 1819), both companies
+// bleed, and in 1821 they are made one. Each road ends on what you did in
+// the chapters before (the flags they set).
+
+const string cumberland = "Cumberland House";
+const string cumberlandMaster = "leader@Cumberland House";
+
+// ---------------------------------------------------------------- the HBC road
+
+questline TheLawlessYears(
+    title: "The Lawless Years",
+    summary: "Selkirk's soldiers, the Grand Rapids, and the union of the two companies.",
+    forCompany: Company.HBC
+) {
+    quest SelkirksSoldiers(
+        title: "Selkirk's soldiers",
+        summary: "Lord Selkirk has taken Fort William, and Fort Augustus across the way is short of everything.",
+        giver: master
+    ) [Edmonton] {
+        StartWhen() => world.happened("selkirk-fort-william");
+        talk Hear(who: master, text: "Hear the news from the Lakes") {
+            Says() => "{npc} has a letter from Norway House. \"Lord Selkirk came up the lakes with his Swiss and took Fort William. " +
+                      "McGillivray and the partners are arrested and sent down to Canada. The Nor'Westers' heart is cut out - " +
+                      "and Fort Augustus will have a hungry winter of it, with no goods coming up.\"";
+            choice Squeeze(label: "\"Then this is the winter to take the Beaver Hills trade from them.\"", goto: Squeeze);
+            choice Lend(
+                label: "\"They'll be short of food. Lend them pemmican, as neighbours.\"",
+                when: !flags.has("edmonton_enemies"),
+                goto: Lend
+            ) {
+                player.give(Item.Pemmican, 4);
+            }
+            choice Wait(label: "\"Let London and Montreal settle it, sir.\"", goto: "complete") {
+                player.addStanding(1);
+            }
+        }
+        bring Squeeze(who: chief, item: Item.TradeGoods, count: 2, text: "Carry the Company's goods out to the Beaver Hills camp, on easy credit", next: "complete") {
+            Says() => "{npc} looks at the goods, then at you. \"The Canadians have nothing this year, and you come with gifts. " +
+                      "The Company is a good friend when it is the only friend.\"";
+            OnDone() {
+                world.addRegard(beaverHills, 5);
+                player.addRapport(partner, -15);
+                world.raiseTension(6, "the Company took the Beaver Hills trade while Fort Augustus went short");
+                flags.set("hbc_pressed_augustus");
+            }
+        }
+        bring Lend(who: partner, item: Item.Pemmican, count: 4, text: "Carry four bags of pemmican across to Fort Augustus", next: "complete") {
+            Says() => "{npc} looks at the bags a long while. \"I won't forget this. Whatever they do to each other in London, " +
+                      "I won't forget it.\"";
+            OnDone() {
+                player.addRapport(partner, 20);
+                world.raiseTension(-10, "the Company lent pemmican to the hungry Nor'Westers at Fort Augustus");
+                flags.set("augustus_fed");
+            }
+        }
+    }
+
+    quest GrandRapids(
+        title: "The Grand Rapids",
+        summary: "Governor Williams means to stop the Nor'Westers' partners on their way down the Saskatchewan, and he wants men.",
+        giver: master
+    ) [SelkirksSoldiers] {
+        StartWhen() => world.happened("interior-war-1819");
+        talk Hear(who: master, text: "Hear what the Governor asks") {
+            Says() => "{npc} reads you the Governor's letter. \"Williams means to wait for the Nor'Westers' partners at the Grand Rapids, " +
+                      "where the river comes down into the lake, with the Swiss and a field gun, and take them as they come down with " +
+                      "their furs. Every post is to send men. They muster at Cumberland House.\"";
+            choice Go(label: "\"I'll go down to Cumberland House.\"", goto: Muster);
+            choice Stay(label: "\"Someone has to hold Edmonton, sir.\"", goto: "complete") {
+                flags.set("stayed_at_edmonton_1819");
+            }
+        }
+        reach Muster(place: cumberland, radius: 900, text: "Go down the Saskatchewan to the muster at Cumberland House");
+        talk Prisoners(who: cumberlandMaster, text: "Report to the master of Cumberland House") {
+            Says() => "{npc} jerks his head at the storehouse. \"You're late for the fight: Williams took them at the Rapids, " +
+                      "Shaw and McDonald and the rest, with their canoes. Frobisher got clear and ran into the bush. " +
+                      "The prisoners are in there. Somebody has to watch them tonight.\"";
+            choice Guard(label: "Stand the night watch over the prisoners") {
+                player.addStanding(3);
+                player.addRapport(partner, -10);
+                flags.set("guarded_the_partners");
+            }
+            choice Slip(label: "Leave the storehouse door unbarred, and look the other way") {
+                player.addStanding(-4);
+                player.addRapport(partner, 25);
+                flags.set("freed_a_partner");
+            }
+        }
+    }
+
+    quest OneCompany(
+        title: "One company",
+        summary: "London and Montreal have made one company of the two. Edmonton and Fort Augustus are to be one house.",
+        giver: master
+    ) [Edmonton] {
+        StartWhen() => world.happened("merger");
+        talk Hear(who: master, text: "Hear the news of the union") {
+            Says() => "{npc} reads the letter out to the whole post. \"The Company and the North West Company are one, under the Company's charter. " +
+                      "Mr. Simpson governs the Northern Department. Fort Augustus comes into Edmonton. Half the men on the river, " +
+                      "theirs and ours, will be let go.\" He folds the letter. \"Go across and tell them. They'll have heard, but go.\"";
+            choice Go(label: "\"I'll go across.\"");
+        }
+        talk Across(who: partner, text: "Go across to Fort Augustus, now that it is one company") {
+            Says() => "{npc} is packing his books into a trunk. \"So. Twenty years of it, and the Bay has us after all.\"";
+            choice Friend(
+                label: "Shake his hand: you'll sit at one mess now",
+                when: flags.has("augustus_fed") || flags.has("edmonton_peace") || flags.has("freed_a_partner")
+            ) {
+                player.addRapport(partner, 10);
+                flags.set("union_as_friends");
+            }
+            choice Victor(
+                label: "Tell him it's the Bay's house now, and he can carry his own trunk",
+                when: flags.has("edmonton_enemies") || flags.has("hbc_pressed_augustus") || flags.has("nwc_hostile")
+            ) {
+                player.addRapport(partner, -20);
+                flags.set("union_as_victor");
+            }
+            choice Carry(label: "Help him carry his books across to Edmonton");
+        }
+        talk Cree(who: chief, text: "Go out to the Beaver Hills camp with the news") {
+            Says() => "{npc} hears it with no surprise. \"One company. Then there is nobody to take our furs to when you give too little. " +
+                      "You will see the prices fall, and you will tell us it is London.\"";
+            choice Fair(label: "Promise him you'll deal fairly while you're at Edmonton, whatever London says") {
+                world.addRegard(beaverHills, 5);
+                player.addRapport(chief, 10);
+                flags.set("promised_fair_dealing");
+            }
+            choice Truth(label: "Tell him the truth: the prices will be London's now") {
+                player.addRapport(chief, 3);
+            }
+        }
+        OnComplete() {
+            player.addStanding(5);
+            if (flags.has("union_as_friends")) player.note("Fort Augustus came into Edmonton as friends: you had been a neighbour to them when it counted.");
+            if (flags.has("union_as_victor")) player.note("Fort Augustus came into Edmonton as a beaten house, and its men did not forget who had beaten it.");
+            if (flags.has("cree_war_won") || flags.has("brokered_peace")) player.note("The Beaver Hills Cree remember the year you stood with them against the Blackfoot.");
+            if (world.regard(beaverHills) >= 60) player.note("The Beaver Hills Cree still call you a friend, one company or two.");
+            if (flags.has("guarded_the_partners")) player.note("You stood watch over the North West partners at Cumberland House. Some of them are your masters now.");
+            player.note("So ends the story of the Company's servant. The country goes on.");
+        }
+    }
+}
+
+// ---------------------------------------------------------------- the NWC road
+
+questline TheReckoning(
+    title: "The Reckoning",
+    summary: "Fort William taken, warrants and ambushes, and the end of the North West Company.",
+    forCompany: Company.NWC
+) {
+    quest FortWilliamFalls(
+        title: "Fort William",
+        summary: "Lord Selkirk has taken Fort William and arrested the partners.",
+        giver: bourgeois
+    ) [FortSouris] {
+        StartWhen() => world.happened("selkirk-fort-william");
+        talk Hear(who: bourgeois, text: "Hear the news from Fort William") {
+            Says() => "{npc} has not slept. \"Selkirk came up the lakes with his Swiss and took Fort William. McGillivray arrested, " +
+                      "the partners sent down to Canada in irons, the goods for the whole interior under a lord's seal. " +
+                      "They're drinking to it at Brandon House.\"";
+            choice Hold(label: "\"Then we hold what we have, and wait for Montreal.\"", goto: "complete") {
+                world.raiseTension(5, "the Nor'Westers at Fort Souris mean to hold what they have");
+                flags.set("souris_holds");
+            }
+            choice Peace(
+                label: "\"Make our peace with Brandon House while we still can.\"",
+                when: player.rapport(bayMaster) >= 0,
+                goto: Neighbour
+            );
+        }
+        talk Neighbour(who: bayMaster, text: "Go across to Brandon House to talk of peace", next: "complete") {
+            Says() => "{npc} hears you out at the gate. \"Peace? With Selkirk's soldiers on the lakes, you come asking for peace.\" " +
+                      "He looks at you a while. \"Well. Neither of us has ever shot the other. Let's keep it so.\"";
+            OnDone() {
+                world.truce(sourisMetis, brandon, 365);
+                world.raiseTension(-10, "the houses on the Souris made their own peace after Fort William fell");
+                player.addRapport(bayMaster, 10);
+                flags.set("souris_made_peace");
+            }
+        }
+    }
+
+    quest TheWarrant(
+        title: "The warrant",
+        summary: "A constable from the colony is at Brandon House with warrants from Selkirk's magistrates, and your name is on one.",
+        giver: bourgeois
+    ) [FortSouris] {
+        StartWhen() => world.happened("interior-war-1818")
+            && (flags.has("rode_with_grant") || flags.has("plundered_brandon_house") || flags.has("stood_by_grant"));
+        talk Hear(who: bourgeois, text: "Hear what the bourgeois has to tell you") {
+            Says() => "{npc} closes the door before he speaks. \"There's a constable at Brandon House from the Forks, with warrants " +
+                      "signed by Selkirk's own magistrates - for every man who rode with Grant, or stood up for him. Your name is on one.\"";
+            choice Hide(label: "\"The Brûlés will hide me.\"", goto: Camp);
+            choice Answer(label: "\"I'll go and answer it. I've nothing to be ashamed of.\"", goto: Answer);
+            choice Defy(label: "\"Let him come and take me.\"", goto: "complete") {
+                world.raiseTension(8, "a Nor'Wester at Fort Souris defied the colony's warrant");
+                flags.set("defied_the_warrant");
+            }
+        }
+        reach Camp(place: sourisMetis, radius: 600, text: "Ride out to the Métis camp and lie low");
+        talk Hidden(who: captain, text: "Ask the captain to hide you", next: "complete") {
+            Says() => "{npc} laughs. \"A constable from the Forks, looking for one man on this plain? Let him look. " +
+                      "You'll sleep in my lodge, and if he comes, you're my cousin from Pembina.\"";
+            OnDone() {
+                world.addRegard(sourisMetis, 5);
+                flags.set("hid_with_the_metis");
+            }
+        }
+        talk Answer(who: bayMaster, text: "Go to Brandon House and answer the warrant") {
+            Says() => "The constable reads out the warrant. {npc} stands by with his arms folded. \"You'll give your word not to run, " +
+                      "and the case goes down to Canada with the rest.\" He lowers his voice. \"Half of them are thrown out there. " +
+                      "Montreal juries don't love the Earl.\"";
+            OnDone() {
+                player.addStanding(-2);
+                player.addRapport(bayMaster, 10);
+                flags.set("answered_the_warrant");
+            }
+        }
+    }
+
+    quest RapidsNews(
+        title: "The Grand Rapids",
+        summary: "The Bay men have ambushed the partners coming down the Saskatchewan.",
+        giver: bourgeois
+    ) [FortSouris] {
+        StartWhen() => world.happened("interior-war-1819");
+        talk Hear(who: bourgeois, text: "Hear the news from the Saskatchewan") {
+            Says() => "{npc}'s voice is flat. \"Governor Williams waited for our partners at the Grand Rapids with the Swiss and a field gun, " +
+                      "and took them as they came down with the furs. Frobisher got away into the bush. They found him dead of cold and hunger.\"";
+            choice Answer(label: "\"Then we pay them back, here, at Brandon House.\"") {
+                world.heatFeud(sourisMetis, brandon, 2);
+                world.raiseTension(8, "the Nor'Westers on the Souris swear to answer the Grand Rapids");
+                flags.set("swore_for_frobisher");
+            }
+            choice Tired(label: "\"This war is killing both companies, monsieur.\"") {
+                player.addRapport(bourgeois, -3);
+                flags.set("tired_of_the_war");
+            }
+        }
+    }
+
+    quest TheCoalition(
+        title: "The coalition",
+        summary: "It is done: the North West Company goes into the Hudson's Bay Company.",
+        giver: bourgeois
+    ) [FortSouris] {
+        StartWhen() => world.happened("merger");
+        talk Hear(who: bourgeois, text: "Hear the news from Montreal") {
+            Says() => "{npc} reads the letter, and reads it again. \"It is done. The North West Company goes into the Hudson's Bay Company. " +
+                      "The partners are to be chief factors and chief traders. The clerks and the men are to be counted, and many let go. " +
+                      "Fort Souris closes; Brandon House keeps the trade.\" He puts the letter down. \"What will you do?\"";
+            choice Bay(label: "\"Sign the Bay's articles, and go across to Brandon House.\"", goto: Across) {
+                player.postTo(brandon);
+            }
+            choice Free(label: "\"Go out to the Métis and live as a freeman.\"", goto: Freeman);
+            choice Home(label: "\"Take my wages and go down to Montreal.\"", goto: "complete") {
+                flags.set("went_home_to_montreal");
+            }
+        }
+        talk Across(who: bayMaster, text: "Go across to Brandon House, a Bay man now", next: "complete") {
+            Says() => "{npc} looks at you over the books, a long look.";
+            choice Welcome(
+                label: "Take the hand he offers",
+                when: flags.has("warned_brandon_house") || flags.has("souris_made_peace") || flags.has("souris_peace") || flags.has("souris_price_truce")
+            ) {
+                player.addRapport(bayMaster, 10);
+                flags.set("welcomed_at_brandon");
+            }
+            choice Cold(
+                label: "Meet his eye, and say nothing about the summer of 1816",
+                when: flags.has("plundered_brandon_house") || flags.has("rode_with_grant")
+            ) {
+                player.addRapport(bayMaster, -10);
+                flags.set("cold_at_brandon");
+            }
+            choice Work(label: "Ask him where he wants you");
+        }
+        reach Freeman(place: sourisMetis, radius: 600, text: "Ride out to the Métis camp with your wages and your gun");
+        talk Freedom(who: captain, text: "Tell the captain you've come to stay", next: "complete") {
+            Says() => "{npc} looks at your bundle and your gun and grins. \"A freeman. Well, there are worse things to be. " +
+                      "The Bay will want our pemmican as much as the North men did. More, maybe.\"";
+            OnDone() {
+                world.addRegard(sourisMetis, 10);
+                flags.set("became_a_freeman");
+            }
+        }
+        OnComplete() {
+            if (flags.has("welcomed_at_brandon")) player.note("Brandon House took you in as one of its own. You had been a neighbour to it when it counted.");
+            if (flags.has("cold_at_brandon")) player.note("Brandon House took you on its books and never let you forget the summer the Brûlés came.");
+            if (flags.has("became_a_freeman")) player.note("You went out to the Métis of the Souris as a freeman, and ran the buffalo with them for the Bay as you had for the North men.");
+            if (flags.has("went_home_to_montreal")) player.note("You went down to Montreal with your wages, one of the hundreds the union let go.");
+            if (flags.has("stood_by_grant") || flags.has("rode_with_grant")) player.note("Grant's name and yours are written together in the Pemmican War, for good or ill.");
+            if (world.regard(sourisMetis) >= 60) player.note("The Métis of the Souris still call you a friend.");
+            player.note("So ends the story of the North man. The country goes on.");
+        }
+    }
+}

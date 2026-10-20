@@ -56,15 +56,15 @@ Learn: brigade conditions (`isLate`, `daysLate`, `isRobbed`, `isWintering`) and 
 
 ## The Company's Servant (a story with quests)
 
-`src/company-servant.camp`. The HBC story's first chapter, and the example to read for [quests](Quests). It `extends: "historical"`, so the Pemmican War's beats run underneath, and adds three quest lines for HBC players:
+`src/company-servant.camp`. The story campaign, 1811 to the union of 1821, and the example to read for [quests](Quests). It `extends: "historical"`, so the Pemmican War's beats run underneath, and it has two roads: quest lines `forCompany: Company.HBC` (the ship, York, Edmonton House) and `forCompany: Company.NWC` (the brigade, Fort Souris on the Assiniboine). A player sees only their own company's.
 
-| Line | Quests | What it shows |
-|---|---|---|
-| *The Company's Servant* | `Landfall` (report to the Factor, carry the cargo, report back), `UpTheRivers` (go up with the York boats), `Edmonton` (report to the master at Edmonton House) | `talk` with `Says` and choices, a `task` step (`Task.CarryCargo`, `Task.Brigade` with `convoy:`), `reach`, `player.postTo` |
-| *The Other House* | `Neighbours` (call on the Nor'Westers at Fort Augustus), then `QuietArrangement` or `SpoilingTheTrade` | a three-way choice that sets a flag (`nwc_friendly`, `nwc_hostile`), quests offered by a `giver` that wait on those flags (`StartWhen`), `goto` between steps |
-| *The Company's Friends* | `TobaccoAndTalk`, `TheInvitation` (the Beaver Hills Cree, and their hunt) | `bring`, `hunt`, `world.addRegard`, a role at a camp (`"chief@Beaver Hills Cree (Amiskwacîwiyiniwak)"`) |
+| Chapter | HBC road | NWC road | What it shows |
+|---|---|---|---|
+| 1. Arrival | *The Company's Servant* (`Landfall`, `UpTheRivers`, `Edmonton`), *The Other House* (Fort Augustus: `Neighbours`, then `QuietArrangement` or `SpoilingTheTrade`), *The Company's Friends* (the Beaver Hills Cree: `TobaccoAndTalk`, `TheInvitation`) | *The North Man* (`Engaged`, `ToTheAssiniboine`, `FortSouris`), *The Bay Men* (Brandon House: `BayNeighbours`, then `OneBagOnePrice` or `FirstToTheCamp`), *The New Nation* (the Métis of the Souris: `AtTheCamp`, `TheGreatHunt`) | `talk` with `Says` and choices, `task`, `reach`, `bring`, `hunt`, `player.postTo`, a three-way choice that sets a flag and quests that wait on it (`StartWhen`), roles at a post or camp (`"leader@Fort Souris"`, `"chief@Métis of the Souris"`) |
+| 2. The war | *The War* (`BloodForHorses`: ride with the Cree against the Blackfoot, arm them, carry a pipe, or refuse), *The Pemmican War* (`NewsFromTheForks`) | *The Pemmican War* (`TheProclamation`, `TheSheriff`, `TheBrulesRide`: ride on Brandon House, stay, or warn it; `NorWesterSevenOaks`) | `world.warParty(..., withPlayer: true)` and a `when` step on `world.wonWar` / `world.lostWar` / `war:<band>:turned_back`; `world.truce`, `world.heatFeud`; quests started by the history (`world.happened("seven-oaks")`) |
+| 3. The lawless years and the union | *The Lawless Years* (`SelkirksSoldiers`, `GrandRapids`, `OneCompany`) | *The Reckoning* (`FortWilliamFalls`, `TheWarrant`, `RapidsNews`, `TheCoalition`) | choices offered only `when` an earlier flag holds; an ending written in `OnComplete` with `if (flags.has(...)) player.note(...)` |
 
-One beat closes the chapter: `HorsesTaken` wakes when `TheInvitation.done` (a beat waiting on a quest) and raises `beaver_hills_raided` for the next chapter to take up. Named people are given as constants at the top (`const string master = "leader@Edmonton House";`), which keeps the steps readable.
+Its own beats tie the story to the history: `HorsesTaken` (wakes when `TheInvitation.done` and raises `beaver_hills_raided`), `SourisPemmicanSeized` and `GrantGathers` (dated, each requiring a history beat's flag), and `BrandonHousePlundered`, which stands aside (`if (!flags.has("grant_rode_from_souris"))`) when an NWC player has already ridden with the Souris men. Named people are constants at the top of each road (`const string master = "leader@Edmonton House";`), which keeps the steps readable.
 
 ## The Open Country (free roam)
 

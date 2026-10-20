@@ -125,7 +125,7 @@ Done to that player (from a beat, to every player): `player.postTo(place)`, `pla
 
 What is taken from the campaign extended: its **beats** (put before this file's own), its variables' starting values (this file's win), `postsByFoundingYear` if either has it, and its `start` or `startYear` if this file gives neither. Its quest lines are **not** taken, nor its seed. Only one level is followed (a campaign that extends one that extends another gets only the middle one's beats). The checker and the simulator look at this file alone, so a beat here cannot require a beat of the base by name: require its flag (`["seven-oaks"]`), which the checker accepts only if this file sets it; otherwise wake the beat with `AwakenWhen() => flags.has("seven-oaks");`.
 
-The shipped examples: `company-servant.camp` (*The Company's Servant*, the HBC story's first chapter: the ship, the Factor, up the rivers to Edmonton House, the Nor'Westers and the Beaver Hills Cree) and `open-country.camp` (*The Open Country*, free roam: the history and no quest lines).
+The shipped examples: `company-servant.camp` (*The Company's Servant*, the story campaign from 1811 to the union: an HBC road to Edmonton House and an NWC road to Fort Souris, three chapters each) and `open-country.camp` (*The Open Country*, free roam: the history and no quest lines).
 
 ## How quests run
 

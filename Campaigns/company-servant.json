@@ -2412,6 +2412,885 @@
           ]
         }
       ]
+    },
+    {
+      "id": "TheLawlessYears",
+      "title": "The Lawless Years",
+      "summary": "Selkirk's soldiers, the Grand Rapids, and the union of the two companies.",
+      "for": "HBC",
+      "quests": [
+        {
+          "id": "SelkirksSoldiers",
+          "title": "Selkirk's soldiers",
+          "summary": "Lord Selkirk has taken Fort William, and Fort Augustus across the way is short of everything.",
+          "giver": "leader@Edmonton House",
+          "requires": [
+            "Edmonton"
+          ],
+          "start_when": [
+            "beat:selkirk-fort-william"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from the Lakes",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "{npc} has a letter from Norway House. \"Lord Selkirk came up the lakes with his Swiss and took Fort William. McGillivray and the partners are arrested and sent down to Canada. The Nor'Westers' heart is cut out - and Fort Augustus will have a hungry winter of it, with no goods coming up.\"",
+                "choices": [
+                  {
+                    "label": "\"Then this is the winter to take the Beaver Hills trade from them.\"",
+                    "goto": "Squeeze"
+                  },
+                  {
+                    "label": "\"They'll be short of food. Lend them pemmican, as neighbours.\"",
+                    "when": [
+                      {
+                        "not": "flag:edmonton_enemies"
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "give",
+                        "item": "Pemmican",
+                        "count": 4
+                      }
+                    ],
+                    "goto": "Lend"
+                  },
+                  {
+                    "label": "\"Let London and Montreal settle it, sir.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": 1
+                      }
+                    ],
+                    "goto": "complete"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Squeeze",
+              "kind": "bring",
+              "text": "Carry the Company's goods out to the Beaver Hills camp, on easy credit",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "item": "TradeGoods",
+              "count": 2,
+              "dialogue": {
+                "text": "{npc} looks at the goods, then at you. \"The Canadians have nothing this year, and you come with gifts. The Company is a good friend when it is the only friend.\""
+              },
+              "on_done": [
+                {
+                  "do": "regard",
+                  "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                  "add": 5
+                },
+                {
+                  "do": "rapport",
+                  "who": "partner@Fort Augustus",
+                  "add": -15
+                },
+                {
+                  "do": "tension",
+                  "add": 6,
+                  "why": "the Company took the Beaver Hills trade while Fort Augustus went short"
+                },
+                {
+                  "do": "flag",
+                  "name": "hbc_pressed_augustus"
+                }
+              ],
+              "next": "complete"
+            },
+            {
+              "id": "Lend",
+              "kind": "bring",
+              "text": "Carry four bags of pemmican across to Fort Augustus",
+              "who": "partner@Fort Augustus",
+              "item": "Pemmican",
+              "count": 4,
+              "dialogue": {
+                "text": "{npc} looks at the bags a long while. \"I won't forget this. Whatever they do to each other in London, I won't forget it.\""
+              },
+              "on_done": [
+                {
+                  "do": "rapport",
+                  "who": "partner@Fort Augustus",
+                  "add": 20
+                },
+                {
+                  "do": "tension",
+                  "add": -10,
+                  "why": "the Company lent pemmican to the hungry Nor'Westers at Fort Augustus"
+                },
+                {
+                  "do": "flag",
+                  "name": "augustus_fed"
+                }
+              ],
+              "next": "complete"
+            }
+          ]
+        },
+        {
+          "id": "GrandRapids",
+          "title": "The Grand Rapids",
+          "summary": "Governor Williams means to stop the Nor'Westers' partners on their way down the Saskatchewan, and he wants men.",
+          "giver": "leader@Edmonton House",
+          "requires": [
+            "SelkirksSoldiers"
+          ],
+          "start_when": [
+            "beat:interior-war-1819"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear what the Governor asks",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "{npc} reads you the Governor's letter. \"Williams means to wait for the Nor'Westers' partners at the Grand Rapids, where the river comes down into the lake, with the Swiss and a field gun, and take them as they come down with their furs. Every post is to send men. They muster at Cumberland House.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll go down to Cumberland House.\"",
+                    "goto": "Muster"
+                  },
+                  {
+                    "label": "\"Someone has to hold Edmonton, sir.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "stayed_at_edmonton_1819"
+                      }
+                    ],
+                    "goto": "complete"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Muster",
+              "kind": "reach",
+              "text": "Go down the Saskatchewan to the muster at Cumberland House",
+              "place": "Cumberland House",
+              "radius": 900
+            },
+            {
+              "id": "Prisoners",
+              "kind": "talk",
+              "text": "Report to the master of Cumberland House",
+              "who": "leader@Cumberland House",
+              "dialogue": {
+                "text": "{npc} jerks his head at the storehouse. \"You're late for the fight: Williams took them at the Rapids, Shaw and McDonald and the rest, with their canoes. Frobisher got clear and ran into the bush. The prisoners are in there. Somebody has to watch them tonight.\"",
+                "choices": [
+                  {
+                    "label": "Stand the night watch over the prisoners",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": 3
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "partner@Fort Augustus",
+                        "add": -10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "guarded_the_partners"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Leave the storehouse door unbarred, and look the other way",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -4
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "partner@Fort Augustus",
+                        "add": 25
+                      },
+                      {
+                        "do": "flag",
+                        "name": "freed_a_partner"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "OneCompany",
+          "title": "One company",
+          "summary": "London and Montreal have made one company of the two. Edmonton and Fort Augustus are to be one house.",
+          "giver": "leader@Edmonton House",
+          "requires": [
+            "Edmonton"
+          ],
+          "start_when": [
+            "beat:merger"
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 5
+            },
+            {
+              "do": "if",
+              "cond": "flag:union_as_friends",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "Fort Augustus came into Edmonton as friends: you had been a neighbour to them when it counted."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:union_as_victor",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "Fort Augustus came into Edmonton as a beaten house, and its men did not forget who had beaten it."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": {
+                "any": [
+                  "flag:cree_war_won",
+                  "flag:brokered_peace"
+                ]
+              },
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Beaver Hills Cree remember the year you stood with them against the Blackfoot."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": {
+                "m": "regard",
+                "a": [
+                  "Beaver Hills Cree (Amiskwacîwiyiniwak)"
+                ],
+                "op": ">=",
+                "v": 60
+              },
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Beaver Hills Cree still call you a friend, one company or two."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:guarded_the_partners",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You stood watch over the North West partners at Cumberland House. Some of them are your masters now."
+                }
+              ]
+            },
+            {
+              "do": "note",
+              "text": "So ends the story of the Company's servant. The country goes on."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news of the union",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "{npc} reads the letter out to the whole post. \"The Company and the North West Company are one, under the Company's charter. Mr. Simpson governs the Northern Department. Fort Augustus comes into Edmonton. Half the men on the river, theirs and ours, will be let go.\" He folds the letter. \"Go across and tell them. They'll have heard, but go.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll go across.\""
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Across",
+              "kind": "talk",
+              "text": "Go across to Fort Augustus, now that it is one company",
+              "who": "partner@Fort Augustus",
+              "dialogue": {
+                "text": "{npc} is packing his books into a trunk. \"So. Twenty years of it, and the Bay has us after all.\"",
+                "choices": [
+                  {
+                    "label": "Shake his hand: you'll sit at one mess now",
+                    "when": [
+                      {
+                        "any": [
+                          "flag:augustus_fed",
+                          "flag:edmonton_peace",
+                          "flag:freed_a_partner"
+                        ]
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "partner@Fort Augustus",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "union_as_friends"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Tell him it's the Bay's house now, and he can carry his own trunk",
+                    "when": [
+                      {
+                        "any": [
+                          "flag:edmonton_enemies",
+                          "flag:hbc_pressed_augustus",
+                          "flag:nwc_hostile"
+                        ]
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "partner@Fort Augustus",
+                        "add": -20
+                      },
+                      {
+                        "do": "flag",
+                        "name": "union_as_victor"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Help him carry his books across to Edmonton"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Cree",
+              "kind": "talk",
+              "text": "Go out to the Beaver Hills camp with the news",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "dialogue": {
+                "text": "{npc} hears it with no surprise. \"One company. Then there is nobody to take our furs to when you give too little. You will see the prices fall, and you will tell us it is London.\"",
+                "choices": [
+                  {
+                    "label": "Promise him you'll deal fairly while you're at Edmonton, whatever London says",
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 5
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "promised_fair_dealing"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Tell him the truth: the prices will be London's now",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 3
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheReckoning",
+      "title": "The Reckoning",
+      "summary": "Fort William taken, warrants and ambushes, and the end of the North West Company.",
+      "for": "NWC",
+      "quests": [
+        {
+          "id": "FortWilliamFalls",
+          "title": "Fort William",
+          "summary": "Lord Selkirk has taken Fort William and arrested the partners.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:selkirk-fort-william"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from Fort William",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} has not slept. \"Selkirk came up the lakes with his Swiss and took Fort William. McGillivray arrested, the partners sent down to Canada in irons, the goods for the whole interior under a lord's seal. They're drinking to it at Brandon House.\"",
+                "choices": [
+                  {
+                    "label": "\"Then we hold what we have, and wait for Montreal.\"",
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": 5,
+                        "why": "the Nor'Westers at Fort Souris mean to hold what they have"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "souris_holds"
+                      }
+                    ],
+                    "goto": "complete"
+                  },
+                  {
+                    "label": "\"Make our peace with Brandon House while we still can.\"",
+                    "when": [
+                      "rapport(leader@Brandon House) >= 0"
+                    ],
+                    "goto": "Neighbour"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Neighbour",
+              "kind": "talk",
+              "text": "Go across to Brandon House to talk of peace",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} hears you out at the gate. \"Peace? With Selkirk's soldiers on the lakes, you come asking for peace.\" He looks at you a while. \"Well. Neither of us has ever shot the other. Let's keep it so.\""
+              },
+              "on_done": [
+                {
+                  "do": "truce",
+                  "a": "Métis of the Souris",
+                  "b": "Brandon House",
+                  "days": 365
+                },
+                {
+                  "do": "tension",
+                  "add": -10,
+                  "why": "the houses on the Souris made their own peace after Fort William fell"
+                },
+                {
+                  "do": "rapport",
+                  "who": "leader@Brandon House",
+                  "add": 10
+                },
+                {
+                  "do": "flag",
+                  "name": "souris_made_peace"
+                }
+              ],
+              "next": "complete"
+            }
+          ]
+        },
+        {
+          "id": "TheWarrant",
+          "title": "The warrant",
+          "summary": "A constable from the colony is at Brandon House with warrants from Selkirk's magistrates, and your name is on one.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:interior-war-1818",
+            {
+              "any": [
+                "flag:rode_with_grant",
+                "flag:plundered_brandon_house",
+                "flag:stood_by_grant"
+              ]
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear what the bourgeois has to tell you",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} closes the door before he speaks. \"There's a constable at Brandon House from the Forks, with warrants signed by Selkirk's own magistrates - for every man who rode with Grant, or stood up for him. Your name is on one.\"",
+                "choices": [
+                  {
+                    "label": "\"The Brûlés will hide me.\"",
+                    "goto": "Camp"
+                  },
+                  {
+                    "label": "\"I'll go and answer it. I've nothing to be ashamed of.\"",
+                    "goto": "Answer"
+                  },
+                  {
+                    "label": "\"Let him come and take me.\"",
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": 8,
+                        "why": "a Nor'Wester at Fort Souris defied the colony's warrant"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "defied_the_warrant"
+                      }
+                    ],
+                    "goto": "complete"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Camp",
+              "kind": "reach",
+              "text": "Ride out to the Métis camp and lie low",
+              "place": "Métis of the Souris",
+              "radius": 600
+            },
+            {
+              "id": "Hidden",
+              "kind": "talk",
+              "text": "Ask the captain to hide you",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "{npc} laughs. \"A constable from the Forks, looking for one man on this plain? Let him look. You'll sleep in my lodge, and if he comes, you're my cousin from Pembina.\""
+              },
+              "on_done": [
+                {
+                  "do": "regard",
+                  "place": "Métis of the Souris",
+                  "add": 5
+                },
+                {
+                  "do": "flag",
+                  "name": "hid_with_the_metis"
+                }
+              ],
+              "next": "complete"
+            },
+            {
+              "id": "Answer",
+              "kind": "talk",
+              "text": "Go to Brandon House and answer the warrant",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "The constable reads out the warrant. {npc} stands by with his arms folded. \"You'll give your word not to run, and the case goes down to Canada with the rest.\" He lowers his voice. \"Half of them are thrown out there. Montreal juries don't love the Earl.\""
+              },
+              "on_done": [
+                {
+                  "do": "standing",
+                  "add": -2
+                },
+                {
+                  "do": "rapport",
+                  "who": "leader@Brandon House",
+                  "add": 10
+                },
+                {
+                  "do": "flag",
+                  "name": "answered_the_warrant"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "RapidsNews",
+          "title": "The Grand Rapids",
+          "summary": "The Bay men have ambushed the partners coming down the Saskatchewan.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:interior-war-1819"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from the Saskatchewan",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc}'s voice is flat. \"Governor Williams waited for our partners at the Grand Rapids with the Swiss and a field gun, and took them as they came down with the furs. Frobisher got away into the bush. They found him dead of cold and hunger.\"",
+                "choices": [
+                  {
+                    "label": "\"Then we pay them back, here, at Brandon House.\"",
+                    "do": [
+                      {
+                        "do": "feud",
+                        "holder": "Métis of the Souris",
+                        "against": "Brandon House",
+                        "add": 2
+                      },
+                      {
+                        "do": "tension",
+                        "add": 8,
+                        "why": "the Nor'Westers on the Souris swear to answer the Grand Rapids"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "swore_for_frobisher"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"This war is killing both companies, monsieur.\"",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Fort Souris",
+                        "add": -3
+                      },
+                      {
+                        "do": "flag",
+                        "name": "tired_of_the_war"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "TheCoalition",
+          "title": "The coalition",
+          "summary": "It is done: the North West Company goes into the Hudson's Bay Company.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:merger"
+          ],
+          "on_complete": [
+            {
+              "do": "if",
+              "cond": "flag:welcomed_at_brandon",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "Brandon House took you in as one of its own. You had been a neighbour to it when it counted."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:cold_at_brandon",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "Brandon House took you on its books and never let you forget the summer the Brûlés came."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:became_a_freeman",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You went out to the Métis of the Souris as a freeman, and ran the buffalo with them for the Bay as you had for the North men."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:went_home_to_montreal",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You went down to Montreal with your wages, one of the hundreds the union let go."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": {
+                "any": [
+                  "flag:stood_by_grant",
+                  "flag:rode_with_grant"
+                ]
+              },
+              "then": [
+                {
+                  "do": "note",
+                  "text": "Grant's name and yours are written together in the Pemmican War, for good or ill."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "regard(Métis of the Souris) >= 60",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Métis of the Souris still call you a friend."
+                }
+              ]
+            },
+            {
+              "do": "note",
+              "text": "So ends the story of the North man. The country goes on."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from Montreal",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} reads the letter, and reads it again. \"It is done. The North West Company goes into the Hudson's Bay Company. The partners are to be chief factors and chief traders. The clerks and the men are to be counted, and many let go. Fort Souris closes; Brandon House keeps the trade.\" He puts the letter down. \"What will you do?\"",
+                "choices": [
+                  {
+                    "label": "\"Sign the Bay's articles, and go across to Brandon House.\"",
+                    "do": [
+                      {
+                        "do": "posting",
+                        "place": "Brandon House"
+                      }
+                    ],
+                    "goto": "Across"
+                  },
+                  {
+                    "label": "\"Go out to the Métis and live as a freeman.\"",
+                    "goto": "Freeman"
+                  },
+                  {
+                    "label": "\"Take my wages and go down to Montreal.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "went_home_to_montreal"
+                      }
+                    ],
+                    "goto": "complete"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Across",
+              "kind": "talk",
+              "text": "Go across to Brandon House, a Bay man now",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} looks at you over the books, a long look.",
+                "choices": [
+                  {
+                    "label": "Take the hand he offers",
+                    "when": [
+                      {
+                        "any": [
+                          "flag:warned_brandon_house",
+                          "flag:souris_made_peace",
+                          "flag:souris_peace",
+                          "flag:souris_price_truce"
+                        ]
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Brandon House",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "welcomed_at_brandon"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Meet his eye, and say nothing about the summer of 1816",
+                    "when": [
+                      {
+                        "any": [
+                          "flag:plundered_brandon_house",
+                          "flag:rode_with_grant"
+                        ]
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Brandon House",
+                        "add": -10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "cold_at_brandon"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Ask him where he wants you"
+                  }
+                ]
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Freeman",
+              "kind": "reach",
+              "text": "Ride out to the Métis camp with your wages and your gun",
+              "place": "Métis of the Souris",
+              "radius": 600
+            },
+            {
+              "id": "Freedom",
+              "kind": "talk",
+              "text": "Tell the captain you've come to stay",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "{npc} looks at your bundle and your gun and grins. \"A freeman. Well, there are worse things to be. The Bay will want our pemmican as much as the North men did. More, maybe.\""
+              },
+              "on_done": [
+                {
+                  "do": "regard",
+                  "place": "Métis of the Souris",
+                  "add": 10
+                },
+                {
+                  "do": "flag",
+                  "name": "became_a_freeman"
+                }
+              ],
+              "next": "complete"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
