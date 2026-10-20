@@ -69,6 +69,20 @@ public partial class PlayerController
         ShowPicket(true);
     }
 
+    // Killed in the saddle: he comes off, and the horse is left standing where
+    // he fell. His heir starts afoot and can go and fetch it - if the raiders
+    // or the wolves have not had it first (HorseTick's night losses). Before
+    // this the dead man stayed on the horse, and his heir rose on it.
+    protected override void OnDeath()
+    {
+        if (Mounted)
+        {
+            GetDown();
+            if (NetHub.IsServer) Chronicle.Event($"{DisplayName} fell from {HorseName}.", GlobalPosition, this, weight: 0.3f);
+        }
+        base.OnDeath();
+    }
+
     // A horse comes to you (bought, lent, given back): it stands at your side.
     public void GiveHorse(string name, int coat, float condition, string lentBy = "")
     {
