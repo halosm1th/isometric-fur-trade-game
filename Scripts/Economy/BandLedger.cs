@@ -33,6 +33,9 @@ public partial class BandLedger : Household
 	// ...and with the Nor'Westers across the river.
 	public float StandingWithNwc = 50f;
 	public float DebtNwcMb;
+	// ...and with the Americans of the Missouri and the Columbia.
+	public float StandingWithAmericans = 50f;
+	public float DebtAmericanMb;
 	public bool WillTradeWith(FortLedger post) => post is NwcLedger ? StandingWithNwc > 20f : WillTrade;
 	// What the band owes the post for goods advanced against next season's furs.
 	public float DebtMb;
@@ -128,6 +131,7 @@ public partial class BandLedger : Household
 		if (killer is Player.PlayerController) LastInsultCause = "killed";
 		if (killer.Faction == Agents.Faction.HBC) StandingWithCompany = Mathf.Max(0f, StandingWithCompany - 25f);
 		else if (killer.Faction == Agents.Faction.NWC) StandingWithNwc = Mathf.Max(0f, StandingWithNwc - 25f);
+		else if (killer.Faction == Agents.Faction.American) StandingWithAmericans = Mathf.Max(0f, StandingWithAmericans - 25f);
 		else return;
 		Sim.Notice($"{Name} will remember who killed one of theirs.");
 	}

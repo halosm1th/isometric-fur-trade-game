@@ -627,6 +627,21 @@ def lay_out(G, places, extras, atlas):
     for name, r in best.items():
         lon, lat = r[len(r) // 2]; mark(f"{name} River" if "River" not in name else name, "river", lon, lat)
     print(f"  {len(routes)} routes, {len(landmarks)} landmarks")
+    # The American posts (the Missouri Fur Company, Astor's Pacific Fur
+    # Company, the American Fur Company's Upper Missouri Outfit) are set down
+    # last of all, so that nothing above - posts, camps, sites - moves for them.
+    for p in sorted(places, key=lambda q: q.get("year", 0)):
+        if p.get("kind") != "post" or p.get("company") != "AMER": continue
+        pw, pd = size(p["name"])
+        want = Cell(tuple(p["cell"]), -pw // 2, -pd // 2)
+        def amer_ok(t, pw=pw, pd=pd):
+            c = cell_world(*Cell(t, pw // 2, pd // 2))
+            if any(math.dist(c, cell_world(*o)) < 1300 for o in placed): return False
+            return footprint_dry(t, pw, pd) and not any(x in forbidden for x in Rhombus(t, pw, pd))
+        try: top = search(want, want, amer_ok, 40)
+        except SystemExit: print(f"  no room for {p['name']}"); continue
+        placed.append(Cell(top, pw // 2, pd // 2)); forbid(top, pw, pd, 3)
+        posts.append(dict(name=p["name"], company=p["company"], year=p.get("year", 0), closed=extras.get("post_closures", {}).get(p["name"], 0), top=list(top)))
     km = lambda a, b: math.dist(cell_world(*a), cell_world(*b)) / PX_PER_KM
     print(f"{len(camps)} camps ({sum(1 for c in camps if c['kind'] == 'band')} bands); {len(posts)} other posts fitted; {len(crossings)} river cells forded; fort {fort}, nwc {nwc} ({km(fort, nwc):.0f} km), oxford {outpost} ({km(fort, outpost):.0f} km), road {len(road)} pts")
     return dict(fort_top=list(fort), nwc_top=list(nwc), outpost_top=list(outpost),

@@ -234,9 +234,9 @@ public class Conversation
         string role = npc.Convoy != null ? (npc.Convoy.Guide == npc.DisplayName ? $"guide of {npc.Convoy.Name}" : $"a hand with {npc.Convoy.Name}") : npc.Role switch
         {
             Role.Factor => "the Factor, master of this post",
-            Role.Clerk => "a clerk of the Company",
-            Role.Postmaster => npc.HomeStores is Economy.TradingPostLedger tp ? $"master of {tp.Post.Name}, the {(tp.Post.Company == "NWC" ? "North West Company" : "Company")}'s post" : "postmaster of Oxford House, the Company's inland post",
-            Role.Labourer => "a Company labourer",
+            Role.Clerk => $"a clerk of {World.Posts.CompanyOf(npc)}",
+            Role.Postmaster => npc.HomeStores is Economy.TradingPostLedger tp ? $"master of {tp.Post.Name}, {tp.Post.CompanyName}'s post" : "postmaster of Oxford House, the Company's inland post",
+            Role.Labourer => npc.Faction == Faction.American ? $"an engagé of {World.Posts.CompanyOf(npc)}" : "a Company labourer",
             Role.Woman => "a woman of the post",
             Role.CreeChief => "leading man of the band camped by the river",
             Role.CreeHunter => "a hunter of the band",
@@ -821,6 +821,14 @@ public class Conversation
             foreach (var n in Sim.Npcs) if (n.Faction == Faction.NWC && !n.IsDead) mouths++;
             float days = Sim.Nwc?.FoodDays(mouths + 1) ?? 0f;
             s += days < 20 ? "\"Provisions are short till the brigade comes.\" " : "\"We eat well enough.\" ";
+        }
+        else if (npc.Faction == Faction.American && npc.HomeStores is Economy.FortLedger house)
+        {
+            foreach (var n in Sim.Npcs) if (n.HomeStores == house && !n.IsDead) mouths++;
+            bool columbia = World.Posts.CompanyOf(npc).Contains("Pacific");
+            string supply = columbia ? "the canoes come up from Astoria" : "the keelboat comes up from St. Louis";
+            s += house.FoodDays(mouths + 1) < 20 ? $"\"We are on short meat till {supply}.\" " : "\"We eat well enough.\" ";
+            s += columbia ? "\"Mr. Astor's people hold the Columbia's mouth. The Nor'Westers will want it, mark me.\" " : "\"The British companies are a long way north of here. This river trades with St. Louis.\" ";
         }
         if (npc.Faction == Faction.HBC || npc.Faction == Faction.NWC)
         {
@@ -1463,7 +1471,7 @@ public class Conversation
         {
             fort = post;
             if (fort == null) { ShowTopics("\"Nothing to trade.\""); return; }
-            if (fort.Company != _player.Faction) { ShowTopics(_player.Faction == Faction.NWC ? "\"We do not serve Nor'Westers at this counter. Go back across the river.\"" : "\"The Company's servant wants to trade with us? Sign on first, or take your furs to your own Factor.\""); return; }
+            if (fort.Company != _player.Faction) { ShowTopics(fort.Company == Faction.American ? "\"This is an American house, and its goods are for the Indians and our own engagés. A British servant takes his furs to his own masters.\"" : _player.Faction == Faction.NWC ? "\"We do not serve Nor'Westers at this counter. Go back across the river.\"" : "\"The Company's servant wants to trade with us? Sign on first, or take your furs to your own Factor.\""); return; }
         }
         Inventory counter = npc.IsBandPerson ? band?.Stores : fort?.Stores;
         if (counter == null) { ShowTopics("\"Nothing to trade.\""); return; }

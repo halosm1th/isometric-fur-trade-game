@@ -149,7 +149,7 @@ public static class SaveGame
     {
         if (b == null) return new GDict();
         var d = Household(b);
-        d["standing"] = b.StandingWithCompany; d["standingNwc"] = b.StandingWithNwc; d["debt"] = b.DebtMb; d["debtNwc"] = b.DebtNwcMb;
+        d["standing"] = b.StandingWithCompany; d["standingNwc"] = b.StandingWithNwc; d["debt"] = b.DebtMb; d["debtNwc"] = b.DebtNwcMb; d["standingAmer"] = b.StandingWithAmericans; d["debtAmer"] = b.DebtAmericanMb;
         d["rumTaste"] = b.RumTaste; d["invited"] = b.InvitedToTrade;
         return d;
     }
@@ -441,7 +441,7 @@ public static class SaveGame
                 if (b == null || bd.Count == 0) return;
                 LoadHousehold(b, bd);
                 b.StandingWithCompany = F(bd, "standing", 50f); b.StandingWithNwc = F(bd, "standingNwc", 50f);
-                b.DebtMb = F(bd, "debt"); b.DebtNwcMb = F(bd, "debtNwc"); b.RumTaste = F(bd, "rumTaste"); b.InvitedToTrade = B(bd, "invited");
+                b.DebtMb = F(bd, "debt"); b.DebtNwcMb = F(bd, "debtNwc"); b.StandingWithAmericans = F(bd, "standingAmer", 50f); b.DebtAmericanMb = F(bd, "debtAmer"); b.RumTaste = F(bd, "rumTaste"); b.InvitedToTrade = B(bd, "invited");
             }
             LoadBand(Sim.Band, d["band"].AsGodotDictionary());
             if (d.ContainsKey("assiniboine")) LoadBand(Sim.Assiniboine, d["assiniboine"].AsGodotDictionary());

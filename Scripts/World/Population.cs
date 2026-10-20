@@ -124,6 +124,7 @@ public partial class Population : Node2D
 			if (m.Father != null && made.TryGetValue(m.Father, out var fa)) { npc.Father = fa; if (!fa.Children.Contains(npc)) fa.Children.Add(npc); }
 		}
 
+		Posts.StaffUnmarked(this);
 		Sim.Notice($"York Factory: {Sim.Npcs.Count} souls in the world.");
 	}
 

@@ -212,7 +212,7 @@ public partial class MapCanvas : Control
         {
             if (!Exploration.IsSeen(post.Centre)) continue;
             var c = M(post.Centre);
-            DrawRect(new Rect2(c - new Vector2(3, 3), new Vector2(6, 6)), post.Company == "NWC" ? new Color(0.15f, 0.25f, 0.6f) : new Color(0.6f, 0.15f, 0.1f));
+            DrawRect(new Rect2(c - new Vector2(3, 3), new Vector2(6, 6)), post.Company switch { "NWC" => new Color(0.15f, 0.25f, 0.6f), "AMER" => new Color(0.2f, 0.45f, 0.25f), _ => new Color(0.6f, 0.15f, 0.1f) });
             if (Zoom >= 1.6f) DrawString(font, c + new Vector2(8, 4), post.Name, HorizontalAlignment.Left, -1, 11, ink);
         }
         foreach (var camp in Camps.All)
