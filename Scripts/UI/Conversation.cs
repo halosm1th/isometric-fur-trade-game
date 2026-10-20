@@ -154,7 +154,8 @@ public partial class Conversation
         npc.Conversing = true;
         npc.StopMoving();
         npc.FaceToward(_player.GlobalPosition);
-        if (npc.Role == Role.Factor && _player.Task.Kind == TaskKind.Report && !_player.Task.IsComplete)
+        // You report to your own master: the Factor at York, or the partner across the river.
+        if ((npc.Role == Role.Factor || npc == _player.HomePost?.Leader) && _player.Task.Kind == TaskKind.Report && !_player.Task.IsComplete)
         {
             _player.Task.Progress(TaskKind.Report, 1);
             _player.Standing += 3f;

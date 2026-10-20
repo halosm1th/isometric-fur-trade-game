@@ -10,6 +10,13 @@ namespace IsometricFurTradeGame.Scripts.Agents.Goals;
 // won, been beaten, or given it up.
 public class WarPartyGoal : Goal
 {
+	// A little behind and to one side of the rider, each man his own place.
+	public static Vector2 Slot(WarParty party, Npc npc)
+	{
+		int slot = party.Men.IndexOf(npc);
+		return party.Rider.GlobalPosition + new Vector2((slot % 3 - 1) * 90f, 120f + slot / 3 * 70f);
+	}
+
 	private readonly WarParty _party;
 	private int _phase;   // 0 setting out, 1 riding the route, 2 at the camp, 3 home, 4 riding with the player
 	private List<Vector2I> _legs;
@@ -77,9 +84,7 @@ public class WarPartyGoal : Goal
 				if (_party.Phase == WarPhase.Fighting) { _phase = 2; return GoalStatus.Running; }
 				var rider = _party.Rider;
 				if (rider == null || !GodotObject.IsInstanceValid(rider) || rider.IsDead) { _phase = 0; return GoalStatus.Running; }   // he is gone: ride the route
-				// A little behind and to one side of him, each man his own place.
-				int slot = _party.Men.IndexOf(npc);
-				var spot = rider.GlobalPosition + new Vector2((slot % 3 - 1) * 90f, 120f + slot / 3 * 70f);
+				var spot = Slot(_party, npc);
 				if (npc.GlobalPosition.DistanceTo(spot) > 220f) npc.ChaseToward(spot, dt);
 				else npc.StopMoving();
 				return GoalStatus.Running;

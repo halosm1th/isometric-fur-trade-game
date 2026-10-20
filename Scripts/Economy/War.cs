@@ -42,6 +42,12 @@ public sealed class WarParty
 public static class War
 {
 	public static readonly List<WarParty> Parties = new();
+	// At the enemy: inside a post's stockade (a post is some 1500 px across,
+	// its house 1100 px from its centre) or among a camp's lodges. The route's
+	// last leg ends within 700 px. Any wider and a camp a day's ride off is
+	// "reached" the hour they ride out: 2500 had the Souris men at Brandon
+	// House before they left home.
+	private const float ArrivedPx = 1300f;
 	private static readonly Dictionary<string, int> _truces = new();   // "a|b" -> the day it ends (Plains.Today)
 
 	public static string NameOf(Household h) => h is BandLedger b ? b.Name : h.Title;
@@ -164,7 +170,7 @@ public static class War
 			var p = Parties[i];
 			p.Hours += hours;
 			int alive = 0, near = 0;
-			foreach (var m in p.Men) if (m != null && GodotObject.IsInstanceValid(m) && !m.IsDead) { alive++; if (m.GlobalPosition.DistanceTo(p.Target) < 1500f) near++; }
+			foreach (var m in p.Men) if (m != null && GodotObject.IsInstanceValid(m) && !m.IsDead) { alive++; if (m.GlobalPosition.DistanceTo(p.Target) < ArrivedPx) near++; }
 			int dead = p.Men.Count - alive;
 			if (Plains.Log && Mathf.FloorToInt(p.Hours / 4f) != Mathf.FloorToInt((p.Hours - hours) / 4f))
 			{
@@ -190,7 +196,13 @@ public static class War
 					// Riding with a player, he leads them: they are at the enemy's camp
 					// when he is. If he falls, they go on by the route without him.
 					if (p.Rider != null && (!GodotObject.IsInstanceValid(p.Rider) || p.Rider.IsDead)) p.Rider = null;
-					if (p.Rider != null) near = p.Rider.GlobalPosition.DistanceTo(p.Target) < 2500f ? alive : 0;
+					if (p.Rider != null) near = p.Rider.GlobalPosition.DistanceTo(p.Target) < ArrivedPx ? alive : 0;
+					// On the march (UI/TravelMode) he is carried along with the clock
+					// racing, far faster than men can be walked after him: they go
+					// with him, as his horse does, each in his place.
+					if (p.Rider is { Marching: true })
+						foreach (var m in p.Men)
+							if (m != null && GodotObject.IsInstanceValid(m) && !m.IsDead) { m.GlobalPosition = Agents.Goals.WarPartyGoal.Slot(p, m); m.StopMoving(); }
 					// At their camp: a fight a player is there to see is fought; any
 					// other is settled in numbers and the riders come home with the news.
 					if (near * 2 >= alive)
@@ -202,7 +214,7 @@ public static class War
 						if (seen) Engage(p);
 						else Retreat(p, Settle(p));
 					}
-					else if (p.Hours > 96f) Retreat(p, "turned_back");   // four days and they never came up with them
+					else if (p.Hours > (p.Rider != null ? 168f : 96f)) Retreat(p, "turned_back");   // four days (a week, behind a player) and they never came up with them
 					break;
 				case WarPhase.Fighting:
 					// Morale (design doc 15.4): losses, and the leader falling, break a party.
@@ -252,6 +264,10 @@ public static class War
 	{
 		p.Outcome = outcome;
 		p.Phase = WarPhase.Home;
+		// The story hears how it went now, not a day later when the last of
+		// them is home: a quest waiting on the fight goes on from the field.
+		Campaign.Flag($"war:{p.From.Name}:{outcome}");
+		Campaign.Flag($"war:{p.From.Name}:{NameOf(p.Against)}:{outcome}");
 		Sim.Notice(outcome switch
 		{
 			"won" => $"{NameOf(p.Against)} have broken: {p.From.Name}'s war party has the field.",

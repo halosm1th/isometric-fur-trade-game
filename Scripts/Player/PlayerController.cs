@@ -193,8 +193,10 @@ public partial class PlayerController : Agent
 			AddChild(_canoeSprite);
 		}
 		_canoeSprite.Visible = afloat && !IsDead;
-		CollisionMask = afloat ? 1u : 5u;
+		CollisionMask = Marching ? 0u : afloat ? 1u : 5u;
 	}
+	// On the march (UI/TravelMode): carried along the route, through nothing.
+	public bool Marching;
 
 	// Paddling: you can be over water or ice; the moment you're on a land
 	// cell you've stepped out and the canoe stays at the water's edge.
@@ -412,9 +414,10 @@ public partial class PlayerController : Agent
 	public void AssignTask(TaskKind kind, int need, string intent = "")
 	{
 		var cal = GameCalendar.Instance;
-		if (Task.Kind != TaskKind.None && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say("Yesterday's task went undone. Mr. Auld noticed."); }
+		if (Task.Kind != TaskKind.None && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say($"Yesterday's task went undone. {(Task.Boss != "" ? Task.Boss : "The master")} noticed."); }
 		if (Task.Kind != TaskKind.None && Task.IsComplete) { Standing += 5f; TasksDone++; }
 		Task.Kind = kind; Task.Need = need; Task.Done = 0; Task.DayAssigned = cal.Day; Task.Intent = intent ?? ""; Task.Deadline = cal.Day + 1; Task.Accepted = false; Task.OwnWay = false;
+		Task.Boss = HomePost?.Leader is { } boss && !boss.IsDead ? Agents.Barks.CallName(boss) : "";
 		if (kind != TaskKind.None) Say(Task.Describe());
 	}
 

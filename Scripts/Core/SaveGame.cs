@@ -318,7 +318,7 @@ public static class SaveGame
             var lessons = new GArr(); foreach (var l in p.Skills.History) lessons.Add(new GArr { l.Day, l.Skill, l.Amount, l.Why }); d["lessons"] = lessons; d["kin"] = string.Join("|", p.KinNames); d["yearStory"] = p.LastYearStory; d["camp"] = p.HomeCamp; d["frames"] = p.FramesPath;
             d["ambitions"] = ambs; d["tasksDone"] = p.TasksDone; d["tasksRefused"] = p.TasksRefused; d["privateMb"] = p.PrivateWorthMb; d["ambDeclared"] = p.AmbitionsDeclared;
             d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["tongue2"] = p.AssiniboineFluency; d["authorized"] = p.AuthorizedAcrossUntilDay; d["inland"] = p.PostedInland; d["postedTo"] = p.PostedTo; d["quests"] = p.Quests.Save(); d["captive"] = p.CaptiveOf == Sim.Nwc ? "nwc" : p.CaptiveOf == Sim.Fort ? "fort" : ""; d["captiveUntil"] = p.CaptiveUntilDay; d["parole"] = p.ParoleUntilDay; d["paroleTo"] = (int)p.ParoleTo; d["paroleConfessed"] = p.ParoleConfessed;
-            d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline;
+            d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline; d["taskBoss"] = p.Task.Boss;
             var known = new GArr(); foreach (var s in p.KnownSites) known.Add(s);
             d["knownSites"] = known;
             d["horse"] = p.PackHorse();
@@ -583,7 +583,7 @@ public static class SaveGame
         p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer"); p.CreeFluency = F(d, "tongue", 0.1f); p.AssiniboineFluency = F(d, "tongue2", 0.05f); p.AuthorizedAcrossUntilDay = I(d, "authorized", -1); p.PostedInland = B(d, "inland"); p.PostedTo = S(d, "postedTo", ""); if (d.TryGetValue("quests", out var qd)) p.Quests.Restore(qd.AsGodotDictionary()); p.CaptiveOf = S(d, "captive") == "nwc" ? Sim.Nwc : S(d, "captive") == "fort" ? Sim.Fort : null; p.CaptiveUntilDay = I(d, "captiveUntil", -1); p.ParoleUntilDay = I(d, "parole", -1); p.ParoleTo = (Faction)I(d, "paroleTo"); p.ParoleConfessed = B(d, "paroleConfessed");
         var t = d["task"].AsGodotArray();
         p.Task.Kind = (TaskKind)t[0].AsInt32(); p.Task.Need = t[1].AsInt32(); p.Task.Done = t[2].AsInt32(); p.Task.DayAssigned = t[3].AsInt32();
-        p.Task.Intent = S(d, "taskIntent"); p.Task.Deadline = I(d, "taskDeadline");
+        p.Task.Intent = S(d, "taskIntent"); p.Task.Deadline = I(d, "taskDeadline"); p.Task.Boss = S(d, "taskBoss");
         p.KnownSites.Clear(); foreach (var s in d["knownSites"].AsGodotArray()) p.KnownSites.Add(s.AsString());
         p.RestoreHorse(d.ContainsKey("horse") ? d["horse"].AsGodotArray() : null);
         p.SiteBelief.Clear(); foreach (var kv in d["belief"].AsGodotDictionary()) p.SiteBelief[kv.Key.AsString()] = CellOf(kv.Value.AsGodotArray());

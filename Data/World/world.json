@@ -11556,6 +11556,16 @@
     "people": 12
    },
    {
+    "name": "Métis of the Souris",
+    "nation": "Metis",
+    "kind": "band",
+    "centre": [
+     578,
+     1670
+    ],
+    "people": 8
+   },
+   {
     "name": "Woodland Cree",
     "nation": "Cree",
     "kind": "band",

@@ -1,6 +1,6 @@
 {
   "title": "The Company's Servant",
-  "description": "Off the ship at York with a five-year contract and the Factor's eye on you, then up the rivers to Edmonton House, where the Nor'Westers live a stone's throw away and the Beaver Hills Cree decide whose friends they are. The HBC story; the history runs underneath it.",
+  "description": "Off the ship at York with a five-year contract and the Factor's eye on you, then up the rivers to Edmonton House, where the Nor'Westers live a stone's throw away and the Beaver Hills Cree decide whose friends they are. Or come up with the North West brigade and be sent to Fort Souris, in the pemmican country where the Pemmican War begins. The history runs underneath both.",
   "seed": 1811,
   "extends": "historical",
   "beats": [
@@ -41,10 +41,18 @@
       "rumour": "Grant's riders are gathering on the Qu'Appelle, and Brandon House lies on their road.",
       "happens": [
         {
-          "do": "war_party",
-          "from": "Métis of the Forks",
-          "against": "Brandon House",
-          "why": "for the North West Company and the pemmican"
+          "do": "if",
+          "cond": {
+            "not": "flag:grant_rode_from_souris"
+          },
+          "then": [
+            {
+              "do": "war_party",
+              "from": "Métis of the Forks",
+              "against": "Brandon House",
+              "why": "for the North West Company and the pemmican"
+            }
+          ]
         },
         {
           "do": "say",
@@ -145,6 +153,93 @@
           "text": "The Nor'Westers have broken into Edmonton House's pemmican store in the night and carried off thirty bags.",
           "to": "HBC",
           "headline": true
+        }
+      ]
+    },
+    {
+      "id": "souris-pemmican-seized",
+      "title": "The colony's sheriff seizes the pemmican at Fort Souris",
+      "kind": "fixed",
+      "date": "1814-05-20",
+      "requires": [
+        "pemmican-proclamation"
+      ],
+      "rumour": "The colony's sheriff is on the Assiniboine with a warrant and the Brandon House men.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "flag:souris_pemmican_cached",
+          "then": [
+            {
+              "do": "stock",
+              "post": "Fort Souris",
+              "item": "Pemmican",
+              "add": -15
+            }
+          ]
+        },
+        {
+          "do": "if",
+          "cond": {
+            "not": "flag:souris_pemmican_cached"
+          },
+          "then": [
+            {
+              "do": "stock",
+              "post": "Fort Souris",
+              "item": "Pemmican",
+              "add": -40
+            }
+          ]
+        },
+        {
+          "do": "stock",
+          "post": "Brandon House",
+          "item": "Pemmican",
+          "add": 20
+        },
+        {
+          "do": "tension",
+          "add": 10,
+          "why": "the sheriff took the Nor'Westers' pemmican at Fort Souris"
+        },
+        {
+          "do": "feud",
+          "holder": "Métis of the Souris",
+          "against": "Brandon House",
+          "add": 2
+        },
+        {
+          "do": "say",
+          "text": "The colony's sheriff has broken into Fort Souris with the Brandon House men and carried off the pemmican.",
+          "to": "NWC",
+          "headline": true
+        },
+        {
+          "do": "say",
+          "text": "Sheriff Spencer has seized the Nor'Westers' pemmican at the Souris under the governor's proclamation.",
+          "to": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "grant-gathers",
+      "title": "Cuthbert Grant gathers the Métis",
+      "kind": "fixed",
+      "date": "1816-05-15",
+      "requires": [
+        "colony-dispersed"
+      ],
+      "rumour": "The Brûlés are making new sashes and casting ball, and the captains have gone up to the Qu'Appelle.",
+      "happens": [
+        {
+          "do": "flag",
+          "name": "grant_gathers"
+        },
+        {
+          "do": "say",
+          "text": "Grant has called the Métis together at the Qu'Appelle. The Brûlés of the Souris are saddling their horses.",
+          "to": "NWC"
         }
       ]
     }
@@ -1170,6 +1265,1148 @@
               "who": "leader@Edmonton House",
               "dialogue": {
                 "text": "{npc} nods slowly. \"Then we know where we stand, which is more than they know at the Forks.\""
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "NorthMan",
+      "title": "The North Man",
+      "summary": "From the brigade's landing to the pemmican country of the Assiniboine.",
+      "for": "NWC",
+      "quests": [
+        {
+          "id": "Engaged",
+          "title": "Report to the partner",
+          "summary": "You are the North West Company's newest clerk, and the partner will want a look at you.",
+          "on_complete": [
+            {
+              "do": "posting",
+              "place": "Fort Souris"
+            },
+            {
+              "do": "give",
+              "item": "Tobacco",
+              "count": 6
+            },
+            {
+              "do": "give",
+              "item": "TradeGoods",
+              "count": 4
+            },
+            {
+              "do": "note",
+              "text": "You are on the books of Fort Souris now: six twists of tobacco and four pieces of goods for the road."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Report",
+              "kind": "talk",
+              "text": "Find the partner and report to him",
+              "who": "Partner",
+              "dialogue": {
+                "text": "{npc} looks up from his letters. \"The new clerk. The agents at Montreal write that you can read, write and cast accounts. Out here a man wants a strong back as well. Which have you brought?\"",
+                "choices": [
+                  {
+                    "label": "\"Both, monsieur. Try me.\"",
+                    "reply": "\"We shall. The woodpile first; every bourgeois in the country began at a woodpile, whatever he tells you.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": 2
+                      }
+                    ],
+                    "goto": "Wood"
+                  },
+                  {
+                    "label": "\"I came up for the trade, monsieur, not to cut wood.\"",
+                    "reply": "\"Then you came up to the wrong country. Six loads, and then we'll talk of trade.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -1
+                      },
+                      {
+                        "do": "flag",
+                        "name": "wants_the_trade"
+                      }
+                    ],
+                    "goto": "Wood"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Wood",
+              "kind": "task",
+              "text": "Bring six loads of firewood to the woodpile",
+              "count": 6,
+              "task": "Firewood"
+            },
+            {
+              "id": "Orders",
+              "kind": "talk",
+              "text": "Report back to the partner",
+              "who": "Partner",
+              "dialogue": {
+                "text": "{npc} pours two glasses. \"You'll do. Fort Souris on the Assiniboine wants a clerk. Pemmican country: every bag that feeds our canoes from Bas de la Rivière to the Athabasca comes off those plains, and the Bay men's Brandon House stands a musket shot from our gate.\"",
+                "choices": [
+                  {
+                    "label": "\"What kind of place is Fort Souris, monsieur?\"",
+                    "reply": "\"Stockades, a store, and more buffalo than you have ever dreamt of. The Brûlés of the Souris - the Métis hunters - camp on the plain above it. Keep them our friends and the post eats; lose them and it starves.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"And the Bay men at Brandon House?\"",
+                    "reply": "\"Honest enough, and slow, and Lord Selkirk's colony at the Forks has given them ideas. They think the plains are theirs because a charter in London says so.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"How do I get there?\"",
+                    "reply": "\"Up to Lake Winnipeg, up the Red to the Forks, and up the Assiniboine until you smell the pemmican. A light canoe, a horse, your own two feet - only get there before the ice.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"I'll go, monsieur.\"",
+                    "reply": "\"Of course you will. Take what you need from the store, and don't let the Brûlés beat you at cards.\""
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "ToTheAssiniboine",
+          "title": "Up the Assiniboine",
+          "summary": "Lake Winnipeg, the Red, and the Assiniboine between you and Fort Souris.",
+          "requires": [
+            "Engaged"
+          ],
+          "objectives": [
+            {
+              "id": "Souris",
+              "kind": "reach",
+              "text": "Go inland to Fort Souris on the Assiniboine",
+              "place": "Fort Souris",
+              "radius": 700
+            }
+          ]
+        },
+        {
+          "id": "FortSouris",
+          "title": "Fort Souris",
+          "summary": "Report to the bourgeois of Fort Souris.",
+          "requires": [
+            "ToTheAssiniboine"
+          ],
+          "objectives": [
+            {
+              "id": "Report",
+              "kind": "talk",
+              "text": "Report to the bourgeois of Fort Souris",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} reads the partner's letter and folds it into his coat. \"A clerk. Good. You'll learn two things here: the Bay men at Brandon House, who count every bag we buy, and the Brûlés on the plain, who decide whether there are any bags to buy at all. Go and look at both.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll go and see them, monsieur.\""
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheBayMen",
+      "title": "The Bay Men",
+      "summary": "The Hudson's Bay Company's Brandon House, a musket shot from your gate.",
+      "for": "NWC",
+      "quests": [
+        {
+          "id": "BayNeighbours",
+          "title": "The neighbours",
+          "summary": "Call at Brandon House and see what kind of men the English are.",
+          "requires": [
+            "FortSouris"
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Call",
+              "kind": "talk",
+              "text": "Call on the master of Brandon House",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} lets you in at the wicket and no further than the yard. \"A new Nor'Wester. Have they sent you to count our bags, or to buy our hunters away? Say what you came to say.\"",
+                "choices": [
+                  {
+                    "label": "Offer him a dram and the news from the brigades",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Brandon House",
+                        "add": 15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "hbc_friendly"
+                      }
+                    ],
+                    "goto": "TellFriendly"
+                  },
+                  {
+                    "label": "Pay your respects and say as little as you can",
+                    "goto": "TellGuarded"
+                  },
+                  {
+                    "label": "Tell him the plains traded with the North men before he was born",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Brandon House",
+                        "add": -15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "hbc_hostile"
+                      },
+                      {
+                        "do": "tension",
+                        "add": 3,
+                        "why": "a Nor'Wester told the Brandon House master the plains belong to the North men"
+                      }
+                    ],
+                    "goto": "TellHostile"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "TellFriendly",
+              "kind": "talk",
+              "text": "Tell the bourgeois how it went",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "\"A dram with the English, was it? Drink his tea, if he gives you any, and remember that every word you leave in that yard goes down to the Forks in his next letter.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "TellGuarded",
+              "kind": "talk",
+              "text": "Tell the bourgeois how it went",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "\"Said little and heard much? You'll do here.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "TellHostile",
+              "kind": "talk",
+              "text": "Tell the bourgeois how it went",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} laughs until he coughs. \"To his face? Well, he knows where we stand. Keep your gun by your bed.\""
+              }
+            }
+          ]
+        },
+        {
+          "id": "OneBagOnePrice",
+          "title": "One bag, one price",
+          "summary": "The master of Brandon House proposes that neither house outbid the other for the Métis pemmican this winter. He asks you to put it to your bourgeois.",
+          "giver": "leader@Brandon House",
+          "requires": [
+            "BayNeighbours"
+          ],
+          "start_when": [
+            "flag:hbc_friendly"
+          ],
+          "on_complete": [
+            {
+              "do": "rapport",
+              "who": "leader@Brandon House",
+              "add": 10
+            }
+          ],
+          "objectives": [
+            {
+              "id": "PutIt",
+              "kind": "talk",
+              "text": "Put the Bay men's offer to your bourgeois",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} hears you out with his pipe going hard. \"One price for a bag of pemmican, theirs and ours. And the day the brigades are hungry, who keeps to it?\"",
+                "choices": [
+                  {
+                    "label": "Argue for it: a bidding war only fattens the Brûlés and empties both stores",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "souris_price_truce"
+                      },
+                      {
+                        "do": "tension",
+                        "add": -6,
+                        "why": "the houses on the Souris agree on one price for pemmican"
+                      }
+                    ],
+                    "goto": "Agreed"
+                  },
+                  {
+                    "label": "Advise against it: the English will break it the first lean month",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "souris_price_refused"
+                      }
+                    ],
+                    "goto": "Refused"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Agreed",
+              "kind": "talk",
+              "text": "Take your bourgeois's answer to Brandon House",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "\"He agreed?\" {npc} shakes your hand over the gate. \"Then the Brûlés will have to get rich some other way. Let's see which of us keeps it.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Refused",
+              "kind": "talk",
+              "text": "Take your bourgeois's answer to Brandon House",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} only nods. \"I thought as much. Well, the Brûlés will do well out of the two of us this winter.\""
+              }
+            }
+          ]
+        },
+        {
+          "id": "FirstToTheCamp",
+          "title": "Ahead of the English",
+          "summary": "Brandon House is sending goods out to the Métis camp. Your bourgeois wants the North men's there first.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "BayNeighbours"
+          ],
+          "start_when": [
+            "flag:hbc_hostile"
+          ],
+          "on_start": [
+            {
+              "do": "give",
+              "item": "TradeGoods",
+              "count": 4
+            }
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 3
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Goods",
+              "kind": "bring",
+              "text": "Carry four pieces of goods to the Métis camp before the Bay men's cart",
+              "who": "chief@Métis of the Souris",
+              "item": "TradeGoods",
+              "count": 4,
+              "dialogue": {
+                "text": "{npc} turns the goods over. \"The English promised us the same. You came first, and the Brûlés remember who comes first.\""
+              },
+              "on_done": [
+                {
+                  "do": "regard",
+                  "place": "Métis of the Souris",
+                  "add": 5
+                },
+                {
+                  "do": "tension",
+                  "add": 4,
+                  "why": "the Nor'Westers beat Brandon House to the Métis camp"
+                },
+                {
+                  "do": "rapport",
+                  "who": "leader@Brandon House",
+                  "add": -10
+                }
+              ]
+            },
+            {
+              "id": "Back",
+              "kind": "talk",
+              "text": "Tell the bourgeois the goods are in",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "\"Good. They'll be sour at Brandon House tonight. Sleep with your knife.\""
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheNewNation",
+      "title": "The New Nation",
+      "summary": "The Métis hunters of the Souris - the Bois-Brûlés - who run the buffalo and make the pemmican.",
+      "for": "NWC",
+      "quests": [
+        {
+          "id": "AtTheCamp",
+          "title": "Tobacco on the plain",
+          "summary": "Ride out to the Métis camp on the Souris plain and make yourself known.",
+          "requires": [
+            "FortSouris"
+          ],
+          "on_complete": [
+            {
+              "do": "note",
+              "text": "You have smoked with the Métis of the Souris."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Camp",
+              "kind": "reach",
+              "text": "Ride out to the Métis camp on the Souris plain",
+              "place": "Métis of the Souris",
+              "radius": 600
+            },
+            {
+              "id": "Tobacco",
+              "kind": "bring",
+              "text": "Give the hunt captain tobacco",
+              "who": "chief@Métis of the Souris",
+              "item": "Tobacco",
+              "count": 2,
+              "dialogue": {
+                "text": "{npc} takes the tobacco with a grin. \"A clerk who knows his manners. Sit down, bourgeois, the kettle's on.\""
+              }
+            },
+            {
+              "id": "Council",
+              "kind": "talk",
+              "text": "Sit with the captain and hear him out",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "\"My father was a trader out of Boston; my mother's people were here before any of you,\" {npc} says. \"Now the Bay men's lord has a colony at the Forks and a paper that says this plain is his. We run the buffalo here. We make the pemmican. Whose plain is it, bourgeois?\"",
+                "choices": [
+                  {
+                    "label": "Say the plain belongs to those who hunt it, and the North men will stand by them",
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Métis of the Souris",
+                        "add": 5
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Métis of the Souris",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "told_the_brules_the_plain_is_theirs"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Promise them the North West Company's guns",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "promised_metis_guns"
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Métis of the Souris",
+                        "add": 8
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Métis of the Souris",
+                        "add": 5
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Ask him to teach you how the Brûlés run the buffalo",
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Métis of the Souris",
+                        "add": 3
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Métis of the Souris",
+                        "add": 12
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "TheGreatHunt",
+          "title": "The hunt",
+          "summary": "The scouts have found the herds, and the Métis of the Souris are going out on the hunt, carts, captains and all. The captain asks whether the clerk rides with them.",
+          "giver": "chief@Métis of the Souris",
+          "requires": [
+            "AtTheCamp"
+          ],
+          "start_when": [
+            {
+              "any": [
+                "regard(Métis of the Souris) >= 55",
+                "rapport(chief@Métis of the Souris) >= 14"
+              ]
+            }
+          ],
+          "on_complete": [
+            {
+              "do": "regard",
+              "place": "Métis of the Souris",
+              "add": 10
+            },
+            {
+              "do": "flag",
+              "name": "rode_with_souris_metis"
+            },
+            {
+              "do": "note",
+              "text": "You ran the buffalo with the Métis of the Souris. They will remember who stood with them."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Accept",
+              "kind": "talk",
+              "text": "Answer the captain",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "\"The laws of the hunt,\" {npc} says, counting on his fingers. \"Nobody runs before the signal. Nobody leaves the camp alone. The captain's word is the law until the meat is in. Still want to come?\"",
+                "choices": [
+                  {
+                    "label": "\"I'll keep the laws. I'm coming.\"",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Métis of the Souris",
+                        "add": 5
+                      }
+                    ],
+                    "goto": "Hunt"
+                  },
+                  {
+                    "label": "\"I must ask the bourgeois first.\"",
+                    "goto": "AskLeave"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "AskLeave",
+              "kind": "talk",
+              "text": "Ask the bourgeois's leave to go on the hunt",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "\"Go! And count the bags they make. Every one of them is a bag the Bay men don't get.\""
+              },
+              "next": "Hunt"
+            },
+            {
+              "id": "Hunt",
+              "kind": "hunt",
+              "text": "Ride with the Métis of the Souris and bring down a buffalo",
+              "count": 1,
+              "species": "Buffalo"
+            },
+            {
+              "id": "Feast",
+              "kind": "talk",
+              "text": "Eat with the captain after the hunt",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "The women are already cutting the meat into strips for the drying racks. {npc} hands you a marrow bone. \"You ride like a clerk, but you ride. Remember who you ate with, bourgeois. A day is coming when the Bay men's governor tells us we cannot sell our own pemmican, and then we'll see who stands with us.\""
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "NorWestersWar",
+      "title": "The Pemmican War",
+      "summary": "The colony's governor forbids the pemmican to leave the plains, and the North men will not starve to oblige him.",
+      "for": "NWC",
+      "quests": [
+        {
+          "id": "TheProclamation",
+          "title": "The proclamation",
+          "summary": "The governor at the Forks has forbidden any pemmican to leave Assiniboia, and Fort Souris has a full store.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:pemmican-proclamation"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear what the bourgeois means to do about the proclamation",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} has the governor's paper pinned to his table with a knife. \"Macdonell forbids any pemmican to leave his colony's lands - and he says his colony's lands run from the Forks to God knows where. Our store is full, and the brigades eat it or the brigades stop. He'll send his sheriff for it.\"",
+                "choices": [
+                  {
+                    "label": "\"Then let's not keep it all in the store. The Brûlés can hide it on the plain.\"",
+                    "do": [
+                      {
+                        "do": "give",
+                        "item": "Pemmican",
+                        "count": 4
+                      },
+                      {
+                        "do": "flag",
+                        "name": "souris_pemmican_cached"
+                      }
+                    ],
+                    "goto": "Hide"
+                  },
+                  {
+                    "label": "\"Let him come. We'll hold the gate.\"",
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": 5,
+                        "why": "the Nor'Westers at Fort Souris swear to hold their pemmican"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "souris_holds_the_gate"
+                      }
+                    ],
+                    "goto": "Gate"
+                  },
+                  {
+                    "label": "\"It's the law of the country now, monsieur. Better to sell to them than fight them.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -3
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "leader@Fort Souris",
+                        "add": -10
+                      },
+                      {
+                        "do": "tension",
+                        "add": -4,
+                        "why": "a Nor'Wester at Fort Souris spoke for obeying the proclamation"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "souris_would_obey"
+                      }
+                    ],
+                    "goto": "Gate"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Hide",
+              "kind": "bring",
+              "text": "Carry the first bags out to the Métis camp, to be hidden on the plain",
+              "who": "chief@Métis of the Souris",
+              "item": "Pemmican",
+              "count": 4,
+              "dialogue": {
+                "text": "{npc} grins at the bags. \"Hide pemmican from the English on our own plain? My grandmother could do it.\""
+              },
+              "on_done": [
+                {
+                  "do": "regard",
+                  "place": "Métis of the Souris",
+                  "add": 5
+                },
+                {
+                  "do": "feud",
+                  "holder": "Métis of the Souris",
+                  "against": "Brandon House",
+                  "add": 1
+                }
+              ],
+              "next": "complete"
+            },
+            {
+              "id": "Gate",
+              "kind": "talk",
+              "text": "Tell the bourgeois you'll stand by him",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "\"Whatever comes, we're Nor'Westers first,\" {npc} says, and pours. \"Drink to the partners.\""
+              }
+            }
+          ]
+        },
+        {
+          "id": "TheSheriff",
+          "title": "The sheriff",
+          "summary": "The colony's sheriff has come to Fort Souris with the Brandon House men and carried off the pemmican.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:souris-pemmican-seized"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear what happened at the gate",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "The gate hangs open on one hinge. {npc} is white with anger. \"Spencer, the colony's sheriff, with the Brandon House men and their axes. A warrant, he said. They carried every bag they could find across to Brandon House, and the Bay men stood and watched.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll go to Brandon House and ask for it back.\"",
+                    "goto": "Ask"
+                  },
+                  {
+                    "label": "\"The Brûlés will want to hear of this.\"",
+                    "goto": "Tell"
+                  },
+                  {
+                    "label": "\"Write to the partners, monsieur. Let the law answer the law.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -1
+                      }
+                    ],
+                    "goto": "complete"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Ask",
+              "kind": "talk",
+              "text": "Ask the master of Brandon House for the pemmican back",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} won't meet your eye. \"It's under the governor's seal now. I can't touch it - and I didn't ask for it, whatever you think.\"",
+                "choices": [
+                  {
+                    "label": "Ask him quietly, as a neighbour, for enough to feed your own men",
+                    "when": [
+                      "rapport(leader@Brandon House) >= 10"
+                    ],
+                    "do": [
+                      {
+                        "do": "stock",
+                        "post": "Fort Souris",
+                        "item": "Pemmican",
+                        "add": 15
+                      },
+                      {
+                        "do": "tension",
+                        "add": -3,
+                        "why": "the Brandon House master quietly sent back some of the seized pemmican"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "brandon_sent_some_back"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Tell him the North men will take it back, seal or no seal",
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": 6,
+                        "why": "a Nor'Wester promised to take back the seized pemmican by force"
+                      },
+                      {
+                        "do": "feud",
+                        "holder": "Métis of the Souris",
+                        "against": "Brandon House",
+                        "add": 1
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "leader@Brandon House",
+                        "add": -15
+                      }
+                    ]
+                  }
+                ]
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Tell",
+              "kind": "talk",
+              "text": "Carry the news to the Métis camp",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "{npc} listens without a word, then spits. \"Our pemmican. Our plain. And a sheriff with a paper.\" Behind him the young men have stopped what they were doing."
+              },
+              "on_done": [
+                {
+                  "do": "feud",
+                  "holder": "Métis of the Souris",
+                  "against": "Brandon House",
+                  "add": 2
+                },
+                {
+                  "do": "regard",
+                  "place": "Métis of the Souris",
+                  "add": 5
+                }
+              ],
+              "next": "complete"
+            }
+          ]
+        },
+        {
+          "id": "TheBrulesRide",
+          "title": "The Brûlés ride",
+          "summary": "Grant has called the Métis together. They mean to bring the pemmican through to the canoes, and Brandon House is on the road.",
+          "giver": "chief@Métis of the Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "flag:grant_gathers"
+          ],
+          "objectives": [
+            {
+              "id": "Ask",
+              "kind": "talk",
+              "text": "Hear what the captain asks of you",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "{npc} has a new sash and a new musket. \"Grant calls the Brûlés together. We take the pemmican down the Assiniboine to the canoes, and if the Bay men stand in the road, we go through them. Brandon House first. You ate with us. Will you ride with us?\"",
+                "choices": [
+                  {
+                    "label": "\"I'll ride with you.\"",
+                    "do": [
+                      {
+                        "do": "war_party",
+                        "from": "Métis of the Souris",
+                        "against": "Brandon House",
+                        "why": "for the pemmican and the North West Company",
+                        "with_player": true
+                      },
+                      {
+                        "do": "flag",
+                        "name": "grant_rode_from_souris"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "rode_with_grant"
+                      }
+                    ],
+                    "goto": "Riding"
+                  },
+                  {
+                    "label": "\"The post needs me here.\"",
+                    "do": [
+                      {
+                        "do": "war_party",
+                        "from": "Métis of the Souris",
+                        "against": "Brandon House",
+                        "why": "for the pemmican and the North West Company"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "grant_rode_from_souris"
+                      }
+                    ],
+                    "goto": "Stayed"
+                  },
+                  {
+                    "label": "Say nothing - and go and warn Brandon House",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "grant_rode_from_souris"
+                      }
+                    ],
+                    "goto": "Warning"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Riding",
+              "kind": "when",
+              "text": "Ride with the Métis of the Souris to Brandon House",
+              "place": "Brandon House",
+              "cond": [
+                {
+                  "any": [
+                    "flag:war:Métis of the Souris:won",
+                    "flag:war:Métis of the Souris:lost",
+                    "flag:war:Métis of the Souris:turned_back"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "Afterwards",
+              "kind": "talk",
+              "text": "Find the captain when it is over",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "The carts are loaded and the horses watered. {npc} sits on a pemmican bag with his musket across his knees.",
+                "choices": [
+                  {
+                    "label": "Help load Brandon House's pemmican onto the carts",
+                    "when": [
+                      "flag:war:Métis of the Souris:won"
+                    ],
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Métis of the Souris",
+                        "add": 10
+                      },
+                      {
+                        "do": "give",
+                        "item": "Pemmican",
+                        "count": 4
+                      },
+                      {
+                        "do": "flag",
+                        "name": "plundered_brandon_house"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Help with the wounded",
+                    "when": [
+                      {
+                        "not": "flag:war:Métis of the Souris:won"
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Métis of the Souris",
+                        "add": 5
+                      },
+                      {
+                        "do": "flag",
+                        "name": "brandon_house_held"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Stayed",
+              "kind": "talk",
+              "text": "Tell the bourgeois you stayed",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "\"Wise,\" {npc} says, watching the dust of the carts on the road east. \"A clerk who rides with Grant may find himself in a Montreal court one day. Let the Brûlés do what the Brûlés do.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Warning",
+              "kind": "talk",
+              "text": "Warn the master of Brandon House that the Brûlés are coming",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} goes grey. \"How many? When?\" He is already shouting for his men to bar the gate. \"I won't forget this. I don't know if your own people will.\""
+              },
+              "on_done": [
+                {
+                  "do": "war_party",
+                  "from": "Métis of the Souris",
+                  "against": "Brandon House",
+                  "why": "for the pemmican and the North West Company"
+                },
+                {
+                  "do": "regard",
+                  "place": "Métis of the Souris",
+                  "add": -15
+                },
+                {
+                  "do": "rapport",
+                  "who": "leader@Brandon House",
+                  "add": 20
+                },
+                {
+                  "do": "rapport",
+                  "who": "chief@Métis of the Souris",
+                  "add": -25
+                },
+                {
+                  "do": "standing",
+                  "add": -5
+                },
+                {
+                  "do": "flag",
+                  "name": "warned_brandon_house"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "NorWesterSevenOaks",
+          "title": "Seven Oaks",
+          "summary": "Word has come up the Assiniboine from the Forks.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:seven-oaks"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from the Forks",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} has the letter open and does not look up. \"Grant's men met Governor Semple at Seven Oaks. Twenty of theirs dead, and the governor with them; one of ours. The partners say the colonists fired first. Selkirk will say otherwise, and Selkirk has the ear of London.\"",
+                "choices": [
+                  {
+                    "label": "\"They fired first. The Brûlés defended themselves.\"",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Fort Souris",
+                        "add": 5
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Métis of the Souris",
+                        "add": 5
+                      },
+                      {
+                        "do": "flag",
+                        "name": "stood_by_grant"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"Twenty men dead, monsieur. Whoever fired first, it was murder.\"",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Fort Souris",
+                        "add": -10
+                      },
+                      {
+                        "do": "standing",
+                        "add": -2
+                      },
+                      {
+                        "do": "flag",
+                        "name": "called_it_murder"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Neighbours",
+              "kind": "talk",
+              "text": "Go across to Brandon House, now that it has come to this",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} meets you at the gate with a musket. \"Seven Oaks. You've heard. Before God, if one of you lifts a hand to this house again, we'll answer it.\"",
+                "choices": [
+                  {
+                    "label": "Promise that whatever happens at the Forks, the Souris keeps the peace",
+                    "when": [
+                      "rapport(leader@Brandon House) >= 0"
+                    ],
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": -15,
+                        "why": "the two houses on the Souris agree to keep the peace whatever happens at the Forks"
+                      },
+                      {
+                        "do": "truce",
+                        "a": "Métis of the Souris",
+                        "b": "Brandon House",
+                        "days": 365
+                      },
+                      {
+                        "do": "flag",
+                        "name": "souris_peace"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Tell him the Bay men brought this on themselves with their proclamation",
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": 10,
+                        "why": "a Nor'Wester at Brandon House blamed Seven Oaks on the proclamation"
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "leader@Brandon House",
+                        "add": -15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "souris_enemies"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Report",
+              "kind": "talk",
+              "text": "Tell the bourgeois what was said",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} grunts. \"Selkirk is coming up the lakes with soldiers, they say - hired Swiss, out of the war. Whatever we've done, we'd best be able to account for it.\""
               }
             }
           ]
