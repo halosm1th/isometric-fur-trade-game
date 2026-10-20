@@ -48,10 +48,14 @@ public partial class TravelMode : Control
         foreach (string arg in OS.GetCmdlineUserArgs())
             if (arg.StartsWith("--travelto="))
             {
+                // `--travelto=Name@SECONDS` sets out after that long (default 4).
                 string name = arg.Substring(11);
-                GetTree().CreateTimer(4.0).Timeout += () =>
+                double after = 4.0;
+                int atSign = name.LastIndexOf('@');
+                if (atSign > 0 && double.TryParse(name.Substring(atSign + 1), out double secs)) { after = secs; name = name.Substring(0, atSign); }
+                GetTree().CreateTimer(after).Timeout += () =>
                 {
-                    Vector2? at = Posts.Named(name) is { } post ? post.Centre : WorldMap.Place(name) is { } pl ? IsoGrid.ToWorld(pl.Cell) : null;
+                    Vector2? at = Posts.Named(name) is { } post ? post.Centre : WorldMap.Place(name) is { } pl ? IsoGrid.ToWorld(pl.Cell) : Camps.Named(name) is { } camp ? IsoGrid.ToWorld(camp.Centre) : null;
                     if (at == null) { GD.Print($"[travel] no place called {name}"); return; }
                     Waypoint.Set(at.Value); SetOut();
                 };
@@ -140,8 +144,16 @@ public partial class TravelMode : Control
         }
         if (_leg >= _route.Count) { Stop($"You have come to {_dest}."); Waypoint.Clear(); return; }
 
-        // Eat on the march when hungry, if there is anything in the pack.
+        // Eat and drink on the march when you need to, from what you carry.
+        // The clock races while you go, so a need that is not met is met with
+        // a stop, whatever the hour: travel used to drink nothing and stop for
+        // the cold only at nightfall, and walked men to death in a day or two.
         if (_player.Needs.Hunger < 45f) _player.Eat();
+        if (_player.Needs.Thirst < 45f && !_player.Drink() && _player.Needs.Thirst < 25f)
+        { Stop(cal != null && cal.IsFrozen ? "You are parched and carry nothing to drink. Make a fire and melt snow before going on." : "You are parched and carry nothing to drink. Find water before going on."); return; }
+        if (_player.Needs.Warmth < 30f) { Stop("You are freezing. Make camp and a fire before going on."); return; }
+        if (_player.Needs.Hunger < 20f) { Stop("You are starving and have nothing left to eat. Hunt, or turn back."); return; }
+        if (_player.Needs.Health < 35f) { Stop("You are too badly hurt to go on. Rest, and see to your wounds."); return; }
 
         _checkTimer -= (float)delta;
         if (_checkTimer > 0f) return;
