@@ -41,6 +41,11 @@ public sealed class CampaignScript
 	// Another campaign whose beats this one plays as well (a story built on
 	// the historical one shares its war), and what this one asks of players.
 	public string Extends = "";
+	// When the world begins, if the script says: Start is the first day
+	// itself (YYYY-MM-DD, for every starting path); StartYear only the year,
+	// each path keeping its own day in it. Neither: 1811, the paths' days.
+	public string Start = "";
+	public int StartYear;
 	public readonly List<QuestLine> QuestLines = new();
 
 	public static CampaignScript Parse(Dictionary<string, object> root, string fallbackTitle = "")
@@ -52,6 +57,8 @@ public sealed class CampaignScript
 		};
 		if (root.TryGetValue("seed", out var sd)) s.Seed = (uint)(long)CampaignLogic.Num(sd);
 		s.Extends = Text(root, "extends", "");
+		s.Start = Text(root, "start", "");
+		s.StartYear = Int(root, "start_year", 0);
 		s.QuestLines.AddRange(QuestParse.Lines(root.GetValueOrDefault("questlines")));
 		if (root.GetValueOrDefault("vars") is Dictionary<string, object> vars) foreach (var kv in vars) s.InitialVars[kv.Key] = CampaignLogic.Num(kv.Value);
 		if (root.GetValueOrDefault("beats") is not List<object> beats) return s;

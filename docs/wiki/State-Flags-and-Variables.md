@@ -15,10 +15,13 @@ What a campaign remembers from day to day, which of it the game writes on its ow
 | **The dice** | the seed of the campaign's random numbers | `chance(...)` | every roll moves it on |
 | **Deeds** | what the player has done | `player.did(...)`, `player.deeds(...)` | the game, when the player does it |
 | awake, cancelled, pressed beats; letters on the road; posts founded | the scheduler's own bookkeeping | | |
+| **Quests** (per player) | which quests each player has under way, done, failed or refused, and at which step | `Q.done`, `Q.active`, `Q.failed` | `Q.start()`, `Q.complete()`, `Q.fail()`, and the player's own doing |
 
 All of it is **saved with the game** (in the save's campaign section) and all of it lives on the **server**: in multiplayer, clients only see the journal text the host sends them.
 
 Two more things the campaign does *not* own but reads every day: the **tension** (`world.tension`, kept by the game's rivalry between the companies) and the world itself (posts, ledgers, brigades, people). See [Effects in the game](Effects-in-the-Game).
+
+Quests are kept **per player**, with the player's character in the save; everything else here belongs to the world and is shared. A quest's state is not a flag: to let the world remember what a player chose, raise a flag in the quest (`flags.set("nwc_friendly")` in a choice), and every beat and every other player's quests can read it. See [Quests](Quests#quests-and-beats-together).
 
 ## Beats are flags too
 
@@ -169,6 +172,7 @@ A save keeps the campaign's id and adherence and all the state above, but **not 
 - A **new beat** added to the script is treated as if it had always been there but had not happened. History is not replayed on a load, so a new beat dated before the save's date is simply due: a fixed one happens on the first day after loading.
 - A removed beat's flag stays raised (flags are just names).
 - If the campaign file is gone, the game runs with no script and says so in its log.
+- A save made before a campaign had a `start` keeps the date it was saved on: the start only applies to a new world.
 
 ## See also
 

@@ -1,3 +1,12 @@
+---
+title: "Getting started"
+aliases: [Getting Started]
+tags: [scripting, campaign, tool]
+status: reference
+---
+
+<!-- Copied from docs/wiki/Getting-Started.md by tools/docs/sync_scripting_wiki.py: edit that, not this. -->
+
 # Getting started
 
 This page takes you from nothing to a campaign running in the game. You need the .NET 8 SDK; the tool is part of the game's repository and runs from inside it.
@@ -10,7 +19,7 @@ dotnet run --project tools/CampaignTool -- serve
 
 Then open <http://localhost:8765/>. The left side lists the campaigns in `tools/CampaignTool/src`, the examples, and the campaigns that were written as JSON. Press **New** for an empty script, or open `01-first-beat.camp`.
 
-(You can use any text editor instead and the command line: see [the command-line tool](Command-Line-Tool). The editor is the same compiler with a window on it.)
+(You can use any text editor instead and the command line: see [[Command-Line-Tool|the command-line tool]]. The editor is the same compiler with a window on it.)
 
 ## 2. A campaign is a header and some beats
 
@@ -64,7 +73,7 @@ beat TheBoatsAreLate(repeat: days(300)) {
 }
 ```
 
-`AwakenWhen` is a *condition*: the beat does nothing until it holds. `repeat: days(300)` lets it happen again the next year. The other hooks (`OnAwaken`, `OnApproach`, `ActivateWhen`, `ResolveWhen`, `CancelWhen` ...) are explained in [Beats and the lifecycle](Beats-and-the-Lifecycle).
+`AwakenWhen` is a *condition*: the beat does nothing until it holds. `repeat: days(300)` lets it happen again the next year. The other hooks (`OnAwaken`, `OnApproach`, `ActivateWhen`, `ResolveWhen`, `CancelWhen` ...) are explained in [[Beats-and-the-Lifecycle|Beats and the lifecycle]].
 
 ## 4. Check it
 
@@ -78,7 +87,7 @@ The checker also looks for things that compile but will not do what you meant: a
 
 ## 5. Play it forward without starting the game
 
-In the editor, open the **Simulate** tab, choose a world to play against and press *Play it forward*. You get every beat that happened and when, what they did, and the beats that never happened. See [Simulation scenarios](Simulation-Scenarios) for how to describe a world.
+In the editor, open the **Simulate** tab, choose a world to play against and press *Play it forward*. You get every beat that happened and when, what they did, and the beats that never happened. See [[Simulation-Scenarios|Simulation scenarios]] for how to describe a world.
 
 ## 6. Put it in the game
 
@@ -86,6 +95,9 @@ Press **Install in game** (or run `... -- install mycampaign.camp`). That writes
 
 ## Where next
 
-- [The language guide](Language-Guide) for everything the syntax can do.
-- [Examples](Examples): five small campaigns that each teach one thing, and one long one.
-- [Library reference](Library-Reference) when you need the name of something.
+- [[Language-Guide|The language guide]] for everything the syntax can do.
+- [[Examples|Examples]]: five small campaigns that each teach one thing, and one long one.
+- [[Library-Reference|Library reference]] when you need the name of something.
+- [[World-Reference|World reference]] for the posts, brigade runs, items and people a script can name.
+- [[Quests|Quests]] to ask things of the player as well as do things to the world.
+- [[Cookbook|Cookbook]] for the patterns most campaigns need, and [[Pitfalls|Pitfalls]] before you write a long one.

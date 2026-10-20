@@ -74,6 +74,10 @@ Notice how `&&` at the top of a condition hook becomes a list (every item must h
 | `note` | string | header `note:` | free text, for people reading the file |
 | `seed` | number | header `seed:` | the dice's seed (default 20240611) |
 | `posts_by_founding_year` | bool | header `postsByFoundingYear:` | found posts on 1 January of their year |
+| `extends` | string | header `extends:` | another campaign's id whose beats are played too |
+| `start` | `YYYY-MM-DD` | header `start:` | the world's first day, on every starting path |
+| `start_year` | number | header `startYear:` | the year the world begins (each path keeps its day) |
+| `questlines` | list | `questline ...` | what the campaign asks of players: [below](JSON-Format#quest-lines) |
 | `vars` | object | `int x = 3;` | variables that start at something other than 0 |
 | `beats` | list | `beat ...` | the beats, in order (the order matters: see [one day, in order](Beats-and-the-Lifecycle#one-day-in-order)) |
 
@@ -150,6 +154,10 @@ Arguments in the compact form are split on commas and cannot contain `(`, `)` or
 | `season` | `Winter` `Breakup` `OpenWater` `FreezeUp` | it is that season | `world.season == ...` |
 | `convoy_late`, `convoy_lost`, `convoy_robbed`, `convoy_turned_back`, `convoy_out`, `convoy_in` | a run | the flag `late:<run>` (and so on) is raised | `brigade("...").isLate` ... |
 | `convoy_wintering` | a run | its crossing is frozen in on the way | `.isWintering` |
+| `quest` | a quest id | it is done (for the player a quest runs for; from a beat, for any player) | `Q.done` |
+| `quest_active` | a quest id | it is under way | `Q.active` |
+| `quest_failed` | a quest id | it has failed | `Q.failed` |
+| `posted` | a post | the player is on its books (from a beat: the host's player) | `player.posted(...)` |
 
 ### Metrics (numbers)
 
@@ -165,6 +173,8 @@ Arguments in the compact form are split on commas and cannot contain `(`, `)` or
 | `furs` | post | furs in its stores, MB | `world.furs(...)` |
 | `convoys_active` | | crossings on the rivers | `world.convoysActive` |
 | `convoy_days_late`, `convoy_days_out` | a run | of its crossing on the river (0 if none) | `.daysLate`, `.daysOut` |
+| `rapport` | who (a name, `Factor`, `role@place`) | what that person makes of the player, -100 to 100 | `player.rapport(...)` |
+| `regard` | a band camp | how the band regards the Company, 0-100 | `world.regard(...)` |
 
 A metric the game cannot answer (a post with no ledger, an unknown name) is *not a number*, and every comparison with it is false. An unknown predicate is false, with a warning in the game's console.
 
@@ -189,8 +199,71 @@ Every action is an object with `"do"`. A list of actions runs in order. The firs
 | `news` | `from` ("Montreal"), `to` (the Factor), `subject` (the beat's title), `text`, `days` (30), `company` ("HBC") | `news(...)` |
 | `say` | `text`, `to` (`all`, `HBC` or `NWC`; default `all`), `headline` (`true` for a shout) | `say`, `shout` |
 | `brigade` | `run`, `effect` (`delay` by default, `turn_back`, `lose`, `cancel`, `launch`), `days`, `leg` | `brigade("...").delay()` ... |
+| `posting` | `place` | `player.postTo` |
+| `standing` | `add` | `player.addStanding` |
+| `rapport` | `who`, `add` | `player.addRapport` |
+| `regard` | `place`, `add` | `world.addRegard` |
+| `give` | `item`, `count` (1) | `player.give` |
+| `take` | `item`, `count` (1) | `player.take` |
+| `note` | `text` | `player.note` |
+| `start_quest` | `quest` | `Q.start()` |
+| `end_quest` | `quest`, `failed` (`true` to fail it) | `Q.complete()`, `Q.fail()` |
+
+The player actions act on the player a quest runs for; from a beat, on every player (see [Quests and beats together](Quests#quests-and-beats-together)).
 
 What each world action really does is in [Effects in the game](Effects-in-the-Game). Strings in world actions (and flag names) may hold `{var:name}` and `{count:beat-id}`, filled in when they run ([more](State-Flags-and-Variables#putting-numbers-into-text)).
+
+## Quest lines
+
+`questlines` is a list of lines; a line holds `quests`; a quest holds its steps as `objectives`. This quest line:
+
+```c
+questline Servant(title: "The Company's Servant", forCompany: Company.HBC) {
+    quest Landfall(title: "Report to the Factor", summary: "You are the Company's new hand.") {
+        talk Report(who: Person.Factor, text: "Find Mr. Auld and report to him") {
+            Says() => "\"Can you carry?\"";
+            choice Keen(label: "\"Put me to work, sir.\"", reply: "\"Good.\"", goto: Unload) { player.addStanding(2); }
+        }
+        task Unload(task: Task.CarryCargo, count: 6, text: "Carry six lots to the warehouse");
+        reach Inland(place: "Edmonton House", radius: 300);
+        OnComplete() { player.postTo("Edmonton House"); }
+    }
+    quest Hunt(title: "The hunt", giver: "leader@Edmonton House") [Landfall] {
+        StartWhen() => world.regard("Beaver Hills Cree (Amiskwacîwiyiniwak)") >= 40;
+        hunt Buffalo(species: "Buffalo", count: 2);
+    }
+}
+```
+
+compiles to:
+
+```json
+"questlines": [ {
+  "id": "Servant", "title": "The Company's Servant", "for": "HBC",
+  "quests": [
+    { "id": "Landfall", "title": "Report to the Factor", "summary": "You are the Company's new hand.",
+      "on_complete": [ { "do": "posting", "place": "Edmonton House" } ],
+      "objectives": [
+        { "id": "Report", "kind": "talk", "text": "Find Mr. Auld and report to him", "who": "Factor",
+          "dialogue": { "text": "\"Can you carry?\"",
+            "choices": [ { "label": "\"Put me to work, sir.\"", "reply": "\"Good.\"",
+                           "do": [ { "do": "standing", "add": 2 } ], "goto": "Unload" } ] } },
+        { "id": "Unload", "kind": "task", "text": "Carry six lots to the warehouse", "count": 6, "task": "CarryCargo" },
+        { "id": "Inland", "kind": "reach", "place": "Edmonton House", "radius": 300 } ] },
+    { "id": "Hunt", "title": "The hunt", "giver": "leader@Edmonton House", "requires": [ "Landfall" ],
+      "start_when": [ { "m": "regard", "a": [ "Beaver Hills Cree (Amiskwacîwiyiniwak)" ], "op": ">=", "v": 40 } ],
+      "objectives": [ { "id": "Buffalo", "kind": "hunt", "count": 2, "species": "Buffalo" } ] } ] } ]
+```
+
+| Object | Keys |
+|---|---|
+| a line | `id`, `title`, `summary`, `for` (`HBC` or `NWC`), `quests` |
+| a quest | `id`, `title`, `summary`, `giver`, `for`, `requires` (quest ids), `start_when`, `fail_when` (conditions), `on_start`, `on_complete`, `on_fail` (actions), `objectives` |
+| a step | `id`, `kind` (`talk` if missing), `text`, `who`, `place`, `radius`, `item`, `count`, `task`, `convoy`, `dest`, `species`, `days`, `cond` (conditions), `dialogue`, `on_done` (actions), `next` (a step id, `complete` or `fail`) |
+| `dialogue` | `text` (what is said), `choices` |
+| a choice | `label`, `reply`, `when` (conditions), `do` (actions), `goto` |
+
+In a quest, `Person.Factor` is written `"Factor"` (and `Partner`, `Chief`, `Postmaster`): the person, not the letter address a `news(...)` uses. The checker rejects unknown keys here as for beats.
 
 ## Hand-editing: what to watch
 

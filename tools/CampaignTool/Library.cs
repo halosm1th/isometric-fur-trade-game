@@ -8,6 +8,7 @@ public sealed class LibParam
 {
 	public string Name = "", Type = "";
 	public bool Optional, Rest;
+	public string Doc = "";   // what this argument is: shown in the editor, the reference and the wiki
 	public override string ToString() => $"{Type} {Name}{(Optional ? "?" : "")}{(Rest ? "..." : "")}";
 }
 
@@ -255,7 +256,99 @@ public static class Library
 				foreach (var (k, v) in a.Extra) kv.Add((k, Json(v)));
 				return Fx(c, a.S("verb"), kv.ToArray());
 			}, openNamed: true);
+		DocParams();
 	}
 
 	private static string[] P1(params string[] specs) => specs;
+
+	// What each argument of each function is, by "owner.function.argument"
+	// ("" owner for the plain functions). A test insists every argument has one.
+	public static readonly Dictionary<string, string> ParamDocs = new()
+	{
+		["days.n"] = "How many days: a whole number, 0 or more.",
+		["date.year"] = "The year, e.g. 1816.",
+		["date.month"] = "The month, 1 (January) to 12 (December).",
+		["date.day"] = "The day of the month, 1 to 31 (it must exist in that month).",
+		["chance.percent"] = "How often it comes out true, 0-100. 30 means three times in ten.",
+		["raw.condition"] = "The condition as the game writes it: \"tension>=40\", \"flag:x\", \"post:Fort William\" ... (see the JSON format page).",
+		["world.stock.post"] = "A post that keeps books, by its exact name: \"York Factory\", \"Cumberland House\" ... (World reference).",
+		["world.stock.item"] = "Which item: Item.Rum, Item.Pemmican, Item.TradeGoods ...",
+		["world.furs.post"] = "A post that keeps books, by its exact name.",
+		["world.hasPost.place"] = "A post on the world map, by its exact name: \"Fort William\", \"Norway House\" ...",
+		["world.isDead.name"] = "A person's exact name as the game shows it: \"Mr. William Auld\", \"Maskwa (chief)\". A name nobody has is never dead.",
+		["world.inMonths.first"] = "The first month, 1-12.",
+		["world.inMonths.last"] = "The last month, 1-12 (leave it out for one month). Smaller than first wraps the year's end: inMonths(11, 3) is November to March.",
+		["world.raiseTension.amount"] = "How much to add to the tension (0-100 scale); negative lowers it. It falls by 1.2 a day on its own, so 10 lasts about a week.",
+		["world.raiseTension.why"] = "A few words for the log saying why. Leave it out and the beat's title is used.",
+		["world.setLondon.price"] = "Multiplies next year's standard of trade (goods paid per MB of fur). 1 leaves it alone, 0.85 is a hard year, 1.15 a good one.",
+		["world.setLondon.quota"] = "Multiplies the returns London expects next year. 1 leaves it alone.",
+		["world.foundPost.place"] = "A post on the world map, by its exact name.",
+		["world.addStock.post"] = "A post that keeps books, by its exact name. It must stand, or nothing happens.",
+		["world.addStock.item"] = "Which item: Item.Rum, Item.Pemmican ...",
+		["world.addStock.amount"] = "How many pieces to add; negative takes them away (never below 0).",
+		["world.regard.place"] = "A band, by its camp's name: \"Beaver Hills Cree (Amiskwacîwiyiniwak)\" ...",
+		["world.addRegard.place"] = "A band, by its camp's name.",
+		["world.addRegard.amount"] = "How much to change the band's regard for the Company (kept within 0-100); negative lowers it.",
+		["player.did.deed"] = "Which deed: \"truce\", \"raid\", \"escort\" or \"courier\".",
+		["player.deeds.deed"] = "Which deed: \"truce\", \"raid\", \"escort\" or \"courier\".",
+		["player.posted.place"] = "A post that keeps books, by its exact name.",
+		["player.rapport.who"] = "The person: an exact name, Person.Factor, or a role at a place such as \"leader@Fort Augustus\" or \"chief@<camp>\".",
+		["player.postTo.place"] = "The post that becomes the player's home: one that keeps books, by its exact name.",
+		["player.addStanding.amount"] = "How much to add to the player's standing with their company; negative lowers it.",
+		["player.addRapport.who"] = "The person: an exact name, Person.Factor, or a role at a place such as \"leader@Fort Augustus\".",
+		["player.addRapport.amount"] = "How much to change what they make of the player (-100 to 100 scale); negative sours it.",
+		["player.give.item"] = "What to put in the player's pack: Item.Tobacco ...",
+		["player.give.count"] = "How many (1 if left out).",
+		["player.take.item"] = "What to take from the player's pack.",
+		["player.take.count"] = "How many at most (1 if left out); they lose what they have up to this.",
+		["player.note.text"] = "The line for the player's journal, also said over their head.",
+		["flags.has.name"] = "The flag's name, as text: \"governor_killed\". Also a beat's id, or a game flag like \"late:the York boats\".",
+		["flags.set.name"] = "The flag's name, as text. Any name you like; other beats test it with flags.has.",
+		["flags.clear.name"] = "The flag's name, as text.",
+		["brigade.run"] = "A brigade run's exact name: \"the York boats\", \"the Saskatchewan brigade\", \"the Montreal canoes\", \"the Saskatchewan canoes\" or \"the Athabasca brigade\".",
+		["Brigade.delay.days"] = "How many days the boats are held on the bank (5 if left out).",
+		["Brigade.turnBack.days"] = "Accepted, but the game does not use it: the boats simply go back.",
+		["Brigade.launch.leg"] = "Which crossing of the run, counting from 0 in the run's list of legs (0 if left out). The World reference lists them.",
+		["news.from"] = "Who the letter is from, as it will be read: \"the Governor and Committee, London\", \"Montreal\" ... Free text.",
+		["news.to"] = "Who it is for: Person.Factor, Person.Postmaster, Person.Partner, Person.Chief, or text: a person's exact name or \"the master at <post>\". It waits until someone fits.",
+		["news.subject"] = "The letter's subject line.",
+		["news.text"] = "What the letter says.",
+		["news.days"] = "How many days it takes to arrive: London to the Bay is most of a year, Montreal to the interior two or three months.",
+		["news.company"] = "Whose letter it is: Company.HBC (if left out) or Company.NWC. Read by the other company, it has been intercepted.",
+		["say.text"] = "The line itself.",
+		["say.to"] = "Who hears it: Company.HBC (only HBC players), Company.NWC (only NWC players), or leave it out (or Company.All) for every player.",
+		["shout.text"] = "The headline itself.",
+		["shout.to"] = "Whose journals get the line: Company.HBC, Company.NWC, or leave it out for every player. The headline is shown to everyone either way.",
+		["trigger.beat"] = "The beat to happen now: its name (TheEnd), or its id as text for a beat made in a loop (\"ship-1816\").",
+		["after.delay"] = "How long to wait: days(10).",
+		["after.then"] = "What to do then: () => one effect; or () => { several; effects; }",
+		["option.weight"] = "How likely this option is, relative to the others' weights (they need not add to 100).",
+		["option.then"] = "What happens if this option is chosen: () => effect, or () => { ... }",
+		["random.options"] = "Two or more option(weight, () => ...); exactly one is done.",
+		["action.verb"] = "The game's own name for an action (\"tension\", \"stock\" ...), followed by its fields as name: value (see the JSON format page).",
+	};
+
+	// What each type is, for the editor's hover and the reference.
+	public static readonly Dictionary<string, string> TypeDocs = new()
+	{
+		["int"] = "A whole number: 3, -5.",
+		["float"] = "Any number: 0.85.",
+		["string"] = "Text in double quotes: \"York Factory\".",
+		["bool"] = "A condition the world is asked (world.tension > 50), or true/false.",
+		["Date"] = "A day: date(1816, 6, 19).",
+		["Days"] = "A length of time: days(45).",
+		["Beat"] = "A beat, by its name (SevenOaks), or its id as text.",
+		["Brigade"] = "A brigade run: brigade(\"the York boats\").",
+		["Quest"] = "A quest, by its name (Landfall).",
+		["Lambda"] = "Effects to run later: () => effect; or () => { several; effects; }",
+		["Option"] = "One way a random() can go: option(weight, () => ...).",
+		["effect"] = "It changes the world, so it belongs in an effect hook (OnActivate ...), not in a condition.",
+	};
+
+	public static string ParamDoc(Member m, LibParam p) => ParamDocs.GetValueOrDefault($"{m.Full}.{p.Name}", "");
+
+	private static void DocParams()
+	{
+		foreach (var m in All) foreach (var p in m.Params) p.Doc = ParamDoc(m, p);
+	}
 }

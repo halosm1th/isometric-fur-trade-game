@@ -32,8 +32,38 @@ int counter;                                          // 2. declarations, in any
 const int hot = 50;                                   //    variables, constants,
 void helper(string s) { say(s); }                     //    functions,
 beat Something(...) { ... }                           //    beats,
-foreach (int y in 1818..1820) { beat Each(...); }     //    and loops that write them
+foreach (int y in 1818..1820) { beat Each(...); }     //    loops that write them,
+questline Story(title: "...") { quest ... }           //    and quest lines (see Quests)
 ```
+
+## The campaign header
+
+The file begins with one header. Its values are always named:
+
+```c
+campaign CompanysServant(
+    title: "The Company's Servant",          // required: the name in the menu
+    description: "Off the ship at York ...",  // under the name in the menu
+    note: "for whoever opens the JSON",       // kept in the JSON, shown nowhere
+    seed: 1811,                               // the dice: the same seed gives the same history
+    postsByFoundingYear: true,                // posts appear on 1 January of their founding year
+    extends: "historical",                    // play that campaign's beats too
+    start: date(1815, 5, 1)                   // the world's first day (or startYear: 1815)
+);
+```
+
+| | |
+|---|---|
+| `title` | Required. The campaign's name in the menu. |
+| `description` | A few sentences under the name in the menu. If the campaign has a start, "Begins 1 May 1815." is added to it there. |
+| `note` | Free text kept in the JSON. |
+| `seed` | The seed of the campaign's dice (`chance`, `random`). |
+| `postsByFoundingYear` | `true`: posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only when a beat founds it. |
+| `extends` | Another campaign's id (its file name, `"historical"`) whose beats this one plays as well. See [building on another campaign](Quests#building-on-another-campaign). |
+| `start` | The world's first day, on every starting path: `date(1815, 5, 1)`. See [a campaign's own start](World-Reference#a-campaigns-own-start). |
+| `startYear` | Only the year: each starting path keeps its own day in it. Give `start` or `startYear`, not both. |
+
+The name after `campaign` (`CompanysServant`) is only a name for the script; the game knows a campaign by its file name.
 
 ## Comments
 
@@ -52,6 +82,8 @@ foreach (int y in 1818..1820) { beat Each(...); }     //    and loops that write
 | `Company` | which company | `Company.HBC`, `Company.NWC`, `Company.All` |
 | `Person` | who a letter is for | `Person.Factor`, `Person.Postmaster`, `Person.Partner`, `Person.Chief`, or any text |
 | `Item` | a trade good | `Item.Rum`, `Item.Pemmican` ... |
+| `Quest` | a quest | its name, `Landfall` |
+| `Task` | a task a quest step hands out | `Task.CarryCargo`, `Task.Brigade` ... |
 | `Season` | the river's season | `Season.Breakup`, `OpenWater`, `FreezeUp`, `Winter` |
 | `Kind` | a beat's kind | `Kind.Fixed`, `Conditional`, `Event`, `Pressure` |
 | `Beat` | a beat | its name, `SevenOaks` |
@@ -283,6 +315,22 @@ A loop may write at most 5000 things: more means it is probably counting the wro
 
 Because a loop creates several beats with the same *name*, those beats cannot be referred to by name (`[InteriorWar]` is ambiguous); refer to them by id string, or give the loop beats a different structure.
 
+## Quest lines
+
+Besides beats, a campaign can hold **quest lines**: what it asks of each player (report to the Factor, carry the cargo, go inland). They have their own declarations, written at the top level:
+
+```c
+questline Servant(title: "The Company's Servant", forCompany: Company.HBC) {
+    quest Landfall(title: "Report to the Factor") {
+        talk Report(who: Person.Factor, text: "Find Mr. Auld and report to him");
+        task Unload(task: Task.CarryCargo, count: 6);
+        OnComplete() { player.postTo("Edmonton House"); }
+    }
+}
+```
+
+A `questline` holds `quest`s; a quest holds steps (`talk`, `bring`, `reach`, `have`, `task`, `hunt`, `when`, `wait`) and hooks (`StartWhen`, `FailWhen`, `OnStart`, `OnComplete`, `OnFail`); a `talk` step can hold `Says`, `Done`, `OnDone` and `choice`s. Everything else in this guide (constants, functions, conditions, effects) works inside them. A quest's name is a value like a beat's: `Landfall.done`, `Landfall.start()`. The whole of it is on the [Quests](Quests) page.
+
 ## Escape hatches
 
 For anything the game can do that the language has no word for yet:
@@ -296,7 +344,7 @@ The checker still validates what it can. The game's own forms (every condition a
 
 ## Reserved words
 
-`campaign beat const void int float string bool var if else for foreach in true false`, plus the names `world`, `flags`, `player`, and the type names in the table above. The compiler tells you if you use one for something else.
+`campaign beat questline quest choice const void int float string bool var if else for foreach in true false return while`, plus the names `world`, `flags`, `player`, and the type names in the table above. (The step kinds `talk`, `reach`, `task`, `bring`, `have`, `hunt`, `when`, `wait` are words only inside a quest.) The compiler tells you if you use one for something else.
 
 ## Grammar
 
@@ -307,10 +355,15 @@ declaration
           | ("int" | "float") Name [ "=" expr ] ";"
           | ("void" | type) Name "(" params ")" ( block | "=>" expr ";" )
           | beat
+          | questline
           | loop
 beat      = "beat" Name "(" args ")" [ "[" expr {"," expr} "]" ] ( ";" | "{" { member } "}" )
 member    = hook | "const" ... | function
 hook      = HookName "(" ")" ( block | "=>" expr ";" )
+questline = "questline" Name "(" args ")" "{" { quest } "}"
+quest     = "quest" Name "(" args ")" [ "[" expr {"," expr} "]" ] "{" { questhook | step } "}"
+step      = StepKind Name "(" args ")" ( ";" | "=>" expr ";" | "{" { stephook | choice } "}" )
+choice    = "choice" Name "(" args ")" ( ";" | block )
 loop      = "for" "(" "int" i "=" a ";" i op b ";" i step ")" | "foreach" "(" "int" i "in" range-or-list ")"
               ( declaration | "{" { declaration } "}" )
 statement = block | "if" "(" expr ")" stmt [ "else" stmt ] | loop-statement

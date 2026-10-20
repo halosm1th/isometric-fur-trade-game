@@ -158,6 +158,16 @@ public static class Sim
 	public static SimResult Simulate(Dictionary<string, object> doc, Dictionary<string, object> scenario = null, uint? seed = null, string level = null)
 	{
 		var sc = DefaultScenario();
+		// The script's own first day, unless the scenario (or --start) says otherwise:
+		// start is that day; start_year is the ship's day (20 August) in that year.
+		string own = Tree.S(doc.GetValueOrDefault("start"));
+		if (own.Length == 0 && doc.GetValueOrDefault("start_year") is double sy) own = $"{(int)sy:0000}-08-20";
+		if (own.Length > 0)
+		{
+			sc["start"] = own;
+			int y = CampaignLogic.DateOf(CampaignLogic.DayNumber(own)).Year;
+			if (CampaignLogic.DayNumber(Tree.S(sc["end"])) < CampaignLogic.DayNumber(own)) sc["end"] = $"{y + 10:0000}-12-31";
+		}
 		if (scenario != null) foreach (var kv in scenario) sc[kv.Key] = kv.Value;
 		var script = CampaignScript.Parse(doc);
 		var runner = new CampaignRunner { Level = Levels[level ?? Tree.S(sc["adherence"])] };

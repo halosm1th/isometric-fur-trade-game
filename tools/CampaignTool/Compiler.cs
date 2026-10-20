@@ -104,11 +104,21 @@ internal sealed partial class Compiler
 				case "seed": root["seed"] = v is double d && d >= 0 && d == Math.Floor(d) ? d : throw new CampError("seed must be a whole number", a.Value.At); break;
 				case "postsByFoundingYear": if (v is true) root["posts_by_founding_year"] = true; else if (v is not false) throw new CampError("postsByFoundingYear is true or false", a.Value.At); break;
 				case "extends": root["extends"] = v is string ex && ex.Length > 0 ? ex : throw new CampError("extends names another campaign by its id (its file name), e.g. \"historical\"", a.Value.At); break;
-				default: throw new CampError($"the campaign header has no '{a.Name}'.{Suggest(a.Name, new[] { "title", "description", "note", "seed", "postsByFoundingYear", "extends" })} (its values are title, description, note, seed, postsByFoundingYear, extends)", a.NameAt);
+				case "start":
+					if (root.ContainsKey("start_year")) throw new CampError("give start or startYear, not both", a.NameAt);
+					root["start"] = v is DateV sdv ? sdv.ToString() : throw new CampError($"start is the world's first day, date(year, month, day), but got {Describe(v)}", a.Value.At);
+					break;
+				case "startYear":
+					if (root.ContainsKey("start")) throw new CampError("give start or startYear, not both", a.NameAt);
+					root["start_year"] = v is double sy && sy == Math.Floor(sy) && sy >= 1700 && sy <= 2100 ? sy : throw new CampError($"startYear is a year (1700-2100), but got {Describe(v)}", a.Value.At);
+					break;
+				default: throw new CampError($"the campaign header has no '{a.Name}'.{Suggest(a.Name, HeaderArgs)} (its values are {string.Join(", ", HeaderArgs)})", a.NameAt);
 			}
 		}
 		if (!titled) throw new CampError("the campaign needs a title: campaign " + c.Name + "(title: \"...\")", c.At);
 	}
+
+	private static readonly string[] HeaderArgs = { "title", "description", "note", "seed", "postsByFoundingYear", "extends", "start", "startYear" };
 
 	private string Text(object v, Arg a) => v is string s ? s : throw new CampError($"{a.Name} is text, but got {Describe(v)}", a.Value.At);
 

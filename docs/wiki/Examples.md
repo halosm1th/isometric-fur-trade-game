@@ -54,6 +54,22 @@ Learn: `player.did`, `CancelWhen` as a branch, `rumour:`, a `foreach` that write
 
 Learn: brigade conditions (`isLate`, `daysLate`, `isRobbed`, `isWintering`) and effects (`delay`, `turnBack`), the full lifecycle on a repeating beat, and counters.
 
+## The Company's Servant (a story with quests)
+
+`src/company-servant.camp`. The HBC story's first chapter, and the example to read for [quests](Quests). It `extends: "historical"`, so the Pemmican War's beats run underneath, and adds three quest lines for HBC players:
+
+| Line | Quests | What it shows |
+|---|---|---|
+| *The Company's Servant* | `Landfall` (report to the Factor, carry the cargo, report back), `UpTheRivers` (go up with the York boats), `Edmonton` (report to the master at Edmonton House) | `talk` with `Says` and choices, a `task` step (`Task.CarryCargo`, `Task.Brigade` with `convoy:`), `reach`, `player.postTo` |
+| *The Other House* | `Neighbours` (call on the Nor'Westers at Fort Augustus), then `QuietArrangement` or `SpoilingTheTrade` | a three-way choice that sets a flag (`nwc_friendly`, `nwc_hostile`), quests offered by a `giver` that wait on those flags (`StartWhen`), `goto` between steps |
+| *The Company's Friends* | `TobaccoAndTalk`, `TheInvitation` (the Beaver Hills Cree, and their hunt) | `bring`, `hunt`, `world.addRegard`, a role at a camp (`"chief@Beaver Hills Cree (Amiskwacîwiyiniwak)"`) |
+
+One beat closes the chapter: `HorsesTaken` wakes when `TheInvitation.done` (a beat waiting on a quest) and raises `beaver_hills_raided` for the next chapter to take up. Named people are given as constants at the top (`const string master = "leader@Edmonton House";`), which keeps the steps readable.
+
+## The Open Country (free roam)
+
+`src/open-country.camp`. A header and nothing else: `extends: "historical"` with no quest lines, so the history runs and every player, of any company or band, makes their own way. The shortest campaign that ships, and the pattern for a free-roam game.
+
 ## The Company Years (the long one)
 
 `src/company-years.camp` (installed as `Campaigns/company-years.json`). Fifty-nine beats over twenty years, 1811-1830, in five acts:

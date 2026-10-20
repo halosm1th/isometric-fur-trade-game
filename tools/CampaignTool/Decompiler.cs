@@ -123,6 +123,9 @@ public sealed partial class Decompiler
 		if (_doc.TryGetValue("seed", out var seed)) args.Add($"seed: {Tree.S(seed)}");
 		if (_doc.GetValueOrDefault("posts_by_founding_year") is true) args.Add("postsByFoundingYear: true");
 		if (Tree.S(_doc.GetValueOrDefault("extends")).Length > 0) args.Add($"extends: {Quote(Tree.S(_doc["extends"]))}");
+		if (Tree.S(_doc.GetValueOrDefault("start")) is var st && Regex.IsMatch(st, @"^\d{4}-\d\d-\d\d$"))
+			args.Add($"start: date({int.Parse(st[..4])}, {int.Parse(st[5..7])}, {int.Parse(st[8..])})");
+		if (_doc.TryGetValue("start_year", out var sy)) args.Add($"startYear: {Tree.S(sy)}");
 		return $"campaign {NameFor(_name)}(\n{Ind}{string.Join(",\n" + Ind, args)}\n);\n";
 	}
 

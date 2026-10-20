@@ -22,6 +22,8 @@ Patterns for the things campaigns most often need, each a few lines you can copy
 | different words for each company | [Speaking to each side](Cookbook#speaking-to-each-side) |
 | a post founded as part of the story | [Founding a post](Cookbook#founding-a-post) |
 | the player to feel something coming | [Rumours that sharpen](Cookbook#rumours-that-sharpen) |
+| the world to begin later than 1811 | [A later start](Cookbook#a-later-start) |
+| something asked of the player | [A first quest](Cookbook#a-first-quest) |
 | an end | [An ending](Cookbook#an-ending) |
 
 ## A fixed fact
@@ -388,6 +390,44 @@ beat TheBattle(
 ```
 
 `Whispers` has no `OnActivate`, so it is a *pressure* beat: from 120 days before its date its rumour is told and its pressure runs, and on its date it is done and its rumour goes, the day before `TheBattle`'s own rumour (21 days of lead) begins.
+
+## A later start
+
+The header's `start` begins the world on a day of your choosing, on every starting path; `startYear` only moves the year. Everything dated before the first day is history (its flags hold), so write the years you skip as beats with flags, and test later beats against them:
+
+```c
+// in the header: campaign AfterTheMerger(title: "After the merger", start: date(1821, 8, 20));
+beat UnionSigned(id: "union-signed", title: "The companies unite", date: date(1821, 3, 26)) {
+    OnActivate() { flags.set("union"); world.raiseTension(-70, "the union"); }   // history: only the flag is kept
+}
+
+beat FirstCouncil(title: "Simpson's council at York", date: date(1821, 9, 1)) ["union"] {
+    OnActivate() { say("The chief factors of both old companies sit down together at York Factory."); }
+}
+```
+
+See [a campaign's own start](World-Reference#a-campaigns-own-start) for what changes with the year and what does not.
+
+## A first quest
+
+Beats happen to the world; a [quest](Quests) asks something of the player. The smallest useful one: speak to someone, do something, come back.
+
+```c
+questline Errands(title: "Errands at the Factory", forCompany: Company.HBC) {
+    quest Wood(title: "Wood for the Factory", summary: "The Factor wants wood cut before the snow.") {
+        talk Asked(who: Person.Factor, text: "Ask Mr. Auld what is wanted") {
+            Says() => "\"Wood, {player}. Ten loads, before the snow comes.\"";
+        }
+        task Cut(task: Task.Firewood, count: 10, text: "Bring in ten loads of firewood");
+        talk Done(who: Person.Factor, text: "Tell Mr. Auld it is done") {
+            Says() => "\"Good. I'll remember it.\"";
+        }
+        OnComplete() { player.addStanding(3); }
+    }
+}
+```
+
+A beat can then wait on it with `AwakenWhen() => Wood.done;`.
 
 ## An ending
 
