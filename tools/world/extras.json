@@ -287,5 +287,19 @@
       "lat": 50.45,
       "maj": 0
     }
+  ],
+  "camps_about": "Camps set down by hand, as they are, after everything else is placed (so nothing moves for them), each after the named camp in the list. The Beaver Hills Cree (Amiskwacîwiyiniwak) by Edmonton House, the Company's allies in the HBC story's Edmonton chapter.",
+  "camps": [
+    {
+      "after": "Plains Cree",
+      "name": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+      "nation": "Cree",
+      "kind": "band",
+      "centre": [
+        292,
+        1056
+      ],
+      "people": 12
+    }
   ]
 }

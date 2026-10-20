@@ -642,6 +642,12 @@ def lay_out(G, places, extras, atlas):
         except SystemExit: print(f"  no room for {p['name']}"); continue
         placed.append(Cell(top, pw // 2, pd // 2)); forbid(top, pw, pd, 3)
         posts.append(dict(name=p["name"], company=p["company"], year=p.get("year", 0), closed=extras.get("post_closures", {}).get(p["name"], 0), top=list(top)))
+    # Camps set down by hand (extras.json "camps"), as they are, each after
+    # the camp it names; last of all, so nothing above moves for them.
+    for hc in extras.get("camps", []):
+        hc = dict(hc); after = hc.pop("after", None)
+        at = next((i + 1 for i, c in enumerate(camps) if c["name"] == after), len(camps))
+        camps.insert(at, hc)
     km = lambda a, b: math.dist(cell_world(*a), cell_world(*b)) / PX_PER_KM
     print(f"{len(camps)} camps ({sum(1 for c in camps if c['kind'] == 'band')} bands); {len(posts)} other posts fitted; {len(crossings)} river cells forded; fort {fort}, nwc {nwc} ({km(fort, nwc):.0f} km), oxford {outpost} ({km(fort, outpost):.0f} km), road {len(road)} pts")
     return dict(fort_top=list(fort), nwc_top=list(nwc), outpost_top=list(outpost),
