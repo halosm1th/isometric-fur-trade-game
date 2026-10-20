@@ -48,8 +48,8 @@ internal sealed class Args
 
 public static class Library
 {
-	public static readonly string[] Companies = { "HBC", "NWC", "All" };
-	public static readonly Dictionary<string, string> CompanyJson = new() { ["HBC"] = "HBC", ["NWC"] = "NWC", ["All"] = "all" };
+	public static readonly string[] Companies = { "HBC", "NWC", "American", "All" };
+	public static readonly Dictionary<string, string> CompanyJson = new() { ["HBC"] = "HBC", ["NWC"] = "NWC", ["American"] = "American", ["All"] = "all" };
 	public static readonly Dictionary<string, string> Persons = new()
 	{
 		["Factor"] = "the Factor at York Factory", ["Postmaster"] = "the postmaster at Oxford House",
@@ -60,7 +60,7 @@ public static class Library
 
 	public static readonly Dictionary<string, string> EnumDocs = new()
 	{
-		["Company"] = "The two companies (and everyone): Company.HBC, Company.NWC, Company.All.",
+		["Company"] = "The companies (and everyone): Company.HBC, Company.NWC, Company.American (the Missouri, Pacific and American Fur Companies), Company.All.",
 		["Person"] = "Who a letter is addressed to: Person.Factor, Person.Postmaster, Person.Partner, Person.Chief. A plain string names anyone else.",
 		["Season"] = "The river's season, for world.season: Season.Breakup, OpenWater, FreezeUp, Winter.",
 		["Kind"] = "The beat kinds, for the kind: argument when the derived one is not what you want: Kind.Fixed, Conditional, Event, Pressure.",

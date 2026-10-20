@@ -48,7 +48,7 @@ public static class Known
 	public static readonly HashSet<string> Predicates = new() { "flag", "beat", "after", "before", "chance", "month", "post", "dead", "player_faction", "season", "convoy_late", "convoy_lost", "convoy_robbed", "convoy_turned_back", "convoy_out", "convoy_in", "convoy_wintering", "quest", "quest_active", "quest_failed", "posted", "at_peace" };
 	public static readonly HashSet<string> Metrics = new() { "var", "month", "year", "day", "day_of_year", "count", "beat_age", "tension", "standing", "stock", "furs", "convoys_active", "convoy_days_late", "convoy_days_out", "rapport", "regard", "feud" };
 	public static readonly string[] Addressees = { "the Factor at York Factory", "the postmaster at Oxford House", "the wintering partner", "the chief of the band" };
-	public static readonly string[] Companies = { "HBC", "NWC" };
+	public static readonly string[] Companies = { "HBC", "NWC", "American" };
 	public static readonly string[] EngineFlagPrefixes = { "heard:", "late:", "lost:", "robbed:", "turned:", "out:", "in:", "deed:", "war:" };
 	public static readonly HashSet<string> EngineFlags = new() { "brigade_late", "brigade_lost", "brigade_robbed", "brigade_turned_back", "brigade_in", "open_hostility" };
 

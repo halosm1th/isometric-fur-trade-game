@@ -485,7 +485,7 @@ public sealed partial class Decompiler
 						$"from: {Quote(Tree.S(a["from"]))}", $"to: {to}", $"subject: {Str(Tree.S(a["subject"]), inner.Length + 9)}",
 						$"text: {Str(Tree.S(a["text"]), inner.Length + 6)}", $"days: {N("days")}",
 					};
-					if (a.ContainsKey("company")) args.Add($"company: {(Tree.S(a["company"]) is "HBC" or "NWC" ? "Company." + Tree.S(a["company"]) : Q("company"))}");
+					if (a.ContainsKey("company")) args.Add($"company: {(Tree.S(a["company"]) is "HBC" or "NWC" or "American" ? "Company." + Tree.S(a["company"]) : Q("company"))}");
 					string text = $"{pad}news(\n{inner}{string.Join(",\n" + inner, args)}\n{pad});";
 					var cand = text.Split('\n').ToList();
 					if (StmtOk(text.Trim(), a)) return cand;
@@ -517,7 +517,7 @@ public sealed partial class Decompiler
 			case "stock" when Only(a, "post", "item", "add") && Has("post", "item", "add"): simple.Add($"world.addStock({Q("post")}, {ItemText(Tree.S(a["item"]))}, {N("add")});"); break;
 			case "say" when Only(a, "text", "to", "headline") && Has("text"):
 				{
-					string who = a.TryGetValue("to", out var t) ? ", " + (Tree.S(t) is "HBC" or "NWC" ? "Company." + Tree.S(t) : Tree.S(t) == "all" ? "Company.All" : Q("to")) : "";
+					string who = a.TryGetValue("to", out var t) ? ", " + (Tree.S(t) is "HBC" or "NWC" or "American" ? "Company." + Tree.S(t) : Tree.S(t) == "all" ? "Company.All" : Q("to")) : "";
 					string call = a.GetValueOrDefault("headline") is true ? "shout" : "say";
 					simple.Add($"{call}({Str(Tree.S(a["text"]), col + call.Length + 1)}{who});");
 					break;

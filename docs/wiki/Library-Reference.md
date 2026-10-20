@@ -1052,8 +1052,8 @@ TheHunt.fail()
 
 ## Named values
 
-- **`Company`**: The two companies (and everyone): Company.HBC, Company.NWC, Company.All.
-  Values: `Company.HBC`, `Company.NWC`, `Company.All`
+- **`Company`**: The companies (and everyone): Company.HBC, Company.NWC, Company.American (the Missouri, Pacific and American Fur Companies), Company.All.
+  Values: `Company.HBC`, `Company.NWC`, `Company.American`, `Company.All`
 - **`Person`**: Who a letter is addressed to: Person.Factor, Person.Postmaster, Person.Partner, Person.Chief. A plain string names anyone else.
   Values: `Person.Factor`, `Person.Postmaster`, `Person.Partner`, `Person.Chief`
 - **`Season`**: The river's season, for world.season: Season.Breakup, OpenWater, FreezeUp, Winter.

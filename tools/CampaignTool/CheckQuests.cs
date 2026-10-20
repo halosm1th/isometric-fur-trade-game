@@ -41,7 +41,7 @@ public static partial class Checker
 			if (!lineIds.Add(lid)) rep.Error(lw, "duplicate id");
 			foreach (var k in l.Keys) if (!LineKeys.Contains(k)) rep.Error(lw, $"unknown key '{k}' (a quest line has {string.Join(", ", LineKeys)})");
 			if (Tree.S(l.GetValueOrDefault("title")).Length == 0) rep.Warn(lw, "has no title");
-			if (l.TryGetValue("for", out var lf) && !Known.Companies.Contains(Tree.S(lf))) rep.Error(lw, $"for must be HBC or NWC (got '{Tree.S(lf)}')");
+			if (l.TryGetValue("for", out var lf) && !Known.Companies.Contains(Tree.S(lf))) rep.Error(lw, $"for must be HBC, NWC or American (got '{Tree.S(lf)}')");
 			foreach (var qo in Tree.AsList(l.GetValueOrDefault("quests")))
 			{
 				if (qo is not Dictionary<string, object> q) { rep.Error(lw, "a quest is an object"); continue; }
@@ -56,7 +56,7 @@ public static partial class Checker
 			string qw = $"quest {qid}";
 			foreach (var k in q.Keys) if (!QuestKeys.Contains(k)) rep.Error(qw, $"unknown key '{k}' (a quest has {string.Join(", ", QuestKeys)})");
 			if (Tree.S(q.GetValueOrDefault("title")).Length == 0) rep.Warn(qw, "has no title");
-			if (q.TryGetValue("for", out var qf) && !Known.Companies.Contains(Tree.S(qf))) rep.Error(qw, $"for must be HBC or NWC (got '{Tree.S(qf)}')");
+			if (q.TryGetValue("for", out var qf) && !Known.Companies.Contains(Tree.S(qf))) rep.Error(qw, $"for must be HBC, NWC or American (got '{Tree.S(qf)}')");
 			if (q.TryGetValue("giver", out var gv)) CheckWho(Tree.S(gv), $"{qw} > giver", rep, world);
 			foreach (var r in Tree.AsList(q.GetValueOrDefault("requires")))
 				if (!questIds.ContainsKey(Tree.S(r))) rep.Error(qw, $"requires '{Tree.S(r)}', which is not a quest");

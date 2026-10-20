@@ -56,7 +56,7 @@ internal sealed partial class Compiler
 	}
 
 	private string ForCompany(object v, Arg a) =>
-		v is EnumV { Type: "Company" } e && e.Value != "All" ? Library.CompanyJson[e.Value] : throw new CampError($"forCompany is Company.HBC or Company.NWC, but got {Describe(v)}", a.Value.At);
+		v is EnumV { Type: "Company" } e && e.Value != "All" ? Library.CompanyJson[e.Value] : throw new CampError($"forCompany is Company.HBC, Company.NWC or Company.American, but got {Describe(v)}", a.Value.At);
 
 	private void Named(Arg a, string where)
 	{

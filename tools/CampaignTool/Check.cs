@@ -256,7 +256,7 @@ public static partial class Checker
 					if (a.TryGetValue("company", out var co) && Tree.S(co).Length > 0 && !Known.Companies.Contains(Tree.S(co))) rep.Error(w, $"news company must be HBC or NWC (got '{Tree.S(co)}')");
 					break;
 				case "say":
-					if (a.TryGetValue("to", out var sto) && !(Tree.S(sto) is "all" or "HBC" or "NWC")) rep.Error(w, "say: to must be all, HBC or NWC");
+					if (a.TryGetValue("to", out var sto) && !(Tree.S(sto) is "all" or "HBC" or "NWC" or "American")) rep.Error(w, "say: to must be all, HBC, NWC or American");
 					break;
 				case "tension":
 					if (a.GetValueOrDefault("add") is double t && Math.Abs(t) > 100) rep.Warn(w, $"tension {t:+0.##;-0.##} is more than the whole 0-100 scale");
