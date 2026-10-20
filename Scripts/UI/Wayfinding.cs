@@ -174,7 +174,9 @@ public partial class WayfindingHud : Control
         if (_player == null || !IsInstanceValid(_player) || MapPanel.IsOpen) return;
         if (Waypoint.Target is { } w) Mark(w, "waypoint", new Color(1f, 0.82f, 0.3f));
         if (Objective.Of(_player) is { } o) Mark(o.At, o.Label, new Color(0.55f, 0.8f, 1f));
+        if (_player.QuestMark is { } q) Mark(q.At, q.Label, QuestColour);
     }
+    public static readonly Color QuestColour = new(0.62f, 0.9f, 0.45f);
 
     private void Mark(Vector2 world, string label, Color col)
     {

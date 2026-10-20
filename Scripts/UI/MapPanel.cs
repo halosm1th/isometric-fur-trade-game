@@ -294,6 +294,14 @@ public partial class MapCanvas : Control
             DrawColoredPolygon(new[] { p + new Vector2(0, -6), p + new Vector2(5, 0), p + new Vector2(0, 6), p + new Vector2(-5, 0) }, new Color(0.3f, 0.55f, 0.9f));
             DrawString(font, p + new Vector2(8, -6), goal.Label, HorizontalAlignment.Left, -1, 11, ink);
         }
+        // The quest step in hand.
+        if (Player?.QuestMark is { } quest)
+        {
+            var p = M(quest.At);
+            DrawColoredPolygon(new[] { p + new Vector2(0, -7), p + new Vector2(6, 0), p + new Vector2(0, 7), p + new Vector2(-6, 0) }, WayfindingHud.QuestColour);
+            DrawArc(p, 9f, 0f, Mathf.Tau, 20, WayfindingHud.QuestColour, 1.5f);
+            DrawString(font, p + new Vector2(10, 14), quest.Label, HorizontalAlignment.Left, -1, 11, ink);
+        }
         if (Player != null && Player.Spouse != null && IsInstanceValid(Player.Spouse) && !Player.Spouse.IsDead)
         {
             var p = M(Player.Spouse.GlobalPosition);

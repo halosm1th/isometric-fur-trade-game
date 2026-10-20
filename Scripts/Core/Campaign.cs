@@ -110,6 +110,26 @@ public static class Campaign
                 if (f.EndsWith(".json")) yield return ("user:" + f[..^5], $"{UserDir}/{f}");
     }
 
+    // Dev: `-- --watch` reloads the campaign's script when its file changes
+    // (the editor's Install, or a hand edit), keeping where the world and
+    // every player's quests have got to: the beats and quests are the new
+    // file's; what has happened, the flags, and the steps reached stay.
+    private static readonly bool _watching = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--watch") >= 0;
+    private static ulong _watchedAt, _nextLook;
+    private static void Watch()
+    {
+        if (!_watching || Time.GetTicksMsec() < _nextLook) return;
+        _nextLook = Time.GetTicksMsec() + 1500;
+        if (PathOf(Id) is not string path) return;
+        ulong m = FileAccess.GetModifiedTime(path);
+        if (_watchedAt == 0) { _watchedAt = m; return; }
+        if (m == _watchedAt) return;
+        _watchedAt = m;
+        LoadScript();
+        GD.Print($"[campaign] {Id} reloaded: {_runner.Script.Beats.Count} beats, {Quests.Lines.Sum(l => l.Quests.Count)} quests");
+        Sim.Notice($"The campaign script was reloaded ({Title}).");
+    }
+
     private static string PathOf(string id)
     {
         foreach (var (fid, path) in Files()) if (fid == id) return path;
@@ -147,7 +167,8 @@ public static class Campaign
     {
         if (path.StartsWith("res://") && ResourceLoader.Exists(path))
         {
-            var j = GD.Load<Json>(path);
+            // A --watch reload must not be handed the copy cached at start.
+            var j = ResourceLoader.Load<Json>(path, null, _watching ? ResourceLoader.CacheMode.Replace : ResourceLoader.CacheMode.Reuse);
             if (j?.Data.VariantType == Variant.Type.Dictionary) return j.Data.AsGodotDictionary();
         }
         if (!FileAccess.FileExists(path)) return null;
@@ -268,6 +289,7 @@ public static class Campaign
         if (cal == null || !Net.Net.IsServer) return;
         if (!_begun) { if (SaveGame.HasPending) return; Begin(); }
         if (!_settled) { if (!Sim.Players().Any()) return; Settle(); }
+        Watch();
         int today = DayOf(cal.Year, cal.Month, cal.Day);
         if (today == _lastDay) return;
         _lastDay = today;
@@ -439,6 +461,10 @@ public static class Campaign
     // ---- conditions ----------------------------------------------------------------
 
     public static void Flag(string name) { if (Net.Net.IsServer) _flags.Add(name); }
+    // Dev (Quests.DevJump, "play from here"): a beat a quest waits on is made
+    // to happen, effects and all, on the next tick - as a "trigger" action does.
+    public static bool Happened(string id) => _st.Done.Contains(id);
+    public static void DevHappen(string id) { if (Net.Net.IsServer && !_st.Done.Contains(id)) _st.Forced.Add(id); }
 
     // A quest's conditions and actions are the language's, asked and done on
     // behalf of one player (Actor): "standing" is theirs, "posting" moves them.

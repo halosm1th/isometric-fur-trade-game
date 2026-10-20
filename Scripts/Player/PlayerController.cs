@@ -46,6 +46,10 @@ public partial class PlayerController : Agent
 	// player's own machine, the lines the server sends for the journal.
 	public readonly Core.QuestLog Quests = new();
 	public List<string> QuestLines = new();
+	// Where the quest step in hand is done, and what it is (Quests.FocusMark):
+	// worked out on the server, mirrored to a joined player for his map and compass.
+	private Vector2? _questMarkAt; private string _questMarkLabel = "";
+	public (Vector2 At, string Label)? QuestMark => NetHub.IsServer ? Core.Quests.FocusMark(this) : _questMarkAt is { } m ? (m, _questMarkLabel) : null;
 	private float _questTick;
 	public readonly HashSet<string> KnownSites = new();
 	public readonly Dictionary<string, Vector2I> SiteBelief = new();
@@ -336,7 +340,28 @@ public partial class PlayerController : Agent
 		// knifes the nearest person after 3 s, `--talk` opens a conversation after 4 s.
 		foreach (string arg in OS.GetCmdlineUserArgs())
 		{
-			if (arg.StartsWith("--spawn=") && NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => { GlobalPosition = IsoGrid.ToWorld(TerrainPainter.NamedSpot(spot)); _netTarget = GlobalPosition; _teleported = true; GD.Print($"[dev] host moved to {spot} {Cell}"); }; }
+			// Dev: `--spawn=` a post, a place, a camp, a cell ("538,1959"), a
+			// person ("leader@Fort Souris", "chief@Métis of the Souris", a name),
+			// or "@quest": where the quest step in hand is (after --quest has
+			// put you on it). The campaign editor's "play from here" uses these.
+			if (arg.StartsWith("--spawn=") && NetHub.IsServer)
+			{
+				string spot = arg.Substring(8);
+				GetTree().CreateTimer(spot == "@quest" ? 4.0 : 1.0).Timeout += () =>
+				{
+					Vector2 at = IsoGrid.ToWorld(TerrainPainter.NamedSpot(spot));
+					if (spot == "@quest") { if (Core.Quests.FocusTarget(this) is { } q) at = q; else { GD.Print("[dev] no quest step to stand at"); return; } }
+					else if (spot.Contains('@') || World.Posts.Named(spot) == null && WorldMap.Place(spot) == null && World.Camps.Named(spot) == null && !spot.Contains(','))
+					{
+						foreach (var n in Sim.Npcs) if (!n.IsDead && Core.Quests.Matches(spot, n)) { at = n.GlobalPosition + new Vector2(60, 30); break; }
+					}
+					GlobalPosition = at; _netTarget = GlobalPosition; _teleported = true;
+					GD.Print($"[dev] host moved to {spot} {Cell}");
+				};
+			}
+			// Dev: `--flags=a,b` raises campaign flags before a --quest jump, for
+			// the choices only an earlier choice of the player's would open.
+			if (arg.StartsWith("--flags=") && NetHub.IsServer) GetTree().CreateTimer(2.5).Timeout += () => { foreach (var f in arg.Substring(8).Split(',', System.StringSplitOptions.RemoveEmptyEntries)) { Core.Campaign.Flag(f.Trim()); GD.Print($"[dev] flag {f.Trim()}"); } };
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
 			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			// Dev: `-- --fx` plays each of the combat effects beside you in
@@ -829,6 +854,7 @@ public partial class PlayerController : Agent
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["ride"] = RideId, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
 			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["skills"] = new float[] { Skills.Hunting, Skills.Trapping, Skills.Trade, Skills.Woodcraft }, ["furs"] = BelievedFursMb, ["quota"] = BelievedQuotaMb, ["counted"] = LastCountedDay, ["unworn"] = UnwornList(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
+			["qmark"] = Core.Quests.FocusMark(this) is { } qm ? new Godot.Collections.Array { qm.At.X, qm.At.Y, qm.Label } : new Godot.Collections.Array(),
 			["quests"] = new Godot.Collections.Array(Core.Quests.Summary(this).ConvertAll(s => (Variant)s)),
 			["horse"] = PackHorse(),
 		};
@@ -845,6 +871,7 @@ public partial class PlayerController : Agent
 		Standing = (float)d["standing"];
 		TaskText = (string)d["task"];
 		if (d.TryGetValue("quests", out var qv)) { QuestLines.Clear(); foreach (var q in qv.AsGodotArray()) QuestLines.Add(q.AsString()); }
+		if (d.TryGetValue("qmark", out var qmv) && qmv.AsGodotArray() is { Count: 3 } qa) { _questMarkAt = new Vector2((float)qa[0], (float)qa[1]); _questMarkLabel = qa[2].AsString(); } else _questMarkAt = null;
 		_clientCooldown = (float)d["cd"];
 		string anim = (string)d["anim"];
 		if (anim != "") _oneShotAnim = anim;

@@ -238,9 +238,30 @@ public static class Quests
 
 	// Dev: `--quest=<quest>[:<step>]` starts a quest (whatever it requires) and
 	// puts it at that step, so a chain can be tried from the middle.
+	// Dev (`--quest=Q:Step`, and the editor's "play from here"): start Q at
+	// Step as if the story had got there. Every quest it stands on (its
+	// `requires`, all the way down) is started and finished, so their
+	// effects - postings, goods, flags - are in the world; the flags and the
+	// history its StartWhen waits on are raised (the first way of an `any`);
+	// then it starts. What only a choice of the player's decides (a `when` on
+	// a choice) is not guessed: those flags are printed, for `--flags=a,b`.
 	public static void DevJump(PlayerController p, string questId, string stepId)
 	{
 		if (Def(questId) is not { } q) { GD.Print($"[quest] no quest '{questId}'"); return; }
+		var stood = new HashSet<string>();
+		void StandOn(QuestDef d)
+		{
+			foreach (var r in d.Requires)
+			{
+				if (!stood.Add(r) || Def(r) is not { } rq) continue;
+				StandOn(rq);
+				if (p.Quests.States.TryGetValue(rq.Id, out var rs) && rs.Status != QuestStatus.Active) continue;
+				if (!p.Quests.States.ContainsKey(rq.Id)) Start(p, rq);
+				if (p.Quests.States.TryGetValue(rq.Id, out var now) && now.Status == QuestStatus.Active) Finish(p, rq, now, true);
+			}
+			Raise(d.StartWhen);
+		}
+		StandOn(q);
 		if (!p.Quests.States.ContainsKey(q.Id)) Start(p, q);
 		var st = p.Quests.States[q.Id];
 		st.Status = QuestStatus.Active;
@@ -252,6 +273,42 @@ public static class Quests
 			Announce(p, q, st);
 		}
 		GD.Print($"[quest] {q.Id} at step {q.Objectives[st.At].Id}");
+		// The flags this quest's choices read from here on, for the author.
+		var read = new SortedSet<string>();
+		for (int i = st.At; i < q.Objectives.Count; i++)
+			if (q.Objectives[i].Dialogue is { } dlg)
+				foreach (var c in dlg.Choices) foreach (var f in FlagsIn(c.When)) read.Add(f);
+		if (read.Count > 0) GD.Print($"[quest] choices ahead read {string.Join(", ", read)}: set any with --flags=a,b");
+	}
+
+	// Make a condition hold, as far as raising flags and history can: flags
+	// are set, beats made to happen; the first way of an `any`; a `not`, or a
+	// number (regard, rapport, tension), is left as it is.
+	private static void Raise(List<object> cond)
+	{
+		if (cond == null) return;
+		foreach (var c in cond) RaiseOne(c);
+	}
+	private static void RaiseOne(object c)
+	{
+		switch (c)
+		{
+			case string s when s.StartsWith("flag:"): Campaign.Flag(s[5..]); GD.Print($"[quest] flag {s[5..]} raised"); break;
+			case string s when s.StartsWith("beat:"): if (!Campaign.Happened(s[5..])) { Campaign.DevHappen(s[5..]); GD.Print($"[quest] {s[5..]} made to happen"); } break;
+			case string s: GD.Print($"[quest] left as it is: {s}"); break;
+			case Dictionary<string, object> d when d.TryGetValue("any", out var any) && any is List<object> ways && ways.Count > 0: RaiseOne(ways[0]); break;
+			case Dictionary<string, object> d when d.TryGetValue("all", out var all) && all is List<object> each: foreach (var x in each) RaiseOne(x); break;
+		}
+	}
+	private static IEnumerable<string> FlagsIn(object c)
+	{
+		switch (c)
+		{
+			case string s when s.StartsWith("flag:"): yield return s[5..]; break;
+			case string s when s.StartsWith("!flag:"): yield return s[6..]; break;
+			case List<object> l: foreach (var x in l) foreach (var f in FlagsIn(x)) yield return f; break;
+			case Dictionary<string, object> d: foreach (var v in d.Values) foreach (var f in FlagsIn(v)) yield return f; break;
+		}
 	}
 
 	// Done with the objective being worked: on to the next, or a goto's.
@@ -404,6 +461,27 @@ public static class Quests
 			if (st.Status == QuestStatus.Active && (best == null || st.StepDay >= best.StepDay)) best = st;
 		if (best != null && Def(best.Id) is { } q && best.At < q.Objectives.Count && Matches(q.Objectives[best.At].Who, npc)) return true;
 		return OffersFrom(p, npc).Count > 0;
+	}
+
+	// The quest step in hand, as a mark for the map and the compass: where it
+	// is, and what is to be done there (the step's text, or the quest's title).
+	public static (Vector2 At, string Label)? FocusMark(PlayerController p)
+	{
+		if (FocusTarget(p) is not { } at) return null;
+		var st = Focused(p);
+		var q = Def(st.Id);
+		var o = q.Objectives[st.At];
+		string label = o.Text != "" ? o.Text : q.Title;
+		if (label.Length > 48) label = label[..45] + "...";
+		return (at, label);
+	}
+
+	private static QuestState Focused(PlayerController p)
+	{
+		QuestState best = null;
+		foreach (var st in p.Quests.States.Values)
+			if (st.Status == QuestStatus.Active && (best == null || st.StepDay >= best.StepDay)) best = st;
+		return best;
 	}
 
 	// Where the HUD's objective is, if it is somewhere.
