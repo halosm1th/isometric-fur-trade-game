@@ -32,6 +32,8 @@ The names you pass in (posts, brigade runs, items, people, letter addressees) ar
 | `note` | `string` | A note kept in the JSON, for whoever opens it. Free text. |
 | `seed` | `int` | The seed for the script's dice (chance, random). The same seed gives the same history. |
 | `postsByFoundingYear` | `bool` | When true, posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only if a beat founds it. |
+| `start` | `Date` | The world's first day, for every starting path: date(1815, 5, 1). Without it the world begins in 1811, on the starting path's own day (10 June, 12 July or 20 August). What the script dates before the first day is history. A developer's --date wins. |
+| `startYear` | `int` | Only the year the world begins in: each starting path keeps its own day (the ship on 20 August and so on) in that year. Give start or startYear, not both. |
 | `extends` | `string` | Another campaign (by its id, the file's name) whose beats this one plays as well: a story with quest lines can be built on "historical" and share its war. Where both have a beat of the same id, this campaign's wins. |
 
 ## Hooks
@@ -117,6 +119,8 @@ Called by name, anywhere.
 
 A length of time in days.
 
+- `n` (int): How many days: a whole number, 0 or more.
+
 ```c
 window: days(45)
 ```
@@ -126,6 +130,10 @@ window: days(45)
 `date(int year, int month, int day) : Date`
 
 A calendar date.
+
+- `year` (int): The year, e.g. 1816.
+- `month` (int): The month, 1 (January) to 12 (December).
+- `day` (int): The day of the month, 1 to 31 (it must exist in that month).
 
 ```c
 date: date(1816, 6, 19)
@@ -137,6 +145,8 @@ date: date(1816, 6, 19)
 
 True this often (a percent), decided by the campaign's seed. It rolls again every time it is asked: in AwakenWhen, chance(10) is a one-in-ten chance each day.
 
+- `percent` (int): How often it comes out true, 0-100. 30 means three times in ten.
+
 ```c
 chance(30)
 ```
@@ -146,6 +156,8 @@ chance(30)
 `raw(string condition) : bool`
 
 A condition written in the game's own form, for anything the language has no word for yet.
+
+- `condition` (string): The condition as the game writes it: "tension>=40", "flag:x", "post:Fort William" ... (see the JSON format page).
 
 ```c
 raw("tension>=40")
@@ -157,6 +169,8 @@ raw("tension>=40")
 
 A brigade run on the rivers, by name (Data/World/brigade_runs.json).
 
+- `run` (string): A brigade run's exact name: "the York boats", "the Saskatchewan brigade", "the Montreal canoes", "the Saskatchewan canoes" or "the Athabasca brigade".
+
 ```c
 brigade("the York boats").isLate
 ```
@@ -166,6 +180,13 @@ brigade("the York boats").isLate
 `news(string from, Person to, string subject, string text, int days, Company company?) : effect`
 
 A sealed letter, sent now. After some days it reaches the first living person it is addressed to (it waits if there is nobody), and it is known only once it is read; reading it raises the flag heard:<this beat's id>.
+
+- `from` (string): Who the letter is from, as it will be read: "the Governor and Committee, London", "Montreal" ... Free text.
+- `to` (Person): Who it is for: Person.Factor, Person.Postmaster, Person.Partner, Person.Chief, or text: a person's exact name or "the master at <post>". It waits until someone fits.
+- `subject` (string): The letter's subject line.
+- `text` (string): What the letter says.
+- `days` (int): How many days it takes to arrive: London to the Bay is most of a year, Montreal to the interior two or three months.
+- `company` (Company, optional): Whose letter it is: Company.HBC (if left out) or Company.NWC. Read by the other company, it has been intercepted.
 
 ```c
 news(from: "Montreal", to: Person.Partner, subject: "war", text: "...", days: 75, company: Company.NWC)
@@ -177,6 +198,9 @@ news(from: "Montreal", to: Person.Partner, subject: "war", text: "...", days: 75
 
 A line in the journal of every player of one company (or of everyone), spoken over their heads.
 
+- `text` (string): The line itself.
+- `to` (Company, optional): Who hears it: Company.HBC (only HBC players), Company.NWC (only NWC players), or leave it out (or Company.All) for every player.
+
 ```c
 say("The boats are overdue.", Company.HBC)
 ```
@@ -186,6 +210,9 @@ say("The boats are overdue.", Company.HBC)
 `shout(string text, Company to?) : effect`
 
 Like say, but as a headline.
+
+- `text` (string): The headline itself.
+- `to` (Company, optional): Whose journals get the line: Company.HBC, Company.NWC, or leave it out for every player. The headline is shown to everyone either way.
 
 ```c
 shout("The governor is dead!")
@@ -197,6 +224,8 @@ shout("The governor is dead!")
 
 Make another beat happen at the end of today: its OnActivate runs whatever its date, requirements, ActivateWhen, or cancellation.
 
+- `beat` (Beat): The beat to happen now: its name (TheEnd), or its id as text for a beat made in a loop ("ship-1816").
+
 ```c
 trigger(TheEnd)
 ```
@@ -206,6 +235,9 @@ trigger(TheEnd)
 `after(Days delay, Lambda then) : effect`
 
 Do something some days from now (saved with the game).
+
+- `delay` (Days): How long to wait: days(10).
+- `then` (Lambda): What to do then: () => one effect; or () => { several; effects; }
 
 ```c
 after(days(10), () => trigger(TheEnd))
@@ -217,6 +249,9 @@ after(days(10), () => trigger(TheEnd))
 
 One way a random() can go, with its weight.
 
+- `weight` (int): How likely this option is, relative to the others' weights (they need not add to 100).
+- `then` (Lambda): What happens if this option is chosen: () => effect, or () => { ... }
+
 ```c
 option(30, () => world.raiseTension(5))
 ```
@@ -227,6 +262,8 @@ option(30, () => world.raiseTension(5))
 
 Do one of the options, chosen by weight.
 
+- `options` (Option, one or more): Two or more option(weight, () => ...); exactly one is done.
+
 ```c
 random(option(30, () => ...), option(70, () => ...))
 ```
@@ -236,6 +273,8 @@ random(option(30, () => ...), option(70, () => ...))
 `action(string verb) : effect`
 
 Any action the game has that the language has no word for: action("name", key: value, ...).
+
+- `verb` (string): The game's own name for an action ("tension", "stock" ...), followed by its fields as name: value (see the JSON format page).
 
 ```c
 action("tension", add: 5)
@@ -352,6 +391,9 @@ world.playerFaction == Company.HBC
 
 How many pieces of an item a post's ledger holds. A post that does not stand has no ledger and answers nothing, so every comparison with it is false.
 
+- `post` (string): A post that keeps books, by its exact name: "York Factory", "Cumberland House" ... (World reference).
+- `item` (Item): Which item: Item.Rum, Item.Pemmican, Item.TradeGoods ...
+
 ```c
 world.stock("York Factory", Item.Rum) < 20
 ```
@@ -361,6 +403,8 @@ world.stock("York Factory", Item.Rum) < 20
 `world.furs(string post) : int`
 
 The furs in a post's ledger, in Made Beaver.
+
+- `post` (string): A post that keeps books, by its exact name.
 
 ```c
 world.furs("York Factory") > 500
@@ -372,6 +416,8 @@ world.furs("York Factory") > 500
 
 True while a post stands there: founded by the start year and not given up, or founded since (by the script, or on 1 January of its year with postsByFoundingYear).
 
+- `place` (string): A post on the world map, by its exact name: "Fort William", "Norway House" ...
+
 ```c
 world.hasPost("Fort William")
 ```
@@ -381,6 +427,8 @@ world.hasPost("Fort William")
 `world.isDead(string name) : bool`
 
 True once the person with exactly this name is dead. Names are written as the game shows them ("Mr. William Auld", "Maskwa (chief)"); a name nobody in the world has is never dead.
+
+- `name` (string): A person's exact name as the game shows it: "Mr. William Auld", "Maskwa (chief)". A name nobody has is never dead.
 
 ```c
 world.isDead("Miles Macdonell")
@@ -392,6 +440,9 @@ world.isDead("Miles Macdonell")
 
 True in these months of the year (a range if two are given).
 
+- `first` (int): The first month, 1-12.
+- `last` (int, optional): The last month, 1-12 (leave it out for one month). Smaller than first wraps the year's end: inMonths(11, 3) is November to March.
+
 ```c
 world.inMonths(6, 8)
 ```
@@ -401,6 +452,9 @@ world.inMonths(6, 8)
 `world.raiseTension(int amount, string why?) : effect`
 
 Raise (or, if negative, lower) the tension, with a line for the log. The result is kept within 0-100.
+
+- `amount` (int): How much to add to the tension (0-100 scale); negative lowers it. It falls by 1.2 a day on its own, so 10 lasts about a week.
+- `why` (string, optional): A few words for the log saying why. Leave it out and the beat's title is used.
 
 ```c
 world.raiseTension(10, "the colony is armed")
@@ -412,6 +466,9 @@ world.raiseTension(10, "the colony is armed")
 
 Multiply next year's London price and quota at York Factory (1 leaves one alone). They compound: two calls of 0.9 make 0.81.
 
+- `price` (float): Multiplies next year's standard of trade (goods paid per MB of fur). 1 leaves it alone, 0.85 is a hard year, 1.15 a good one.
+- `quota` (float): Multiplies the returns London expects next year. 1 leaves it alone.
+
 ```c
 world.setLondon(0.85, 0.85)
 ```
@@ -421,6 +478,8 @@ world.setLondon(0.85, 0.85)
 `world.foundPost(string place) : effect`
 
 A post on the world map is founded there and appears in the world.
+
+- `place` (string): A post on the world map, by its exact name.
 
 ```c
 world.foundPost("Fort William")
@@ -432,6 +491,10 @@ world.foundPost("Fort William")
 
 Put goods in (or, if negative, take them out of) a post's ledger. Nothing happens if the post does not stand.
 
+- `post` (string): A post that keeps books, by its exact name. It must stand, or nothing happens.
+- `item` (Item): Which item: Item.Rum, Item.Pemmican ...
+- `amount` (int): How many pieces to add; negative takes them away (never below 0).
+
 ```c
 world.addStock("York Factory", Item.Rum, -5)
 ```
@@ -442,6 +505,8 @@ world.addStock("York Factory", Item.Rum, -5)
 
 How a band (by its camp's name) regards the Company, 0-100.
 
+- `place` (string): A band, by its camp's name: "Beaver Hills Cree (Amiskwacîwiyiniwak)" ...
+
 ```c
 world.regard("Beaver Hills Cree") >= 60
 ```
@@ -451,6 +516,9 @@ world.regard("Beaver Hills Cree") >= 60
 `world.addRegard(string place, int amount) : effect`
 
 Change how a band (by its camp's name) regards the Company; kept within 0-100.
+
+- `place` (string): A band, by its camp's name.
+- `amount` (int): How much to change the band's regard for the Company (kept within 0-100); negative lowers it.
 
 ```c
 world.addRegard("Beaver Hills Cree", 5)
@@ -467,6 +535,8 @@ Named switches the campaign raises and lowers.
 
 True when the flag is raised.
 
+- `name` (string): The flag's name, as text: "governor_killed". Also a beat's id, or a game flag like "late:the York boats".
+
 ```c
 flags.has("governor_killed")
 ```
@@ -477,6 +547,8 @@ flags.has("governor_killed")
 
 Raise a flag.
 
+- `name` (string): The flag's name, as text. Any name you like; other beats test it with flags.has.
+
 ```c
 flags.set("governor_killed")
 ```
@@ -486,6 +558,8 @@ flags.set("governor_killed")
 `flags.clear(string name) : effect`
 
 Lower a flag.
+
+- `name` (string): The flag's name, as text.
 
 ```c
 flags.clear("calm")
@@ -502,6 +576,8 @@ What the player has done, as the campaign has been told of it: the game records 
 
 True once the player has done this at least once: truce, raid, escort or courier.
 
+- `deed` (string): Which deed: "truce", "raid", "escort" or "courier".
+
 ```c
 player.did("truce")
 ```
@@ -511,6 +587,8 @@ player.did("truce")
 `player.deeds(string deed) : int`
 
 How many times the player has done it.
+
+- `deed` (string): Which deed: "truce", "raid", "escort" or "courier".
 
 ```c
 player.deeds("escort") >= 2
@@ -522,6 +600,8 @@ player.deeds("escort") >= 2
 
 True when the player (the one a quest runs for; from a beat, any player) is on the books of that post.
 
+- `place` (string): A post that keeps books, by its exact name.
+
 ```c
 player.posted("Edmonton House")
 ```
@@ -531,6 +611,8 @@ player.posted("Edmonton House")
 `player.rapport(string who) : int`
 
 What the person makes of the player, -100 to 100. Who is a name, or a role at a place: "leader@Fort Augustus", "chief@Beaver Hills Cree".
+
+- `who` (string): The person: an exact name, Person.Factor, or a role at a place such as "leader@Fort Augustus" or "chief@<camp>".
 
 ```c
 player.rapport("leader@Fort Augustus") > 20
@@ -542,6 +624,8 @@ player.rapport("leader@Fort Augustus") > 20
 
 Put the player on the books of another post: it is their home from now on (its stores, its master, its men).
 
+- `place` (string): The post that becomes the player's home: one that keeps books, by its exact name.
+
 ```c
 player.postTo("Edmonton House")
 ```
@@ -551,6 +635,8 @@ player.postTo("Edmonton House")
 `player.addStanding(int amount) : effect`
 
 Raise (or, if negative, lower) the player's standing with their company.
+
+- `amount` (int): How much to add to the player's standing with their company; negative lowers it.
 
 ```c
 player.addStanding(3)
@@ -562,6 +648,9 @@ player.addStanding(3)
 
 Change what someone makes of the player. Who is a name or a role at a place, as for rapport.
 
+- `who` (string): The person: an exact name, Person.Factor, or a role at a place such as "leader@Fort Augustus".
+- `amount` (int): How much to change what they make of the player (-100 to 100 scale); negative sours it.
+
 ```c
 player.addRapport("leader@Fort Augustus", 10)
 ```
@@ -571,6 +660,9 @@ player.addRapport("leader@Fort Augustus", 10)
 `player.give(Item item, int count?) : effect`
 
 Put something in the player's pack (1 if no count).
+
+- `item` (Item): What to put in the player's pack: Item.Tobacco ...
+- `count` (int, optional): How many (1 if left out).
 
 ```c
 player.give(Item.Tobacco, 2)
@@ -582,6 +674,9 @@ player.give(Item.Tobacco, 2)
 
 Take something from the player's pack, as much as they have up to the count.
 
+- `item` (Item): What to take from the player's pack.
+- `count` (int, optional): How many at most (1 if left out); they lose what they have up to this.
+
 ```c
 player.take(Item.Rum)
 ```
@@ -591,6 +686,8 @@ player.take(Item.Rum)
 `player.note(string text) : effect`
 
 A line in the player's journal, said over their head.
+
+- `text` (string): The line for the player's journal, also said over their head.
 
 ```c
 player.note("Mr. Bird wants you at the hunt.")
@@ -732,6 +829,8 @@ brigade("the York boats").daysOut > 40
 
 Hold the brigade on the bank for some days (5 if not given).
 
+- `days` (int, optional): How many days the boats are held on the bank (5 if left out).
+
 ```c
 brigade("the York boats").delay(4)
 ```
@@ -741,6 +840,8 @@ brigade("the York boats").delay(4)
 `Brigade.turnBack(int days?) : effect`
 
 Turn the brigade back toward the post it left. (The game does not use days.)
+
+- `days` (int, optional): Accepted, but the game does not use it: the boats simply go back.
 
 ```c
 brigade("the York boats").turnBack()
@@ -771,6 +872,8 @@ brigade("the York boats").cancel()
 `Brigade.launch(int leg?) : effect`
 
 Send one crossing of the run out now: leg is its place in the run's list of legs, counting from 0.
+
+- `leg` (int, optional): Which crossing of the run, counting from 0 in the run's list of legs (0 if left out). The World reference lists them.
 
 ```c
 brigade("the York boats").launch()

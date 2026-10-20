@@ -55,6 +55,28 @@ public static class Campaign
     public static readonly List<string> Log = new();
     private static int _lastDay = int.MinValue;
     private static bool _begun;
+    private static string _scriptStart = "";
+    private static int _scriptStartYear;
+
+    // The first day the script sets for every starting path (Starts.Begin
+    // dates the world to it rather than to the path's own day), or null.
+    public static (int Y, int M, int D)? StartDate => ParseDay(_scriptStart);
+
+    private static (int, int, int)? ParseDay(string iso)
+    {
+        var p = (iso ?? "").Split('-');
+        return p.Length == 3 && int.TryParse(p[0], out int y) && int.TryParse(p[1], out int m) && int.TryParse(p[2], out int d) ? (y, m, d) : null;
+    }
+
+    // "Begins 1 May 1815." for the menu, from a script's start or start_year.
+    private static string StartLine(Godot.Collections.Dictionary d)
+    {
+        if (ParseDay(Str(d, "start", "")) is var (y, m, day))
+            return $"Begins {day} {System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(m)} {y}.";
+        int sy = d.TryGetValue("start_year", out var v) ? v.AsInt32() : 0;
+        return sy > 0 ? $"Begins in {sy}." : "";
+    }
+
     // Whether what the script dates before today has been made history yet.
     // It waits for the first player, whose starting path sets the first day.
     private static bool _settled;
@@ -69,7 +91,9 @@ public static class Campaign
         {
             var d = Read(path);
             if (d == null) continue;
-            list.Add((id, Str(d, "title", id), Str(d, "description", "")));
+            string begins = StartLine(d);
+            string about = Str(d, "description", "");
+            list.Add((id, Str(d, "title", id), begins == "" ? about : $"{about} {begins}".Trim()));
         }
         return list;
     }
@@ -152,8 +176,10 @@ public static class Campaign
             foreach (var b in baseScript.Beats) if (!own.Contains(b.Id)) script.Beats.Insert(i++, b);
             foreach (var kv in baseScript.InitialVars) script.InitialVars.TryAdd(kv.Key, kv.Value);
             script.PostsByFoundingYear |= baseScript.PostsByFoundingYear;
+            if (script.Start == "" && script.StartYear == 0) { script.Start = baseScript.Start; script.StartYear = baseScript.StartYear; }
         }
         Title = script.Title; Description = script.Description;
+        _scriptStart = script.Start; _scriptStartYear = script.StartYear;
         _runner.Load(script);
         Quests.Load(script.QuestLines);
     }
@@ -195,9 +221,17 @@ public static class Campaign
             if (arg.StartsWith("--adherence=") && Enum.TryParse(arg.Substring(12), true, out Adherence a)) Level = a;
         }
         var cal = GameCalendar.Instance;
-        StartYear = cal?.Year ?? 1811;
         LoadScript();
-        GD.Print($"[campaign] {Title} ({Level}); {_runner.Script.Beats.Count} beats");
+        // The script's own start: the calendar goes to its year (or its very
+        // day) before anything reads it, so the posts that stand are that
+        // year's. A developer's --date wins.
+        if (cal != null && !OS.GetCmdlineUserArgs().Any(x => x.StartsWith("--date=")))
+        {
+            if (StartDate is var (sy, sm, sd)) cal.SetDate(sy, sm, sd, cal.Hour);
+            else if (_scriptStartYear > 0) cal.SetDate(_scriptStartYear, cal.Month, cal.Day, cal.Hour);
+        }
+        StartYear = cal?.Year ?? 1811;
+        GD.Print($"[campaign] {Title} ({Level}); {_runner.Script.Beats.Count} beats; begins {cal?.DateString}");
     }
 
     // The world's first day of play: the first player is in and their starting
@@ -591,6 +625,9 @@ it, or start fresh. The game reads this folder when the menu opens.
   ""title"": ""shown in the menu"",
   ""description"": ""one or two sentences"",
   ""posts_by_founding_year"": true,     // posts in the atlas appear on 1 Jan of their year
+  ""start"": ""1815-05-01"",            // optional: the world's first day, on every starting path
+                                       //   (or ""start_year"": 1815 - each path keeps its own day)
+  ""extends"": ""historical"",           // optional: play that campaign's beats as well
   ""beats"": [ { ... }, ... ]
 }
 

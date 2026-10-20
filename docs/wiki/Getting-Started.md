@@ -90,4 +90,5 @@ Press **Install in game** (or run `... -- install mycampaign.camp`). That writes
 - [Examples](Examples): five small campaigns that each teach one thing, and one long one.
 - [Library reference](Library-Reference) when you need the name of something.
 - [World reference](World-Reference) for the posts, brigade runs, items and people a script can name.
+- [Quests](Quests) to ask things of the player as well as do things to the world.
 - [Cookbook](Cookbook) for the patterns most campaigns need, and [Pitfalls](Pitfalls) before you write a long one.

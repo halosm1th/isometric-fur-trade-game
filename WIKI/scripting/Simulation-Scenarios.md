@@ -1,3 +1,12 @@
+---
+title: "Simulation scenarios"
+aliases: [Simulation Scenarios]
+tags: [scripting, campaign, tool]
+status: reference
+---
+
+<!-- Copied from docs/wiki/Simulation-Scenarios.md by tools/docs/sync_scripting_wiki.py: edit that, not this. -->
+
 # Simulation scenarios
 
 The simulator plays a campaign forward, a day at a time, against a world *you describe*, without starting the game. The scheduling is the game's own code (`CampaignRunner`), so a beat that fires in the simulator fires in the game; only the world (how tense it is, what is in the ledgers, which boats are late) is invented, and the scenario is how you invent it.
@@ -29,21 +38,66 @@ A scenario is a JSON file. Everything in it is optional.
 
 | Key | Meaning |
 |---|---|
-| `start`, `end` | The first and last day. What the script dates before `start` is already history. |
-| `adherence` | `Gentle`, `Steady`, `Firm` or `Strict` (see [Beats and the lifecycle](Beats-and-the-Lifecycle#adherence-how-hard-the-campaign-holds-the-world)). |
+| `start`, `end` | The first and last day. What the script dates before `start` is already history. If the scenario gives no `start`, the campaign's own [[World-Reference#A campaign's own start|`start`]] is used (or 20 August of its `startYear`), else 20 August 1811; `--start` on the command line wins over both. If the end would come before the start, the run goes ten years. |
+| `adherence` | `Gentle`, `Steady`, `Firm` or `Strict` (see [[Beats-and-the-Lifecycle#Adherence: how hard the campaign holds the world|Beats and the lifecycle]]). |
 | `player_faction` | `HBC` or `NWC`, for `world.playerFaction`. |
 | `standing` | A fixed number for `world.standing`. |
 | `tension` | A table of date to tension. The world's tension is the latest row not after today, plus whatever the campaign has added with `raiseTension`. |
 | `stocks` | What the ledgers hold: `"Post|Item": amount`, or `"Post|furs"`. The campaign's `addStock` changes these. |
 | `dead` | People `world.isDead` is true for. |
-| `events` | Things the *world* does on a day: raise (`flag`) or lower (`unflag`) a flag, or set how late a run is (`convoy_days_late` and `run`). This is how you stand in for the player and for history: an *event* beat with a `ResolveWhen` that waits for a flag only happens by the world if the scenario raises it. |
+| `events` | Things the *world* does on a day: raise (`flag`) or lower (`unflag`) a flag, record a player's deed (`"deed": "truce"`, as if the player had done it), or set how late a run is (`convoy_days_late` and `run`). This is how you stand in for the player and for history: an *event* beat with a `ResolveWhen` that waits for a flag only happens by the world if the scenario raises it. One event may do several of these at once. |
 | `random_events` | Dice: raise `flag` about `per_year` times a year in `months` (`"7-9"`), lowering it again after `clear_after_days`. |
 
-A brigade flag is `late:`, `lost:`, `robbed:`, `turned:`, `out:` or `in:` plus the run's name; `brigade("...").isLate` and the others read these.
+A brigade flag is `late:`, `lost:`, `robbed:`, `turned:`, `out:` or `in:` plus the run's name; `brigade("...").isLate` and the others read these. The defaults, for anything a scenario leaves out, are: start 20 August 1811, end 31 December 1821, Steady, an HBC player, tension 20, standing 20, every stock 0, nobody dead.
+
+Some useful events:
+
+```json
+{ "on": "1813-05-01", "deed": "truce" }
+{ "on": "1812-01-15", "flag": "heard:red-river-grant" }
+{ "on": "1816-06-25", "flag": "out:the York boats" }
+{ "on": "1816-07-20", "flag": "late:the York boats", "convoy_days_late": 12, "run": "the York boats" }
+{ "on": "1816-08-10", "unflag": "late:the York boats", "flag": "in:the York boats" }
+```
+
+## How the simulator differs from the game
+
+The scheduling is the game's own, so *when* a beat is woken, pressed, resolved, forced or cancelled is exact. The world is not the game's: it is only what the scenario says, plus what the script itself does to it.
+
+| | In the game | In the simulator |
+|---|---|---|
+| tension | starts at 20, falls 1.2 a day, moved by raids, robberies, truces and the rest ([[Effects-in-the-Game#Tension|table]]) | the scenario's `tension` table plus the script's `raiseTension`; **never falls on its own** |
+| letters | travel, are delivered and read; reading raises `heard:<beat>` | logged when sent, never delivered: `heard:` only if an event raises it |
+| deeds | when the player does them | only `"deed"` events |
+| brigades | five runs on their legs' days, late, robbed, lost and wintering as the rivers decide | only the flags events and `random_events` raise, plus the script's own `turnBack`, `lose` and `launch`; `daysOut` is always 0 and `isWintering` false; `delay` and `cancel` do nothing |
+| stock and furs | the ledgers, which everyone eats from and trades with; a post that does not stand answers nothing | the scenario's `stocks` (0 if not listed, even for a post that does not stand), changed only by `addStock` |
+| posts | the world map, `foundPost`, `postsByFoundingYear` | the same rules |
+| history | beats dated before the first player's first day (10 June, 12 July or 20 August 1811, by starting path) | beats dated before `--start` (the same rule: run with `--start` at the path's day) |
+| deaths | when people die | only the scenario's `dead` |
+| `say`, `shout`, `setLondon` | carried out | logged (with `--log`) |
+| quests | run for each player | not run: there are no players, so `Q.done`, `player.posted`, `player.rapport` and `world.regard` are false, and quest effects (`player.give`, `postTo` ...) are only logged. Test quests in the game: see [[Quests#Testing quests|Quests]] |
+| `extends` | the base campaign's beats are played too | **only this file's beats**: simulate the base campaign separately |
+
+So read a simulation as "if the world did *this*, the campaign would do *that*". To trust a beat that hangs on the world, try it against more than one world.
+
+## A testing routine
+
+For a campaign of any length:
+
+1. **Check clean.** `check story.camp -v`: no errors, and read every warning and note (a flag nothing sets is usually a typo).
+2. **The quiet world.** `sim story.camp --log` with no scenario: tension 20, no deeds, no brigade trouble. What happens when the player does nothing? The *never happened* list should hold only beats that need something.
+3. **The violent world and the peaceful world.** A scenario with tension rising to 80, and one where the player brokers a truce early (`"deed": "truce"`). Every branch should be reached in one of them.
+4. **Each adherence.** `--adherence Gentle` and `--adherence Strict`: events that are only pressed at Steady are forced at Strict, so a beat missing at Steady and present at Strict needs a `ResolveWhen` (or is meant to be optional).
+5. **The start.** The game makes history of everything dated before the starting path's first day, as the simulator does before `--start`. The default `--start` is the ship's day (20 August 1811); if the script has beats dated in the summer of 1811, run it with `--start 1811-06-10` (the summer camp) and `--start 1811-07-12` (the brigade) too, and read what the first days of play would be on each path (see [[World-Reference#When the game starts|when the game starts]]).
+6. **The dice.** `--runs 200` gives, for each beat, how often it fired and when (earliest, median, latest). A beat that fires in 3% of runs, or in every run on the first week, is probably not what you meant.
+7. **The letters.** Anything waiting on `heard:` needs an event to raise it in the simulator; in the game, check that the addressee exists when the letter arrives ([[World-Reference#Letters: who can be written to|who can be written to]]).
+8. **In the game.** `install`, start a new game with the campaign at Steady, and watch the console's `[campaign]` lines. The game can be started on a date with `--date=YYYY-MM-DD`, and with a tension with `--tension=N`.
+
+Keep the scenarios next to the script (`examples/*.scenario.json`) so they can be run again after every change, and, for a campaign that ships, add a test in `tests/CampaignTests` (see the existing ones for a beat that must fire, must not, or must come before another).
 
 ## Running
 
-In the [editor](Web-Editor) open the *Simulate* tab. On the command line:
+In the [[Web-Editor|editor]] open the *Simulate* tab. On the command line:
 
 ```
 dotnet run --project tools/CampaignTool -- sim story.camp --scenario world.json

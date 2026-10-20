@@ -29,7 +29,7 @@ A scenario is a JSON file. Everything in it is optional.
 
 | Key | Meaning |
 |---|---|
-| `start`, `end` | The first and last day. What the script dates before `start` is already history. |
+| `start`, `end` | The first and last day. What the script dates before `start` is already history. If the scenario gives no `start`, the campaign's own [`start`](World-Reference#a-campaigns-own-start) is used (or 20 August of its `startYear`), else 20 August 1811; `--start` on the command line wins over both. If the end would come before the start, the run goes ten years. |
 | `adherence` | `Gentle`, `Steady`, `Firm` or `Strict` (see [Beats and the lifecycle](Beats-and-the-Lifecycle#adherence-how-hard-the-campaign-holds-the-world)). |
 | `player_faction` | `HBC` or `NWC`, for `world.playerFaction`. |
 | `standing` | A fixed number for `world.standing`. |
@@ -66,6 +66,8 @@ The scheduling is the game's own, so *when* a beat is woken, pressed, resolved, 
 | history | beats dated before the first player's first day (10 June, 12 July or 20 August 1811, by starting path) | beats dated before `--start` (the same rule: run with `--start` at the path's day) |
 | deaths | when people die | only the scenario's `dead` |
 | `say`, `shout`, `setLondon` | carried out | logged (with `--log`) |
+| quests | run for each player | not run: there are no players, so `Q.done`, `player.posted`, `player.rapport` and `world.regard` are false, and quest effects (`player.give`, `postTo` ...) are only logged. Test quests in the game: see [Quests](Quests#testing-quests) |
+| `extends` | the base campaign's beats are played too | **only this file's beats**: simulate the base campaign separately |
 
 So read a simulation as "if the world did *this*, the campaign would do *that*". To trust a beat that hangs on the world, try it against more than one world.
 

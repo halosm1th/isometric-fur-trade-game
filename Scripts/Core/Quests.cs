@@ -98,6 +98,7 @@ public static class Quests
 			case "Factor": return npc == Sim.Fort?.Leader;
 			case "Partner": return npc == Sim.Nwc?.Leader;
 			case "Chief": return npc == Sim.Band?.Leader;
+			case "Postmaster": return npc == Sim.Outpost?.Leader;
 		}
 		int at = who.IndexOf('@');
 		if (at < 0) return npc.DisplayName == who;

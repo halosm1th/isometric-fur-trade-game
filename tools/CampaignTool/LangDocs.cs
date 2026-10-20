@@ -33,6 +33,8 @@ public static class LangDocs
 		new("note", "string", "A note kept in the JSON, for whoever opens it. Free text."),
 		new("seed", "int", "The seed for the script's dice (chance, random). The same seed gives the same history."),
 		new("postsByFoundingYear", "bool", "When true, posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only if a beat founds it."),
+		new("start", "Date", "The world's first day, for every starting path: date(1815, 5, 1). Without it the world begins in 1811, on the starting path's own day (10 June, 12 July or 20 August). What the script dates before the first day is history. A developer's --date wins."),
+		new("startYear", "int", "Only the year the world begins in: each starting path keeps its own day (the ship on 20 August and so on) in that year. Give start or startYear, not both."),
 		new("extends", "string", "Another campaign (by its id, the file's name) whose beats this one plays as well: a story with quest lines can be built on \"historical\" and share its war. Where both have a beat of the same id, this campaign's wins."),
 	};
 
@@ -115,13 +117,14 @@ public static class LangDocs
 		foreach (var m in Library.All)
 			members.Add(Tree.Dict(
 				("owner", m.Owner), ("name", m.Name), ("kind", m.Kind), ("signature", m.Signature), ("returns", m.Returns), ("doc", m.Doc), ("example", m.Example),
-				("params", m.Params.Select(p => (object)Tree.Dict(("name", p.Name), ("type", p.Type), ("optional", p.Optional), ("rest", p.Rest))).ToList())));
+				("params", m.Params.Select(p => (object)Tree.Dict(("name", p.Name), ("type", p.Type), ("optional", p.Optional), ("rest", p.Rest), ("doc", p.Doc))).ToList())));
 		var enums = new Dictionary<string, object>();
 		foreach (var e in Library.EnumDocs.Keys) enums[e] = Library.EnumValues(e).Cast<object>().ToList();
 		var enumDocs = new Dictionary<string, object>();
 		foreach (var kv in Library.EnumDocs) enumDocs[kv.Key] = kv.Value;
 		return Tree.Dict(
 			("members", members), ("enums", enums), ("enumDocs", enumDocs),
+			("typeDocs", Library.TypeDocs.ToDictionary(kv => kv.Key, kv => (object)kv.Value)),
 			("hooks", Hooks.Select(h => (object)Tree.Dict(("name", h.Name), ("key", h.Key), ("condition", h.Condition), ("summary", h.Summary))).ToList()),
 			("beatArgs", BeatArgs.Select(a => (object)Tree.Dict(("name", a.Name), ("type", a.Type), ("summary", a.Summary))).ToList()),
 			("headerArgs", HeaderArgs.Select(a => (object)Tree.Dict(("name", a.Name), ("type", a.Type), ("summary", a.Summary))).ToList()),
@@ -169,7 +172,14 @@ public static class LangDocs
 			foreach (var m in list)
 			{
 				sb.Append($"### `{m.Full}{(m.Kind == "function" ? "(" + string.Join(", ", m.Params.Select(p => p.Name + (p.Optional ? "?" : "") + (p.Rest ? "..." : ""))) + ")" : "")}`\n\n");
-				sb.Append($"`{m.Signature}`\n\n{m.Doc}\n\n```c\n{m.Example}\n```\n\n");
+				sb.Append($"`{m.Signature}`\n\n{m.Doc}\n\n");
+				if (m.Params.Length > 0)
+				{
+					foreach (var p in m.Params)
+						sb.Append($"- `{p.Name}` ({p.Type}{(p.Optional ? ", optional" : "")}{(p.Rest ? ", one or more" : "")}): {p.Doc}\n");
+					sb.Append('\n');
+				}
+				sb.Append($"```c\n{m.Example}\n```\n\n");
 			}
 		}
 		Section("Functions", "Called by name, anywhere.", Library.Of("").Where(m => m.Kind == "function"));

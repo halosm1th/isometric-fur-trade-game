@@ -10,6 +10,10 @@ Every name a script can pass to the game, and where the game gets it from. A mis
 | `Item.X` | an item | [Items](World-Reference#items) | `enum ItemId` in `Scripts/Items/Items.cs` |
 | `news(to: ...)` | a role or a person's exact name | [Letters: who can be written to](World-Reference#letters-who-can-be-written-to) | the cast (`Scenes/World/YorkFactoryExterior.tscn`) |
 | `world.isDead("...")` | a person's exact name | [People](World-Reference#people) | the cast |
+| `who:` in a quest, `player.rapport(...)`, `player.addRapport(...)` | a name, `Person.X`, or `"role@<post or camp>"` | [Quests: who](Quests#who-exactly) | the cast, posts and camps |
+| `world.regard("...")`, `world.addRegard("...")`, `"chief@..."` | a band camp's exact name | [Camps](World-Reference#camps-bands) | `Data/World/world.json` (`layout.camps`) |
+| `player.posted("...")`, `player.postTo("...")` | a post that keeps books | [Posts](World-Reference#posts) | |
+| `Task.X` (a quest's task step) | one of the Factor's tasks | [Quests: tasks](Quests#tasks) | `enum TaskKind` in `Scripts/Player/PlayerTask.cs` |
 | `world.season == Season.X` | one of four seasons | [Seasons](World-Reference#seasons-and-the-calendar) | `Scripts/Core/GameCalendar.cs` |
 | `Company.X`, `world.playerFaction` | HBC, NWC (or All) | [Companies](World-Reference#companies) | |
 
@@ -17,7 +21,7 @@ Names are **exact and case-sensitive**: `"the York boats"`, not `"York boats"` o
 
 ## When the game starts
 
-A new world starts on the day the first player's path arrives, in 1811:
+Unless the campaign says otherwise, a new world starts on the day the first player's path arrives, in 1811:
 
 | Starting path | First day |
 |---|---|
@@ -25,7 +29,34 @@ A new world starts on the day the first player's path arrives, in 1811:
 | NWC (the brigade) | 12 July 1811 |
 | Cree, Assiniboine (the summer camp) | 10 June 1811 |
 
-(The year is 1811 unless the game is started with `--date=YYYY-MM-DD`, which sets the year the starting path uses.) Which beats count as **history** is decided on that first day, once the first player is in and the path has dated the world. So:
+### A campaign's own start
+
+A campaign can choose when its world begins, in its header:
+
+```c
+// one or the other:
+campaign AfterTheWar(title: "After the war", start: date(1815, 5, 1));   // this day, on every path
+campaign TheLateYears(title: "The late years", startYear: 1819);         // each path's own day, in 1819
+```
+
+| Header | The first day | Use it for |
+|---|---|---|
+| (neither) | 10 June, 12 July or 20 August **1811**, by starting path | the shipped campaigns |
+| `start: date(1815, 5, 1)` | **1 May 1815 on every path**: the ship, the brigade and the summer camp all begin that day | a story that must begin on a particular day |
+| `startYear: 1819` | 10 June, 12 July or 20 August **1819**, by path | a later era where each path keeps its own season |
+
+What follows from the start is the same as for 1811: every beat dated before the first day is [history](State-Flags-and-Variables#history-before-the-start) (its flags raised, its posts founded, nothing else), and the world is that year's: the posts that stand are those founded by then and not yet given up (Norway House, founded 1814, stands in a game that begins in 1815; Fort Douglas, founded 1815, stands from 1815 on), and with `postsByFoundingYear` the later ones appear on 1 January of their years. The menu shows "Begins 1 May 1815." under the campaign's description. A campaign that `extends` another takes that one's start if it gives none of its own.
+
+Things to know:
+
+- The start only sets the calendar: the people are the starting cast, whatever the year. A historical figure who died before your start, or a post's master in 1811, is still there unless your script sees to it (raise a flag for a death; the beats you write are the history).
+- Choose the day with the starting paths in mind: `start: date(1815, 1, 10)` puts the ship's passengers ashore in midwinter.
+- A developer's `--date=YYYY-MM-DD` argument wins over the campaign's start.
+- The [simulator](Simulation-Scenarios) begins on the campaign's start too (on 20 August of a `startYear`, the ship's day), unless a scenario or `--start` says otherwise, and runs ten years if its default end would come first.
+
+### History and the first day
+
+(Without a campaign start, the year is 1811 unless the game is started with `--date=YYYY-MM-DD`, which sets the year the starting path uses.) Which beats count as **history** is decided on that first day, once the first player is in and the path has dated the world. So:
 
 - a beat dated **before the path's first day** is history, whether it falls in 1810 or in June 1811: see [State, flags and variables](State-Flags-and-Variables#history-before-the-start). The shipped scripts' blockade (1 June 1811) is history on every path: its flag is raised and London's prices are not touched. Selkirk's grant (12 June 1811) is history on the ship's and the brigade's paths, but happens two days into play from the summer camp, letter and all;
 - a beat dated on or after the first day happens in play as usual.
@@ -289,6 +320,25 @@ The checker warns about any address that is not one of the four roles. That is o
 **The historical figures of the wiki are not people in the world.** Lord Selkirk, Miles Macdonell, Robert Semple, Cuthbert Grant, Simon McGillivray and the others are written about in letters and beats, but nobody in the world carries their names, so `world.isDead("Robert Semple")` is never true. To make a story turn on a historical death, raise a flag in the beat where it happens (`flags.set("governor_killed")`) and test the flag.
 
 The cast is about 940 named people. To find a name, search `Scenes/World/YorkFactoryExterior.tscn` for `DisplayName`, or look at the people in the game. Names given to children born in play, and to the men of a later successor, cannot be known when you write the script.
+
+## Camps (bands)
+
+The band camps of the wider country, by their exact names, which is how `world.regard`, `world.addRegard` and a quest's `"chief@<camp>"` or `reach(place: ...)` name them. `world.regard` is how the band regards the Company, 0-100.
+
+| Nation | Camps |
+|---|---|
+| Blackfoot | `Blackfoot`, `Blood (Kainai)`, `Peigan (Piikani)`, `Sarcee (Tsuut'ina)`, `Gros Ventre` |
+| Cree | `Plains Cree`, `Beaver Hills Cree (Amiskwacîwiyiniwak)`, `Woodland Cree`, `Swampy Cree`, `Oji-Cree` |
+| Assiniboine | `Assiniboine`, `Nakoda (Stoney)` |
+| Ojibwe | `Plains Ojibwa (Saulteaux)`, `Ojibwa (Anishinaabe)`, `Odawa (Ottawa)`, `Menominee` |
+| Sioux | `Dakota (Santee Sioux)`, `Lakota (Teton Sioux)` |
+| Missouri | `Mandan`, `Hidatsa`, `Arikara`, `Crow`, `Shoshone`, `Cheyenne`, `Ho-Chunk (Winnebago)` |
+| Plateau | `Kootenay (Ktunaxa)`, `Salish (Flathead)`, `Secwépemc (Shuswap)`, `Syilx (Okanagan)`, `Nlaka'pamux` |
+| Dene | `Chipewyan`, `Dene (Beaver)`, `Dakelh (Carrier)`, `Tsilhqot'in`, `Sekani` |
+| Coast | `Coast Salish` |
+| Metis | `Métis of the Forks`, `Métis at Pembina`, `Métis of the Qu'Appelle` |
+
+There are also 86 family camps by the posts, named for their people and their post (`"Plains Cree family at Carlton House"`, `"Blackfoot family at Edmonton House"` ...): look them up in `Data/World/world.json` under `layout.camps`. The York Cree and Assiniboine bands of the starting map are separate: their chiefs are `Person.Chief` (Maskwa) and `"Tchatka (chief)"`; their camps are on the world map as `"Cree winter camp (York)"`, `"Cree summer camp (York)"`, `"Assiniboine winter camp"` and `"Assiniboine summer camp"`.
 
 ## Seasons and the calendar
 

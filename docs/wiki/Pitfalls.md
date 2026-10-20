@@ -141,6 +141,34 @@ A `news(to: ...)` letter goes to a living person with that exact name or role ad
 
 A rumour shows while its beat is awake. A beat that is awake but can never happen (an event under Steady with no `ResolveWhen`; a beat waiting on an `ActivateWhen` that will never hold) leaves its rumour in the journal for good. Give every rumoured beat a way to end: it happens, it resolves, or it is cancelled.
 
+## Quests
+
+### A beat's `player.` words mean every player
+
+In a quest, `player.give(Item.Rum)` gives the player the quest runs for a dram. In a **beat** it gives **every** player one, and a beat's `Q.done` is true once **any** player has done the quest. A beat's `player.posted(...)` and `player.rapport(...)` ask the host's own player, which on a dedicated server is nobody. If a beat should answer one player's story, let the quest raise a flag and the beat read it. See [Quests and beats together](Quests#quests-and-beats-together).
+
+### Quest requirements are per player
+
+`quest Inland(...) [Landfall]` starts for a player once *that player* has done `Landfall`. Another player's `Landfall` does not count. For "once anyone has done it", use `StartWhen() => flags.has(...)` with a flag the first quest raises.
+
+### A refused quest is gone
+
+A player who refuses a giver's quest is never offered it again (*Not now* keeps it on offer). If the story must go on regardless, have the refusal's alternative waiting in another quest, or start it from an action (`Q.start()` starts a quest whatever was refused).
+
+### Quests are not in the simulator, and `extends` is not either
+
+The simulator runs only this file's beats: no quests (their conditions are false there) and none of the beats of a campaign this one `extends`. Simulate the base campaign on its own, and test quest lines in the game.
+
+## The start
+
+### A later start does not change the people
+
+`start: date(1818, 6, 1)` sets the calendar and the posts that stand; the cast is the starting cast whatever the year. Mr. William Auld is still the Factor at York in 1818 unless the script makes it otherwise. Write what has changed since 1811 as beats dated before the start (their flags hold) and as effects on the first day.
+
+### `start` is the same day on every path
+
+With `start:`, the ship, the brigade and the summer camp all begin on that one day, whatever the season: a January start lands the ship's passengers in the snow. Use `startYear:` to keep each path's own day.
+
 ## Testing
 
 ### The simulator is not the game
