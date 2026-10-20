@@ -65,6 +65,21 @@ const assert = (cond, what) => { if (!cond) { console.error('FAIL:', what); proc
   assert(await page.$$eval('svg.graph .node', ns => ns.length) === 59, 'the graph has a node for every beat');
   await shot('editor-graph');
 
+  // The map draws the world, its cast, and the campaign's places; clicking a pin jumps to its step.
+  await open('tools/CampaignTool/src/company-servant.camp');
+  await page.click('[data-tab=map]');
+  await page.waitForFunction(() => typeof map !== 'undefined' && map.world && map.pins.length > 0, null, { timeout: 15000 });
+  assert(await page.evaluate(() => map.world.cast.length) > 500, 'the map knows the cast placed in the scene');
+  assert(await page.evaluate(() => map.pins.every(p => p.ok)), 'every place the HBC story names is on the map');
+  await page.selectOption('#mapQuest', 'FortSouris');
+  const pin = await page.evaluate(() => { const p = visiblePins().find(q => q.kind !== 'effect'); const [x, y] = toScreen(p.x, p.y); const r = document.getElementById('mapCanvas').getBoundingClientRect(); return { x: r.left + x, y: r.top + y, line: p.line }; });
+  await page.mouse.click(pin.x, pin.y);
+  assert(await page.evaluate((line) => el.input.value.slice(0, el.input.selectionStart).split('\n').length === line, pin.line), 'clicking a pin jumps to its step');
+  await page.evaluate(() => { el.input.value = el.input.value.replace('"chief@Métis of the Souris"', '"chief@Nowhere at all"'); onEdit(); });
+  await page.waitForFunction(() => map.pins.some(p => !p.ok), null, { timeout: 10000 });
+  assert(await page.$eval('#mapMissing', n => n.textContent.includes('Nowhere at all')), 'a name that is nowhere is marked');
+  await shot('editor-map');
+
   await page.click('[data-tab=ref]');
   await page.fill('#tab-ref .refSearch', 'brigade');
   assert(await page.$$eval('#tab-ref .refitem', ns => ns.length) > 5, 'the reference finds the brigade words');

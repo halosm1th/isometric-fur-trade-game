@@ -152,6 +152,7 @@ async function runCheck() {
     el.count.textContent = errors || warns || '';
     el.count.className = 'count' + (errors ? ' bad' : warns ? ' warn' : '');
     renderProblems(); renderJson(); render();
+    if (state.tab === 'map') refreshMapPins();
   } catch (e) { setStatus(e.message, 'bad'); }
 }
 
@@ -513,9 +514,10 @@ el.input.addEventListener('mouseleave', () => { if (!state.completing) showHover
 function showTab(name) {
   state.tab = name;
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
-  for (const t of ['problems', 'json', 'sim', 'graph', 'ref']) $('tab-' + t).hidden = t !== name;
+  for (const t of ['problems', 'json', 'sim', 'graph', 'map', 'ref']) $('tab-' + t).hidden = t !== name;
   if (name === 'sim') renderSim();
   if (name === 'graph') drawGraph();
+  if (name === 'map') drawMap();
   if (name === 'ref') renderRef();
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => showTab(b.dataset.tab));

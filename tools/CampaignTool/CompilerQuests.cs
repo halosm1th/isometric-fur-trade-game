@@ -151,6 +151,8 @@ internal sealed partial class Compiler
 			foreach (var k in new[] { "summary", "giver", "for", "requires", "start_when", "fail_when", "on_start", "on_complete", "on_fail" })
 				if (f.TryGetValue(k, out var x)) d[k] = x;
 			d["objectives"] = q.Steps.Select(st => (object)CompileStep(q, st, env)).ToList();
+			_res.QuestLines[_questIds[q.Name]] = q.NameAt.Line;
+			foreach (var st in q.Steps) _res.StepLines[$"{_questIds[q.Name]}/{_steps[st.Name]}"] = st.NameAt.Line;
 			return d;
 		}
 		finally { _steps = saveSteps; }

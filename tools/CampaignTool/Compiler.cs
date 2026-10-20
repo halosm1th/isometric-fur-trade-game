@@ -10,6 +10,8 @@ public sealed class CompileResult
 	public Dictionary<string, object> Json = new();
 	public Dictionary<string, int> BeatLines = new();        // beat id -> line in the source
 	public Dictionary<string, string> BeatNames = new();     // beat id -> the name it is written with
+	public Dictionary<string, int> QuestLines = new();       // quest id -> line in the source
+	public Dictionary<string, int> StepLines = new();        // "quest id/step id" -> line in the source
 	public List<Diagnostic> Warnings = new();
 }
 

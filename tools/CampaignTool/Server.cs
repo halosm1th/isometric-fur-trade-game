@@ -82,6 +82,10 @@ public sealed class WebServer
 			case "sim": Json(ctx, Sim(Tree.ParseObject(Body(req)))); return;
 			case "graph": Json(ctx, GraphOf(Body(req))); return;
 			case "install": Json(ctx, Install(Tree.ParseObject(Body(req)))); return;
+			// The Map tab: the world and its cast, its ground, and a campaign's places (MapData.cs).
+			case "world": Json(ctx, MapData.World()); return;
+			case "ground": Send(ctx, 200, "image/png", File.ReadAllBytes(Path.Combine(_root, "Data/World/ground.png"))); return;
+			case "map": Json(ctx, MapData.Pins(CampLang.Compile(Body(req)))); return;
 		}
 		Send(ctx, 404, "application/json", Tree.Write(Tree.Dict(("error", "no such route"))));
 	}
