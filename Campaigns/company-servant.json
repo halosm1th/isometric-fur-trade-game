@@ -4207,7 +4207,7 @@
             "AmTheRoadEast"
           ],
           "start_when": [
-            "after:1821-09-01"
+            "after:1822-02-13"
           ],
           "on_complete": [
             {
@@ -4290,7 +4290,7 @@
             "AmUnderTheNorthmen"
           ],
           "start_when": [
-            "after:1821-09-01"
+            "beat:merger"
           ],
           "on_complete": [
             {

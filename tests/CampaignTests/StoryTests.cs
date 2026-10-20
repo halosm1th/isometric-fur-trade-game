@@ -56,7 +56,7 @@ public class StoryTests
 
 	public static IEnumerable<object[]> Runs() =>
 		from seed in new uint[] { 1, 7, 1811, 1816, 1821 }
-		from road in new[] { "HBC", "NWC" }
+		from road in new[] { "HBC", "NWC", "American" }
 		select new object[] { seed, road };
 
 	[Theory, MemberData(nameof(Runs))]
@@ -120,6 +120,22 @@ public class StoryTests
 				if (s.StartsWith("flag:") && s[5..] is var f && !raised.Contains(f) && !f.StartsWith("war:") && f != "open_hostility")
 					missing.Add($"{Tree.S(q["id"])} waits on {f}");
 		Assert.True(missing.Count == 0, "flags nothing raises: " + string.Join("; ", missing.Distinct()));
+	}
+
+	// The American road (src/parts/american-road.camp) ends otherwise: its
+	// Columbia branch opens with the union, its Missouri branch with Ashley's
+	// advertisement, and either one leads to its ending.
+	[Fact]
+	public void TheAmericanRoadEndsOnEitherBranch()
+	{
+		var doc = Merged();
+		var quests = Quests(doc).Where(x => x.road == "American").Select(x => x.quest).ToDictionary(q => Tree.S(q["id"]));
+		Assert.True(quests.Count >= 10, $"American has only {quests.Count} quests");
+		Assert.Contains("beat:merger", Strings(quests["AmOneCompanyOnTheColumbia"].GetValueOrDefault("start_when")));
+		foreach (var branch in new[] { "AmOneCompanyOnTheColumbia", "AmTheMountainMen" })
+			Assert.Contains(Strings(quests[branch]), s => s == "am_road_ended");
+		Assert.Contains("flag:am_road_ended", Strings(quests["TheEndOfTheRoad"].GetValueOrDefault("start_when")));
+		Assert.Contains(Strings(quests["TheEndOfTheRoad"].GetValueOrDefault("on_complete")), s => s.Contains("So ends the American road"));
 	}
 
 	// Each road has its three chapters, and its last quest opens with the union.

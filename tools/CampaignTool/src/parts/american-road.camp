@@ -10,7 +10,7 @@
 //    east over the mountains to Manuel Lisa's Fort on the Missouri, where Lisa,
 //    the government's man on the river, keeps the Missouri nations from the
 //    British and the Blackfoot come down to raid.
-// 3. The last years (1820-1822). On the Missouri: the Missouri Fur Company failing,
+// 3. The last years (1821-1822). On the Missouri: the Missouri Fur Company failing,
 //    General Ashley's hundred young men for the mountains, Mr. Astor's American Fur
 //    Company buying up the river. On the Columbia: one company, the Bay's, and the
 //    Americans' last men to decide where they belong.
@@ -401,7 +401,7 @@ questline TheLastYears(
         summary: "The company's credit in St. Louis is gone. General Ashley wants a hundred young men for the mountains, and Mr. Astor's American Fur Company is buying up the river.",
         giver: amLisa
     ) [AmTheRoadEast] {
-        StartWhen() => world.date >= date(1821, 9, 1);
+        StartWhen() => world.date >= date(1822, 2, 13);   // Ashley's advertisement, first run in the Missouri Gazette
         talk Hear(who: amLisa, text: "Hear the news from St. Louis") {
             Says() => "{npc} has the Missouri Gazette open on the table. \"Read it. 'To enterprising young men: the subscriber wishes " +
                       "to engage one hundred men to ascend the Missouri to its source.' Ashley and Henry. No posts, no Indians bringing " +
@@ -434,7 +434,7 @@ questline TheLastYears(
         summary: "The North West Company is joined to the Hudson's Bay Company. The Columbia is the Bay's now, and its last Americans must decide where they belong.",
         giver: amSpokaneMaster
     ) [AmUnderTheNorthmen] {
-        StartWhen() => world.date >= date(1821, 9, 1);
+        StartWhen() => world.happened("merger");   // the union, as it happens in the world (Economy/Union.cs)
         talk Hear(who: amSpokaneMaster, text: "Hear the news at Spokane House") {
             Says() => "{npc} reads it out. \"The North West Company is joined to the Hudson's Bay Company. The Bay's charter, the Bay's " +
                       "governor. They'll send a man to look at every house on this river and decide what it's worth - and who.\" " +
