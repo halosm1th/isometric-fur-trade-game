@@ -288,7 +288,7 @@
       "maj": 0
     }
   ],
-  "camps_about": "Camps set down by hand, as they are, after everything else is placed (so nothing moves for them), each after the named camp in the list. The Beaver Hills Cree (Amiskwacîwiyiniwak) by Edmonton House, the Company's allies in the HBC story's Edmonton chapter.",
+  "camps_about": "Camps set down by hand, as they are, after everything else is placed (so nothing moves for them), each after the named camp in the list. The Beaver Hills Cree (Amiskwacîwiyiniwak) by Edmonton House, the Company's allies in the HBC story's Edmonton chapter; the Métis of the Souris by Fort Souris, for the NWC story (their cast is under Cast/Camps in the scene, so the name must not change).",
   "camps": [
     {
       "after": "Plains Cree",
@@ -300,6 +300,17 @@
         1056
       ],
       "people": 12
+    },
+    {
+      "after": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+      "name": "Métis of the Souris",
+      "nation": "Metis",
+      "kind": "band",
+      "centre": [
+        578,
+        1670
+      ],
+      "people": 8
     }
   ]
 }
