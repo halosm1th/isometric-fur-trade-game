@@ -227,7 +227,12 @@ public class HouseholdBehaviour : RoleBehaviour
         if (fire != null) return fire;
         var water = WaterDuty(npc, 12);
         if (water != null) return water;
-        if (IsWorkHours && !Cal.IsFrozen && npc.HomeStores != null && npc.HomeStores.FoodDays(10) < 14f && GD.Randf() < 0.5f) return new FishGoal();
+        // A town house buys its bread at the market (World/Towns); its women
+        // go down to the river with a line only when the house is nearly bare.
+        // The post's women fish for the mess against a fortnight for ten.
+        bool town = npc.HomeStores is World.TownHousehold;
+        float shortOf = town ? npc.HomeStores.FoodDays(Mathf.Max(1, npc.HomeStores.Alive())) : npc.HomeStores?.FoodDays(10) ?? 99f;
+        if (IsWorkHours && !Cal.IsFrozen && npc.HomeStores != null && shortOf < (town ? 3f : 14f) && GD.Randf() < 0.5f) return new FishGoal();
         if (IsWorkHours && Cal.IsFrozen && npc.HomeStores != null && (HouseWantsFresh(npc.HomeStores) || npc.HomeStores.FoodDays(10) < 20f) && GD.Randf() < 0.6f) return new FishGoal(true);
         // While the flight is on, salting comes before everything else: fresh
         // geese spoil and casks do not (design doc 14.1).
