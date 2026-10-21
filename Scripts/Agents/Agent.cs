@@ -109,12 +109,32 @@ public partial class Agent : CharacterBody2D
         Sim.Unregister(this);
     }
 
+    private float _envTimer = (float)GD.RandRange(0.0, 0.25), _exposure, _weatherExposure = 1f, _clothing;
+    // How many frames' worth of time this step covers (1 for anyone who steps every frame).
+    protected float StepScale = 1f;
+
+    // Physics steps thirty times a second and is drawn in between (physics
+    // interpolation): a body that has jumped - a teleport, a fast-travel leg,
+    // a person put at his day's place - is drawn where it landed, not
+    // sliding there across the country.
+    private Vector2 _lastStepAt = new(float.NaN, float.NaN);
+    protected void NoSlideOnJump()
+    {
+        var at = GlobalPosition;
+        if (!float.IsNaN(_lastStepAt.X) && at.DistanceSquaredTo(_lastStepAt) > 300f * 300f) ResetPhysicsInterpolation();
+        _lastStepAt = at;
+    }
+
     public override void _PhysicsProcess(double delta)
     {
+        NoSlideOnJump();
         var cal = GameCalendar.Instance;
         if (cal == null) return;
         if (!Net.Net.IsServer) return;   // puppets and remote copies don't simulate needs
         float scaled = (float)delta * cal.MotionScale;
+        // The game hours since this body last stepped (an NPC away from the
+        // player steps every few frames: Npc.ThinkEvery).
+        float hoursStep = cal.DeltaGameHours * StepScale;
         HurtFlash = Mathf.Max(0f, HurtFlash - (float)delta);
         _attackCooldown = Mathf.Max(0f, _attackCooldown - scaled);
         LastAttackedAgo += scaled;
@@ -132,38 +152,50 @@ public partial class Agent : CharacterBody2D
         }
         if (IsDead) return;
 
-        var structures = Sim.Structures;
-        IsSheltered = structures?.IsSheltered(GlobalPosition) ?? false;
-        bool enclosed = false;
-        HeatNear = structures?.HeatAt(GlobalPosition, out enclosed) ?? 0f;
-        HeatEnclosed = enclosed;
+        // What the place he stands in is like - under a roof, by a fire, the
+        // country's cold and the day's weather, what he has on - changes over
+        // seconds, not frames: looked at four times a second, each person at
+        // his own moment, so a town full of people does not all ask at once.
+        _envTimer -= (float)delta;
+        if (_envTimer <= 0f)
+        {
+            _envTimer = 0.25f;
+            var structures = Sim.Structures;
+            IsSheltered = structures?.IsSheltered(GlobalPosition) ?? false;
+            bool enclosed = false;
+            HeatNear = structures?.HeatAt(GlobalPosition, out enclosed) ?? 0f;
+            HeatEnclosed = enclosed;
+            _exposure = Climate.ExposureAt(GlobalPosition, cal.DaylightFactor, cal.DayOfYear);
+            _weatherExposure = cal.Weather.ExposureMultiplierAt(GlobalPosition);
+            _clothing = Inventory.ClothingWarmth + InnateWarmth;
+        }
 
         bool moving = Velocity.LengthSquared() > 1f;
-        Intoxication = Mathf.Max(0f, Intoxication - 8f * cal.DeltaGameHours);
-        DaysSinceFresh += cal.DeltaGameHours / 24f;
+        Intoxication = Mathf.Max(0f, Intoxication - 8f * hoursStep);
+        DaysSinceFresh += hoursStep / 24f;
         if (HasScurvy)
         {
             if (!_scurvyTold) { _scurvyTold = true; Sim.Notice($"{Describe()} has the scurvy: gums bleeding, old wounds opening. Fresh meat is the cure."); }
-            Needs.Health = Mathf.Max(0f, Needs.Health - 0.12f * cal.DeltaGameHours);   // ~3 a day
+            Needs.Health = Mathf.Max(0f, Needs.Health - 0.12f * hoursStep);   // ~3 a day
         }
         if (IsSick)
         {
-            SickDaysLeft -= cal.DeltaGameHours / 24f;
-            Needs.Health = Mathf.Max(0f, Needs.Health - 0.35f * cal.DeltaGameHours);   // ~8 a day
-            Needs.Hunger = Mathf.Max(0f, Needs.Hunger - 0.4f * cal.DeltaGameHours);
+            SickDaysLeft -= hoursStep / 24f;
+            Needs.Health = Mathf.Max(0f, Needs.Health - 0.35f * hoursStep);   // ~8 a day
+            Needs.Hunger = Mathf.Max(0f, Needs.Hunger - 0.4f * hoursStep);
             if (SickDaysLeft <= 0f) { Immune = true; Sim.Notice($"{Describe()} is over the fever."); }
         }
         Needs.Tick(
-            cal.DeltaGameHours,
+            hoursStep,
             activity: !moving ? 1f : (IsSprinting ? 2.4f : IsOverloaded ? 2.0f : 1.5f),
             sheltered: IsSheltered,
             heat: HeatNear,
-            clothingWarmth: Inventory.ClothingWarmth + InnateWarmth,
+            clothingWarmth: _clothing,
             season: cal.CurrentSeason,
             daylight: cal.DaylightFactor,
             fireEnclosed: HeatEnclosed,
-            localExposure: Climate.ExposureAt(GlobalPosition, cal.DaylightFactor, cal.DayOfYear),
-            localWeather: cal.Weather.ExposureMultiplierAt(GlobalPosition));
+            localExposure: _exposure,
+            localWeather: _weatherExposure);
 
         if (IsDead) OnDeath();
     }

@@ -29,6 +29,8 @@ public partial class TerrainPainter : TileMapLayer
     public const int SourceWharf = 51;
     // The regional grounds (make_region_tiles.py).
     public const int SourcePrairie = 70, SourceTallGrass = 71, SourceParkland = 72, SourceTundra = 73, SourceShield = 74, SourceMuskeg = 75, SourceMountain = 76;
+    // The high country (World/Relief): talus, rock with snow in its hollows, the snowfields.
+    public const int SourceScree = 77, SourceAlpine = 78, SourceSnowfield = 79;
 
     // A chunk is 16 columns by 64 rows: 2048 px square.
     public const int ChunkCols = 16, ChunkRows = 64;
@@ -268,7 +270,7 @@ public partial class TerrainPainter : TileMapLayer
         if (_loaded.Contains(ch)) return;
         _loaded.Add(ch);
         foreach (var cell in CellsOf(ch)) SetCell(cell, SourceFor(cell), Vector2I.Zero);
-        _paintedFrozen[ch] = FrozenAt(CellsOfFirst(ch));
+        _paintedFrozen[ch] = Signature(ch);
         Structures?.PaintForest(CellsOf(ch));
         BuildWaterCollision(ch);
     }
@@ -306,6 +308,7 @@ public partial class TerrainPainter : TileMapLayer
     {
         if (Wharf.Contains(cell)) return SourceWharf;
         var g = WorldMap.At(cell);
+        if (g is not (Ground.Ocean or Ground.Lake or Ground.River) && Towns.IsStreet(cell)) return SourceDirt;
         switch (g)
         {
             case Ground.Ocean: return IsIceCell(cell) ? SourceWaterIce : SourceWater;
@@ -332,64 +335,131 @@ public partial class TerrainPainter : TileMapLayer
             Ground.Shield => IsoGrid.Hash(new Vector2I(cell.X / 2, cell.Y / 4), 7) < 0.12f ? SourceHill : SourceShield,
             Ground.Lowland => SourceMuskeg,
             // Bare rock with green slopes between, in patches rather than a checkerboard.
-            Ground.Cordillera => IsoGrid.Hash(new Vector2I(cell.X / 3, cell.Y / 6), 7) < 0.65f ? SourceMountain : SourceHill,
+            Ground.Cordillera => Mountain(cell),
             _ => SourceGrass,
         };
     }
 
-    // Winter buries the land in snow and freezes the water solid.
+    // The mountains by height (World/Relief): green valley floors, slopes of
+    // grass and rock, bare rock above the trees, scree and snow-streaked rock
+    // higher, and the peaks under snow all year. In patches, not a checkerboard.
+    private static int Mountain(Vector2I cell)
+    {
+        float patch = IsoGrid.Hash(new Vector2I(cell.X / 2, cell.Y / 4), 7);
+        return Relief.BandAt(cell) switch
+        {
+            Relief.Band.Valley => patch < 0.2f ? SourceHill : SourceGrass,
+            Relief.Band.Slope => patch < 0.55f ? SourceHill : patch < 0.85f ? SourceGrass : SourceMountain,
+            Relief.Band.Rock => patch < 0.7f ? SourceMountain : patch < 0.9f ? SourceScree : SourceHill,
+            Relief.Band.Alpine => patch < 0.45f ? SourceScree : patch < 0.8f ? SourceAlpine : SourceMountain,
+            _ => patch < 0.8f ? SourceSnowfield : SourceAlpine,
+        };
+    }
+
+    // Winter buries the land in snow and freezes the water solid; on the
+    // mountain the rock takes snow in its hollows and the scree goes under.
     private static int Winter(int src) => src switch
     {
+        SourceMountain => SourceAlpine,
+        SourceScree or SourceAlpine => SourceSnowfield,
+        SourceHill => SourceSnow,
         SourceGrass or SourceSand or SourceDirt or >= SourcePrairie and <= SourceMuskeg => SourceSnow,
         SourceWater or SourceWaterIce => SourceIce,
         _ => src,
     };
 
-    public int SourceFor(Vector2I cell) => FrozenAt(cell) ? Winter(SummerSource(cell)) : SummerSource(cell);
+    public int SourceFor(Vector2I cell)
+    {
+        int src = SummerSource(cell);
+        bool cold = WorldMap.IsWater(cell) ? FrozenAt(cell) : SnowAt(cell);
+        return cold ? Winter(src) : src;
+    }
 
-    // Whether the ground is under snow and the water under ice, here: the
-    // country freezes when its own mean temperature, three weeks back (the
-    // water lags the air), is well below freezing - the Red River opens in
-    // April while the Bay is still iced in, and the Pacific slope hardly
-    // freezes at all (Agents/Climate). Decided per chunk, once a day.
-    private readonly Dictionary<Vector2I, bool> _chunkFrozen = new();
+    // Whether the water is under ice and the ground under snow, here: the
+    // country's own mean temperature three weeks back (the water lags the
+    // air) - the Red River opens in April while the Bay is still iced in,
+    // and the Pacific slope hardly freezes at all (Agents/Climate). The mean
+    // is taken once a day at each chunk's centre and blended between them
+    // cell by cell, so the snowline is a line across the country, not the
+    // edges of chunks. The water freezes well below zero; snow lies a little
+    // warmer than that, and ragged at its edge - in drifts and bare patches
+    // a few cells deep - where the country is on the turn.
+    private const float IceBelow = -4f, SnowBelow = -1.5f;
+    private readonly Dictionary<Vector2I, float> _chunkMean = new();
+    private float ChunkMean(Vector2I ch)
+    {
+        if (_chunkMean.TryGetValue(ch, out float m)) return m;
+        var cal = GameCalendar.Instance;
+        var centre = IsoGrid.ToWorld(new Vector2I(ch.X * ChunkCols + ChunkCols / 2, ch.Y * ChunkRows + ChunkRows / 2));
+        m = cal == null ? float.NaN : Agents.Climate.MeanAtFoot(centre, cal.DayOfYear - 20f);
+        if (m < -100f) m = float.NaN;
+        _chunkMean[ch] = m;
+        return m;
+    }
+
+    // The three-weeks-back mean temperature at a cell, blended between the
+    // four nearest chunk centres; NaN where the climate has nothing to say.
+    public float MeanAt(Vector2I cell)
+    {
+        float fx = (cell.X + 0.5f) / ChunkCols - 0.5f, fy = (cell.Y + 0.5f) / ChunkRows - 0.5f;
+        int x0 = Mathf.FloorToInt(fx), y0 = Mathf.FloorToInt(fy);
+        float tx = fx - x0, ty = fy - y0;
+        float a = ChunkMean(new Vector2I(x0, y0)), b = ChunkMean(new Vector2I(x0 + 1, y0));
+        float c = ChunkMean(new Vector2I(x0, y0 + 1)), d = ChunkMean(new Vector2I(x0 + 1, y0 + 1));
+        // A chunk with no climate (off the map) takes its neighbours' value.
+        float any = !float.IsNaN(a) ? a : !float.IsNaN(b) ? b : !float.IsNaN(c) ? c : d;
+        if (float.IsNaN(any)) return float.NaN;
+        if (float.IsNaN(a)) a = any; if (float.IsNaN(b)) b = any; if (float.IsNaN(c)) c = any; if (float.IsNaN(d)) d = any;
+        return Mathf.Lerp(Mathf.Lerp(a, b, tx), Mathf.Lerp(c, d, tx), ty);
+    }
+
+    // The water under ice: the plain mean, no raggedness - the river is
+    // open or it is not, and the road on it with it.
     public bool FrozenAt(Vector2I cell)
     {
-        var ch = ChunkOf(cell);
-        if (_chunkFrozen.TryGetValue(ch, out bool f)) return f;
-        f = ComputeFrozen(ch);
-        _chunkFrozen[ch] = f;
-        return f;
+        float m = MeanAt(cell);
+        return float.IsNaN(m) ? (GameCalendar.Instance?.IsFrozen ?? _frozen) : m < IceBelow;
     }
     public bool FrozenAt(Vector2 world) => FrozenAt(IsoGrid.FromWorld(world));
 
-    private bool ComputeFrozen(Vector2I ch)
+    // The ground under snow, ragged at the edge: drifts run out ahead of the
+    // snowline and bare ground shows behind it, in patches of a few cells.
+    public bool SnowAt(Vector2I cell)
     {
-        var cal = GameCalendar.Instance;
-        if (cal == null) return _frozen;
-        var centre = IsoGrid.ToWorld(new Vector2I(ch.X * ChunkCols + ChunkCols / 2, ch.Y * ChunkRows + ChunkRows / 2));
-        float mean = Agents.Climate.MeanAt(centre, cal.DayOfYear - 20f, out _, out _);
-        return mean < -100f ? cal.IsFrozen : mean < -4f;
+        float m = MeanAt(cell) - Relief.Cold(cell);
+        if (float.IsNaN(m)) return GameCalendar.Instance?.IsFrozen ?? _frozen;
+        float patch = (IsoGrid.Hash(new Vector2I(cell.X / 3, cell.Y / 6), 31) - 0.5f) * 3.0f;
+        float grain = (IsoGrid.Hash(cell, 37) - 0.5f) * 1.6f;
+        return m + patch + grain < SnowBelow;
+    }
+
+    // Which cells of a chunk are white, as one number: a chunk is painted
+    // again when it changes.
+    private int Signature(Vector2I ch)
+    {
+        int h = 17;
+        foreach (var cell in CellsOf(ch)) h = h * 31 + (SourceFor(cell) is SourceSnow or SourceIce ? 1 : 0);
+        return h;
     }
 
     // Frozen water has no collision, so the sea route closes but the ice
     // becomes a road. A chunk whose freeze has changed today is repainted.
     private void ApplySeason()
     {
-        _chunkFrozen.Clear();
+        _chunkMean.Clear();
         _frozen = GameCalendar.Instance?.IsFrozen ?? _frozen;
         foreach (var ch in _loaded)
         {
-            if (!_paintedFrozen.TryGetValue(ch, out bool was) || was == FrozenAt(CellsOfFirst(ch))) continue;
+            if (!_paintedFrozen.TryGetValue(ch, out int was) || was == Signature(ch)) continue;
             Repaint(ch);
         }
     }
-    private readonly Dictionary<Vector2I, bool> _paintedFrozen = new();
+    private readonly Dictionary<Vector2I, int> _paintedFrozen = new();
     private static Vector2I CellsOfFirst(Vector2I ch) => new(ch.X * ChunkCols, ch.Y * ChunkRows);
     private void Repaint(Vector2I ch)
     {
         foreach (var cell in CellsOf(ch)) SetCell(cell, SourceFor(cell), Vector2I.Zero);
-        _paintedFrozen[ch] = FrozenAt(CellsOfFirst(ch));
+        _paintedFrozen[ch] = Signature(ch);
         BuildWaterCollision(ch);
     }
 
@@ -424,6 +494,8 @@ public partial class TerrainPainter : TileMapLayer
         if (src == SourceRoad) return 1.1f;
         if (src == SourceSand) return 0.9f;
         if (src == SourceHill || src == SourceMountain) return 0.8f;
+        if (src == SourceScree || src == SourceAlpine) return 0.65f;   // loose stone and rock underfoot
+        if (src == SourceSnowfield) return snowshoes ? 0.85f : 0.55f;
         if (src == SourceMuskeg) return 0.75f;   // the muskeg in summer: knee-deep moss and water
         // The goose marsh is a swamp in summer.
         foreach (var s in WorldLayout.Sites)
@@ -457,6 +529,7 @@ public partial class TerrainPainter : TileMapLayer
         };
         if (src == SourceMuskeg) f = Mathf.Min(f, 0.6f);
         if (src == SourceHill || src == SourceMountain) f = Mathf.Min(f, 1.2f);
+        if (src is SourceScree or SourceAlpine or SourceSnowfield) f = Mathf.Min(f, 0.5f);   // no horse above the trees
         // Snow: the wind keeps the plains bare enough; in the woods it lies deep.
         if (FrozenAt(cell)) f *= g is Ground.Grassland or Ground.TallGrass ? 0.75f : 0.55f;
         return f;
@@ -513,6 +586,9 @@ public partial class TerrainPainter : TileMapLayer
         // Any post or place on the map by name: `--spawn="Fort William"`.
         if (Posts.Named(name) is { } post) return IsoGrid.Cell(post.GateCell, -1, 2);
         if (WorldMap.Place(name) is { } place) return Sim.Paths?.NearestWalkable(place.Cell, 12) ?? place.Cell;
+        // A town, at its market house: `--spawn=Detroit`.
+        if (Towns.Named(name) is { } town && town.Buildings.Find(b => b.Home == "market") is { } market)
+            return Sim.Paths?.NearestWalkable(IsoGrid.DownLeft(IsoGrid.DownLeft(market.Def.DoorCell)), 12) ?? market.Def.DoorCell;
         // Any camp of the country by name: `--spawn=Mandan`.
         if (Camps.Named(name) is { } camp) return Sim.Paths?.NearestWalkable(IsoGrid.Cell(camp.Centre, 2, 2), 12) ?? camp.Centre;
         // Or a bare cell: `--spawn=538,1959`.
@@ -566,7 +642,6 @@ public partial class TerrainPainter : TileMapLayer
         var host = WaterCollisionPath == null || WaterCollisionPath.IsEmpty ? null : GetNodeOrNull<StaticBody2D>(WaterCollisionPath);
         if (host == null) return;
         if (_chunkBodies.Remove(ch, out var old) && IsInstanceValid(old)) old.QueueFree();
-        if (FrozenAt(CellsOfFirst(ch))) return;
         var body = new StaticBody2D { CollisionLayer = host.CollisionLayer, CollisionMask = host.CollisionMask, Name = $"Water_{ch.X}_{ch.Y}" };
         foreach (var cell in CellsOf(ch))
         {

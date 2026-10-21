@@ -43,13 +43,14 @@ public partial class SpeechBubble : Node2D
         _ttl = (3.5f + text.Length * 0.045f) * Core.Settings.BubbleTime;
         Modulate = Colors.White;
         Visible = true;
+        SetProcess(true);
     }
 
     public override void _Process(double delta)
     {
-        if (!Visible) return;
+        if (!Visible) { SetProcess(false); return; }   // asleep until he next speaks
         _ttl -= (float)delta;
-        if (_ttl <= 0f) { Visible = false; return; }
+        if (_ttl <= 0f) { Visible = false; SetProcess(false); return; }
         if (_ttl < 0.6f) Modulate = new Color(1f, 1f, 1f, _ttl / 0.6f);
     }
 }

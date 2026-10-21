@@ -23,6 +23,10 @@ public class Town
     public Vector2I Top;
     public int Width, Depth;
     public readonly List<TownBuilding> Buildings = new();
+    // Gardens, fields and woodpiles round the houses ("garden", "field", "woodpile").
+    public readonly List<(string Kind, Vector2I Cell)> Props = new();
+    // The streets: beaten earth (World/TerrainPainter).
+    public readonly List<Vector2I> Streets = new();
     // The garrison's palisade, if it has one.
     public Vector2I FortTop;
     public int FortWidth, FortDepth, FortGate;
@@ -51,6 +55,9 @@ public partial class TownHousehold : Household
     public float FieldDays;
     public int HarvestYear;
     public string FullKey => Town.Name + "|" + Key;
+    // A town has hundreds of houses: they are not each ticked every frame to
+    // see whether the day has turned; the day's round spoils their meat (Towns.Day).
+    public override void _Ready() => SetProcess(false);
 }
 
 public static class Towns
@@ -85,6 +92,14 @@ public static class Towns
                 var def = new BuildingDef(kind, b["name"].AsString(), IsoGrid.Cell(top, b["i"].AsInt32(), b["j"].AsInt32()), w, dd, door);
                 t.Buildings.Add(new TownBuilding(def, b.TryGetValue("home", out var hv) ? hv.AsString() : ""));
             }
+            if (d.TryGetValue("streets", out var sv))
+                foreach (var cv in sv.AsGodotArray()) { var c = cv.AsGodotArray(); t.Streets.Add(IsoGrid.Cell(top, c[0].AsInt32(), c[1].AsInt32())); }
+            if (d.TryGetValue("props", out var pv))
+                foreach (var qv in pv.AsGodotArray())
+                {
+                    var q = qv.AsGodotDictionary();
+                    t.Props.Add((q["kind"].AsString(), IsoGrid.Cell(top, q["i"].AsInt32(), q["j"].AsInt32())));
+                }
             list.Add(t);
         }
         return list;
@@ -97,6 +112,19 @@ public static class Towns
         var d = new Dictionary<string, Town>();
         foreach (var t in All) d[t.Name] = t;
         return d;
+    }
+
+    // Is this cell a street of a standing town? Asked for every cell the
+    // ground painter lays, so it is a set lookup.
+    private static HashSet<Vector2I> _streets;
+    public static bool IsStreet(Vector2I cell)
+    {
+        if (_streets == null)
+        {
+            _streets = new();
+            foreach (var t in All) if (t.Standing) foreach (var c in t.Streets) _streets.Add(c);
+        }
+        return _streets.Contains(cell);
     }
 
     public static Town Named(string name) => name != null && _byName.TryGetValue(name, out var t) ? t : null;
@@ -136,6 +164,7 @@ public static class Towns
             {
                 foreach (var b in t.Buildings) Add(IsoGrid.ToWorld(IsoGrid.Cell(b.Def.Top, b.Def.Width / 2, b.Def.Depth / 2)), b.Def.Kind == BuildingKind.Townhouse && b.Home != "" ? 520f : 420f);
                 if (t.HasFort) Add(IsoGrid.ToWorld(IsoGrid.Cell(t.FortTop, t.FortWidth / 2, t.FortDepth / 2)), (t.FortWidth + t.FortDepth) * 34f);
+                foreach (var (_, cell) in t.Props) Add(IsoGrid.ToWorld(cell), 90f);
             }
         }
         int kx = Mathf.FloorToInt(at.X / GridPx), ky = Mathf.FloorToInt(at.Y / GridPx);
@@ -149,6 +178,7 @@ public static class Towns
     public static void Reset()
     {
         foreach (var t in All) { t.Standing = false; t.Houses.Clear(); }
+        _streets = null;
     }
 
     // At world start, on every peer (WorldRoot): the towns of the year are
@@ -156,10 +186,13 @@ public static class Towns
     public static void Begin(Node host)
     {
         int year = GameCalendar.Instance?.Year ?? 1811;
+        // Dev aid: `-- --notowns` leaves the towns unbuilt and unpeopled.
+        if (System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--notowns") >= 0) return;
         foreach (var t in All)
         {
             if (t.Standing || t.Year > year) continue;
             t.Standing = true;
+            _streets = null;
             if (Net.Net.IsServer) MakeHouses(host, t);
             Sim.Structures?.PaintTown(t);
         }
@@ -227,6 +260,13 @@ public static class Towns
             t.Market.Stores.Add(ItemId.Ale, townMouths / 2);
             t.Market.Stores.Add(ItemId.Rum, townMouths / 4);
         }
+    }
+
+    // The day's round for the towns' houses (Core/Tiers, once a day).
+    public static void Day()
+    {
+        foreach (var t in All)
+            if (t.Standing) foreach (var h in t.Houses.Values) h.SpoilDay();
     }
 
     // A house running low buys at the town's market (once a day for the

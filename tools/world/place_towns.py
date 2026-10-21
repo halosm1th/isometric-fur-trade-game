@@ -31,12 +31,13 @@ PLANS = os.path.join(ROOT, "Data", "World", "post_plans.json")
 
 # Building sizes (Posts.SizeOf): width, depth, door offset.
 SIZE = dict(Townhouse=(4, 4, 1), Church=(8, 4, 3), Barracks=(8, 5, 3), Store=(8, 4, 3), Workshop=(4, 4, 1), Hall=(8, 4, 3),
-            FactorsHouse=(5, 6, 2), PowderMagazine=(3, 3, 1))
-# A lot is one house wide: the houses stand wall to wall along the street in
-# front of each row, with a cross street every eight lots. At the map's scale
-# (buildings life size, the country compressed) that is the only way a town of
-# seven hundred keeps to the country round its real place.
-LOT_I, LOT_J, STREET, CROSS_EVERY, CROSS = 4, 4, 2, 8, 2
+            FactorsHouse=(5, 6, 2), PowderMagazine=(3, 3, 1), Cabin=(3, 4, 1), House=(5, 4, 2))
+# A town lot: the house on the street, its garden and woodpile behind and
+# beside it. Each town has its own lot (towns.json "lot"): Detroit's narrow
+# French lots close-packed along the strait, York's and Niagara's broad
+# loyalist town lots with room to spare, and some of them still empty
+# ("empty"). A cross street every six lots.
+LOT_I, LOT_J, STREET, CROSS_EVERY, CROSS = 5, 5, 2, 6, 2
 ROLE = dict(Labourer=2, Woman=3, Wife=10, Farmer=13, Merchant=14, Artisan=15, Soldier=16, Officer=17, Priest=18, Child=19)
 FACTION = dict(AMER=14, CROWN=17)
 HOME_TOWN = 7
@@ -159,7 +160,15 @@ def place_fort(anchor, spec):
     blds.append(("FactorsHouse", "the officers' quarters", fi + 2, fj + 2 + rows * 7, "garrison"))
     blds.append(("PowderMagazine", "the powder magazine", fi + 14, fj + 2 + rows * 7 + 1, ""))
     taken.update(B.Rhombus(B.Cell(anchor, fi - 2, fj - 2), fw + 4, fd + 4))
-    return dict(i=fi, j=fj, width=fw, depth=fd, gate=fw // 2, name=spec["name"]), blds, (fi + fw // 2, fj + fd - 6)
+    # The open ground of the fort, a cell clear of every building: the parade
+    # and the yards, where the garrison is seen at drill and at its fatigues.
+    near_bld = set()
+    for kind, _, bi, bj, _ in blds:
+        w, d, _ = SIZE[kind]
+        for ci in range(-1, w + 1):
+            for cj in range(-1, d + 2): near_bld.add((bi + ci, bj + cj))
+    parade = [(fi + ci, fj + cj) for cj in range(2, fd - 2) for ci in range(2, fw - 2) if (fi + ci, fj + cj) not in near_bld]
+    return dict(i=fi, j=fj, width=fw, depth=fd, gate=fw // 2, name=spec["name"]), blds, parade
 
 def lay_out(t, rng):
     anchor = anchor_of(t)
@@ -214,7 +223,9 @@ def town_lots(anchor, need):
         if not ok(cells):
             # Ground another town or a camp holds is passed over, not water:
             # the town goes on beyond it on the same side of the river.
-            if not all(c in region for c in cells): continue
+            # A lot that touches the town's own dry ground at all is walked
+            # through; one wholly across the water is not.
+            if not any(c in region for c in cells): continue
         else: lots.append((a, b))
         for n in ((a + 1, b), (a - 1, b), (a, b + 1), (a, b - 1)):
             if n not in seen:
@@ -367,6 +378,7 @@ for PASS in ("cores", "all"):
   used.clear(); used.update(names_before)
   out_towns = []; markers = []; total = 0
   for t in sorted(spec["towns"], key=lambda t: t.get("lay", 99)):
+        LOT_I, LOT_J = t.get("lot", [5, 5])
         rng = random.Random("town:" + t["name"])
         nm = Namer(rng, t["names"], t["french"])
         anchor, fort, fort_blds, parade = laid[t["name"]]
@@ -386,11 +398,11 @@ for PASS in ("cores", "all"):
             catholic = t["priest"].startswith("Father")
             pp, sur = family(nm, rng, False, "Priest", t["priest"].replace("Father ", "").replace("Reverend ", ""), rng.randint(40, 60), alone=catholic)
             pp[0].name = t["priest"]; used.add(t["priest"])
-            households.append(("Townhouse", "the presbytery" if catholic else "the rectory", home_key(), pp))
+            households.append(("House", "the presbytery" if catholic else "the rectory", home_key(), pp))
         for n in t.get("notables", []):
             if n["role"] == "Wife": continue
             pp, sur = family(nm, rng, False, n["role"], n["name"], n.get("age"))
-            households.append(("Townhouse", n["house"], home_key(), pp))
+            households.append(("House", n["house"], home_key(), pp))
         for m in t.get("stores", []):
             if m.startswith("the "):
                 households.append(("Store", m, home_key(), []))   # the Indian Department's storehouse, the sutler's store: nobody lives over it
@@ -423,6 +435,8 @@ for PASS in ("cores", "all"):
         for h in households:
             kind, name, home, pp = h
             if kind == "Townhouse" and pp and pp[0].role == "Labourer":
+                # Some labouring families have a cabin of their own; most share a house.
+                if rng.random() < 0.35: single_fams.append(("Cabin",) + h[1:] + ({home: pp},)); continue
                 if pending is None: pending = h; continue
                 shared.append(("Townhouse", f"{pending[1]} and {name.replace('the ', '')}", f"{pending[2]};{home}", pending[3] + pp, {pending[2]: pending[3], home: pp}))
                 pending = None
@@ -432,11 +446,12 @@ for PASS in ("cores", "all"):
         # The townsmen's houses nearer the heart than the shared ones; the farms
         # are out in the country (place_farms).
         households = households + shared
-        farm_entries = [h + ({h[2]: h[3]},) for h in farms]
+        farm_entries = [(("Cabin" if rng.random() < 0.4 else "Townhouse"),) + h[1:] + ({h[2]: h[3]},) for h in farms]
         # Lots: the heart's and the stores' double lots, then one each; then
         # the farms out in the country, and a house in the town for any farm
         # family that found no ground of its own.
         need = sum(h[3] for h in heart) + sum(2 if h[0] == "Store" else 1 for h in households) + 4
+        need += round(len(households) * t.get("empty", 0.1)) + 8
         if PASS == "cores":
             CORE[t["name"]] = town_lots(anchor, need) if need > 4 else []
             continue
@@ -456,26 +471,69 @@ for PASS in ("cores", "all"):
                 if (a + 1, b) in free_lots and a // CROSS_EVERY == (a + 1) // CROSS_EVERY:
                     free_lots.remove((a, b)); free_lots.remove((a + 1, b)); return (a, b)
             return single()
+        props = []
+        streets = set()
+        def street(a, b, nlots=1):
+            i, j = lot_origin(a, b)
+            for ci in range(LOT_I * nlots + (CROSS if (a + nlots - 1) % CROSS_EVERY == CROSS_EVERY - 1 else 0)):
+                for cj in range(STREET): streets.add((i + ci, j + LOT_J + cj))
+            if (a + nlots - 1) % CROSS_EVERY == CROSS_EVERY - 1:
+                for cj in range(LOT_J): streets.add((i + LOT_I * nlots + 0, j + cj)); streets.add((i + LOT_I * nlots + 1, j + cj))
+        def set_on_lot(kind, i, j, width, garden):
+            """The house at the front of its lot, somewhere along it; its garden
+            and its woodpile in the rest."""
+            w, d, door = SIZE[kind]
+            oi = rng.randint(0, max(0, width - w)); oj = max(0, LOT_J - d)
+            bi, bj = i + oi, j + oj
+            if garden:
+                for ci in range(width):
+                    for cj in range(LOT_J):
+                        if bi <= i + ci < bi + w and bj <= j + cj < bj + d: continue
+                        if cj == LOT_J - 1 and abs(i + ci - (bi + door)) <= 0: continue
+                        if rng.random() < 0.55: props.append(("garden", i + ci, j + cj))
+                side = bi + w if bi + w < i + width else bi - 1
+                if i <= side < i + width: props.append(("woodpile", side, j + LOT_J - 1))
+            return bi, bj
         for kind, name, home, nlots, _ in heart:
             lot = double() if nlots == 2 else single()
             if lot is None: break
-            i, j = lot_origin(*lot); blds.append((kind, name, i, j, home))
+            i, j = lot_origin(*lot)
+            street(*lot, nlots)
+            bi, bj = set_on_lot(kind, i, j, LOT_I * nlots, False)
+            blds.append((kind, name, bi, bj, home))
         # Names of family houses are made unique within the town.
         seen = {}
         lot_of = {}
+        empty_share = t.get("empty", 0.1)
         for kind, name, home, pp, _ in households:
             if not free_lots: break
+            # A lot not yet built on: a garden, or open ground.
+            if kind != "Store" and len(free_lots) > 1 and rng.random() < empty_share:
+                ea, eb = single(); ei, ej = lot_origin(ea, eb)
+                if rng.random() < 0.6:
+                    for ci in range(LOT_I):
+                        for cj in range(LOT_J):
+                            if rng.random() < 0.45: props.append(("garden", ei + ci, ej + cj))
             lot = double() if kind == "Store" else single()
             if lot is None: break
             a, b = lot; i, j = lot_origin(a, b)
+            street(a, b, 2 if kind == "Store" else 1)
             k = seen.get(name, 0) + 1; seen[name] = k
             if k > 1: name = f"{name} ({k})"
-            blds.append((kind, name, i, j, home)); lot_of[home] = (a, b, kind, i, j, name)
+            bi, bj = set_on_lot(kind, i, j, LOT_I * (2 if kind == "Store" else 1), kind != "Store")
+            blds.append((kind, name, bi, bj, home)); lot_of[home] = (a, b, kind, bi, bj, name)
         for (kind, name, home, pp, _), (fi, fj) in zip(farm_entries, homesteads):
             k = seen.get(name, 0) + 1; seen[name] = k
             if k > 1: name = f"{name} ({k})"
             blds.append((kind, name, fi, fj, home)); lot_of[home] = (None, None, kind, fi, fj, name)
+            # The farm's fields beside the house, and its woodpile.
+            for ci in range(5, 9):
+                for cj in range(0, 6):
+                    if dry(B.Cell(anchor, fi + ci, fj + cj)): props.append(("field", fi + ci, fj + cj))
+            props.append(("woodpile", fi + 4, fj + 3))
         households = households + farm_entries
+        unplaced = sum(len(h[3]) for h in households if h[3] and h[2] not in lot_of)
+        if unplaced: SHORT.append(f"{t['name']}: {unplaced} people had no house")
         blds += fort_blds
         # Where each person sleeps and works.
         people_by_house = []
@@ -501,11 +559,11 @@ for PASS in ("cores", "all"):
                         for step in range(8, 30, 2):
                             fi, fj = i + 2 + round(da / norm * step * 1.2), j + 2 + round(db / norm * step)
                             if dry(B.Cell(anchor, fi, fj)) and B.Cell(anchor, fi, fj) not in taken: p.work = (fi, fj); break
-                        p.work = p.work or (i + door, j + LOT_J)   # the street in front, if the fields are under water
+                        p.work = p.work or (i + door, j + d)   # the street in front, if the fields are under water
                     elif p.role == "Priest" and church: p.work = (church[0] + 3, church[1] + 2)
                     elif p.role == "Officer" and hall: p.work = (hall[0] + 3, hall[1] + 2)
                     elif p.role in ("Merchant", "Artisan"): p.work = (i + door, j + d - 2)
-                    elif p.role == "Labourer": p.work = (i + door, j + LOT_J + 1)
+                    elif p.role == "Labourer": p.work = (i + door, j + d + 1)
                     else: p.work = threshold
                     look(p, p.name.split()[-1] in FR_SUR)
             people_by_house.append((hname, fam_home, fam))
@@ -518,12 +576,17 @@ for PASS in ("cores", "all"):
             for k, p in enumerate(gp):
                 if p.role == "Officer" or (p.spouse and p.spouse.role == "Officer"):
                     ci, cj = ocells[k % len(ocells)]; p.bed = (oq[0] + ci, oq[1] + cj)
-                    p.work = (parade[0], parade[1])
+                    p.work = parade[(k * 7) % len(parade)]
                 else:
                     bi, bj = bar[k % len(bar)]; ci, cj = bcells[(k // len(bar)) % len(bcells)]
                     p.bed = (bi + ci, bj + cj)
-                    # One man in eight on sentry at the gate, the rest at drill on the parade.
-                    p.work = gate_out if p.role == "Soldier" and k % 8 == 0 else (parade[0] - 4 + k % 9, parade[1] - 1 + (k // 9) % 3)
+                    # One man in ten on sentry, along the front either side of the
+                    # gate; the rest spread over the parade and the yards.
+                    if p.role == "Soldier" and k % 10 == 0:
+                        s_ = (k // 10) % 8
+                        p.work = (fort["i"] + 2 + s_ * (fort["width"] - 4) // 7, fort["j"] + fort["depth"] + 1)
+                    else:
+                        p.work = parade[(k * 13) % len(parade)]
                 look(p, False)
             people_by_house.append(("the garrison", "garrison", gp))
         # Rebase everything on the town's own top corner.
@@ -536,6 +599,8 @@ for PASS in ("cores", "all"):
         top = B.Cell(anchor, i0, j0)
         entry = dict(name=town_name, polity=t["polity"], year=t["year"], note=t["note"], top=list(top), width=i1 - i0, depth=j1 - j0,
                      buildings=[dict(kind=k, name=n, i=i - i0, j=j - j0, home=h) for k, n, i, j, h in blds])
+        entry["props"] = [dict(kind=k, i=i - i0, j=j - j0) for k, i, j in props]
+        entry["streets"] = [[i - i0, j - j0] for i, j in sorted(streets)]
         if fort: entry["fort"] = dict(i=fort["i"] - i0, j=fort["j"] - j0, width=fort["width"], depth=fort["depth"], gate=fort["gate"], name=fort["name"])
         out_towns.append(entry)
         count = sum(len(pp) for *_, pp in people_by_house)

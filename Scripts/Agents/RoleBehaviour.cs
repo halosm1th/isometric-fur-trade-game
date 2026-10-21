@@ -381,7 +381,10 @@ public class SoldierBehaviour : RoleBehaviour
         var home = npc.HomeStores;
         if (!IsWorkHours) return new WanderGoal(home?.AccessCell ?? npc.BedCell, 1, 1f);
         if (home != null && home.Stores.Count(ItemId.Firewood) < 30 && GD.Randf() < 0.35f) return new ChopWoodGoal();
-        return new WanderGoal(npc.WorkCell, 1, 0.5f);
+        // A third of the garrison at drill or on sentry in any hour, turn and
+        // turn about; the rest about the barracks.
+        bool onDuty = World.IsoGrid.Hash(new Vector2I(Cal.Day * 24 + (int)Cal.Hour, npc.NetId), 79) < 0.34f;
+        return onDuty ? new WanderGoal(npc.WorkCell, 1, 0.5f) : new WanderGoal(home?.AccessCell ?? npc.BedCell, 3, 1.2f);
     }
 }
 

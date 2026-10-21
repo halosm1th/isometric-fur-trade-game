@@ -47,6 +47,7 @@ public static class Tiers
             World.GooseHunt.Tick();
             Reckoning.Spring();
             Economy.Gardens.Tick();
+            World.Towns.Day();
             Agents.Rivals.Tick();
             World.Brigades.Season();
             World.Brigades.Tick();

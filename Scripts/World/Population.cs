@@ -389,6 +389,7 @@ public partial class Population : Node2D
 			if (arg == "--perf")
 			{
 				var timer = new Timer { WaitTime = 10.0, Autostart = true };
+				timer.Timeout += () => { GD.Print($"[perf] npc steps {Npc.PerfUsec / 10000f:0.0} ms/s"); Npc.PerfUsec = 0; };
 				timer.Timeout += () => GD.Print($"[perf] {Engine.GetFramesPerSecond()} fps, process {Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000:0.0} ms, physics {Performance.GetMonitor(Performance.Monitor.TimePhysicsProcess) * 1000:0.0} ms, {Performance.GetMonitor(Performance.Monitor.ObjectNodeCount)} nodes, {Tiers.Report()}, mem {OS.GetStaticMemoryUsage() / 1048576} MB");
 				AddChild(timer);
 			}

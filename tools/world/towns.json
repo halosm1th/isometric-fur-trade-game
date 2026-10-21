@@ -1,5 +1,5 @@
 {
- "_about": "The towns of the Lakes frontier in 1811 (design doc 6.1), read by tools/world/place_towns.py, which lays each one out on dry ground near its real place and writes its people into the scene as NpcSpawn markers (Cast/Towns). Populations are the town proper about 1811-12; the garrisons are peacetime strength before the war. 'farm' is the share of the town's families who farm (the habitants' ribbon farms of Detroit and the Essex shore, the loyalists' park lots at York and Niagara); the rest are tradesmen, labourers, carters and boatmen. 'names' picks the surname pool; 'french' is the share of French-Canadian families. 'notables' are people known to have lived there then; everyone else is generated. 'lay' is the order the towns take their ground in, where two want the same shore. 'at' is a cell to build round instead of the real place, where that lies inside a bigger neighbour at the map's scale ('at_why' says so).",
+ "_about": "The towns of the Lakes frontier in 1811 (design doc 6.1), read by tools/world/place_towns.py, which lays each one out on dry ground near its real place and writes its people into the scene as NpcSpawn markers (Cast/Towns). Populations are the town proper about 1811-12; the garrisons are peacetime strength before the war. 'farm' is the share of the town's families who farm (the habitants' ribbon farms of Detroit and the Essex shore, the loyalists' park lots at York and Niagara); the rest are tradesmen, labourers, carters and boatmen. 'names' picks the surname pool; 'french' is the share of French-Canadian families. 'notables' are people known to have lived there then; everyone else is generated. 'lay' is the order the towns take their ground in, where two want the same shore. 'at' is a cell to build round instead of the real place, where that lies inside a bigger neighbour at the map's scale ('at_why' says so). 'lot' is a town lot in cells (along the street, back from it): Detroit's narrow French lots, York's and Niagara's broad ones; 'empty' is the share of lots not yet built on.",
  "towns": [
   {
    "name": "Detroit",
@@ -53,7 +53,12 @@
     "commandant": null,
     "flag": "AMER"
    },
-   "lay": 5
+   "lay": 5,
+   "lot": [
+    5,
+    5
+   ],
+   "empty": 0.05
   },
   {
    "name": "Amherstburg",
@@ -104,7 +109,12 @@
     "commandant": null,
     "flag": "CROWN"
    },
-   "lay": 6
+   "lay": 2.5,
+   "lot": [
+    5,
+    4
+   ],
+   "empty": 0.06
   },
   {
    "name": "York",
@@ -157,7 +167,12 @@
     "commandant": null,
     "flag": "CROWN"
    },
-   "lay": 4
+   "lay": 4,
+   "lot": [
+    6,
+    5
+   ],
+   "empty": 0.22
   },
   {
    "name": "Niagara",
@@ -193,7 +208,12 @@
     "commandant": "Major-General Isaac Brock",
     "flag": "CROWN"
    },
-   "lay": 2
+   "lay": 2,
+   "lot": [
+    6,
+    5
+   ],
+   "empty": 0.22
   },
   {
    "name": "Queenston",
@@ -232,7 +252,12 @@
     1189,
     2222
    ],
-   "at_why": "Queenston is eleven kilometres up the river from Niagara, which at the map's scale is inside Niagara's own streets: it is built on the next free ground up the shore."
+   "at_why": "Queenston is eleven kilometres up the river from Niagara, which at the map's scale is inside Niagara's own streets: it is built on the next free ground up the shore.",
+   "lot": [
+    6,
+    5
+   ],
+   "empty": 0.15
   },
   {
    "name": "Fort Niagara",
@@ -260,7 +285,12 @@
     "commandant": null,
     "flag": "AMER"
    },
-   "lay": 1
+   "lay": 1,
+   "lot": [
+    6,
+    5
+   ],
+   "empty": 0.0
   }
  ]
 }

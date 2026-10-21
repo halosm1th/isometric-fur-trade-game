@@ -15,12 +15,13 @@ public partial class HealthBar : Node2D
         _max = a is Animal an ? an.Def.Health : 100f;
         _ttl = 4f;
         Visible = true;
+        SetProcess(true);
         QueueRedraw();
     }
 
     public override void _Process(double delta)
     {
-        if (_ttl <= 0f) { Visible = false; return; }
+        if (_ttl <= 0f) { Visible = false; SetProcess(false); return; }   // asleep until the next hit
         _ttl -= (float)delta;
         QueueRedraw();
     }

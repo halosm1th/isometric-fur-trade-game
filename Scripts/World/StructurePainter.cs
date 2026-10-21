@@ -141,11 +141,26 @@ public partial class StructurePainter : TileMapLayer
         }
     }
 
+    private const int MaxLights = 24;
+    private float _lightTimer;
+    private readonly List<Hearth> _lit = new();
+
     public override void _Process(double delta)
     {
         if (Engine.IsEditorHint()) return;
         var vp = GetViewport();
         if (vp != null) Hearth.View = (vp.GetCanvasTransform().AffineInverse() * vp.GetVisibleRect()).Grow(Hearth.MaxReach);
+        // The fires that may throw light: the nearest few to the middle of the view.
+        _lightTimer -= (float)delta;
+        if (_lightTimer <= 0f)
+        {
+            _lightTimer = 0.5f;
+            var mid = Hearth.View.GetCenter();
+            _lit.Clear();
+            foreach (var h in _hearths) { h.LightAllowed = false; if (Hearth.IsInView(h.WorldPos)) _lit.Add(h); }
+            _lit.Sort((a, b) => a.WorldPos.DistanceSquaredTo(mid).CompareTo(b.WorldPos.DistanceSquaredTo(mid)));
+            for (int i = 0; i < _lit.Count && i < MaxLights; i++) _lit[i].LightAllowed = true;
+        }
         for (int i = 0; i < _hearths.Count; i++) _hearths[i].Tick(delta);
         if (_front == null || _player == null) return;
         float target = IsSheltered(_player.Position) ? IndoorFrontAlpha : 1f;
@@ -362,7 +377,14 @@ public partial class StructurePainter : TileMapLayer
         var floor = _floor ?? this;
         if (t.HasFort) PaintPalisadeAt(t.FortTop, t.FortWidth, t.FortDepth, t.FortGate);
         foreach (var b in t.Buildings) PaintBuilding(b.Def, floor);
-        if (t.HasFort) SetBack(IsoGrid.Cell(t.FortTop, t.FortWidth / 2, 1), 93);   // the flagstaff
+        // Kitchen gardens, the farms' fields (stubble from the harvest to the
+        // ploughing), and the woodpiles.
+        bool fallow = (GameCalendar.Instance?.Month ?? 8) is >= 10 or <= 4;
+        foreach (var (kind, cell) in t.Props)
+        {
+            if (GetCellSourceId(cell) != -1) continue;
+            SetBack(cell, kind == "woodpile" ? SourceWoodpile : fallow ? WorldLayout.GardenHarvested : WorldLayout.GardenPlot);
+        }
         // The town's name at its market house, its garrison's at the gate.
         var heart = t.Buildings.Find(b => b.Home == "market")?.Def ?? t.Buildings[0].Def;
         PlaceSign(IsoGrid.DownLeft(IsoGrid.DownLeft(heart.DoorCell)), t.Name, t.Polity == "AMER" ? (t.Name == "Detroit" ? "Michigan Territory" : "New York") : "Upper Canada");
@@ -373,7 +395,10 @@ public partial class StructurePainter : TileMapLayer
         {
             EnsureHearth(IsoGrid.Cell(b.Def.Top, 1, 1), 6f);
             if (host == null) continue;
-            var roof = new TileMapLayer { TileSet = TileSet, ZIndex = 5, ZAsRelative = false, Name = $"Roof_{(t.Name + "_" + b.Def.Name).Replace(' ', '_').Replace('.', '_').Replace('\'', '_').Replace(',', '_')}", Position = new Vector2(0, -RoofLift) };
+            // Shingles of every age: new and red-brown, weathered silver-grey, old and dark.
+            float h = IsoGrid.Hash(b.Def.Top, 53), v = 0.78f + IsoGrid.Hash(b.Def.Top, 59) * 0.3f;
+            var weather = h < 0.4f ? new Color(v, v * 0.97f, v * 0.94f) : h < 0.7f ? new Color(v * 0.86f, v * 0.88f, v * 0.9f) : h < 0.88f ? new Color(v * 0.7f, v * 0.66f, v * 0.62f) : new Color(v, v * 0.82f, v * 0.74f);
+            var roof = new TileMapLayer { TileSet = TileSet, ZIndex = 5, ZAsRelative = false, Name = $"Roof_{(t.Name + "_" + b.Def.Name).Replace(' ', '_').Replace('.', '_').Replace('\'', '_').Replace(',', '_')}", Position = new Vector2(0, -RoofLift), Modulate = weather };
             AddRoof(b.Def, roof);
             host.AddChild(roof);
         }
@@ -532,6 +557,18 @@ public partial class StructurePainter : TileMapLayer
                 SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
                 SetBack(IsoGrid.Cell(top, 2, 1), SourceBed);
                 SetBack(IsoGrid.Cell(top, 2, 2), SourceTable);
+                break;
+            case BuildingKind.Cabin:
+                // One room of squared logs: the fire, and the floor for beds.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                break;
+            case BuildingKind.House:
+                // A frame house of the better sort: the parlour fire, a bed, the table and the books.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceBed);
+                SetBack(IsoGrid.Cell(top, 3, 2), SourceTableChairs);
+                SetBack(IsoGrid.Cell(top, 1, 2), SourceShelfTall);
+                SetBack(IsoGrid.Cell(top, 2, 1), SourceRug);
                 break;
             case BuildingKind.Church:
                 // Pews either side of the aisle, candles at the altar end, a stove.

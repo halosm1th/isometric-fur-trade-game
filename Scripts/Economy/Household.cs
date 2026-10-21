@@ -96,7 +96,9 @@ public partial class Household : Node
     // Fresh meat doesn't keep. A tenth of it goes bad each day in the cache
     // (winter halves that) - the reason drying and pemmican exist.
     private int _spoilDay = -1;
-    public override void _Process(double delta)
+    public override void _Process(double delta) => SpoilDay();
+
+    public void SpoilDay()
     {
         var cal = GameCalendar.Instance;
         if (cal == null || cal.Day == _spoilDay || !Net.Net.IsServer) return;

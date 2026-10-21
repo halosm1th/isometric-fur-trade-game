@@ -133,7 +133,11 @@ public partial class Hearth : Node2D
         _flicker += (float)delta * 9f;
         float pulse = 1f + 0.12f * Mathf.Sin(_flicker) * Mathf.Sin(_flicker * 0.37f);
         _light.Energy = Intensity * 2.2f * pulse;
-        _light.Visible = IsBurning;
+        // A 2D light is dear to draw: only the fires nearest the middle of the
+        // view throw one (StructurePainter ranks them), and only once the
+        // day is going - in sunlight it washed out anyway.
+        float dusk = 1f - (cal?.DaylightFactor ?? 1f);
+        _light.Visible = IsBurning && LightAllowed && dusk > 0.02f;
         // Firelight only shows once the day fades; in sun it just washes out.
         float dark = 1f - (cal?.DaylightFactor ?? 1f);
         _glow.Visible = IsBurning && dark > 0.02f;
@@ -186,6 +190,8 @@ public partial class Hearth : Node2D
     // frame by StructurePainter, which every hearth hangs off (a parent is
     // processed before its children), instead of each fire asking.
     public static Rect2 View = new(-1e9f, -1e9f, 2e9f, 2e9f);
+    public bool LightAllowed = true;
+    public static bool IsInView(Vector2 at) => View.HasPoint(at);
     private static bool InView(Vector2 at) => View.HasPoint(at);
 
     // One glow for every fire. Each hearth used to make its own 256 x 256

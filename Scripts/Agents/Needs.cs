@@ -151,8 +151,16 @@ public static class Climate
         if (Probe) GD.Print($"[climate] lat {lat:0.0} lon {lon:0.0} day {dayOfYear:0}: mean {mean:0} C, now {t:0} C, exposure {Mathf.Max(0f, (12f - t) / 7f):0.00}/h");
         return Mathf.Max(0f, (12f - t) / 7f);
     }
-    // The day's mean temperature (Celsius) at a place; below -100 when the map is not loaded.
+    // The day's mean temperature (Celsius) at a place, the mountain's height
+    // counted (World/Relief); below -100 when the map is not loaded.
     public static float MeanAt(Vector2 world, float dayOfYear, out float lat, out float lon)
+    {
+        float m = MeanAtFoot(world, dayOfYear, out lat, out lon);
+        return m < -100f ? m : m - World.Relief.Cold(World.IsoGrid.FromWorld(world));
+    }
+    // The same at the foot of the mountain: the valley's temperature.
+    public static float MeanAtFoot(Vector2 world, float dayOfYear) => MeanAtFoot(world, dayOfYear, out _, out _);
+    public static float MeanAtFoot(Vector2 world, float dayOfYear, out float lat, out float lon)
     {
         lat = 57f; lon = -93f;
         if (!World.WorldMap.Loaded) return -999f;

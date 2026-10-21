@@ -280,8 +280,58 @@ public partial class Npc : Agent
         AddToGroup("corpses");
     }
 
+    // A person walks every frame, but thinks - his needs, what he notices,
+    // what he does next - every frame only near the player, on his guard,
+    // fighting, talking or led; further off every third frame, and out at
+    // the edge of sight every sixth, each at his own turn, with the whole of
+    // the time since. A town of eight hundred in sight is thought a few
+    // score at a time.
+    private double _thinkAcc;
+    private int _thinkFrames = GD.RandRange(0, 2);
+    private bool _canMove;
+    private int ThinkEvery()
+    {
+        if (!Net.Net.IsServer || Alerted > 0f || Conversing || Following != null || HeldBy != null) return 1;
+        if (Brain.Tier0Goal() is AttackGoal or FleeGoal) return 1;
+        var p = Sim.Player;
+        if (p == null || !IsInstanceValid(p)) return 3;
+        float d2 = p.GlobalPosition.DistanceSquaredTo(GlobalPosition);
+        return d2 < 1500f * 1500f ? 1 : d2 < 3000f * 3000f ? 3 : 6;
+    }
+
+    // A name over his head only within a few strides of the player: a whole
+    // street's names at once is a smear nobody can read, and dear to draw.
+    private const float NameRange = 700f;
+    private void NameNearby()
+    {
+        if (_label == null) return;
+        var p = Sim.Player;
+        bool near = p != null && IsInstanceValid(p) && p.GlobalPosition.DistanceSquaredTo(GlobalPosition) < NameRange * NameRange;
+        if (_label.Visible != near) _label.Visible = near;
+    }
+
     public override void _PhysicsProcess(double delta)
     {
+        ulong t0 = Time.GetTicksUsec();
+        _thinkAcc += delta; _thinkFrames++;
+        if (_thinkFrames >= ThinkEvery())
+        {
+            StepScale = _thinkFrames;
+            double d = _thinkAcc;
+            _thinkAcc = 0; _thinkFrames = 0;
+            PhysicsStep(d);
+            StepScale = 1f;
+        }
+        if (_canMove) Move((float)delta, GameCalendar.Instance?.IsSkipping ?? false);
+        NameNearby();
+        PerfUsec += Time.GetTicksUsec() - t0;
+    }
+    // Dev (--perf): time spent in every NPC's step.
+    public static ulong PerfUsec;
+
+    private void PhysicsStep(double delta)
+    {
+        _canMove = false;
         base._PhysicsProcess(delta);
         float dt = (float)delta;
         var cal = GameCalendar.Instance;
@@ -316,7 +366,7 @@ public partial class Npc : Agent
             return;
         }
 
-        float hours = cal.DeltaGameHours;
+        float hours = cal.DeltaGameHours * StepScale;
         _sinceEatAnim += dt;
 
         Sleeping = false;   // SleepGoal re-asserts this every tick it's lying down
@@ -336,9 +386,10 @@ public partial class Npc : Agent
                 if (next != null) Brain.Push(this, next);
             }
         }
+        _steer = Vector2.Zero;   // a goal that steers says so again each step
         Brain.Tick(this, dt, hours);
 
-        Move(dt, cal.IsSkipping);
+        _canMove = true;   // the walk itself is every frame (_PhysicsProcess)
         ZIndex = Sleeping ? 1 : 0;   // a sleeper lies on the bunk, not under it
         Animate();
         Gossip(dt);
@@ -363,6 +414,23 @@ public partial class Npc : Agent
 
     // Tier 0 preempts everything (design doc 3.1). Fighting comes first;
     // then whichever need is worst, which may bump a less urgent need's goal.
+    // A body sliding against the world (steering in a fight or a chase) is a
+    // physics body; one walking a path that already goes round the walls is
+    // only stepped, and costs the physics engine nothing. Nobody finds a
+    // person by a physics query (Sim.AgentsWithin does that), so nothing is
+    // lost. A dead man's body stays out of it for good.
+    private bool _solid = true;
+    private void Solid(bool on)
+    {
+        if (on == _solid || IsDead) return;
+        _solid = on;
+        CollisionLayer = on ? 2u : 0u;
+        CollisionMask = on ? 5u : 0u;
+    }
+
+    private float _threatTimer = (float)GD.RandRange(0.0, 0.25);
+    private Agent _threat;
+
     private void ConsiderInterrupts()
     {
         Opportunities();
@@ -431,7 +499,10 @@ public partial class Npc : Agent
         }
 
         // A predator closing in: armed men stand, others run for the walls.
-        var threat = NearestHostile(220f);
+        // Looked for four times a second, every frame once he is on his guard.
+        _threatTimer -= 1f / 60f;
+        if (_threatTimer <= 0f || Alerted > 0f) { _threatTimer = 0.25f; _threat = NearestHostile(220f); }
+        var threat = _threat != null && IsInstanceValid(_threat) && !_threat.IsDead ? _threat : null;
         if (threat != null)
         {
             if (Weapon != null && Personality.Courage > 0.2f) Brain.Push(this, new AttackGoal(threat));
@@ -578,7 +649,7 @@ public partial class Npc : Agent
     private void Move(float dt, bool skipping)
     {
         IsSprinting = false;
-        if (Sleeping || Conversing) { Velocity = Vector2.Zero; return; }
+        if (Sleeping || Conversing) { Velocity = Vector2.Zero; Solid(false); return; }
         float motion = GameCalendar.Instance?.MotionScale ?? 1f;
 
         // Still working out the way: a little more of it this frame. When
@@ -589,14 +660,15 @@ public partial class Npc : Agent
         {
             IsSprinting = _steerRun;
             Velocity = _steer * EffectiveSpeed * motion * GroundFactor(out _);
+            Solid(true);
             MoveAndSlide();
-            _steer = Vector2.Zero;
             return;
         }
 
         if (_path.Count == 0 || _pathIndex >= _path.Count)
         {
             Velocity = Vector2.Zero;
+            Solid(false);
             if (_path.Count > 0) { Arrived = true; _path.Clear(); }
             return;
         }
@@ -633,7 +705,11 @@ public partial class Npc : Agent
         // Don't overshoot the waypoint when time is running fast.
         if (step * dt > to.Length()) step = to.Length() / Mathf.Max(dt, 1e-4f);
         Velocity = to.Normalized() * step;
-        MoveAndSlide();
+        // The path already goes round the walls and through the doors, so a
+        // walker is stepped along it; sliding against the world is kept for
+        // steering (a fight, a chase), where there is no path to trust.
+        Solid(false);
+        GlobalPosition += Velocity * dt;
         if (GlobalPosition.DistanceTo(before) < step * dt * 0.2f)
         {
             _stuckTime += dt;

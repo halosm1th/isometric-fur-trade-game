@@ -6,7 +6,9 @@ namespace IsometricFurTradeGame.Scripts.World;
 
 public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse, FactorsHouse, ClerksHouse, ProvisionStore, SummerMess, GuestHouse, BoatShed, PowderMagazine, TradingPost, GreatHall, PartnersHouse,
     // The towns (World/Towns): a family's house, the church, the barracks, a merchant's store, a tradesman's shop, a hall of government.
-    Townhouse, Church, Barracks, Store, Workshop, Hall }
+    Townhouse, Church, Barracks, Store, Workshop, Hall,
+    // A log cabin of one room; a frame house of the better sort.
+    Cabin, House }
 
 public readonly record struct BuildingDef(BuildingKind Kind, string Name, Vector2I Top, int Width, int Depth, int DoorOffset)
 {
@@ -290,7 +292,12 @@ public static class WorldLayout
         float density = g switch
         {
             Ground.Boreal => 0.32f, Ground.LakesForest => 0.32f, Ground.Shield => 0.24f, Ground.Lowland => 0.16f,
-            Ground.Cordillera => 0.2f, Ground.Parkland => 0.14f, _ => 0f,
+            Ground.Cordillera => Relief.BandAt(c) switch
+            {
+                // Timber in the valleys and up the slopes, thin on the rock, none above.
+                Relief.Band.Valley => 0.3f, Relief.Band.Slope => 0.26f, Relief.Band.Rock => 0.07f, _ => 0f,
+            },
+            Ground.Parkland => 0.14f, _ => 0f,
         };
         // Groves and openings rather than an even scatter; parkland is the
         // most broken of all - aspen bluffs on open grass.
