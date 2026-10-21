@@ -55,6 +55,31 @@ public static class Campaign
     public static readonly List<string> Log = new();
     private static int _lastDay = int.MinValue;
     private static bool _begun;
+    private static string _scriptStart = "";
+    private static int _scriptStartYear;
+
+    // The first day the script sets for every starting path (Starts.Begin
+    // dates the world to it rather than to the path's own day), or null.
+    public static (int Y, int M, int D)? StartDate => ParseDay(_scriptStart);
+
+    private static (int, int, int)? ParseDay(string iso)
+    {
+        var p = (iso ?? "").Split('-');
+        return p.Length == 3 && int.TryParse(p[0], out int y) && int.TryParse(p[1], out int m) && int.TryParse(p[2], out int d) ? (y, m, d) : null;
+    }
+
+    // "Begins 1 May 1815." for the menu, from a script's start or start_year.
+    private static string StartLine(Godot.Collections.Dictionary d)
+    {
+        if (ParseDay(Str(d, "start", "")) is var (y, m, day))
+            return $"Begins {day} {System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(m)} {y}.";
+        int sy = d.TryGetValue("start_year", out var v) ? v.AsInt32() : 0;
+        return sy > 0 ? $"Begins in {sy}." : "";
+    }
+
+    // Whether what the script dates before today has been made history yet.
+    // It waits for the first player, whose starting path sets the first day.
+    private static bool _settled;
 
     // ---- choosing ------------------------------------------------------------
 
@@ -66,7 +91,9 @@ public static class Campaign
         {
             var d = Read(path);
             if (d == null) continue;
-            list.Add((id, Str(d, "title", id), Str(d, "description", "")));
+            string begins = StartLine(d);
+            string about = Str(d, "description", "");
+            list.Add((id, Str(d, "title", id), begins == "" ? about : $"{about} {begins}".Trim()));
         }
         return list;
     }
@@ -81,6 +108,26 @@ public static class Campaign
         if (DirAccess.DirExistsAbsolute(UserDir))
             foreach (var f in DirAccess.GetFilesAt(UserDir))
                 if (f.EndsWith(".json")) yield return ("user:" + f[..^5], $"{UserDir}/{f}");
+    }
+
+    // Dev: `-- --watch` reloads the campaign's script when its file changes
+    // (the editor's Install, or a hand edit), keeping where the world and
+    // every player's quests have got to: the beats and quests are the new
+    // file's; what has happened, the flags, and the steps reached stay.
+    private static readonly bool _watching = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--watch") >= 0;
+    private static ulong _watchedAt, _nextLook;
+    private static void Watch()
+    {
+        if (!_watching || Time.GetTicksMsec() < _nextLook) return;
+        _nextLook = Time.GetTicksMsec() + 1500;
+        if (PathOf(Id) is not string path) return;
+        ulong m = FileAccess.GetModifiedTime(path);
+        if (_watchedAt == 0) { _watchedAt = m; return; }
+        if (m == _watchedAt) return;
+        _watchedAt = m;
+        LoadScript();
+        GD.Print($"[campaign] {Id} reloaded: {_runner.Script.Beats.Count} beats, {Quests.Lines.Sum(l => l.Quests.Count)} quests");
+        Sim.Notice($"The campaign script was reloaded ({Title}).");
     }
 
     private static string PathOf(string id)
@@ -120,7 +167,8 @@ public static class Campaign
     {
         if (path.StartsWith("res://") && ResourceLoader.Exists(path))
         {
-            var j = GD.Load<Json>(path);
+            // A --watch reload must not be handed the copy cached at start.
+            var j = ResourceLoader.Load<Json>(path, null, _watching ? ResourceLoader.CacheMode.Replace : ResourceLoader.CacheMode.Reuse);
             if (j?.Data.VariantType == Variant.Type.Dictionary) return j.Data.AsGodotDictionary();
         }
         if (!FileAccess.FileExists(path)) return null;
@@ -132,13 +180,29 @@ public static class Campaign
     private static void LoadScript()
     {
         _runner.Load(new CampaignScript()); Title = "No script"; Description = "";
+        Quests.Load(null);
         if (Id == "none") return;
         var path = PathOf(Id);
         var d = path == null ? null : Read(path);
         if (d == null) { GD.PushWarning($"[campaign] no script '{Id}' - running with none"); Id = "none"; return; }
         var script = CampaignScript.Parse(ToDict(d), Id);
+        // A story built on another campaign plays that one's beats too (its
+        // own beats win where the ids meet), so it shares the history's war.
+        if (script.Extends != "" && script.Extends != Id && PathOf(script.Extends) is string basePath && Read(basePath) is { } bd)
+        {
+            var baseScript = CampaignScript.Parse(ToDict(bd), script.Extends);
+            var own = new HashSet<string>();
+            foreach (var b in script.Beats) own.Add(b.Id);
+            int i = 0;
+            foreach (var b in baseScript.Beats) if (!own.Contains(b.Id)) script.Beats.Insert(i++, b);
+            foreach (var kv in baseScript.InitialVars) script.InitialVars.TryAdd(kv.Key, kv.Value);
+            script.PostsByFoundingYear |= baseScript.PostsByFoundingYear;
+            if (script.Start == "" && script.StartYear == 0) { script.Start = baseScript.Start; script.StartYear = baseScript.StartYear; }
+        }
         Title = script.Title; Description = script.Description;
+        _scriptStart = script.Start; _scriptStartYear = script.StartYear;
         _runner.Load(script);
+        Quests.Load(script.QuestLines);
     }
 
     // ---- the script as plain data -------------------------------------------------
@@ -166,7 +230,8 @@ public static class Campaign
     }
     // ---- the game ---------------------------------------------------------------
 
-    // A new world (server): read the script, note the start year.
+    // A new world (server): read the script, note the start year. Which beats
+    // are already history waits for the first day of play (Settle).
     public static void Begin()
     {
         if (_begun) return;
@@ -177,17 +242,41 @@ public static class Campaign
             if (arg.StartsWith("--adherence=") && Enum.TryParse(arg.Substring(12), true, out Adherence a)) Level = a;
         }
         var cal = GameCalendar.Instance;
-        StartYear = cal?.Year ?? 1811;
         LoadScript();
+        // The script's own start: the calendar goes to its year (or its very
+        // day) before anything reads it, so the posts that stand are that
+        // year's. A developer's --date wins.
+        if (cal != null && !OS.GetCmdlineUserArgs().Any(x => x.StartsWith("--date=")))
+        {
+            if (StartDate is var (sy, sm, sd)) cal.SetDate(sy, sm, sd, cal.Hour);
+            else if (_scriptStartYear > 0) cal.SetDate(_scriptStartYear, cal.Month, cal.Day, cal.Hour);
+        }
+        StartYear = cal?.Year ?? 1811;
+        GD.Print($"[campaign] {Title} ({Level}); {_runner.Script.Beats.Count} beats; begins {cal?.DateString}");
+    }
+
+    // The world's first day of play: the first player is in and their starting
+    // path has dated the world (Starts.Begin, in the same call that adds him),
+    // so what the script dates before today is history now - its flags and
+    // posts hold, nobody is sent news of it. On a dedicated server this waits
+    // for the first player to join.
+    private static void Settle()
+    {
+        _settled = true;
+        var cal = GameCalendar.Instance;
         int today = cal == null ? 0 : DayOf(cal.Year, cal.Month, cal.Day);
+        int posts = _founded.Count;
+        // A dedicated server's clock may have run into a new year before anyone came.
+        if (_runner.Script.PostsByFoundingYear && cal != null) for (int y = StartYear + 1; y <= cal.Year; y++) _world.NewYear(y);
         _runner.Level = Level;
         _runner.Begin(today, _world);
-        GD.Print($"[campaign] {Title} ({Level}); {_runner.Script.Beats.Count} beats");
+        if (_founded.Count != posts) World.Posts.Sync(true);
+        GD.Print($"[campaign] history to {cal?.DateString}: {_runner.History.Count} beats past");
     }
 
     public static void Reset()
     {
-        _begun = false;
+        _begun = false; _settled = false;
         _runner.Reset();
         _founded.Clear(); _inTransit.Clear(); Log.Clear(); JournalText = ""; _journalStale = true;
         _lastDay = int.MinValue;
@@ -199,6 +288,8 @@ public static class Campaign
         var cal = GameCalendar.Instance;
         if (cal == null || !Net.Net.IsServer) return;
         if (!_begun) { if (SaveGame.HasPending) return; Begin(); }
+        if (!_settled) { if (!Sim.Players().Any()) return; Settle(); }
+        Watch();
         int today = DayOf(cal.Year, cal.Month, cal.Day);
         if (today == _lastDay) return;
         _lastDay = today;
@@ -248,7 +339,11 @@ public static class Campaign
             switch (name)
             {
                 case "tension": return Economy.Rivalry.Tension;
-                case "standing": return (Sim.Player as Player.PlayerController)?.Standing ?? 0;
+                case "standing": return (Actor ?? Sim.Player as Player.PlayerController)?.Standing ?? 0;
+                case "rapport": { var who = Actor ?? Sim.Player as Player.PlayerController; foreach (var n in Sim.Npcs) if (Quests.Matches(arg, n)) return n.RapportWith(who); return 0; }
+                // A band's regard for the company of the player asked for (the Nor'Westers' own account for a Nor'Wester).
+                case "regard": return Quests.HouseholdAt(arg) is Economy.BandLedger band ? band.StandingWith((Actor ?? Sim.Player as Player.PlayerController)?.Faction ?? Faction.HBC) : double.NaN;
+                case "feud": return a.Length > 1 && Quests.HouseholdAt(a[0]) is { } fh && Quests.HouseholdAt(a[1]) is { } fa ? Economy.Plains.Feud(fh, fa) : double.NaN;
                 case "stock": return a.Length > 1 && Convoys.Ledger(arg) is { } led && Enum.TryParse<ItemId>(a[1], out var id) ? led.Stores.Count(id) : double.NaN;
                 case "furs": return Convoys.Ledger(arg)?.FursInStoreMb ?? double.NaN;
                 case "convoys_active": { int n = 0; foreach (var c in Convoys.All) if (c.Now != ConvoyState.Arrived) n++; return n; }
@@ -269,10 +364,18 @@ public static class Campaign
                 case "player_faction": return Sim.Players().Any(p => p.Faction.ToString().Equals(arg, StringComparison.OrdinalIgnoreCase));
                 case "season": return GameCalendar.Instance?.CurrentSeason.ToString().Equals(arg, StringComparison.OrdinalIgnoreCase) ?? false;
                 case "convoy_wintering": return Convoys.Find(arg)?.Now == ConvoyState.Wintering;
+                // Quests: asked of the player a quest runs for, or of anyone when a beat asks.
+                case "quest": return Actor != null ? Actor.Quests.IsDone(arg) : Sim.Players().Any(p => p.Quests.IsDone(arg));
+                case "quest_active": return Actor != null ? Actor.Quests.IsActive(arg) : Sim.Players().Any(p => p.Quests.IsActive(arg));
+                case "quest_failed": return (Actor != null ? new[] { Actor } : Sim.Players().ToArray()).Any(p => p.Quests.States.TryGetValue(arg, out var qs) && qs.Status == QuestStatus.Failed);
+                case "posted": return (Actor ?? Sim.Player as Player.PlayerController)?.PostedTo == arg;
+                case "at_peace": return a.Length > 1 && Economy.War.AtPeace(Quests.HouseholdAt(a[0]), Quests.HouseholdAt(a[1]));
             }
             GD.PushWarning($"[campaign] unknown condition '{name}'");
             return false;
         }
+
+        private static IEnumerable<Player.PlayerController> Targets() => Actor != null ? new[] { Actor } : Sim.Players();
 
         private static string S(Dictionary<string, object> a, string k, string def = "") => a.TryGetValue(k, out var v) ? CampaignLogic.Str(v) : def;
         private static double N(Dictionary<string, object> a, string k, double def = 0) => a.TryGetValue(k, out var v) ? CampaignLogic.Num(v) : def;
@@ -322,6 +425,24 @@ public static class Campaign
                     }
                     if (a.TryGetValue("headline", out var hl) && hl is true) Sim.Headline(text);
                     break;
+                // What a quest does to the player it runs for (or, from a beat, every player).
+                case "posting": foreach (var p in Targets()) p.PostTo(S(a, "place")); break;
+                case "standing": foreach (var p in Targets()) p.Standing += (float)N(a, "add"); break;
+                case "rapport": foreach (var p in Targets()) foreach (var n in Sim.Npcs) if (Quests.Matches(S(a, "who"), n)) n.ChangeRapport(p, (float)N(a, "add")); break;
+                case "regard": if (Quests.HouseholdAt(S(a, "place")) is Economy.BandLedger band) band.AddStandingWith((Actor ?? Sim.Player as Player.PlayerController)?.Faction ?? Faction.HBC, (float)N(a, "add")); break;
+                case "give": if (Enum.TryParse<ItemId>(S(a, "item"), true, out var gid)) foreach (var p in Targets()) p.Inventory.Add(gid, (int)N(a, "count", 1)); break;
+                case "take": if (Enum.TryParse<ItemId>(S(a, "item"), true, out var tid)) foreach (var p in Targets()) p.Inventory.Remove(tid, Math.Min((int)N(a, "count", 1), p.Inventory.Count(tid))); break;
+                case "start_quest": if (Quests.Def(S(a, "quest")) is { } sq) foreach (var p in Targets()) Quests.Start(p, sq); break;
+                case "end_quest": foreach (var p in Targets()) Quests.FinishById(p, S(a, "quest"), !(a.TryGetValue("failed", out var fl) && fl is true)); break;
+                case "note": foreach (var p in Targets()) { p.Journal.Add($"{GameCalendar.Instance?.DateString}: {S(a, "text")}"); p.Say(S(a, "text")); } break;
+                // The war (Economy/War.cs): a camp's men ride against a camp or a post; peace between two; an old score heated.
+                case "war_party":
+                    if (Quests.HouseholdAt(S(a, "from")) is Economy.BandLedger wf && Quests.HouseholdAt(S(a, "against")) is { } wa)
+                        Economy.War.Launch(wf, wa, S(a, "why"), a.TryGetValue("with_player", out var wp) && wp is true ? Actor ?? Sim.Player as Player.PlayerController : null);
+                    else GD.PushWarning($"[campaign] {beat}: war_party from '{S(a, "from")}' against '{S(a, "against")}': no such camp or post");
+                    break;
+                case "truce": Economy.War.Truce(Quests.HouseholdAt(S(a, "a")), Quests.HouseholdAt(S(a, "b")), (int)N(a, "days", 365)); break;
+                case "feud": Economy.Plains.HeatFeud(Quests.HouseholdAt(S(a, "holder")), Quests.HouseholdAt(S(a, "against")), (float)N(a, "add", 1)); break;
                 default: GD.PushWarning($"[campaign] {beat}: unknown action '{name}'"); break;
             }
         }
@@ -340,6 +461,28 @@ public static class Campaign
     // ---- conditions ----------------------------------------------------------------
 
     public static void Flag(string name) { if (Net.Net.IsServer) _flags.Add(name); }
+    // Dev (Quests.DevJump, "play from here"): a beat a quest waits on is made
+    // to happen, effects and all, on the next tick - as a "trigger" action does.
+    public static bool Happened(string id) => _st.Done.Contains(id);
+    public static void DevHappen(string id) { if (Net.Net.IsServer && !_st.Done.Contains(id)) _st.Forced.Add(id); }
+
+    // A quest's conditions and actions are the language's, asked and done on
+    // behalf of one player (Actor): "standing" is theirs, "posting" moves them.
+    public static Player.PlayerController Actor { get; private set; }
+    public static bool Check(List<object> cond, Player.PlayerController who)
+    {
+        if (cond == null) return true;
+        var was = Actor; Actor = who;
+        try { return CampaignLogic.All(cond, _st, _world); }
+        finally { Actor = was; }
+    }
+    public static void RunFor(Player.PlayerController who, List<object> actions)
+    {
+        if (actions == null || actions.Count == 0 || !Net.Net.IsServer) return;
+        var was = Actor; Actor = who;
+        try { CampaignLogic.Run(actions, _st, _world); }
+        finally { Actor = was; }
+    }
     public static void Unflag(string name) { if (Net.Net.IsServer) _flags.Remove(name); }
     public static bool Has(string name) => _flags.Contains(name);
 
@@ -451,7 +594,7 @@ public static class Campaign
         foreach (var (day, news) in _inTransit) transit.Add(new Godot.Collections.Dictionary { ["day"] = day, ["news"] = news });
         return new Godot.Collections.Dictionary
         {
-            ["id"] = Id, ["level"] = (int)Level, ["start"] = StartYear,
+            ["id"] = Id, ["level"] = (int)Level, ["start"] = StartYear, ["settled"] = _settled,
             ["flags"] = Arr(_flags), ["pressured"] = Arr(_pressured), ["done"] = Arr(_done), ["founded"] = Arr(_founded),
             ["transit"] = transit, ["log"] = Arr(Log),
             ["vars"] = Vars(), ["doneDay"] = Ints(_st.DoneDay), ["shift"] = Ints(_shift), ["cooldown"] = Ints(_cooldown),
@@ -466,6 +609,7 @@ public static class Campaign
         if (d == null) { Begin(); return; }
         Id = Str(d, "id", "historical"); Level = (Adherence)(d.TryGetValue("level", out var l) ? l.AsInt32() : 1);
         _begun = true;
+        _settled = !d.TryGetValue("settled", out var st) || st.AsBool();   // older saves: decided at world start
         LoadScript();
         StartYear = d.TryGetValue("start", out var s) ? s.AsInt32() : 1811;
         foreach (var (key, set) in new[] { ("flags", _flags), ("pressured", _pressured), ("done", _done), ("founded", _founded) })
@@ -518,6 +662,9 @@ it, or start fresh. The game reads this folder when the menu opens.
   ""title"": ""shown in the menu"",
   ""description"": ""one or two sentences"",
   ""posts_by_founding_year"": true,     // posts in the atlas appear on 1 Jan of their year
+  ""start"": ""1815-05-01"",            // optional: the world's first day, on every starting path
+                                       //   (or ""start_year"": 1815 - each path keeps its own day)
+  ""extends"": ""historical"",           // optional: play that campaign's beats as well
   ""beats"": [ { ... }, ... ]
 }
 

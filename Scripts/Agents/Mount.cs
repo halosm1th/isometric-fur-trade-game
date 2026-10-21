@@ -20,6 +20,7 @@ public partial class Mount : Node2D
     // A rider's horse follows its rider; a loose one grazes where it stands.
     public bool Ridden = true;
     private AnimatedSprite2D _horse;
+    private SpriteAnims _anims;
     private AnimatedSprite2D _rider;
     private Vector2 _last;
     private Vector2 _dir = new(1, 1);
@@ -37,6 +38,7 @@ public partial class Mount : Node2D
         var first = _horse.SpriteFrames.HasAnimation("idle_se") ? _horse.SpriteFrames.GetFrameTexture("idle_se", 0) : null;
         _horse.Offset = first != null ? new Vector2(0, -first.GetHeight() / 2f + 4f) : new Vector2(0, -16);
         AddChild(_horse);
+        _anims = new SpriteAnims(_horse);
         if (Ridden && GetParent() is Node2D body)
         {
             // The horse goes under the rider: first among the body's pictures.
@@ -64,16 +66,25 @@ public partial class Mount : Node2D
         Play();
     }
 
+    private static readonly string[,] Gaits =
+    {
+        { "run_ne", "run_nw", "run_se", "run_sw" },
+        { "walk_ne", "walk_nw", "walk_se", "walk_sw" },
+        { "idle_ne", "idle_nw", "idle_se", "idle_sw" },
+        { "graze_ne", "graze_nw", "graze_se", "graze_sw" },
+    };
+
     private void Play()
     {
-        if (_horse?.SpriteFrames == null) return;
-        string gait = _speed > 330f ? "run" : _speed > 8f ? "walk" : "idle";
+        if (_horse?.SpriteFrames == null || _anims == null) return;
+        int gait = _speed > 330f ? 0 : _speed > 8f ? 1 : 2;
         // Grazing: a loose horse stands with its head down.
-        if (!Ridden && gait == "idle" && _horse.SpriteFrames.HasAnimation("graze_se")) gait = "graze";
-        string facing = (_dir.Y < 0 ? "n" : "s") + (_dir.X < 0 ? "w" : "e");
-        string anim = $"{gait}_{facing}";
-        if (!_horse.SpriteFrames.HasAnimation(anim)) anim = $"idle_{facing}";
-        if (!_horse.SpriteFrames.HasAnimation(anim)) return;
-        if (_horse.Animation != anim) _horse.Play(anim);
+        if (!Ridden && gait == 2 && _anims.Has("graze_se")) gait = 3;
+        int facing = (_dir.Y < 0 ? 0 : 2) + (_dir.X < 0 ? 1 : 0);
+        // The names are made once (Gaits), not every frame.
+        string anim = Gaits[gait, facing];
+        if (!_anims.Has(anim)) anim = Gaits[2, facing];
+        if (!_anims.Has(anim)) return;
+        _anims.Play(anim);
     }
 }

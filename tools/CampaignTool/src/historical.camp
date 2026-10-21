@@ -109,6 +109,7 @@ beat AstoriaSold(
 }
 
 beat PemmicanProclamation(
+    kind: Kind.Fixed,   // history: it happens on its day (an event with no way for the world to do it never happened at Steady)
     id: "pemmican-proclamation",
     title: "Governor Macdonell's Pemmican Proclamation",
     date: date(1814, 1, 8),
@@ -143,10 +144,10 @@ beat PemmicanProclamation(
             days: 120
         );
     }
-    ResolveWhen() => flags.has("pemmican_proclamation");
 }
 
 beat ColonyDispersed(
+    kind: Kind.Fixed,   // history: it happens on its day (an event with no way for the world to do it never happened at Steady)
     id: "colony-dispersed",
     title: "The Red River Colony attacked and dispersed",
     date: date(1815, 6, 25),
@@ -169,10 +170,10 @@ beat ColonyDispersed(
             days: 40
         );
     }
-    ResolveWhen() => flags.has("colony_dispersed");
 }
 
 beat SevenOaks(
+    kind: Kind.Fixed,   // history: it happens on its day (an event with no way for the world to do it never happened at Steady)
     id: "seven-oaks",
     title: "The Battle of Seven Oaks: Governor Semple and twenty colonists " +
            "killed",
@@ -207,14 +208,14 @@ beat SevenOaks(
             company: Company.NWC
         );
     }
-    ResolveWhen() => flags.has("seven_oaks");
 }
 
 beat SelkirkFortWilliam(
+    kind: Kind.Conditional,   // history: it happens once the governor is dead and the delay has run (as an event it never happened at Steady)
     id: "selkirk-fort-william",
     title: "Lord Selkirk marches on Fort William and arrests the partners",
     lead: days(0),
-    delay: days(420),
+    delay: days(55),    // 19 June to 13 August 1816
     keywords: ["Selkirk", "Fort William", "de Meurons", "soldiers"],
     rumour: "Word is Lord Selkirk has hired soldiers for the north and means to come up the lakes."
 ) [SevenOaks] {
@@ -254,6 +255,7 @@ beat BlockadeLifted(
 }
 
 beat InteriorWar1818(
+    kind: Kind.Fixed,   // history: it happens on its day (an event with no way for the world to do it never happened at Steady)
     id: "interior-war-1818",
     title: "The lawless years: posts burned, brigades stopped",
     date: date(1818, 6, 1),
@@ -265,6 +267,7 @@ beat InteriorWar1818(
 }
 
 beat InteriorWar1819(
+    kind: Kind.Fixed,   // history: it happens on its day (an event with no way for the world to do it never happened at Steady)
     id: "interior-war-1819",
     title: "The lawless years: Grand Rapids",
     date: date(1819, 6, 1),
@@ -276,6 +279,7 @@ beat InteriorWar1819(
 }
 
 beat InteriorWar1820(
+    kind: Kind.Fixed,   // history: it happens on its day (an event with no way for the world to do it never happened at Steady)
     id: "interior-war-1820",
     title: "The lawless years: both companies near the end of their means",
     date: date(1820, 6, 1),
@@ -288,6 +292,7 @@ beat InteriorWar1820(
 }
 
 beat Merger(
+    kind: Kind.Fixed,   // history: it happens on its day (an event with no way for the world to do it never happened at Steady)
     id: "merger",
     title: "The union of the Hudson's Bay and North West Companies",
     date: date(1821, 3, 26),
@@ -322,7 +327,6 @@ beat Merger(
             company: Company.NWC
         );
     }
-    ResolveWhen() => flags.has("merger");
 }
 
 // ---- the brigades on the rivers -------------------------------------------

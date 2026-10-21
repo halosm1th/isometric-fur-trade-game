@@ -30,9 +30,22 @@ public partial class BandLedger : Household
 	// How the band feels about the Company: fed and fairly paid, it trades;
 	// starved or shot at, it stops coming (design doc 3.6, 10.5).
 	public float StandingWithCompany = 50f;
+	// How the band thinks of a company: the Nor'Westers and the Americans
+	// have their own accounts with it; everyone else (the Bay, and after the
+	// union the Nor'Westers too) the Company's.
+	public float StandingWith(Agents.Faction f) => f switch { Agents.Faction.NWC => StandingWithNwc, Agents.Faction.American => StandingWithAmericans, _ => StandingWithCompany };
+	public void AddStandingWith(Agents.Faction f, float add)
+	{
+		if (f == Agents.Faction.NWC) StandingWithNwc = Mathf.Clamp(StandingWithNwc + add, 0f, 100f);
+		else if (f == Agents.Faction.American) StandingWithAmericans = Mathf.Clamp(StandingWithAmericans + add, 0f, 100f);
+		else StandingWithCompany = Mathf.Clamp(StandingWithCompany + add, 0f, 100f);
+	}
 	// ...and with the Nor'Westers across the river.
 	public float StandingWithNwc = 50f;
 	public float DebtNwcMb;
+	// ...and with the Americans of the Missouri and the Columbia.
+	public float StandingWithAmericans = 50f;
+	public float DebtAmericanMb;
 	public bool WillTradeWith(FortLedger post) => post is NwcLedger ? StandingWithNwc > 20f : WillTrade;
 	// What the band owes the post for goods advanced against next season's furs.
 	public float DebtMb;
@@ -128,6 +141,7 @@ public partial class BandLedger : Household
 		if (killer is Player.PlayerController) LastInsultCause = "killed";
 		if (killer.Faction == Agents.Faction.HBC) StandingWithCompany = Mathf.Max(0f, StandingWithCompany - 25f);
 		else if (killer.Faction == Agents.Faction.NWC) StandingWithNwc = Mathf.Max(0f, StandingWithNwc - 25f);
+		else if (killer.Faction == Agents.Faction.American) StandingWithAmericans = Mathf.Max(0f, StandingWithAmericans - 25f);
 		else return;
 		Sim.Notice($"{Name} will remember who killed one of theirs.");
 	}

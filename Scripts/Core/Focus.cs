@@ -36,6 +36,7 @@ public static class Focus
         }
         if (p.LastWarning != "" && Mathf.PosMod(today - p.LastWarningDay, 365) <= 2) return $"a friend's warning - {p.LastWarning}";
         if (p.HomePost != null && Losses.OpenSaleAt(p.HomePost) is Loss sale) return $"{sale.Name}'s effects are being sold tonight - talk to {Losses.Auctioneer(sale)?.DisplayName ?? "the master"} to bid.";
+        if (Quests.Focus(p) is string quest) return quest;
         if (p.Task.Kind != Player.TaskKind.None && !p.Task.IsComplete) return p.Task.Describe();
         if (p.HomePost != null)
         {

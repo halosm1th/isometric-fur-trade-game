@@ -1,0 +1,15 @@
+// The Open Country: free roam.
+//
+// The history runs (the historical campaign's beats, through extends) and no
+// story is told on top of it: no quest lines, so every player - and in
+// multiplayer, every company and every band - makes their own way. The
+// story campaign is "The Company's Servant".
+
+campaign OpenCountry(
+    title: "The Open Country (free roam)",
+    description: "The country from 1811 as history runs it, and no story but your own. " +
+                 "For playing together, or for wandering: trade, hunt, travel, " +
+                 "and take what side you like.",
+    seed: 1811,
+    extends: "historical"
+);

@@ -15,10 +15,12 @@
   <span id="status" class="status">ready</span>
   <button id="btnNew" title="Start a new campaign">New</button>
   <button id="btnSave" title="Save (Ctrl+S)">Save</button>
-  <button id="btnInstall" class="primary" title="Compile into Campaigns/ where the game finds it">Install in game</button>
+  <button id="btnInstall" title="Compile into Campaigns/ where the game finds it">Install in game</button>
+  <button id="btnPlay" class="primary" title="Install, then start the game at the quest step under the cursor (Ctrl+Enter)">Play in game</button>
 </header>
 <main>
   <aside id="files" aria-label="Files"></aside>
+  <div class="split" id="splitFiles" role="separator" aria-orientation="vertical" aria-label="Resize the file list" title="Drag to resize (double-click to reset)" tabindex="0"></div>
   <section class="editor-pane">
     <div id="banner" class="banner" hidden></div>
     <div class="editor" id="editor">
@@ -31,21 +33,27 @@
       </div>
     </div>
   </section>
+  <div class="split" id="splitSide" role="separator" aria-orientation="vertical" aria-label="Resize the results panel" title="Drag to resize (double-click to reset)" tabindex="0"></div>
   <section class="side" aria-label="Results">
     <nav class="tabs" role="tablist">
       <button data-tab="problems" class="active" role="tab">Problems <span id="problemCount" class="count"></span></button>
       <button data-tab="json" role="tab">JSON</button>
       <button data-tab="sim" role="tab">Simulate</button>
       <button data-tab="graph" role="tab">Graph</button>
+      <button data-tab="map" role="tab">Map</button>
       <button data-tab="ref" role="tab">Reference</button>
     </nav>
     <div id="tab-problems" class="tabbody"></div>
     <div id="tab-json" class="tabbody" hidden></div>
     <div id="tab-sim" class="tabbody" hidden></div>
     <div id="tab-graph" class="tabbody" hidden></div>
+    <div id="tab-map" class="tabbody" hidden></div>
     <div id="tab-ref" class="tabbody" hidden></div>
   </section>
 </main>
+<div id="refPage" class="ref-page" hidden></div>
+<div id="tip" class="tip" role="tooltip" hidden></div>
 <script src="editor.js"></script>
+<script src="map.js"></script>
 </body>
 </html>

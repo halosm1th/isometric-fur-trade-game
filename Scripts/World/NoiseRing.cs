@@ -25,6 +25,6 @@ public partial class NoiseRing : Node2D
         var c = Tint; c.A *= 1f - t;
         // The world is isometric: sound rings are squashed to the ground plane.
         DrawSetTransform(Vector2.Zero, 0f, new Vector2(1f, 0.5f));
-        DrawArc(Vector2.Zero, r, 0f, Mathf.Tau, 64, c, 2f);
+        DrawArc(Vector2.Zero, r, 0f, Mathf.Tau, 32, c, 2f);
     }
 }

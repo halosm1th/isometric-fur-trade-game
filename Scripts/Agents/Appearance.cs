@@ -19,7 +19,9 @@ public static class Appearance
         {
             Role.Voyageur => Dir + "VoyageurFrames.tres",
             Role.NwcPartner => Dir + "NwcPartnerFrames.tres",
-            Role.Woman or Role.Wife when n.Faction == Faction.HBC => Dir + "CountryWifeFrames.tres",
+            Role.Woman or Role.Wife when n.Faction is Faction.HBC or Faction.American => Dir + "CountryWifeFrames.tres",
+            // The Missouri's engages were St. Louis Creoles: a voyageur's dress.
+            Role.Labourer when n.Faction == Faction.American => Dir + "VoyageurFrames.tres",
             Role.Sailor => Dir + "SailorFrames.tres",
             Role.Clerk or Role.Postmaster => Dir + "ClerkFrames.tres",
             Role.Factor => Dir + "FactorFrames.tres",

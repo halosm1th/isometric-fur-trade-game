@@ -18,6 +18,15 @@ public partial class Hearth : Node2D
 
     public Vector2I Cell;
 
+    // Where it stands in the world, noted when it is placed (fires don't
+    // move): read every frame by every body asking how warm it is, and
+    // GlobalPosition is a call into the engine each time.
+    public Vector2 WorldPos;
+
+    // No fire warms further than this (StructurePainter looks this far round
+    // a body for fires).
+    public const float MaxReach = 330f;
+
     // A hearth in a building, or the camp's lodge fires: its heat isn't
     // lost to the wind the way an open fire's is.
     public bool Enclosed = true;
@@ -61,20 +70,7 @@ public partial class Hearth : Node2D
 
     public override void _Ready()
     {
-        // Additive lights use the texture's colour, so the edge must go to
-        // black, not just transparent, or the whole square lights up.
-        var grad = new Gradient();
-        grad.SetColor(0, new Color(1f, 0.72f, 0.38f, 1f));
-        grad.SetColor(1, new Color(0f, 0f, 0f, 0f));
-        grad.AddPoint(0.35f, new Color(0.7f, 0.4f, 0.15f, 1f));
-        var tex = new GradientTexture2D
-        {
-            Gradient = grad,
-            Fill = GradientTexture2D.FillEnum.Radial,
-            FillFrom = new Vector2(0.5f, 0.5f),
-            FillTo = new Vector2(0.5f, 0f),
-            Width = 256, Height = 256,
-        };
+        var tex = Glow;
         _light = new PointLight2D
         {
             Texture = tex,
@@ -104,10 +100,14 @@ public partial class Hearth : Node2D
         AddChild(_flame);
         _sparks = new Sprite2D { Centered = false, Position = new Vector2(0, -24), Scale = Vector2.One * 0.14f, ZIndex = 1, Visible = false };
         AddChild(_sparks);
+        SetProcess(false);
     }
     private Sprite2D _glow;
 
-    public override void _Process(double delta)
+    // Called by StructurePainter for every hearth in one loop, not by the
+    // engine for each: with a fire in every post and camp in the country,
+    // the engine's call into each one every frame was itself a cost.
+    public void Tick(double delta)
     {
         var cal = GameCalendar.Instance;
         if (cal != null && Net.Net.IsServer)
@@ -119,6 +119,15 @@ public partial class Hearth : Node2D
                 var floor = IsoGrid.DownLeft(Cell);
                 if (Fire.I.Ignite(floor, "A spark from an overloaded hearth has caught the floor!")) Sim.Notice("FIRE! Water, quick!");
             }
+        }
+
+        // The light is only worked for fires you could see: every hearth in
+        // the country flickered every frame, a few hundred miles off.
+        if (!InView(WorldPos))
+        {
+            if (_light.Visible) { _light.Visible = false; _glow.Visible = false; }
+            if (_flame.Visible || _smoke.Visible) { _flame.Visible = false; _smoke.Visible = false; _sparks.Visible = false; }
+            return;
         }
 
         _flicker += (float)delta * 9f;
@@ -173,10 +182,44 @@ public partial class Hearth : Node2D
     }
     private float _smokeOut;
 
+    // What the camera shows this frame, grown by a fire's reach. Set once a
+    // frame by StructurePainter, which every hearth hangs off (a parent is
+    // processed before its children), instead of each fire asking.
+    public static Rect2 View = new(-1e9f, -1e9f, 2e9f, 2e9f);
+    private static bool InView(Vector2 at) => View.HasPoint(at);
+
+    // One glow for every fire. Each hearth used to make its own 256 x 256
+    // texture - with a fire in every post and camp in the country that was
+    // hundreds of megabytes of video memory, and twice that while a save was
+    // loading (the old world and the new), which ran small cards out.
+    private static GradientTexture2D _glowTex;
+    private static GradientTexture2D Glow
+    {
+        get
+        {
+            if (_glowTex != null) return _glowTex;
+            // Additive lights use the texture's colour, so the edge must go to
+            // black, not just transparent, or the whole square lights up.
+            var grad = new Gradient();
+            grad.SetColor(0, new Color(1f, 0.72f, 0.38f, 1f));
+            grad.SetColor(1, new Color(0f, 0f, 0f, 0f));
+            grad.AddPoint(0.35f, new Color(0.7f, 0.4f, 0.15f, 1f));
+            _glowTex = new GradientTexture2D
+            {
+                Gradient = grad,
+                Fill = GradientTexture2D.FillEnum.Radial,
+                FillFrom = new Vector2(0.5f, 0.5f),
+                FillTo = new Vector2(0.5f, 0f),
+                Width = 256, Height = 256,
+            };
+            return _glowTex;
+        }
+    }
+
     public float HeatAt(Vector2 worldPos)
     {
         if (!IsBurning) return 0f;
-        float d = GlobalPosition.DistanceTo(worldPos);
+        float d = WorldPos.DistanceTo(worldPos);
         float falloff = 1f - Mathf.Clamp((d - InnerRadius) / (OuterRadius - InnerRadius), 0f, 1f);
         return falloff * Intensity;
     }

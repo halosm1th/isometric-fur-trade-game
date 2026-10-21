@@ -1,0 +1,4679 @@
+{
+  "title": "The Company's Servant",
+  "description": "Off the ship at York with a five-year contract and the Factor's eye on you, then up the rivers to Edmonton House, where the Nor'Westers live a stone's throw away and the Beaver Hills Cree decide whose friends they are. Or come up with the North West brigade and be sent to Fort Souris, in the pemmican country where the Pemmican War begins. The history runs underneath both.",
+  "seed": 1811,
+  "extends": "historical",
+  "beats": [
+    {
+      "id": "HorsesTaken",
+      "title": "The Blackfoot take horses from the Beaver Hills camp",
+      "kind": "conditional",
+      "delay_days": 150,
+      "rumour": "The Beaver Hills Cree are watching their horse herd at night.",
+      "when": [
+        "quest:TheInvitation"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "beaver_hills_raided"
+        },
+        {
+          "do": "regard",
+          "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+          "add": -5
+        },
+        {
+          "do": "say",
+          "text": "Word comes in to Edmonton House: Blackfoot raiders have run off the Beaver Hills Cree horse herd, and a young man is dead. The chief's people are asking for you.",
+          "to": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "brandon-house-plundered",
+      "title": "Grant's Métis plunder Brandon House",
+      "kind": "fixed",
+      "date": "1816-06-01",
+      "requires": [
+        "colony-dispersed"
+      ],
+      "rumour": "Grant's riders are gathering on the Qu'Appelle, and Brandon House lies on their road.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": {
+            "not": "flag:grant_rode_from_souris"
+          },
+          "then": [
+            {
+              "do": "war_party",
+              "from": "Métis of the Forks",
+              "against": "Brandon House",
+              "why": "for the North West Company and the pemmican"
+            }
+          ]
+        },
+        {
+          "do": "say",
+          "text": "Grant's Métis have fallen on Brandon House and carried off its pemmican and furs.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "fort-douglas-taken",
+      "title": "The Métis take Fort Douglas",
+      "kind": "fixed",
+      "date": "1816-06-21",
+      "requires": [
+        "seven-oaks"
+      ],
+      "happens": [
+        {
+          "do": "war_party",
+          "from": "Métis of the Forks",
+          "against": "Fort Douglas",
+          "why": "after Seven Oaks"
+        },
+        {
+          "do": "say",
+          "text": "After Seven Oaks the Métis take Fort Douglas, and the colonists are sent down the lake.",
+          "to": "all"
+        }
+      ]
+    },
+    {
+      "id": "plains-take-sides",
+      "title": "The plains take sides",
+      "kind": "fixed",
+      "date": "1815-05-01",
+      "repeat_days": 365,
+      "requires": [
+        "pemmican-proclamation"
+      ],
+      "happens": [
+        {
+          "do": "feud",
+          "holder": "Blackfoot",
+          "against": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+          "add": 2
+        },
+        {
+          "do": "feud",
+          "holder": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+          "against": "Blackfoot",
+          "add": 1
+        },
+        {
+          "do": "feud",
+          "holder": "Métis of the Qu'Appelle",
+          "against": "Brandon House",
+          "add": 3
+        },
+        {
+          "do": "feud",
+          "holder": "Métis at Pembina",
+          "against": "Fort Douglas",
+          "add": 2
+        },
+        {
+          "do": "say",
+          "text": "Up and down the plains the pemmican war has the camps choosing sides.",
+          "to": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "edmonton-pemmican-seized",
+      "title": "The Nor'Westers seize Edmonton's pemmican",
+      "kind": "conditional",
+      "delay_days": 240,
+      "requires": [
+        "seven-oaks"
+      ],
+      "when": [
+        "flag:edmonton_enemies"
+      ],
+      "happens": [
+        {
+          "do": "stock",
+          "post": "Edmonton House",
+          "item": "Pemmican",
+          "add": -30
+        },
+        {
+          "do": "tension",
+          "add": 10,
+          "why": "the Nor'Westers seized Edmonton's pemmican"
+        },
+        {
+          "do": "say",
+          "text": "The Nor'Westers have broken into Edmonton House's pemmican store in the night and carried off thirty bags.",
+          "to": "HBC",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "souris-pemmican-seized",
+      "title": "The colony's sheriff seizes the pemmican at Fort Souris",
+      "kind": "fixed",
+      "date": "1814-05-20",
+      "requires": [
+        "pemmican-proclamation"
+      ],
+      "rumour": "The colony's sheriff is on the Assiniboine with a warrant and the Brandon House men.",
+      "happens": [
+        {
+          "do": "if",
+          "cond": "flag:souris_pemmican_cached",
+          "then": [
+            {
+              "do": "stock",
+              "post": "Fort Souris",
+              "item": "Pemmican",
+              "add": -15
+            }
+          ]
+        },
+        {
+          "do": "if",
+          "cond": {
+            "not": "flag:souris_pemmican_cached"
+          },
+          "then": [
+            {
+              "do": "stock",
+              "post": "Fort Souris",
+              "item": "Pemmican",
+              "add": -40
+            }
+          ]
+        },
+        {
+          "do": "stock",
+          "post": "Brandon House",
+          "item": "Pemmican",
+          "add": 20
+        },
+        {
+          "do": "tension",
+          "add": 10,
+          "why": "the sheriff took the Nor'Westers' pemmican at Fort Souris"
+        },
+        {
+          "do": "feud",
+          "holder": "Métis of the Souris",
+          "against": "Brandon House",
+          "add": 2
+        },
+        {
+          "do": "say",
+          "text": "The colony's sheriff has broken into Fort Souris with the Brandon House men and carried off the pemmican.",
+          "to": "NWC",
+          "headline": true
+        },
+        {
+          "do": "say",
+          "text": "Sheriff Spencer has seized the Nor'Westers' pemmican at the Souris under the governor's proclamation.",
+          "to": "HBC"
+        }
+      ]
+    },
+    {
+      "id": "grant-gathers",
+      "title": "Cuthbert Grant gathers the Métis",
+      "kind": "fixed",
+      "date": "1816-05-15",
+      "requires": [
+        "colony-dispersed"
+      ],
+      "rumour": "The Brûlés are making new sashes and casting ball, and the captains have gone up to the Qu'Appelle.",
+      "happens": [
+        {
+          "do": "flag",
+          "name": "grant_gathers"
+        },
+        {
+          "do": "say",
+          "text": "Grant has called the Métis together at the Qu'Appelle. The Brûlés of the Souris are saddling their horses.",
+          "to": "NWC"
+        }
+      ]
+    }
+  ],
+  "questlines": [
+    {
+      "id": "Servant",
+      "title": "The Company's Servant",
+      "summary": "From the ship at York to the Company's books at Edmonton House.",
+      "for": "HBC",
+      "quests": [
+        {
+          "id": "Landfall",
+          "title": "Report to the Factor",
+          "summary": "You are the Company's newest servant, and the Factor will want you the hour you land.",
+          "on_complete": [
+            {
+              "do": "posting",
+              "place": "Edmonton House"
+            },
+            {
+              "do": "give",
+              "item": "Tobacco",
+              "count": 6
+            },
+            {
+              "do": "give",
+              "item": "TradeGoods",
+              "count": 4
+            },
+            {
+              "do": "note",
+              "text": "You are on the books of Edmonton House now: six twists of tobacco and four pieces of goods for the road."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Report",
+              "kind": "talk",
+              "text": "Find the Factor and report to him",
+              "who": "Factor",
+              "dialogue": {
+                "text": "{npc} looks you over as he would a new axe. \"So you're the Orkney lad. Five years, the contract says. Can you carry, and can you hold your tongue?\"",
+                "choices": [
+                  {
+                    "label": "\"I can do both, sir. Put me to work.\"",
+                    "reply": "\"Good. The ship's boats are at the landing. Every piece to the warehouse, and none of it opened.\"",
+                    "when": [
+                      "month:8-9"
+                    ],
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": 2
+                      }
+                    ],
+                    "goto": "Unload"
+                  },
+                  {
+                    "label": "\"I can do both, sir. Put me to work.\"",
+                    "reply": "\"Good. The woodpile is a disgrace. Six loads before you eat.\"",
+                    "when": [
+                      {
+                        "not": "month:8-9"
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": 2
+                      }
+                    ],
+                    "goto": "Wood"
+                  },
+                  {
+                    "label": "\"I signed on for the trade, sir, not the warehouse.\"",
+                    "reply": "\"Every man who ever traded here began in the warehouse. So will you.\"",
+                    "when": [
+                      "month:8-9"
+                    ],
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -1
+                      },
+                      {
+                        "do": "flag",
+                        "name": "wants_the_trade"
+                      }
+                    ],
+                    "goto": "Unload"
+                  },
+                  {
+                    "label": "\"I signed on for the trade, sir, not the woodpile.\"",
+                    "reply": "\"Every man who ever traded here began at the woodpile. So will you.\"",
+                    "when": [
+                      {
+                        "not": "month:8-9"
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -1
+                      },
+                      {
+                        "do": "flag",
+                        "name": "wants_the_trade"
+                      }
+                    ],
+                    "goto": "Wood"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Unload",
+              "kind": "task",
+              "text": "Carry six lots from the ship's boats to the warehouse",
+              "count": 6,
+              "task": "CarryCargo",
+              "next": "Orders"
+            },
+            {
+              "id": "Wood",
+              "kind": "task",
+              "text": "Bring six loads of firewood to the woodpile",
+              "count": 6,
+              "task": "Firewood"
+            },
+            {
+              "id": "Orders",
+              "kind": "talk",
+              "text": "Report back to the Factor",
+              "who": "Factor",
+              "dialogue": {
+                "text": "{npc} hardly looks up from his ledger. \"You'll do. Edmonton House wants hands, and a man who can carry and keep his mouth shut is worth two who can't. You're for the Saskatchewan.\"",
+                "choices": [
+                  {
+                    "label": "\"Edmonton House, sir?\"",
+                    "reply": "\"On the North Saskatchewan, a thousand miles up. The Nor'Westers have Fort Augustus beside it - near enough to hear them sing. The Beaver Hills Cree trade there, and the Blackfoot when they please.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"How do I get there?\"",
+                    "reply": "\"The York boats go up to Cumberland House on the fifth of September; from there you'll find your way. Or walk, if you're a fool. The river is the road.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"I'll go, sir.\"",
+                    "reply": "\"Of course you will. The storeman will give you your outfit.\""
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "UpTheRivers",
+          "title": "Up the rivers",
+          "summary": "A thousand miles of river between York and Edmonton House.",
+          "requires": [
+            "Landfall"
+          ],
+          "objectives": [
+            {
+              "id": "Edmonton",
+              "kind": "reach",
+              "text": "Go inland to Edmonton House (the York boats leave for Cumberland House on 5 September)",
+              "place": "Edmonton House",
+              "radius": 700
+            }
+          ]
+        },
+        {
+          "id": "Edmonton",
+          "title": "Edmonton House",
+          "summary": "Report to the master of Edmonton House.",
+          "requires": [
+            "UpTheRivers"
+          ],
+          "objectives": [
+            {
+              "id": "Report",
+              "kind": "talk",
+              "text": "Report to the master of Edmonton House",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "{npc} reads the York letter twice. \"One more mouth, and the winter coming. Well. You'll learn two things here or you'll go home in a box: the Nor'Westers across the way, and the Cree who decide whether we eat. Go and look at both.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll go and see them, sir.\""
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheOtherHouse",
+      "title": "The Other House",
+      "summary": "The Nor'Westers at Fort Augustus, a stone's throw from your gate.",
+      "for": "HBC",
+      "quests": [
+        {
+          "id": "Neighbours",
+          "title": "The neighbours",
+          "summary": "Call at Fort Augustus and see what kind of men the Nor'Westers are.",
+          "requires": [
+            "Edmonton"
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Call",
+              "kind": "talk",
+              "text": "Call on the master of Fort Augustus",
+              "who": "partner@Fort Augustus",
+              "dialogue": {
+                "text": "{npc} meets you at his gate with a pipe in his hand. \"So York has sent another clerk to count our canoes. Come in, if you're coming. We don't bite before dinner.\"",
+                "choices": [
+                  {
+                    "label": "Share his pipe and the news from the Bay",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "partner@Fort Augustus",
+                        "add": 15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "nwc_friendly"
+                      }
+                    ],
+                    "goto": "TellFriendly"
+                  },
+                  {
+                    "label": "Pay your respects and say as little as you can",
+                    "goto": "TellGuarded"
+                  },
+                  {
+                    "label": "Tell him to keep his men away from the Company's hunters",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "partner@Fort Augustus",
+                        "add": -15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "nwc_hostile"
+                      },
+                      {
+                        "do": "tension",
+                        "add": 3,
+                        "why": "a Company man warned off the Nor'Westers at Fort Augustus"
+                      }
+                    ],
+                    "goto": "TellHostile"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "TellFriendly",
+              "kind": "talk",
+              "text": "Tell your master how it went",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "\"Friendly, was he? He is always friendly. Drink his rum and keep your counsel - every word you give him is a word the Company paid for.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "TellGuarded",
+              "kind": "talk",
+              "text": "Tell your master how it went",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "\"Said little and heard much? That's the way of it. You'll do here.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "TellHostile",
+              "kind": "talk",
+              "text": "Tell your master how it went",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "\"You told him that? To his face?\" {npc} laughs despite himself. \"Well, he knows where we stand now. Mind your back on the river.\""
+              }
+            }
+          ]
+        },
+        {
+          "id": "QuietArrangement",
+          "title": "A quiet arrangement",
+          "summary": "The Nor'Westers' master proposes that neither house carry rum to the Beaver Hills camp this winter, so the Cree trade for goods and not for drink. He asks you to put it to your master.",
+          "giver": "partner@Fort Augustus",
+          "requires": [
+            "Neighbours"
+          ],
+          "start_when": [
+            "flag:nwc_friendly"
+          ],
+          "on_complete": [
+            {
+              "do": "rapport",
+              "who": "partner@Fort Augustus",
+              "add": 10
+            }
+          ],
+          "objectives": [
+            {
+              "id": "PutIt",
+              "kind": "talk",
+              "text": "Put the Nor'Westers' offer to your master",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "{npc} hears you out with his arms folded. \"No rum to the Beaver Hills camp, theirs or ours. And how do I know they'll keep to it?\"",
+                "choices": [
+                  {
+                    "label": "Argue for it: a sober camp hunts, and pays its debts",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "nwc_truce"
+                      },
+                      {
+                        "do": "tension",
+                        "add": -6,
+                        "why": "the houses at Edmonton agree to carry no rum to the Beaver Hills camp"
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 4
+                      }
+                    ],
+                    "goto": "Agreed"
+                  },
+                  {
+                    "label": "Advise against it: the Canadians will break it at the first chance",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "nwc_truce_refused"
+                      }
+                    ],
+                    "goto": "Refused"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Agreed",
+              "kind": "talk",
+              "text": "Take your master's answer to Fort Augustus",
+              "who": "partner@Fort Augustus",
+              "dialogue": {
+                "text": "\"He agreed? Then you've done a better day's work than either of us.\" {npc} gives you his hand. \"No rum to the Beaver Hills this winter. Let's see who keeps it.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Refused",
+              "kind": "talk",
+              "text": "Take your master's answer to Fort Augustus",
+              "who": "partner@Fort Augustus",
+              "dialogue": {
+                "text": "{npc} shrugs. \"I thought as much. Well, the Cree will drink our rum, then, and pay our debts.\""
+              }
+            }
+          ]
+        },
+        {
+          "id": "SpoilingTheTrade",
+          "title": "Ahead of the Canadians",
+          "summary": "The Nor'Westers are sending goods out to the Beaver Hills camp. Your master wants the Company's there first.",
+          "giver": "leader@Edmonton House",
+          "requires": [
+            "Neighbours"
+          ],
+          "start_when": [
+            "flag:nwc_hostile"
+          ],
+          "on_start": [
+            {
+              "do": "give",
+              "item": "TradeGoods",
+              "count": 4
+            }
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 3
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Goods",
+              "kind": "bring",
+              "text": "Carry four pieces of goods to the Beaver Hills Cree before the Nor'Westers' runners",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "item": "TradeGoods",
+              "count": 4,
+              "dialogue": {
+                "text": "{npc} looks over the goods. \"The Canadians promised us the same. You came first.\""
+              },
+              "on_done": [
+                {
+                  "do": "regard",
+                  "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                  "add": 5
+                },
+                {
+                  "do": "tension",
+                  "add": 4,
+                  "why": "the Company beat the Nor'Westers to the Beaver Hills camp"
+                },
+                {
+                  "do": "rapport",
+                  "who": "partner@Fort Augustus",
+                  "add": -10
+                }
+              ]
+            },
+            {
+              "id": "Back",
+              "kind": "talk",
+              "text": "Tell your master the goods are in",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "\"Good. They'll be sour across the way tonight. Sleep with your knife.\""
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CompanysFriends",
+      "title": "The Company's Friends",
+      "summary": "The Beaver Hills Cree, who trade at Edmonton House - and decide whether it eats.",
+      "for": "HBC",
+      "quests": [
+        {
+          "id": "TobaccoAndTalk",
+          "title": "Tobacco and talk",
+          "summary": "Go out to the Beaver Hills Cree camp and make yourself known, as is proper.",
+          "requires": [
+            "Edmonton"
+          ],
+          "on_complete": [
+            {
+              "do": "note",
+              "text": "You have sat in council with the Beaver Hills Cree."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Camp",
+              "kind": "reach",
+              "text": "Go out to the Beaver Hills Cree camp",
+              "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "radius": 600
+            },
+            {
+              "id": "Tobacco",
+              "kind": "bring",
+              "text": "Give the chief tobacco, as is proper",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "item": "Tobacco",
+              "count": 2,
+              "dialogue": {
+                "text": "{npc} takes the tobacco, fills a pipe, and passes it to you before he says a word."
+              }
+            },
+            {
+              "id": "Council",
+              "kind": "talk",
+              "text": "Sit with the chief and hear him out",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "dialogue": {
+                "text": "\"The Company's men come and go,\" {npc} says through the smoke. \"Some keep their word. At the last moon the Blackfoot took twenty of our horses, and the Canadians across the river sold them powder. What is the Company's friendship worth?\"",
+                "choices": [
+                  {
+                    "label": "Say the Company's friendship is not only for trade, and mean it",
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 5
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 10
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Promise them the Company's guns",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "promised_guns"
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 8
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 5
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Ask him to teach you the words for it, in Cree",
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 3
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 12
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "TheInvitation",
+          "title": "The invitation",
+          "summary": "The buffalo are near, and the Beaver Hills Cree are riding out. Their chief asks whether the Company's man rides with them.",
+          "giver": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+          "requires": [
+            "TobaccoAndTalk"
+          ],
+          "start_when": [
+            {
+              "any": [
+                {
+                  "m": "regard",
+                  "a": [
+                    "Beaver Hills Cree (Amiskwacîwiyiniwak)"
+                  ],
+                  "op": ">=",
+                  "v": 55
+                },
+                {
+                  "m": "rapport",
+                  "a": [
+                    "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)"
+                  ],
+                  "op": ">=",
+                  "v": 14
+                }
+              ]
+            }
+          ],
+          "on_complete": [
+            {
+              "do": "regard",
+              "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "add": 10
+            },
+            {
+              "do": "flag",
+              "name": "rode_with_beaver_hills"
+            },
+            {
+              "do": "note",
+              "text": "You rode with the Beaver Hills Cree and ate at their fire. They will remember who stood with them."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Accept",
+              "kind": "talk",
+              "text": "Answer the chief's invitation",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "dialogue": {
+                "text": "\"We ride when the scouts come back,\" {npc} says. \"A man who hunts with us eats with us.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll ride with you.\"",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 5
+                      }
+                    ],
+                    "goto": "Hunt"
+                  },
+                  {
+                    "label": "\"I must ask my master's leave first.\"",
+                    "goto": "AskLeave"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "AskLeave",
+              "kind": "talk",
+              "text": "Ask your master's leave to ride with the Cree",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "\"Go, and bring back meat. A man the Cree hunt with is worth ten the Cree don't.\""
+              },
+              "next": "Hunt"
+            },
+            {
+              "id": "Hunt",
+              "kind": "hunt",
+              "text": "Ride with the Beaver Hills Cree and bring down a buffalo",
+              "count": 1,
+              "species": "Buffalo"
+            },
+            {
+              "id": "Feast",
+              "kind": "talk",
+              "text": "Eat with the chief after the hunt",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "dialogue": {
+                "text": "The meat is shared out, and {npc} gives you the tongue, the best of it. \"You ride like a white man, but you ride with us. When the grass is green the Blackfoot will come for horses again. Then we will see who stands with us.\""
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheWar",
+      "title": "The War",
+      "summary": "The Beaver Hills Cree answer for their dead - with you, without you, or not at all.",
+      "for": "HBC",
+      "quests": [
+        {
+          "id": "BloodForHorses",
+          "title": "Blood for horses",
+          "summary": "The Blackfoot have run off the Beaver Hills horses and killed a young man. The chief asks whether the Company's man will ride with them.",
+          "giver": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+          "start_when": [
+            "flag:beaver_hills_raided"
+          ],
+          "objectives": [
+            {
+              "id": "Ask",
+              "kind": "talk",
+              "text": "Hear what the chief asks of you",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "dialogue": {
+                "text": "{npc} has cut his hair for the dead boy. \"They took our horses and they took my sister's son. When the moon is full my young men ride to the Blackfoot lodges. You ate with us. Will you ride with us?\"",
+                "choices": [
+                  {
+                    "label": "\"I'll ride with you.\"",
+                    "do": [
+                      {
+                        "do": "war_party",
+                        "from": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "against": "Blackfoot",
+                        "why": "for their dead and their horses",
+                        "with_player": true
+                      },
+                      {
+                        "do": "flag",
+                        "name": "rode_to_war"
+                      }
+                    ],
+                    "goto": "Riding"
+                  },
+                  {
+                    "label": "\"I can't ride with you. But you'll have powder and ball.\"",
+                    "goto": "Arm"
+                  },
+                  {
+                    "label": "\"Let me carry a pipe to the Blackfoot first.\"",
+                    "goto": "ToTheBlackfoot"
+                  },
+                  {
+                    "label": "\"The Company's servants don't go to war.\"",
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": -10
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": -15
+                      }
+                    ],
+                    "goto": "Refused"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Riding",
+              "kind": "when",
+              "text": "Lead the Beaver Hills war party south to the Blackfoot camp",
+              "place": "Blackfoot",
+              "cond": [
+                {
+                  "any": [
+                    "flag:war:Beaver Hills Cree (Amiskwacîwiyiniwak):won",
+                    "flag:war:Beaver Hills Cree (Amiskwacîwiyiniwak):lost",
+                    "flag:war:Beaver Hills Cree (Amiskwacîwiyiniwak):turned_back"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "Afterwards",
+              "kind": "talk",
+              "text": "Go back to the chief when the fighting is over",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "dialogue": {
+                "text": "The war party is home. {npc} sits apart from the drums with his pipe, and makes room for you beside him.",
+                "choices": [
+                  {
+                    "label": "Sit at the victory dance",
+                    "when": [
+                      "flag:war:Beaver Hills Cree (Amiskwacîwiyiniwak):won"
+                    ],
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "cree_war_won"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Sit with the mourners",
+                    "when": [
+                      {
+                        "not": "flag:war:Beaver Hills Cree (Amiskwacîwiyiniwak):won"
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 5
+                      },
+                      {
+                        "do": "flag",
+                        "name": "cree_war_lost"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Arm",
+              "kind": "bring",
+              "text": "Bring the chief four horns of powder (the Edmonton store trades them)",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "item": "Powder",
+              "count": 4,
+              "dialogue": {
+                "text": "{npc} weighs the powder horns in his hands. \"The Company remembers its friends. So do we.\""
+              },
+              "on_done": [
+                {
+                  "do": "flag",
+                  "name": "armed_the_cree"
+                },
+                {
+                  "do": "feud",
+                  "holder": "Blackfoot",
+                  "against": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                  "add": 2
+                },
+                {
+                  "do": "war_party",
+                  "from": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                  "against": "Blackfoot",
+                  "why": "with the Company's powder"
+                }
+              ]
+            },
+            {
+              "id": "ArmReport",
+              "kind": "talk",
+              "text": "Tell your master what you have done",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "{npc} hears you out. \"London does not pay us to take sides in the Indians' wars. But powder is trade, and the Blackfoot would have bought it from the Canadians anyway. Only don't make a habit of it.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "ToTheBlackfoot",
+              "kind": "reach",
+              "text": "Carry a pipe to the Blackfoot camp, a long ride south",
+              "place": "Blackfoot",
+              "radius": 700
+            },
+            {
+              "id": "Gifts",
+              "kind": "bring",
+              "text": "Give the Blackfoot chief tobacco",
+              "who": "chief@Blackfoot",
+              "item": "Tobacco",
+              "count": 2,
+              "dialogue": {
+                "text": "{npc} smokes your tobacco and waits. He does not smile."
+              }
+            },
+            {
+              "id": "Terms",
+              "kind": "talk",
+              "text": "Ask the Blackfoot for peace",
+              "who": "chief@Blackfoot",
+              "dialogue": {
+                "text": "\"The Cree killed two of ours at the Red Deer last summer,\" {npc} says. \"Do they remember that? Or does the Company only count the Cree dead?\"",
+                "choices": [
+                  {
+                    "label": "Ask for a year's peace, and the horses sent back",
+                    "do": [
+                      {
+                        "do": "truce",
+                        "a": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "b": "Blackfoot",
+                        "days": 365
+                      },
+                      {
+                        "do": "standing",
+                        "add": 3
+                      },
+                      {
+                        "do": "flag",
+                        "name": "brokered_peace"
+                      }
+                    ],
+                    "goto": "PeaceBack"
+                  },
+                  {
+                    "label": "Demand the horses back, or the Cree will come for them",
+                    "do": [
+                      {
+                        "do": "feud",
+                        "holder": "Blackfoot",
+                        "against": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 2
+                      },
+                      {
+                        "do": "war_party",
+                        "from": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "against": "Blackfoot",
+                        "why": "after the talks failed"
+                      }
+                    ],
+                    "goto": "WarAnyway"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "PeaceBack",
+              "kind": "talk",
+              "text": "Bring the Blackfoot answer to the Beaver Hills chief",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "dialogue": {
+                "text": "\"A year.\" {npc} turns the word over. \"Our young men will not like it. But a year is a year of hunting.\""
+              },
+              "on_done": [
+                {
+                  "do": "regard",
+                  "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                  "add": 5
+                }
+              ],
+              "next": "complete"
+            },
+            {
+              "id": "WarAnyway",
+              "kind": "talk",
+              "text": "Tell the Beaver Hills chief the talks failed",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "dialogue": {
+                "text": "\"Then we have lost nothing but your tobacco.\" His young men are already painting their horses."
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Refused",
+              "kind": "talk",
+              "text": "Tell your master you stayed out of it",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "\"Good. The Company trades with the Blackfoot too, and London hates a war that spoils the returns.\""
+              },
+              "on_done": [
+                {
+                  "do": "standing",
+                  "add": 2
+                },
+                {
+                  "do": "war_party",
+                  "from": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                  "against": "Blackfoot",
+                  "why": "without the Company's man"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PemmicanWar",
+      "title": "The Pemmican War",
+      "summary": "The war between the companies, fought over the pemmican of the plains, comes up the Saskatchewan.",
+      "for": "HBC",
+      "quests": [
+        {
+          "id": "NewsFromTheForks",
+          "title": "News from the Forks",
+          "summary": "A letter has come up from Red River, and your master wants you.",
+          "giver": "leader@Edmonton House",
+          "requires": [
+            "Edmonton"
+          ],
+          "start_when": [
+            "beat:seven-oaks"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from Red River",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "{npc} reads the letter twice before he speaks. \"Grant's Métis met Governor Semple at Seven Oaks. Twenty of ours dead, and the governor with them. The Nor'Westers will say they were attacked. Every post on this river is a fort now, theirs and ours.\"",
+                "choices": [
+                  {
+                    "label": "\"What would you have me do, sir?\"",
+                    "reply": "\"Go across and see what they mean to do. Then come and tell me.\""
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Across",
+              "kind": "talk",
+              "text": "Call at Fort Augustus, now that it has come to this",
+              "who": "partner@Fort Augustus",
+              "dialogue": {
+                "text": "{npc} has his men under arms at the gate. \"You've heard, then. Before God, it was not my doing. What happens here is up to the two of us.\"",
+                "choices": [
+                  {
+                    "label": "Agree that whatever happens at the Forks, Edmonton keeps the peace",
+                    "when": [
+                      "rapport(partner@Fort Augustus) >= 0"
+                    ],
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": -15,
+                        "why": "the two houses at Edmonton agree to keep the peace whatever happens at Red River"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "edmonton_peace"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Tell him the North West Company will answer for Seven Oaks",
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": 15,
+                        "why": "a Company man promised the Nor'Westers at Edmonton a reckoning for Seven Oaks"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "edmonton_enemies"
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "partner@Fort Augustus",
+                        "add": -20
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Report",
+              "kind": "talk",
+              "text": "Tell your master what was said",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "{npc} nods slowly. \"Then we know where we stand, which is more than they know at the Forks.\""
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "NorthMan",
+      "title": "The North Man",
+      "summary": "From the brigade's landing to the pemmican country of the Assiniboine.",
+      "for": "NWC",
+      "quests": [
+        {
+          "id": "Engaged",
+          "title": "Report to the partner",
+          "summary": "You are the North West Company's newest clerk, and the partner will want a look at you.",
+          "on_complete": [
+            {
+              "do": "posting",
+              "place": "Fort Souris"
+            },
+            {
+              "do": "give",
+              "item": "Tobacco",
+              "count": 6
+            },
+            {
+              "do": "give",
+              "item": "TradeGoods",
+              "count": 4
+            },
+            {
+              "do": "note",
+              "text": "You are on the books of Fort Souris now: six twists of tobacco and four pieces of goods for the road."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Report",
+              "kind": "talk",
+              "text": "Find the partner and report to him",
+              "who": "Partner",
+              "dialogue": {
+                "text": "{npc} looks up from his letters. \"The new clerk. The agents at Montreal write that you can read, write and cast accounts. Out here a man wants a strong back as well. Which have you brought?\"",
+                "choices": [
+                  {
+                    "label": "\"Both, monsieur. Try me.\"",
+                    "reply": "\"We shall. The woodpile first; every bourgeois in the country began at a woodpile, whatever he tells you.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": 2
+                      }
+                    ],
+                    "goto": "Wood"
+                  },
+                  {
+                    "label": "\"I came up for the trade, monsieur, not to cut wood.\"",
+                    "reply": "\"Then you came up to the wrong country. Six loads, and then we'll talk of trade.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -1
+                      },
+                      {
+                        "do": "flag",
+                        "name": "wants_the_trade"
+                      }
+                    ],
+                    "goto": "Wood"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Wood",
+              "kind": "task",
+              "text": "Bring six loads of firewood to the woodpile",
+              "count": 6,
+              "task": "Firewood"
+            },
+            {
+              "id": "Orders",
+              "kind": "talk",
+              "text": "Report back to the partner",
+              "who": "Partner",
+              "dialogue": {
+                "text": "{npc} pours two glasses. \"You'll do. Fort Souris on the Assiniboine wants a clerk. Pemmican country: every bag that feeds our canoes from Bas de la Rivière to the Athabasca comes off those plains, and the Bay men's Brandon House stands a musket shot from our gate.\"",
+                "choices": [
+                  {
+                    "label": "\"What kind of place is Fort Souris, monsieur?\"",
+                    "reply": "\"Stockades, a store, and more buffalo than you have ever dreamt of. The Brûlés of the Souris - the Métis hunters - camp on the plain above it. Keep them our friends and the post eats; lose them and it starves.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"And the Bay men at Brandon House?\"",
+                    "reply": "\"Honest enough, and slow, and Lord Selkirk's colony at the Forks has given them ideas. They think the plains are theirs because a charter in London says so.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"How do I get there?\"",
+                    "reply": "\"Up to Lake Winnipeg, up the Red to the Forks, and up the Assiniboine until you smell the pemmican. A light canoe, a horse, your own two feet - only get there before the ice.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"I'll go, monsieur.\"",
+                    "reply": "\"Of course you will. Take what you need from the store, and don't let the Brûlés beat you at cards.\""
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "ToTheAssiniboine",
+          "title": "Up the Assiniboine",
+          "summary": "Lake Winnipeg, the Red, and the Assiniboine between you and Fort Souris.",
+          "requires": [
+            "Engaged"
+          ],
+          "objectives": [
+            {
+              "id": "Souris",
+              "kind": "reach",
+              "text": "Go inland to Fort Souris on the Assiniboine",
+              "place": "Fort Souris",
+              "radius": 700
+            }
+          ]
+        },
+        {
+          "id": "FortSouris",
+          "title": "Fort Souris",
+          "summary": "Report to the bourgeois of Fort Souris.",
+          "requires": [
+            "ToTheAssiniboine"
+          ],
+          "objectives": [
+            {
+              "id": "Report",
+              "kind": "talk",
+              "text": "Report to the bourgeois of Fort Souris",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} reads the partner's letter and folds it into his coat. \"A clerk. Good. You'll learn two things here: the Bay men at Brandon House, who count every bag we buy, and the Brûlés on the plain, who decide whether there are any bags to buy at all. Go and look at both.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll go and see them, monsieur.\""
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheBayMen",
+      "title": "The Bay Men",
+      "summary": "The Hudson's Bay Company's Brandon House, a musket shot from your gate.",
+      "for": "NWC",
+      "quests": [
+        {
+          "id": "BayNeighbours",
+          "title": "The neighbours",
+          "summary": "Call at Brandon House and see what kind of men the English are.",
+          "requires": [
+            "FortSouris"
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Call",
+              "kind": "talk",
+              "text": "Call on the master of Brandon House",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} lets you in at the wicket and no further than the yard. \"A new Nor'Wester. Have they sent you to count our bags, or to buy our hunters away? Say what you came to say.\"",
+                "choices": [
+                  {
+                    "label": "Offer him a dram and the news from the brigades",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Brandon House",
+                        "add": 15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "hbc_friendly"
+                      }
+                    ],
+                    "goto": "TellFriendly"
+                  },
+                  {
+                    "label": "Pay your respects and say as little as you can",
+                    "goto": "TellGuarded"
+                  },
+                  {
+                    "label": "Tell him the plains traded with the North men before he was born",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Brandon House",
+                        "add": -15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "hbc_hostile"
+                      },
+                      {
+                        "do": "tension",
+                        "add": 3,
+                        "why": "a Nor'Wester told the Brandon House master the plains belong to the North men"
+                      }
+                    ],
+                    "goto": "TellHostile"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "TellFriendly",
+              "kind": "talk",
+              "text": "Tell the bourgeois how it went",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "\"A dram with the English, was it? Drink his tea, if he gives you any, and remember that every word you leave in that yard goes down to the Forks in his next letter.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "TellGuarded",
+              "kind": "talk",
+              "text": "Tell the bourgeois how it went",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "\"Said little and heard much? You'll do here.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "TellHostile",
+              "kind": "talk",
+              "text": "Tell the bourgeois how it went",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} laughs until he coughs. \"To his face? Well, he knows where we stand. Keep your gun by your bed.\""
+              }
+            }
+          ]
+        },
+        {
+          "id": "OneBagOnePrice",
+          "title": "One bag, one price",
+          "summary": "The master of Brandon House proposes that neither house outbid the other for the Métis pemmican this winter. He asks you to put it to your bourgeois.",
+          "giver": "leader@Brandon House",
+          "requires": [
+            "BayNeighbours"
+          ],
+          "start_when": [
+            "flag:hbc_friendly"
+          ],
+          "on_complete": [
+            {
+              "do": "rapport",
+              "who": "leader@Brandon House",
+              "add": 10
+            }
+          ],
+          "objectives": [
+            {
+              "id": "PutIt",
+              "kind": "talk",
+              "text": "Put the Bay men's offer to your bourgeois",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} hears you out with his pipe going hard. \"One price for a bag of pemmican, theirs and ours. And the day the brigades are hungry, who keeps to it?\"",
+                "choices": [
+                  {
+                    "label": "Argue for it: a bidding war only fattens the Brûlés and empties both stores",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "souris_price_truce"
+                      },
+                      {
+                        "do": "tension",
+                        "add": -6,
+                        "why": "the houses on the Souris agree on one price for pemmican"
+                      }
+                    ],
+                    "goto": "Agreed"
+                  },
+                  {
+                    "label": "Advise against it: the English will break it the first lean month",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "souris_price_refused"
+                      }
+                    ],
+                    "goto": "Refused"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Agreed",
+              "kind": "talk",
+              "text": "Take your bourgeois's answer to Brandon House",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "\"He agreed?\" {npc} shakes your hand over the gate. \"Then the Brûlés will have to get rich some other way. Let's see which of us keeps it.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Refused",
+              "kind": "talk",
+              "text": "Take your bourgeois's answer to Brandon House",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} only nods. \"I thought as much. Well, the Brûlés will do well out of the two of us this winter.\""
+              }
+            }
+          ]
+        },
+        {
+          "id": "FirstToTheCamp",
+          "title": "Ahead of the English",
+          "summary": "Brandon House is sending goods out to the Métis camp. Your bourgeois wants the North men's there first.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "BayNeighbours"
+          ],
+          "start_when": [
+            "flag:hbc_hostile"
+          ],
+          "on_start": [
+            {
+              "do": "give",
+              "item": "TradeGoods",
+              "count": 4
+            }
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 3
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Goods",
+              "kind": "bring",
+              "text": "Carry four pieces of goods to the Métis camp before the Bay men's cart",
+              "who": "chief@Métis of the Souris",
+              "item": "TradeGoods",
+              "count": 4,
+              "dialogue": {
+                "text": "{npc} turns the goods over. \"The English promised us the same. You came first, and the Brûlés remember who comes first.\""
+              },
+              "on_done": [
+                {
+                  "do": "regard",
+                  "place": "Métis of the Souris",
+                  "add": 5
+                },
+                {
+                  "do": "tension",
+                  "add": 4,
+                  "why": "the Nor'Westers beat Brandon House to the Métis camp"
+                },
+                {
+                  "do": "rapport",
+                  "who": "leader@Brandon House",
+                  "add": -10
+                }
+              ]
+            },
+            {
+              "id": "Back",
+              "kind": "talk",
+              "text": "Tell the bourgeois the goods are in",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "\"Good. They'll be sour at Brandon House tonight. Sleep with your knife.\""
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheNewNation",
+      "title": "The New Nation",
+      "summary": "The Métis hunters of the Souris - the Bois-Brûlés - who run the buffalo and make the pemmican.",
+      "for": "NWC",
+      "quests": [
+        {
+          "id": "AtTheCamp",
+          "title": "Tobacco on the plain",
+          "summary": "Ride out to the Métis camp on the Souris plain and make yourself known.",
+          "requires": [
+            "FortSouris"
+          ],
+          "on_complete": [
+            {
+              "do": "note",
+              "text": "You have smoked with the Métis of the Souris."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Camp",
+              "kind": "reach",
+              "text": "Ride out to the Métis camp on the Souris plain",
+              "place": "Métis of the Souris",
+              "radius": 600
+            },
+            {
+              "id": "Tobacco",
+              "kind": "bring",
+              "text": "Give the hunt captain tobacco",
+              "who": "chief@Métis of the Souris",
+              "item": "Tobacco",
+              "count": 2,
+              "dialogue": {
+                "text": "{npc} takes the tobacco with a grin. \"A clerk who knows his manners. Sit down, bourgeois, the kettle's on.\""
+              }
+            },
+            {
+              "id": "Council",
+              "kind": "talk",
+              "text": "Sit with the captain and hear him out",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "\"My father was a trader out of Boston; my mother's people were here before any of you,\" {npc} says. \"Now the Bay men's lord has a colony at the Forks and a paper that says this plain is his. We run the buffalo here. We make the pemmican. Whose plain is it, bourgeois?\"",
+                "choices": [
+                  {
+                    "label": "Say the plain belongs to those who hunt it, and the North men will stand by them",
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Métis of the Souris",
+                        "add": 5
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Métis of the Souris",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "told_the_brules_the_plain_is_theirs"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Promise them the North West Company's guns",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "promised_metis_guns"
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Métis of the Souris",
+                        "add": 8
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Métis of the Souris",
+                        "add": 5
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Ask him to teach you how the Brûlés run the buffalo",
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Métis of the Souris",
+                        "add": 3
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Métis of the Souris",
+                        "add": 12
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "TheGreatHunt",
+          "title": "The hunt",
+          "summary": "The scouts have found the herds, and the Métis of the Souris are going out on the hunt, carts, captains and all. The captain asks whether the clerk rides with them.",
+          "giver": "chief@Métis of the Souris",
+          "requires": [
+            "AtTheCamp"
+          ],
+          "start_when": [
+            {
+              "any": [
+                "regard(Métis of the Souris) >= 55",
+                "rapport(chief@Métis of the Souris) >= 14"
+              ]
+            }
+          ],
+          "on_complete": [
+            {
+              "do": "regard",
+              "place": "Métis of the Souris",
+              "add": 10
+            },
+            {
+              "do": "flag",
+              "name": "rode_with_souris_metis"
+            },
+            {
+              "do": "note",
+              "text": "You ran the buffalo with the Métis of the Souris. They will remember who stood with them."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Accept",
+              "kind": "talk",
+              "text": "Answer the captain",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "\"The laws of the hunt,\" {npc} says, counting on his fingers. \"Nobody runs before the signal. Nobody leaves the camp alone. The captain's word is the law until the meat is in. Still want to come?\"",
+                "choices": [
+                  {
+                    "label": "\"I'll keep the laws. I'm coming.\"",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Métis of the Souris",
+                        "add": 5
+                      }
+                    ],
+                    "goto": "Hunt"
+                  },
+                  {
+                    "label": "\"I must ask the bourgeois first.\"",
+                    "goto": "AskLeave"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "AskLeave",
+              "kind": "talk",
+              "text": "Ask the bourgeois's leave to go on the hunt",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "\"Go! And count the bags they make. Every one of them is a bag the Bay men don't get.\""
+              },
+              "next": "Hunt"
+            },
+            {
+              "id": "Hunt",
+              "kind": "hunt",
+              "text": "Ride with the Métis of the Souris and bring down a buffalo",
+              "count": 1,
+              "species": "Buffalo"
+            },
+            {
+              "id": "Feast",
+              "kind": "talk",
+              "text": "Eat with the captain after the hunt",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "The women are already cutting the meat into strips for the drying racks. {npc} hands you a marrow bone. \"You ride like a clerk, but you ride. Remember who you ate with, bourgeois. A day is coming when the Bay men's governor tells us we cannot sell our own pemmican, and then we'll see who stands with us.\""
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "NorWestersWar",
+      "title": "The Pemmican War",
+      "summary": "The colony's governor forbids the pemmican to leave the plains, and the North men will not starve to oblige him.",
+      "for": "NWC",
+      "quests": [
+        {
+          "id": "TheProclamation",
+          "title": "The proclamation",
+          "summary": "The governor at the Forks has forbidden any pemmican to leave Assiniboia, and Fort Souris has a full store.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:pemmican-proclamation"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear what the bourgeois means to do about the proclamation",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} has the governor's paper pinned to his table with a knife. \"Macdonell forbids any pemmican to leave his colony's lands - and he says his colony's lands run from the Forks to God knows where. Our store is full, and the brigades eat it or the brigades stop. He'll send his sheriff for it.\"",
+                "choices": [
+                  {
+                    "label": "\"Then let's not keep it all in the store. The Brûlés can hide it on the plain.\"",
+                    "do": [
+                      {
+                        "do": "give",
+                        "item": "Pemmican",
+                        "count": 4
+                      },
+                      {
+                        "do": "flag",
+                        "name": "souris_pemmican_cached"
+                      }
+                    ],
+                    "goto": "Hide"
+                  },
+                  {
+                    "label": "\"Let him come. We'll hold the gate.\"",
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": 5,
+                        "why": "the Nor'Westers at Fort Souris swear to hold their pemmican"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "souris_holds_the_gate"
+                      }
+                    ],
+                    "goto": "Gate"
+                  },
+                  {
+                    "label": "\"It's the law of the country now, monsieur. Better to sell to them than fight them.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -3
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "leader@Fort Souris",
+                        "add": -10
+                      },
+                      {
+                        "do": "tension",
+                        "add": -4,
+                        "why": "a Nor'Wester at Fort Souris spoke for obeying the proclamation"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "souris_would_obey"
+                      }
+                    ],
+                    "goto": "Gate"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Hide",
+              "kind": "bring",
+              "text": "Carry the first bags out to the Métis camp, to be hidden on the plain",
+              "who": "chief@Métis of the Souris",
+              "item": "Pemmican",
+              "count": 4,
+              "dialogue": {
+                "text": "{npc} grins at the bags. \"Hide pemmican from the English on our own plain? My grandmother could do it.\""
+              },
+              "on_done": [
+                {
+                  "do": "regard",
+                  "place": "Métis of the Souris",
+                  "add": 5
+                },
+                {
+                  "do": "feud",
+                  "holder": "Métis of the Souris",
+                  "against": "Brandon House",
+                  "add": 1
+                }
+              ],
+              "next": "complete"
+            },
+            {
+              "id": "Gate",
+              "kind": "talk",
+              "text": "Tell the bourgeois you'll stand by him",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "\"Whatever comes, we're Nor'Westers first,\" {npc} says, and pours. \"Drink to the partners.\""
+              }
+            }
+          ]
+        },
+        {
+          "id": "TheSheriff",
+          "title": "The sheriff",
+          "summary": "The colony's sheriff has come to Fort Souris with the Brandon House men and carried off the pemmican.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:souris-pemmican-seized"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear what happened at the gate",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "The gate hangs open on one hinge. {npc} is white with anger. \"Spencer, the colony's sheriff, with the Brandon House men and their axes. A warrant, he said. They carried every bag they could find across to Brandon House, and the Bay men stood and watched.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll go to Brandon House and ask for it back.\"",
+                    "goto": "Ask"
+                  },
+                  {
+                    "label": "\"The Brûlés will want to hear of this.\"",
+                    "goto": "Tell"
+                  },
+                  {
+                    "label": "\"Write to the partners, monsieur. Let the law answer the law.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -1
+                      }
+                    ],
+                    "goto": "complete"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Ask",
+              "kind": "talk",
+              "text": "Ask the master of Brandon House for the pemmican back",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} won't meet your eye. \"It's under the governor's seal now. I can't touch it - and I didn't ask for it, whatever you think.\"",
+                "choices": [
+                  {
+                    "label": "Ask him quietly, as a neighbour, for enough to feed your own men",
+                    "when": [
+                      "rapport(leader@Brandon House) >= 10"
+                    ],
+                    "do": [
+                      {
+                        "do": "stock",
+                        "post": "Fort Souris",
+                        "item": "Pemmican",
+                        "add": 15
+                      },
+                      {
+                        "do": "tension",
+                        "add": -3,
+                        "why": "the Brandon House master quietly sent back some of the seized pemmican"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "brandon_sent_some_back"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Tell him the North men will take it back, seal or no seal",
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": 6,
+                        "why": "a Nor'Wester promised to take back the seized pemmican by force"
+                      },
+                      {
+                        "do": "feud",
+                        "holder": "Métis of the Souris",
+                        "against": "Brandon House",
+                        "add": 1
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "leader@Brandon House",
+                        "add": -15
+                      }
+                    ]
+                  }
+                ]
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Tell",
+              "kind": "talk",
+              "text": "Carry the news to the Métis camp",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "{npc} listens without a word, then spits. \"Our pemmican. Our plain. And a sheriff with a paper.\" Behind him the young men have stopped what they were doing."
+              },
+              "on_done": [
+                {
+                  "do": "feud",
+                  "holder": "Métis of the Souris",
+                  "against": "Brandon House",
+                  "add": 2
+                },
+                {
+                  "do": "regard",
+                  "place": "Métis of the Souris",
+                  "add": 5
+                }
+              ],
+              "next": "complete"
+            }
+          ]
+        },
+        {
+          "id": "TheBrulesRide",
+          "title": "The Brûlés ride",
+          "summary": "Grant has called the Métis together. They mean to bring the pemmican through to the canoes, and Brandon House is on the road.",
+          "giver": "chief@Métis of the Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "flag:grant_gathers"
+          ],
+          "objectives": [
+            {
+              "id": "Ask",
+              "kind": "talk",
+              "text": "Hear what the captain asks of you",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "{npc} has a new sash and a new musket. \"Grant calls the Brûlés together. We take the pemmican down the Assiniboine to the canoes, and if the Bay men stand in the road, we go through them. Brandon House first. You ate with us. Will you ride with us?\"",
+                "choices": [
+                  {
+                    "label": "\"I'll ride with you.\"",
+                    "do": [
+                      {
+                        "do": "war_party",
+                        "from": "Métis of the Souris",
+                        "against": "Brandon House",
+                        "why": "for the pemmican and the North West Company",
+                        "with_player": true
+                      },
+                      {
+                        "do": "flag",
+                        "name": "grant_rode_from_souris"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "rode_with_grant"
+                      }
+                    ],
+                    "goto": "Riding"
+                  },
+                  {
+                    "label": "\"The post needs me here.\"",
+                    "do": [
+                      {
+                        "do": "war_party",
+                        "from": "Métis of the Souris",
+                        "against": "Brandon House",
+                        "why": "for the pemmican and the North West Company"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "grant_rode_from_souris"
+                      }
+                    ],
+                    "goto": "Stayed"
+                  },
+                  {
+                    "label": "Say nothing - and go and warn Brandon House",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "grant_rode_from_souris"
+                      }
+                    ],
+                    "goto": "Warning"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Riding",
+              "kind": "when",
+              "text": "Ride with the Métis of the Souris to Brandon House",
+              "place": "Brandon House",
+              "cond": [
+                {
+                  "any": [
+                    "flag:war:Métis of the Souris:won",
+                    "flag:war:Métis of the Souris:lost",
+                    "flag:war:Métis of the Souris:turned_back"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "Afterwards",
+              "kind": "talk",
+              "text": "Find the captain when it is over",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "The carts are loaded and the horses watered. {npc} sits on a pemmican bag with his musket across his knees.",
+                "choices": [
+                  {
+                    "label": "Help load Brandon House's pemmican onto the carts",
+                    "when": [
+                      "flag:war:Métis of the Souris:won"
+                    ],
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Métis of the Souris",
+                        "add": 10
+                      },
+                      {
+                        "do": "give",
+                        "item": "Pemmican",
+                        "count": 4
+                      },
+                      {
+                        "do": "flag",
+                        "name": "plundered_brandon_house"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Help with the wounded",
+                    "when": [
+                      {
+                        "not": "flag:war:Métis of the Souris:won"
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Métis of the Souris",
+                        "add": 5
+                      },
+                      {
+                        "do": "flag",
+                        "name": "brandon_house_held"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Stayed",
+              "kind": "talk",
+              "text": "Tell the bourgeois you stayed",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "\"Wise,\" {npc} says, watching the dust of the carts on the road east. \"A clerk who rides with Grant may find himself in a Montreal court one day. Let the Brûlés do what the Brûlés do.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Warning",
+              "kind": "talk",
+              "text": "Warn the master of Brandon House that the Brûlés are coming",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} goes grey. \"How many? When?\" He is already shouting for his men to bar the gate. \"I won't forget this. I don't know if your own people will.\""
+              },
+              "on_done": [
+                {
+                  "do": "war_party",
+                  "from": "Métis of the Souris",
+                  "against": "Brandon House",
+                  "why": "for the pemmican and the North West Company"
+                },
+                {
+                  "do": "regard",
+                  "place": "Métis of the Souris",
+                  "add": -15
+                },
+                {
+                  "do": "rapport",
+                  "who": "leader@Brandon House",
+                  "add": 20
+                },
+                {
+                  "do": "rapport",
+                  "who": "chief@Métis of the Souris",
+                  "add": -25
+                },
+                {
+                  "do": "standing",
+                  "add": -5
+                },
+                {
+                  "do": "flag",
+                  "name": "warned_brandon_house"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "NorWesterSevenOaks",
+          "title": "Seven Oaks",
+          "summary": "Word has come up the Assiniboine from the Forks.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:seven-oaks"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from the Forks",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} has the letter open and does not look up. \"Grant's men met Governor Semple at Seven Oaks. Twenty of theirs dead, and the governor with them; one of ours. The partners say the colonists fired first. Selkirk will say otherwise, and Selkirk has the ear of London.\"",
+                "choices": [
+                  {
+                    "label": "\"They fired first. The Brûlés defended themselves.\"",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Fort Souris",
+                        "add": 5
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Métis of the Souris",
+                        "add": 5
+                      },
+                      {
+                        "do": "flag",
+                        "name": "stood_by_grant"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"Twenty men dead, monsieur. Whoever fired first, it was murder.\"",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Fort Souris",
+                        "add": -10
+                      },
+                      {
+                        "do": "standing",
+                        "add": -2
+                      },
+                      {
+                        "do": "flag",
+                        "name": "called_it_murder"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Neighbours",
+              "kind": "talk",
+              "text": "Go across to Brandon House, now that it has come to this",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} meets you at the gate with a musket. \"Seven Oaks. You've heard. Before God, if one of you lifts a hand to this house again, we'll answer it.\"",
+                "choices": [
+                  {
+                    "label": "Promise that whatever happens at the Forks, the Souris keeps the peace",
+                    "when": [
+                      "rapport(leader@Brandon House) >= 0"
+                    ],
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": -15,
+                        "why": "the two houses on the Souris agree to keep the peace whatever happens at the Forks"
+                      },
+                      {
+                        "do": "truce",
+                        "a": "Métis of the Souris",
+                        "b": "Brandon House",
+                        "days": 365
+                      },
+                      {
+                        "do": "flag",
+                        "name": "souris_peace"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Tell him the Bay men brought this on themselves with their proclamation",
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": 10,
+                        "why": "a Nor'Wester at Brandon House blamed Seven Oaks on the proclamation"
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "leader@Brandon House",
+                        "add": -15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "souris_enemies"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Report",
+              "kind": "talk",
+              "text": "Tell the bourgeois what was said",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} grunts. \"Selkirk is coming up the lakes with soldiers, they say - hired Swiss, out of the war. Whatever we've done, we'd best be able to account for it.\""
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheLawlessYears",
+      "title": "The Lawless Years",
+      "summary": "Selkirk's soldiers, the Grand Rapids, and the union of the two companies.",
+      "for": "HBC",
+      "quests": [
+        {
+          "id": "SelkirksSoldiers",
+          "title": "Selkirk's soldiers",
+          "summary": "Lord Selkirk has taken Fort William, and Fort Augustus across the way is short of everything.",
+          "giver": "leader@Edmonton House",
+          "requires": [
+            "Edmonton"
+          ],
+          "start_when": [
+            "beat:selkirk-fort-william"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from the Lakes",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "{npc} has a letter from Norway House. \"Lord Selkirk came up the lakes with his Swiss and took Fort William. McGillivray and the partners are arrested and sent down to Canada. The Nor'Westers' heart is cut out - and Fort Augustus will have a hungry winter of it, with no goods coming up.\"",
+                "choices": [
+                  {
+                    "label": "\"Then this is the winter to take the Beaver Hills trade from them.\"",
+                    "goto": "Squeeze"
+                  },
+                  {
+                    "label": "\"They'll be short of food. Lend them pemmican, as neighbours.\"",
+                    "when": [
+                      {
+                        "not": "flag:edmonton_enemies"
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "give",
+                        "item": "Pemmican",
+                        "count": 4
+                      }
+                    ],
+                    "goto": "Lend"
+                  },
+                  {
+                    "label": "\"Let London and Montreal settle it, sir.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": 1
+                      }
+                    ],
+                    "goto": "complete"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Squeeze",
+              "kind": "bring",
+              "text": "Carry the Company's goods out to the Beaver Hills camp, on easy credit",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "item": "TradeGoods",
+              "count": 2,
+              "dialogue": {
+                "text": "{npc} looks at the goods, then at you. \"The Canadians have nothing this year, and you come with gifts. The Company is a good friend when it is the only friend.\""
+              },
+              "on_done": [
+                {
+                  "do": "regard",
+                  "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                  "add": 5
+                },
+                {
+                  "do": "rapport",
+                  "who": "partner@Fort Augustus",
+                  "add": -15
+                },
+                {
+                  "do": "tension",
+                  "add": 6,
+                  "why": "the Company took the Beaver Hills trade while Fort Augustus went short"
+                },
+                {
+                  "do": "flag",
+                  "name": "hbc_pressed_augustus"
+                }
+              ],
+              "next": "complete"
+            },
+            {
+              "id": "Lend",
+              "kind": "bring",
+              "text": "Carry four bags of pemmican across to Fort Augustus",
+              "who": "partner@Fort Augustus",
+              "item": "Pemmican",
+              "count": 4,
+              "dialogue": {
+                "text": "{npc} looks at the bags a long while. \"I won't forget this. Whatever they do to each other in London, I won't forget it.\""
+              },
+              "on_done": [
+                {
+                  "do": "rapport",
+                  "who": "partner@Fort Augustus",
+                  "add": 20
+                },
+                {
+                  "do": "tension",
+                  "add": -10,
+                  "why": "the Company lent pemmican to the hungry Nor'Westers at Fort Augustus"
+                },
+                {
+                  "do": "flag",
+                  "name": "augustus_fed"
+                }
+              ],
+              "next": "complete"
+            }
+          ]
+        },
+        {
+          "id": "GrandRapids",
+          "title": "The Grand Rapids",
+          "summary": "Governor Williams means to stop the Nor'Westers' partners on their way down the Saskatchewan, and he wants men.",
+          "giver": "leader@Edmonton House",
+          "requires": [
+            "SelkirksSoldiers"
+          ],
+          "start_when": [
+            "beat:interior-war-1819"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear what the Governor asks",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "{npc} reads you the Governor's letter. \"Williams means to wait for the Nor'Westers' partners at the Grand Rapids, where the river comes down into the lake, with the Swiss and a field gun, and take them as they come down with their furs. Every post is to send men. They muster at Cumberland House.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll go down to Cumberland House.\"",
+                    "goto": "Muster"
+                  },
+                  {
+                    "label": "\"Someone has to hold Edmonton, sir.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "stayed_at_edmonton_1819"
+                      }
+                    ],
+                    "goto": "complete"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Muster",
+              "kind": "reach",
+              "text": "Go down the Saskatchewan to the muster at Cumberland House",
+              "place": "Cumberland House",
+              "radius": 900
+            },
+            {
+              "id": "Prisoners",
+              "kind": "talk",
+              "text": "Report to the master of Cumberland House",
+              "who": "leader@Cumberland House",
+              "dialogue": {
+                "text": "{npc} jerks his head at the storehouse. \"You're late for the fight: Williams took them at the Rapids, Shaw and McDonald and the rest, with their canoes. Frobisher got clear and ran into the bush. The prisoners are in there. Somebody has to watch them tonight.\"",
+                "choices": [
+                  {
+                    "label": "Stand the night watch over the prisoners",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": 3
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "partner@Fort Augustus",
+                        "add": -10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "guarded_the_partners"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Leave the storehouse door unbarred, and look the other way",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -4
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "partner@Fort Augustus",
+                        "add": 25
+                      },
+                      {
+                        "do": "flag",
+                        "name": "freed_a_partner"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "OneCompany",
+          "title": "One company",
+          "summary": "London and Montreal have made one company of the two. Edmonton and Fort Augustus are to be one house.",
+          "giver": "leader@Edmonton House",
+          "requires": [
+            "Edmonton"
+          ],
+          "start_when": [
+            "beat:merger"
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 5
+            },
+            {
+              "do": "if",
+              "cond": "flag:union_as_friends",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "Fort Augustus came into Edmonton as friends: you had been a neighbour to them when it counted."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:union_as_victor",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "Fort Augustus came into Edmonton as a beaten house, and its men did not forget who had beaten it."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": {
+                "any": [
+                  "flag:cree_war_won",
+                  "flag:brokered_peace"
+                ]
+              },
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Beaver Hills Cree remember the year you stood with them against the Blackfoot."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": {
+                "m": "regard",
+                "a": [
+                  "Beaver Hills Cree (Amiskwacîwiyiniwak)"
+                ],
+                "op": ">=",
+                "v": 60
+              },
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Beaver Hills Cree still call you a friend, one company or two."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:guarded_the_partners",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You stood watch over the North West partners at Cumberland House. Some of them are your masters now."
+                }
+              ]
+            },
+            {
+              "do": "note",
+              "text": "So ends the story of the Company's servant. The country goes on."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news of the union",
+              "who": "leader@Edmonton House",
+              "dialogue": {
+                "text": "{npc} reads the letter out to the whole post. \"The Company and the North West Company are one, under the Company's charter. Mr. Simpson governs the Northern Department. Fort Augustus comes into Edmonton. Half the men on the river, theirs and ours, will be let go.\" He folds the letter. \"Go across and tell them. They'll have heard, but go.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll go across.\""
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Across",
+              "kind": "talk",
+              "text": "Go across to Fort Augustus, now that it is one company",
+              "who": "partner@Fort Augustus",
+              "dialogue": {
+                "text": "{npc} is packing his books into a trunk. \"So. Twenty years of it, and the Bay has us after all.\"",
+                "choices": [
+                  {
+                    "label": "Shake his hand: you'll sit at one mess now",
+                    "when": [
+                      {
+                        "any": [
+                          "flag:augustus_fed",
+                          "flag:edmonton_peace",
+                          "flag:freed_a_partner"
+                        ]
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "partner@Fort Augustus",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "union_as_friends"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Tell him it's the Bay's house now, and he can carry his own trunk",
+                    "when": [
+                      {
+                        "any": [
+                          "flag:edmonton_enemies",
+                          "flag:hbc_pressed_augustus",
+                          "flag:nwc_hostile"
+                        ]
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "partner@Fort Augustus",
+                        "add": -20
+                      },
+                      {
+                        "do": "flag",
+                        "name": "union_as_victor"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Help him carry his books across to Edmonton"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Cree",
+              "kind": "talk",
+              "text": "Go out to the Beaver Hills camp with the news",
+              "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+              "dialogue": {
+                "text": "{npc} hears it with no surprise. \"One company. Then there is nobody to take our furs to when you give too little. You will see the prices fall, and you will tell us it is London.\"",
+                "choices": [
+                  {
+                    "label": "Promise him you'll deal fairly while you're at Edmonton, whatever London says",
+                    "do": [
+                      {
+                        "do": "regard",
+                        "place": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 5
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "promised_fair_dealing"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Tell him the truth: the prices will be London's now",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)",
+                        "add": 3
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheReckoning",
+      "title": "The Reckoning",
+      "summary": "Fort William taken, warrants and ambushes, and the end of the North West Company.",
+      "for": "NWC",
+      "quests": [
+        {
+          "id": "FortWilliamFalls",
+          "title": "Fort William",
+          "summary": "Lord Selkirk has taken Fort William and arrested the partners.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:selkirk-fort-william"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from Fort William",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} has not slept. \"Selkirk came up the lakes with his Swiss and took Fort William. McGillivray arrested, the partners sent down to Canada in irons, the goods for the whole interior under a lord's seal. They're drinking to it at Brandon House.\"",
+                "choices": [
+                  {
+                    "label": "\"Then we hold what we have, and wait for Montreal.\"",
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": 5,
+                        "why": "the Nor'Westers at Fort Souris mean to hold what they have"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "souris_holds"
+                      }
+                    ],
+                    "goto": "complete"
+                  },
+                  {
+                    "label": "\"Make our peace with Brandon House while we still can.\"",
+                    "when": [
+                      "rapport(leader@Brandon House) >= 0"
+                    ],
+                    "goto": "Neighbour"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Neighbour",
+              "kind": "talk",
+              "text": "Go across to Brandon House to talk of peace",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} hears you out at the gate. \"Peace? With Selkirk's soldiers on the lakes, you come asking for peace.\" He looks at you a while. \"Well. Neither of us has ever shot the other. Let's keep it so.\""
+              },
+              "on_done": [
+                {
+                  "do": "truce",
+                  "a": "Métis of the Souris",
+                  "b": "Brandon House",
+                  "days": 365
+                },
+                {
+                  "do": "tension",
+                  "add": -10,
+                  "why": "the houses on the Souris made their own peace after Fort William fell"
+                },
+                {
+                  "do": "rapport",
+                  "who": "leader@Brandon House",
+                  "add": 10
+                },
+                {
+                  "do": "flag",
+                  "name": "souris_made_peace"
+                }
+              ],
+              "next": "complete"
+            }
+          ]
+        },
+        {
+          "id": "TheWarrant",
+          "title": "The warrant",
+          "summary": "A constable from the colony is at Brandon House with warrants from Selkirk's magistrates, and your name is on one.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:interior-war-1818",
+            {
+              "any": [
+                "flag:rode_with_grant",
+                "flag:plundered_brandon_house",
+                "flag:stood_by_grant"
+              ]
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear what the bourgeois has to tell you",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} closes the door before he speaks. \"There's a constable at Brandon House from the Forks, with warrants signed by Selkirk's own magistrates - for every man who rode with Grant, or stood up for him. Your name is on one.\"",
+                "choices": [
+                  {
+                    "label": "\"The Brûlés will hide me.\"",
+                    "goto": "Camp"
+                  },
+                  {
+                    "label": "\"I'll go and answer it. I've nothing to be ashamed of.\"",
+                    "goto": "Answer"
+                  },
+                  {
+                    "label": "\"Let him come and take me.\"",
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": 8,
+                        "why": "a Nor'Wester at Fort Souris defied the colony's warrant"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "defied_the_warrant"
+                      }
+                    ],
+                    "goto": "complete"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Camp",
+              "kind": "reach",
+              "text": "Ride out to the Métis camp and lie low",
+              "place": "Métis of the Souris",
+              "radius": 600
+            },
+            {
+              "id": "Hidden",
+              "kind": "talk",
+              "text": "Ask the captain to hide you",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "{npc} laughs. \"A constable from the Forks, looking for one man on this plain? Let him look. You'll sleep in my lodge, and if he comes, you're my cousin from Pembina.\""
+              },
+              "on_done": [
+                {
+                  "do": "regard",
+                  "place": "Métis of the Souris",
+                  "add": 5
+                },
+                {
+                  "do": "flag",
+                  "name": "hid_with_the_metis"
+                }
+              ],
+              "next": "complete"
+            },
+            {
+              "id": "Answer",
+              "kind": "talk",
+              "text": "Go to Brandon House and answer the warrant",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "The constable reads out the warrant. {npc} stands by with his arms folded. \"You'll give your word not to run, and the case goes down to Canada with the rest.\" He lowers his voice. \"Half of them are thrown out there. Montreal juries don't love the Earl.\""
+              },
+              "on_done": [
+                {
+                  "do": "standing",
+                  "add": -2
+                },
+                {
+                  "do": "rapport",
+                  "who": "leader@Brandon House",
+                  "add": 10
+                },
+                {
+                  "do": "flag",
+                  "name": "answered_the_warrant"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "RapidsNews",
+          "title": "The Grand Rapids",
+          "summary": "The Bay men have ambushed the partners coming down the Saskatchewan.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:interior-war-1819"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from the Saskatchewan",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc}'s voice is flat. \"Governor Williams waited for our partners at the Grand Rapids with the Swiss and a field gun, and took them as they came down with the furs. Frobisher got away into the bush. They found him dead of cold and hunger.\"",
+                "choices": [
+                  {
+                    "label": "\"Then we pay them back, here, at Brandon House.\"",
+                    "do": [
+                      {
+                        "do": "feud",
+                        "holder": "Métis of the Souris",
+                        "against": "Brandon House",
+                        "add": 2
+                      },
+                      {
+                        "do": "tension",
+                        "add": 8,
+                        "why": "the Nor'Westers on the Souris swear to answer the Grand Rapids"
+                      },
+                      {
+                        "do": "flag",
+                        "name": "swore_for_frobisher"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"This war is killing both companies, monsieur.\"",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Fort Souris",
+                        "add": -3
+                      },
+                      {
+                        "do": "flag",
+                        "name": "tired_of_the_war"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "TheCoalition",
+          "title": "The coalition",
+          "summary": "It is done: the North West Company goes into the Hudson's Bay Company.",
+          "giver": "leader@Fort Souris",
+          "requires": [
+            "FortSouris"
+          ],
+          "start_when": [
+            "beat:merger"
+          ],
+          "on_complete": [
+            {
+              "do": "if",
+              "cond": "flag:welcomed_at_brandon",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "Brandon House took you in as one of its own. You had been a neighbour to it when it counted."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:cold_at_brandon",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "Brandon House took you on its books and never let you forget the summer the Brûlés came."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:became_a_freeman",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You went out to the Métis of the Souris as a freeman, and ran the buffalo with them for the Bay as you had for the North men."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:went_home_to_montreal",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You went down to Montreal with your wages, one of the hundreds the union let go."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": {
+                "any": [
+                  "flag:stood_by_grant",
+                  "flag:rode_with_grant"
+                ]
+              },
+              "then": [
+                {
+                  "do": "note",
+                  "text": "Grant's name and yours are written together in the Pemmican War, for good or ill."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "regard(Métis of the Souris) >= 60",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Métis of the Souris still call you a friend."
+                }
+              ]
+            },
+            {
+              "do": "note",
+              "text": "So ends the story of the North man. The country goes on."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from Montreal",
+              "who": "leader@Fort Souris",
+              "dialogue": {
+                "text": "{npc} reads the letter, and reads it again. \"It is done. The North West Company goes into the Hudson's Bay Company. The partners are to be chief factors and chief traders. The clerks and the men are to be counted, and many let go. Fort Souris closes; Brandon House keeps the trade.\" He puts the letter down. \"What will you do?\"",
+                "choices": [
+                  {
+                    "label": "\"Sign the Bay's articles, and go across to Brandon House.\"",
+                    "do": [
+                      {
+                        "do": "posting",
+                        "place": "Brandon House"
+                      }
+                    ],
+                    "goto": "Across"
+                  },
+                  {
+                    "label": "\"Go out to the Métis and live as a freeman.\"",
+                    "goto": "Freeman"
+                  },
+                  {
+                    "label": "\"Take my wages and go down to Montreal.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "went_home_to_montreal"
+                      }
+                    ],
+                    "goto": "complete"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Across",
+              "kind": "talk",
+              "text": "Go across to Brandon House, a Bay man now",
+              "who": "leader@Brandon House",
+              "dialogue": {
+                "text": "{npc} looks at you over the books, a long look.",
+                "choices": [
+                  {
+                    "label": "Take the hand he offers",
+                    "when": [
+                      {
+                        "any": [
+                          "flag:warned_brandon_house",
+                          "flag:souris_made_peace",
+                          "flag:souris_peace",
+                          "flag:souris_price_truce"
+                        ]
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Brandon House",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "welcomed_at_brandon"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Meet his eye, and say nothing about the summer of 1816",
+                    "when": [
+                      {
+                        "any": [
+                          "flag:plundered_brandon_house",
+                          "flag:rode_with_grant"
+                        ]
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Brandon House",
+                        "add": -10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "cold_at_brandon"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Ask him where he wants you"
+                  }
+                ]
+              },
+              "next": "complete"
+            },
+            {
+              "id": "Freeman",
+              "kind": "reach",
+              "text": "Ride out to the Métis camp with your wages and your gun",
+              "place": "Métis of the Souris",
+              "radius": 600
+            },
+            {
+              "id": "Freedom",
+              "kind": "talk",
+              "text": "Tell the captain you've come to stay",
+              "who": "chief@Métis of the Souris",
+              "dialogue": {
+                "text": "{npc} looks at your bundle and your gun and grins. \"A freeman. Well, there are worse things to be. The Bay will want our pemmican as much as the North men did. More, maybe.\""
+              },
+              "on_done": [
+                {
+                  "do": "regard",
+                  "place": "Métis of the Souris",
+                  "add": 10
+                },
+                {
+                  "do": "flag",
+                  "name": "became_a_freeman"
+                }
+              ],
+              "next": "complete"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheAstorians",
+      "title": "The Astorians",
+      "summary": "Mr. Astor's Pacific Fur Company on the Columbia: a new house inland, the North men already in the country, and the Syilx trade to win.",
+      "for": "American",
+      "quests": [
+        {
+          "id": "AmLandfall",
+          "title": "Report to Mr. Stuart",
+          "summary": "You came up the Columbia with Mr. David Stuart to build the company's first house inland. He will want you the moment you land.",
+          "on_complete": [
+            {
+              "do": "posting",
+              "place": "Fort Okanogan"
+            },
+            {
+              "do": "give",
+              "item": "Tobacco",
+              "count": 6
+            },
+            {
+              "do": "give",
+              "item": "TradeGoods",
+              "count": 4
+            },
+            {
+              "do": "note",
+              "text": "You are on the books of Fort Okanogan: six twists of tobacco and four pieces of goods for the trade."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Report",
+              "kind": "talk",
+              "text": "Find Mr. Stuart and report to him",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "{npc} is marking out the stockade with a cord and stakes. \"There you are. Mr. Astor pays us to trade, but first we must have walls and a roof before the snow, and the men are few. Can you swing an axe, or only a pen?\"",
+                "choices": [
+                  {
+                    "label": "\"An axe, Mr. Stuart. Show me the logs.\"",
+                    "reply": "\"Good man. Six loads to the woodpile, and then we'll talk of the trade.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": 2
+                      }
+                    ],
+                    "goto": "Wood"
+                  },
+                  {
+                    "label": "\"I came to trade furs, not to cut wood.\"",
+                    "reply": "\"So did we all. The beaver will wait for you; the winter will not. Six loads.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -1
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_wants_the_trade"
+                      }
+                    ],
+                    "goto": "Wood"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Wood",
+              "kind": "task",
+              "text": "Bring six loads of firewood to the woodpile",
+              "count": 6,
+              "task": "Firewood"
+            },
+            {
+              "id": "Orders",
+              "kind": "talk",
+              "text": "Report back to Mr. Stuart",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "{npc} sits on a log with his journal on his knee. \"You'll do. Now listen. We are three thousand miles from Mr. Astor and six months from his ship. The North West Company has a house at Spokane, a few days east, and the Syilx - the Okanagan people - live all along this river. Everything we do this winter is about those two.\"",
+                "choices": [
+                  {
+                    "label": "\"Who keeps the North men's house?\"",
+                    "reply": "\"A partner and a few Canadians, and they know the country better than we do. They will be civil and they will try to buy every pelt between here and the mountains. Go and look at them.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"And the Syilx?\"",
+                    "reply": "\"They fish the river, hunt the hills, and have no reason to love any of us yet. Take tobacco and listen more than you talk. Their friendship is the whole of this post.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"What news from Astoria?\"",
+                    "reply": "\"The Tonquin is lost with every soul, and Mr. Hunt's overland party is not yet in. We are fewer than Mr. Astor meant, and further from help. So we must be cleverer.\"",
+                    "goto": "Orders"
+                  },
+                  {
+                    "label": "\"I'll start with the North men.\"",
+                    "reply": "\"Take what you need from the store. And remember whose wages you draw.\""
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmSpokaneCall",
+          "title": "The North men at Spokane",
+          "summary": "Ride east to the North West Company's Spokane House and see what kind of neighbours they are.",
+          "requires": [
+            "AmLandfall"
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 1
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Ride",
+              "kind": "reach",
+              "text": "Ride east to Spokane House",
+              "place": "Spokane House",
+              "radius": 700
+            },
+            {
+              "id": "Call",
+              "kind": "talk",
+              "text": "Call on the master of Spokane House",
+              "who": "leader@Spokane House",
+              "dialogue": {
+                "text": "{npc} gives you a chair, tea, and no information at all. \"An American. Mr. Astor's men are everywhere this year - Mr. Thompson met you at the river's mouth, I hear. Well. The country is wide. What brings you to Spokane?\"",
+                "choices": [
+                  {
+                    "label": "Share your tobacco and the news from Astoria, frankly",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Spokane House",
+                        "add": 15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_nwc_friendly"
+                      }
+                    ],
+                    "goto": "TellFriendly"
+                  },
+                  {
+                    "label": "Talk of the weather and the salmon, and watch his store",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_nwc_guarded"
+                      }
+                    ],
+                    "goto": "TellGuarded"
+                  },
+                  {
+                    "label": "Tell him the Columbia is American now, whatever Mr. Thompson nailed to a tree",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Spokane House",
+                        "add": -15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_nwc_hostile"
+                      }
+                    ],
+                    "goto": "TellHostile"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "TellFriendly",
+              "kind": "talk",
+              "text": "Tell Mr. Stuart how it went",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "\"Tea with the North men?\" {npc} smiles. \"No harm. They'll be friendlier than their partners in Montreal, and a friend at Spokane may be worth more than a pack of beaver some winter.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "TellGuarded",
+              "kind": "talk",
+              "text": "Tell Mr. Stuart how it went",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "\"You counted his bales and told him nothing. You'll make a trader.\""
+              },
+              "next": "complete"
+            },
+            {
+              "id": "TellHostile",
+              "kind": "talk",
+              "text": "Tell Mr. Stuart how it went",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "{npc} winces. \"To his face. Well, now they know we mean to stay. Sleep with your rifle loaded.\""
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmSyilxTrade",
+          "title": "The Syilx",
+          "summary": "Cross the river to the Syilx camp and make the company known to the Okanagan people.",
+          "requires": [
+            "AmLandfall"
+          ],
+          "on_complete": [
+            {
+              "do": "flag",
+              "name": "am_syilx_friend"
+            },
+            {
+              "do": "note",
+              "text": "You have sat in council with the Syilx. Whether they trade with the Bostons or the North men is still to be seen."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Camp",
+              "kind": "reach",
+              "text": "Go to the Syilx camp on the Okanogan",
+              "place": "Syilx (Okanagan)",
+              "radius": 600
+            },
+            {
+              "id": "Tobacco",
+              "kind": "bring",
+              "text": "Give the chief tobacco",
+              "who": "chief@Syilx (Okanagan)",
+              "item": "Tobacco",
+              "count": 2,
+              "dialogue": {
+                "text": "{npc} takes the tobacco, smells it, and passes it to the men beside him. \"The Bostons' tobacco is good. The North men's is good too. We will see whose words are good.\""
+              }
+            },
+            {
+              "id": "Council",
+              "kind": "talk",
+              "text": "Sit in council with the chief",
+              "who": "chief@Syilx (Okanagan)",
+              "dialogue": {
+                "text": "\"You built a house on our river without asking,\" {npc} says. \"The North men did the same at Spokane. Now you both want our beaver. What do the Bostons give that the North men do not?\"",
+                "choices": [
+                  {
+                    "label": "Promise a fair price, and a house that will still be here in ten winters",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": 10
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Syilx (Okanagan)",
+                        "add": 5
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_syilx_promise"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Promise guns, for their war with the people to the south",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": 6
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Syilx (Okanagan)",
+                        "add": 8
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_promised_guns"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Ask him to teach you the river - its fisheries, its trails, its names",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": 12
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Syilx (Okanagan)",
+                        "add": 3
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_learned_river"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmAheadOfTheNorthmen",
+          "title": "Ahead of the North men",
+          "summary": "Spokane House has sent a man with goods to the Syilx. Mr. Stuart wants the company's goods in the chief's lodge first.",
+          "giver": "leader@Fort Okanogan",
+          "requires": [
+            "AmSpokaneCall",
+            "AmSyilxTrade"
+          ],
+          "start_when": [
+            "flag:am_nwc_hostile"
+          ],
+          "on_start": [
+            {
+              "do": "give",
+              "item": "TradeGoods",
+              "count": 4
+            }
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 3
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Goods",
+              "kind": "bring",
+              "text": "Carry four pieces of goods to the Syilx chief before the North men's",
+              "who": "chief@Syilx (Okanagan)",
+              "item": "TradeGoods",
+              "count": 4,
+              "dialogue": {
+                "text": "{npc} looks at the goods, and at the trail east. \"The North man is a day behind you. The Bostons came first.\""
+              },
+              "on_done": [
+                {
+                  "do": "rapport",
+                  "who": "chief@Syilx (Okanagan)",
+                  "add": 8
+                },
+                {
+                  "do": "regard",
+                  "place": "Syilx (Okanagan)",
+                  "add": 5
+                },
+                {
+                  "do": "rapport",
+                  "who": "leader@Spokane House",
+                  "add": -10
+                },
+                {
+                  "do": "flag",
+                  "name": "am_beat_the_northmen"
+                }
+              ]
+            },
+            {
+              "id": "Back",
+              "kind": "talk",
+              "text": "Tell Mr. Stuart the goods are in",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "\"First in the lodge. Spokane will hear of it by tonight, and they'll not forgive it.\""
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmRiverTruce",
+          "title": "News from the east",
+          "summary": "The master of Spokane House sends word: he has letters from Fort William, and something to say before winter.",
+          "giver": "leader@Spokane House",
+          "requires": [
+            "AmSpokaneCall"
+          ],
+          "start_when": [
+            "flag:am_nwc_friendly",
+            "after:1812-03-01"
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear what the master of Spokane House has to say",
+              "who": "leader@Spokane House",
+              "dialogue": {
+                "text": "{npc} shuts the door. \"Letters from Fort William. There is talk in Montreal of war between King George and your Congress - ships stopped, sailors pressed, the Indians of the lakes. If it comes, there will be orders. I would rather we agreed now, you and I, that there is no war on this river.\"",
+                "choices": [
+                  {
+                    "label": "Agree: whatever London and Washington do, no blood between Okanogan and Spokane",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Spokane House",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_river_truce"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Thank him, and carry the news straight to Mr. Stuart",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_warned_stuart"
+                      }
+                    ],
+                    "goto": "Tell"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Tell",
+              "kind": "talk",
+              "text": "Carry the news of war to Mr. Stuart",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "{npc} reads your face before you speak. \"War? Then Astoria has no navy, no fort worth the name, and a British company on every side. Say nothing to the men yet.\""
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheWarComesWest",
+      "title": "The War Comes West",
+      "summary": "The United States and Britain at war, Astoria sold to the North men, and the choice of where an American belongs.",
+      "for": "American",
+      "quests": [
+        {
+          "id": "AmNewsOfWar",
+          "title": "War",
+          "summary": "Mr. McKenzie has come up from Astoria with news, and Mr. Stuart calls every man into the house.",
+          "requires": [
+            "AmLandfall"
+          ],
+          "start_when": [
+            "after:1813-01-15"
+          ],
+          "on_complete": [
+            {
+              "do": "if",
+              "cond": "flag:am_river_truce",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "Spokane House kept faith: no blood was shed between the two houses on the river when the war came."
+                }
+              ]
+            },
+            {
+              "do": "note",
+              "text": "The war has reached the Columbia, a year late, by canoe."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from Astoria",
+              "who": "leader@Fort Okanogan",
+              "dialogue": {
+                "text": "{npc} speaks to the whole house. \"The United States and Great Britain have been at war since June. A British frigate is coming for Astoria, and Mr. McDougall means to sell the whole concern to the North West Company before she can take it for nothing. Every man must choose: stay in the country under the North men, or go back to the States. I go east in the spring, over the mountains and down the Missouri.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll stay in this country, whoever's flag flies over the house.\"",
+                    "reply": "\"Many will. The North men need hands that know the river, and they'll pay. God keep you.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_stayed_columbia"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"I'll come east with you, Mr. Stuart. I'm an American.\"",
+                    "reply": "\"Then pack light. Mr. Lisa keeps a fort on the upper Missouri; it's the first American roof we'll see.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_went_east"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmTheRoadEast",
+          "title": "The road east",
+          "summary": "Over the mountains and down the Missouri to Manuel Lisa's fort, the first American post on the road home.",
+          "requires": [
+            "AmNewsOfWar"
+          ],
+          "start_when": [
+            "flag:am_went_east"
+          ],
+          "on_complete": [
+            {
+              "do": "posting",
+              "place": "Fort Manuel Lisa"
+            },
+            {
+              "do": "note",
+              "text": "You are on the books of Fort Manuel Lisa, on the upper Missouri."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Travel",
+              "kind": "reach",
+              "text": "Go east over the mountains and down to Fort Manuel Lisa on the Missouri",
+              "place": "Fort Manuel Lisa",
+              "radius": 900
+            },
+            {
+              "id": "Lisa",
+              "kind": "talk",
+              "text": "Present yourself to the master of Fort Manuel Lisa",
+              "who": "leader@Fort Manuel Lisa",
+              "dialogue": {
+                "text": "{npc} looks you up and down: the moccasins, the beard, the Columbia in your face. \"One of Astor's men, walked from the Pacific. Mother of God. The river is short of men who can do that. The British are sending medals and guns up from the lakes to every nation on the Missouri; I mean to keep them for the United States. Will you sign?\"",
+                "choices": [
+                  {
+                    "label": "Sign with the Missouri Fur Company",
+                    "reply": "\"Good. You'll earn it.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_signed_with_lisa"
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "leader@Fort Manuel Lisa",
+                        "add": 10
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Ask for work only until you can get word to Mr. Astor",
+                    "reply": "\"Astor! Astor is in New York counting his losses. But work is work.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_still_astors_man"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmTheRiverNations",
+          "title": "The river nations",
+          "summary": "British agents are carrying medals and guns to the Missouri nations. The master sends you to the Arikara and the Mandan with the United States' presents.",
+          "giver": "leader@Fort Manuel Lisa",
+          "requires": [
+            "AmTheRoadEast"
+          ],
+          "on_start": [
+            {
+              "do": "give",
+              "item": "TradeGoods",
+              "count": 4
+            },
+            {
+              "do": "give",
+              "item": "Tobacco",
+              "count": 2
+            }
+          ],
+          "on_complete": [
+            {
+              "do": "flag",
+              "name": "am_kept_the_missouri"
+            },
+            {
+              "do": "standing",
+              "add": 3
+            },
+            {
+              "do": "note",
+              "text": "The Arikara and the Mandan stayed out of the British war, and Mr. Lisa wrote to St. Louis that the Missouri was held."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Presents",
+              "kind": "bring",
+              "text": "Carry the presents to the Arikara chief",
+              "who": "chief@Arikara",
+              "item": "TradeGoods",
+              "count": 4,
+              "dialogue": {
+                "text": "{npc} turns a British medal over in his fingers while he looks at your goods. \"The red-coat traders came from the north with this. Now the Americans come up the river with these. Every summer, a new father.\""
+              },
+              "on_done": [
+                {
+                  "do": "rapport",
+                  "who": "chief@Arikara",
+                  "add": 8
+                },
+                {
+                  "do": "regard",
+                  "place": "Arikara",
+                  "add": 6
+                }
+              ]
+            },
+            {
+              "id": "Mandan",
+              "kind": "talk",
+              "text": "Sit with the Mandan chief",
+              "who": "chief@Mandan",
+              "dialogue": {
+                "text": "\"The North men from the Assiniboine have traded at our towns since my father's time,\" {npc} says. \"Now the British want us to fight for them, and the Americans want us to sit still. What do the Americans offer?\"",
+                "choices": [
+                  {
+                    "label": "Promise American traders on the river every summer, war or no war",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Mandan",
+                        "add": 10
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Mandan",
+                        "add": 6
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_promised_river_trade"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Remind him the British left their Indian allies alone to make their peace in '83",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Mandan",
+                        "add": 4
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Mandan",
+                        "add": 3
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_warned_of_the_british"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmTheBlackfoot",
+          "title": "The Blackfoot",
+          "summary": "The Blackfoot killed the company's trappers at the Three Forks in 1810, and their war parties come down the Missouri. The master asks your counsel.",
+          "giver": "leader@Fort Manuel Lisa",
+          "requires": [
+            "AmTheRoadEast"
+          ],
+          "start_when": [
+            "after:1814-04-01"
+          ],
+          "on_complete": [
+            {
+              "do": "standing",
+              "add": 2
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Council",
+              "kind": "talk",
+              "text": "Give the master your counsel on the Blackfoot",
+              "who": "leader@Fort Manuel Lisa",
+              "dialogue": {
+                "text": "{npc} spreads a map on the table. \"They took our horses at the Big Horn and our men at the Three Forks. The British at the Saskatchewan posts sell them guns. I can fight them, buy them, or wait behind these walls. Well?\"",
+                "choices": [
+                  {
+                    "label": "Send tobacco and an offer of trade to the Blackfoot - you'll carry it yourself",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_blackfoot_tobacco"
+                      },
+                      {
+                        "do": "give",
+                        "item": "Tobacco",
+                        "count": 2
+                      }
+                    ],
+                    "goto": "Carry"
+                  },
+                  {
+                    "label": "Arm the river nations and hold the Missouri against them",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_blackfoot_war"
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Blackfoot",
+                        "add": -15
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Arikara",
+                        "add": 5
+                      }
+                    ],
+                    "goto": "complete"
+                  },
+                  {
+                    "label": "Keep the men inside the walls and the trade close to home this year",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_held_the_fort"
+                      }
+                    ],
+                    "goto": "complete"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Carry",
+              "kind": "bring",
+              "text": "Carry tobacco to the Blackfoot",
+              "who": "chief@Blackfoot",
+              "item": "Tobacco",
+              "count": 2,
+              "dialogue": {
+                "text": "{npc} lets you live long enough to say why you came. Then he smokes your tobacco. \"Americans trap our rivers without asking. The North men at least come to trade. Come to trade, Boston, and we will see.\""
+              },
+              "on_done": [
+                {
+                  "do": "rapport",
+                  "who": "chief@Blackfoot",
+                  "add": 10
+                },
+                {
+                  "do": "regard",
+                  "place": "Blackfoot",
+                  "add": 10
+                },
+                {
+                  "do": "flag",
+                  "name": "am_smoked_with_the_blackfoot"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "AmUnderTheNorthmen",
+          "title": "Under the North men's flag",
+          "summary": "Astoria is Fort George now, and the North West Company owns everything the Pacific Fur Company built. Go to Spokane House and ask for work.",
+          "requires": [
+            "AmNewsOfWar"
+          ],
+          "start_when": [
+            "flag:am_stayed_columbia"
+          ],
+          "objectives": [
+            {
+              "id": "Ride",
+              "kind": "reach",
+              "text": "Ride to Spokane House",
+              "place": "Spokane House",
+              "radius": 700
+            },
+            {
+              "id": "Ask",
+              "kind": "talk",
+              "text": "Ask the master of Spokane House for work",
+              "who": "leader@Spokane House",
+              "dialogue": {
+                "text": "{npc} has the bill of sale from Astoria on his table. \"So. Mr. Astor's men are the North West Company's men now, those that want to be. You know the Okanogan and its people. What do you want?\"",
+                "choices": [
+                  {
+                    "label": "\"Wages, and the Okanogan, if you'll have me.\"",
+                    "reply": "\"I'll have you. You were a fair neighbour.\"",
+                    "when": [
+                      {
+                        "not": "flag:am_nwc_hostile"
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Spokane House",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_took_nwc_wages"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Swallow your pride, and ask for wages",
+                    "reply": "He keeps you standing in the yard a long while. \"You told me the river was American. Well, it isn't. Half wages.\"",
+                    "when": [
+                      "flag:am_nwc_hostile"
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "leader@Spokane House",
+                        "add": 5
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_took_nwc_wages"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"Nothing. I'll trade on my own account, a free man.\"",
+                    "reply": "\"Free men starve in this country. But good luck to you.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_freeman"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmKeepFaith",
+          "title": "A promise on the Okanogan",
+          "summary": "The Bostons' house belongs to the North men now. The Syilx want to know what became of the Bostons' promises.",
+          "requires": [
+            "AmUnderTheNorthmen"
+          ],
+          "objectives": [
+            {
+              "id": "Council",
+              "kind": "talk",
+              "text": "Go to the Syilx chief",
+              "who": "chief@Syilx (Okanagan)",
+              "dialogue": {
+                "text": "{npc} is waiting for you. \"The Bostons sold their house to the North men. The Bostons' word went with it?\"",
+                "choices": [
+                  {
+                    "label": "Keep your word yourself: you'll trade fairly with them, whoever owns the house",
+                    "when": [
+                      {
+                        "any": [
+                          "flag:am_syilx_promise",
+                          "flag:am_learned_river"
+                        ]
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": 15
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Syilx (Okanagan)",
+                        "add": 10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_kept_faith"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Bring him the guns you promised, from your own pack",
+                    "when": [
+                      "flag:am_promised_guns"
+                    ],
+                    "do": [
+                      {
+                        "do": "take",
+                        "item": "Musket",
+                        "count": 1
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": 12
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Syilx (Okanagan)",
+                        "add": 8
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_kept_faith"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Tell him the North men will do as well by him",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": -10
+                      },
+                      {
+                        "do": "regard",
+                        "place": "Syilx (Okanagan)",
+                        "add": -15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "am_broke_faith"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheLastYears",
+      "title": "The Last Years",
+      "summary": "The early 1820s: on the Missouri a failing company and new men for the mountains; on the Columbia, one company and the Bay's.",
+      "for": "American",
+      "quests": [
+        {
+          "id": "AmTheMountainMen",
+          "title": "Enterprising young men",
+          "summary": "The company's credit in St. Louis is gone. General Ashley wants a hundred young men for the mountains, and Mr. Astor's American Fur Company is buying up the river.",
+          "giver": "leader@Fort Manuel Lisa",
+          "requires": [
+            "AmTheRoadEast"
+          ],
+          "start_when": [
+            "after:1822-02-13"
+          ],
+          "on_complete": [
+            {
+              "do": "flag",
+              "name": "am_road_ended"
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news from St. Louis",
+              "who": "leader@Fort Manuel Lisa",
+              "dialogue": {
+                "text": "{npc} has the Missouri Gazette open on the table. \"Read it. 'To enterprising young men: the subscriber wishes to engage one hundred men to ascend the Missouri to its source.' Ashley and Henry. No posts, no Indians bringing furs - their own men trapping, and a rendezvous in the mountains. And Astor's American Fur Company is buying every house on the river that will sell. The old company is finished. What will you do?\"",
+                "choices": [
+                  {
+                    "label": "Go with Ashley's men to the mountains",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_ashleys_man"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Take the American Fur Company's offer, and stay on the river",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_american_fur"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"I was Mr. Astor's man when I came, and I am still.\" Write to his company yourself",
+                    "reply": "{npc} laughs. \"Ten years and you never stopped. Go on, then - he'll be glad of a man who walked from the Pacific for him.\"",
+                    "when": [
+                      "flag:am_still_astors_man"
+                    ],
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_american_fur"
+                      },
+                      {
+                        "do": "standing",
+                        "add": 3
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Stay with the old company to the end",
+                    "when": [
+                      "flag:am_signed_with_lisa"
+                    ],
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_loyal_to_the_end"
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "leader@Fort Manuel Lisa",
+                        "add": 15
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AmOneCompanyOnTheColumbia",
+          "title": "The Bay comes to the Columbia",
+          "summary": "The North West Company is joined to the Hudson's Bay Company. The Columbia is the Bay's now, and its last Americans must decide where they belong.",
+          "giver": "leader@Spokane House",
+          "requires": [
+            "AmUnderTheNorthmen"
+          ],
+          "start_when": [
+            "beat:merger"
+          ],
+          "on_complete": [
+            {
+              "do": "flag",
+              "name": "am_road_ended"
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Hear",
+              "kind": "talk",
+              "text": "Hear the news at Spokane House",
+              "who": "leader@Spokane House",
+              "dialogue": {
+                "text": "{npc} reads it out. \"The North West Company is joined to the Hudson's Bay Company. The Bay's charter, the Bay's governor. They'll send a man to look at every house on this river and decide what it's worth - and who.\" He looks at you. \"An American, ten years on the Columbia. What will you do?\"",
+                "choices": [
+                  {
+                    "label": "Take service with the Bay, if they'll have you",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_bay_man"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Go home to the States, by the Missouri, at last",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_went_home"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Stay on the Okanogan, with the Syilx",
+                    "when": [
+                      {
+                        "any": [
+                          "flag:am_kept_faith",
+                          {
+                            "m": "regard",
+                            "a": [
+                              "Syilx (Okanagan)"
+                            ],
+                            "op": ">=",
+                            "v": 70
+                          }
+                        ]
+                      }
+                    ],
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "am_stayed_with_the_syilx"
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "chief@Syilx (Okanagan)",
+                        "add": 10
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "TheEndOfTheRoad",
+          "title": "The end of the road",
+          "summary": "Ten years since you came up the Columbia with Mr. Stuart.",
+          "start_when": [
+            "flag:am_road_ended"
+          ],
+          "on_complete": [
+            {
+              "do": "if",
+              "cond": "flag:am_beat_the_northmen",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You beat the North men to the Syilx lodges in your first winter, and Spokane never forgave it."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_river_truce",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You and the master of Spokane House kept a war out of the Columbia that two governments had declared."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_kept_the_missouri",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Arikara and the Mandan stayed out of the British war. Mr. Lisa said it was your doing as much as his."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_smoked_with_the_blackfoot",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You carried tobacco into the Blackfoot camp and came out alive: few Americans could say it."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_blackfoot_war",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Missouri was held against the Blackfoot with the river nations' guns, and the war on the upper river went on."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_held_the_fort",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You counselled walls when the Blackfoot came, and the fort stood, and the trade went small."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": {
+                "all": [
+                  "flag:am_promised_river_trade",
+                  "flag:am_american_fur"
+                ]
+              },
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The traders came up the river every summer, as you promised the Mandan they would."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_warned_of_the_british",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "When the British made their peace at Ghent and left their Indian allies to theirs, the Mandan remembered who had told them so."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_took_nwc_wages",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You drew the North West Company's wages on the Columbia through the war that made you their enemy."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_freeman",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You were a free man on the Columbia, nobody's servant, through the years of the North men."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_kept_faith",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Syilx remember the Boston who kept his word after his company sold its house."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": {
+                "m": "regard",
+                "a": [
+                  "Syilx (Okanagan)"
+                ],
+                "op": ">=",
+                "v": 65
+              },
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Syilx still speak well of the Bostons, and of you by name."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": {
+                "all": [
+                  "regard(Arikara) >= 60",
+                  "regard(Mandan) >= 60"
+                ]
+              },
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Arikara and the Mandan count the Americans their friends on the river."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "regard(Blackfoot) < 35",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Blackfoot are at war with every American on the upper Missouri."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_broke_faith",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "The Syilx remember the Bostons' promises went with the Bostons' house."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_ashleys_man",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You went up the Missouri with Ashley's men, into the mountains and the rendezvous, a trapper and nobody's servant."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_american_fur",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You signed with Mr. Astor again, ten years and a war later. The American Fur Company had the river now."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_loyal_to_the_end",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You stayed with the old Missouri Fur Company to the end, and saw it out."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_bay_man",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You took the Bay's shilling: an American in the Hudson's Bay Company's service on the Columbia."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_went_home",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You went home to the States by the Missouri, ten years after you left New York."
+                }
+              ]
+            },
+            {
+              "do": "if",
+              "cond": "flag:am_stayed_with_the_syilx",
+              "then": [
+                {
+                  "do": "note",
+                  "text": "You stayed on the Okanogan with the Syilx, and the companies came and went past your door."
+                }
+              ]
+            },
+            {
+              "do": "note",
+              "text": "So ends the American road. The country goes on."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Remember",
+              "kind": "wait",
+              "text": "Think back over ten years in the country",
+              "days": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

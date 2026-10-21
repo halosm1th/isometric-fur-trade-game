@@ -27,6 +27,8 @@ public sealed class CampError : Exception
 	public CampError(string msg, Span at = default) : base(at.Line > 0 ? $"line {at.Line}: {msg}" : msg) { At = at; Msg = msg; }
 	public CampError(string msg, int line) : this(msg, new Span(line, 1, 1)) { }
 	public string Msg { get; }
+	// Set when the error is in an included part (src/parts): which one; At is then in that file's own lines.
+	public string Part;
 }
 
 public enum T { Ident, Int, Float, String, Symbol, Eof }
@@ -47,10 +49,12 @@ public static class CampLexer
 {
 	private static readonly string[] Two = { "=>", "==", "!=", "<=", ">=", "&&", "||", "++", "--", "+=", "-=", "..", "*=", "/=" };
 
-	public static List<Token> Lex(string src)
+	// lineBase: an included part's lines are numbered after a stride (CampLang.PartStride),
+	// so every span in the program says which file it came from.
+	public static List<Token> Lex(string src, int lineBase = 0)
 	{
 		var toks = new List<Token>();
-		int i = 0, line = 1, lineStart = 0;
+		int i = 0, line = 1 + lineBase, lineStart = 0;
 		Span At(int start, int len) => new(line, start - lineStart + 1, len);
 		while (i < src.Length)
 		{

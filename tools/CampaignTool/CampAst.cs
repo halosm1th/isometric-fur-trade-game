@@ -39,6 +39,11 @@ public sealed class Param { public string Type, Name; public Span At; }
 public sealed class FuncDecl : Decl { public string ReturnType, Name; public List<Param> Params = new(); public BlockStmt Block; public Expr ExprBody; }
 public sealed class HookDecl : Decl { public string Name; public BlockStmt Block; public Expr ExprBody; }
 public sealed class BeatDecl : Decl { public string Name; public Span NameAt; public List<Arg> Args = new(); public List<Expr> Requires = new(); public List<Decl> Members = new(); }
+// Quests: a line of quests, a quest of steps (objectives), a step's choices.
+public sealed class QuestLineDecl : Decl { public string Name; public Span NameAt; public List<Arg> Args = new(); public List<QuestDecl> Quests = new(); }
+public sealed class QuestDecl : Decl { public string Name; public Span NameAt; public List<Arg> Args = new(); public List<Expr> Requires = new(); public List<HookDecl> Hooks = new(); public List<StepDecl> Steps = new(); }
+public sealed class StepDecl : Decl { public string Kind, Name; public Span NameAt; public List<Arg> Args = new(); public Expr Done; public List<HookDecl> Hooks = new(); public List<ChoiceDecl> Choices = new(); }
+public sealed class ChoiceDecl : Decl { public string Name; public Span NameAt; public List<Arg> Args = new(); public BlockStmt Block; }
 public sealed class LoopDecl : Decl { public ForStmt For; public ForeachStmt Foreach; public List<Decl> Body = new(); }
 
 public sealed class ScriptAst

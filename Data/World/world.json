@@ -11402,6 +11402,86 @@
      477,
      1477
     ]
+   },
+   {
+    "name": "Fort Okanogan",
+    "company": "AMER",
+    "year": 1811,
+    "closed": 0,
+    "top": [
+     110,
+     1651
+    ]
+   },
+   {
+    "name": "Fort Manuel Lisa",
+    "company": "AMER",
+    "year": 1812,
+    "closed": 0,
+    "top": [
+     565,
+     2206
+    ]
+   },
+   {
+    "name": "Fort Union",
+    "company": "AMER",
+    "year": 1828,
+    "closed": 0,
+    "top": [
+     468,
+     1872
+    ]
+   },
+   {
+    "name": "Fort Piegan",
+    "company": "AMER",
+    "year": 1831,
+    "closed": 0,
+    "top": [
+     311,
+     1818
+    ]
+   },
+   {
+    "name": "Fort Clark",
+    "company": "AMER",
+    "year": 1831,
+    "closed": 0,
+    "top": [
+     532,
+     1984
+    ]
+   },
+   {
+    "name": "Fort McKenzie",
+    "company": "AMER",
+    "year": 1832,
+    "closed": 0,
+    "top": [
+     296,
+     1840
+    ]
+   },
+   {
+    "name": "Fort Berthold",
+    "company": "AMER",
+    "year": 1845,
+    "closed": 0,
+    "top": [
+     511,
+     1934
+    ]
+   },
+   {
+    "name": "Fort Benton",
+    "company": "AMER",
+    "year": 1846,
+    "closed": 0,
+    "top": [
+     317,
+     1863
+    ]
    }
   ],
   "camps": [
@@ -11464,6 +11544,26 @@
      1196
     ],
     "people": 12
+   },
+   {
+    "name": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+    "nation": "Cree",
+    "kind": "band",
+    "centre": [
+     292,
+     1056
+    ],
+    "people": 12
+   },
+   {
+    "name": "Métis of the Souris",
+    "nation": "Metis",
+    "kind": "band",
+    "centre": [
+     578,
+     1670
+    ],
+    "people": 8
    },
    {
     "name": "Woodland Cree",

@@ -38,6 +38,15 @@ public sealed class CampaignScript
 	public uint? Seed;
 	public readonly Dictionary<string, double> InitialVars = new();   // variables that start at something other than 0
 	public readonly List<CampaignBeat> Beats = new();
+	// Another campaign whose beats this one plays as well (a story built on
+	// the historical one shares its war), and what this one asks of players.
+	public string Extends = "";
+	// When the world begins, if the script says: Start is the first day
+	// itself (YYYY-MM-DD, for every starting path); StartYear only the year,
+	// each path keeping its own day in it. Neither: 1811, the paths' days.
+	public string Start = "";
+	public int StartYear;
+	public readonly List<QuestLine> QuestLines = new();
 
 	public static CampaignScript Parse(Dictionary<string, object> root, string fallbackTitle = "")
 	{
@@ -47,6 +56,10 @@ public sealed class CampaignScript
 			PostsByFoundingYear = root.TryGetValue("posts_by_founding_year", out var pby) && pby is true,
 		};
 		if (root.TryGetValue("seed", out var sd)) s.Seed = (uint)(long)CampaignLogic.Num(sd);
+		s.Extends = Text(root, "extends", "");
+		s.Start = Text(root, "start", "");
+		s.StartYear = Int(root, "start_year", 0);
+		s.QuestLines.AddRange(QuestParse.Lines(root.GetValueOrDefault("questlines")));
 		if (root.GetValueOrDefault("vars") is Dictionary<string, object> vars) foreach (var kv in vars) s.InitialVars[kv.Key] = CampaignLogic.Num(kv.Value);
 		if (root.GetValueOrDefault("beats") is not List<object> beats) return s;
 		foreach (var bo in beats)
@@ -259,7 +272,15 @@ public sealed class CampaignRunner
 		if (b.RepeatDays > 0)
 		{
 			State.Done.Remove(b.Id); Pressured.Remove(b.Id); ReadySince.Remove(b.Id); Awakened.Remove(b.Id);
-			if (b.Date >= 0) Shift[b.Id] = Shift.GetValueOrDefault(b.Id) + b.RepeatDays;
+			// To its next day after today: a yearly beat first dated 1815 in a
+			// game begun in 1821 comes round once now, then next year - not
+			// once a day until its date has caught up with the calendar.
+			if (b.Date >= 0)
+			{
+				int shift = Shift.GetValueOrDefault(b.Id) + b.RepeatDays;
+				while (b.Date + shift <= State.Today) shift += b.RepeatDays;
+				Shift[b.Id] = shift;
+			}
 			else Cooldown[b.Id] = State.Today + b.RepeatDays;
 		}
 	}

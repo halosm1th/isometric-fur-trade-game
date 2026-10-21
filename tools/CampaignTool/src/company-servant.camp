@@ -1,0 +1,1318 @@
+// The Company's Servant: the story campaign. The HBC road runs from the ship
+// to the Saskatchewan; the NWC road (at the end of the file) from the brigade
+// to Fort Souris on the Assiniboine.
+//
+// The owner's opening (2026-10-18): the ship crosses the Bay and calls at
+// Churchill (Core/Starts.cs, on deck), lands at York; you report to the
+// Factor, help unload, and are sent inland - to Edmonton House, where the
+// Nor'Westers' Fort Augustus stands beside it and the Beaver Hills Cree
+// (Amiskwaciwiyiniwak) come in to trade. Quests drive you to deal with the
+// Nor'Westers, as a friend or an enemy, and with the Company's Cree allies,
+// who in time invite you on the hunt. The war, and the Pemmican War that it
+// slowly becomes, are the next chapters: this file ends the first with the
+// flag beaver_hills_raided, which they will take up.
+//
+// It is built on the historical campaign (extends), so the history's beats -
+// the colony, the proclamation, Seven Oaks, the merger - run under the story.
+
+campaign CompanysServant(
+    title: "The Company's Servant",
+    description: "Off the ship at York with a five-year contract and the Factor's eye " +
+                 "on you, then up the rivers to Edmonton House, where the Nor'Westers " +
+                 "live a stone's throw away and the Beaver Hills Cree decide whose " +
+                 "friends they are. Or come up with the North West brigade and be " +
+                 "sent to Fort Souris, in the pemmican country where the Pemmican " +
+                 "War begins. The history runs underneath both.",
+    seed: 1811,
+    extends: "historical",
+    include: "american-road"   // the American road's quest lines (src/parts/american-road.camp)
+);
+
+const string edmonton = "Edmonton House";
+const string augustus = "Fort Augustus";
+const string master = "leader@Edmonton House";
+const string partner = "partner@Fort Augustus";
+const string beaverHills = "Beaver Hills Cree (Amiskwacîwiyiniwak)";
+const string chief = "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)";
+
+// ================================================================ the story's spine
+
+questline Servant(
+    title: "The Company's Servant",
+    summary: "From the ship at York to the Company's books at Edmonton House.",
+    forCompany: Company.HBC
+) {
+    quest Landfall(
+        title: "Report to the Factor",
+        summary: "You are the Company's newest servant, and the Factor will want you the hour you land."
+    ) {
+        talk Report(who: Person.Factor, text: "Find the Factor and report to him") {
+            Says() => "{npc} looks you over as he would a new axe. \"So you're the Orkney lad. " +
+                      "Five years, the contract says. Can you carry, and can you hold your tongue?\"";
+            // In the ship's season there is the ship to unload; the rest of the
+            // year the post wants wood, and the story need never wait on the ship.
+            choice Keen(
+                label: "\"I can do both, sir. Put me to work.\"",
+                reply: "\"Good. The ship's boats are at the landing. Every piece to the warehouse, and none of it opened.\"",
+                when: world.inMonths(8, 9),
+                goto: Unload
+            ) {
+                player.addStanding(2);
+            }
+            choice KeenOffSeason(
+                label: "\"I can do both, sir. Put me to work.\"",
+                reply: "\"Good. The woodpile is a disgrace. Six loads before you eat.\"",
+                when: !world.inMonths(8, 9),
+                goto: Wood
+            ) {
+                player.addStanding(2);
+            }
+            choice Trade(
+                label: "\"I signed on for the trade, sir, not the warehouse.\"",
+                reply: "\"Every man who ever traded here began in the warehouse. So will you.\"",
+                when: world.inMonths(8, 9),
+                goto: Unload
+            ) {
+                player.addStanding(-1);
+                flags.set("wants_the_trade");
+            }
+            choice TradeOffSeason(
+                label: "\"I signed on for the trade, sir, not the woodpile.\"",
+                reply: "\"Every man who ever traded here began at the woodpile. So will you.\"",
+                when: !world.inMonths(8, 9),
+                goto: Wood
+            ) {
+                player.addStanding(-1);
+                flags.set("wants_the_trade");
+            }
+        }
+        task Unload(
+            task: Task.CarryCargo,
+            count: 6,
+            text: "Carry six lots from the ship's boats to the warehouse",
+            next: Orders
+        );
+        task Wood(task: Task.Firewood, count: 6, text: "Bring six loads of firewood to the woodpile");
+        talk Orders(who: Person.Factor, text: "Report back to the Factor") {
+            Says() => "{npc} hardly looks up from his ledger. \"You'll do. Edmonton House wants hands, and " +
+                      "a man who can carry and keep his mouth shut is worth two who can't. You're for the Saskatchewan.\"";
+            choice AskEdmonton(
+                label: "\"Edmonton House, sir?\"",
+                reply: "\"On the North Saskatchewan, a thousand miles up. The Nor'Westers have Fort Augustus beside it - " +
+                       "near enough to hear them sing. The Beaver Hills Cree trade there, and the Blackfoot when they please.\"",
+                goto: Orders
+            );
+            choice AskHow(
+                label: "\"How do I get there?\"",
+                reply: "\"The York boats go up to Cumberland House on the fifth of September; from there you'll find your way. " +
+                       "Or walk, if you're a fool. The river is the road.\"",
+                goto: Orders
+            );
+            choice Go(label: "\"I'll go, sir.\"", reply: "\"Of course you will. The storeman will give you your outfit.\"");
+        }
+        OnComplete() {
+            player.postTo(edmonton);
+            player.give(Item.Tobacco, 6);
+            player.give(Item.TradeGoods, 4);
+            player.note("You are on the books of Edmonton House now: six twists of tobacco and four pieces of goods for the road.");
+        }
+    }
+
+    quest UpTheRivers(
+        title: "Up the rivers",
+        summary: "A thousand miles of river between York and Edmonton House."
+    ) [Landfall] {
+        reach Edmonton(
+            place: edmonton,
+            radius: 700,
+            text: "Go inland to Edmonton House (the York boats leave for Cumberland House on 5 September)"
+        );
+    }
+
+    quest Edmonton(
+        title: "Edmonton House",
+        summary: "Report to the master of Edmonton House."
+    ) [UpTheRivers] {
+        talk Report(who: master, text: "Report to the master of Edmonton House") {
+            Says() => "{npc} reads the York letter twice. \"One more mouth, and the winter coming. Well. " +
+                      "You'll learn two things here or you'll go home in a box: the Nor'Westers across the way, " +
+                      "and the Cree who decide whether we eat. Go and look at both.\"";
+            choice Yes(label: "\"I'll go and see them, sir.\"");
+        }
+    }
+}
+
+// ================================================================ the other house
+
+questline TheOtherHouse(
+    title: "The Other House",
+    summary: "The Nor'Westers at Fort Augustus, a stone's throw from your gate.",
+    forCompany: Company.HBC
+) {
+    quest Neighbours(
+        title: "The neighbours",
+        summary: "Call at Fort Augustus and see what kind of men the Nor'Westers are."
+    ) [Edmonton] {
+        talk Call(who: partner, text: "Call on the master of Fort Augustus") {
+            Says() => "{npc} meets you at his gate with a pipe in his hand. \"So York has sent another " +
+                      "clerk to count our canoes. Come in, if you're coming. We don't bite before dinner.\"";
+            choice Friendly(label: "Share his pipe and the news from the Bay", goto: TellFriendly) {
+                player.addRapport(partner, 15);
+                flags.set("nwc_friendly");
+            }
+            choice Guarded(label: "Pay your respects and say as little as you can", goto: TellGuarded);
+            choice Hostile(label: "Tell him to keep his men away from the Company's hunters", goto: TellHostile) {
+                player.addRapport(partner, -15);
+                flags.set("nwc_hostile");
+                world.raiseTension(3, "a Company man warned off the Nor'Westers at Fort Augustus");
+            }
+        }
+        talk TellFriendly(who: master, text: "Tell your master how it went", next: "complete") {
+            Says() => "\"Friendly, was he? He is always friendly. Drink his rum and keep your counsel - " +
+                      "every word you give him is a word the Company paid for.\"";
+        }
+        talk TellGuarded(who: master, text: "Tell your master how it went", next: "complete") {
+            Says() => "\"Said little and heard much? That's the way of it. You'll do here.\"";
+        }
+        talk TellHostile(who: master, text: "Tell your master how it went") {
+            Says() => "\"You told him that? To his face?\" {npc} laughs despite himself. \"Well, he knows where " +
+                      "we stand now. Mind your back on the river.\"";
+        }
+        OnComplete() { player.addStanding(1); }
+    }
+
+    // Friend: a winter's truce in the rum trade, if both masters can be brought to it.
+    quest QuietArrangement(
+        title: "A quiet arrangement",
+        summary: "The Nor'Westers' master proposes that neither house carry rum to the Beaver Hills camp this winter, " +
+                 "so the Cree trade for goods and not for drink. He asks you to put it to your master.",
+        giver: partner
+    ) [Neighbours] {
+        StartWhen() => flags.has("nwc_friendly");
+        talk PutIt(who: master, text: "Put the Nor'Westers' offer to your master") {
+            Says() => "{npc} hears you out with his arms folded. \"No rum to the Beaver Hills camp, theirs or ours. " +
+                      "And how do I know they'll keep to it?\"";
+            choice Argue(label: "Argue for it: a sober camp hunts, and pays its debts", goto: Agreed) {
+                flags.set("nwc_truce");
+                world.raiseTension(-6, "the houses at Edmonton agree to carry no rum to the Beaver Hills camp");
+                world.addRegard(beaverHills, 4);
+            }
+            choice Against(label: "Advise against it: the Canadians will break it at the first chance", goto: Refused) {
+                flags.set("nwc_truce_refused");
+            }
+        }
+        talk Agreed(who: partner, text: "Take your master's answer to Fort Augustus", next: "complete") {
+            Says() => "\"He agreed? Then you've done a better day's work than either of us.\" {npc} gives you his hand. " +
+                      "\"No rum to the Beaver Hills this winter. Let's see who keeps it.\"";
+        }
+        talk Refused(who: partner, text: "Take your master's answer to Fort Augustus") {
+            Says() => "{npc} shrugs. \"I thought as much. Well, the Cree will drink our rum, then, and pay our debts.\"";
+        }
+        OnComplete() { player.addRapport(partner, 10); }
+    }
+
+    // Enemy: get the Company's goods to the camp before the Nor'Westers' runners do.
+    quest SpoilingTheTrade(
+        title: "Ahead of the Canadians",
+        summary: "The Nor'Westers are sending goods out to the Beaver Hills camp. Your master wants the Company's there first.",
+        giver: master
+    ) [Neighbours] {
+        StartWhen() => flags.has("nwc_hostile");
+        OnStart() { player.give(Item.TradeGoods, 4); }
+        bring Goods(
+            who: chief,
+            item: Item.TradeGoods,
+            count: 4,
+            text: "Carry four pieces of goods to the Beaver Hills Cree before the Nor'Westers' runners"
+        ) {
+            Says() => "{npc} looks over the goods. \"The Canadians promised us the same. You came first.\"";
+            OnDone() {
+                world.addRegard(beaverHills, 5);
+                world.raiseTension(4, "the Company beat the Nor'Westers to the Beaver Hills camp");
+                player.addRapport(partner, -10);
+            }
+        }
+        talk Back(who: master, text: "Tell your master the goods are in") {
+            Says() => "\"Good. They'll be sour across the way tonight. Sleep with your knife.\"";
+        }
+        OnComplete() { player.addStanding(3); }
+    }
+}
+
+// ================================================================ the Company's friends
+
+questline CompanysFriends(
+    title: "The Company's Friends",
+    summary: "The Beaver Hills Cree, who trade at Edmonton House - and decide whether it eats.",
+    forCompany: Company.HBC
+) {
+    quest TobaccoAndTalk(
+        title: "Tobacco and talk",
+        summary: "Go out to the Beaver Hills Cree camp and make yourself known, as is proper."
+    ) [Edmonton] {
+        reach Camp(place: beaverHills, radius: 600, text: "Go out to the Beaver Hills Cree camp");
+        bring Tobacco(who: chief, item: Item.Tobacco, count: 2, text: "Give the chief tobacco, as is proper") {
+            Says() => "{npc} takes the tobacco, fills a pipe, and passes it to you before he says a word.";
+        }
+        talk Council(who: chief, text: "Sit with the chief and hear him out") {
+            Says() => "\"The Company's men come and go,\" {npc} says through the smoke. \"Some keep their word. " +
+                      "At the last moon the Blackfoot took twenty of our horses, and the Canadians across the river sold them powder. " +
+                      "What is the Company's friendship worth?\"";
+            choice Listen(label: "Say the Company's friendship is not only for trade, and mean it") {
+                world.addRegard(beaverHills, 5);
+                player.addRapport(chief, 10);
+            }
+            choice Guns(label: "Promise them the Company's guns") {
+                flags.set("promised_guns");
+                world.addRegard(beaverHills, 8);
+                player.addRapport(chief, 5);
+            }
+            choice Words(label: "Ask him to teach you the words for it, in Cree") {
+                world.addRegard(beaverHills, 3);
+                player.addRapport(chief, 12);
+            }
+        }
+        OnComplete() { player.note("You have sat in council with the Beaver Hills Cree."); }
+    }
+
+    quest TheInvitation(
+        title: "The invitation",
+        summary: "The buffalo are near, and the Beaver Hills Cree are riding out. Their chief asks whether the Company's man rides with them.",
+        giver: chief
+    ) [TobaccoAndTalk] {
+        // The band thinks well of the Company, or the chief of you: a band's
+        // regard drifts with its hunger, so what you did counts as well.
+        StartWhen() => world.regard(beaverHills) >= 55 || player.rapport(chief) >= 14;
+        talk Accept(who: chief, text: "Answer the chief's invitation") {
+            Says() => "\"We ride when the scouts come back,\" {npc} says. \"A man who hunts with us eats with us.\"";
+            choice Ride(label: "\"I'll ride with you.\"", goto: Hunt) {
+                player.addRapport(chief, 5);
+            }
+            choice Leave(label: "\"I must ask my master's leave first.\"", goto: AskLeave);
+        }
+        talk AskLeave(who: master, text: "Ask your master's leave to ride with the Cree", next: Hunt) {
+            Says() => "\"Go, and bring back meat. A man the Cree hunt with is worth ten the Cree don't.\"";
+        }
+        hunt Hunt(species: "Buffalo", count: 1, text: "Ride with the Beaver Hills Cree and bring down a buffalo");
+        talk Feast(who: chief, text: "Eat with the chief after the hunt") {
+            Says() => "The meat is shared out, and {npc} gives you the tongue, the best of it. \"You ride like a white man, " +
+                      "but you ride with us. When the grass is green the Blackfoot will come for horses again. " +
+                      "Then we will see who stands with us.\"";
+        }
+        OnComplete() {
+            world.addRegard(beaverHills, 10);
+            flags.set("rode_with_beaver_hills");
+            player.note("You rode with the Beaver Hills Cree and ate at their fire. They will remember who stood with them.");
+        }
+    }
+}
+
+// ================================================================ toward the war
+
+// Some months after the hunt the Blackfoot raid the camp for horses: the next
+// chapter (the war, and the Pemmican War it becomes) begins from this flag.
+beat HorsesTaken(
+    title: "The Blackfoot take horses from the Beaver Hills camp",
+    delay: days(150),
+    rumour: "The Beaver Hills Cree are watching their horse herd at night."
+) {
+    AwakenWhen() => TheInvitation.done;
+    OnActivate() {
+        flags.set("beaver_hills_raided");
+        world.addRegard(beaverHills, -5);
+        say("Word comes in to Edmonton House: Blackfoot raiders have run off the Beaver Hills Cree horse herd, " +
+            "and a young man is dead. The chief's people are asking for you.", Company.HBC);
+    }
+}
+
+// ================================================================ chapter 2: the war
+
+const string blackfoot = "Blackfoot";
+const string blackfootChief = "chief@Blackfoot";
+const string turnedBack = "war:Beaver Hills Cree (Amiskwacîwiyiniwak):turned_back";
+
+questline TheWar(
+    title: "The War",
+    summary: "The Beaver Hills Cree answer for their dead - with you, without you, or not at all.",
+    forCompany: Company.HBC
+) {
+    quest BloodForHorses(
+        title: "Blood for horses",
+        summary: "The Blackfoot have run off the Beaver Hills horses and killed a young man. " +
+                 "The chief asks whether the Company's man will ride with them.",
+        giver: chief
+    ) {
+        StartWhen() => flags.has("beaver_hills_raided");
+        talk Ask(who: chief, text: "Hear what the chief asks of you") {
+            Says() => "{npc} has cut his hair for the dead boy. \"They took our horses and they took my sister's son. " +
+                      "When the moon is full my young men ride to the Blackfoot lodges. You ate with us. Will you ride with us?\"";
+            choice Ride(label: "\"I'll ride with you.\"", goto: Riding) {
+                world.warParty(beaverHills, blackfoot, why: "for their dead and their horses", withPlayer: true);
+                flags.set("rode_to_war");
+            }
+            choice Powder(label: "\"I can't ride with you. But you'll have powder and ball.\"", goto: Arm);
+            choice Pipe(label: "\"Let me carry a pipe to the Blackfoot first.\"", goto: ToTheBlackfoot);
+            choice Refuse(label: "\"The Company's servants don't go to war.\"", goto: Refused) {
+                world.addRegard(beaverHills, -10);
+                player.addRapport(chief, -15);
+            }
+        }
+
+        // Riding with them.
+        when Riding(text: "Lead the Beaver Hills war party south to the Blackfoot camp", place: blackfoot) =>
+            world.wonWar(beaverHills) || world.lostWar(beaverHills) || flags.has(turnedBack);
+        talk Afterwards(who: chief, text: "Go back to the chief when the fighting is over", next: "complete") {
+            Says() => "The war party is home. {npc} sits apart from the drums with his pipe, and makes room for you beside him.";
+            choice Victory(label: "Sit at the victory dance", when: world.wonWar(beaverHills)) {
+                world.addRegard(beaverHills, 10);
+                flags.set("cree_war_won");
+            }
+            choice Mourning(label: "Sit with the mourners", when: !world.wonWar(beaverHills)) {
+                world.addRegard(beaverHills, 5);
+                flags.set("cree_war_lost");
+            }
+        }
+
+        // Arming them.
+        bring Arm(who: chief, item: Item.Powder, count: 4, text: "Bring the chief four horns of powder (the Edmonton store trades them)") {
+            Says() => "{npc} weighs the powder horns in his hands. \"The Company remembers its friends. So do we.\"";
+            OnDone() {
+                flags.set("armed_the_cree");
+                world.heatFeud(blackfoot, beaverHills, 2);
+                world.warParty(beaverHills, blackfoot, why: "with the Company's powder");
+            }
+        }
+        talk ArmReport(who: master, text: "Tell your master what you have done", next: "complete") {
+            Says() => "{npc} hears you out. \"London does not pay us to take sides in the Indians' wars. " +
+                      "But powder is trade, and the Blackfoot would have bought it from the Canadians anyway. " +
+                      "Only don't make a habit of it.\"";
+        }
+
+        // Making peace.
+        reach ToTheBlackfoot(place: blackfoot, radius: 700, text: "Carry a pipe to the Blackfoot camp, a long ride south");
+        bring Gifts(who: blackfootChief, item: Item.Tobacco, count: 2, text: "Give the Blackfoot chief tobacco") {
+            Says() => "{npc} smokes your tobacco and waits. He does not smile.";
+        }
+        talk Terms(who: blackfootChief, text: "Ask the Blackfoot for peace") {
+            Says() => "\"The Cree killed two of ours at the Red Deer last summer,\" {npc} says. \"Do they remember that? " +
+                      "Or does the Company only count the Cree dead?\"";
+            choice Year(label: "Ask for a year's peace, and the horses sent back", goto: PeaceBack) {
+                world.truce(beaverHills, blackfoot, 365);
+                player.addStanding(3);
+                flags.set("brokered_peace");
+            }
+            choice Demand(label: "Demand the horses back, or the Cree will come for them", goto: WarAnyway) {
+                world.heatFeud(blackfoot, beaverHills, 2);
+                world.warParty(beaverHills, blackfoot, why: "after the talks failed");
+            }
+        }
+        talk PeaceBack(who: chief, text: "Bring the Blackfoot answer to the Beaver Hills chief", next: "complete") {
+            Says() => "\"A year.\" {npc} turns the word over. \"Our young men will not like it. But a year is a year of hunting.\"";
+            OnDone() { world.addRegard(beaverHills, 5); }
+        }
+        talk WarAnyway(who: chief, text: "Tell the Beaver Hills chief the talks failed", next: "complete") {
+            Says() => "\"Then we have lost nothing but your tobacco.\" His young men are already painting their horses.";
+        }
+
+        // Staying out of it.
+        talk Refused(who: master, text: "Tell your master you stayed out of it") {
+            Says() => "\"Good. The Company trades with the Blackfoot too, and London hates a war that spoils the returns.\"";
+            OnDone() {
+                player.addStanding(2);
+                world.warParty(beaverHills, blackfoot, why: "without the Company's man");
+            }
+        }
+    }
+}
+
+// ================================================================ chapter 2: the Pemmican War
+
+questline PemmicanWar(
+    title: "The Pemmican War",
+    summary: "The war between the companies, fought over the pemmican of the plains, comes up the Saskatchewan.",
+    forCompany: Company.HBC
+) {
+    quest NewsFromTheForks(
+        title: "News from the Forks",
+        summary: "A letter has come up from Red River, and your master wants you.",
+        giver: master
+    ) [Edmonton] {
+        StartWhen() => world.happened("seven-oaks");
+        talk Hear(who: master, text: "Hear the news from Red River") {
+            Says() => "{npc} reads the letter twice before he speaks. \"Grant's Métis met Governor Semple at Seven Oaks. " +
+                      "Twenty of ours dead, and the governor with them. The Nor'Westers will say they were attacked. " +
+                      "Every post on this river is a fort now, theirs and ours.\"";
+            choice Ready(label: "\"What would you have me do, sir?\"", reply: "\"Go across and see what they mean to do. Then come and tell me.\"");
+        }
+        talk Across(who: partner, text: "Call at Fort Augustus, now that it has come to this") {
+            Says() => "{npc} has his men under arms at the gate. \"You've heard, then. Before God, it was not my doing. " +
+                      "What happens here is up to the two of us.\"";
+            choice Peace(label: "Agree that whatever happens at the Forks, Edmonton keeps the peace", when: player.rapport(partner) >= 0) {
+                world.raiseTension(-15, "the two houses at Edmonton agree to keep the peace whatever happens at Red River");
+                flags.set("edmonton_peace");
+            }
+            choice Answer(label: "Tell him the North West Company will answer for Seven Oaks") {
+                world.raiseTension(15, "a Company man promised the Nor'Westers at Edmonton a reckoning for Seven Oaks");
+                flags.set("edmonton_enemies");
+                player.addRapport(partner, -20);
+            }
+        }
+        talk Report(who: master, text: "Tell your master what was said") {
+            Says() => "{npc} nods slowly. \"Then we know where we stand, which is more than they know at the Forks.\"";
+        }
+    }
+}
+
+// The war spreads (the history's beats - the proclamation, the colony
+// dispersed, Seven Oaks - come from the historical campaign this extends).
+
+// Grant's Métis plundered Brandon House on 1 June 1816, on their way to the Forks.
+beat BrandonHousePlundered(
+    id: "brandon-house-plundered",
+    title: "Grant's Métis plunder Brandon House",
+    date: date(1816, 6, 1),
+    rumour: "Grant's riders are gathering on the Qu'Appelle, and Brandon House lies on their road."
+) ["colony-dispersed"] {
+    OnActivate() {
+        // A Nor'Wester's story may have sent the Souris men already (TheBrulesRide).
+        if (!flags.has("grant_rode_from_souris")) world.warParty("Métis of the Forks", "Brandon House", why: "for the North West Company and the pemmican");
+        shout("Grant's Métis have fallen on Brandon House and carried off its pemmican and furs.", Company.HBC);
+    }
+}
+
+// After Seven Oaks the Métis took Fort Douglas and sent the colonists down the lake.
+beat FortDouglasTaken(
+    id: "fort-douglas-taken",
+    title: "The Métis take Fort Douglas",
+    date: date(1816, 6, 21)
+) ["seven-oaks"] {
+    OnActivate() {
+        world.warParty("Métis of the Forks", "Fort Douglas", why: "after Seven Oaks");
+        say("After Seven Oaks the Métis take Fort Douglas, and the colonists are sent down the lake.", Company.All);
+    }
+}
+
+// Every summer from the proclamation on, the plains choose sides: old scores
+// heat, and the camps' own war parties ride (Economy/War.cs, weekly).
+beat ThePlainsTakeSides(
+    id: "plains-take-sides",
+    title: "The plains take sides",
+    date: date(1815, 5, 1),
+    repeat: days(365)
+) ["pemmican-proclamation"] {
+    OnActivate() {
+        world.heatFeud(blackfoot, beaverHills, 2);
+        world.heatFeud(beaverHills, blackfoot, 1);
+        world.heatFeud("Métis of the Qu'Appelle", "Brandon House", 3);
+        world.heatFeud("Métis at Pembina", "Fort Douglas", 2);
+        say("Up and down the plains the pemmican war has the camps choosing sides.", Company.HBC);
+    }
+}
+
+// Promise the Nor'Westers a reckoning, and they take theirs first.
+beat EdmontonPemmicanSeized(
+    id: "edmonton-pemmican-seized",
+    title: "The Nor'Westers seize Edmonton's pemmican",
+    delay: days(240)
+) ["seven-oaks"] {
+    AwakenWhen() => flags.has("edmonton_enemies");
+    OnActivate() {
+        world.addStock("Edmonton House", Item.Pemmican, -30);
+        world.raiseTension(10, "the Nor'Westers seized Edmonton's pemmican");
+        shout("The Nor'Westers have broken into Edmonton House's pemmican store in the night and carried off thirty bags.", Company.HBC);
+    }
+}
+
+// ================================================================ the Nor'Wester's story
+//
+// The other road in (the owner's plan, 2026-10-18): you come up with the
+// brigade to the partner's house across from the Bay men (Core/Starts.cs),
+// report to the partner, and are sent to Fort Souris on the Assiniboine -
+// pemmican country, with the Company's Brandon House a musket shot off and
+// the Métis hunters of the Souris camped out on the plain. The Pemmican War
+// is fought over this ground: the proclamation, the sheriff at Fort Souris,
+// and Grant's riders going down past Brandon House to the Forks.
+
+const string souris = "Fort Souris";
+const string brandon = "Brandon House";
+const string bourgeois = "leader@Fort Souris";
+const string bayMaster = "leader@Brandon House";
+const string sourisMetis = "Métis of the Souris";
+const string captain = "chief@Métis of the Souris";
+
+questline NorthMan(
+    title: "The North Man",
+    summary: "From the brigade's landing to the pemmican country of the Assiniboine.",
+    forCompany: Company.NWC
+) {
+    quest Engaged(
+        title: "Report to the partner",
+        summary: "You are the North West Company's newest clerk, and the partner will want a look at you."
+    ) {
+        talk Report(who: Person.Partner, text: "Find the partner and report to him") {
+            Says() => "{npc} looks up from his letters. \"The new clerk. The agents at Montreal write that you can read, " +
+                      "write and cast accounts. Out here a man wants a strong back as well. Which have you brought?\"";
+            choice Back(
+                label: "\"Both, monsieur. Try me.\"",
+                reply: "\"We shall. The woodpile first; every bourgeois in the country began at a woodpile, whatever he tells you.\"",
+                goto: Wood
+            ) {
+                player.addStanding(2);
+            }
+            choice Figures(
+                label: "\"I came up for the trade, monsieur, not to cut wood.\"",
+                reply: "\"Then you came up to the wrong country. Six loads, and then we'll talk of trade.\"",
+                goto: Wood
+            ) {
+                player.addStanding(-1);
+                flags.set("wants_the_trade");
+            }
+        }
+        task Wood(task: Task.Firewood, count: 6, text: "Bring six loads of firewood to the woodpile");
+        talk Orders(who: Person.Partner, text: "Report back to the partner") {
+            Says() => "{npc} pours two glasses. \"You'll do. Fort Souris on the Assiniboine wants a clerk. Pemmican country: " +
+                      "every bag that feeds our canoes from Bas de la Rivière to the Athabasca comes off those plains, " +
+                      "and the Bay men's Brandon House stands a musket shot from our gate.\"";
+            choice AskSouris(
+                label: "\"What kind of place is Fort Souris, monsieur?\"",
+                reply: "\"Stockades, a store, and more buffalo than you have ever dreamt of. The Brûlés of the Souris - the " +
+                       "Métis hunters - camp on the plain above it. Keep them our friends and the post eats; lose them and it starves.\"",
+                goto: Orders
+            );
+            choice AskBay(
+                label: "\"And the Bay men at Brandon House?\"",
+                reply: "\"Honest enough, and slow, and Lord Selkirk's colony at the Forks has given them ideas. " +
+                       "They think the plains are theirs because a charter in London says so.\"",
+                goto: Orders
+            );
+            choice AskRoad(
+                label: "\"How do I get there?\"",
+                reply: "\"Up to Lake Winnipeg, up the Red to the Forks, and up the Assiniboine until you smell the pemmican. " +
+                       "A light canoe, a horse, your own two feet - only get there before the ice.\"",
+                goto: Orders
+            );
+            choice Go(label: "\"I'll go, monsieur.\"", reply: "\"Of course you will. Take what you need from the store, and don't let the Brûlés beat you at cards.\"");
+        }
+        OnComplete() {
+            player.postTo(souris);
+            player.give(Item.Tobacco, 6);
+            player.give(Item.TradeGoods, 4);
+            player.note("You are on the books of Fort Souris now: six twists of tobacco and four pieces of goods for the road.");
+        }
+    }
+
+    quest ToTheAssiniboine(
+        title: "Up the Assiniboine",
+        summary: "Lake Winnipeg, the Red, and the Assiniboine between you and Fort Souris."
+    ) [Engaged] {
+        reach Souris(place: souris, radius: 700, text: "Go inland to Fort Souris on the Assiniboine");
+    }
+
+    quest FortSouris(
+        title: "Fort Souris",
+        summary: "Report to the bourgeois of Fort Souris."
+    ) [ToTheAssiniboine] {
+        talk Report(who: bourgeois, text: "Report to the bourgeois of Fort Souris") {
+            Says() => "{npc} reads the partner's letter and folds it into his coat. \"A clerk. Good. You'll learn two things here: " +
+                      "the Bay men at Brandon House, who count every bag we buy, and the Brûlés on the plain, who decide " +
+                      "whether there are any bags to buy at all. Go and look at both.\"";
+            choice Yes(label: "\"I'll go and see them, monsieur.\"");
+        }
+    }
+}
+
+// ================================================================ the Bay house
+
+questline TheBayMen(
+    title: "The Bay Men",
+    summary: "The Hudson's Bay Company's Brandon House, a musket shot from your gate.",
+    forCompany: Company.NWC
+) {
+    quest BayNeighbours(
+        title: "The neighbours",
+        summary: "Call at Brandon House and see what kind of men the English are."
+    ) [FortSouris] {
+        talk Call(who: bayMaster, text: "Call on the master of Brandon House") {
+            Says() => "{npc} lets you in at the wicket and no further than the yard. \"A new Nor'Wester. Have they sent you to count " +
+                      "our bags, or to buy our hunters away? Say what you came to say.\"";
+            choice Friendly(label: "Offer him a dram and the news from the brigades", goto: TellFriendly) {
+                player.addRapport(bayMaster, 15);
+                flags.set("hbc_friendly");
+            }
+            choice Guarded(label: "Pay your respects and say as little as you can", goto: TellGuarded);
+            choice Hostile(label: "Tell him the plains traded with the North men before he was born", goto: TellHostile) {
+                player.addRapport(bayMaster, -15);
+                flags.set("hbc_hostile");
+                world.raiseTension(3, "a Nor'Wester told the Brandon House master the plains belong to the North men");
+            }
+        }
+        talk TellFriendly(who: bourgeois, text: "Tell the bourgeois how it went", next: "complete") {
+            Says() => "\"A dram with the English, was it? Drink his tea, if he gives you any, and remember that every word " +
+                      "you leave in that yard goes down to the Forks in his next letter.\"";
+        }
+        talk TellGuarded(who: bourgeois, text: "Tell the bourgeois how it went", next: "complete") {
+            Says() => "\"Said little and heard much? You'll do here.\"";
+        }
+        talk TellHostile(who: bourgeois, text: "Tell the bourgeois how it went") {
+            Says() => "{npc} laughs until he coughs. \"To his face? Well, he knows where we stand. Keep your gun by your bed.\"";
+        }
+        OnComplete() { player.addStanding(1); }
+    }
+
+    // Friend: the two houses agree not to outbid each other for the Brûlés' pemmican.
+    quest OneBagOnePrice(
+        title: "One bag, one price",
+        summary: "The master of Brandon House proposes that neither house outbid the other for the Métis pemmican this winter. " +
+                 "He asks you to put it to your bourgeois.",
+        giver: bayMaster
+    ) [BayNeighbours] {
+        StartWhen() => flags.has("hbc_friendly");
+        talk PutIt(who: bourgeois, text: "Put the Bay men's offer to your bourgeois") {
+            Says() => "{npc} hears you out with his pipe going hard. \"One price for a bag of pemmican, theirs and ours. " +
+                      "And the day the brigades are hungry, who keeps to it?\"";
+            choice Argue(label: "Argue for it: a bidding war only fattens the Brûlés and empties both stores", goto: Agreed) {
+                flags.set("souris_price_truce");
+                world.raiseTension(-6, "the houses on the Souris agree on one price for pemmican");
+            }
+            choice Against(label: "Advise against it: the English will break it the first lean month", goto: Refused) {
+                flags.set("souris_price_refused");
+            }
+        }
+        talk Agreed(who: bayMaster, text: "Take your bourgeois's answer to Brandon House", next: "complete") {
+            Says() => "\"He agreed?\" {npc} shakes your hand over the gate. \"Then the Brûlés will have to get rich some other way. " +
+                      "Let's see which of us keeps it.\"";
+        }
+        talk Refused(who: bayMaster, text: "Take your bourgeois's answer to Brandon House") {
+            Says() => "{npc} only nods. \"I thought as much. Well, the Brûlés will do well out of the two of us this winter.\"";
+        }
+        OnComplete() { player.addRapport(bayMaster, 10); }
+    }
+
+    // Enemy: get the North men's goods to the Souris camp before the Bay men's.
+    quest FirstToTheCamp(
+        title: "Ahead of the English",
+        summary: "Brandon House is sending goods out to the Métis camp. Your bourgeois wants the North men's there first.",
+        giver: bourgeois
+    ) [BayNeighbours] {
+        StartWhen() => flags.has("hbc_hostile");
+        OnStart() { player.give(Item.TradeGoods, 4); }
+        bring Goods(
+            who: captain,
+            item: Item.TradeGoods,
+            count: 4,
+            text: "Carry four pieces of goods to the Métis camp before the Bay men's cart"
+        ) {
+            Says() => "{npc} turns the goods over. \"The English promised us the same. You came first, and the Brûlés remember who comes first.\"";
+            OnDone() {
+                world.addRegard(sourisMetis, 5);
+                world.raiseTension(4, "the Nor'Westers beat Brandon House to the Métis camp");
+                player.addRapport(bayMaster, -10);
+            }
+        }
+        talk Back(who: bourgeois, text: "Tell the bourgeois the goods are in") {
+            Says() => "\"Good. They'll be sour at Brandon House tonight. Sleep with your knife.\"";
+        }
+        OnComplete() { player.addStanding(3); }
+    }
+}
+
+// ================================================================ the New Nation
+
+questline TheNewNation(
+    title: "The New Nation",
+    summary: "The Métis hunters of the Souris - the Bois-Brûlés - who run the buffalo and make the pemmican.",
+    forCompany: Company.NWC
+) {
+    quest AtTheCamp(
+        title: "Tobacco on the plain",
+        summary: "Ride out to the Métis camp on the Souris plain and make yourself known."
+    ) [FortSouris] {
+        reach Camp(place: sourisMetis, radius: 600, text: "Ride out to the Métis camp on the Souris plain");
+        bring Tobacco(who: captain, item: Item.Tobacco, count: 2, text: "Give the hunt captain tobacco") {
+            Says() => "{npc} takes the tobacco with a grin. \"A clerk who knows his manners. Sit down, bourgeois, the kettle's on.\"";
+        }
+        talk Council(who: captain, text: "Sit with the captain and hear him out") {
+            Says() => "\"My father was a trader out of Boston; my mother's people were here before any of you,\" {npc} says. " +
+                      "\"Now the Bay men's lord has a colony at the Forks and a paper that says this plain is his. " +
+                      "We run the buffalo here. We make the pemmican. Whose plain is it, bourgeois?\"";
+            choice Theirs(label: "Say the plain belongs to those who hunt it, and the North men will stand by them") {
+                world.addRegard(sourisMetis, 5);
+                player.addRapport(captain, 10);
+                flags.set("told_the_brules_the_plain_is_theirs");
+            }
+            choice Guns(label: "Promise them the North West Company's guns") {
+                flags.set("promised_metis_guns");
+                world.addRegard(sourisMetis, 8);
+                player.addRapport(captain, 5);
+            }
+            choice Learn(label: "Ask him to teach you how the Brûlés run the buffalo") {
+                world.addRegard(sourisMetis, 3);
+                player.addRapport(captain, 12);
+            }
+        }
+        OnComplete() { player.note("You have smoked with the Métis of the Souris."); }
+    }
+
+    quest TheGreatHunt(
+        title: "The hunt",
+        summary: "The scouts have found the herds, and the Métis of the Souris are going out on the hunt, carts, captains and all. " +
+                 "The captain asks whether the clerk rides with them.",
+        giver: captain
+    ) [AtTheCamp] {
+        StartWhen() => world.regard(sourisMetis) >= 55 || player.rapport(captain) >= 14;
+        talk Accept(who: captain, text: "Answer the captain") {
+            Says() => "\"The laws of the hunt,\" {npc} says, counting on his fingers. \"Nobody runs before the signal. " +
+                      "Nobody leaves the camp alone. The captain's word is the law until the meat is in. Still want to come?\"";
+            choice Ride(label: "\"I'll keep the laws. I'm coming.\"", goto: Hunt) {
+                player.addRapport(captain, 5);
+            }
+            choice Leave(label: "\"I must ask the bourgeois first.\"", goto: AskLeave);
+        }
+        talk AskLeave(who: bourgeois, text: "Ask the bourgeois's leave to go on the hunt", next: Hunt) {
+            Says() => "\"Go! And count the bags they make. Every one of them is a bag the Bay men don't get.\"";
+        }
+        hunt Hunt(species: "Buffalo", count: 1, text: "Ride with the Métis of the Souris and bring down a buffalo");
+        talk Feast(who: captain, text: "Eat with the captain after the hunt") {
+            Says() => "The women are already cutting the meat into strips for the drying racks. {npc} hands you a marrow bone. " +
+                      "\"You ride like a clerk, but you ride. Remember who you ate with, bourgeois. A day is coming when the " +
+                      "Bay men's governor tells us we cannot sell our own pemmican, and then we'll see who stands with us.\"";
+        }
+        OnComplete() {
+            world.addRegard(sourisMetis, 10);
+            flags.set("rode_with_souris_metis");
+            player.note("You ran the buffalo with the Métis of the Souris. They will remember who stood with them.");
+        }
+    }
+}
+
+// ================================================================ the Nor'Wester's Pemmican War
+
+questline NorWestersWar(
+    title: "The Pemmican War",
+    summary: "The colony's governor forbids the pemmican to leave the plains, and the North men will not starve to oblige him.",
+    forCompany: Company.NWC
+) {
+    quest TheProclamation(
+        title: "The proclamation",
+        summary: "The governor at the Forks has forbidden any pemmican to leave Assiniboia, and Fort Souris has a full store.",
+        giver: bourgeois
+    ) [FortSouris] {
+        StartWhen() => world.happened("pemmican-proclamation");
+        talk Hear(who: bourgeois, text: "Hear what the bourgeois means to do about the proclamation") {
+            Says() => "{npc} has the governor's paper pinned to his table with a knife. \"Macdonell forbids any pemmican to leave " +
+                      "his colony's lands - and he says his colony's lands run from the Forks to God knows where. " +
+                      "Our store is full, and the brigades eat it or the brigades stop. He'll send his sheriff for it.\"";
+            choice Cache(label: "\"Then let's not keep it all in the store. The Brûlés can hide it on the plain.\"", goto: Hide) {
+                player.give(Item.Pemmican, 4);
+                flags.set("souris_pemmican_cached");
+            }
+            choice Hold(label: "\"Let him come. We'll hold the gate.\"", goto: Gate) {
+                world.raiseTension(5, "the Nor'Westers at Fort Souris swear to hold their pemmican");
+                flags.set("souris_holds_the_gate");
+            }
+            choice Law(label: "\"It's the law of the country now, monsieur. Better to sell to them than fight them.\"", goto: Gate) {
+                player.addStanding(-3);
+                player.addRapport(bourgeois, -10);
+                world.raiseTension(-4, "a Nor'Wester at Fort Souris spoke for obeying the proclamation");
+                flags.set("souris_would_obey");
+            }
+        }
+        bring Hide(
+            who: captain,
+            item: Item.Pemmican,
+            count: 4,
+            text: "Carry the first bags out to the Métis camp, to be hidden on the plain",
+            next: "complete"
+        ) {
+            Says() => "{npc} grins at the bags. \"Hide pemmican from the English on our own plain? My grandmother could do it.\"";
+            OnDone() {
+                world.addRegard(sourisMetis, 5);
+                world.heatFeud(sourisMetis, brandon, 1);
+            }
+        }
+        talk Gate(who: bourgeois, text: "Tell the bourgeois you'll stand by him") {
+            Says() => "\"Whatever comes, we're Nor'Westers first,\" {npc} says, and pours. \"Drink to the partners.\"";
+        }
+    }
+
+    quest TheSheriff(
+        title: "The sheriff",
+        summary: "The colony's sheriff has come to Fort Souris with the Brandon House men and carried off the pemmican.",
+        giver: bourgeois
+    ) [FortSouris] {
+        StartWhen() => world.happened("souris-pemmican-seized");
+        talk Hear(who: bourgeois, text: "Hear what happened at the gate") {
+            Says() => "The gate hangs open on one hinge. {npc} is white with anger. \"Spencer, the colony's sheriff, with the " +
+                      "Brandon House men and their axes. A warrant, he said. They carried every bag they could find across " +
+                      "to Brandon House, and the Bay men stood and watched.\"";
+            choice Demand(label: "\"I'll go to Brandon House and ask for it back.\"", goto: Ask);
+            choice Brules(label: "\"The Brûlés will want to hear of this.\"", goto: Tell);
+            choice Patience(label: "\"Write to the partners, monsieur. Let the law answer the law.\"", goto: "complete") {
+                player.addStanding(-1);
+            }
+        }
+        talk Ask(who: bayMaster, text: "Ask the master of Brandon House for the pemmican back", next: "complete") {
+            Says() => "{npc} won't meet your eye. \"It's under the governor's seal now. I can't touch it - and I didn't ask for it, " +
+                      "whatever you think.\"";
+            choice Quietly(
+                label: "Ask him quietly, as a neighbour, for enough to feed your own men",
+                when: player.rapport(bayMaster) >= 10
+            ) {
+                world.addStock(souris, Item.Pemmican, 15);
+                world.raiseTension(-3, "the Brandon House master quietly sent back some of the seized pemmican");
+                flags.set("brandon_sent_some_back");
+            }
+            choice Threaten(label: "Tell him the North men will take it back, seal or no seal") {
+                world.raiseTension(6, "a Nor'Wester promised to take back the seized pemmican by force");
+                world.heatFeud(sourisMetis, brandon, 1);
+                player.addRapport(bayMaster, -15);
+            }
+        }
+        talk Tell(who: captain, text: "Carry the news to the Métis camp", next: "complete") {
+            Says() => "{npc} listens without a word, then spits. \"Our pemmican. Our plain. And a sheriff with a paper.\" " +
+                      "Behind him the young men have stopped what they were doing.";
+            OnDone() {
+                world.heatFeud(sourisMetis, brandon, 2);
+                world.addRegard(sourisMetis, 5);
+            }
+        }
+    }
+
+    quest TheBrulesRide(
+        title: "The Brûlés ride",
+        summary: "Grant has called the Métis together. They mean to bring the pemmican through to the canoes, and Brandon House is on the road.",
+        giver: captain
+    ) [FortSouris] {
+        StartWhen() => flags.has("grant_gathers");
+        talk Ask(who: captain, text: "Hear what the captain asks of you") {
+            Says() => "{npc} has a new sash and a new musket. \"Grant calls the Brûlés together. We take the pemmican down the " +
+                      "Assiniboine to the canoes, and if the Bay men stand in the road, we go through them. Brandon House first. " +
+                      "You ate with us. Will you ride with us?\"";
+            choice Ride(label: "\"I'll ride with you.\"", goto: Riding) {
+                world.warParty(sourisMetis, brandon, why: "for the pemmican and the North West Company", withPlayer: true);
+                flags.set("grant_rode_from_souris");
+                flags.set("rode_with_grant");
+            }
+            choice Stay(label: "\"The post needs me here.\"", goto: Stayed) {
+                world.warParty(sourisMetis, brandon, why: "for the pemmican and the North West Company");
+                flags.set("grant_rode_from_souris");
+            }
+            choice Warn(label: "Say nothing - and go and warn Brandon House", goto: Warning) {
+                flags.set("grant_rode_from_souris");
+            }
+        }
+
+        // Riding with them.
+        when Riding(text: "Ride with the Métis of the Souris to Brandon House", place: brandon) =>
+            world.wonWar(sourisMetis) || world.lostWar(sourisMetis) || flags.has("war:Métis of the Souris:turned_back");
+        talk Afterwards(who: captain, text: "Find the captain when it is over", next: "complete") {
+            Says() => "The carts are loaded and the horses watered. {npc} sits on a pemmican bag with his musket across his knees.";
+            choice Plunder(label: "Help load Brandon House's pemmican onto the carts", when: world.wonWar(sourisMetis)) {
+                world.addRegard(sourisMetis, 10);
+                player.give(Item.Pemmican, 4);
+                flags.set("plundered_brandon_house");
+            }
+            choice Wounded(label: "Help with the wounded", when: !world.wonWar(sourisMetis)) {
+                world.addRegard(sourisMetis, 5);
+                flags.set("brandon_house_held");
+            }
+        }
+
+        // Staying at the post.
+        talk Stayed(who: bourgeois, text: "Tell the bourgeois you stayed", next: "complete") {
+            Says() => "\"Wise,\" {npc} says, watching the dust of the carts on the road east. \"A clerk who rides with Grant " +
+                      "may find himself in a Montreal court one day. Let the Brûlés do what the Brûlés do.\"";
+        }
+
+        // Betraying them.
+        talk Warning(who: bayMaster, text: "Warn the master of Brandon House that the Brûlés are coming") {
+            Says() => "{npc} goes grey. \"How many? When?\" He is already shouting for his men to bar the gate. " +
+                      "\"I won't forget this. I don't know if your own people will.\"";
+            OnDone() {
+                world.warParty(sourisMetis, brandon, why: "for the pemmican and the North West Company");
+                world.addRegard(sourisMetis, -15);
+                player.addRapport(bayMaster, 20);
+                player.addRapport(captain, -25);
+                player.addStanding(-5);
+                flags.set("warned_brandon_house");
+            }
+        }
+    }
+
+    quest NorWesterSevenOaks(
+        title: "Seven Oaks",
+        summary: "Word has come up the Assiniboine from the Forks.",
+        giver: bourgeois
+    ) [FortSouris] {
+        StartWhen() => world.happened("seven-oaks");
+        talk Hear(who: bourgeois, text: "Hear the news from the Forks") {
+            Says() => "{npc} has the letter open and does not look up. \"Grant's men met Governor Semple at Seven Oaks. " +
+                      "Twenty of theirs dead, and the governor with them; one of ours. The partners say the colonists fired first. " +
+                      "Selkirk will say otherwise, and Selkirk has the ear of London.\"";
+            choice Stand(label: "\"They fired first. The Brûlés defended themselves.\"") {
+                player.addRapport(bourgeois, 5);
+                world.addRegard(sourisMetis, 5);
+                flags.set("stood_by_grant");
+            }
+            choice Murder(label: "\"Twenty men dead, monsieur. Whoever fired first, it was murder.\"") {
+                player.addRapport(bourgeois, -10);
+                player.addStanding(-2);
+                flags.set("called_it_murder");
+            }
+        }
+        talk Neighbours(who: bayMaster, text: "Go across to Brandon House, now that it has come to this") {
+            Says() => "{npc} meets you at the gate with a musket. \"Seven Oaks. You've heard. Before God, if one of you lifts a " +
+                      "hand to this house again, we'll answer it.\"";
+            choice Peace(label: "Promise that whatever happens at the Forks, the Souris keeps the peace", when: player.rapport(bayMaster) >= 0) {
+                world.raiseTension(-15, "the two houses on the Souris agree to keep the peace whatever happens at the Forks");
+                world.truce(sourisMetis, brandon, 365);
+                flags.set("souris_peace");
+            }
+            choice Blame(label: "Tell him the Bay men brought this on themselves with their proclamation") {
+                world.raiseTension(10, "a Nor'Wester at Brandon House blamed Seven Oaks on the proclamation");
+                player.addRapport(bayMaster, -15);
+                flags.set("souris_enemies");
+            }
+        }
+        talk Report(who: bourgeois, text: "Tell the bourgeois what was said") {
+            Says() => "{npc} grunts. \"Selkirk is coming up the lakes with soldiers, they say - hired Swiss, out of the war. " +
+                      "Whatever we've done, we'd best be able to account for it.\"";
+        }
+    }
+}
+
+// Spring 1814: the colony's sheriff, John Spencer, came to the North West
+// Company's post on the Souris with men from Brandon House and carried off
+// its pemmican under Macdonell's proclamation.
+beat SourisPemmicanSeized(
+    id: "souris-pemmican-seized",
+    title: "The colony's sheriff seizes the pemmican at Fort Souris",
+    date: date(1814, 5, 20),
+    rumour: "The colony's sheriff is on the Assiniboine with a warrant and the Brandon House men."
+) ["pemmican-proclamation"] {
+    OnActivate() {
+        if (flags.has("souris_pemmican_cached")) world.addStock(souris, Item.Pemmican, -15);
+        if (!flags.has("souris_pemmican_cached")) world.addStock(souris, Item.Pemmican, -40);
+        world.addStock(brandon, Item.Pemmican, 20);
+        world.raiseTension(10, "the sheriff took the Nor'Westers' pemmican at Fort Souris");
+        world.heatFeud(sourisMetis, brandon, 2);
+        shout("The colony's sheriff has broken into Fort Souris with the Brandon House men and carried off the pemmican.", Company.NWC);
+        say("Sheriff Spencer has seized the Nor'Westers' pemmican at the Souris under the governor's proclamation.", Company.HBC);
+    }
+}
+
+// Spring 1816: Cuthbert Grant gathers the Métis at the Qu'Appelle to bring
+// the pemmican down to the canoes.
+beat GrantGathers(
+    id: "grant-gathers",
+    title: "Cuthbert Grant gathers the Métis",
+    date: date(1816, 5, 15),
+    rumour: "The Brûlés are making new sashes and casting ball, and the captains have gone up to the Qu'Appelle."
+) ["colony-dispersed"] {
+    OnActivate() {
+        flags.set("grant_gathers");
+        say("Grant has called the Métis together at the Qu'Appelle. The Brûlés of the Souris are saddling their horses.", Company.NWC);
+    }
+}
+
+// ================================================================ chapter 3: the lawless years and the union
+//
+// After Seven Oaks: Selkirk takes Fort William with his hired Swiss, the
+// war goes on in arrests and ambushes (Grand Rapids, 1819), both companies
+// bleed, and in 1821 they are made one. Each road ends on what you did in
+// the chapters before (the flags they set).
+
+const string cumberland = "Cumberland House";
+const string cumberlandMaster = "leader@Cumberland House";
+
+// ---------------------------------------------------------------- the HBC road
+
+questline TheLawlessYears(
+    title: "The Lawless Years",
+    summary: "Selkirk's soldiers, the Grand Rapids, and the union of the two companies.",
+    forCompany: Company.HBC
+) {
+    quest SelkirksSoldiers(
+        title: "Selkirk's soldiers",
+        summary: "Lord Selkirk has taken Fort William, and Fort Augustus across the way is short of everything.",
+        giver: master
+    ) [Edmonton] {
+        StartWhen() => world.happened("selkirk-fort-william");
+        talk Hear(who: master, text: "Hear the news from the Lakes") {
+            Says() => "{npc} has a letter from Norway House. \"Lord Selkirk came up the lakes with his Swiss and took Fort William. " +
+                      "McGillivray and the partners are arrested and sent down to Canada. The Nor'Westers' heart is cut out - " +
+                      "and Fort Augustus will have a hungry winter of it, with no goods coming up.\"";
+            choice Squeeze(label: "\"Then this is the winter to take the Beaver Hills trade from them.\"", goto: Squeeze);
+            choice Lend(
+                label: "\"They'll be short of food. Lend them pemmican, as neighbours.\"",
+                when: !flags.has("edmonton_enemies"),
+                goto: Lend
+            ) {
+                player.give(Item.Pemmican, 4);
+            }
+            choice Wait(label: "\"Let London and Montreal settle it, sir.\"", goto: "complete") {
+                player.addStanding(1);
+            }
+        }
+        bring Squeeze(who: chief, item: Item.TradeGoods, count: 2, text: "Carry the Company's goods out to the Beaver Hills camp, on easy credit", next: "complete") {
+            Says() => "{npc} looks at the goods, then at you. \"The Canadians have nothing this year, and you come with gifts. " +
+                      "The Company is a good friend when it is the only friend.\"";
+            OnDone() {
+                world.addRegard(beaverHills, 5);
+                player.addRapport(partner, -15);
+                world.raiseTension(6, "the Company took the Beaver Hills trade while Fort Augustus went short");
+                flags.set("hbc_pressed_augustus");
+            }
+        }
+        bring Lend(who: partner, item: Item.Pemmican, count: 4, text: "Carry four bags of pemmican across to Fort Augustus", next: "complete") {
+            Says() => "{npc} looks at the bags a long while. \"I won't forget this. Whatever they do to each other in London, " +
+                      "I won't forget it.\"";
+            OnDone() {
+                player.addRapport(partner, 20);
+                world.raiseTension(-10, "the Company lent pemmican to the hungry Nor'Westers at Fort Augustus");
+                flags.set("augustus_fed");
+            }
+        }
+    }
+
+    quest GrandRapids(
+        title: "The Grand Rapids",
+        summary: "Governor Williams means to stop the Nor'Westers' partners on their way down the Saskatchewan, and he wants men.",
+        giver: master
+    ) [SelkirksSoldiers] {
+        StartWhen() => world.happened("interior-war-1819");
+        talk Hear(who: master, text: "Hear what the Governor asks") {
+            Says() => "{npc} reads you the Governor's letter. \"Williams means to wait for the Nor'Westers' partners at the Grand Rapids, " +
+                      "where the river comes down into the lake, with the Swiss and a field gun, and take them as they come down with " +
+                      "their furs. Every post is to send men. They muster at Cumberland House.\"";
+            choice Go(label: "\"I'll go down to Cumberland House.\"", goto: Muster);
+            choice Stay(label: "\"Someone has to hold Edmonton, sir.\"", goto: "complete") {
+                flags.set("stayed_at_edmonton_1819");
+            }
+        }
+        reach Muster(place: cumberland, radius: 900, text: "Go down the Saskatchewan to the muster at Cumberland House");
+        talk Prisoners(who: cumberlandMaster, text: "Report to the master of Cumberland House") {
+            Says() => "{npc} jerks his head at the storehouse. \"You're late for the fight: Williams took them at the Rapids, " +
+                      "Shaw and McDonald and the rest, with their canoes. Frobisher got clear and ran into the bush. " +
+                      "The prisoners are in there. Somebody has to watch them tonight.\"";
+            choice Guard(label: "Stand the night watch over the prisoners") {
+                player.addStanding(3);
+                player.addRapport(partner, -10);
+                flags.set("guarded_the_partners");
+            }
+            choice Slip(label: "Leave the storehouse door unbarred, and look the other way") {
+                player.addStanding(-4);
+                player.addRapport(partner, 25);
+                flags.set("freed_a_partner");
+            }
+        }
+    }
+
+    quest OneCompany(
+        title: "One company",
+        summary: "London and Montreal have made one company of the two. Edmonton and Fort Augustus are to be one house.",
+        giver: master
+    ) [Edmonton] {
+        StartWhen() => world.happened("merger");
+        talk Hear(who: master, text: "Hear the news of the union") {
+            Says() => "{npc} reads the letter out to the whole post. \"The Company and the North West Company are one, under the Company's charter. " +
+                      "Mr. Simpson governs the Northern Department. Fort Augustus comes into Edmonton. Half the men on the river, " +
+                      "theirs and ours, will be let go.\" He folds the letter. \"Go across and tell them. They'll have heard, but go.\"";
+            choice Go(label: "\"I'll go across.\"");
+        }
+        talk Across(who: partner, text: "Go across to Fort Augustus, now that it is one company") {
+            Says() => "{npc} is packing his books into a trunk. \"So. Twenty years of it, and the Bay has us after all.\"";
+            choice Friend(
+                label: "Shake his hand: you'll sit at one mess now",
+                when: flags.has("augustus_fed") || flags.has("edmonton_peace") || flags.has("freed_a_partner")
+            ) {
+                player.addRapport(partner, 10);
+                flags.set("union_as_friends");
+            }
+            choice Victor(
+                label: "Tell him it's the Bay's house now, and he can carry his own trunk",
+                when: flags.has("edmonton_enemies") || flags.has("hbc_pressed_augustus") || flags.has("nwc_hostile")
+            ) {
+                player.addRapport(partner, -20);
+                flags.set("union_as_victor");
+            }
+            choice Carry(label: "Help him carry his books across to Edmonton");
+        }
+        talk Cree(who: chief, text: "Go out to the Beaver Hills camp with the news") {
+            Says() => "{npc} hears it with no surprise. \"One company. Then there is nobody to take our furs to when you give too little. " +
+                      "You will see the prices fall, and you will tell us it is London.\"";
+            choice Fair(label: "Promise him you'll deal fairly while you're at Edmonton, whatever London says") {
+                world.addRegard(beaverHills, 5);
+                player.addRapport(chief, 10);
+                flags.set("promised_fair_dealing");
+            }
+            choice Truth(label: "Tell him the truth: the prices will be London's now") {
+                player.addRapport(chief, 3);
+            }
+        }
+        OnComplete() {
+            player.addStanding(5);
+            if (flags.has("union_as_friends")) player.note("Fort Augustus came into Edmonton as friends: you had been a neighbour to them when it counted.");
+            if (flags.has("union_as_victor")) player.note("Fort Augustus came into Edmonton as a beaten house, and its men did not forget who had beaten it.");
+            if (flags.has("cree_war_won") || flags.has("brokered_peace")) player.note("The Beaver Hills Cree remember the year you stood with them against the Blackfoot.");
+            if (world.regard(beaverHills) >= 60) player.note("The Beaver Hills Cree still call you a friend, one company or two.");
+            if (flags.has("guarded_the_partners")) player.note("You stood watch over the North West partners at Cumberland House. Some of them are your masters now.");
+            player.note("So ends the story of the Company's servant. The country goes on.");
+        }
+    }
+}
+
+// ---------------------------------------------------------------- the NWC road
+
+questline TheReckoning(
+    title: "The Reckoning",
+    summary: "Fort William taken, warrants and ambushes, and the end of the North West Company.",
+    forCompany: Company.NWC
+) {
+    quest FortWilliamFalls(
+        title: "Fort William",
+        summary: "Lord Selkirk has taken Fort William and arrested the partners.",
+        giver: bourgeois
+    ) [FortSouris] {
+        StartWhen() => world.happened("selkirk-fort-william");
+        talk Hear(who: bourgeois, text: "Hear the news from Fort William") {
+            Says() => "{npc} has not slept. \"Selkirk came up the lakes with his Swiss and took Fort William. McGillivray arrested, " +
+                      "the partners sent down to Canada in irons, the goods for the whole interior under a lord's seal. " +
+                      "They're drinking to it at Brandon House.\"";
+            choice Hold(label: "\"Then we hold what we have, and wait for Montreal.\"", goto: "complete") {
+                world.raiseTension(5, "the Nor'Westers at Fort Souris mean to hold what they have");
+                flags.set("souris_holds");
+            }
+            choice Peace(
+                label: "\"Make our peace with Brandon House while we still can.\"",
+                when: player.rapport(bayMaster) >= 0,
+                goto: Neighbour
+            );
+        }
+        talk Neighbour(who: bayMaster, text: "Go across to Brandon House to talk of peace", next: "complete") {
+            Says() => "{npc} hears you out at the gate. \"Peace? With Selkirk's soldiers on the lakes, you come asking for peace.\" " +
+                      "He looks at you a while. \"Well. Neither of us has ever shot the other. Let's keep it so.\"";
+            OnDone() {
+                world.truce(sourisMetis, brandon, 365);
+                world.raiseTension(-10, "the houses on the Souris made their own peace after Fort William fell");
+                player.addRapport(bayMaster, 10);
+                flags.set("souris_made_peace");
+            }
+        }
+    }
+
+    quest TheWarrant(
+        title: "The warrant",
+        summary: "A constable from the colony is at Brandon House with warrants from Selkirk's magistrates, and your name is on one.",
+        giver: bourgeois
+    ) [FortSouris] {
+        StartWhen() => world.happened("interior-war-1818")
+            && (flags.has("rode_with_grant") || flags.has("plundered_brandon_house") || flags.has("stood_by_grant"));
+        talk Hear(who: bourgeois, text: "Hear what the bourgeois has to tell you") {
+            Says() => "{npc} closes the door before he speaks. \"There's a constable at Brandon House from the Forks, with warrants " +
+                      "signed by Selkirk's own magistrates - for every man who rode with Grant, or stood up for him. Your name is on one.\"";
+            choice Hide(label: "\"The Brûlés will hide me.\"", goto: Camp);
+            choice Answer(label: "\"I'll go and answer it. I've nothing to be ashamed of.\"", goto: Answer);
+            choice Defy(label: "\"Let him come and take me.\"", goto: "complete") {
+                world.raiseTension(8, "a Nor'Wester at Fort Souris defied the colony's warrant");
+                flags.set("defied_the_warrant");
+            }
+        }
+        reach Camp(place: sourisMetis, radius: 600, text: "Ride out to the Métis camp and lie low");
+        talk Hidden(who: captain, text: "Ask the captain to hide you", next: "complete") {
+            Says() => "{npc} laughs. \"A constable from the Forks, looking for one man on this plain? Let him look. " +
+                      "You'll sleep in my lodge, and if he comes, you're my cousin from Pembina.\"";
+            OnDone() {
+                world.addRegard(sourisMetis, 5);
+                flags.set("hid_with_the_metis");
+            }
+        }
+        talk Answer(who: bayMaster, text: "Go to Brandon House and answer the warrant") {
+            Says() => "The constable reads out the warrant. {npc} stands by with his arms folded. \"You'll give your word not to run, " +
+                      "and the case goes down to Canada with the rest.\" He lowers his voice. \"Half of them are thrown out there. " +
+                      "Montreal juries don't love the Earl.\"";
+            OnDone() {
+                player.addStanding(-2);
+                player.addRapport(bayMaster, 10);
+                flags.set("answered_the_warrant");
+            }
+        }
+    }
+
+    quest RapidsNews(
+        title: "The Grand Rapids",
+        summary: "The Bay men have ambushed the partners coming down the Saskatchewan.",
+        giver: bourgeois
+    ) [FortSouris] {
+        StartWhen() => world.happened("interior-war-1819");
+        talk Hear(who: bourgeois, text: "Hear the news from the Saskatchewan") {
+            Says() => "{npc}'s voice is flat. \"Governor Williams waited for our partners at the Grand Rapids with the Swiss and a field gun, " +
+                      "and took them as they came down with the furs. Frobisher got away into the bush. They found him dead of cold and hunger.\"";
+            choice Answer(label: "\"Then we pay them back, here, at Brandon House.\"") {
+                world.heatFeud(sourisMetis, brandon, 2);
+                world.raiseTension(8, "the Nor'Westers on the Souris swear to answer the Grand Rapids");
+                flags.set("swore_for_frobisher");
+            }
+            choice Tired(label: "\"This war is killing both companies, monsieur.\"") {
+                player.addRapport(bourgeois, -3);
+                flags.set("tired_of_the_war");
+            }
+        }
+    }
+
+    quest TheCoalition(
+        title: "The coalition",
+        summary: "It is done: the North West Company goes into the Hudson's Bay Company.",
+        giver: bourgeois
+    ) [FortSouris] {
+        StartWhen() => world.happened("merger");
+        talk Hear(who: bourgeois, text: "Hear the news from Montreal") {
+            Says() => "{npc} reads the letter, and reads it again. \"It is done. The North West Company goes into the Hudson's Bay Company. " +
+                      "The partners are to be chief factors and chief traders. The clerks and the men are to be counted, and many let go. " +
+                      "Fort Souris closes; Brandon House keeps the trade.\" He puts the letter down. \"What will you do?\"";
+            choice Bay(label: "\"Sign the Bay's articles, and go across to Brandon House.\"", goto: Across) {
+                player.postTo(brandon);
+            }
+            choice Free(label: "\"Go out to the Métis and live as a freeman.\"", goto: Freeman);
+            choice Home(label: "\"Take my wages and go down to Montreal.\"", goto: "complete") {
+                flags.set("went_home_to_montreal");
+            }
+        }
+        talk Across(who: bayMaster, text: "Go across to Brandon House, a Bay man now", next: "complete") {
+            Says() => "{npc} looks at you over the books, a long look.";
+            choice Welcome(
+                label: "Take the hand he offers",
+                when: flags.has("warned_brandon_house") || flags.has("souris_made_peace") || flags.has("souris_peace") || flags.has("souris_price_truce")
+            ) {
+                player.addRapport(bayMaster, 10);
+                flags.set("welcomed_at_brandon");
+            }
+            choice Cold(
+                label: "Meet his eye, and say nothing about the summer of 1816",
+                when: flags.has("plundered_brandon_house") || flags.has("rode_with_grant")
+            ) {
+                player.addRapport(bayMaster, -10);
+                flags.set("cold_at_brandon");
+            }
+            choice Work(label: "Ask him where he wants you");
+        }
+        reach Freeman(place: sourisMetis, radius: 600, text: "Ride out to the Métis camp with your wages and your gun");
+        talk Freedom(who: captain, text: "Tell the captain you've come to stay", next: "complete") {
+            Says() => "{npc} looks at your bundle and your gun and grins. \"A freeman. Well, there are worse things to be. " +
+                      "The Bay will want our pemmican as much as the North men did. More, maybe.\"";
+            OnDone() {
+                world.addRegard(sourisMetis, 10);
+                flags.set("became_a_freeman");
+            }
+        }
+        OnComplete() {
+            if (flags.has("welcomed_at_brandon")) player.note("Brandon House took you in as one of its own. You had been a neighbour to it when it counted.");
+            if (flags.has("cold_at_brandon")) player.note("Brandon House took you on its books and never let you forget the summer the Brûlés came.");
+            if (flags.has("became_a_freeman")) player.note("You went out to the Métis of the Souris as a freeman, and ran the buffalo with them for the Bay as you had for the North men.");
+            if (flags.has("went_home_to_montreal")) player.note("You went down to Montreal with your wages, one of the hundreds the union let go.");
+            if (flags.has("stood_by_grant") || flags.has("rode_with_grant")) player.note("Grant's name and yours are written together in the Pemmican War, for good or ill.");
+            if (world.regard(sourisMetis) >= 60) player.note("The Métis of the Souris still call you a friend.");
+            player.note("So ends the story of the North man. The country goes on.");
+        }
+    }
+}

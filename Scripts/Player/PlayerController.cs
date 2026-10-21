@@ -42,6 +42,15 @@ public partial class PlayerController : Agent
 	// Standing with the Company (design doc 3.6): slow, bureaucratic, reviewed by results.
 	public float Standing = 10f;
 	public readonly PlayerTask Task = new();
+	// The campaign's quests for this player (Core/Quests.cs); on a joined
+	// player's own machine, the lines the server sends for the journal.
+	public readonly Core.QuestLog Quests = new();
+	public List<string> QuestLines = new();
+	// Where the quest step in hand is done, and what it is (Quests.FocusMark):
+	// worked out on the server, mirrored to a joined player for his map and compass.
+	private Vector2? _questMarkAt; private string _questMarkLabel = "";
+	public (Vector2 At, string Label)? QuestMark => NetHub.IsServer ? Core.Quests.FocusMark(this) : _questMarkAt is { } m ? (m, _questMarkLabel) : null;
+	private float _questTick;
 	public readonly HashSet<string> KnownSites = new();
 	public readonly Dictionary<string, Vector2I> SiteBelief = new();
 	// Things you've seen happen (keys into the Chronicle).
@@ -134,6 +143,7 @@ public partial class PlayerController : Agent
 	// the background on it, and the people you count as family.
 	public Core.StartPath StartPath = Core.StartPath.HBC;
 	public string BackgroundTitle = "";
+	public readonly List<string> TraitTitles = new();   // the traits chosen on the sheet, by title
 	public readonly List<string> KinNames = new();
 	public string HomeCamp = "";
 	// Which sheet the player is drawn from (design doc 5.4): set by the
@@ -157,7 +167,18 @@ public partial class PlayerController : Agent
 	public int LastGiftToKinYear = 0;
 	public bool TravellingServer;   // the owner is on the road: the clock marches
 	public int RideId;              // the brigade (World/Convoys.cs) whose boats he is sitting in, 0 for none; the owner's machine follows them
-	public Economy.FortLedger HomePost => IsBandPerson ? null : Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;   // born to a band: no company post
+	public Economy.FortLedger HomePost => IsBandPerson ? null : PostedTo != "" && World.Convoys.Ledger(PostedTo) is { } posted ? posted : Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;   // born to a band: no company post
+
+	// Posted to a post of the country by name (a quest's "posting"): its books
+	// are his home from then on, wherever his company first set him down.
+	public string PostedTo = "";
+	public void PostTo(string place)
+	{
+		if (string.IsNullOrEmpty(place) || World.Convoys.Ledger(place) == null) { GD.PushWarning($"[quest] no post called '{place}' to post {DisplayName} to"); return; }
+		PostedTo = place;
+		Journal.Add($"{GameCalendar.Instance?.DateString}: You are posted to {place}.");
+		Say($"You are on the books of {place} now.");
+	}
 	public bool WantsToDefect;
 
 	// Afloat: which canoe carries you (server), mirrored as a flag.
@@ -176,8 +197,10 @@ public partial class PlayerController : Agent
 			AddChild(_canoeSprite);
 		}
 		_canoeSprite.Visible = afloat && !IsDead;
-		CollisionMask = afloat ? 1u : 5u;
+		CollisionMask = Marching ? 0u : afloat ? 1u : 5u;
 	}
+	// On the march (UI/TravelMode): carried along the route, through nothing.
+	public bool Marching;
 
 	// Paddling: you can be over water or ice; the moment you're on a land
 	// cell you've stepped out and the canoe stays at the water's edge.
@@ -317,7 +340,28 @@ public partial class PlayerController : Agent
 		// knifes the nearest person after 3 s, `--talk` opens a conversation after 4 s.
 		foreach (string arg in OS.GetCmdlineUserArgs())
 		{
-			if (arg.StartsWith("--spawn=") && NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => { GlobalPosition = IsoGrid.ToWorld(TerrainPainter.NamedSpot(spot)); _netTarget = GlobalPosition; _teleported = true; GD.Print($"[dev] host moved to {spot} {Cell}"); }; }
+			// Dev: `--spawn=` a post, a place, a camp, a cell ("538,1959"), a
+			// person ("leader@Fort Souris", "chief@Métis of the Souris", a name),
+			// or "@quest": where the quest step in hand is (after --quest has
+			// put you on it). The campaign editor's "play from here" uses these.
+			if (arg.StartsWith("--spawn=") && NetHub.IsServer)
+			{
+				string spot = arg.Substring(8);
+				GetTree().CreateTimer(spot == "@quest" ? 4.0 : 1.0).Timeout += () =>
+				{
+					Vector2 at = IsoGrid.ToWorld(TerrainPainter.NamedSpot(spot));
+					if (spot == "@quest") { if (Core.Quests.FocusTarget(this) is { } q) at = q; else { GD.Print("[dev] no quest step to stand at"); return; } }
+					else if (spot.Contains('@') || World.Posts.Named(spot) == null && WorldMap.Place(spot) == null && World.Camps.Named(spot) == null && !spot.Contains(','))
+					{
+						foreach (var n in Sim.Npcs) if (!n.IsDead && Core.Quests.Matches(spot, n)) { at = n.GlobalPosition + new Vector2(60, 30); break; }
+					}
+					GlobalPosition = at; _netTarget = GlobalPosition; _teleported = true;
+					GD.Print($"[dev] host moved to {spot} {Cell}");
+				};
+			}
+			// Dev: `--flags=a,b` raises campaign flags before a --quest jump, for
+			// the choices only an earlier choice of the player's would open.
+			if (arg.StartsWith("--flags=") && NetHub.IsServer) GetTree().CreateTimer(2.5).Timeout += () => { foreach (var f in arg.Substring(8).Split(',', System.StringSplitOptions.RemoveEmptyEntries)) { Core.Campaign.Flag(f.Trim()); GD.Print($"[dev] flag {f.Trim()}"); } };
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
 			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			// Dev: `-- --fx` plays each of the combat effects beside you in
@@ -343,11 +387,13 @@ public partial class PlayerController : Agent
 			// Dev: `--provoke=8` keeps swinging, every two seconds, so a fight runs its course.
 			if (arg.StartsWith("--provoke=") && int.TryParse(arg.Substring(10), out int blows)) for (int i = 0; i < blows; i++) GetTree().CreateTimer(3.0 + i * 2.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			// Dev: `--talkto=Name` stands you beside that person and opens the talk.
-			if (arg.StartsWith("--talkto=") && NetHub.IsServer) { string who = arg.Substring(9); GetTree().CreateTimer(7.0).Timeout += () => { foreach (var n in Sim.Npcs) if (!n.IsDead && n.DisplayName.Contains(who)) { GlobalPosition = n.GlobalPosition + new Vector2(40, 0); _netTarget = GlobalPosition; _teleported = true; GD.Print($"[dev] stood beside {n.DisplayName}"); var st = Conversation.Start(n); NetHub.I?.PushDialogue(this, st); break; } }; }
+			if (arg.StartsWith("--talkto=") && NetHub.IsServer) { string who = arg.Substring(9); GetTree().CreateTimer(7.0).Timeout += () => { foreach (var n in Sim.Npcs) if (!n.IsDead && (who == "@quest" ? Core.Quests.IsFocusPerson(this, n) : n.DisplayName.Contains(who))) { GlobalPosition = n.GlobalPosition + new Vector2(40, 0); _netTarget = GlobalPosition; _teleported = true; GD.Print($"[dev] stood beside {n.DisplayName}"); var st = Conversation.Start(n); NetHub.I?.PushDialogue(this, st); break; } }; }
 			// Dev: `--kit=BeaverPelt:4,TradeGoods:30` puts those in your pack.
 			if (arg.StartsWith("--kit=") && NetHub.IsServer) { foreach (string part in arg.Substring(6).Split(',')) { var bits = part.Split(':'); if (!System.Enum.TryParse<ItemId>(bits[0], true, out var kid)) continue; int howMany = bits.Length > 1 && int.TryParse(bits[1], out int c) ? c : 1; Inventory.Add(kid, howMany); GD.Print($"[dev] {howMany} x {Items.Items.Of(kid).Name} in your pack"); } }
 			// Dev: `--dumpbook=S` prints your journal to the console at that second.
 			if (arg.StartsWith("--dumpbook=") && double.TryParse(arg.Substring(11), out double bsecs) && NetHub.IsServer) GetTree().CreateTimer(bsecs).Timeout += () => { GD.Print("[book] " + DisplayName + "'s journal:"); foreach (string line in Journal) GD.Print("[book] " + line); };
+			// Dev: `--quest=<quest>[:<step>]` starts a quest at a step (Core/Quests.DevJump).
+			if (arg.StartsWith("--quest=") && NetHub.IsServer) { var qa = arg.Substring(8).Split(':'); GetTree().CreateTimer(3.0).Timeout += () => Core.Quests.DevJump(this, qa[0], qa.Length > 1 ? qa[1] : null); }
 			// Dev: `--quitafter=S` closes the game cleanly after S seconds, so a
 			// test run ends without the runtime being killed mid-print.
 			if (arg.StartsWith("--quitafter=") && double.TryParse(arg.Substring(12), out double qsecs)) GetTree().CreateTimer(qsecs).Timeout += () => { GD.Print("[dev] quitting after " + qsecs + "s"); GetTree().Quit(); };
@@ -369,7 +415,7 @@ public partial class PlayerController : Agent
 				foreach (var n in Sim.Npcs) { if (n == null) continue; if (n.Visible) live++; else hidden++; }
 				GD.Print($"[census] {(NetHub.IsServer ? "server" : "client")} agents={Sim.Agents.Count} npcs={Sim.Npcs.Count} (visible {live}, hidden {hidden}) animals={Sim.Animals.Count} players={PlayerCount()}");
 				GD.Print($"[census] ground: water={Sim.Terrain?.IsWaterOrIce(Cell)} walkable={Sim.Paths?.IsWalkable(Cell)} map={World.WorldMap.At(Cell)}");
-				GD.Print($"[census] me={DisplayName} rank={Rank} at {Cell} h{Needs.Health:0} f{Needs.Hunger:0} w{Needs.Warmth:0} t{Needs.Thirst:0} standing={Standing:0} task=\"{(Task.Kind == TaskKind.None ? "none" : Task.Describe())}\" inv={Inventory.SlotCount} journal={Journal.Count}");
+				GD.Print($"[census] me={DisplayName} of {Faction} rank={Rank} at {Cell} h{Needs.Health:0} f{Needs.Hunger:0} w{Needs.Warmth:0} t{Needs.Thirst:0} standing={Standing:0} task=\"{(Task.Kind == TaskKind.None ? "none" : Task.Describe())}\" inv={Inventory.SlotCount} journal={Journal.Count} mounted={Mounted} horse=\"{HorseName}\" {(HasHorse ? $"{HorsePicket.DistanceTo(GlobalPosition):0}px away" : "")} posted=\"{PostedTo}\" mark=\"{(QuestMark is { } qmk ? $"{qmk.Label} @ {IsoGrid.FromWorld(qmk.At)}" : "")}\" quests=[{string.Join(" | ", Core.Quests.Summary(this))}]");
 				foreach (var o in Sim.Players()) if (o != this) GD.Print($"[census] also here: {o.DisplayName} at {o.Cell} h{o.Needs.Health:0}");
 			};
 			if (arg == "--talk") GetTree().CreateTimer(4.0).Timeout += () => NetHub.I?.Act("interact");
@@ -393,9 +439,10 @@ public partial class PlayerController : Agent
 	public void AssignTask(TaskKind kind, int need, string intent = "")
 	{
 		var cal = GameCalendar.Instance;
-		if (Task.Kind != TaskKind.None && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say("Yesterday's task went undone. Mr. Auld noticed."); }
+		if (Task.Kind != TaskKind.None && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say($"Yesterday's task went undone. {(Task.Boss != "" ? Task.Boss : "The master")} noticed."); }
 		if (Task.Kind != TaskKind.None && Task.IsComplete) { Standing += 5f; TasksDone++; }
 		Task.Kind = kind; Task.Need = need; Task.Done = 0; Task.DayAssigned = cal.Day; Task.Intent = intent ?? ""; Task.Deadline = cal.Day + 1; Task.Accepted = false; Task.OwnWay = false;
+		Task.Boss = HomePost?.Leader is { } boss && !boss.IsDead ? Agents.Barks.CallName(boss) : "";
 		if (kind != TaskKind.None) Say(Task.Describe());
 	}
 
@@ -665,6 +712,7 @@ public partial class PlayerController : Agent
 	public override void _PhysicsProcess(double delta)
 	{
 		if (NetHub.IsServer) { SeenAcross(); MarriageTick(); CaptiveTick(); CountStores(); CountPrivate(); PostKeep((float)delta); HorseTick((float)delta); }
+		if (NetHub.IsServer && (_questTick -= (float)delta) <= 0f) { _questTick = 0.4f; Task.Counted ??= (k, n) => Core.Quests.OnTask(this, k, n); Core.Quests.Tick(this); }
 		base._PhysicsProcess(delta);
 		float dt = (float)delta;
 		if (IsServerCopy) ServerCanoeTick();
@@ -724,7 +772,12 @@ public partial class PlayerController : Agent
 		if (IsAfloat) { ground = 1.5f * (Aboard != null && Aboard.Overloaded ? 0.6f : Aboard != null ? Mathf.Lerp(1f, 0.75f, Aboard.LoadLbs / Canoe.CapacityLbs) : 1f); slippery = false; }
 		// On the road the march is compressed with the clock (design doc 18.3).
 		float travelBoost = _travel != null ? Mathf.Clamp(NetHub.IsServer ? GameCalendar.Instance.MotionScale : GameCalendar.TravelBoost, 1f, 8f) : 1f;
-		var want = input * EffectiveSpeed * ground * travelBoost;
+		// Your legs keep pace with a faster clock, as everyone else's do: at x2
+		// you cover twice the ground in a real second (up to x8; past that the
+		// world's walks are resolved, not walked). A slower clock leaves you
+		// your own pace: it is for longer days, not slow motion.
+		float clockBoost = Mathf.Clamp(GameCalendar.Instance.ClockPace, 1f, 8f);
+		var want = input * EffectiveSpeed * ground * Mathf.Max(travelBoost, clockBoost);
 		// Ice: no grip. You keep going the way you were going.
 		Velocity = slippery ? Velocity.Lerp(want, 0.06f) : want;
 		if (input.X != 0) _sprite.FlipH = input.X < 0;
@@ -801,6 +854,8 @@ public partial class PlayerController : Agent
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["ride"] = RideId, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
 			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["skills"] = new float[] { Skills.Hunting, Skills.Trapping, Skills.Trade, Skills.Woodcraft }, ["furs"] = BelievedFursMb, ["quota"] = BelievedQuotaMb, ["counted"] = LastCountedDay, ["unworn"] = UnwornList(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
+			["qmark"] = Core.Quests.FocusMark(this) is { } qm ? new Godot.Collections.Array { qm.At.X, qm.At.Y, qm.Label } : new Godot.Collections.Array(),
+			["quests"] = new Godot.Collections.Array(Core.Quests.Summary(this).ConvertAll(s => (Variant)s)),
 			["horse"] = PackHorse(),
 		};
 		_oneShotAnim = ""; _teleported = false;
@@ -815,6 +870,8 @@ public partial class PlayerController : Agent
 		foreach (var e in (Godot.Collections.Array)d["inv"]) { var row = (Godot.Collections.Array)e; if (row.Count > 2) Inventory.AddAt((int)row[2], (ItemId)(int)row[0], (int)row[1]); else Inventory.Add((ItemId)(int)row[0], (int)row[1]); }
 		Standing = (float)d["standing"];
 		TaskText = (string)d["task"];
+		if (d.TryGetValue("quests", out var qv)) { QuestLines.Clear(); foreach (var q in qv.AsGodotArray()) QuestLines.Add(q.AsString()); }
+		if (d.TryGetValue("qmark", out var qmv) && qmv.AsGodotArray() is { Count: 3 } qa) { _questMarkAt = new Vector2((float)qa[0], (float)qa[1]); _questMarkLabel = qa[2].AsString(); } else _questMarkAt = null;
 		_clientCooldown = (float)d["cd"];
 		string anim = (string)d["anim"];
 		if (anim != "") _oneShotAnim = anim;
@@ -936,6 +993,7 @@ public partial class PlayerController : Agent
 		var inh = LookAtInheritance();
 		PendingInheritance = null;
 		Heirs.Succeed(this, inh);
+		GetDown();   // whatever happened, the heir does not rise in the saddle
 		Revive();
 		Inventory.Clear();
 		GiveStartingKit();
@@ -1072,7 +1130,7 @@ public partial class PlayerController : Agent
 			{
 				var tree = Sim.Structures?.NearestTree(GlobalPosition, 150f);
 				if (tree == null) return "No tree within reach of the axe. The bush starts west and south of the post.";
-				if (Sim.Structures.FellTreeAt(tree.Value)) { Inventory.Add(ItemId.Firewood, Skills.Woodcraft >= 0.5f ? 6 : 4); Skills.Learn(ref Skills.Woodcraft, 0.02f); _busyUntil = Skills.Woodcraft >= 0.5f ? 0.8f : 1.2f; Chronicle.Event($"{DisplayName} felled a tree.", GlobalPosition, this, weight: 0.1f); return "You fell the spruce and split it: 4 firewood."; }
+				if (Sim.Structures.FellTreeAt(tree.Value)) { Inventory.Add(ItemId.Firewood, Skills.Woodcraft >= 0.5f ? 6 : 4); Skills.Learn(ref Skills.Woodcraft, 0.02f, "felling and splitting wood"); _busyUntil = Skills.Woodcraft >= 0.5f ? 0.8f : 1.2f; Chronicle.Event($"{DisplayName} felled a tree.", GlobalPosition, this, weight: 0.1f); return "You fell the spruce and split it: 4 firewood."; }
 				return "The axe glances off.";
 			}
 			case ItemKind.Tool when id == ItemId.Snowshoes:
@@ -1141,7 +1199,7 @@ public partial class PlayerController : Agent
 				if (site.IsDead) return "This lodge is dead. Nothing will come to a trap here.";
 				int n = Inventory.TakeUpTo(ItemId.SteelTrap, 6);
 				var line = site.SetTraps(TrapOwner, n, Skills.Trapping);
-				Skills.Learn(ref Skills.Trapping, 0.02f);
+				Skills.Learn(ref Skills.Trapping, 0.02f, "setting traps");
 				Chronicle.Event($"{DisplayName} set traps at {site.Name}.", GlobalPosition, this, weight: 0.5f);
 				return $"You set {n} traps at {site.Name} ({line.Traps} on your line). Come back tomorrow.";
 			}

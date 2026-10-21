@@ -5931,6 +5931,209 @@ Father = NodePath("../Askihk chief")
 [node name="Work" type="Marker2D" parent="Cast/Camps/Plains Cree/Kisik"]
 position = Vector2(128, 0)
 
+[node name="Beaver Hills Cree (Amiskwacîwiyiniwak)" type="Node2D" parent="Cast/Camps"]
+
+[node name="Mahihkan chief" type="Node2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)"]
+position = Vector2(37632, 33824)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mahihkan (chief)"
+Role = 5
+Faction = 1
+Home = 6
+PostName = "Beaver Hills Cree (Amiskwacîwiyiniwak)"
+Leader = true
+Frames = ExtResource("32_cree")
+Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)/Mahihkan chief"]
+position = Vector2(-128, -64)
+
+[node name="Mistanask" type="Node2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)"]
+position = Vector2(37248, 33824)
+script = ExtResource("30_npcspawn")
+DisplayName = "Mistanask"
+Role = 6
+Faction = 1
+Home = 6
+PostName = "Beaver Hills Cree (Amiskwacîwiyiniwak)"
+Frames = ExtResource("32_cree")
+Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)/Mistanask"]
+position = Vector2(64, -96)
+
+[node name="Kahkakiw" type="Node2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)"]
+position = Vector2(37248, 33632)
+script = ExtResource("30_npcspawn")
+DisplayName = "Kahkakiw"
+Role = 6
+Faction = 1
+Home = 6
+PostName = "Beaver Hills Cree (Amiskwacîwiyiniwak)"
+Frames = ExtResource("32_cree")
+Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)/Kahkakiw"]
+position = Vector2(64, 96)
+
+[node name="Apisimosis" type="Node2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)"]
+position = Vector2(37632, 33632)
+script = ExtResource("30_npcspawn")
+DisplayName = "Apisimosis"
+Role = 6
+Faction = 1
+Home = 6
+PostName = "Beaver Hills Cree (Amiskwacîwiyiniwak)"
+Frames = ExtResource("32_cree")
+Inventory = "Bow, Knife, HideCoat, DriedMeat:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)/Apisimosis"]
+position = Vector2(-320, 96)
+
+[node name="Nipin" type="Node2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)"]
+position = Vector2(37632, 33824)
+script = ExtResource("30_npcspawn")
+DisplayName = "Nipin"
+Role = 7
+Faction = 1
+Home = 6
+PostName = "Beaver Hills Cree (Amiskwacîwiyiniwak)"
+Frames = ExtResource("32_creew")
+SpriteScale = 0.76
+Female = true
+Inventory = "HideCoat, Knife"
+Spouse = NodePath("../Mahihkan chief")
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)/Nipin"]
+position = Vector2(-256, -64)
+
+[node name="Pipon" type="Node2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)"]
+position = Vector2(37248, 33824)
+script = ExtResource("30_npcspawn")
+DisplayName = "Pipon"
+Role = 7
+Faction = 1
+Home = 6
+PostName = "Beaver Hills Cree (Amiskwacîwiyiniwak)"
+Frames = ExtResource("32_creew")
+SpriteScale = 0.76
+Female = true
+Inventory = "HideCoat, Knife"
+Spouse = NodePath("../Mistanask")
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)/Pipon"]
+position = Vector2(-128, -192)
+
+[node name="Wapikwaniy" type="Node2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)"]
+position = Vector2(37440, 33920)
+script = ExtResource("30_npcspawn")
+DisplayName = "Wapikwaniy"
+Role = 8
+Faction = 1
+Home = 6
+PostName = "Beaver Hills Cree (Amiskwacîwiyiniwak)"
+Frames = ExtResource("32_creew")
+SpriteScale = 0.74
+Female = true
+Inventory = "HideCoat"
+Father = NodePath("../Mahihkan chief")
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Beaver Hills Cree (Amiskwacîwiyiniwak)/Wapikwaniy"]
+position = Vector2(128, 0)
+
+[node name="Metis of the Souris" type="Node2D" parent="Cast/Camps"]
+
+[node name="Bostonais Pangman captain" type="Node2D" parent="Cast/Camps/Metis of the Souris"]
+position = Vector2(74240, 53472)
+script = ExtResource("30_npcspawn")
+DisplayName = "Bostonais Pangman (hunt captain)"
+Role = 5
+Faction = 13
+Home = 6
+PostName = "Métis of the Souris"
+Leader = true
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the Souris/Bostonais Pangman captain"]
+position = Vector2(-128, -64)
+
+[node name="Antoine Houle" type="Node2D" parent="Cast/Camps/Metis of the Souris"]
+position = Vector2(73856, 53472)
+script = ExtResource("30_npcspawn")
+DisplayName = "Antoine Houle"
+Role = 6
+Faction = 13
+Home = 6
+PostName = "Métis of the Souris"
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the Souris/Antoine Houle"]
+position = Vector2(64, -96)
+
+[node name="Jean-Baptiste Desjarlais" type="Node2D" parent="Cast/Camps/Metis of the Souris"]
+position = Vector2(73856, 53280)
+script = ExtResource("30_npcspawn")
+DisplayName = "Jean-Baptiste Desjarlais"
+Role = 6
+Faction = 13
+Home = 6
+PostName = "Métis of the Souris"
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the Souris/Jean-Baptiste Desjarlais"]
+position = Vector2(64, 96)
+
+[node name="Francois Morin" type="Node2D" parent="Cast/Camps/Metis of the Souris"]
+position = Vector2(74240, 53280)
+script = ExtResource("30_npcspawn")
+DisplayName = "François Morin"
+Role = 6
+Faction = 13
+Home = 6
+PostName = "Métis of the Souris"
+Frames = ExtResource("32_voy")
+Inventory = "Musket, Knife, Capote, Pemmican:2"
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the Souris/Francois Morin"]
+position = Vector2(-320, 96)
+
+[node name="Marie Pangman" type="Node2D" parent="Cast/Camps/Metis of the Souris"]
+position = Vector2(74240, 53472)
+script = ExtResource("30_npcspawn")
+DisplayName = "Marie Pangman"
+Role = 7
+Faction = 13
+Home = 6
+PostName = "Métis of the Souris"
+Frames = ExtResource("32_cwife")
+SpriteScale = 0.76
+Female = true
+Inventory = "Kettle, Knife, Pemmican:2"
+Spouse = NodePath("../Bostonais Pangman captain")
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the Souris/Marie Pangman"]
+position = Vector2(-256, -64)
+
+[node name="Josette Desjarlais" type="Node2D" parent="Cast/Camps/Metis of the Souris"]
+position = Vector2(74048, 53568)
+script = ExtResource("30_npcspawn")
+DisplayName = "Josette Desjarlais"
+Role = 7
+Faction = 13
+Home = 6
+PostName = "Métis of the Souris"
+Frames = ExtResource("32_cwife")
+SpriteScale = 0.76
+Female = true
+Inventory = "Kettle, Knife, Pemmican:2"
+Spouse = NodePath("../Jean-Baptiste Desjarlais")
+
+[node name="Work" type="Marker2D" parent="Cast/Camps/Metis of the Souris/Josette Desjarlais"]
+position = Vector2(128, 64)
+
 [node name="Woodland Cree" type="Node2D" parent="Cast/Camps"]
 
 [node name="Okimaw chief" type="Node2D" parent="Cast/Camps/Woodland Cree"]

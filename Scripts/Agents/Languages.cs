@@ -45,6 +45,6 @@ public static class Languages
         };
     }
 
-    // The peoples of the country, as against the two companies and the ship.
-    public static bool IsNation(Faction f) => f is not (Faction.HBC or Faction.NWC or Faction.ShipsCrew or Faction.Wild);
+    // The peoples of the country, as against the companies and the ship.
+    public static bool IsNation(Faction f) => f is not (Faction.HBC or Faction.NWC or Faction.American or Faction.ShipsCrew or Faction.Wild);
 }

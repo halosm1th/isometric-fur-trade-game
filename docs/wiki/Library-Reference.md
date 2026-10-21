@@ -6,6 +6,8 @@ Every name the language gives you, with what it does and an example. Anything in
 
 Types: `int` is a whole number, `float` any number, `string` text, `bool` a condition or true/false. A *Days* is a length of time, `days(10)`; a *Date* is `date(1816, 6, 19)`. *effect* means the call changes the world, so it belongs in an effect hook (`OnActivate` ...) and not in a condition.
 
+The names you pass in (posts, brigade runs, items, people, letter addressees) are listed in the [World reference](World-Reference); what each effect really does once the game carries it out is in [Effects in the game](Effects-in-the-Game); the flags the game raises by itself are in [State, flags and variables](State-Flags-and-Variables).
+
 ## Beat header
 
 | Argument | Type | What it is |
@@ -14,12 +16,12 @@ Types: `int` is a whole number, `float` any number, `string` text, `bool` a cond
 | `title` | `string` | What the log and the news call the beat. Defaults to the id. |
 | `kind` | `Kind` | Fixed, Conditional, Event or Pressure. Almost never written: it is derived from what the beat has (see the guide). |
 | `date` | `Date` | The day the beat is due. A beat with no date is due the moment it wakes, plus its delay. |
-| `window` | `Days` | How long the world has to do the beat itself after its date before it is forced (Firm and Strict adherence). |
-| `lead` | `Days` | How long before its date the beat's pressure (OnApproach) begins. Default 30. |
-| `delay` | `Days` | For a beat with no date: days after waking before it is due. |
-| `repeat` | `Days` | The beat comes round again this many days after it happened, and can happen again. |
+| `window` | `Days` | How long the world has to do the beat itself after its date before it is forced: Strict forces it one window late, Firm two windows late. Default 60 days. |
+| `lead` | `Days` | How long before its date the beat's pressure (OnApproach) begins, and its rumour is first told. Default 30 days. |
+| `delay` | `Days` | For a beat with no date: days after waking before it is due. Default 0. |
+| `repeat` | `Days` | The beat comes round again this many days after it happened: a dated beat's date moves on by this much, a dateless beat sleeps this long. |
 | `rumour` | `string` | What the player is told while the beat is stirring or its day draws near: one line for the journal's "What is stirring" list, written as something a person at the post could have heard. The beat's own title is never shown there, so a rumour is the only thing that says anything before the beat happens. |
-| `keywords` | `string[]` | Words the news director looks for when it chooses what to tell the player. Free text. |
+| `keywords` | `string[]` | Words the news director looks for when it chooses what to tell the player, from 120 days before a dated beat's date until two windows after it. Free text. |
 
 ## Campaign header
 
@@ -29,21 +31,84 @@ Types: `int` is a whole number, `float` any number, `string` text, `bool` a cond
 | `description` | `string` | A few sentences about the campaign, shown under its name. |
 | `note` | `string` | A note kept in the JSON, for whoever opens it. Free text. |
 | `seed` | `int` | The seed for the script's dice (chance, random). The same seed gives the same history. |
-| `postsByFoundingYear` | `bool` | When true, posts appear in the world on 1 January of the year they were founded. |
+| `postsByFoundingYear` | `bool` | When true, posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only if a beat founds it. |
+| `start` | `Date` | The world's first day, for every starting path: date(1815, 5, 1). Without it the world begins in 1811, on the starting path's own day (10 June, 12 July or 20 August). What the script dates before the first day is history. A developer's --date wins. |
+| `startYear` | `int` | Only the year the world begins in: each starting path keeps its own day (the ship on 20 August and so on) in that year. Give start or startYear, not both. |
+| `include` | `string` | Parts of this script kept in their own files, tools/CampaignTool/src/parts/<name>.camp (several: "a, b"). A part has no header: its consts, beats and quest lines are this campaign's own, compiled into one JSON. Opened in the editor, a part is checked, drawn and simulated inside the campaign that includes it. |
+| `extends` | `string` | Another campaign (by its id, the file's name) whose beats this one plays as well: a story with quest lines can be built on "historical" and share its war. Where both have a beat of the same id, this campaign's wins. |
 
 ## Hooks
 
 | Hook | Kind | What it does |
 |---|---|---|
-| `AwakenWhen()` | condition (`=>`) | A beat only does anything on the days this holds (and its requirements are met). The first such day it wakes, and OnAwaken runs. Leave it out and the beat is awake from the start. |
+| `AwakenWhen()` | condition (`=>`) | A beat only does anything on the days this holds (and its requirements are met). The first such day it wakes, and OnAwaken runs; a dateless beat counts its delay from then. Leave it out and the beat is awake from the start. |
 | `OnAwaken()` | effects (`{ }`) | What happens at the moment the beat wakes, once. A repeating beat does it again each time round. |
-| `OnApproach()` | effects (`{ }`) | Pressure on the world as the beat's day draws near: it runs once, when the lead time before the date begins. This is how a beat makes the world ready for itself. |
-| `ActivateWhen()` | condition (`=>`) | A last condition the beat waits for once it is due. If it does not hold the beat is due but not yet happening. |
+| `OnApproach()` | effects (`{ }`) | Pressure on the world as the beat's day draws near: it runs once, on the first awake day within the lead time before the date (Steady adherence and up; never at Gentle). This is how a beat makes the world ready for itself. |
+| `ActivateWhen()` | condition (`=>`) | A last condition the beat waits for once it is due, and that a forced event waits for too. If it does not hold the beat is due but not yet happening. trigger() does not ask it. |
 | `OnActivate()` | effects (`{ }`) | What the beat does when it happens. |
-| `ResolveWhen()` | condition (`=>`) | The world got there by itself: while this holds, the beat is over without OnActivate running. |
+| `ResolveWhen()` | condition (`=>`) | The world got there by itself: asked every day the beat is awake, even long before its date. The first day it holds, OnResolve runs and the beat is over without OnActivate running. |
 | `OnResolve()` | effects (`{ }`) | What happens when the world resolves the beat. |
 | `CancelWhen()` | condition (`=>`) | The beat can no longer happen. Checked before everything else, on every day, whatever the adherence. |
 | `OnCancel()` | effects (`{ }`) | What happens when the beat is cancelled. |
+
+## Questline header
+
+| Argument | Type | What it is |
+|---|---|---|
+| `id` | `string` | The line's id, if it is not to be its name. |
+| `title` | `string` | The line's name in the journal. Required. |
+| `summary` | `string` | A line about what the story is. |
+| `forCompany` | `Company` | Only players of this company (Company.HBC or Company.NWC) are given the line's quests. Each quest can say otherwise. |
+
+## Quest header
+
+| Argument | Type | What it is |
+|---|---|---|
+| `id` | `string` | The quest's id, if it is not to be its name. |
+| `title` | `string` | The quest's name in the journal and on the screen. Required. |
+| `summary` | `string` | What the quest is: shown when it starts, or when its giver offers it. |
+| `giver` | `Person` | Someone who offers the quest when spoken to (Person.Factor, "leader@Edmonton House", a name). Without one, the quest starts by itself once it may. |
+| `forCompany` | `Company` | Only players of this company get the quest (default: the line's). |
+
+## Step header (talk, reach, task, bring, have, hunt, when, wait)
+
+| Argument | Type | What it is |
+|---|---|---|
+| `id` | `string` | The step's id, if it is not to be its name. |
+| `text` | `string` | What the player is told to do, on the screen and in the journal. |
+| `who` | `Person` | talk, bring: the person (a name, Person.Factor, or a role at a place: "leader@Edmonton House", "chief@<camp>", "partner@Fort Augustus"). |
+| `place` | `string` | reach: a post, a camp or a place on the map. |
+| `radius` | `int` | reach: how near counts as there, in pixels (default 400). |
+| `item` | `Item` | bring, have: what. |
+| `count` | `int` | bring, have: how many; task: how much of the work; hunt: how many beasts (default 1). |
+| `task` | `Task` | task: the work handed out, as the Factor would (Task.CarryCargo ...). |
+| `convoy` | `string` | task Task.Brigade: the brigade run to go with. |
+| `dest` | `string` | task Task.Brigade: where the boats are bound (default: the run's next landing). |
+| `species` | `string` | hunt: what to kill (Buffalo, Caribou ...; empty for anything). |
+| `days` | `int` | wait: how many days. |
+| `next` | `Step` | Where the quest goes after this step (another step, "complete" or "fail"); default the next one written. |
+
+## Choice header
+
+| Argument | Type | What it is |
+|---|---|---|
+| `label` | `string` | What the player says. Required. |
+| `reply` | `string` | What comes back. |
+| `when` | `bool` | The choice is offered only while this holds. |
+| `goto` | `Step` | Where the quest goes when this is chosen (a step, "complete" or "fail"); default the step after. |
+
+## Quest and step hooks
+
+| Hook | Kind | What it does |
+|---|---|---|
+| `StartWhen()` | condition (`=>`) | A quest starts (or is offered by its giver) only once this holds, and what it requires is done. |
+| `FailWhen()` | condition (`=>`) | Asked all the while the quest is under way: the first time it holds, the quest fails. |
+| `OnStart()` | effects (`{ }`) | What happens when the quest starts. |
+| `OnComplete()` | effects (`{ }`) | What happens when the quest is done. |
+| `OnFail()` | effects (`{ }`) | What happens when the quest fails. |
+| `Says()` | condition (`=>`) | What the person says when the player raises the step with them (a talk or bring step): Says() => "..."; |
+| `Done()` | condition (`=>`) | The step's condition: a when step is done once it holds (when Name(...) => condition; is the short form). |
+| `OnDone()` | effects (`{ }`) | What happens when the step is done, before the quest moves on. |
 
 ## Functions
 
@@ -55,6 +120,8 @@ Called by name, anywhere.
 
 A length of time in days.
 
+- `n` (int): How many days: a whole number, 0 or more.
+
 ```c
 window: days(45)
 ```
@@ -65,6 +132,10 @@ window: days(45)
 
 A calendar date.
 
+- `year` (int): The year, e.g. 1816.
+- `month` (int): The month, 1 (January) to 12 (December).
+- `day` (int): The day of the month, 1 to 31 (it must exist in that month).
+
 ```c
 date: date(1816, 6, 19)
 ```
@@ -73,7 +144,9 @@ date: date(1816, 6, 19)
 
 `chance(int percent) : bool`
 
-True this often (a percent), decided by the campaign's seed.
+True this often (a percent), decided by the campaign's seed. It rolls again every time it is asked: in AwakenWhen, chance(10) is a one-in-ten chance each day.
+
+- `percent` (int): How often it comes out true, 0-100. 30 means three times in ten.
 
 ```c
 chance(30)
@@ -85,6 +158,8 @@ chance(30)
 
 A condition written in the game's own form, for anything the language has no word for yet.
 
+- `condition` (string): The condition as the game writes it: "tension>=40", "flag:x", "post:Fort William" ... (see the JSON format page).
+
 ```c
 raw("tension>=40")
 ```
@@ -95,6 +170,8 @@ raw("tension>=40")
 
 A brigade run on the rivers, by name (Data/World/brigade_runs.json).
 
+- `run` (string): A brigade run's exact name: "the York boats", "the Saskatchewan brigade", "the Montreal canoes", "the Saskatchewan canoes" or "the Athabasca brigade".
+
 ```c
 brigade("the York boats").isLate
 ```
@@ -103,7 +180,14 @@ brigade("the York boats").isLate
 
 `news(string from, Person to, string subject, string text, int days, Company company?) : effect`
 
-A letter arrives for the player after some days.
+A sealed letter, sent now. After some days it reaches the first living person it is addressed to (it waits if there is nobody), and it is known only once it is read; reading it raises the flag heard:<this beat's id>.
+
+- `from` (string): Who the letter is from, as it will be read: "the Governor and Committee, London", "Montreal" ... Free text.
+- `to` (Person): Who it is for: Person.Factor, Person.Postmaster, Person.Partner, Person.Chief, or text: a person's exact name or "the master at <post>". It waits until someone fits.
+- `subject` (string): The letter's subject line.
+- `text` (string): What the letter says.
+- `days` (int): How many days it takes to arrive: London to the Bay is most of a year, Montreal to the interior two or three months.
+- `company` (Company, optional): Whose letter it is: Company.HBC (if left out) or Company.NWC. Read by the other company, it has been intercepted.
 
 ```c
 news(from: "Montreal", to: Person.Partner, subject: "war", text: "...", days: 75, company: Company.NWC)
@@ -113,7 +197,10 @@ news(from: "Montreal", to: Person.Partner, subject: "war", text: "...", days: 75
 
 `say(string text, Company to?) : effect`
 
-A line in the log, for one company or for everyone.
+A line in the journal of every player of one company (or of everyone), spoken over their heads.
+
+- `text` (string): The line itself.
+- `to` (Company, optional): Who hears it: Company.HBC (only HBC players), Company.NWC (only NWC players), or leave it out (or Company.All) for every player.
 
 ```c
 say("The boats are overdue.", Company.HBC)
@@ -125,6 +212,9 @@ say("The boats are overdue.", Company.HBC)
 
 Like say, but as a headline.
 
+- `text` (string): The headline itself.
+- `to` (Company, optional): Whose journals get the line: Company.HBC, Company.NWC, or leave it out for every player. The headline is shown to everyone either way.
+
 ```c
 shout("The governor is dead!")
 ```
@@ -133,7 +223,9 @@ shout("The governor is dead!")
 
 `trigger(Beat beat) : effect`
 
-Make another beat happen now.
+Make another beat happen at the end of today: its OnActivate runs whatever its date, requirements, ActivateWhen, or cancellation.
+
+- `beat` (Beat): The beat to happen now: its name (TheEnd), or its id as text for a beat made in a loop ("ship-1816").
 
 ```c
 trigger(TheEnd)
@@ -143,7 +235,10 @@ trigger(TheEnd)
 
 `after(Days delay, Lambda then) : effect`
 
-Do something some days from now.
+Do something some days from now (saved with the game).
+
+- `delay` (Days): How long to wait: days(10).
+- `then` (Lambda): What to do then: () => one effect; or () => { several; effects; }
 
 ```c
 after(days(10), () => trigger(TheEnd))
@@ -155,6 +250,9 @@ after(days(10), () => trigger(TheEnd))
 
 One way a random() can go, with its weight.
 
+- `weight` (int): How likely this option is, relative to the others' weights (they need not add to 100).
+- `then` (Lambda): What happens if this option is chosen: () => effect, or () => { ... }
+
 ```c
 option(30, () => world.raiseTension(5))
 ```
@@ -165,6 +263,8 @@ option(30, () => world.raiseTension(5))
 
 Do one of the options, chosen by weight.
 
+- `options` (Option, one or more): Two or more option(weight, () => ...); exactly one is done.
+
 ```c
 random(option(30, () => ...), option(70, () => ...))
 ```
@@ -174,6 +274,8 @@ random(option(30, () => ...), option(70, () => ...))
 `action(string verb) : effect`
 
 Any action the game has that the language has no word for: action("name", key: value, ...).
+
+- `verb` (string): The game's own name for an action ("tension", "stock" ...), followed by its fields as name: value (see the JSON format page).
 
 ```c
 action("tension", add: 5)
@@ -188,7 +290,7 @@ The state of the world: asked in conditions, changed in effects.
 
 `world.tension : int`
 
-How tense the colony and the companies are, 0-100.
+How close the two companies are to blows, 0-100. It starts at 20, falls by 1.2 a day on its own, and at 70 or more the companies are at open hostility.
 
 ```c
 world.tension >= 50
@@ -198,7 +300,7 @@ world.tension >= 50
 
 `world.standing : int`
 
-The player's standing with their company.
+The player's standing with their company (the local player; 0 if there is none).
 
 ```c
 world.standing < 10
@@ -248,7 +350,7 @@ world.dayOfYear > 200
 
 `world.convoysActive : int`
 
-How many brigades are on the rivers.
+How many brigade crossings are on the rivers now (not yet arrived).
 
 ```c
 world.convoysActive == 0
@@ -278,7 +380,7 @@ world.season == Season.Winter
 
 `world.playerFaction : Company`
 
-Which company the player works for.
+Which company a player works for: in multiplayer, true if any player does.
 
 ```c
 world.playerFaction == Company.HBC
@@ -288,7 +390,10 @@ world.playerFaction == Company.HBC
 
 `world.stock(string post, Item item) : int`
 
-How much of an item a post's ledger holds.
+How many pieces of an item a post's ledger holds. A post that does not stand has no ledger and answers nothing, so every comparison with it is false.
+
+- `post` (string): A post that keeps books, by its exact name: "York Factory", "Cumberland House" ... (World reference).
+- `item` (Item): Which item: Item.Rum, Item.Pemmican, Item.TradeGoods ...
 
 ```c
 world.stock("York Factory", Item.Rum) < 20
@@ -298,7 +403,9 @@ world.stock("York Factory", Item.Rum) < 20
 
 `world.furs(string post) : int`
 
-The furs in a post's ledger.
+The furs in a post's ledger, in Made Beaver.
+
+- `post` (string): A post that keeps books, by its exact name.
 
 ```c
 world.furs("York Factory") > 500
@@ -308,7 +415,9 @@ world.furs("York Factory") > 500
 
 `world.hasPost(string place) : bool`
 
-True once a post stands there.
+True while a post stands there: founded by the start year and not given up, or founded since (by the script, or on 1 January of its year with postsByFoundingYear).
+
+- `place` (string): A post on the world map, by its exact name: "Fort William", "Norway House" ...
 
 ```c
 world.hasPost("Fort William")
@@ -318,7 +427,9 @@ world.hasPost("Fort William")
 
 `world.isDead(string name) : bool`
 
-True once the named person is dead.
+True once the person with exactly this name is dead. Names are written as the game shows them ("Mr. William Auld", "Maskwa (chief)"); a name nobody in the world has is never dead.
+
+- `name` (string): A person's exact name as the game shows it: "Mr. William Auld", "Maskwa (chief)". A name nobody has is never dead.
 
 ```c
 world.isDead("Miles Macdonell")
@@ -330,6 +441,9 @@ world.isDead("Miles Macdonell")
 
 True in these months of the year (a range if two are given).
 
+- `first` (int): The first month, 1-12.
+- `last` (int, optional): The last month, 1-12 (leave it out for one month). Smaller than first wraps the year's end: inMonths(11, 3) is November to March.
+
 ```c
 world.inMonths(6, 8)
 ```
@@ -338,7 +452,10 @@ world.inMonths(6, 8)
 
 `world.raiseTension(int amount, string why?) : effect`
 
-Raise (or, if negative, lower) the tension, with a line for the log.
+Raise (or, if negative, lower) the tension, with a line for the log. The result is kept within 0-100.
+
+- `amount` (int): How much to add to the tension (0-100 scale); negative lowers it. It falls by 1.2 a day on its own, so 10 lasts about a week.
+- `why` (string, optional): A few words for the log saying why. Leave it out and the beat's title is used.
 
 ```c
 world.raiseTension(10, "the colony is armed")
@@ -348,7 +465,10 @@ world.raiseTension(10, "the colony is armed")
 
 `world.setLondon(float price, float quota) : effect`
 
-Set the London market's price and quota multipliers.
+Multiply next year's London price and quota at York Factory (1 leaves one alone). They compound: two calls of 0.9 make 0.81.
+
+- `price` (float): Multiplies next year's standard of trade (goods paid per MB of fur). 1 leaves it alone, 0.85 is a hard year, 1.15 a good one.
+- `quota` (float): Multiplies the returns London expects next year. 1 leaves it alone.
 
 ```c
 world.setLondon(0.85, 0.85)
@@ -358,7 +478,9 @@ world.setLondon(0.85, 0.85)
 
 `world.foundPost(string place) : effect`
 
-A post is founded there.
+A post on the world map is founded there and appears in the world.
+
+- `place` (string): A post on the world map, by its exact name.
 
 ```c
 world.foundPost("Fort William")
@@ -368,10 +490,144 @@ world.foundPost("Fort William")
 
 `world.addStock(string post, Item item, int amount) : effect`
 
-Put goods in (or, if negative, take them out of) a post's ledger.
+Put goods in (or, if negative, take them out of) a post's ledger. Nothing happens if the post does not stand.
+
+- `post` (string): A post that keeps books, by its exact name. It must stand, or nothing happens.
+- `item` (Item): Which item: Item.Rum, Item.Pemmican ...
+- `amount` (int): How many pieces to add; negative takes them away (never below 0).
 
 ```c
 world.addStock("York Factory", Item.Rum, -5)
+```
+
+### `world.regard(place)`
+
+`world.regard(string place) : int`
+
+How a band (by its camp's name) regards the company of the player asked for (the Bay, the Nor'Westers or the Americans; the Bay from a beat with no player), 0-100.
+
+- `place` (string): A band, by its camp's name: "Beaver Hills Cree (Amiskwacîwiyiniwak)" ...
+
+```c
+world.regard("Beaver Hills Cree") >= 60
+```
+
+### `world.addRegard(place, amount)`
+
+`world.addRegard(string place, int amount) : effect`
+
+Change how a band (by its camp's name) regards the player's company (the Bay's from a beat with no player); kept within 0-100.
+
+- `place` (string): A band, by its camp's name.
+- `amount` (int): How much to change the band's regard for that company (kept within 0-100); negative lowers it.
+
+```c
+world.addRegard("Beaver Hills Cree", 5)
+```
+
+### `world.happened(beat)`
+
+`world.happened(string beat) : bool`
+
+True once a beat has happened, by its id: a beat of this campaign, or of the one it extends ("seven-oaks").
+
+- `beat` (string): A beat's id, of this campaign or the one it extends: "seven-oaks", "pemmican-proclamation" ...
+
+```c
+world.happened("seven-oaks")
+```
+
+### `world.warParty(from, against, why?, withPlayer?)`
+
+`world.warParty(string from, string against, string why?, bool withPlayer?) : effect`
+
+A camp's fighting men ride against a camp or a post. Far from every player the fight is settled at once in numbers (men, guns, the defender's ground); near one, or with the player riding along (withPlayer: true), its men ride and fight for real. When it is over the flags war:<from>:won (or lost, or turned_back) and war:<from>:<against>:<outcome> are raised.
+
+- `from` (string): The camp whose fighting men ride out, by its camp's name: "Beaver Hills Cree (Amiskwacîwiyiniwak)", "Métis of the Forks" ...
+- `against` (string): Who they ride against: another camp, or a post by its exact name ("Brandon House").
+- `why` (string, optional): What they ride for, for the log and the news: "for their dead and their horses".
+- `withPlayer` (bool, optional): true: the player (the one a quest runs for) rides with them, and the fight is fought for real.
+
+```c
+world.warParty("Beaver Hills Cree (Amiskwacîwiyiniwak)", "Blackfoot", why: "for the horses", withPlayer: true)
+```
+
+### `world.truce(a, b, days?)`
+
+`world.truce(string a, string b, int days?) : effect`
+
+Two peoples (camps or posts by name) make peace: no horse raids or war parties between them for that long (365 days if not given), and their old scores are laid down.
+
+- `a` (string): One side: a camp, or a post by its exact name.
+- `b` (string): The other side: a camp, or a post by its exact name.
+- `days` (int, optional): How long the peace holds, in days (365 if not given).
+
+```c
+world.truce("Beaver Hills Cree (Amiskwacîwiyiniwak)", "Blackfoot", 365)
+```
+
+### `world.heatFeud(holder, against, amount?)`
+
+`world.heatFeud(string holder, string against, int amount?) : effect`
+
+The holder's old score against the other grows (0-10): at 4 and more they ride against them, in the season, unless there is a truce.
+
+- `holder` (string): Who holds the grievance: a camp (or a post) by name.
+- `against` (string): Who it is held against: a camp, or a post by its exact name.
+- `amount` (int, optional): How much hotter it grows, out of 10 (1 if not given). At 4 and more the holder rides against them in the season.
+
+```c
+world.heatFeud("Blackfoot", "Beaver Hills Cree (Amiskwacîwiyiniwak)", 3)
+```
+
+### `world.feud(holder, against)`
+
+`world.feud(string holder, string against) : int`
+
+How hot the holder's score against the other is, 0-10.
+
+- `holder` (string): Who holds the grievance: a camp (or a post) by name.
+- `against` (string): Who it is held against: a camp, or a post by its exact name.
+
+```c
+world.feud("Blackfoot", "Beaver Hills Cree (Amiskwacîwiyiniwak)") >= 4
+```
+
+### `world.atPeace(a, b)`
+
+`world.atPeace(string a, string b) : bool`
+
+True while two peoples have a truce.
+
+- `a` (string): One side: a camp, or a post by its exact name.
+- `b` (string): The other side: a camp, or a post by its exact name.
+
+```c
+world.atPeace("Beaver Hills Cree (Amiskwacîwiyiniwak)", "Blackfoot")
+```
+
+### `world.wonWar(band)`
+
+`world.wonWar(string band) : bool`
+
+True once a war party of that camp has won a fight.
+
+- `band` (string): The camp whose war party it was, by its camp's name.
+
+```c
+world.wonWar("Blackfoot")
+```
+
+### `world.lostWar(band)`
+
+`world.lostWar(string band) : bool`
+
+True once a war party of that camp has been beaten.
+
+- `band` (string): The camp whose war party it was, by its camp's name.
+
+```c
+world.lostWar("Blackfoot")
 ```
 
 
@@ -385,6 +641,8 @@ Named switches the campaign raises and lowers.
 
 True when the flag is raised.
 
+- `name` (string): The flag's name, as text: "governor_killed". Also a beat's id, or a game flag like "late:the York boats".
+
 ```c
 flags.has("governor_killed")
 ```
@@ -395,6 +653,8 @@ flags.has("governor_killed")
 
 Raise a flag.
 
+- `name` (string): The flag's name, as text. Any name you like; other beats test it with flags.has.
+
 ```c
 flags.set("governor_killed")
 ```
@@ -404,6 +664,8 @@ flags.set("governor_killed")
 `flags.clear(string name) : effect`
 
 Lower a flag.
+
+- `name` (string): The flag's name, as text.
 
 ```c
 flags.clear("calm")
@@ -420,6 +682,8 @@ What the player has done, as the campaign has been told of it: the game records 
 
 True once the player has done this at least once: truce, raid, escort or courier.
 
+- `deed` (string): Which deed: "truce", "raid", "escort" or "courier".
+
 ```c
 player.did("truce")
 ```
@@ -430,8 +694,109 @@ player.did("truce")
 
 How many times the player has done it.
 
+- `deed` (string): Which deed: "truce", "raid", "escort" or "courier".
+
 ```c
 player.deeds("escort") >= 2
+```
+
+### `player.posted(place)`
+
+`player.posted(string place) : bool`
+
+True when the player (the one a quest runs for; from a beat, any player) is on the books of that post.
+
+- `place` (string): A post that keeps books, by its exact name.
+
+```c
+player.posted("Edmonton House")
+```
+
+### `player.rapport(who)`
+
+`player.rapport(string who) : int`
+
+What the person makes of the player, -100 to 100. Who is a name, or a role at a place: "leader@Fort Augustus", "chief@Beaver Hills Cree".
+
+- `who` (string): The person: an exact name, Person.Factor, or a role at a place such as "leader@Fort Augustus" or "chief@<camp>".
+
+```c
+player.rapport("leader@Fort Augustus") > 20
+```
+
+### `player.postTo(place)`
+
+`player.postTo(string place) : effect`
+
+Put the player on the books of another post: it is their home from now on (its stores, its master, its men).
+
+- `place` (string): The post that becomes the player's home: one that keeps books, by its exact name.
+
+```c
+player.postTo("Edmonton House")
+```
+
+### `player.addStanding(amount)`
+
+`player.addStanding(int amount) : effect`
+
+Raise (or, if negative, lower) the player's standing with their company.
+
+- `amount` (int): How much to add to the player's standing with their company; negative lowers it.
+
+```c
+player.addStanding(3)
+```
+
+### `player.addRapport(who, amount)`
+
+`player.addRapport(string who, int amount) : effect`
+
+Change what someone makes of the player. Who is a name or a role at a place, as for rapport.
+
+- `who` (string): The person: an exact name, Person.Factor, or a role at a place such as "leader@Fort Augustus".
+- `amount` (int): How much to change what they make of the player (-100 to 100 scale); negative sours it.
+
+```c
+player.addRapport("leader@Fort Augustus", 10)
+```
+
+### `player.give(item, count?)`
+
+`player.give(Item item, int count?) : effect`
+
+Put something in the player's pack (1 if no count).
+
+- `item` (Item): What to put in the player's pack: Item.Tobacco ...
+- `count` (int, optional): How many (1 if left out).
+
+```c
+player.give(Item.Tobacco, 2)
+```
+
+### `player.take(item, count?)`
+
+`player.take(Item item, int count?) : effect`
+
+Take something from the player's pack, as much as they have up to the count.
+
+- `item` (Item): What to take from the player's pack.
+- `count` (int, optional): How many at most (1 if left out); they lose what they have up to this.
+
+```c
+player.take(Item.Rum)
+```
+
+### `player.note(text)`
+
+`player.note(string text) : effect`
+
+A line in the player's journal, said over their head.
+
+- `text` (string): The line for the player's journal, also said over their head.
+
+```c
+player.note("Mr. Bird wants you at the hunt.")
 ```
 
 
@@ -463,7 +828,7 @@ Raid.count >= 2
 
 `Beat.age : int`
 
-Days since the beat last happened.
+Days since the beat last happened (99999 if it never has).
 
 ```c
 SevenOaks.age > 90
@@ -478,7 +843,7 @@ SevenOaks.age > 90
 
 `Brigade.isLate : bool`
 
-True when the brigade has missed its day.
+True when the brigade has missed its day (until it arrives or sets out again).
 
 ```c
 brigade("the York boats").isLate
@@ -488,7 +853,7 @@ brigade("the York boats").isLate
 
 `Brigade.isLost : bool`
 
-True when the brigade has been lost.
+True when the brigade has lost pieces on this crossing.
 
 ```c
 brigade("the York boats").isLost
@@ -498,7 +863,7 @@ brigade("the York boats").isLost
 
 `Brigade.isRobbed : bool`
 
-True when the brigade has been robbed.
+True when the brigade was robbed on this crossing.
 
 ```c
 brigade("the York boats").isRobbed
@@ -508,7 +873,7 @@ brigade("the York boats").isRobbed
 
 `Brigade.wasTurnedBack : bool`
 
-True when the brigade was turned back.
+True when the brigade was turned back on this crossing.
 
 ```c
 brigade("the York boats").wasTurnedBack
@@ -518,7 +883,7 @@ brigade("the York boats").wasTurnedBack
 
 `Brigade.isOut : bool`
 
-True when the brigade is out on the river.
+True when the brigade has set out at least once (it stays true: on the river now is isOut && !isIn).
 
 ```c
 brigade("the York boats").isOut
@@ -528,7 +893,7 @@ brigade("the York boats").isOut
 
 `Brigade.isIn : bool`
 
-True when the brigade has arrived.
+True when the brigade has arrived (until it sets out again).
 
 ```c
 brigade("the York boats").isIn
@@ -548,7 +913,7 @@ brigade("the York boats").isWintering
 
 `Brigade.daysLate : int`
 
-How many days late the brigade is.
+How many days late the brigade's crossing is (0 when it is not on the river).
 
 ```c
 brigade("the York boats").daysLate > 10
@@ -558,7 +923,7 @@ brigade("the York boats").daysLate > 10
 
 `Brigade.daysOut : int`
 
-How many days the brigade has been out.
+How many days the brigade's crossing has been out (0 when it is not on the river).
 
 ```c
 brigade("the York boats").daysOut > 40
@@ -568,7 +933,9 @@ brigade("the York boats").daysOut > 40
 
 `Brigade.delay(int days?) : effect`
 
-Hold the brigade up.
+Hold the brigade on the bank for some days (5 if not given).
+
+- `days` (int, optional): How many days the boats are held on the bank (5 if left out).
 
 ```c
 brigade("the York boats").delay(4)
@@ -578,7 +945,9 @@ brigade("the York boats").delay(4)
 
 `Brigade.turnBack(int days?) : effect`
 
-Turn the brigade back.
+Turn the brigade back toward the post it left. (The game does not use days.)
+
+- `days` (int, optional): Accepted, but the game does not use it: the boats simply go back.
 
 ```c
 brigade("the York boats").turnBack()
@@ -588,7 +957,7 @@ brigade("the York boats").turnBack()
 
 `Brigade.lose() : effect`
 
-The brigade is lost with all hands and goods.
+Half of every kind of piece the brigade carries is lost on the road; the boats go on.
 
 ```c
 brigade("the York boats").lose()
@@ -598,7 +967,7 @@ brigade("the York boats").lose()
 
 `Brigade.cancel() : effect`
 
-The brigade does not sail this year.
+Stand down the crossing now on the road: its pieces go back on the books of the post that loaded them. Later crossings still run.
 
 ```c
 brigade("the York boats").cancel()
@@ -608,17 +977,84 @@ brigade("the York boats").cancel()
 
 `Brigade.launch(int leg?) : effect`
 
-Send the brigade out now, from a leg of its route.
+Send one crossing of the run out now: leg is its place in the run's list of legs, counting from 0.
+
+- `leg` (int, optional): Which crossing of the run, counting from 0 in the run's list of legs (0 if left out). The World reference lists them.
 
 ```c
 brigade("the York boats").launch()
 ```
 
 
+## A quest
+
+A quest's own name is a value: `Landfall.done`. Quests are written in `[...]` after a quest's header to be required.
+
+### `Quest.done`
+
+`Quest.done : bool`
+
+True once the quest is done (for the player it runs for; from a beat, any player).
+
+```c
+Landfall.done
+```
+
+### `Quest.active`
+
+`Quest.active : bool`
+
+True while the quest is under way.
+
+```c
+Landfall.active
+```
+
+### `Quest.failed`
+
+`Quest.failed : bool`
+
+True once the quest has failed.
+
+```c
+Landfall.failed
+```
+
+### `Quest.start()`
+
+`Quest.start() : effect`
+
+Start the quest now, whatever it requires and whoever gives it.
+
+```c
+TheHunt.start()
+```
+
+### `Quest.complete()`
+
+`Quest.complete() : effect`
+
+End the quest as done.
+
+```c
+TheHunt.complete()
+```
+
+### `Quest.fail()`
+
+`Quest.fail() : effect`
+
+End the quest as failed.
+
+```c
+TheHunt.fail()
+```
+
+
 ## Named values
 
-- **`Company`**: The two companies (and everyone): Company.HBC, Company.NWC, Company.All.
-  Values: `Company.HBC`, `Company.NWC`, `Company.All`
+- **`Company`**: The companies (and everyone): Company.HBC, Company.NWC, Company.American (the Missouri, Pacific and American Fur Companies), Company.All.
+  Values: `Company.HBC`, `Company.NWC`, `Company.American`, `Company.All`
 - **`Person`**: Who a letter is addressed to: Person.Factor, Person.Postmaster, Person.Partner, Person.Chief. A plain string names anyone else.
   Values: `Person.Factor`, `Person.Postmaster`, `Person.Partner`, `Person.Chief`
 - **`Season`**: The river's season, for world.season: Season.Breakup, OpenWater, FreezeUp, Winter.
@@ -626,5 +1062,7 @@ brigade("the York boats").launch()
 - **`Kind`**: The beat kinds, for the kind: argument when the derived one is not what you want: Kind.Fixed, Conditional, Event, Pressure.
   Values: `Kind.Fixed`, `Kind.Conditional`, `Kind.Event`, `Kind.Pressure`
 - **`Item`**: A trade good: Item.Rum, Item.Pemmican ... every item the game knows.
+- **`Task`**: The work a quest step can hand the player, as the Factor would: Task.CarryCargo, Task.Firewood, Task.Brigade ... (Player/PlayerTask.cs).
+  Values: `Task.Firewood`, `Task.CarryCargo`, `Task.DriveOffAnimals`, `Task.DeliverLetter`, `Task.Raid`, `Task.Report`, `Task.Courier`, `Task.Geese`, `Task.Brigade`
 
 Items: `Ale`, `Awl`, `Axe`, `Beads`, `BeaverPelt`, `Berries`, `Bow`, `Bread`, `BuffaloRobe`, `Capote`, `CaribouHide`, `Corn`, `DriedGoose`, `DriedMeat`, `Firewood`, `Fish`, `FishingLine`, `FishingNet`, `Flint`, `Goose`, `Hare`, `HideCoat`, `IceChisel`, `Kettle`, `Knife`, `MbToken`, `Musket`, `PackBasket`, `Pemmican`, `PointBlanket`, `Powder`, `Ptarmigan`, `Rum`, `SaltGeese`, `ShotHide`, `ShotPelt`, `Snowshoes`, `SpruceBeer`, `SteelTrap`, `Stroud`, `ThinPelt`, `Tobacco`, `Tomahawk`, `TradeGoods`, `Tumpline`, `Venison`, `Water`, `WolfPelt`.

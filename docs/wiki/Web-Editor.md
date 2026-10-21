@@ -10,9 +10,11 @@ opens an editor at <http://localhost:8765/>. It runs on your machine (nothing is
 
 ## The screen
 
-- **Left:** the files. *Campaigns* are the scripts in `tools/CampaignTool/src` (with a green *installed* tag when `Campaigns/<name>.json` exists), *Examples* are the small teaching scripts, and *Shipped as JSON* are campaigns that were written as JSON and have no script yet. Opening one of those *converts* it: you see the same campaign written in the language, and saving writes a new `src/<name>.camp`.
+- **Left:** the files. *Parts (included)* are the pieces in `tools/CampaignTool/src/parts` that a campaign's header includes (`include: "american-road"`), tagged with the campaign that includes them: opened, a part is checked, simulated and drawn on the map inside that campaign, *Install in game* installs that campaign, and clicking a problem or a pin that is in the other file opens it at the line. *Campaigns* are the scripts in `tools/CampaignTool/src` (with a green *installed* tag when `Campaigns/<name>.json` exists), *Examples* are the small teaching scripts, and *Shipped as JSON* are campaigns that were written as JSON and have no script yet. Opening one of those *converts* it: you see the same campaign written in the language, and saving writes a new `src/<name>.camp`.
 - **Middle:** the script, with line numbers. Errors are underlined in red; the line number goes red too.
-- **Right:** five tabs: **Problems**, **JSON**, **Simulate**, **Graph**, **Reference**.
+- **Right:** six tabs: **Problems**, **JSON**, **Simulate**, **Graph**, **Map**, **Reference**.
+
+The three panes can be **resized**: drag the thin bar between the file list and the script, or between the script and the tabs. Double-click a bar to put it back; with a bar focused (Tab to it), the left and right arrow keys move it. The widths are remembered for next time. (On a narrow window the panes stack instead.)
 
 ## Highlighting
 
@@ -35,12 +37,14 @@ Colours say what a word *is*, so a misspelling shows up as the wrong colour befo
 
 - **Checking.** Half a second after you stop typing the whole script is compiled and checked. The status at the top says *56 beats, clean* or *1 error*. The underlined span is exactly what the compiler objected to; hover over it for the message, or read it in **Problems**.
 - **Completion.** Type the start of a name, or press **Ctrl+Space**. After `world.` you get `world`'s members; after `Company.` its values; after `brigade("...").` the brigade's; in a beat's braces, the hooks. **Tab** or **Enter** accepts; **Esc** closes. A line below the list says what the highlighted item is.
-- **Hover** over any library word to see its signature, what it does and an example.
+- **Hover** over any library word to see its signature, what it does, what each of its arguments is, and an example. Hover over a **named argument** in a call (`to:` in `say("...", to: Company.HBC)`) to see what that argument is; over a type (`Company`, `Days`) for what it holds; over a header argument (`window:`, `start:`, `giver:`) for what it means; over a quest hook or step hook (`StartWhen`, `Says`) for when it runs.
 - **Enter** keeps the indent (and adds one after `{`); **Tab** inserts four spaces.
 
 ![An error underlined in the editor](images/editor-error.png)
 
 ## The tabs
+
+**Play in game** (or **Ctrl+Enter**) installs the campaign and starts the game at the quest step the cursor is in; each step listed under a place on the **Map** has its own *play* button. The game starts on that step's road (the quest line's company), standing where the step happens (its person for a talk or bring step, its place for a reach step, else the nearest step before it, else the quest's giver), on the day after whatever the quest - or any quest it requires - waits for, with every earlier quest done and the flags it waits on raised. It runs with `--watch`, so pressing *Install in game* again reloads the campaign in the running game without losing your place. Godot is found from the `GODOT` environment variable, or a `Godot_v*` folder beside the repository; the status line shows what it is doing, and hovering it shows the command it ran.
 
 **Problems** lists the compile error (if any), the checker's errors and warnings, and, if you tick *show notes*, the gentler notes (a flag that nothing reads). Click one to jump to its line.
 
@@ -54,7 +58,17 @@ Colours say what a word *is*, so a misspelling shows up as the wrong colour befo
 
 ![The beat graph](images/editor-graph.png)
 
-**Reference** is the whole language, searchable, with an *Insert* button on every example. It is written from the same table the compiler runs, so it cannot be out of date.
+**Map** draws the world the campaign plays in: the ground, every post coloured by company (HBC red, NWC blue, American green; a hollow square for a post given up), the band camps (and, if you tick *family camps*, the families camped by the posts), and the cast placed in the game's scene. On top go the campaign's own places: a numbered pin for each quest step's place or person (`reach Souris(place: "Fort Souris")`, `talk Report(who: "leader@Fort Souris")`, `Person.Factor`), with the quest's steps joined in order so you can see the road it sends the player down, a *G* for a quest's giver, and a small diamond for the places beats and quest effects act on (`posting`, `regard`, `stock`, `war_party`...). Pick one quest in the list to see only its road; *Fit* frames whatever is shown.
+
+- **Hover** a place for what it is and who lives there (the leader starred); hover a pin for the step.
+- **Click** a pin to jump to its step in the script; click a place to list, below the map, everything the campaign does there and everyone placed there.
+- **Find a place** centres the map on it by name - a quick way to check the spelling of a camp before you write it.
+- A name the game would not find (a misspelt camp, a post that does not exist, a person nobody of that name is placed as) is listed above the map, with the line it is on, the same way the checker reports it.
+- Drag to pan, the wheel (or + and -, with the map focused) to zoom, the arrow keys to move. It follows the script: the pins are redrawn each time it is checked.
+
+**Reference** is the whole language, searchable: the campaign and beat headers, the beat hooks, the quest lines' arguments and hooks, every function and member (`world`, `flags`, `player`, beats, quests, brigades), the named values and the types. Each function lists its **arguments with what each one is**, and in its signature every argument name and type can be hovered for the same. An *Insert* button puts the example into the script at the cursor. It is written from the same table the compiler runs, so it cannot be out of date.
+
+**Open in its own tab ↗** (at the top of the Reference) opens the reference as a page of its own, at <http://localhost:8765/?view=reference>, to keep beside the editor or on another screen. It searches the same way; its buttons copy an example to the clipboard instead of inserting it.
 
 ![The reference, in the dark theme](images/editor-reference-dark.png)
 

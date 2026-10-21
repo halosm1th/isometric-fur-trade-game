@@ -76,6 +76,7 @@ public static class SaveGame
             ["version"] = 1,
             ["calendar"] = new GDict { ["year"] = cal.Year, ["month"] = cal.Month, ["day"] = cal.Day, ["hour"] = cal.Hour, ["sky"] = (int)cal.Weather.Current, ["skies"] = cal.Weather.Save(), ["skyHours"] = cal.Weather.HoursLeft },
             ["tension"] = Rivalry.Tension,
+            ["union"] = Union.Save(),
             ["campaign"] = Campaign.Save(),
             ["explored"] = UI.Exploration.Save(),
             ["posts"] = PostLedgers(),
@@ -83,6 +84,7 @@ public static class SaveGame
             ["abroad"] = MailOf(Mail.Abroad),
             ["council"] = CouncilState(),
             ["grudges"] = GrudgeState(),
+            ["acquaint"] = UI.Acquaintance.Save(),
             ["losses"] = Losses.Save(HomeKey),
             ["favours"] = Favours.Save(),
             ["fort"] = Ledger(Sim.Fort),
@@ -149,7 +151,7 @@ public static class SaveGame
     {
         if (b == null) return new GDict();
         var d = Household(b);
-        d["standing"] = b.StandingWithCompany; d["standingNwc"] = b.StandingWithNwc; d["debt"] = b.DebtMb; d["debtNwc"] = b.DebtNwcMb;
+        d["standing"] = b.StandingWithCompany; d["standingNwc"] = b.StandingWithNwc; d["debt"] = b.DebtMb; d["debtNwc"] = b.DebtNwcMb; d["standingAmer"] = b.StandingWithAmericans; d["debtAmer"] = b.DebtAmericanMb;
         d["rumTaste"] = b.RumTaste; d["invited"] = b.InvitedToTrade;
         return d;
     }
@@ -313,10 +315,11 @@ public static class SaveGame
             var house = new GArr();
             foreach (var f in p.House) house.Add(new GDict { ["name"] = f.Name, ["born"] = f.Born, ["died"] = f.Died, ["rank"] = f.Rank, ["end"] = f.End, ["did"] = f.Did });
             d["house"] = house; d["married"] = p.MarriedOnDay;
-            d["path"] = (int)p.StartPath; d["background"] = p.BackgroundTitle; d["kin"] = string.Join("|", p.KinNames); d["yearStory"] = p.LastYearStory; d["camp"] = p.HomeCamp; d["frames"] = p.FramesPath;
+            d["path"] = (int)p.StartPath; d["background"] = p.BackgroundTitle; d["traits"] = string.Join("|", p.TraitTitles);
+            var lessons = new GArr(); foreach (var l in p.Skills.History) lessons.Add(new GArr { l.Day, l.Skill, l.Amount, l.Why }); d["lessons"] = lessons; d["kin"] = string.Join("|", p.KinNames); d["yearStory"] = p.LastYearStory; d["camp"] = p.HomeCamp; d["frames"] = p.FramesPath;
             d["ambitions"] = ambs; d["tasksDone"] = p.TasksDone; d["tasksRefused"] = p.TasksRefused; d["privateMb"] = p.PrivateWorthMb; d["ambDeclared"] = p.AmbitionsDeclared;
-            d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["tongue2"] = p.AssiniboineFluency; d["authorized"] = p.AuthorizedAcrossUntilDay; d["inland"] = p.PostedInland; d["captive"] = p.CaptiveOf == Sim.Nwc ? "nwc" : p.CaptiveOf == Sim.Fort ? "fort" : ""; d["captiveUntil"] = p.CaptiveUntilDay; d["parole"] = p.ParoleUntilDay; d["paroleTo"] = (int)p.ParoleTo; d["paroleConfessed"] = p.ParoleConfessed;
-            d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline;
+            d["standing"] = p.Standing; d["rank"] = p.Rank; d["spouse"] = p.Spouse?.DisplayName ?? ""; d["tongue"] = p.CreeFluency; d["tongue2"] = p.AssiniboineFluency; d["authorized"] = p.AuthorizedAcrossUntilDay; d["inland"] = p.PostedInland; d["postedTo"] = p.PostedTo; d["quests"] = p.Quests.Save(); d["captive"] = p.CaptiveOf == Sim.Nwc ? "nwc" : p.CaptiveOf == Sim.Fort ? "fort" : ""; d["captiveUntil"] = p.CaptiveUntilDay; d["parole"] = p.ParoleUntilDay; d["paroleTo"] = (int)p.ParoleTo; d["paroleConfessed"] = p.ParoleConfessed;
+            d["task"] = new GArr { (int)p.Task.Kind, p.Task.Need, p.Task.Done, p.Task.DayAssigned }; d["taskIntent"] = p.Task.Intent; d["taskDeadline"] = p.Task.Deadline; d["taskBoss"] = p.Task.Boss;
             var known = new GArr(); foreach (var s in p.KnownSites) known.Add(s);
             d["knownSites"] = known;
             d["horse"] = p.PackHorse();
@@ -420,6 +423,7 @@ public static class SaveGame
             cal.Weather.Force((SkyState)I(c, "sky"), F(c, "skyHours", 6f));
             if (c.ContainsKey("skies")) cal.Weather.Load(c["skies"].AsGodotArray());
             Rivalry.Tension = F(d, "tension", 20f);
+            Union.Load(d.ContainsKey("union") ? d["union"].AsGodotDictionary() : null);
             Campaign.Restore(d.ContainsKey("campaign") ? d["campaign"].AsGodotDictionary() : null);
             if (d.ContainsKey("explored")) UI.Exploration.Load(d["explored"].AsGodotArray());
             Posts.Sync(false);
@@ -430,6 +434,7 @@ public static class SaveGame
             Mail.Abroad.Clear();
             if (d.ContainsKey("abroad")) foreach (var mv in d["abroad"].AsGodotArray()) Mail.Abroad.Add(MailFrom(mv.AsGodotDictionary()));
             if (d.ContainsKey("council")) LoadCouncil(d["council"].AsGodotDictionary());
+            UI.Acquaintance.Restore(d.TryGetValue("acquaint", out var aq) ? aq.AsGodotDictionary() : new GDict());
             Grudges.All.Clear();
             if (d.ContainsKey("grudges")) foreach (var gv in d["grudges"].AsGodotArray()) { var gd = gv.AsGodotDictionary(); Grudges.All.Add(new Grudge { Holder = S(gd, "holder"), Against = S(gd, "against"), Victim = S(gd, "victim"), Day = I(gd, "day"), DebtMb = F(gd, "debt"), Settled = B(gd, "settled"), Blood = B(gd, "blood") }); }
 
@@ -441,7 +446,7 @@ public static class SaveGame
                 if (b == null || bd.Count == 0) return;
                 LoadHousehold(b, bd);
                 b.StandingWithCompany = F(bd, "standing", 50f); b.StandingWithNwc = F(bd, "standingNwc", 50f);
-                b.DebtMb = F(bd, "debt"); b.DebtNwcMb = F(bd, "debtNwc"); b.RumTaste = F(bd, "rumTaste"); b.InvitedToTrade = B(bd, "invited");
+                b.DebtMb = F(bd, "debt"); b.DebtNwcMb = F(bd, "debtNwc"); b.StandingWithAmericans = F(bd, "standingAmer", 50f); b.DebtAmericanMb = F(bd, "debtAmer"); b.RumTaste = F(bd, "rumTaste"); b.InvitedToTrade = B(bd, "invited");
             }
             LoadBand(Sim.Band, d["band"].AsGodotDictionary());
             if (d.ContainsKey("assiniboine")) LoadBand(Sim.Assiniboine, d["assiniboine"].AsGodotDictionary());
@@ -569,15 +574,18 @@ public static class SaveGame
         p.House.Clear();
         if (d.ContainsKey("house")) foreach (var hv in d["house"].AsGodotArray()) { var hd = hv.AsGodotDictionary(); p.House.Add(new Forebear { Name = S(hd, "name"), Born = I(hd, "born"), Died = I(hd, "died"), Rank = S(hd, "rank", "labourer"), End = S(hd, "end"), Did = S(hd, "did") }); }
         p.MarriedOnDay = I(d, "married", -1);
-        p.StartPath = (Core.StartPath)I(d, "path"); p.BackgroundTitle = S(d, "background"); p.LastYearStory = S(d, "yearStory"); p.HomeCamp = S(d, "camp"); p.FramesPath = S(d, "frames"); p.ApplyLook();
+        p.StartPath = (Core.StartPath)I(d, "path"); p.BackgroundTitle = S(d, "background");
+        p.TraitTitles.Clear(); foreach (var tt in S(d, "traits").Split('|', System.StringSplitOptions.RemoveEmptyEntries)) p.TraitTitles.Add(tt);
+        p.Skills.History.Clear();
+        if (d.ContainsKey("lessons")) foreach (var lv in d["lessons"].AsGodotArray()) { var la = lv.AsGodotArray(); if (la.Count == 4) p.Skills.History.Add(new Skills.Lesson(la[0].AsInt32(), la[1].AsInt32(), la[2].AsSingle(), la[3].AsString())); } p.LastYearStory = S(d, "yearStory"); p.HomeCamp = S(d, "camp"); p.FramesPath = S(d, "frames"); p.ApplyLook();
         p.KinNames.Clear(); foreach (var k in S(d, "kin").Split('|', System.StringSplitOptions.RemoveEmptyEntries)) p.KinNames.Add(k);
         p.Ambitions.Clear();
         if (d.ContainsKey("ambitions")) foreach (var av in d["ambitions"].AsGodotArray()) { var ad = av.AsGodotDictionary(); p.Ambitions.Add(new Ambition { Kind = (AmbitionKind)I(ad, "kind"), DeclaredDay = I(ad, "day"), DeclaredYear = I(ad, "year"), Best = F(ad, "best"), Abandoned = B(ad, "abandoned") }); }
         p.TasksDone = I(d, "tasksDone"); p.TasksRefused = I(d, "tasksRefused"); p.PrivateWorthMb = F(d, "privateMb"); p.AmbitionsDeclared = B(d, "ambDeclared");
-        p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer"); p.CreeFluency = F(d, "tongue", 0.1f); p.AssiniboineFluency = F(d, "tongue2", 0.05f); p.AuthorizedAcrossUntilDay = I(d, "authorized", -1); p.PostedInland = B(d, "inland"); p.CaptiveOf = S(d, "captive") == "nwc" ? Sim.Nwc : S(d, "captive") == "fort" ? Sim.Fort : null; p.CaptiveUntilDay = I(d, "captiveUntil", -1); p.ParoleUntilDay = I(d, "parole", -1); p.ParoleTo = (Faction)I(d, "paroleTo"); p.ParoleConfessed = B(d, "paroleConfessed");
+        p.Standing = F(d, "standing", 10f); p.Rank = S(d, "rank", "labourer"); p.CreeFluency = F(d, "tongue", 0.1f); p.AssiniboineFluency = F(d, "tongue2", 0.05f); p.AuthorizedAcrossUntilDay = I(d, "authorized", -1); p.PostedInland = B(d, "inland"); p.PostedTo = S(d, "postedTo", ""); if (d.TryGetValue("quests", out var qd)) p.Quests.Restore(qd.AsGodotDictionary()); p.CaptiveOf = S(d, "captive") == "nwc" ? Sim.Nwc : S(d, "captive") == "fort" ? Sim.Fort : null; p.CaptiveUntilDay = I(d, "captiveUntil", -1); p.ParoleUntilDay = I(d, "parole", -1); p.ParoleTo = (Faction)I(d, "paroleTo"); p.ParoleConfessed = B(d, "paroleConfessed");
         var t = d["task"].AsGodotArray();
         p.Task.Kind = (TaskKind)t[0].AsInt32(); p.Task.Need = t[1].AsInt32(); p.Task.Done = t[2].AsInt32(); p.Task.DayAssigned = t[3].AsInt32();
-        p.Task.Intent = S(d, "taskIntent"); p.Task.Deadline = I(d, "taskDeadline");
+        p.Task.Intent = S(d, "taskIntent"); p.Task.Deadline = I(d, "taskDeadline"); p.Task.Boss = S(d, "taskBoss");
         p.KnownSites.Clear(); foreach (var s in d["knownSites"].AsGodotArray()) p.KnownSites.Add(s.AsString());
         p.RestoreHorse(d.ContainsKey("horse") ? d["horse"].AsGodotArray() : null);
         p.SiteBelief.Clear(); foreach (var kv in d["belief"].AsGodotDictionary()) p.SiteBelief[kv.Key.AsString()] = CellOf(kv.Value.AsGodotArray());

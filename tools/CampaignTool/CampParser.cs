@@ -13,6 +13,10 @@ namespace CampaignTool;
 //   var      = type Ident [ "=" expr ] ";"
 //   func     = ( "void" | type ) Ident "(" [params] ")" ( block | "=>" expr ";" )
 //   beat     = "beat" Ident "(" [args] ")" [ "[" exprs "]" ] ( ";" | "{" { member } "}" )
+//   line     = "questline" Ident "(" [args] ")" "{" { quest } "}"
+//   quest    = "quest" Ident "(" [args] ")" [ "[" exprs "]" ] "{" { questhook | step } "}"
+//   step     = StepKind Ident "(" [args] ")" ( ";" | "=>" expr ";" | "{" { stephook | choice } "}" )
+//   choice   = "choice" Ident "(" [args] ")" ( ";" | block )
 //   member   = hook | const | var | func
 //   hook     = HookName "(" ")" ( block | "=>" expr ";" )
 //   loop     = ( for | foreach ) ( decl | "{" { decl } "}" )
@@ -25,6 +29,9 @@ public sealed class CampParser
 		"AwakenWhen", "OnAwaken", "OnApproach", "ActivateWhen", "OnActivate", "ResolveWhen", "OnResolve", "CancelWhen", "OnCancel",
 	};
 	public static readonly string[] ValueTypes = { "int", "float", "bool", "string" };
+	public static readonly string[] QuestHooks = { "StartWhen", "FailWhen", "OnStart", "OnComplete", "OnFail" };
+	public static readonly string[] StepHooks = { "Says", "Done", "OnDone" };
+	public static readonly string[] StepKinds = { "talk", "reach", "task", "bring", "have", "hunt", "when", "wait" };
 
 	private readonly List<Token> _t;
 	private int _p;
@@ -32,6 +39,8 @@ public sealed class CampParser
 	public CampParser(List<Token> toks) { _t = toks; }
 
 	public static ScriptAst Parse(string src) => new CampParser(CampLexer.Lex(src)).ParseScript();
+	// A part (src/parts/*.camp) included by a campaign: declarations only, no header.
+	public static ScriptAst ParsePart(string src, int lineBase) => new CampParser(CampLexer.Lex(src, lineBase)).ParsePartScript();
 
 	private Token Cur => _t[_p];
 	private Token PeekTok(int n = 1) => _t[Math.Min(_p + n, _t.Count - 1)];
@@ -60,7 +69,7 @@ public sealed class CampParser
 		return Next().Text;
 	}
 
-	private static readonly HashSet<string> Reserved = new() { "campaign", "beat", "const", "void", "if", "else", "for", "foreach", "in", "true", "false", "return", "while" };
+	private static readonly HashSet<string> Reserved = new() { "campaign", "beat", "questline", "quest", "choice", "const", "void", "if", "else", "for", "foreach", "in", "true", "false", "return", "while" };
 
 	// ---------------------------------------------------------------- file
 
@@ -77,6 +86,14 @@ public sealed class CampParser
 		return s;
 	}
 
+	private ScriptAst ParsePartScript()
+	{
+		var s = new ScriptAst();
+		if (At("campaign")) throw Err("a part has no campaign header: it is included by one (campaign ...(include: \"name\"))");
+		while (Cur.Kind != T.Eof) s.Decls.Add(ParseDecl(topLevel: true));
+		return s;
+	}
+
 	// ---------------------------------------------------------------- declarations
 
 	private bool AtType() => AtIdent && !Reserved.Contains(Cur.Text) && (ValueTypes.Contains(Cur.Text) || Cur.Text == "var" || char.IsUpper(Cur.Text[0]));
@@ -85,6 +102,8 @@ public sealed class CampParser
 	{
 		var at = Cur.At;
 		if (At("beat")) return ParseBeat();
+		if (At("questline")) return ParseQuestLine();
+		if (At("quest")) throw Err("a quest belongs inside a questline: questline Name(title: \"...\") { quest ... }");
 		if (At("for") || At("foreach")) return ParseLoopDecl();
 		if (At("campaign")) throw Err("a script has one campaign header, at the top");
 		if (At("const"))
@@ -168,6 +187,93 @@ public sealed class CampParser
 		}
 		Expect("}");
 		return b;
+	}
+
+	// ---------------------------------------------------------------- quests
+
+	private QuestLineDecl ParseQuestLine()
+	{
+		var l = new QuestLineDecl { At = Next().At, NameAt = Cur.At };
+		l.Name = Ident("a name for the quest line");
+		Expect("(", $"'(' (questline {l.Name}(title: \"...\"))");
+		l.Args = ParseArgs(")");
+		Expect("{", "'{' to begin the line's quests");
+		while (!At("}"))
+		{
+			if (Cur.Kind == T.Eof) throw Err($"questline {l.Name} is never closed with '}}'", new Token { At = l.At });
+			if (!At("quest")) throw Err($"a questline holds quests (quest Name(title: \"...\") {{ ... }}), not {Cur}");
+			l.Quests.Add(ParseQuest());
+		}
+		Expect("}");
+		return l;
+	}
+
+	private QuestDecl ParseQuest()
+	{
+		var q = new QuestDecl { At = Next().At, NameAt = Cur.At };
+		q.Name = Ident("a name for the quest");
+		Expect("(", $"'(' (quest {q.Name}(title: \"...\"))");
+		q.Args = ParseArgs(")");
+		if (Accept("["))
+		{
+			if (!At("]")) { q.Requires.Add(ParseExpr()); while (Accept(",")) q.Requires.Add(ParseExpr()); }
+			Expect("]");
+		}
+		Expect("{", "'{' to begin the quest's steps");
+		while (!At("}"))
+		{
+			if (Cur.Kind == T.Eof) throw Err($"quest {q.Name} is never closed with '}}'", new Token { At = q.At });
+			if (AtIdent && QuestHooks.Contains(Cur.Text) && PeekTok().Is("(")) { q.Hooks.Add(ParseHook()); continue; }
+			if (AtIdent && StepKinds.Contains(Cur.Text) && PeekTok().Kind == T.Ident) { q.Steps.Add(ParseStep()); continue; }
+			throw Err($"a quest holds steps ({string.Join(", ", StepKinds)}) and hooks ({string.Join(", ", QuestHooks)}), not {Cur}");
+		}
+		Expect("}");
+		return q;
+	}
+
+	private StepDecl ParseStep()
+	{
+		var st = new StepDecl { At = Cur.At, Kind = Next().Text, NameAt = Cur.At };
+		st.Name = Ident("a name for the step");
+		Expect("(", $"'(' ({st.Kind} {st.Name}(text: \"...\"))");
+		st.Args = ParseArgs(")");
+		if (Accept(";")) return st;
+		if (Accept("=>")) { st.Done = ParseExpr(); Expect(";"); return st; }
+		Expect("{", "'{', '=>' or ';' after the step's header");
+		while (!At("}"))
+		{
+			if (Cur.Kind == T.Eof) throw Err($"step {st.Name} is never closed with '}}'", new Token { At = st.At });
+			if (At("choice")) { st.Choices.Add(ParseChoice()); continue; }
+			if (AtIdent && StepHooks.Contains(Cur.Text) && PeekTok().Is("(")) { st.Hooks.Add(ParseHook()); continue; }
+			throw Err($"a step holds {string.Join(", ", StepHooks)} and choices, not {Cur}");
+		}
+		Expect("}");
+		return st;
+	}
+
+	private ChoiceDecl ParseChoice()
+	{
+		var c = new ChoiceDecl { At = Next().At, NameAt = Cur.At };
+		c.Name = Ident("a name for the choice");
+		Expect("(", $"'(' (choice {c.Name}(label: \"...\"))");
+		c.Args = ParseArgs(")");
+		if (Accept(";")) return c;
+		c.Block = ParseBlock();
+		return c;
+	}
+
+	private HookDecl ParseHook()
+	{
+		var h = new HookDecl { At = Cur.At, Name = Next().Text };
+		Expect("(");
+		Expect(")", $"')' ({h.Name} takes no arguments)");
+		if (Accept("=>")) { h.ExprBody = ParseExpr(); Expect(";"); }
+		else
+		{
+			if (!At("{")) throw Err($"expected '{{' or '=>' after {h.Name}() but found {Cur}");
+			h.Block = ParseBlock();
+		}
+		return h;
 	}
 
 	private Decl ParseMember()

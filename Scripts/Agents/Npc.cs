@@ -183,6 +183,7 @@ public partial class Npc : Agent
     public string PendingReport; public string PendingReportSite; public Vector2I? PendingReportCell;
 
     private AnimatedSprite2D _sprite;
+    private SpriteAnims _anims;
     private Label _label;
     private RoleBehaviour _behaviour;
 
@@ -203,6 +204,7 @@ public partial class Npc : Agent
     public override void _Ready()
     {
         _sprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
+        if (_sprite != null) _anims = new SpriteAnims(_sprite);
         _label = GetNodeOrNull<Label>("NameLabel");
         if (_label != null) _label.Text = DisplayName;
         _behaviour = RoleBehaviour.For(Role);
@@ -245,14 +247,14 @@ public partial class Npc : Agent
         if (_label != null) _label.Text = DisplayName;
     }
 
-    public override string CurrentAnimation => _sprite?.Animation ?? "idle";
+    public override string CurrentAnimation => _anims?.Current ?? "idle";
     public override bool FlipH => _sprite?.FlipH ?? false;
 
     private Vector2 _netTarget; private bool _netHasTarget;
     public override void ApplySnapshot(Vector2 pos, string anim, bool flip)
     {
         _netTarget = pos; _netHasTarget = true;
-        if (_sprite != null && _sprite.SpriteFrames != null && _sprite.SpriteFrames.HasAnimation(anim) && _sprite.Animation != anim) _sprite.Play(anim);
+        if (_anims != null && _anims.Has(anim)) _anims.Play(anim);
         if (_sprite != null) _sprite.FlipH = flip;
     }
 
@@ -282,7 +284,7 @@ public partial class Npc : Agent
         // re-running searches and paths every frame is doing it twice, for an
         // audience that cannot see him. He keeps his body and his position;
         // only the thinking stops until the clock is a man's again.
-        if (cal.MotionScale > 8f || cal.IsSkipping)
+        if (cal.MotionScale > GameCalendar.LazyMotion || cal.IsSkipping)
         {
             if (Brain.Tier0Goal() == null) { StopMoving(); return; }
         }
@@ -460,19 +462,41 @@ public partial class Npc : Agent
 
     // ---- movement API used by goals --------------------------------------------
 
+    // A long way is worked out over a few frames (Pathfinder.Search): while
+    // it is, he stands and thinks, and counts as having somewhere to go.
+    private Pathfinder.Search _search;
+
     public bool SetDestination(Vector2I cell)
     {
         var paths = Sim.Paths;
         if (paths == null) return false;
+        // Asked again for where he is already working out the way to: carry on.
+        if (_search != null && _search.Destination == cell) return true;
+        DropSearch();
         var start = Cell;
-        var path = paths.FindPath(start, cell);
         MoveFailed = false;
         _repaths = 0;
+        var s = paths.Begin(start, cell);
+        if (!s.Done)
+        {
+            _search = s;
+            _path.Clear(); _pathIndex = 0; _destination = cell;
+            Arrived = false; _stuckTime = 0f;
+            return true;
+        }
+        var path = s.Result;
+        paths.Release(s);
+        return TakePath(path, start, cell);
+    }
+
+    private bool TakePath(List<Vector2I> path, Vector2I start, Vector2I cell)
+    {
+        var paths = Sim.Paths;
         if (path.Count == 0)
         {
             // Already there, or unreachable.
-            if (start == cell || (paths.NearestWalkable(cell) is Vector2I nw && nw == start)) { Arrived = true; _path.Clear(); return true; }
-            MoveFailed = true; Arrived = false;
+            if (start == cell || (paths?.NearestWalkable(cell) is Vector2I nw && nw == start)) { Arrived = true; _path.Clear(); return true; }
+            MoveFailed = true; Arrived = false; _path.Clear();
             return false;
         }
         _path = path; _pathIndex = 0; _destination = cell;
@@ -480,11 +504,34 @@ public partial class Npc : Agent
         return true;
     }
 
-    // Walking a path just now (not stopped, not arrived).
-    public bool HasPath => _pathIndex < _path.Count;
+    private void DropSearch()
+    {
+        if (_search == null) return;
+        Sim.Paths?.Release(_search);
+        _search = null;
+    }
+
+    // Work on a way still being worked out. True once he has his answer
+    // (a path, arrived, or failed); false while he is still thinking.
+    private bool SettleSearch(bool now)
+    {
+        if (_search == null) return true;
+        var paths = Sim.Paths;
+        if (paths == null) { _search = null; return true; }
+        if (now) paths.Complete(_search);
+        else if (!paths.Continue(_search)) return false;
+        var path = _search.Result; var cell = _search.Destination;
+        DropSearch();
+        TakePath(path, Cell, cell);
+        return true;
+    }
+
+    // Walking a path just now (or working out the way to walk).
+    public bool HasPath => _search != null || _pathIndex < _path.Count;
 
     public void StopMoving()
     {
+        DropSearch();
         _path.Clear();
         _steer = Vector2.Zero;
         Velocity = Vector2.Zero;
@@ -507,7 +554,7 @@ public partial class Npc : Agent
         if (d < 160f) { SteerDirect(target - GlobalPosition, true); return; }
         _chaseRepath -= dt;
         var cell = IsoGrid.FromWorld(target);
-        if (_path.Count == 0 || Arrived || (_destination != cell && _chaseRepath <= 0f))
+        if (!HasPath || Arrived || (_destination != cell && _chaseRepath <= 0f))
         {
             _chaseRepath = 0.5f;
             SetDestination(cell);
@@ -525,6 +572,10 @@ public partial class Npc : Agent
         IsSprinting = false;
         if (Sleeping || Conversing) { Velocity = Vector2.Zero; return; }
         float motion = GameCalendar.Instance?.MotionScale ?? 1f;
+
+        // Still working out the way: a little more of it this frame. When
+        // time is skipping the walk is resolved at once, so the way is too.
+        if (_search != null && !SettleSearch(skipping || motion > GameCalendar.LazyMotion) && _steer == Vector2.Zero) { Velocity = Vector2.Zero; return; }
 
         if (_steer != Vector2.Zero)
         {
@@ -544,7 +595,7 @@ public partial class Npc : Agent
 
         // Time is skipping (sleeping, waiting) or running so fast that
         // physics would tunnel: resolve the walk lazily.
-        if (skipping || motion > 8f)
+        if (skipping || motion > GameCalendar.LazyMotion)
         {
             GlobalPosition = IsoGrid.ToWorld(_path[^1]);
             _path.Clear(); Arrived = true; Velocity = Vector2.Zero;
@@ -602,8 +653,8 @@ public partial class Npc : Agent
         {
             if (v.LengthSquared() >= 4f) { _sprite.FlipH = v.X < 0f; _facing = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f ? "walk_side" : v.Y < -0.3f * v.Length() ? "walk_back" : "walk"; }
             target = _facing == "walk_side" ? "idle_side" : _facing == "walk_back" ? "idle_back" : "idle";
-            if (!_sprite.SpriteFrames.HasAnimation(target)) target = "idle";
-            if (_sprite.Animation != target) _sprite.Play(target);
+            if (!_anims.Has(target)) target = "idle";
+            _anims.Play(target);
             _sprite.SpeedScale = 1f;
             return;
         }
@@ -614,13 +665,13 @@ public partial class Npc : Agent
         }
         else
         {
-            bool side = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f && _sprite.SpriteFrames.HasAnimation("walk_side");
+            bool side = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f && _anims.Has("walk_side");
             target = side ? "walk_side" : (v.Y < -0.3f * v.Length() ? "walk_back" : "walk");
             _sprite.FlipH = v.X < 0f;
             _facing = target;
         }
-        if (!_sprite.SpriteFrames.HasAnimation(target)) target = "idle";
-        if (_sprite.Animation != target) _sprite.Play(target);
+        if (!_anims.Has(target)) target = "idle";
+        _anims.Play(target);
         _sprite.SpeedScale = IsSprinting ? 1.6f : 1f;
     }
 

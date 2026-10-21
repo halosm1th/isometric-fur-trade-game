@@ -213,6 +213,22 @@ public partial class EcologyManager : Node2D
     public readonly List<SpawnSite> Sites = new();
     private float _hoursToWeek = 24f * 7f;
     private float _promoteTimer;
+    private float _scoutDebt;
+
+    // Where each site is (same order as Sites), worked out once a frame for
+    // everyone scouting in it rather than once for each man and each site.
+    private Vector2[] _sitePos = System.Array.Empty<Vector2>();
+    private ulong _sitePosFrame = ulong.MaxValue;
+    private Vector2[] SitePositions()
+    {
+        ulong frame = Engine.GetProcessFrames();
+        if (frame == _sitePosFrame && _sitePos.Length == Sites.Count) return _sitePos;
+        _sitePosFrame = frame;
+        if (_sitePos.Length != Sites.Count) _sitePos = new Vector2[Sites.Count];
+        for (int i = 0; i < Sites.Count; i++) _sitePos[i] = Sites[i].WorldPos;
+        return _sitePos;
+    }
+    private int _scoutNext;
 
     public override void _Ready()
     {
@@ -277,9 +293,13 @@ public partial class EcologyManager : Node2D
     public void Scout(Agents.Npc npc)
     {
         if (npc.HomeStores == null) return;
-        foreach (var site in Sites)
+        var at = npc.GlobalPosition;   // once, not once a site: it is a call into the engine
+        var where = SitePositions();
+        for (int i = 0; i < Sites.Count; i++)
         {
-            if (site.WorldPos.DistanceTo(npc.GlobalPosition) >= site.RadiusPx * 0.6f) continue;
+            var site = Sites[i];
+            float reach = site.RadiusPx * 0.6f;
+            if (where[i].DistanceSquaredTo(at) >= reach * reach) continue;
             if (!npc.HomeStores.Knows(site.Name)) npc.HomeStores.Learn(site.Name, site.Cell);
             else npc.HomeStores.Believe(site.Name, site.Cell);
         }
@@ -357,6 +377,7 @@ public partial class EcologyManager : Node2D
         }
         foreach (var s in Sites) s.TickTraplines(cal.DeltaGameHours);
         Economy.Rivalry.DailyTick(cal.Day);
+        Economy.Union.Daily();
         Mail.Tick(cal.DeltaGameHours);
         Campaign.Tick();
         Economy.Plains.Tick();
@@ -388,8 +409,17 @@ public partial class EcologyManager : Node2D
         {
             _promoteTimer = 1.5f;
             Promote();
-            foreach (var n in Sim.Npcs) if (!n.IsDead) Scout(n);
             foreach (var pc in Sim.Players()) if (!pc.IsDead) ScoutPlayer(pc);
+        }
+        // Everyone is still scouted once every 1.5 s, but a share of them each
+        // frame: all nine hundred at once was a hitch every second and a half.
+        _scoutDebt = Mathf.Min(_scoutDebt + Sim.Npcs.Count * (float)delta / 1.5f, Sim.Npcs.Count);
+        while (_scoutDebt >= 1f && Sim.Npcs.Count > 0)
+        {
+            _scoutDebt -= 1f;
+            if (_scoutNext >= Sim.Npcs.Count) _scoutNext = 0;
+            var n = Sim.Npcs[_scoutNext++];
+            if (!n.IsDead) Scout(n);
         }
     }
 

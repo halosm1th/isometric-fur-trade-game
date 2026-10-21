@@ -11,7 +11,7 @@ namespace IsometricFurTradeGame.Scripts.UI;
 // "Talk" (design doc 3.6): a topic menu built from what this particular
 // person is, wants, and thinks of you. Runs on the server, where the
 // people actually live; the client only shows the text and the choices.
-public class Conversation
+public partial class Conversation
 {
     private readonly PlayerController _player;
     private Npc _npc;
@@ -154,7 +154,8 @@ public class Conversation
         npc.Conversing = true;
         npc.StopMoving();
         npc.FaceToward(_player.GlobalPosition);
-        if (npc.Role == Role.Factor && _player.Task.Kind == TaskKind.Report && !_player.Task.IsComplete)
+        // You report to your own master: the Factor at York, or the partner across the river.
+        if ((npc.Role == Role.Factor || npc == _player.HomePost?.Leader) && _player.Task.Kind == TaskKind.Report && !_player.Task.IsComplete)
         {
             _player.Task.Progress(TaskKind.Report, 1);
             _player.Standing += 3f;
@@ -234,9 +235,9 @@ public class Conversation
         string role = npc.Convoy != null ? (npc.Convoy.Guide == npc.DisplayName ? $"guide of {npc.Convoy.Name}" : $"a hand with {npc.Convoy.Name}") : npc.Role switch
         {
             Role.Factor => "the Factor, master of this post",
-            Role.Clerk => "a clerk of the Company",
-            Role.Postmaster => "postmaster of Oxford House, the Company's inland post",
-            Role.Labourer => "a Company labourer",
+            Role.Clerk => $"a clerk of {World.Posts.CompanyOf(npc)}",
+            Role.Postmaster => npc.HomeStores is Economy.TradingPostLedger tp ? $"master of {tp.Post.Name}, {tp.Post.CompanyName}'s post" : "postmaster of Oxford House, the Company's inland post",
+            Role.Labourer => npc.Faction == Faction.American ? $"an engagé of {World.Posts.CompanyOf(npc)}" : "a Company labourer",
             Role.Woman => "a woman of the post",
             Role.CreeChief => "leading man of the band camped by the river",
             Role.CreeHunter => "a hunter of the band",
@@ -260,7 +261,7 @@ public class Conversation
         if (state == "" && npc.Alerted > 0f && npc.Weapon != null) state = " He has not let go of his musket; something has him on his guard.";
         if (state == "") foreach (var l in Losses.All) if (l.Home == npc.HomeStores && l.Fresh) { state = $" His house is still short of {l.Name}; it is in his face."; break; }
         if (npc.IsBandPerson && !_player.HasInterpreterFor(npc)) _player.Learn(npc, 0.02f);   // every talk teaches a little
-        return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{busy}{state}{debt}{tongue}";
+        return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{AcquaintedLine(npc)}{busy}{state}{debt}{tongue}";
     }
 
     private void ShowTopics(string text)
@@ -273,6 +274,19 @@ public class Conversation
         bool ownMan = npc.Faction == _player.Faction && (npc.Role == Role.Labourer || npc.Role == Role.Voyageur);
         bool canCommand = _player.Rank == "clerk" || _player.Rank == "postmaster" || _player.Standing >= 35f;
 
+        // A quest's business with this person comes first of all, then what
+        // they would ask of you (Core/Quests.cs).
+        foreach (var (q, st, o) in Core.Quests.TopicsWith(_player, npc))
+        {
+            var (qq, ss, oo) = (q, st, o);
+            string what = o.Kind == "bring" ? $"Give {npc.DisplayName} {o.Count} {ItemLabel(o.Item, o.Count)}" : o.Dialogue?.Choices.Count > 0 || o.Text == "" ? "Speak of it" : o.Text;
+            AddOption($"[{q.Title}] {what}", () => ShowQuestTalk(npc, qq, ss, oo));
+        }
+        foreach (var q in Core.Quests.OffersFrom(_player, npc))
+        {
+            var qq = q;
+            AddOption($"[New] {q.Title}", () => ShowOffer(npc, qq));
+        }
         // What's pressing comes first: a letter to hand over, a debt to settle.
         if (npc.Role == Role.CreeChief && (_player.Task.Kind == TaskKind.DeliverLetter && !_player.Task.IsComplete && _player.Task.Done == 0 || HasMailFor(npc)))
             AddOption("Hand him the Factor's letter", () => ShowTopics(DeliverLetter(npc)));
@@ -318,7 +332,7 @@ public class Conversation
         if (npc.Needs.Hunger < 45f && _player.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
             AddOption($"Offer them something to eat ({Items.Items.Of(food).Name})", () => ShowTopics(OfferFood(npc, food)));
         if (npc.IsBandPerson && (npc.Role == Role.CreeChief || npc.Role == Role.CreeHunter)) AddOption("Family and marriage...", () => ShowFamily(npc));
-        if (leader && (Economy.Rivalry.AreRivals(npc.Faction, _player.Faction) || ownLeader && Sim.Nwc != null)) AddOption("The companies...", () => ShowCompanies(npc));
+        if (leader && (Economy.Rivalry.AreRivals(npc.Faction, _player.Faction) || ownLeader && Sim.Nwc != null && _player.Faction != Faction.American)) AddOption("The companies...", () => ShowCompanies(npc));
         // Held by the other side (design doc 9.1): buy your way out, or give your word.
         if (leader && _player.CaptiveOf != null && Economy.Rivalry.PostOf(npc.Faction) == _player.CaptiveOf)
         {
@@ -332,6 +346,75 @@ public class Conversation
         AddOption("Leave", Close);
     }
 
+    // ---- quests -----------------------------------------------------------------------
+
+    private static string ItemLabel(string item, int n) =>
+        System.Enum.TryParse<ItemId>(item, true, out var id) ? Items.Items.Of(id).Name.ToLower() : item;
+
+    private string Spoken(string text, Npc npc) => (text ?? "").Replace("{player}", _player.DisplayName).Replace("{npc}", npc.DisplayName);
+
+    private void ShowOffer(Npc npc, Core.QuestDef q)
+    {
+        _text = Spoken(q.Summary != "" ? q.Summary : $"{npc.DisplayName} has something to ask of you.", npc);
+        ClearOptions();
+        AddOption("Take it on", () => { Core.Quests.Start(_player, q); ShowTopics($"You take it on: {q.Title}."); });
+        AddOption("Not now", () => ShowTopics(Greeting(npc)));
+        AddOption("Refuse", () => { Core.Quests.Decline(_player, q); npc.ChangeRapport(_player, -2f); ShowTopics($"{npc.DisplayName} takes the refusal without a word."); });
+    }
+
+    // A talk objective: what they say, and the choices it offers (each may send
+    // the quest elsewhere). A bring objective: hand it over. When the next
+    // objective is more talk with the same person, it follows on at once.
+    private void ShowQuestTalk(Npc npc, Core.QuestDef q, Core.QuestState st, Core.QuestObjective o, string before = null)
+    {
+        ClearOptions();
+        if (o.Kind == "bring")
+        {
+            if (!Core.Quests.Bring(_player, npc, q, st, o))
+            {
+                _text = $"You haven't {o.Count} {ItemLabel(o.Item, o.Count)} to give.";
+                AddOption("Back", () => ShowTopics(Greeting(npc)));
+                return;
+            }
+            _text = Spoken(o.Dialogue?.Text is { Length: > 0 } t ? t : $"{npc.DisplayName} takes the {ItemLabel(o.Item, o.Count)}.", npc);
+            FollowOn(npc, q, st);
+            return;
+        }
+        string said = Spoken(o.Dialogue?.Text is { Length: > 0 } dt ? dt : o.Text, npc);
+        _text = before != null ? before + "\n\n" + said : said;
+        var choices = Core.Quests.ChoicesFor(_player, o);
+        if (choices.Count == 0)
+        {
+            Core.Quests.Advance(_player, q, st);
+            FollowOn(npc, q, st);
+            return;
+        }
+        foreach (var c in choices)
+        {
+            var cc = c;
+            AddOption(Spoken(c.Label, npc), () =>
+            {
+                Core.Quests.Choose(_player, q, st, cc);
+                _text = Spoken(cc.Reply != "" ? cc.Reply : $"{npc.DisplayName} nods.", npc);
+                ClearOptions();
+                FollowOn(npc, q, st);
+            });
+        }
+        AddOption("Not now", () => ShowTopics(Greeting(npc)));
+    }
+
+    private void FollowOn(Npc npc, Core.QuestDef q, Core.QuestState st)
+    {
+        if (st.Status == Core.QuestStatus.Active && st.At < q.Objectives.Count && q.Objectives[st.At] is { } next
+            && next.Kind == "talk" && Core.Quests.Matches(next.Who, npc))
+        {
+            ShowQuestTalk(npc, q, st, next, _text != "" ? _text : null);
+            return;
+        }
+        ClearOptions();
+        AddOption("Back", () => ShowTopics(Greeting(npc)));
+    }
+
     private bool CanAskAlong(Npc npc) => !npc.IsFemale && npc.Role != Role.Factor && npc.Role != Role.NwcPartner && npc.Role != Role.Clerk && npc.Role != Role.Sailor;
 
     private void ShowTalk(Npc npc, string said = null)
@@ -342,6 +425,7 @@ public class Conversation
         AddOption("How do things stand?", () => ShowTalk(npc, AskNews(npc)));
         AddOption("Tell me about yourself", () => ShowTalk(npc, AskAboutThem(npc)));
         AddOption("What's the talk? (rumours)", () => ShowTalk(npc, AskGossip(npc)));
+        if (canTalk) AddOption("Get to know them...", () => ShowAcquaint(npc));
         if (canTalk) AddOption("Tell them something... (it needn't be true)", () => ShowLieWho(npc, false));
         if (canTalk && StoriesAboutMe(npc).Count > 0) AddOption("What are they saying about me?", () => ShowDeny(npc));
         if ((npc.IsBandPerson && npc.Role is Role.CreeChief or Role.CreeHunter) || npc.Role is Role.Labourer or Role.Voyageur or Role.NwcPartner)
@@ -739,6 +823,14 @@ public class Conversation
             foreach (var n in Sim.Npcs) if (n.Faction == Faction.NWC && !n.IsDead) mouths++;
             float days = Sim.Nwc?.FoodDays(mouths + 1) ?? 0f;
             s += days < 20 ? "\"Provisions are short till the brigade comes.\" " : "\"We eat well enough.\" ";
+        }
+        else if (npc.Faction == Faction.American && npc.HomeStores is Economy.FortLedger house)
+        {
+            foreach (var n in Sim.Npcs) if (n.HomeStores == house && !n.IsDead) mouths++;
+            bool columbia = World.Posts.CompanyOf(npc).Contains("Pacific");
+            string supply = columbia ? "the canoes come up from Astoria" : "the keelboat comes up from St. Louis";
+            s += house.FoodDays(mouths + 1) < 20 ? $"\"We are on short meat till {supply}.\" " : "\"We eat well enough.\" ";
+            s += columbia ? "\"Mr. Astor's people hold the Columbia's mouth. The Nor'Westers will want it, mark me.\" " : "\"The British companies are a long way north of here. This river trades with St. Louis.\" ";
         }
         if (npc.Faction == Faction.HBC || npc.Faction == Faction.NWC)
         {
@@ -1381,7 +1473,7 @@ public class Conversation
         {
             fort = post;
             if (fort == null) { ShowTopics("\"Nothing to trade.\""); return; }
-            if (fort.Company != _player.Faction) { ShowTopics(_player.Faction == Faction.NWC ? "\"We do not serve Nor'Westers at this counter. Go back across the river.\"" : "\"The Company's servant wants to trade with us? Sign on first, or take your furs to your own Factor.\""); return; }
+            if (fort.Company != _player.Faction) { ShowTopics(fort.Company == Faction.American ? "\"This is an American house, and its goods are for the Indians and our own engagés. A British servant takes his furs to his own masters.\"" : _player.Faction == Faction.NWC ? "\"We do not serve Nor'Westers at this counter. Go back across the river.\"" : "\"The Company's servant wants to trade with us? Sign on first, or take your furs to your own Factor.\""); return; }
         }
         Inventory counter = npc.IsBandPerson ? band?.Stores : fort?.Stores;
         if (counter == null) { ShowTopics("\"Nothing to trade.\""); return; }
@@ -1435,7 +1527,7 @@ public class Conversation
                     band.StandingWithCompany = Mathf.Min(100f, band.StandingWithCompany + 6f);
                     Core.Reveal.Lands(_player, $"{band.Name} have a gun of your selling, and they are at war.", "you sold a musket at the camp", 1.3f);
                 }
-                _player.Skills.Learn(ref _player.Skills.Trade, 0.012f);
+                _player.Skills.Learn(ref _player.Skills.Trade, 0.012f, "selling at the camps");
                 // Trading your own goods at a camp is private trade (design
                 // doc 3.6.1, 3.9): whoever sees it may carry the word, and the
                 // Factor reads his report when the ship sails.
@@ -1464,7 +1556,7 @@ public class Conversation
             {
                 counter.Remove(bought, buyN); _player.Inventory.Add(bought, buyN);
                 _player.Inventory.Remove(ItemId.TradeGoods, cost); counter.Add(ItemId.TradeGoods, cost);
-                _player.Skills.Learn(ref _player.Skills.Trade, 0.012f);
+                _player.Skills.Learn(ref _player.Skills.Trade, 0.012f, "buying furs at the camps");
                 // Furs bought at a camp with your own goods are the classic
                 // private trade (design doc 3.9 step 8): witnesses may carry it.
                 if (npc.IsBandPerson && Items.Items.Of(bought).Kind == ItemKind.Fur)

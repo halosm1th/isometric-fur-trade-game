@@ -94,7 +94,7 @@ public static class Tiers
         // his own door with the day's work undone, which is why nothing ever
         // came back from the goose marsh.
         if (n.Brain.Has<CourierGoal>() || n.Brain.Has<RaidGoal>() || n.Brain.Has<AmbushGoal>() || n.Brain.Has<RoadGoal>() || n.Brain.Has<RescueGoal>() || n.Brain.Has<LookForGoal>()
-            || n.Brain.Has<HuntSiteGoal>() || n.Brain.Has<BuffaloRunGoal>() || n.Brain.Has<HorseRaidGoal>())
+            || n.Brain.Has<HuntSiteGoal>() || n.Brain.Has<BuffaloRunGoal>() || n.Brain.Has<HorseRaidGoal>() || n.Brain.Has<WarPartyGoal>())
             return;
         n.Tier = Tier.Background;
         n.Brain.Clear(n);
@@ -121,7 +121,7 @@ public static class Tiers
         var cal = GameCalendar.Instance;
         // Foul weather is local: a blizzard at York does not keep the Mandan indoors.
         bool Foul(Economy.Household h) => cal.Weather.FoulAt(World.IsoGrid.ToWorld(h.AccessCell));
-        bool rushing = cal.MotionScale > 6f;
+        bool rushing = cal.MotionScale > GameCalendar.LazyMotion * 0.75f;   // the 6 of the old baseline
         // A copy: someone who dies of want in the batch leaves Sim.Npcs mid-loop.
         foreach (var n in new System.Collections.Generic.List<Npc>(Sim.Npcs))
         {

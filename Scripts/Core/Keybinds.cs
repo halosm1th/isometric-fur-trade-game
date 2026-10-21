@@ -20,7 +20,7 @@ public static class Keybinds
         ("hotbar_use", "Use the selected hotbar slot"),
         ("hotbar_1", "Hotbar slot 1"), ("hotbar_2", "Hotbar slot 2"), ("hotbar_3", "Hotbar slot 3"), ("hotbar_4", "Hotbar slot 4"), ("hotbar_5", "Hotbar slot 5"),
         ("hotbar_6", "Hotbar slot 6"), ("hotbar_7", "Hotbar slot 7"), ("hotbar_8", "Hotbar slot 8"), ("hotbar_9", "Hotbar slot 9"),
-        ("inventory", "Your pack"), ("journal", "Journal"), ("map", "Map"), ("log", "The log"), ("chat", "Chat"), ("help", "Help"),
+        ("inventory", "Your pack"), ("character", "Yourself (body, skills, standing)"), ("journal", "Journal"), ("map", "Map"), ("log", "The log"), ("chat", "Chat"), ("help", "Help"),
         ("time_fast", "Hold to fast-forward"), ("pause_clock", "Stop / start the clock (host)"), ("clock_slower", "Slower clock (host)"), ("clock_faster", "Faster clock (host)"),
         ("restart", "Begin again after death"), ("debug_menu", "Test console (host)"),
     };
@@ -139,9 +139,16 @@ public static class Keybinds
     }
 
     // The first key for an action, for hints like "E  Talk to ...".
+    // Remembered until a binding changes (Version): the HUD asks for its hints
+    // every frame, and each answer was an array and a string from the engine.
+    // An unbound action is not remembered, in case it is bound by code later.
+    private static readonly Dictionary<string, string> _keyFor = new();
+    private static int _keyForVersion = -1;
     public static string KeyFor(string action)
     {
-        foreach (var k in Current(action)) if (k != Key.None) return Name(k);
+        if (_keyForVersion != Version) { _keyFor.Clear(); _keyForVersion = Version; }
+        if (_keyFor.TryGetValue(action, out var known)) return known;
+        foreach (var k in Current(action)) if (k != Key.None) return _keyFor[action] = Name(k);
         return "(unbound)";
     }
 

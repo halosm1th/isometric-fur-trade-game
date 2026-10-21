@@ -71,10 +71,11 @@ public partial class FortLedger : Household
     }
 
     // Standing and debt are between this counter and a particular band (design doc 3.6, 13.3).
-    public float StandingOf(BandLedger b) => b == null ? 50f : Company == Agents.Faction.NWC ? b.StandingWithNwc : b.StandingWithCompany;
-    public void SetStanding(BandLedger b, float v) { if (b == null) return; if (Company == Agents.Faction.NWC) b.StandingWithNwc = v; else b.StandingWithCompany = v; }
-    public float DebtOf(BandLedger b) => b == null ? 0f : Company == Agents.Faction.NWC ? b.DebtNwcMb : b.DebtMb;
-    public void SetDebt(BandLedger b, float v) { if (b == null) return; if (Company == Agents.Faction.NWC) b.DebtNwcMb = v; else b.DebtMb = v; }
+    // The Americans keep their own books with a band, apart from either British company's.
+    public float StandingOf(BandLedger b) => b == null ? 50f : Company switch { Agents.Faction.NWC => b.StandingWithNwc, Agents.Faction.American => b.StandingWithAmericans, _ => b.StandingWithCompany };
+    public void SetStanding(BandLedger b, float v) { if (b == null) return; if (Company == Agents.Faction.NWC) b.StandingWithNwc = v; else if (Company == Agents.Faction.American) b.StandingWithAmericans = v; else b.StandingWithCompany = v; }
+    public float DebtOf(BandLedger b) => b == null ? 0f : Company switch { Agents.Faction.NWC => b.DebtNwcMb, Agents.Faction.American => b.DebtAmericanMb, _ => b.DebtMb };
+    public void SetDebt(BandLedger b, float v) { if (b == null) return; if (Company == Agents.Faction.NWC) b.DebtNwcMb = v; else if (Company == Agents.Faction.American) b.DebtAmericanMb = v; else b.DebtMb = v; }
 
 	// The post buys provisions off a band that has them - the Assiniboine's
 	// pemmican (design doc 13.1). Goods per piece; only when the mess is short.

@@ -193,7 +193,7 @@ public class Barter
 			- With.Personality.Ambition * 0.1f;
 		bool landed = GD.Randf() < Mathf.Clamp(chance, 0.03f, 0.92f);
 		Patience -= landed ? 0.22f : 0.34f;
-		Player.Skills.Learn(ref Player.Skills.Trade, 0.012f);
+		Player.Skills.Learn(ref Player.Skills.Trade, 0.012f, "haggling at the counter");
 
 		if (Patience <= 0f)
 		{

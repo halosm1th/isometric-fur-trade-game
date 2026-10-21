@@ -29,7 +29,7 @@ let vocab = { keywords: new Set(), types: new Set(), hooks: new Set(), globals: 
 function buildVocab() {
   const L = state.lib;
   vocab = {
-    keywords: new Set(L.keywords), types: new Set(L.types), hooks: new Set(L.hooks.map(h => h.name)),
+    keywords: new Set(L.keywords), types: new Set(L.types), hooks: new Set(L.hooks.concat(L.questHooks || []).map(h => h.name)),
     globals: new Set(L.members.filter(m => m.owner === '' && m.kind === 'function').map(m => m.name)),
     objects: new Set(L.objects), enums: new Set(Object.keys(L.enums)), enumValues: L.enums,
   };
@@ -37,7 +37,7 @@ function buildVocab() {
 
 function declared(src) {
   const beats = new Set(), fns = new Set(), names = new Set();
-  for (const m of src.matchAll(/\bbeat\s+([A-Za-z_]\w*)/g)) beats.add(m[1]);
+  for (const m of src.matchAll(/\b(?:beat|quest|questline)\s+([A-Za-z_]\w*)/g)) beats.add(m[1]);
   for (const m of src.matchAll(/\b(?:void|bool|int|float|string|Date|Days|Company|Person|Item|Season|Kind|Beat|Brigade)\s+([A-Za-z_]\w*)\s*\(/g)) fns.add(m[1]);
   for (const m of src.matchAll(/\b(?:const\s+)?(?:int|float|string|bool|Date|Days|Company|Person|Item|Season|Kind|Beat|Brigade)\s+([A-Za-z_]\w*)\s*(?:=|;)/g)) names.add(m[1]);
   return { beats, fns, names };
@@ -59,7 +59,7 @@ function tokenize(src) {
       let k = e; while (k < src.length && (src[k] === ' ' || src[k] === '\t')) k++;
       const next = src[k] || '';
       const p = prev && prev.t, pp = prev2 && prev2.t;
-      if (p === 'beat') cls = 'beat';
+      if (p === 'beat' || p === 'quest' || p === 'questline') cls = 'beat';
       else if (vocab.keywords.has(t)) cls = 'kw';
       else if (vocab.hooks.has(t) && next === '(') cls = 'hook';
       else if (p === '.') cls = vocab.enums.has(pp) ? 'enumv' : 'member';
@@ -143,7 +143,7 @@ function scheduleCheck() { clearTimeout(checkTimer); setStatus('…'); checkTime
 async function runCheck() {
   const seq = ++checkSeq, src = el.input.value;
   try {
-    const res = await post('check', src);
+    const res = await post('check' + pathQuery(), src);
     if (seq !== checkSeq) return;
     state.check = res;
     const errors = (res.error ? 1 : 0) + (res.problems || []).filter(p => p.severity === 'error').length;
@@ -152,6 +152,7 @@ async function runCheck() {
     el.count.textContent = errors || warns || '';
     el.count.className = 'count' + (errors ? ' bad' : warns ? ' warn' : '');
     renderProblems(); renderJson(); render();
+    if (state.tab === 'map') refreshMapPins();
   } catch (e) { setStatus(e.message, 'bad'); }
 }
 
@@ -174,6 +175,15 @@ function renderJson() {
   const b = $('copyJson'); if (b) b.onclick = () => navigator.clipboard && navigator.clipboard.writeText(c.json).then(() => setStatus('copied', 'ok'));
 }
 
+// The file the editor shows, for the server: a part is checked inside the campaign that includes it.
+const pathQuery = () => state.path ? '?path=' + encodeURIComponent(state.path) : '';
+
+// A line in this file, or in another (a part, or the campaign that includes it).
+async function jumpTo(path, line) {
+  if (path && state.path && path !== state.path) { await openFile(path); }
+  jump(line, 1);
+}
+
 function jump(line, col) {
   const src = el.input.value, off = lineColToOffset(src, line, col || 1);
   el.input.focus(); el.input.setSelectionRange(off, off);
@@ -187,13 +197,13 @@ async function loadFiles() {
   const j = await api('files');
   state.files = j.files;
   state.scenarios = j.files.filter(f => f.kind === 'scenario');
-  const groups = [['source', 'Campaigns'], ['example', 'Examples'], ['json', 'Shipped as JSON']];
+  const groups = [['source', 'Campaigns'], ['part', 'Parts (included)'], ['example', 'Examples'], ['json', 'Shipped as JSON']];
   let h = '';
   for (const [kind, title] of groups) {
     const list = state.files.filter(f => f.kind === kind);
     if (!list.length) continue;
     h += `<h4>${title}</h4>`;
-    for (const f of list) h += `<a data-path="${esc(f.path)}" class="${f.path === state.path ? 'current' : ''}" title="${esc(f.path)}">${esc(f.name)}${f.kind === 'source' && f.installed ? '<span class="tag">installed</span>' : ''}</a>`;
+    for (const f of list) h += `<a data-path="${esc(f.path)}" class="${f.path === state.path ? 'current' : ''}" title="${esc(f.path)}">${esc(f.name)}${f.kind === 'source' && f.installed ? '<span class="tag">installed</span>' : ''}${f.kind === 'part' ? `<span class="tag">${f.host ? 'in ' + esc(f.host.split('/').pop()) : 'not included'}</span>` : ''}</a>`;
   }
   el.files.innerHTML = h;
   el.files.querySelectorAll('a').forEach(a => a.onclick = () => openFile(a.dataset.path));
@@ -265,8 +275,26 @@ async function install() {
   try {
     if (el.input.value !== state.clean) await save();
     const base = (state.path || 'campaign').split('/').pop().replace(/\.camp$/, '');
-    const r = await post('install', { name: base, source: el.input.value });
+    const r = await post('install', { name: base, source: el.input.value, path: state.path || '' });
     setStatus('installed ' + r.installed, 'ok'); loadFiles();
+  } catch (e) { setStatus(e.message, 'bad'); }
+}
+
+// Play in game: install, then start the game at a quest step - the one named,
+// or the one under the cursor - on its road, its day, and its place (Launch.cs).
+async function play(quest, step) {
+  // One game per press: a second click while it starts would open a second window.
+  if (state.launching) return;
+  state.launching = true; $('btnPlay').disabled = true;
+  setTimeout(() => { state.launching = false; $('btnPlay').disabled = false; }, 6000);
+  try {
+    if (el.input.value !== state.clean && state.path) await save();
+    const line = el.input.value.slice(0, el.input.selectionStart).split('\n').length;
+    setStatus('starting the game…');
+    const r = await post('play', { source: el.input.value, path: state.path || '', line, quest: quest || '', step: step || '' });
+    setStatus('playing: ' + r.why, 'ok');
+    el.status.title = r.command || '';
+    loadFiles();
   } catch (e) { setStatus(e.message, 'bad'); }
 }
 
@@ -305,7 +333,7 @@ function completionsAt(src, pos, force) {
   // inside a beat's braces the hooks are offered; at the top level the declarations
   const depth = braceDepth(before);
   if (depth === 1 && insideBeat(before)) for (const h of L.hooks) add(h.name, 'hook', h.condition ? 'condition' : 'effects', h.summary, h.name + (h.condition ? '() => ' : '() {\n        \n    }'));
-  if (depth === 0) { add('beat', 'keyword', 'declaration', 'A thing that may happen to the world.', 'beat '); add('const', 'keyword', 'declaration', 'A name for a value known when the script is compiled.', 'const '); add('foreach', 'keyword', 'loop', 'Write a declaration for each value.', 'foreach (int i in 1..3) '); }
+  if (depth === 0) { add('beat', 'keyword', 'declaration', 'A thing that may happen to the world.', 'beat '); add('questline', 'keyword', 'declaration', 'A line of quests for the player: questline Name(title: "...") { quest ... }', 'questline '); add('const', 'keyword', 'declaration', 'A name for a value known when the script is compiled.', 'const '); add('foreach', 'keyword', 'loop', 'Write a declaration for each value.', 'foreach (int i in 1..3) '); }
   if (depth >= 1) for (const k of ['if', 'else', 'for', 'foreach']) add(k, 'keyword', 'statement', '');
   for (const m of L.members.filter(m => m.owner === '' && m.kind === 'function')) add(m.name, 'function', m.signature, m.doc, m.name + '(');
   for (const o of L.objects) add(o, 'object', 'object', o === 'world' ? 'The state of the world.' : 'Named switches.', o);
@@ -390,7 +418,8 @@ function acceptComplete() {
 
 function showHover(info, nearCaret, x, y) {
   if (!info) { el.hover.hidden = true; delete el.hover.dataset.mouse; return; }
-  el.hover.innerHTML = (info.sig ? `<div class="sig">${esc(info.sig)}</div>` : '') + (info.doc ? `<div>${esc(info.doc)}</div>` : '') + (info.example ? `<div class="ex">${esc(info.example)}</div>` : '');
+  const ps = info.params && info.params.length ? `<div class="params">${info.params.map(p => `<div><code>${esc(p.name)}${p.optional ? '?' : ''}</code>: ${esc(p.doc || p.type)}</div>`).join('')}</div>` : '';
+  el.hover.innerHTML = (info.sig ? `<div class="sig">${esc(info.sig)}</div>` : '') + (info.doc ? `<div>${esc(info.doc)}</div>` : '') + ps + (info.example ? `<div class="ex">${esc(info.example)}</div>` : '');
   el.hover.hidden = false;
   if (nearCaret) {
     const p = caretXY(), room = el.hover.parentElement.clientHeight - p.y;
@@ -401,6 +430,31 @@ function showHover(info, nearCaret, x, y) {
   else { el.hover.style.left = x + 'px'; el.hover.style.top = y + 'px'; el.hover.dataset.mouse = '1'; }
 }
 
+// The library call whose argument list holds pos: say(..., |) gives {name: "say"}.
+function enclosingCall(src, pos) {
+  let depth = 0;
+  for (let i = pos - 1; i >= 0; i--) {
+    const ch = src[i];
+    if (ch === ')' || ch === ']') depth++;
+    else if (ch === '(' || ch === '[') {
+      if (depth > 0) { depth--; continue; }
+      if (ch === '[') return null;
+      const m = /([A-Za-z_]\w*)\s*$/.exec(src.slice(0, i));
+      if (!m) return null;
+      const before = src.slice(0, i - m[0].length);
+      const own = /([A-Za-z_]\w*|\))\s*\.\s*$/.exec(before);
+      return { name: m[1], owner: own ? own[1] : null };
+    }
+    else if (depth === 0 && (ch === ';' || ch === '{' || ch === '}')) return null;
+  }
+  return null;
+}
+function findMember(call) {
+  const L = state.lib, ms = L.members.filter(m => m.name === call.name && m.kind === 'function');
+  if (!call.owner) return ms.find(m => m.owner === '');
+  return ms.find(m => m.owner === call.owner) || ms.find(m => m.owner === 'Brigade' || m.owner === 'Quest') || null;
+}
+
 function wordInfo(src, off) {
   const L = state.lib;
   let s = off, e = off;
@@ -409,17 +463,26 @@ function wordInfo(src, off) {
   const w = src.slice(s, e); if (!w) return null;
   const prevDot = /([A-Za-z_]\w*)\s*\.\s*$/.exec(src.slice(0, s));
   const mem = L.members.filter(m => m.name === w);
+  const info = (m) => ({ sig: m.signature, doc: m.doc, example: m.example, params: m.params });
+  // A named argument (to: in say(..., to: Company.HBC)): what that argument is.
+  if (src[e] === ':' && src[e + 1] !== ':') {
+    const call = enclosingCall(src, s);
+    const fn = call && findMember(call);
+    const p = fn && (fn.params || []).find(x => x.name === w);
+    if (p) return { sig: `${w}: ${p.type}${p.optional ? '  (optional)' : ''}`, doc: `${p.doc}  [an argument of ${fn.owner ? fn.owner + '.' : ''}${fn.name}]` };
+  }
   if (prevDot) {
     const owner = L.objects.includes(prevDot[1]) ? prevDot[1] : null;
-    const pick = (owner && mem.find(m => m.owner === owner)) || mem.find(m => m.owner === 'Brigade' || m.owner === 'Beat');
-    if (pick) return { sig: pick.signature, doc: pick.doc, example: pick.example };
+    const pick = (owner && mem.find(m => m.owner === owner)) || mem.find(m => m.owner === 'Brigade' || m.owner === 'Beat' || m.owner === 'Quest');
+    if (pick) return info(pick);
     if (L.enums[prevDot[1]]) return { sig: prevDot[1] + '.' + w, doc: L.enumDocs[prevDot[1]] };
   }
   const g = mem.find(m => m.owner === '');
-  if (g) return { sig: g.signature, doc: g.doc, example: g.example };
-  const hook = L.hooks.find(h => h.name === w); if (hook) return { sig: hook.name + '()', doc: hook.summary };
+  if (g) return info(g);
+  const hook = L.hooks.concat(L.questHooks || []).find(h => h.name === w); if (hook) return { sig: hook.name + '()', doc: hook.summary };
   if (L.enums[w]) return { sig: w, doc: L.enumDocs[w] };
-  const arg = L.beatArgs.find(a => a.name === w) || L.headerArgs.find(a => a.name === w); if (arg && src[e] === ':') return { sig: `${arg.name}: ${arg.type}`, doc: arg.summary };
+  if (L.typeDocs && L.typeDocs[w]) return { sig: w, doc: L.typeDocs[w] };
+  const arg = L.beatArgs.find(a => a.name === w) || L.headerArgs.find(a => a.name === w) || (L.questArgs || []).find(a => a.name === w); if (arg && src[e] === ':') return { sig: `${arg.name}: ${arg.type}`, doc: arg.summary };
   if (state.check && state.check.error) {
     const er = state.check.error, o = lineColToOffset(src, er.line, er.col);
     if (off >= o && off <= o + er.length) return { sig: 'error', doc: er.message };
@@ -478,9 +541,10 @@ el.input.addEventListener('mouseleave', () => { if (!state.completing) showHover
 function showTab(name) {
   state.tab = name;
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
-  for (const t of ['problems', 'json', 'sim', 'graph', 'ref']) $('tab-' + t).hidden = t !== name;
+  for (const t of ['problems', 'json', 'sim', 'graph', 'map', 'ref']) $('tab-' + t).hidden = t !== name;
   if (name === 'sim') renderSim();
   if (name === 'graph') drawGraph();
+  if (name === 'map') drawMap();
   if (name === 'ref') renderRef();
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => showTab(b.dataset.tab));
@@ -509,7 +573,7 @@ async function runSim() {
     let scenario = '';
     const sp = $('simScenario').value;
     if (sp) scenario = (await api('file?path=' + encodeURIComponent(sp))).text;
-    state.sim = await post('sim', { source: el.input.value, scenario, adherence: $('simAdh').value, seed: $('simSeed').value });
+    state.sim = await post('sim', { source: el.input.value, path: state.path || '', scenario, adherence: $('simAdh').value, seed: $('simSeed').value });
     drawSim(state.sim);
   } catch (e) { out.innerHTML = `<div class="problem"><span class="sev error">error</span><div class="msg">${esc(e.message)}</div></div>`; }
 }
@@ -534,7 +598,7 @@ async function drawGraph() {
   const box = $('tab-graph');
   box.innerHTML = '<div class="empty">Drawing…</div>';
   let g;
-  try { g = await post('graph', el.input.value); } catch (e) { box.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
+  try { g = await post('graph' + pathQuery(), el.input.value); } catch (e) { box.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
   state.graph = g;
   const ids = new Map(g.nodes.map((n, i) => [n.id, i]));
   const edges = g.edges.filter(e => ids.has(e.from) && ids.has(e.to) && e.from !== e.to);
@@ -557,46 +621,151 @@ async function drawGraph() {
   }
   g.nodes.forEach((n, i) => {
     const p = pos[i], label = n.id.length > 24 ? n.id.slice(0, 23) + '…' : n.id;
-    svg += `<g class="node k-${esc(n.kind)}" data-line="${n.line}"><rect x="${p.x}" y="${p.y}" width="${W}" height="${H}" rx="6"/><text x="${p.x + 8}" y="${p.y + 13}">${esc(label)}</text><text x="${p.x + 8}" y="${p.y + 25}" style="fill:var(--dim)">${esc(n.date || n.kind)}</text><title>${esc(n.title)}</title></g>`;
+    svg += `<g class="node k-${esc(n.kind)}" data-line="${n.line}" data-path="${esc(n.path || '')}"><rect x="${p.x}" y="${p.y}" width="${W}" height="${H}" rx="6"/><text x="${p.x + 8}" y="${p.y + 13}">${esc(label)}</text><text x="${p.x + 8}" y="${p.y + 25}" style="fill:var(--dim)">${esc(n.date || n.kind)}</text><title>${esc(n.title)}</title></g>`;
   });
   svg += '</svg>';
   box.innerHTML = `<div class="legend"><span><i style="border-color:var(--builtin)"></i>fixed</span><span><i style="border-color:var(--hook)"></i>event</span><span><i style="border-color:var(--fn)"></i>conditional</span><span><i style="border-color:var(--obj)"></i>pressure</span><span>solid: requires &nbsp; dashed: triggers</span></div>${svg}`;
-  box.querySelectorAll('.node').forEach(n => n.onclick = () => jump(+n.dataset.line, 1));
+  box.querySelectorAll('.node').forEach(n => n.onclick = () => jumpTo(n.dataset.path, +n.dataset.line));
 }
 
-function renderRef() {
-  const box = $('tab-ref');
+// The reference is built into the Reference tab, or (?view=reference) into a
+// page of its own. Every argument name and type in a signature can be hovered
+// for what it is.
+function renderRef() { buildRef($('tab-ref'), true); }
+
+function buildRef(box, inEditor) {
   if (!box.dataset.built) {
     box.dataset.built = '1';
-    box.innerHTML = '<div class="row"><input type="search" id="refSearch" placeholder="Search the language…" size="28"></div><div id="refList"></div>';
-    $('refSearch').oninput = drawRef;
+    box.innerHTML = `<div class="reftools"><input type="search" class="refSearch" placeholder="Search the language…" aria-label="Search the language">` +
+      (inEditor ? `<button class="refPop" title="Open the reference in a browser tab of its own">Open in its own tab ↗</button>` : '') +
+      `</div><div class="refList"></div>`;
+    box.querySelector('.refSearch').oninput = () => drawRef(box, inEditor);
+    const pop = box.querySelector('.refPop');
+    if (pop) pop.onclick = () => window.open(location.pathname + '?view=reference', '_blank', 'noopener');
   }
-  drawRef();
+  drawRef(box, inEditor);
 }
-function drawRef() {
-  const L = state.lib, q = ($('refSearch').value || '').toLowerCase();
+
+const tipAttrs = (name, type, doc, opt) => `data-tipname="${esc(name)}" data-tiptype="${esc(type || '')}" data-tipdoc="${esc(doc || '')}"${opt ? ' data-tipopt="1"' : ''}`;
+function typeDoc(t) { const L = state.lib, b = String(t).replace(/[?.]+$/, ''); return (L.typeDocs && L.typeDocs[b]) || L.enumDocs[b] || ''; }
+const tyHtml = (t) => t ? `<span class="ty" ${tipAttrs(t, '', typeDoc(t))}>${esc(t)}</span>` : '';
+function fullName(m) { return m.owner ? `${m.owner}.${m.name}` : m.name; }
+function sigHtml(m) {
+  if (m.kind !== 'function') return esc(fullName(m)) + (m.returns ? ' : ' + tyHtml(m.returns) : '');
+  const ps = (m.params || []).map(p => `${tyHtml(p.type)} <span class="p${p.optional ? ' opt' : ''}" ${tipAttrs(p.name, p.type, p.doc, p.optional)}>${esc(p.name)}${p.optional ? '?' : ''}${p.rest ? '...' : ''}</span>`);
+  return `${esc(fullName(m))}(${ps.join(', ')})` + (m.returns ? ' : ' + tyHtml(m.returns) : '');
+}
+const paramList = (ps) => ps && ps.length ? `<ul class="params">${ps.map(p => `<li><code>${esc(p.name)}</code> <span class="pt">${esc(p.type)}${p.optional ? ', optional' : ''}${p.rest ? ', one or more' : ''}</span> <span class="pd">${esc(p.doc || '')}</span></li>`).join('')}</ul>` : '';
+
+function drawRef(box, inEditor) {
+  const L = state.lib, q = (box.querySelector('.refSearch').value || '').toLowerCase();
   const hit = (...xs) => !q || xs.some(x => String(x).toLowerCase().includes(q));
   let h = '';
   const sec = (title, items) => { if (items) h += `<h5>${title}</h5>${items}`; };
-  const item = (sig, doc, ex, ins) => `<div class="refitem"><div class="sig">${esc(sig)}</div><div class="doc">${esc(doc)}</div>${ex ? `<div class="ex">${esc(ex)}</div>` : ''}${ins ? `<button data-ins="${esc(ins)}">Insert</button>` : ''}</div>`;
-  sec('Beat hooks', L.hooks.filter(x => hit(x.name, x.summary)).map(x => item(x.name + '()', x.summary, '', x.name + (x.condition ? '() => ' : '() {\n        \n    }'))).join(''));
-  sec('Beat header', L.beatArgs.filter(x => hit(x.name, x.summary)).map(x => item(`${x.name}: ${x.type}`, x.summary)).join(''));
-  sec('Campaign header', L.headerArgs.filter(x => hit(x.name, x.summary)).map(x => item(`${x.name}: ${x.type}`, x.summary)).join(''));
-  for (const [owner, title] of [['', 'Functions'], ['world', 'world'], ['flags', 'flags'], ['Beat', 'A beat'], ['Brigade', 'A brigade']])
-    sec(title, L.members.filter(m => m.owner === owner && hit(m.full || m.name, m.name, m.doc, m.signature)).map(m => item(m.signature, m.doc, m.example, m.example)).join(''));
-  sec('Named values', Object.entries(L.enums).filter(([k, v]) => hit(k, L.enumDocs[k], v.join(' '))).map(([k, v]) => item(k, L.enumDocs[k], v.slice(0, 14).map(x => k + '.' + x).join(', ') + (v.length > 14 ? ', …' : ''))).join(''));
-  $('refList').innerHTML = h || '<div class="empty">Nothing matches.</div>';
-  $('refList').querySelectorAll('button[data-ins]').forEach(b => b.onclick = () => {
+  const act = (ins) => !ins ? '' : inEditor ? `<button data-ins="${esc(ins)}">Insert</button>` : `<button data-copy="${esc(ins)}">Copy</button>`;
+  const item = (sigH, doc, ex, ins, params) => `<div class="refitem"><div class="sig">${sigH}</div><div class="doc">${esc(doc)}</div>${paramList(params)}${ex ? `<div class="ex">${esc(ex)}</div>` : ''}${act(ins)}</div>`;
+  const argItem = (x) => item(`${esc(x.name)}: ${tyHtml(x.type)}`, x.summary);
+  sec('Campaign header', L.headerArgs.filter(x => hit(x.name, x.summary)).map(argItem).join(''));
+  sec('Beat header', L.beatArgs.filter(x => hit(x.name, x.summary)).map(argItem).join(''));
+  sec('Beat hooks', L.hooks.filter(x => hit(x.name, x.summary)).map(x => item(esc(x.name + '()'), x.summary, '', x.name + (x.condition ? '() => ' : '() {\n        \n    }'))).join(''));
+  sec('Quest lines, quests, steps and choices', (L.questArgs || []).filter(x => hit(x.name, x.summary)).map(argItem).join(''));
+  sec('Quest and step hooks', (L.questHooks || []).filter(x => hit(x.name, x.summary)).map(x => item(esc(x.name + '()'), x.summary, '', x.name + (x.condition ? '() => ' : '() {\n        \n    }'))).join(''));
+  for (const [owner, title] of [['', 'Functions'], ['world', 'world'], ['flags', 'flags'], ['player', 'player'], ['Beat', 'A beat'], ['Quest', 'A quest'], ['Brigade', 'A brigade']])
+    sec(title, L.members.filter(m => m.owner === owner && hit(fullName(m), m.name, m.doc, m.signature, ...(m.params || []).map(p => p.name + ' ' + p.doc))).map(m => item(sigHtml(m), m.doc, m.example, m.example, m.params)).join(''));
+  sec('Named values', Object.entries(L.enums).filter(([k, v]) => hit(k, L.enumDocs[k], v.join(' '))).map(([k, v]) => item(tyHtml(k), L.enumDocs[k], v.slice(0, 14).map(x => k + '.' + x).join(', ') + (v.length > 14 ? ', …' : ''))).join(''));
+  sec('Types', Object.entries(L.typeDocs || {}).filter(([k, v]) => hit(k, v)).map(([k, v]) => item(esc(k), v)).join(''));
+  const list = box.querySelector('.refList');
+  list.innerHTML = h || '<div class="empty">Nothing matches.</div>';
+  list.querySelectorAll('button[data-ins]').forEach(b => b.onclick = () => {
     el.input.focus(); document.execCommand('insertText', false, b.dataset.ins); onEdit();
   });
+  list.querySelectorAll('button[data-copy]').forEach(b => b.onclick = async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Copied'; } catch { b.textContent = 'Copy failed'; }
+    setTimeout(() => b.textContent = 'Copy', 1200);
+  });
+}
+
+// The tooltip for anything with data-tipname: the reference's argument names and types.
+const tip = $('tip');
+function showTip(t) {
+  const d = t.dataset;
+  tip.innerHTML = `<b>${esc(d.tipname)}</b>${d.tiptype ? ` <span class="ty">${esc(d.tiptype)}</span>` : ''}${d.tipopt ? ' <i>(optional)</i>' : ''}<div>${esc(d.tipdoc || 'No description.')}</div>`;
+  tip.hidden = false;
+  const r = t.getBoundingClientRect(), w = tip.offsetWidth, hgt = tip.offsetHeight;
+  tip.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left)) + 'px';
+  tip.style.top = (r.bottom + 6 + hgt > window.innerHeight ? r.top - hgt - 6 : r.bottom + 6) + 'px';
+}
+let tipFor = null;
+const onTipMove = (ev) => {
+  const t = ev.target.closest && ev.target.closest('[data-tipname]');
+  if (!t) { tip.hidden = true; tipFor = null; return; }
+  if (t !== tipFor || tip.hidden) { tipFor = t; showTip(t); }
+};
+document.addEventListener('mouseover', onTipMove);
+document.addEventListener('mousemove', onTipMove);
+document.addEventListener('scroll', () => { if (tipFor && tipFor.isConnected && tipFor.matches(':hover')) showTip(tipFor); else { tip.hidden = true; tipFor = null; } }, true);
+
+// ------------------------------------------------------------------ resizing
+
+// Drag the bars between the panes (or focus one and use the arrow keys);
+// double-click puts it back. The widths are remembered.
+function setupSplits() {
+  const main = document.querySelector('main');
+  const panes = [
+    { bar: $('splitFiles'), key: 'filesW', prop: '--files-w', left: true, min: 120 },
+    { bar: $('splitSide'), key: 'sideW', prop: '--side-w', left: false, min: 260 },
+  ];
+  for (const p of panes) { const w = store.get(p.key); if (w) main.style.setProperty(p.prop, w); }
+  const clamp = (p, w) => {
+    const total = main.getBoundingClientRect().width;
+    const other = p.left ? $('tab-ref').closest('.side').offsetWidth : el.files.offsetWidth;
+    return Math.max(p.min, Math.min(total - other - 260, w));
+  };
+  const set = (p, w) => { main.style.setProperty(p.prop, Math.round(clamp(p, w)) + 'px'); };
+  const keep = (p) => { store.set(p.key, main.style.getPropertyValue(p.prop)); syncScroll(); };
+  for (const p of panes) {
+    const width = () => (p.left ? el.files : $('tab-ref').closest('.side')).offsetWidth;
+    p.bar.addEventListener('pointerdown', (ev) => {
+      ev.preventDefault();
+      p.bar.setPointerCapture(ev.pointerId);
+      p.bar.classList.add('dragging'); document.body.classList.add('resizing');
+      const r = main.getBoundingClientRect();
+      const move = (e) => set(p, p.left ? e.clientX - r.left : r.right - e.clientX);
+      const done = () => {
+        p.bar.classList.remove('dragging'); document.body.classList.remove('resizing');
+        p.bar.removeEventListener('pointermove', move); keep(p);
+      };
+      p.bar.addEventListener('pointermove', move);
+      p.bar.addEventListener('pointerup', done, { once: true });
+      p.bar.addEventListener('pointercancel', done, { once: true });
+    });
+    p.bar.addEventListener('dblclick', () => { main.style.removeProperty(p.prop); store.set(p.key, ''); });
+    p.bar.addEventListener('keydown', (ev) => {
+      if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+      ev.preventDefault();
+      const step = (ev.key === 'ArrowRight') === p.left ? 20 : -20;
+      set(p, width() + step); keep(p);
+    });
+  }
 }
 
 // ------------------------------------------------------------------ start
 
-$('btnSave').onclick = save; $('btnInstall').onclick = install; $('btnNew').onclick = newFile;
+$('btnSave').onclick = save; $('btnInstall').onclick = install; $('btnNew').onclick = newFile; $('btnPlay').onclick = () => play();
+document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); play(); } });
 window.addEventListener('beforeunload', (ev) => { if (el.input.value !== state.clean) { ev.preventDefault(); ev.returnValue = ''; } });
 
 (async function start() {
+  if (new URLSearchParams(location.search).get('view') === 'reference') {
+    // The reference on a page of its own: no file, nothing to edit.
+    document.body.classList.add('ref-only');
+    document.title = 'Campaign language reference';
+    document.querySelector('.brand').textContent = 'Campaign language reference';
+    const page = $('refPage'); page.hidden = false; page.innerHTML = '<div></div>';
+    try { state.lib = await api('library'); buildRef(page.firstChild, false); } catch (e) { page.textContent = e.message; }
+    return;
+  }
+  setupSplits();
   measure();
   try {
     state.lib = await api('library'); buildVocab();

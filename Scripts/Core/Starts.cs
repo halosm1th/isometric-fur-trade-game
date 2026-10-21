@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using IsometricFurTradeGame.Scripts.Agents;
 using IsometricFurTradeGame.Scripts.Items;
@@ -33,6 +34,7 @@ public static class Starts
         StartPath.NWC => "The North West Company's house, across from the Bay men. You are the partner's new man.",
         StartPath.Cree => "The Cree summer camp by the Bay men's house. These are your people.",
         StartPath.Assiniboine => "The Assiniboine camp. These are your people.",
+        StartPath.American => "Fort Okanogan, on the upper Columbia. You are Mr. Astor's man, a long way from New York.",
         _ => "York Factory, Hudson's Bay. You are the Company's new hand.",
     };
 
@@ -48,10 +50,13 @@ public static class Starts
             _worldDated = true;
             var cal = GameCalendar.Instance;
             int year = cal?.Year ?? 1811;
-            switch (p.StartPath)
+            // A campaign that names its first day has it on every path.
+            if (Campaign.StartDate is var (cy, cm, cd) && !OS.GetCmdlineUserArgs().Any(x => x.StartsWith("--date="))) cal?.SetDate(cy, cm, cd, 7f);
+            else switch (p.StartPath)
             {
                 case StartPath.HBC: cal?.SetDate(year, 8, 20, 7f); break;           // the ship's day
                 case StartPath.NWC: cal?.SetDate(year, 7, 12, 7f); break;           // the brigade's day
+                case StartPath.American: cal?.SetDate(year, 9, 2, 7f); break;       // Mr. Stuart's party at the Okanogan
                 default: cal?.SetDate(year, 6, 10, 7f); break;   // the summer camp by the post
             }
             // The bands keep the season the date says: by the post from break-up to freeze-up.
@@ -62,6 +67,7 @@ public static class Starts
         {
             StartPath.HBC => Ship(p, pop, dating),
             StartPath.NWC => Brigade(p, pop, dating),
+            StartPath.American => Columbia(p, pop),
             _ => Camp(p),
         };
         // Open the prologue a moment after the world settles.
@@ -127,6 +133,7 @@ public static class Starts
             if (!seen.Contains("mates")) hub.Add($"Talk with {a} and {b}", () => { seen.Add("mates"); return Mates(); });
             if (!seen.Contains("sailor")) hub.Add($"See what {sailor} wants", () => { seen.Add("sailor"); return Sailor(); });
             if (!seen.Contains("mate")) hub.Add(bySloop ? "Ask the master about the Factory" : "Ask the mate about the Factory", () => { seen.Add("mate"); return Mate(); });
+            if (!seen.Contains("churchill")) hub.Add(bySloop ? "Talk with the Churchill people aboard" : "Watch the ship call at Churchill", () => { seen.Add("churchill"); return Churchill(); });
             hub.Add(bySloop ? "Turn in. The sloop will be in by morning." : "Turn in. The ship will be in by morning.", () => Arrive());
             return hub;
         }
@@ -147,6 +154,40 @@ public static class Starts
             .Add("Tell the mate.", () => { p.Standing += 3f; Note(p, $"You told the mate {sailor} was trading brandy on his own account. The Company will think well of it; the crew will not."); return new ScenePage { Title = "The mate", Text = $"The mate takes it down. {sailor} looks at you across the deck for the rest of the day." }.Add("Back", Hub); });
         ScenePage Mate() => new ScenePage { Title = bySloop ? "The master" : "The mate", Text = $"\"{factor}'s the Factor - an old Bay man, hard but fair, and he'll want you the hour you land. Watch {rival}: he wants the next place going and he'll not thank a new man for crowding him. And keep off the Canadians across the river - {partner}'s people. There's been bad blood since the winter.\"" }
             .Add("Thank him", () => { Note(p, $"The mate's advice: report to {factor} at once; {rival} wants the next place going; keep clear of {partner}'s Nor'Westers."); return Hub(); });
+        // Churchill (the owner's opening: the ship calls there before York).
+        // Prince of Wales Fort was taken by the French in 1782 without a shot
+        // and its walls blown where they could be; the Company lives since in
+        // a wooden factory up the river. The river's Cree name is Missinipi.
+        string clerk = "James Spence";
+        var atChurchill = new HashSet<string>();
+        ScenePage Churchill()
+        {
+            var page = new ScenePage
+            {
+                Title = "Churchill",
+                Text = atChurchill.Count > 0 ? "The boat from Churchill rides alongside while the last of the outfit goes over the side."
+                    : bySloop ? $"The sloop came out of the Churchill three days ago. Besides {a}, {b} and you she carries {clerk}, a clerk of six winters at Churchill who is bound for York and then the Saskatchewan, the Churchill packet, and the man who piloted her over the bar, a Cree of the Churchill homeguard."
+                    : $"The ship stands in to the mouth of the Churchill River to land the Churchill outfit before she runs down the coast to York. On the point, the great stone walls of Prince of Wales Fort stand empty: the French took it in 1782 without a shot fired and blew what they could. The Company's people live now in the wooden factory five miles up the river. A boat comes off with the Churchill packet, a clerk going down to York, and a Cree pilot at the steering oar.",
+            };
+            if (!atChurchill.Contains("clerk")) page.Add($"Talk with {clerk}, the Churchill clerk", () => { atChurchill.Add("clerk"); return ChurchillClerk(); });
+            if (!atChurchill.Contains("pilot")) page.Add("Sit with the pilot", () => { atChurchill.Add("pilot"); return Pilot(); });
+            if (!atChurchill.Contains("packet") && Sim.Fort?.Leader is Npc master) page.Add($"Offer to carry the Churchill packet to {factor}", () => { atChurchill.Add("packet"); return Packet(master); });
+            page.Add("Back to the rail", Hub);
+            return page;
+        }
+        ScenePage ChurchillClerk() => new ScenePage { Title = clerk, Text = $"{clerk} has been six winters at Churchill and is glad to be leaving it. \"They'll send you inland, a strong lad like you. If it's the Saskatchewan, it'll be Edmonton House - and the Nor'Westers' Fort Augustus stands so near it you could throw a stone from one gate to the other. The Cree of the Beaver Hills trade with whichever house treats them better that year, and the Blackfoot come in when they choose and not before. And the Canadians - friendly over a dram, and they'll have your best hunter away the next morning.\"" }
+            .Add("Ask what a new man should know", () => { Note(p, $"{clerk}, a Churchill clerk: inland it will likely be Edmonton House, beside the Nor'Westers' Fort Augustus; the Beaver Hills Cree trade with whichever house treats them better; the Blackfoot come when they choose."); return new ScenePage { Title = clerk, Text = "\"Learn the tongue. Keep your word to the Indians and your powder dry. Never let the master see you idle, and never let the Canadians see you drunk.\" He grins. \"The rest you'll learn the hard way, like the rest of us.\"" }.Add("Back", Churchill); })
+            .Add("Back", Churchill);
+        ScenePage Pilot() => new ScenePage { Title = "The pilot", Text = "The pilot is a Cree man of the Churchill homeguard, who has brought the Company's boats over the bar since before you were born. He says little in English. When you point at the river he says \"Missinipi\" - the big water - and waits until you can say it back." }
+            .Add("Say it back until he nods", () => { p.CreeFluency = Mathf.Min(1f, p.CreeFluency + 0.03f); Note(p, "A Cree pilot at Churchill taught you the river's name: Missinipi, the big water."); return new ScenePage { Title = "The pilot", Text = "He nods at last, and gives you two more words - for goose, and for tobacco - which you mean to remember." }.Add("Back", Churchill); })
+            .Add("Back", Churchill);
+        ScenePage Packet(Npc master)
+        {
+            p.Mail.Add(new Message { Kind = "letter", From = "the master at Churchill", To = master.DisplayName, Company = Faction.HBC, Subject = "the Churchill packet", Text = "Churchill's returns and its wants for the year, and a word for the new man who carried this: he was handy in the boat." });
+            Note(p, $"You carry the Churchill packet for {factor}.");
+            return new ScenePage { Title = clerk, Text = $"\"Good lad.\" {clerk} hands you an oilskin packet tied with tape. \"Into {factor}'s own hand, mind. Not the clerk's.\"" }.Add("Back", Churchill);
+        }
+
         ScenePage Arrive() => new ScenePage { Title = "York Factory", Text = $"Morning. The {(bySloop ? "sloop" : "ship")} comes up the Hayes on the tide and makes fast at the Factory's wharf. Palisade, flag, smoke from the chimneys, and every soul in the place come down to the shore. Your first order is in your pocket: report to {factor}." }
             .Add("Step ashore", () =>
             {
@@ -211,6 +252,60 @@ public static class Starts
             .Add("Thank him", () => { Note(p, $"The guide: report to {partner} on landing; the partners want {chief}'s band turned from {factor}'s Bay men to us this year."); return Hub(); });
         ScenePage Arrive() => new ScenePage { Title = $"{partner}'s house", Text = $"Noon. The brigade sweeps round the last bend singing, and the canoes run up on the landing below the North West Company's house. Across the river the Bay men's flag. Report to {partner}." }
             .Add("Step ashore", () => { Place(p, gate + new Vector2(60, 90)); Note(p, $"You came up with the brigade to {partner}'s house, with {a} and {b}. Report to {partner}."); return null; });
+        return Hub();
+    }
+
+    // ---- up the Columbia ----------------------------------------------------------------
+
+    // The Pacific Fur Company's first house inland (design doc 7.3): David
+    // Stuart's party went up the Columbia from Astoria in the summer of 1811
+    // and built Fort Okanogan where the Okanogan comes in. Two of the men
+    // with him were Ovide de Montigny, a Canadian, and Naukane, one of the
+    // Hawaiians the Tonquin signed on at the islands; both stay at the post.
+    private static ScenePage Columbia(Player.PlayerController p, Population pop)
+    {
+        var post = Posts.Named("Fort Okanogan");
+        var gate = post != null ? IsoGrid.ToWorld(post.GateOutside) : p.GlobalPosition;
+        p.SetStartPosition(Dry(gate + new Vector2(-260, 220)));
+        var mates = new List<Npc>();
+        if (pop != null && post?.Ledger != null)
+        {
+            var frames = GD.Load<SpriteFrames>("res://Scenes/Npc/VoyageurFrames.tres");
+            string[] names = { "Ovide de Montigny", "Naukane" };
+            for (int i = 0; i < names.Length; i++)
+            {
+                var v = pop.Spawn(names[i], Role.Labourer, Faction.American, IsoGrid.Cell(post.House.Top, 3 + i, 3), post.WoodpileCell, post.Ledger, frames, Posts.AmericanTint);
+                v.Inventory.Add(ItemId.Capote); v.Inventory.Add(ItemId.Knife); v.Inventory.Add(ItemId.Pemmican, 2);
+                v.GlobalPosition = gate + new Vector2(-200 + i * 40, 250);
+                Shared(v, p, $"{v.DisplayName} and {p.DisplayName} came up the Columbia from Astoria in Mr. Stuart's canoes.");
+                mates.Add(v);
+            }
+        }
+        p.AssignTask(Player.TaskKind.Report, 1, "you are Mr. Astor's new man at Fort Okanogan");
+        string master = Clean(post?.Ledger?.Leader?.DisplayName) ?? "Mr. Stuart";
+        string a = mates.Count > 0 ? Agents.Barks.CallName(mates[0]) : "Montigny", b = mates.Count > 1 ? mates[1].DisplayName : "Naukane";
+        var seen = new HashSet<string>();
+        ScenePage Hub()
+        {
+            var hub = new ScenePage { Title = "Below the Okanogan", Text = seen.Count == 0
+                ? $"{Month}. Two months up the Columbia from Astoria: the Cascades, the long portage at the Dalles, the falls where the river people fish from their scaffolds. The canoes are drawn up for the night under the dry hills. {master} is writing up his journal by the fire. {a} is smoking. {b} is singing something from the islands, low, to himself."
+                : "The fire burns down. Somewhere up the river a dog barks; there are lodges near." };
+            if (!seen.Contains("hawaiian")) hub.Add($"Sit with {b}", () => { seen.Add("hawaiian"); return Islander(); });
+            if (!seen.Contains("canadian")) hub.Add($"Ask {a} about the North men", () => { seen.Add("canadian"); return Canadian(); });
+            if (!seen.Contains("master")) hub.Add($"Ask {master} what the post is for", () => { seen.Add("master"); return Master(); });
+            hub.Add("Sleep. The Okanogan is a morning's paddle.", () => Arrive());
+            return hub;
+        }
+        ScenePage Islander() => new ScenePage { Title = b, Text = $"{b} came aboard the Tonquin at Oahu. \"The ship went north with Captain Thorn and did not come back,\" he says. \"The Indians at Clayoquot say she blew up. Every man. I was lucky - Mr. McDougall kept me at Astoria to cut wood.\" He looks at the river. \"Cold country. But the salmon are good.\"" }
+            .Add("Tell him you'll look out for each other", () => { if (mates.Count > 1) mates[1].ChangeRapport(p, 12f); Note(p, $"{b}, from Oahu, came out on the Tonquin before she was lost; you promised to look out for each other."); return Hub(); })
+            .Add("Back", Hub);
+        ScenePage Canadian() => new ScenePage { Title = a, Text = $"\"The North men?\" {a} spits into the fire. \"Mr. Thompson came down this river in July, past this very spot, with a Union Jack and a paper claiming it all for King George. He breakfasted with us at Astoria, très poli. And they have a house already at Spokane, east of here, with Finan McDonald in it. They were here first, and they mean us to know it.\"" }
+            .Add("\"Then we trade better than they do.\"", () => { if (mates.Count > 0) mates[0].ChangeRapport(p, 6f); Note(p, $"{a}: the Nor'Westers have Spokane House east of Okanogan, and David Thompson went down the Columbia in July claiming it for the King."); return Hub(); })
+            .Add("Back", Hub);
+        ScenePage Master() => new ScenePage { Title = master, Text = $"{master} closes his book. \"Mr. Astor means to have the whole trade of this coast: furs to Canton, tea and silk to New York, and a ship every year to supply us. Astoria is the depot; this is the first post inland. The Okanagan people - the Syilx - live up and down this river. If they trade with us, the house stands. If they take their furs to the North men at Spokane, it doesn't.\"" }
+            .Add("Thank him", () => { Note(p, $"{master}: Fort Okanogan is the Pacific Fur Company's first post inland; win the Syilx trade or lose it to the Nor'Westers at Spokane House."); return Hub(); });
+        ScenePage Arrive() => new ScenePage { Title = "Fort Okanogan", Text = $"Morning. The canoes turn up the mouth of the Okanogan to the flat where the men have cut the first logs for the house. Smoke from the Syilx lodges across the river. Report to {master}." }
+            .Add("Step ashore", () => { Place(p, gate + new Vector2(-60, 90)); Note(p, $"You came up the Columbia to Fort Okanogan with {master}, {a} and {b}. Report to {master}."); return null; });
         return Hub();
     }
 

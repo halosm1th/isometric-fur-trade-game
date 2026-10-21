@@ -10,7 +10,7 @@ namespace CampaignTool;
 // read back. compile(decompile(x)) is x: every condition and action is written
 // in the nicest form that compiles back to exactly the same data, and in
 // raw(...) / action(...) when no nicer form does.
-public sealed class Decompiler
+public sealed partial class Decompiler
 {
 	private const int Wrap = 64;
 	private const string Ind = "    ";
@@ -31,6 +31,8 @@ public sealed class Decompiler
 		"campaign", "beat", "const", "void", "if", "else", "for", "foreach", "in", "true", "false", "return", "while", "var", "int", "float", "string", "bool",
 		"world", "flags", "days", "date", "chance", "raw", "brigade", "news", "say", "shout", "trigger", "after", "random", "option", "action",
 		"Company", "Person", "Season", "Kind", "Item", "Date", "Days", "Beat", "Brigade",
+		"questline", "quest", "choice", "player", "Quest", "Task", "talk", "reach", "task", "bring", "have", "hunt", "when", "wait",
+		"StartWhen", "FailWhen", "OnStart", "OnComplete", "OnFail", "Says", "Done", "OnDone",
 	};
 
 	private string Run()
@@ -42,16 +44,20 @@ public sealed class Decompiler
 			string id = beats[i].TryGetValue("id", out var idv) ? Tree.S(idv) : $"beat{i}";
 			_names[id] = Unique(NameFor(id), used);
 		}
+		var lines = Tree.AsList(_doc.GetValueOrDefault("questlines")).Cast<Dictionary<string, object>>().ToList();
+		NameQuests(lines, used);
 		CollectVars(beats);
 		var header = Header();
 		var stubs = new StringBuilder();
 		foreach (var kv in _names) stubs.Append($"beat {kv.Value}(id: {Quote(kv.Key)});\n");
+		stubs.Append(QuestStubs());
 		var varDecls = VarDecls();
 		_prefix = header + "\n" + varDecls + stubs;
 
 		var sb = new StringBuilder(header);
 		if (varDecls.Length > 0) sb.Append('\n').Append(varDecls);
 		foreach (var b in beats) { sb.Append('\n'); Beat(sb, b); }
+		foreach (var l in lines) { sb.Append('\n'); QuestLine(sb, l); }
 		return sb.ToString();
 	}
 
@@ -116,6 +122,10 @@ public sealed class Decompiler
 		if (Tree.S(_doc.GetValueOrDefault("note")).Length > 0) args.Add($"note: {Str(Tree.S(_doc["note"]), Ind.Length + 6)}");
 		if (_doc.TryGetValue("seed", out var seed)) args.Add($"seed: {Tree.S(seed)}");
 		if (_doc.GetValueOrDefault("posts_by_founding_year") is true) args.Add("postsByFoundingYear: true");
+		if (Tree.S(_doc.GetValueOrDefault("extends")).Length > 0) args.Add($"extends: {Quote(Tree.S(_doc["extends"]))}");
+		if (Tree.S(_doc.GetValueOrDefault("start")) is var st && Regex.IsMatch(st, @"^\d{4}-\d\d-\d\d$"))
+			args.Add($"start: date({int.Parse(st[..4])}, {int.Parse(st[5..7])}, {int.Parse(st[8..])})");
+		if (_doc.TryGetValue("start_year", out var sy)) args.Add($"startYear: {Tree.S(sy)}");
 		return $"campaign {NameFor(_name)}(\n{Ind}{string.Join(",\n" + Ind, args)}\n);\n";
 	}
 
@@ -352,6 +362,8 @@ public sealed class Decompiler
 			"beat_age" when args.Count == 1 && _names.TryGetValue(args[0], out var an) => $"{an}.age",
 			"convoy_days_late" when args.Count == 1 => $"brigade({Quote(args[0])}).daysLate",
 			"convoy_days_out" when args.Count == 1 => $"brigade({Quote(args[0])}).daysOut",
+			"rapport" when args.Count == 1 => $"player.rapport({Quote(args[0])})",
+			"regard" when args.Count == 1 => $"world.regard({Quote(args[0])})",
 			_ => null,
 		};
 		return lhs == null ? null : lhs + rhs;
@@ -379,6 +391,10 @@ public sealed class Decompiler
 			case "convoy_out": return BrigadeP("isOut");
 			case "convoy_in": return BrigadeP("isIn");
 			case "convoy_wintering": return BrigadeP("isWintering");
+			case "quest": return _quests.TryGetValue(arg, out var qd) ? $"{qd}.done" : null;
+			case "quest_active": return _quests.TryGetValue(arg, out var qa) ? $"{qa}.active" : null;
+			case "quest_failed": return _quests.TryGetValue(arg, out var qf) ? $"{qf}.failed" : null;
+			case "posted": return $"player.posted({Quote(arg)})";
 		}
 		return null;
 	}
@@ -469,7 +485,7 @@ public sealed class Decompiler
 						$"from: {Quote(Tree.S(a["from"]))}", $"to: {to}", $"subject: {Str(Tree.S(a["subject"]), inner.Length + 9)}",
 						$"text: {Str(Tree.S(a["text"]), inner.Length + 6)}", $"days: {N("days")}",
 					};
-					if (a.ContainsKey("company")) args.Add($"company: {(Tree.S(a["company"]) is "HBC" or "NWC" ? "Company." + Tree.S(a["company"]) : Q("company"))}");
+					if (a.ContainsKey("company")) args.Add($"company: {(Tree.S(a["company"]) is "HBC" or "NWC" or "American" ? "Company." + Tree.S(a["company"]) : Q("company"))}");
 					string text = $"{pad}news(\n{inner}{string.Join(",\n" + inner, args)}\n{pad});";
 					var cand = text.Split('\n').ToList();
 					if (StmtOk(text.Trim(), a)) return cand;
@@ -501,11 +517,19 @@ public sealed class Decompiler
 			case "stock" when Only(a, "post", "item", "add") && Has("post", "item", "add"): simple.Add($"world.addStock({Q("post")}, {ItemText(Tree.S(a["item"]))}, {N("add")});"); break;
 			case "say" when Only(a, "text", "to", "headline") && Has("text"):
 				{
-					string who = a.TryGetValue("to", out var t) ? ", " + (Tree.S(t) is "HBC" or "NWC" ? "Company." + Tree.S(t) : Tree.S(t) == "all" ? "Company.All" : Q("to")) : "";
+					string who = a.TryGetValue("to", out var t) ? ", " + (Tree.S(t) is "HBC" or "NWC" or "American" ? "Company." + Tree.S(t) : Tree.S(t) == "all" ? "Company.All" : Q("to")) : "";
 					string call = a.GetValueOrDefault("headline") is true ? "shout" : "say";
 					simple.Add($"{call}({Str(Tree.S(a["text"]), col + call.Length + 1)}{who});");
 					break;
 				}
+			case "posting" when Only(a, "place") && Has("place"): simple.Add($"player.postTo({Q("place")});"); break;
+			case "standing" when Only(a, "add") && Has("add"): simple.Add($"player.addStanding({N("add")});"); break;
+			case "rapport" when Only(a, "who", "add") && Has("who", "add"): simple.Add($"player.addRapport({Q("who")}, {N("add")});"); break;
+			case "regard" when Only(a, "place", "add") && Has("place", "add"): simple.Add($"world.addRegard({Q("place")}, {N("add")});"); break;
+			case "give" or "take" when Only(a, "item", "count") && Has("item"): simple.Add($"player.{verb}({ItemText(Tree.S(a["item"]))}{(a.ContainsKey("count") ? ", " + N("count") : "")});"); break;
+			case "note" when Only(a, "text") && Has("text"): simple.Add($"player.note({Str(Tree.S(a["text"]), col + 12)});"); break;
+			case "start_quest" when Only(a, "quest") && Has("quest") && _quests.TryGetValue(Tree.S(a["quest"]), out var sq): simple.Add($"{sq}.start();"); break;
+			case "end_quest" when Only(a, "quest", "failed") && Has("quest") && _quests.TryGetValue(Tree.S(a["quest"]), out var eq): simple.Add(a.GetValueOrDefault("failed") is true ? $"{eq}.fail();" : $"{eq}.complete();"); break;
 			case "brigade" when Only(a, "run", "effect", "days", "leg") && Has("run") && a.ContainsKey("effect"):
 				{
 					string method = Tree.S(a["effect"]) switch { "delay" => "delay", "turn_back" => "turnBack", "lose" => "lose", "cancel" => "cancel", "launch" => "launch", _ => null };

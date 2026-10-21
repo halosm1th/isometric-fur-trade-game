@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using IsometricFurTradeGame.Scripts.Core;
+using IsometricFurTradeGame.Scripts.Economy;
 using IsometricFurTradeGame.Scripts.Player;
 using IsometricFurTradeGame.Scripts.World;
 
@@ -48,10 +49,14 @@ public partial class TravelMode : Control
         foreach (string arg in OS.GetCmdlineUserArgs())
             if (arg.StartsWith("--travelto="))
             {
+                // `--travelto=Name@SECONDS` sets out after that long (default 4).
                 string name = arg.Substring(11);
-                GetTree().CreateTimer(4.0).Timeout += () =>
+                double after = 4.0;
+                int atSign = name.LastIndexOf('@');
+                if (atSign > 0 && double.TryParse(name.Substring(atSign + 1), out double secs)) { after = secs; name = name.Substring(0, atSign); }
+                GetTree().CreateTimer(after).Timeout += () =>
                 {
-                    Vector2? at = Posts.Named(name) is { } post ? post.Centre : WorldMap.Place(name) is { } pl ? IsoGrid.ToWorld(pl.Cell) : null;
+                    Vector2? at = Posts.Named(name) is { } post ? post.Centre : WorldMap.Place(name) is { } pl ? IsoGrid.ToWorld(pl.Cell) : Camps.Named(name) is { } camp ? IsoGrid.ToWorld(camp.Centre) : null;
                     if (at == null) { GD.Print($"[travel] no place called {name}"); return; }
                     Waypoint.Set(at.Value); SetOut();
                 };
@@ -73,7 +78,7 @@ public partial class TravelMode : Control
         _planning = true;
         Say("You look over the way ahead...");
         bool frozen = Sim.Terrain?.IsFrozen ?? false;
-        var route = await Routes.PlanAsync(_player.GlobalPosition, target, frozen);
+        var route = await Routes.PlanAsync(_player.GlobalPosition, target, frozen, swim: true);
         _planning = false;
         if (route == null || route.Count < 2) { Say(frozen ? "There's no way there that you can see." : "There's no way there on foot that you can see - open water lies between. Wait for the freeze-up, or go by canoe."); return; }
         _route = route; _leg = 1; _start = _player.GlobalPosition;
@@ -88,6 +93,11 @@ public partial class TravelMode : Control
         var cam = _player.GetNodeOrNull<Camera2D>("Camera2D");
         if (cam != null) { _savedZoom = cam.Zoom; cam.Zoom = _savedZoom * 0.55f; }
         Active = true;
+        // The march is drawn across the map, not walked: a route that fords a
+        // river (or passes a stockade) must not have the water and the walls
+        // push you back every frame. The Assiniboine below Fort Souris held a
+        // man on its bank for a month.
+        _player.Marching = true;
         float km = 0f; for (int i = 1; i < route.Count; i++) km += route[i - 1].DistanceTo(route[i]) / WorldMap.PxPerKm;
         float pace = KmPerGameHour * (_player.HasHorse && _player.HorsePicket.DistanceTo(_player.GlobalPosition) < PlayerController.RemountReachPx * 1.5f || _player.Mounted ? 2.2f : 1f);
         Say($"You set out for {_dest}{(pace > KmPerGameHour ? " on horseback" : "")}: about {km:0} km, {km / (pace * 24f):0.#} days. G or any step of your own stops.");
@@ -96,7 +106,9 @@ public partial class TravelMode : Control
     private void Stop(string why)
     {
         if (!Active && !_planning) return;
+        bool marching = Active;
         Active = false; _planning = false; _route = null;
+        if (marching && _player != null && IsInstanceValid(_player)) _player.Marching = false;
         if (Net.Net.IsServer) GameCalendar.Instance?.CancelSkip();
         var cam = _player?.GetNodeOrNull<Camera2D>("Camera2D");
         if (cam != null) cam.Zoom = _savedZoom;
@@ -139,9 +151,20 @@ public partial class TravelMode : Control
             else { _player.GlobalPosition += d / len * budget; budget = 0f; }
         }
         if (_leg >= _route.Count) { Stop($"You have come to {_dest}."); Waypoint.Clear(); return; }
+        // Riding at the head of a war party: the march ends where the fight begins.
+        foreach (var w in War.Parties)
+            if (w.Rider == _player && w.Phase == WarPhase.Fighting) { Stop($"You are at {War.NameOf(w.Against)}. The fighting has begun!"); Waypoint.Clear(); return; }
 
-        // Eat on the march when hungry, if there is anything in the pack.
+        // Eat and drink on the march when you need to, from what you carry.
+        // The clock races while you go, so a need that is not met is met with
+        // a stop, whatever the hour: travel used to drink nothing and stop for
+        // the cold only at nightfall, and walked men to death in a day or two.
         if (_player.Needs.Hunger < 45f) _player.Eat();
+        if (_player.Needs.Thirst < 45f && !_player.Drink() && _player.Needs.Thirst < 25f)
+        { Stop(cal != null && cal.IsFrozen ? "You are parched and carry nothing to drink. Make a fire and melt snow before going on." : "You are parched and carry nothing to drink. Find water before going on."); return; }
+        if (_player.Needs.Warmth < 30f) { Stop("You are freezing. Make camp and a fire before going on."); return; }
+        if (_player.Needs.Hunger < 20f) { Stop("You are starving and have nothing left to eat. Hunt, or turn back."); return; }
+        if (_player.Needs.Health < 35f) { Stop("You are too badly hurt to go on. Rest, and see to your wounds."); return; }
 
         _checkTimer -= (float)delta;
         if (_checkTimer > 0f) return;
@@ -169,7 +192,15 @@ public partial class TravelMode : Control
             if (a.GlobalPosition.DistanceTo(_player.GlobalPosition) < 1000f) { Stop("Wolves ahead."); return; }
         }
         foreach (var (name, at) in Places())
-            if (!_placesAtStart.Contains(name) && at.DistanceTo(_player.GlobalPosition) < StopNearPx) { Stop($"{name} is ahead."); return; }
+            if (!_placesAtStart.Contains(name) && at.DistanceTo(_player.GlobalPosition) < StopNearPx && !WarTarget(at)) { Stop($"{name} is ahead."); return; }
+    }
+
+    // The camp or post your own war party rides against is not news: the
+    // march goes on into the fight (the party's arrival stops it, above).
+    private bool WarTarget(Vector2 at)
+    {
+        foreach (var w in War.Parties) if (w.Rider == _player && w.Phase == WarPhase.Riding && w.Target.DistanceTo(at) < 2500f) return true;
+        return false;
     }
 
     private static IEnumerable<(string, Vector2)> Places()

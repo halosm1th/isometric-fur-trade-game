@@ -1,0 +1,504 @@
+// The American road: the story campaign for a player who comes in as Mr. Astor's
+// man (StartPath.American, Core/Starts.cs: up the Columbia with David Stuart to
+// Fort Okanogan, September 1811). Included by company-servant.camp; a part has
+// no header of its own, and its consts, quests and flags share the campaign's.
+//
+// 1. The Astorians (1811-1812). Report to Mr. Stuart at Okanogan, call on the
+//    Nor'Westers at Spokane House, and win the Syilx (Okanagan) trade.
+// 2. The war comes west (1813-1815). News of the war; Astoria to be sold to the
+//    North West Company. Stay on the Columbia under the North men's flag, or go
+//    east over the mountains to Manuel Lisa's Fort on the Missouri, where Lisa,
+//    the government's man on the river, keeps the Missouri nations from the
+//    British and the Blackfoot come down to raid.
+// 3. The last years (1821-1822). On the Missouri: the Missouri Fur Company failing,
+//    General Ashley's hundred young men for the mountains, Mr. Astor's American Fur
+//    Company buying up the river. On the Columbia: one company, the Bay's, and the
+//    Americans' last men to decide where they belong.
+// Every chapter's choices are flags (am_*) the next one reads, and the ending
+// (TheEndOfTheRoad) is written from them.
+
+const string amOkanogan = "Fort Okanogan";
+const string amStuart = "leader@Fort Okanogan";
+const string amSpokane = "Spokane House";
+const string amSpokaneMaster = "leader@Spokane House";
+const string amSyilx = "Syilx (Okanagan)";
+const string amSyilxChief = "chief@Syilx (Okanagan)";
+const string amLisaPost = "Fort Manuel Lisa";
+const string amLisa = "leader@Fort Manuel Lisa";
+const string amArikaraChief = "chief@Arikara";
+const string amMandanChief = "chief@Mandan";
+const string amBlackfootChief = "chief@Blackfoot";
+const string amArikara = "Arikara";
+const string amMandan = "Mandan";
+const string amBlackfoot = "Blackfoot";
+// world.regard / world.addRegard read and change a band's regard for the player's
+// own company: for an American, how that people feel about the Americans.
+
+// ================================================================ 1. the Astorians
+
+questline TheAstorians(
+    title: "The Astorians",
+    summary: "Mr. Astor's Pacific Fur Company on the Columbia: a new house inland, the North men already in the country, and the Syilx trade to win.",
+    forCompany: Company.American
+) {
+    quest AmLandfall(
+        title: "Report to Mr. Stuart",
+        summary: "You came up the Columbia with Mr. David Stuart to build the company's first house inland. He will want you the moment you land."
+    ) {
+        talk Report(who: amStuart, text: "Find Mr. Stuart and report to him") {
+            Says() => "{npc} is marking out the stockade with a cord and stakes. \"There you are. Mr. Astor pays us to trade, but first we " +
+                      "must have walls and a roof before the snow, and the men are few. Can you swing an axe, or only a pen?\"";
+            choice Axe(
+                label: "\"An axe, Mr. Stuart. Show me the logs.\"",
+                reply: "\"Good man. Six loads to the woodpile, and then we'll talk of the trade.\"",
+                goto: Wood
+            ) {
+                player.addStanding(2);
+            }
+            choice Pen(
+                label: "\"I came to trade furs, not to cut wood.\"",
+                reply: "\"So did we all. The beaver will wait for you; the winter will not. Six loads.\"",
+                goto: Wood
+            ) {
+                player.addStanding(-1);
+                flags.set("am_wants_the_trade");
+            }
+        }
+        task Wood(task: Task.Firewood, count: 6, text: "Bring six loads of firewood to the woodpile");
+        talk Orders(who: amStuart, text: "Report back to Mr. Stuart") {
+            Says() => "{npc} sits on a log with his journal on his knee. \"You'll do. Now listen. We are three thousand miles from " +
+                      "Mr. Astor and six months from his ship. The North West Company has a house at Spokane, a few days east, and the " +
+                      "Syilx - the Okanagan people - live all along this river. Everything we do this winter is about those two.\"";
+            choice AskSpokane(
+                label: "\"Who keeps the North men's house?\"",
+                reply: "\"A partner and a few Canadians, and they know the country better than we do. They will be civil and they " +
+                       "will try to buy every pelt between here and the mountains. Go and look at them.\"",
+                goto: Orders
+            );
+            choice AskSyilx(
+                label: "\"And the Syilx?\"",
+                reply: "\"They fish the river, hunt the hills, and have no reason to love any of us yet. Take tobacco and listen " +
+                       "more than you talk. Their friendship is the whole of this post.\"",
+                goto: Orders
+            );
+            choice AskAstoria(
+                label: "\"What news from Astoria?\"",
+                reply: "\"The Tonquin is lost with every soul, and Mr. Hunt's overland party is not yet in. We are fewer than Mr. Astor " +
+                       "meant, and further from help. So we must be cleverer.\"",
+                goto: Orders
+            );
+            choice Go(label: "\"I'll start with the North men.\"", reply: "\"Take what you need from the store. And remember whose wages you draw.\"");
+        }
+        OnComplete() {
+            player.postTo(amOkanogan);
+            player.give(Item.Tobacco, 6);
+            player.give(Item.TradeGoods, 4);
+            player.note("You are on the books of Fort Okanogan: six twists of tobacco and four pieces of goods for the trade.");
+        }
+    }
+
+    quest AmSpokaneCall(
+        title: "The North men at Spokane",
+        summary: "Ride east to the North West Company's Spokane House and see what kind of neighbours they are."
+    ) [AmLandfall] {
+        reach Ride(place: amSpokane, radius: 700, text: "Ride east to Spokane House");
+        talk Call(who: amSpokaneMaster, text: "Call on the master of Spokane House") {
+            Says() => "{npc} gives you a chair, tea, and no information at all. \"An American. Mr. Astor's men are everywhere this year - " +
+                      "Mr. Thompson met you at the river's mouth, I hear. Well. The country is wide. What brings you to Spokane?\"";
+            choice Friendly(label: "Share your tobacco and the news from Astoria, frankly", goto: TellFriendly) {
+                player.addRapport(amSpokaneMaster, 15);
+                flags.set("am_nwc_friendly");
+            }
+            choice Guarded(label: "Talk of the weather and the salmon, and watch his store", goto: TellGuarded) {
+                flags.set("am_nwc_guarded");
+            }
+            choice Hostile(label: "Tell him the Columbia is American now, whatever Mr. Thompson nailed to a tree", goto: TellHostile) {
+                player.addRapport(amSpokaneMaster, -15);
+                flags.set("am_nwc_hostile");
+            }
+        }
+        talk TellFriendly(who: amStuart, text: "Tell Mr. Stuart how it went", next: "complete") {
+            Says() => "\"Tea with the North men?\" {npc} smiles. \"No harm. They'll be friendlier than their partners in Montreal, " +
+                      "and a friend at Spokane may be worth more than a pack of beaver some winter.\"";
+        }
+        talk TellGuarded(who: amStuart, text: "Tell Mr. Stuart how it went", next: "complete") {
+            Says() => "\"You counted his bales and told him nothing. You'll make a trader.\"";
+        }
+        talk TellHostile(who: amStuart, text: "Tell Mr. Stuart how it went") {
+            Says() => "{npc} winces. \"To his face. Well, now they know we mean to stay. Sleep with your rifle loaded.\"";
+        }
+        OnComplete() { player.addStanding(1); }
+    }
+
+    quest AmSyilxTrade(
+        title: "The Syilx",
+        summary: "Cross the river to the Syilx camp and make the company known to the Okanagan people."
+    ) [AmLandfall] {
+        reach Camp(place: amSyilx, radius: 600, text: "Go to the Syilx camp on the Okanogan");
+        bring Tobacco(who: amSyilxChief, item: Item.Tobacco, count: 2, text: "Give the chief tobacco") {
+            Says() => "{npc} takes the tobacco, smells it, and passes it to the men beside him. \"The Bostons' tobacco is good. " +
+                      "The North men's is good too. We will see whose words are good.\"";
+        }
+        talk Council(who: amSyilxChief, text: "Sit in council with the chief") {
+            Says() => "\"You built a house on our river without asking,\" {npc} says. \"The North men did the same at Spokane. " +
+                      "Now you both want our beaver. What do the Bostons give that the North men do not?\"";
+            choice Price(label: "Promise a fair price, and a house that will still be here in ten winters") {
+                player.addRapport(amSyilxChief, 10);
+                world.addRegard(amSyilx, 5);
+                flags.set("am_syilx_promise");
+            }
+            choice Guns(label: "Promise guns, for their war with the people to the south") {
+                player.addRapport(amSyilxChief, 6);
+                world.addRegard(amSyilx, 8);
+                flags.set("am_promised_guns");
+            }
+            choice Learn(label: "Ask him to teach you the river - its fisheries, its trails, its names") {
+                player.addRapport(amSyilxChief, 12);
+                world.addRegard(amSyilx, 3);
+                flags.set("am_learned_river");
+            }
+        }
+        OnComplete() {
+            flags.set("am_syilx_friend");
+            player.note("You have sat in council with the Syilx. Whether they trade with the Bostons or the North men is still to be seen.");
+        }
+    }
+
+    // Enemy: the North men have sent goods to the Syilx camp; get Mr. Astor's there first.
+    quest AmAheadOfTheNorthmen(
+        title: "Ahead of the North men",
+        summary: "Spokane House has sent a man with goods to the Syilx. Mr. Stuart wants the company's goods in the chief's lodge first.",
+        giver: amStuart
+    ) [AmSpokaneCall, AmSyilxTrade] {
+        StartWhen() => flags.has("am_nwc_hostile");
+        OnStart() { player.give(Item.TradeGoods, 4); }
+        bring Goods(who: amSyilxChief, item: Item.TradeGoods, count: 4, text: "Carry four pieces of goods to the Syilx chief before the North men's") {
+            Says() => "{npc} looks at the goods, and at the trail east. \"The North man is a day behind you. The Bostons came first.\"";
+            OnDone() {
+                player.addRapport(amSyilxChief, 8);
+                world.addRegard(amSyilx, 5);
+                player.addRapport(amSpokaneMaster, -10);
+                flags.set("am_beat_the_northmen");
+            }
+        }
+        talk Back(who: amStuart, text: "Tell Mr. Stuart the goods are in") {
+            Says() => "\"First in the lodge. Spokane will hear of it by tonight, and they'll not forgive it.\"";
+        }
+        OnComplete() { player.addStanding(3); }
+    }
+
+    // Friend: the master of Spokane House has news from the east, and a proposal.
+    quest AmRiverTruce(
+        title: "News from the east",
+        summary: "The master of Spokane House sends word: he has letters from Fort William, and something to say before winter.",
+        giver: amSpokaneMaster
+    ) [AmSpokaneCall] {
+        StartWhen() => flags.has("am_nwc_friendly") && world.date >= date(1812, 3, 1);
+        talk Hear(who: amSpokaneMaster, text: "Hear what the master of Spokane House has to say") {
+            Says() => "{npc} shuts the door. \"Letters from Fort William. There is talk in Montreal of war between King George and your " +
+                      "Congress - ships stopped, sailors pressed, the Indians of the lakes. If it comes, there will be orders. I would " +
+                      "rather we agreed now, you and I, that there is no war on this river.\"";
+            choice Truce(label: "Agree: whatever London and Washington do, no blood between Okanogan and Spokane") {
+                player.addRapport(amSpokaneMaster, 10);
+                flags.set("am_river_truce");
+            }
+            choice Warn(label: "Thank him, and carry the news straight to Mr. Stuart", goto: Tell) {
+                flags.set("am_warned_stuart");
+            }
+        }
+        talk Tell(who: amStuart, text: "Carry the news of war to Mr. Stuart") {
+            Says() => "{npc} reads your face before you speak. \"War? Then Astoria has no navy, no fort worth the name, and a British " +
+                      "company on every side. Say nothing to the men yet.\"";
+        }
+    }
+}
+
+// ================================================================ 2. the war comes west
+
+questline TheWarComesWest(
+    title: "The War Comes West",
+    summary: "The United States and Britain at war, Astoria sold to the North men, and the choice of where an American belongs.",
+    forCompany: Company.American
+) {
+    quest AmNewsOfWar(
+        title: "War",
+        summary: "Mr. McKenzie has come up from Astoria with news, and Mr. Stuart calls every man into the house."
+    ) [AmLandfall] {
+        StartWhen() => world.date >= date(1813, 1, 15);
+        talk Hear(who: amStuart, text: "Hear the news from Astoria") {
+            Says() => "{npc} speaks to the whole house. \"The United States and Great Britain have been at war since June. A British " +
+                      "frigate is coming for Astoria, and Mr. McDougall means to sell the whole concern to the North West Company " +
+                      "before she can take it for nothing. Every man must choose: stay in the country under the North men, or go " +
+                      "back to the States. I go east in the spring, over the mountains and down the Missouri.\"";
+            choice Stay(
+                label: "\"I'll stay in this country, whoever's flag flies over the house.\"",
+                reply: "\"Many will. The North men need hands that know the river, and they'll pay. God keep you.\""
+            ) {
+                flags.set("am_stayed_columbia");
+            }
+            choice East(
+                label: "\"I'll come east with you, Mr. Stuart. I'm an American.\"",
+                reply: "\"Then pack light. Mr. Lisa keeps a fort on the upper Missouri; it's the first American roof we'll see.\""
+            ) {
+                flags.set("am_went_east");
+            }
+        }
+        OnComplete() {
+            if (flags.has("am_river_truce")) player.note("Spokane House kept faith: no blood was shed between the two houses on the river when the war came.");
+            player.note("The war has reached the Columbia, a year late, by canoe.");
+        }
+    }
+
+    // ---- the Missouri: east with the Astorians
+
+    quest AmTheRoadEast(
+        title: "The road east",
+        summary: "Over the mountains and down the Missouri to Manuel Lisa's fort, the first American post on the road home."
+    ) [AmNewsOfWar] {
+        StartWhen() => flags.has("am_went_east");
+        reach Travel(place: amLisaPost, radius: 900, text: "Go east over the mountains and down to Fort Manuel Lisa on the Missouri");
+        talk Lisa(who: amLisa, text: "Present yourself to the master of Fort Manuel Lisa") {
+            Says() => "{npc} looks you up and down: the moccasins, the beard, the Columbia in your face. \"One of Astor's men, walked " +
+                      "from the Pacific. Mother of God. The river is short of men who can do that. The British are sending medals and " +
+                      "guns up from the lakes to every nation on the Missouri; I mean to keep them for the United States. Will you sign?\"";
+            choice Sign(label: "Sign with the Missouri Fur Company", reply: "\"Good. You'll earn it.\"") {
+                flags.set("am_signed_with_lisa");
+                player.addRapport(amLisa, 10);
+            }
+            choice Astor(label: "Ask for work only until you can get word to Mr. Astor", reply: "\"Astor! Astor is in New York counting his losses. But work is work.\"") {
+                flags.set("am_still_astors_man");
+            }
+        }
+        OnComplete() {
+            player.postTo(amLisaPost);
+            player.note("You are on the books of Fort Manuel Lisa, on the upper Missouri.");
+        }
+    }
+
+    quest AmTheRiverNations(
+        title: "The river nations",
+        summary: "British agents are carrying medals and guns to the Missouri nations. The master sends you to the Arikara and the Mandan with the United States' presents.",
+        giver: amLisa
+    ) [AmTheRoadEast] {
+        OnStart() { player.give(Item.TradeGoods, 4); player.give(Item.Tobacco, 2); }
+        bring Presents(who: amArikaraChief, item: Item.TradeGoods, count: 4, text: "Carry the presents to the Arikara chief") {
+            Says() => "{npc} turns a British medal over in his fingers while he looks at your goods. \"The red-coat traders came " +
+                      "from the north with this. Now the Americans come up the river with these. Every summer, a new father.\"";
+            OnDone() { player.addRapport(amArikaraChief, 8); world.addRegard(amArikara, 6); }
+        }
+        talk Mandan(who: amMandanChief, text: "Sit with the Mandan chief") {
+            Says() => "\"The North men from the Assiniboine have traded at our towns since my father's time,\" {npc} says. " +
+                      "\"Now the British want us to fight for them, and the Americans want us to sit still. What do the Americans offer?\"";
+            choice Trade(label: "Promise American traders on the river every summer, war or no war") {
+                player.addRapport(amMandanChief, 10);
+                world.addRegard(amMandan, 6);
+                flags.set("am_promised_river_trade");
+            }
+            choice Warn(label: "Remind him the British left their Indian allies alone to make their peace in '83") {
+                player.addRapport(amMandanChief, 4);
+                world.addRegard(amMandan, 3);
+                flags.set("am_warned_of_the_british");
+            }
+        }
+        OnComplete() {
+            flags.set("am_kept_the_missouri");
+            player.addStanding(3);
+            player.note("The Arikara and the Mandan stayed out of the British war, and Mr. Lisa wrote to St. Louis that the Missouri was held.");
+        }
+    }
+
+    quest AmTheBlackfoot(
+        title: "The Blackfoot",
+        summary: "The Blackfoot killed the company's trappers at the Three Forks in 1810, and their war parties come down the Missouri. The master asks your counsel.",
+        giver: amLisa
+    ) [AmTheRoadEast] {
+        StartWhen() => world.date >= date(1814, 4, 1);
+        talk Council(who: amLisa, text: "Give the master your counsel on the Blackfoot") {
+            Says() => "{npc} spreads a map on the table. \"They took our horses at the Big Horn and our men at the Three Forks. " +
+                      "The British at the Saskatchewan posts sell them guns. I can fight them, buy them, or wait behind these walls. Well?\"";
+            choice Tobacco(label: "Send tobacco and an offer of trade to the Blackfoot - you'll carry it yourself", goto: Carry) {
+                flags.set("am_blackfoot_tobacco");
+                player.give(Item.Tobacco, 2);
+            }
+            choice Arms(label: "Arm the river nations and hold the Missouri against them", goto: "complete") {
+                flags.set("am_blackfoot_war");
+                world.addRegard(amBlackfoot, -15);
+                world.addRegard(amArikara, 5);
+            }
+            choice Walls(label: "Keep the men inside the walls and the trade close to home this year", goto: "complete") {
+                flags.set("am_held_the_fort");
+            }
+        }
+        bring Carry(who: amBlackfootChief, item: Item.Tobacco, count: 2, text: "Carry tobacco to the Blackfoot") {
+            Says() => "{npc} lets you live long enough to say why you came. Then he smokes your tobacco. \"Americans trap our rivers " +
+                      "without asking. The North men at least come to trade. Come to trade, Boston, and we will see.\"";
+            OnDone() {
+                player.addRapport(amBlackfootChief, 10);
+                world.addRegard(amBlackfoot, 10);
+                flags.set("am_smoked_with_the_blackfoot");
+            }
+        }
+        OnComplete() { player.addStanding(2); }
+    }
+
+    // ---- the Columbia: staying under the North men's flag
+
+    quest AmUnderTheNorthmen(
+        title: "Under the North men's flag",
+        summary: "Astoria is Fort George now, and the North West Company owns everything the Pacific Fur Company built. Go to Spokane House and ask for work."
+    ) [AmNewsOfWar] {
+        StartWhen() => flags.has("am_stayed_columbia");
+        reach Ride(place: amSpokane, radius: 700, text: "Ride to Spokane House");
+        talk Ask(who: amSpokaneMaster, text: "Ask the master of Spokane House for work") {
+            Says() => "{npc} has the bill of sale from Astoria on his table. \"So. Mr. Astor's men are the North West Company's men now, " +
+                      "those that want to be. You know the Okanogan and its people. What do you want?\"";
+            choice Wages(
+                label: "\"Wages, and the Okanogan, if you'll have me.\"",
+                reply: "\"I'll have you. You were a fair neighbour.\"",
+                when: !flags.has("am_nwc_hostile")
+            ) {
+                player.addRapport(amSpokaneMaster, 10);
+                flags.set("am_took_nwc_wages");
+            }
+            choice Swallow(
+                label: "Swallow your pride, and ask for wages",
+                reply: "He keeps you standing in the yard a long while. \"You told me the river was American. Well, it isn't. Half wages.\"",
+                when: flags.has("am_nwc_hostile")
+            ) {
+                player.addRapport(amSpokaneMaster, 5);
+                flags.set("am_took_nwc_wages");
+            }
+            choice Free(label: "\"Nothing. I'll trade on my own account, a free man.\"", reply: "\"Free men starve in this country. But good luck to you.\"") {
+                flags.set("am_freeman");
+            }
+        }
+    }
+
+    quest AmKeepFaith(
+        title: "A promise on the Okanogan",
+        summary: "The Bostons' house belongs to the North men now. The Syilx want to know what became of the Bostons' promises."
+    ) [AmUnderTheNorthmen] {
+        talk Council(who: amSyilxChief, text: "Go to the Syilx chief") {
+            Says() => "{npc} is waiting for you. \"The Bostons sold their house to the North men. The Bostons' word went with it?\"";
+            choice Keep(
+                label: "Keep your word yourself: you'll trade fairly with them, whoever owns the house",
+                when: flags.has("am_syilx_promise") || flags.has("am_learned_river")
+            ) {
+                player.addRapport(amSyilxChief, 15);
+                world.addRegard(amSyilx, 10);
+                flags.set("am_kept_faith");
+            }
+            choice Guns(
+                label: "Bring him the guns you promised, from your own pack",
+                when: flags.has("am_promised_guns")
+            ) {
+                player.take(Item.Musket, 1);
+                player.addRapport(amSyilxChief, 12);
+                world.addRegard(amSyilx, 8);
+                flags.set("am_kept_faith");
+            }
+            choice Shrug(label: "Tell him the North men will do as well by him") {
+                player.addRapport(amSyilxChief, -10);
+                world.addRegard(amSyilx, -15);
+                flags.set("am_broke_faith");
+            }
+        }
+    }
+}
+
+// ================================================================ 3. the last years
+
+questline TheLastYears(
+    title: "The Last Years",
+    summary: "The early 1820s: on the Missouri a failing company and new men for the mountains; on the Columbia, one company and the Bay's.",
+    forCompany: Company.American
+) {
+    quest AmTheMountainMen(
+        title: "Enterprising young men",
+        summary: "The company's credit in St. Louis is gone. General Ashley wants a hundred young men for the mountains, and Mr. Astor's American Fur Company is buying up the river.",
+        giver: amLisa
+    ) [AmTheRoadEast] {
+        StartWhen() => world.date >= date(1822, 2, 13);   // Ashley's advertisement, first run in the Missouri Gazette
+        talk Hear(who: amLisa, text: "Hear the news from St. Louis") {
+            Says() => "{npc} has the Missouri Gazette open on the table. \"Read it. 'To enterprising young men: the subscriber wishes " +
+                      "to engage one hundred men to ascend the Missouri to its source.' Ashley and Henry. No posts, no Indians bringing " +
+                      "furs - their own men trapping, and a rendezvous in the mountains. And Astor's American Fur Company is buying " +
+                      "every house on the river that will sell. The old company is finished. What will you do?\"";
+            choice Ashley(label: "Go with Ashley's men to the mountains") {
+                flags.set("am_ashleys_man");
+            }
+            choice Astor(label: "Take the American Fur Company's offer, and stay on the river") {
+                flags.set("am_american_fur");
+            }
+            choice AstorAgain(
+                label: "\"I was Mr. Astor's man when I came, and I am still.\" Write to his company yourself",
+                reply: "{npc} laughs. \"Ten years and you never stopped. Go on, then - he'll be glad of a man who walked from the Pacific for him.\"",
+                when: flags.has("am_still_astors_man")
+            ) {
+                flags.set("am_american_fur");
+                player.addStanding(3);
+            }
+            choice Loyal(label: "Stay with the old company to the end", when: flags.has("am_signed_with_lisa")) {
+                flags.set("am_loyal_to_the_end");
+                player.addRapport(amLisa, 15);
+            }
+        }
+        OnComplete() { flags.set("am_road_ended"); }
+    }
+
+    quest AmOneCompanyOnTheColumbia(
+        title: "The Bay comes to the Columbia",
+        summary: "The North West Company is joined to the Hudson's Bay Company. The Columbia is the Bay's now, and its last Americans must decide where they belong.",
+        giver: amSpokaneMaster
+    ) [AmUnderTheNorthmen] {
+        StartWhen() => world.happened("merger");   // the union, as it happens in the world (Economy/Union.cs)
+        talk Hear(who: amSpokaneMaster, text: "Hear the news at Spokane House") {
+            Says() => "{npc} reads it out. \"The North West Company is joined to the Hudson's Bay Company. The Bay's charter, the Bay's " +
+                      "governor. They'll send a man to look at every house on this river and decide what it's worth - and who.\" " +
+                      "He looks at you. \"An American, ten years on the Columbia. What will you do?\"";
+            choice Bay(label: "Take service with the Bay, if they'll have you") {
+                flags.set("am_bay_man");
+            }
+            choice Home(label: "Go home to the States, by the Missouri, at last") {
+                flags.set("am_went_home");
+            }
+            choice Syilx(label: "Stay on the Okanogan, with the Syilx", when: flags.has("am_kept_faith") || world.regard(amSyilx) >= 70) {
+                flags.set("am_stayed_with_the_syilx");
+                player.addRapport(amSyilxChief, 10);
+            }
+        }
+        OnComplete() { flags.set("am_road_ended"); }
+    }
+
+    quest TheEndOfTheRoad(
+        title: "The end of the road",
+        summary: "Ten years since you came up the Columbia with Mr. Stuart."
+    ) {
+        StartWhen() => flags.has("am_road_ended");
+        wait Remember(days: 1, text: "Think back over ten years in the country");
+        OnComplete() {
+            if (flags.has("am_beat_the_northmen")) player.note("You beat the North men to the Syilx lodges in your first winter, and Spokane never forgave it.");
+            if (flags.has("am_river_truce")) player.note("You and the master of Spokane House kept a war out of the Columbia that two governments had declared.");
+            if (flags.has("am_kept_the_missouri")) player.note("The Arikara and the Mandan stayed out of the British war. Mr. Lisa said it was your doing as much as his.");
+            if (flags.has("am_smoked_with_the_blackfoot")) player.note("You carried tobacco into the Blackfoot camp and came out alive: few Americans could say it.");
+            if (flags.has("am_blackfoot_war")) player.note("The Missouri was held against the Blackfoot with the river nations' guns, and the war on the upper river went on.");
+            if (flags.has("am_held_the_fort")) player.note("You counselled walls when the Blackfoot came, and the fort stood, and the trade went small.");
+            if (flags.has("am_promised_river_trade") && flags.has("am_american_fur")) player.note("The traders came up the river every summer, as you promised the Mandan they would.");
+            if (flags.has("am_warned_of_the_british")) player.note("When the British made their peace at Ghent and left their Indian allies to theirs, the Mandan remembered who had told them so.");
+            if (flags.has("am_took_nwc_wages")) player.note("You drew the North West Company's wages on the Columbia through the war that made you their enemy.");
+            if (flags.has("am_freeman")) player.note("You were a free man on the Columbia, nobody's servant, through the years of the North men.");
+            if (flags.has("am_kept_faith")) player.note("The Syilx remember the Boston who kept his word after his company sold its house.");
+            if (world.regard(amSyilx) >= 65) player.note("The Syilx still speak well of the Bostons, and of you by name.");
+            if (world.regard(amArikara) >= 60 && world.regard(amMandan) >= 60) player.note("The Arikara and the Mandan count the Americans their friends on the river.");
+            if (world.regard(amBlackfoot) < 35) player.note("The Blackfoot are at war with every American on the upper Missouri.");
+            if (flags.has("am_broke_faith")) player.note("The Syilx remember the Bostons' promises went with the Bostons' house.");
+            if (flags.has("am_ashleys_man")) player.note("You went up the Missouri with Ashley's men, into the mountains and the rendezvous, a trapper and nobody's servant.");
+            if (flags.has("am_american_fur")) player.note("You signed with Mr. Astor again, ten years and a war later. The American Fur Company had the river now.");
+            if (flags.has("am_loyal_to_the_end")) player.note("You stayed with the old Missouri Fur Company to the end, and saw it out.");
+            if (flags.has("am_bay_man")) player.note("You took the Bay's shilling: an American in the Hudson's Bay Company's service on the Columbia.");
+            if (flags.has("am_went_home")) player.note("You went home to the States by the Missouri, ten years after you left New York.");
+            if (flags.has("am_stayed_with_the_syilx")) player.note("You stayed on the Okanogan with the Syilx, and the companies came and went past your door.");
+            player.note("So ends the American road. The country goes on.");
+        }
+    }
+}

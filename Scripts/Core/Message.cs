@@ -122,7 +122,7 @@ public static class Letters
         var m = new Message
         {
             Kind = "news", From = (string)payload["from"], To = (string)payload["to"], Subject = (string)payload["subject"], Text = (string)payload["text"],
-            Company = (string)payload["company"] == "NWC" ? Faction.NWC : Faction.HBC, Payload = payload,
+            Company = System.Enum.TryParse<Faction>((string)payload["company"], out var co) ? co : Faction.HBC, Payload = payload,
         };
         m.OnRead = reader => Campaign.NewsRead(reader, payload);
         m.OnIntercepted = reader => Campaign.NewsRead(reader, payload);

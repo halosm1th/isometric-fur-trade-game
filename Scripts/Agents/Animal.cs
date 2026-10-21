@@ -22,6 +22,7 @@ public partial class Animal : Agent
     private float _modeTimer;
     private Agent _quarry;
     private AnimatedSprite2D _sprite;
+    private SpriteAnims _anims;
     private Label _label;
     private float _hurtFlash;
     private bool _butchered;
@@ -50,24 +51,25 @@ public partial class Animal : Agent
         if (_sprite != null)
         {
             _sprite.SpriteFrames = GD.Load<SpriteFrames>(def.Frames);
+            _anims = new SpriteAnims(_sprite);
             // The frames are cut to size (tools/sprites/animals.py) and stand
             // on the bottom edge of their canvas: lift them so the feet are here.
             _sprite.Scale = Vector2.One;
             var first = _sprite.SpriteFrames.HasAnimation("idle_se") ? _sprite.SpriteFrames.GetFrameTexture("idle_se", 0) : null;
             _sprite.Offset = first != null ? new Vector2(0, -first.GetHeight() / 2f + 2f) : new Vector2(0, -16);
-            _sprite.Play(Anim("idle", Vector2.Down));
+            _anims.Restart(Anim("idle", Vector2.Down));
         }
         if (_label != null) _label.Text = def.Name;
         _target = GlobalPosition;
     }
 
-    public override string CurrentAnimation => _sprite?.Animation ?? "";
+    public override string CurrentAnimation => _anims?.Current ?? "";
     public override bool FlipH => _sprite?.FlipH ?? false;
     private Vector2 _netTarget; private bool _netHasTarget;
     public override void ApplySnapshot(Vector2 pos, string anim, bool flip)
     {
         _netTarget = pos; _netHasTarget = true;
-        if (_sprite != null && _sprite.SpriteFrames != null && _sprite.SpriteFrames.HasAnimation(anim) && _sprite.Animation != anim) _sprite.Play(anim);
+        if (_anims != null && _anims.Has(anim)) _anims.Play(anim);
         if (_sprite != null) _sprite.FlipH = flip;
     }
     public override void PuppetDie()
@@ -224,7 +226,7 @@ public partial class Animal : Agent
                 if (to.Length() <= NaturalRange + 10f)
                 {
                     Velocity = Vector2.Zero;
-                    if (Attack(_quarry) && _sprite != null) _sprite.Play(Anim("attack", to));
+                    if (Attack(_quarry) && _sprite != null) _anims.Restart(Anim("attack", to));
                     return;
                 }
                 IsSprinting = true;
@@ -261,16 +263,33 @@ public partial class Animal : Agent
         base.TakeDamage(amount, from);
         _hurtFlash = 0.15f;
         if (wasAlive && IsDead && from != null && from.Weapon == Items.ItemId.Musket) ShotDead = true;
+        if (wasAlive && IsDead && from is Player.PlayerController hunter) Core.Quests.OnKill(hunter, Species.ToString());
     }
+
+    // Which animation to play for a kind of motion facing a way. The answer
+    // depends only on the sheet, the motion, the quarter faced and the season,
+    // so it is worked out once for each and remembered: building the names
+    // and asking the sheet for them every frame was garbage for the collector.
+    private static readonly System.Collections.Generic.Dictionary<(SpriteFrames, string, int, bool), string> _animFor = new();
+    private static readonly string[] Quarters = { "se", "ne", "sw", "nw" };
 
     private string Anim(string kind, Vector2 dir)
     {
         if (_sprite == null) return kind;
         var frames = _sprite.SpriteFrames;
-        if (frames.HasAnimation(kind)) return kind;   // simple two-frame species
-        string d = (dir.X >= 0f ? (dir.Y >= 0f ? "se" : "ne") : (dir.Y >= 0f ? "sw" : "nw"));
+        int q = dir.X >= 0f ? (dir.Y >= 0f ? 0 : 1) : (dir.Y >= 0f ? 2 : 3);
         // Hare and ptarmigan turn white for the winter and brown for the rest.
-        string coat = Core.GameCalendar.Instance?.CurrentSeason is Core.Season.Winter or null ? "" : "summer_";
+        bool summer = Core.GameCalendar.Instance?.CurrentSeason is not (Core.Season.Winter or null);
+        var key = (frames, kind, q, summer);
+        if (_animFor.TryGetValue(key, out var found)) return found;
+        found = ResolveAnim(frames, kind, Quarters[q], summer ? "summer_" : "");
+        _animFor[key] = found;
+        return found;
+    }
+
+    private static string ResolveAnim(SpriteFrames frames, string kind, string d, string coat)
+    {
+        if (frames.HasAnimation(kind)) return kind;   // simple two-frame species
         string name = $"{coat}{kind}_{d}";
         if (frames.HasAnimation(name)) return name;
         name = $"{kind}_{d}";
@@ -280,17 +299,17 @@ public partial class Animal : Agent
     private void Animate()
     {
         if (_sprite == null) return;
-        if (_sprite.Animation.ToString().StartsWith("attack") && _sprite.IsPlaying()) return;
+        if (_anims.Current.StartsWith("attack", System.StringComparison.Ordinal) && _sprite.IsPlaying()) return;
         var v = Velocity;
         bool moving = v.LengthSquared() > 4f;
-        string kind = !moving ? "idle" : IsSprinting && _sprite.SpriteFrames.HasAnimation("run_se") ? "run" : IsSprinting && _sprite.SpriteFrames.HasAnimation("fly_se") ? "fly" : "walk";
+        string kind = !moving ? "idle" : IsSprinting && _anims.Has("run_se") ? "run" : IsSprinting && _anims.Has("fly_se") ? "fly" : "walk";
         string name = Anim(kind, moving ? v : _lastDir);
         if (moving) _lastDir = v;
-        if (_sprite.SpriteFrames.HasAnimation("walk") && !_sprite.SpriteFrames.HasAnimation("walk_se"))
+        if (_anims.Has("walk") && !_anims.Has("walk_se"))
         {
             _sprite.FlipH = _lastDir.X < 0f;
         }
-        if (_sprite.Animation != name) _sprite.Play(name);
+        _anims.Play(name);
         _sprite.SpeedScale = kind == "run" || kind == "fly" ? 1f : IsSprinting ? 1.5f : moving ? 1f : 0.4f;
     }
     private Vector2 _lastDir = Vector2.Down;

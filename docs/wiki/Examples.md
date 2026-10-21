@@ -1,6 +1,6 @@
 # Examples
 
-All of these are in `tools/CampaignTool/examples` (small ones) and `tools/CampaignTool/src` (campaigns the game ships). Open them in the [web editor](Web-Editor), or read them here. Each one compiles and checks clean; a test keeps it that way.
+All of these are in `tools/CampaignTool/examples` (small ones) and `tools/CampaignTool/src` (campaigns the game ships). Open them in the [web editor](Web-Editor), or read them here. Each one compiles and checks clean; a test keeps it that way. For short patterns rather than whole campaigns, see the [Cookbook](Cookbook), which ends with a complete eight-beat campaign explained part by part.
 
 ## 1. A first beat
 
@@ -53,6 +53,22 @@ Learn: `player.did`, `CancelWhen` as a branch, `rumour:`, a `foreach` that write
 `src/the-rivers-run.camp`. Eighteen beats about the York boats, the Saskatchewan brigade, the Montreal canoes and the Athabasca brigade: late, lost, robbed and wintering, an early ice each autumn, and a counter (`troubles`) that makes the Committee ask questions. Riding a brigade in or carrying a packet (`player.did("escort")`, `"courier"`) is noticed by the boatmen.
 
 Learn: brigade conditions (`isLate`, `daysLate`, `isRobbed`, `isWintering`) and effects (`delay`, `turnBack`), the full lifecycle on a repeating beat, and counters.
+
+## The Company's Servant (a story with quests)
+
+`src/company-servant.camp`. The story campaign, 1811 to the union of 1821, and the example to read for [quests](Quests). It `extends: "historical"`, so the Pemmican War's beats run underneath, and it has two roads: quest lines `forCompany: Company.HBC` (the ship, York, Edmonton House) and `forCompany: Company.NWC` (the brigade, Fort Souris on the Assiniboine). A player sees only their own company's.
+
+| Chapter | HBC road | NWC road | What it shows |
+|---|---|---|---|
+| 1. Arrival | *The Company's Servant* (`Landfall`, `UpTheRivers`, `Edmonton`), *The Other House* (Fort Augustus: `Neighbours`, then `QuietArrangement` or `SpoilingTheTrade`), *The Company's Friends* (the Beaver Hills Cree: `TobaccoAndTalk`, `TheInvitation`) | *The North Man* (`Engaged`, `ToTheAssiniboine`, `FortSouris`), *The Bay Men* (Brandon House: `BayNeighbours`, then `OneBagOnePrice` or `FirstToTheCamp`), *The New Nation* (the Métis of the Souris: `AtTheCamp`, `TheGreatHunt`) | `talk` with `Says` and choices, `task`, `reach`, `bring`, `hunt`, `player.postTo`, a three-way choice that sets a flag and quests that wait on it (`StartWhen`), roles at a post or camp (`"leader@Fort Souris"`, `"chief@Métis of the Souris"`) |
+| 2. The war | *The War* (`BloodForHorses`: ride with the Cree against the Blackfoot, arm them, carry a pipe, or refuse), *The Pemmican War* (`NewsFromTheForks`) | *The Pemmican War* (`TheProclamation`, `TheSheriff`, `TheBrulesRide`: ride on Brandon House, stay, or warn it; `NorWesterSevenOaks`) | `world.warParty(..., withPlayer: true)` and a `when` step on `world.wonWar` / `world.lostWar` / `war:<band>:turned_back`; `world.truce`, `world.heatFeud`; quests started by the history (`world.happened("seven-oaks")`) |
+| 3. The lawless years and the union | *The Lawless Years* (`SelkirksSoldiers`, `GrandRapids`, `OneCompany`) | *The Reckoning* (`FortWilliamFalls`, `TheWarrant`, `RapidsNews`, `TheCoalition`) | choices offered only `when` an earlier flag holds; an ending written in `OnComplete` with `if (flags.has(...)) player.note(...)` |
+
+Its own beats tie the story to the history: `HorsesTaken` (wakes when `TheInvitation.done` and raises `beaver_hills_raided`), `SourisPemmicanSeized` and `GrantGathers` (dated, each requiring a history beat's flag), and `BrandonHousePlundered`, which stands aside (`if (!flags.has("grant_rode_from_souris"))`) when an NWC player has already ridden with the Souris men. Named people are constants at the top of each road (`const string master = "leader@Edmonton House";`), which keeps the steps readable.
+
+## The Open Country (free roam)
+
+`src/open-country.camp`. A header and nothing else: `extends: "historical"` with no quest lines, so the history runs and every player, of any company or band, makes their own way. The shortest campaign that ships, and the pattern for a free-roam game.
 
 ## The Company Years (the long one)
 

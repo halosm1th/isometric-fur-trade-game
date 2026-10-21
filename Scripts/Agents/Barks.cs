@@ -393,7 +393,8 @@ public static class Barks
     public static string CallName(Agent a) => a != null && a.IsBandPerson ? System.Text.RegularExpressions.Regex.Replace(a.DisplayName ?? "", @"\s*\([^)]*\)", "") : CallName(a?.DisplayName ?? "");
     public static string CallName(string n)
     {
-        n = (n ?? "").Replace(" (clerk)", "").Replace(" (chief)", "").Replace(" (acting Factor)", "");
+        // Whatever is in brackets is what he is, not what he is called: "(clerk)", "(NWC)", "(postmaster)".
+        n = System.Text.RegularExpressions.Regex.Replace(n ?? "", @"\s*\([^)]*\)", "");
         if (n.StartsWith("Mr. ")) { var parts = n.Split(' '); return "Mr. " + parts[^1]; }
         int sp = n.IndexOf(' ');
         return sp > 0 ? n.Substring(0, sp) : n;

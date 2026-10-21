@@ -36,7 +36,9 @@ public class TradingPost
     public Vector2I HearthCell => IsoGrid.Cell(House.Top, 1, 1);
     public Vector2I AccessCell => IsoGrid.Cell(House.Top, 2, 2);
     public Vector2 Centre => IsoGrid.ToWorld(IsoGrid.Cell(Top, Width / 2, Depth / 2));
-    public Faction Faction => Company == "NWC" ? Faction.NWC : Faction.HBC;
+    public Faction Faction => Company switch { "NWC" => Faction.NWC, "AMER" => Faction.American, _ => Faction.HBC };
+    // Who keeps it, as its people would say it.
+    public string CompanyName => Posts.CompanyName(this);
 }
 
 // The posts of the wider country (design doc 6.1): they stand once the
@@ -224,6 +226,101 @@ public static class Posts
             m.FillInventory(npc);
             if (m.Leader) p.Ledger.Leader = npc;
         }
-        Sim.Notice($"{p.Name} is built and manned ({(p.Company == "NWC" ? "the North West Company" : "the Company")}).");
+        if (p.Ledger.Leader == null && p.Faction == Faction.American) Staff(pop, p);
+        Sim.Notice($"{p.Name} is built and manned ({CompanyName(p)}).");
+    }
+
+    // ---- the American posts --------------------------------------------------
+
+    // The American side of the trade (design doc 7.2): Manuel Lisa's
+    // Missouri Fur Company up the Missouri from St. Louis, Astor's Pacific
+    // Fur Company at the Columbia's mouth, and after them the American Fur
+    // Company's Upper Missouri Outfit. Which one kept a post is a matter of
+    // when it was built.
+    public static string CompanyName(TradingPost p) => p.Faction switch
+    {
+        Faction.NWC => "the North West Company",
+        Faction.American => p.Name == "Fort Okanogan" ? "the Pacific Fur Company"
+            : p.Year < 1822 ? "the Missouri Fur Company" : "the American Fur Company",
+        _ => "the Company",
+    };
+
+    // The company an NPC serves, by name (an American man's from his post).
+    public static string CompanyOf(Agent a) => a?.Faction switch
+    {
+        Faction.NWC => "the North West Company",
+        Faction.American => a is Npc { HomeStores: TradingPostLedger tp } ? CompanyName(tp.Post) : "the American Fur Company",
+        _ => "the Company",
+    };
+
+    // The men who really kept them, where it is known.
+    private static readonly Dictionary<string, string[]> Masters = new()
+    {
+        ["Fort Manuel Lisa"] = new[] { "Mr. Manuel Lisa", "John Dougherty (clerk)" },
+        ["Fort Okanogan"] = new[] { "Mr. David Stuart", "Alexander Ross (clerk)" },
+        ["Fort Union"] = new[] { "Mr. Kenneth McKenzie", "James Archdale Hamilton (clerk)" },
+        ["Fort Clark"] = new[] { "Mr. James Kipp", "Francis Chardon (clerk)" },
+        ["Fort Piegan"] = new[] { "Mr. James Kipp", "Jacob Berger (clerk)" },
+        ["Fort McKenzie"] = new[] { "Mr. David D. Mitchell", "Alexander Culbertson (clerk)" },
+        ["Fort Berthold"] = new[] { "Mr. James Kipp", "Jeffrey Smith (clerk)" },
+        ["Fort Benton"] = new[] { "Mr. Alexander Culbertson", "Malcolm Clark (clerk)" },
+    };
+    // St. Louis Creoles and Canadians were the engages of the Missouri;
+    // a few Kentucky and Virginia hunters signed on beside them.
+    private static readonly string[] EngageFirst = { "Baptiste", "Toussaint", "Antoine", "Joseph", "Pierre", "Louis", "François", "Michel", "Charles", "Jacques" };
+    private static readonly string[] EngageLast = { "Dorion", "Charbonneau", "Lajeunesse", "Primeau", "Papin", "Roy", "Bissonette", "Vallé", "Lecompte", "Labadie" };
+    private static readonly string[] HunterNames = { "George Drouillard", "John Colter", "Edward Rose", "Reuben Lewis", "Jim Bridger", "Hugh Glass", "John Potts", "Andrew Henry" };
+    public static readonly Color AmericanTint = new(0.82f, 0.88f, 1f);
+
+    // An American post has no cast placed in the editor: it gets a master,
+    // his clerk, and its men here.
+    public static void Staff(Population pop, TradingPost p)
+    {
+        if (pop == null || p.Ledger == null) return;
+        var taken = new HashSet<string>();
+        foreach (var n in Sim.Npcs) taken.Add(n.DisplayName);
+        bool american = p.Faction == Faction.American;
+        var known = Masters.GetValueOrDefault(p.Name);
+        string master = known?[0] ?? "Mr. " + Pick(HunterNames, taken);
+        var tint = american ? AmericanTint : Colors.White;
+        var frames = GD.Load<SpriteFrames>("res://Scenes/Npc/" + (american ? "VoyageurFrames.tres" : "LabourerFrames.tres"));
+        var clerkFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/ClerkFrames.tres");
+        Vector2I In(int i, int j) => IsoGrid.Cell(p.House.Top, i, j);
+        var lead = pop.Spawn(master, Role.Postmaster, p.Faction, In(1, 1), p.AccessCell, p.Ledger, clerkFrames, tint);
+        lead.Inventory.Add(Items.ItemId.Musket); lead.Inventory.Add(Items.ItemId.Capote); lead.Inventory.Add(Items.ItemId.Pemmican, 2);
+        p.Ledger.Leader = lead;
+        taken.Add(master);
+        if (p.StaffClerk || known != null)
+        {
+            string clerk = known?[1] ?? Pick(HunterNames, taken) + " (clerk)";
+            taken.Add(clerk);
+            var c = pop.Spawn(clerk, Role.Clerk, p.Faction, In(2, 1), p.AccessCell, p.Ledger, clerkFrames, tint);
+            c.Inventory.Add(Items.ItemId.Capote); c.Inventory.Add(Items.ItemId.Knife);
+        }
+        for (int i = 0; i < Mathf.Max(2, p.StaffMen); i++)
+        {
+            // Every third man an American hunter; the rest the Creole engages.
+            string name = american && i % 3 == 2 ? Pick(HunterNames, taken) : Pick(EngageFirst, taken, EngageLast);
+            taken.Add(name);
+            var m = pop.Spawn(name, Role.Labourer, p.Faction, In(1 + i % 5, 3), p.WoodpileCell, p.Ledger, frames, tint);
+            m.Inventory.Add(Items.ItemId.Capote); m.Inventory.Add(Items.ItemId.Knife); m.Inventory.Add(Items.ItemId.Pemmican, 2);
+            if (i % 2 == 0) m.Inventory.Add(Items.ItemId.Musket);
+        }
+    }
+
+    // Server, at world start: staff the American posts already standing.
+    public static void StaffUnmarked(Population pop)
+    {
+        foreach (var p in Standing()) if (p.Ledger.Leader == null && p.Faction == Faction.American) Staff(pop, p);
+    }
+
+    private static string Pick(string[] first, HashSet<string> taken, string[] last = null)
+    {
+        for (int tries = 0; tries < 40; tries++)
+        {
+            string n = last == null ? first[GD.RandRange(0, first.Length - 1)] : $"{first[GD.RandRange(0, first.Length - 1)]} {last[GD.RandRange(0, last.Length - 1)]}";
+            if (!taken.Contains(n)) return n;
+        }
+        return $"{first[0]} {taken.Count}";
     }
 }

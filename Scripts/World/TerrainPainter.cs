@@ -169,7 +169,7 @@ public partial class TerrainPainter : TileMapLayer
         PhysicsProbe.PlayerUsec = 0; PhysicsProbe.AllUsec = 0; PhysicsProbe.AnimalUsec = 0; PhysicsProbe.LiveUsec = 0;
         GD.Print($"[perf] fps {Performance.GetMonitor(Performance.Monitor.TimeFps):0}  process {Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000:0.0} ms  physics {Performance.GetMonitor(Performance.Monitor.TimePhysicsProcess) * 1000:0.0} ms  " +
             $"bodies {Performance.GetMonitor(Performance.Monitor.Physics2DActiveObjects):0}  pairs {Performance.GetMonitor(Performance.Monitor.Physics2DCollisionPairs):0}  islands {Performance.GetMonitor(Performance.Monitor.Physics2DIslandCount):0}  " +
-            $"nodes {Performance.GetMonitor(Performance.Monitor.ObjectNodeCount):0}  chunks {_loaded.Count}  npcs {Sim.Npcs.Count}  player {(Sim.Player as Node2D)?.GlobalPosition}  skip {GameCalendar.Instance?.SkipRemaining:0.0}h  live {Core.Tiers.LiveCount}  {GameCalendar.Instance?.DateString} {GameCalendar.Instance?.TimeString}");
+            $"nodes {Performance.GetMonitor(Performance.Monitor.ObjectNodeCount):0}  objects {Performance.GetMonitor(Performance.Monitor.ObjectCount):0}  texmem {Performance.GetMonitor(Performance.Monitor.RenderTextureMemUsed) / 1048576:0} MB  vidmem {Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed) / 1048576:0} MB  chunks {_loaded.Count}  npcs {Sim.Npcs.Count}  player {(Sim.Player as Node2D)?.GlobalPosition}  skip {GameCalendar.Instance?.SkipRemaining:0.0}h  live {Core.Tiers.LiveCount}  {GameCalendar.Instance?.DateString} {GameCalendar.Instance?.TimeString}");
     }
 
     // Dev aid: `-- --jumps` reports anyone who moves further in one frame

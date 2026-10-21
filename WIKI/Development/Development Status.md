@@ -23,7 +23,7 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | Posts across the map, by founding year; major posts hand-laid | Implemented / Partial | York Factory, Fort William, Moose Factory, Edmonton House, Cumberland House, Fort Chipewyan, Fort Gibraltar laid out; the rest are generated plans. See [[All Trading Posts]] |
 | Regional terrain and flora | Implemented (placeholder tiles) | Prairie, tallgrass, parkland, tundra, Shield, muskeg, mountain. See [[Terrain and Biomes]] |
 | Calendar, seasons, day/night | Implemented | 30 s a game hour; dated events. See [[Calendar and Seasons]] |
-| Weather | Implemented | Clear, overcast, snow, blizzard, rain, storm; only a colour modulate on screen. See [[Weather]] |
+| Weather | Implemented | Clear, overcast, snow, blizzard, rain, storm; rolled in regions about 200 km across from each region's climate and asked for by position (`Weather.At`), so the plains are drier and the Pacific slope wetter than York (commit `3c74eb6`); on screen it is still only a colour modulate. See [[Weather]] |
 | Fire (hearths, blazes, spread) | Implemented (partial) | Hearths, blazes, arson, fire bell. §18.4 flammability partly built |
 | Travel mode (G) | Implemented | §18.3. See [[Travel and Wayfinding]] |
 | Portages and brigade routes | Implemented | Hayes road driven by brigades; other routes mapped only |
@@ -77,11 +77,11 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 |---|---|---|
 | Spawn-site ecology | Implemented | 637 sites. [[Ecology]], [[Species Sites]] |
 | Species: caribou, goose, beaver, wolf, hare, ptarmigan | Implemented | [[Wildlife]] |
-| Buffalo | Partial | 18 herds and a full yield; no unique sprites, no mounted or communal hunt |
+| Buffalo | Partial | 18 herds and a full yield; plains camps ride out and run the herd together on the captain's word (`Ecology/BuffaloRun`, commit `d3215ae`); no unique sprites; hunt-captain discipline (§16.1) not yet built |
 | Goose hunt | Implemented | [[Goose]] |
 | Trapping and poaching | Implemented | [[Trapping]] |
 | Hare/lynx cycle; lynx, marten, moose, bear, fox | Planned | `docs/world-content-needed.md` section 6 |
-| Horses | Planned | §12.3: nothing exists |
+| Horses | Partial | §12.3. Every camp and parkland post owns a herd that grazes, thins in winter, foals in May and is raided; the player can buy, borrow, give, steal and ride one at the ground's pace (`Economy/Plains.cs`, `Economy/HorseTrade.cs`, `Economy/MissouriTrade.cs`). Stand-in pony sprite until the horse sheet is drawn |
 
 ### Transport
 
@@ -100,7 +100,8 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 |---|---|
 | Weapons (musket, bow, knife, tomahawk), melee and ranged, sneak attack | Implemented: [[Combat]] |
 | Group morale, non-lethal outcomes, fights won before the first shot | Not verified against code (§15.4 to 15.6); treat as Planned |
-| Horse warfare, plains war | Planned: `longer_goals.md` |
+| Horse raids between nations (live where a player is near, numbers elsewhere), feuds | Partial: `Economy/Plains.cs`, `Agents/Goals/PlainsGoals.cs` |
+| War parties, mounted battle, morale, truce | Planned: see `docs/specs/story-plains-years.md` Act 6 |
 
 ### Interface and platform
 

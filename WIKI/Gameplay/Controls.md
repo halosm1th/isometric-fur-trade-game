@@ -58,10 +58,10 @@ What `E` does, in order of priority: take the river road at a road head; talk to
 | Action | Default |
 |---|---|
 | Stop / start the clock | `Space` |
-| Slower clock | `[` (doubles seconds per game hour) |
-| Faster clock | `]` (halves it) |
+| Slower clock | `[` (one step slower: half the pace) |
+| Faster clock | `]` (one step faster: twice the pace) |
 
-Limited to 0.5 - 120 seconds per game hour. The calendar HUD shows `|| PAUSED`, a `>>` while fast-forwarding, or the current seconds-per-hour. See [[Calendar and Seasons]].
+The same three are buttons under the date in the calendar HUD - `<<`, `||` (`>` while stopped) and `>>` - with the pace beside them: `x1` at the usual 30 seconds per game hour, `x2` twice as fast, `x0.5` half, `Paused` when stopped, and the fast-forward pace while `T` is held. The pace moves in whole steps, from x0.25 (120 seconds per game hour) to x64, so slowing down always comes back to x1. Your own walking keeps pace with a faster clock (up to x8), as everyone else's does; a slower clock leaves you your own pace. Only the host's buttons work; a joined player's are greyed out. See [[Calendar and Seasons]].
 
 ## Reserved keys (cannot be rebound)
 

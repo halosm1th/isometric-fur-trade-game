@@ -21,7 +21,8 @@ const assert = (cond, what) => { if (!cond) { console.error('FAIL:', what); proc
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   const shot = async (name) => { if (shots) await page.screenshot({ path: `${shots}/${name}.png` }); };
   const open = async (path) => {
-    await page.evaluate((p) => window.__editor.openFile(p, true), path);
+    // wait for this file's own check, not the one already on screen
+    await page.evaluate(async (p) => { await window.__editor.openFile(p, true); window.__editor.state.check = null; await window.__editor.runCheck(); }, path);
     await page.waitForFunction(() => window.__editor.state.check);
   };
   const setText = (from, to) => page.evaluate(([a, b]) => { const t = document.getElementById('input'); t.value = t.value.replace(a, b); t.dispatchEvent(new Event('input')); }, [from, to]);
@@ -53,7 +54,7 @@ const assert = (cond, what) => { if (!cond) { console.error('FAIL:', what); proc
 
   await open('tools/CampaignTool/src/company-years.camp');
   await page.click('[data-tab=sim]');
-  await page.selectOption('#simScenario', { index: 1 });
+  await page.selectOption('#simScenario', 'tools/CampaignTool/examples/company-years.scenario.json');
   await page.click('#simRun');
   await page.waitForSelector('#simOut table', { timeout: 20000 });
   assert(await page.$$eval('#simOut table tr', ns => ns.length) > 100, 'the simulation lists what happened');
@@ -64,10 +65,69 @@ const assert = (cond, what) => { if (!cond) { console.error('FAIL:', what); proc
   assert(await page.$$eval('svg.graph .node', ns => ns.length) === 59, 'the graph has a node for every beat');
   await shot('editor-graph');
 
+  // The map draws the world, its cast, and the campaign's places; clicking a pin jumps to its step.
+  await open('tools/CampaignTool/src/company-servant.camp');
+  await page.click('[data-tab=map]');
+  await page.waitForFunction(() => typeof map !== 'undefined' && map.world && map.pins.length > 0, null, { timeout: 15000 });
+  assert(await page.evaluate(() => map.world.cast.length) > 500, 'the map knows the cast placed in the scene');
+  assert(await page.evaluate(() => map.pins.every(p => p.ok)), 'every place the HBC story names is on the map');
+  await page.selectOption('#mapQuest', 'FortSouris');
+  const pin = await page.evaluate(() => { const p = visiblePins().find(q => q.kind !== 'effect'); const [x, y] = toScreen(p.x, p.y); const r = document.getElementById('mapCanvas').getBoundingClientRect(); return { x: r.left + x, y: r.top + y, line: p.line }; });
+  await page.mouse.click(pin.x, pin.y);
+  assert(await page.evaluate((line) => el.input.value.slice(0, el.input.selectionStart).split('\n').length === line, pin.line), 'clicking a pin jumps to its step');
+  await page.evaluate(() => { el.input.value = el.input.value.replace('"chief@Métis of the Souris"', '"chief@Nowhere at all"'); onEdit(); });
+  await page.waitForFunction(() => map.pins.some(p => !p.ok), null, { timeout: 10000 });
+  assert(await page.$eval('#mapMissing', n => n.textContent.includes('Nowhere at all')), 'a name that is nowhere is marked');
+  await shot('editor-map');
+
   await page.click('[data-tab=ref]');
-  await page.fill('#refSearch', 'brigade');
-  assert(await page.$$eval('#refList .refitem', ns => ns.length) > 5, 'the reference finds the brigade words');
+  await page.fill('#tab-ref .refSearch', 'brigade');
+  assert(await page.$$eval('#tab-ref .refitem', ns => ns.length) > 5, 'the reference finds the brigade words');
   await shot('editor-reference');
+
+  // Hovering an argument in the reference says what it is (say's to?).
+  await page.fill('#tab-ref .refSearch', 'say');
+  const sayTo = page.locator('#tab-ref .refitem', { hasText: 'say(string text' }).locator('.sig .p[data-tipname="to"]').first();
+  await sayTo.hover();
+  await page.waitForSelector('#tip:not([hidden])');
+  assert((await page.textContent('#tip')).includes('Who hears it'), "hovering say's `to` explains it");
+  assert(await page.$$eval('#tab-ref .refitem .params li', ns => ns.length) > 0, 'each function lists its arguments');
+  await page.fill('#tab-ref .refSearch', 'quest');
+  assert(await page.$$eval('#tab-ref .refitem', ns => ns.some(n => n.textContent.includes('Quest.start'))), 'the reference has the quest words');
+
+  // In the script, hovering a named argument says what it is.
+  await page.evaluate(() => { const t = document.getElementById('input'); t.dataset.noComplete = '1'; t.value = 'campaign T(title: "t");\nbeat B() {\n    OnActivate() { say("x", to: Company.HBC); }\n}\n'; t.dispatchEvent(new Event('input')); delete t.dataset.noComplete; t.scrollTop = 0; t.scrollLeft = 0; });
+  const box = await page.locator('#input').boundingBox();
+  const cw = await page.evaluate(() => { const s = document.createElement('span'); s.textContent = 'x'.repeat(100); document.getElementById('highlight').appendChild(s); const w = s.getBoundingClientRect().width / 100; s.remove(); return w; });
+  const col = '    OnActivate() { say("x", '.length;
+  let said = '';
+  for (let dx = -1; dx <= 2 && !said.includes('Who hears it'); dx++) {
+    await page.mouse.move(box.x + 12 + (col + dx) * cw + cw / 2, box.y + 12 + 2 * 20 + 10);
+    said = await page.$eval('#hover', n => n.hidden ? '' : n.textContent);
+  }
+  assert(said.includes('Who hears it'), 'hovering `to:` in the script explains it');
+
+  // The panes can be dragged wider.
+  const before = await page.$eval('.side', n => n.offsetWidth);
+  const bar = await page.locator('#splitSide').boundingBox();
+  await page.mouse.move(bar.x + 2, bar.y + 200); await page.mouse.down();
+  await page.mouse.move(bar.x - 150, bar.y + 200, { steps: 5 }); await page.mouse.up();
+  assert(await page.$eval('.side', n => n.offsetWidth) > before + 100, 'dragging the bar widens the results panel');
+  const fBefore = await page.$eval('#files', n => n.offsetWidth);
+  const fbar = await page.locator('#splitFiles').boundingBox();
+  await page.mouse.move(fbar.x + 2, fbar.y + 200); await page.mouse.down();
+  await page.mouse.move(fbar.x + 80, fbar.y + 200, { steps: 5 }); await page.mouse.up();
+  assert(await page.$eval('#files', n => n.offsetWidth) > fBefore + 50, 'dragging the bar widens the file list');
+  await shot('editor-resized');
+
+  // The reference opens in a page of its own.
+  const ref = await browser.newPage({ viewport: { width: 1100, height: 820 }, colorScheme: process.env.SCHEME || 'light' });
+  ref.on('pageerror', e => errors.push(e.message));
+  await ref.goto(base + '/?view=reference');
+  await ref.waitForSelector('#refPage .refitem');
+  assert(await ref.$$eval('#refPage .refitem', ns => ns.length) > 50, 'the reference page lists the language');
+  assert(await ref.$eval('main', n => getComputedStyle(n).display) === 'none', 'the reference page has no editor');
+  if (shots) await ref.screenshot({ path: `${shots}/reference-page.png` });
 
   assert(errors.length === 0, 'the page reported no errors' + (errors.length ? ': ' + errors.join('; ') : ''));
   await browser.close();

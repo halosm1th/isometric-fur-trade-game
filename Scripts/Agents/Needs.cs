@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Godot;
 using IsometricFurTradeGame.Scripts.Core;
 
@@ -11,9 +13,48 @@ namespace IsometricFurTradeGame.Scripts.Agents;
 public class Skills
 {
     public float Hunting = 0.15f, Trapping = 0.15f, Trade = 0.15f, Woodcraft = 0.15f;
-    public void Learn(ref float skill, float amount) => skill = Mathf.Min(1f, skill + amount);
+    public static readonly string[] Names = { "Hunting", "Trapping", "Trade", "Woodcraft" };
+
+    // What has been feeding each skill (design doc 12.7): the player's own
+    // practice says why it moved, so the character page can show the trend
+    // and its causes. NPCs learn without a reason and keep no history.
+    public readonly record struct Lesson(int Day, int Skill, float Amount, string Why);
+    public readonly List<Lesson> History = new();
+    private const int HistoryCap = 400;
+    private static int Today => GameCalendar.Instance is { } c ? c.Year * 365 + (int)c.DayOfYear : 0;
+
+    public void Learn(ref float skill, float amount, string why = null)
+    {
+        float before = skill;
+        skill = Mathf.Min(1f, skill + amount);
+        if (why == null || skill <= before) return;
+        int which = Unsafe.AreSame(ref skill, ref Hunting) ? 0 : Unsafe.AreSame(ref skill, ref Trapping) ? 1 : Unsafe.AreSame(ref skill, ref Trade) ? 2 : 3;
+        History.Add(new Lesson(Today, which, skill - before, why));
+        if (History.Count > HistoryCap) History.RemoveRange(0, History.Count - HistoryCap);
+    }
+
+    public float this[int i] => i switch { 0 => Hunting, 1 => Trapping, 2 => Trade, _ => Woodcraft };
     public string Describe(float s) => s >= 0.75f ? "master" : s >= 0.5f ? "practised" : s >= 0.3f ? "passable" : "green";
+    // The next word up, and how far off it is.
+    public static (string Word, float At) NextStep(float s) => s < 0.3f ? ("passable", 0.3f) : s < 0.5f ? ("practised", 0.5f) : s < 0.75f ? ("master", 0.75f) : ("", 1f);
     public void Seed(float hunting, float trapping, float trade, float woodcraft) { Hunting = hunting; Trapping = trapping; Trade = trade; Woodcraft = woodcraft; }
+
+    // Gained in the last `days` days, and from what (largest first).
+    public (float Gain, List<(string Why, float Amount, int Times)> From) Recent(int skill, int days)
+    {
+        int since = Today - days;
+        float gain = 0f; var by = new Dictionary<string, (float, int)>();
+        foreach (var l in History)
+        {
+            if (l.Skill != skill || l.Day < since) continue;
+            gain += l.Amount;
+            by[l.Why] = by.TryGetValue(l.Why, out var t) ? (t.Item1 + l.Amount, t.Item2 + 1) : (l.Amount, 1);
+        }
+        var list = new List<(string, float, int)>();
+        foreach (var (k, v) in by) list.Add((k, v.Item1, v.Item2));
+        list.Sort((a, b) => b.Item2.CompareTo(a.Item2));
+        return (gain, list);
+    }
 }
 
 public class Needs

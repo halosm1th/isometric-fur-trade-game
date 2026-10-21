@@ -34,7 +34,7 @@ public sealed class Atom
 	public List<string> Args = new();
 }
 
-public static class Checker
+public static partial class Checker
 {
 	private static readonly string[] Kinds = BeatKinds.All;
 	private static readonly string[] BeatKeys = { "id", "title", "kind", "date", "window_days", "lead_days", "delay_days", "repeat_days", "requires", "keywords", "rumour", "when", "on_awaken", "pressure", "activate_when", "happens", "done_when", "on_resolve", "cancel_when", "on_cancel" };
@@ -44,7 +44,7 @@ public static class Checker
 
 	private sealed class Facts
 	{
-		public readonly Dictionary<string, List<string>> FlagsSet = new(), FlagsRead = new(), VarsSet = new(), VarsRead = new(), Triggers = new();
+		public readonly Dictionary<string, List<string>> FlagsSet = new(), FlagsRead = new(), VarsSet = new(), VarsRead = new(), Triggers = new(), QuestsRead = new();
 		public static void Add(Dictionary<string, List<string>> d, string k, string where) { if (!d.TryGetValue(k, out var l)) d[k] = l = new(); l.Add(where); }
 	}
 
@@ -81,9 +81,25 @@ public static class Checker
 		var rep = new Report();
 		var facts = new Facts();
 		var world = Known.World;
+		if (doc.TryGetValue("start", out var startv))
+		{
+			string sd = Tree.S(startv);
+			if (!Regex.IsMatch(sd, @"^\d{4}-\d\d-\d\d$") || !DateTime.TryParseExact(sd, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _)) rep.Error("campaign", $"start '{sd}' is not a real day (YYYY-MM-DD)");
+			if (doc.ContainsKey("start_year")) rep.Error("campaign", "start and start_year are both given: the first day is one or the other");
+		}
+		if (doc.TryGetValue("start_year", out var syv) && !(syv is double syd && syd == Math.Floor(syd) && syd >= 1700 && syd <= 2100)) rep.Error("campaign", $"start_year '{Tree.S(syv)}' is not a year");
 		if (doc.GetValueOrDefault("vars") is Dictionary<string, object> initial) foreach (var k in initial.Keys) Facts.Add(facts.VarsSet, k, "vars");
 		var beats = Tree.AsList(doc.GetValueOrDefault("beats")).Cast<Dictionary<string, object>>().ToList();
 		var ids = new Dictionary<string, Dictionary<string, object>>();
+		// A campaign built on another (extends) plays that one's beats too: they may be required and asked after.
+		var baseIds = new HashSet<string>();
+		if (doc.GetValueOrDefault("extends") is string ext && ext.Length > 0)
+		{
+			string basePath = System.IO.Path.Combine(Known.Root, "Campaigns", ext + ".json");
+			if (!System.IO.File.Exists(basePath)) rep.Error("campaign", $"extends '{ext}', but there is no Campaigns/{ext}.json");
+			else foreach (var bb in Tree.AsList(Tree.ParseObject(System.IO.File.ReadAllText(basePath)).GetValueOrDefault("beats")).OfType<Dictionary<string, object>>())
+				if (bb.TryGetValue("id", out var bid0)) baseIds.Add(Tree.S(bid0));
+		}
 		for (int i = 0; i < beats.Count; i++)
 		{
 			string bid = beats[i].TryGetValue("id", out var idv) ? Tree.S(idv) : $"beat{i}";
@@ -121,15 +137,17 @@ public static class Checker
 			foreach (var r in Tree.AsList(b.GetValueOrDefault("requires"))) Facts.Add(facts.FlagsRead, Tree.S(r), where);
 		}
 
+		CheckQuests(doc, rep, facts, world);
+
 		foreach (var (t, wheres) in facts.Triggers)
-			if (!ids.ContainsKey(t)) foreach (var w in wheres) rep.Error(w, $"trigger of unknown beat '{t}'");
+			if (!ids.ContainsKey(t) && !baseIds.Contains(t)) foreach (var w in wheres) rep.Error(w, $"trigger of unknown beat '{t}'");
 		var settable = new HashSet<string>(facts.FlagsSet.Keys);
-		settable.UnionWith(ids.Keys); settable.UnionWith(Known.EngineFlags);
+		settable.UnionWith(ids.Keys); settable.UnionWith(baseIds); settable.UnionWith(Known.EngineFlags);
 		foreach (var b in beats)
 			foreach (var ro in Tree.AsList(b.GetValueOrDefault("requires")))
 			{
 				string r = Tree.S(ro);
-				if (!ids.ContainsKey(r) && !settable.Contains(r) && !Known.EngineFlagPrefixes.Any(r.StartsWith))
+				if (!ids.ContainsKey(r) && !baseIds.Contains(r) && !settable.Contains(r) && !Known.EngineFlagPrefixes.Any(r.StartsWith))
 					rep.Error($"beat {Tree.S(b.GetValueOrDefault("id"))}", $"requires '{r}', which is not a beat and no action sets it as a flag");
 			}
 		foreach (var (name, wheres) in facts.FlagsRead)
@@ -145,7 +163,7 @@ public static class Checker
 			if (!facts.VarsSet.ContainsKey(name)) rep.Warn(wheres[0], $"reads variable '{name}', which nothing sets (it will always be 0)");
 
 		Cycles(beats, ids, rep);
-		Reachability(beats, ids, facts, rep);
+		Reachability(beats, ids, facts, rep, baseIds);
 		DateOrder(beats, ids, rep);
 		return rep;
 	}
@@ -163,6 +181,8 @@ public static class Checker
 				else if (a.Name == "post" && !world.Posts.Contains(arg) && arg != "York Factory" && arg != "Oxford House") rep.Error(where, $"post '{arg}' is not on the map");
 				else if (a.Name == "month" && !Regex.IsMatch(arg, @"^\d{1,2}(-\d{1,2})?$")) rep.Error(where, $"month:{arg} should be a month number or a range like 6-8");
 				else if (a.Name == "chance" && !double.TryParse(arg, NumberStyles.Float, CultureInfo.InvariantCulture, out _)) rep.Error(where, $"chance:{arg} needs a percentage");
+				else if (a.Name is "quest" or "quest_active" or "quest_failed") Facts.Add(facts.QuestsRead, arg, where);
+				else if (a.Name == "posted" && !world.Ledgers.Contains(arg)) rep.Error(where, $"posted: '{arg}' is not a post with books");
 				else if (a.Name.StartsWith("convoy_") && a.Name != "convoy_wintering" && !world.Runs.ContainsKey(arg)) rep.Error(where, $"'{arg}' is not a brigade run (known: {string.Join(", ", world.Runs.Keys.OrderBy(x => x, StringComparer.Ordinal))})");
 			}
 			else
@@ -236,10 +256,33 @@ public static class Checker
 					if (a.TryGetValue("company", out var co) && Tree.S(co).Length > 0 && !Known.Companies.Contains(Tree.S(co))) rep.Error(w, $"news company must be HBC or NWC (got '{Tree.S(co)}')");
 					break;
 				case "say":
-					if (a.TryGetValue("to", out var sto) && !(Tree.S(sto) is "all" or "HBC" or "NWC")) rep.Error(w, "say: to must be all, HBC or NWC");
+					if (a.TryGetValue("to", out var sto) && !(Tree.S(sto) is "all" or "HBC" or "NWC" or "American")) rep.Error(w, "say: to must be all, HBC, NWC or American");
 					break;
 				case "tension":
 					if (a.GetValueOrDefault("add") is double t && Math.Abs(t) > 100) rep.Warn(w, $"tension {t:+0.##;-0.##} is more than the whole 0-100 scale");
+					break;
+				case "posting":
+					if (!world.Ledgers.Contains(Tree.S(a.GetValueOrDefault("place")))) rep.Error(w, $"posting: '{Tree.S(a.GetValueOrDefault("place"))}' is not a post with books");
+					break;
+				case "regard":
+					if (!world.Camps.Contains(Tree.S(a.GetValueOrDefault("place")))) rep.Error(w, $"regard: '{Tree.S(a.GetValueOrDefault("place"))}' is not a camp of the country");
+					break;
+				case "give": case "take":
+					if (!world.Items.Contains(Tree.S(a.GetValueOrDefault("item")))) rep.Error(w, $"{verb}: '{Tree.S(a.GetValueOrDefault("item"))}' is not an item");
+					break;
+				case "rapport":
+					CheckWho(Tree.S(a.GetValueOrDefault("who")), w, rep, world);
+					break;
+				case "war_party":
+					if (!world.Camps.Contains(Tree.S(a.GetValueOrDefault("from")))) rep.Error(w, $"war_party: '{Tree.S(a.GetValueOrDefault("from"))}' is not a camp of the country (a war party rides out from a camp)");
+					if (!world.Camps.Contains(Tree.S(a.GetValueOrDefault("against"))) && !world.Ledgers.Contains(Tree.S(a.GetValueOrDefault("against")))) rep.Error(w, $"war_party: '{Tree.S(a.GetValueOrDefault("against"))}' is not a camp or a post");
+					break;
+				case "truce": case "feud":
+					foreach (var k in verb == "truce" ? new[] { "a", "b" } : new[] { "holder", "against" })
+						if (!world.Camps.Contains(Tree.S(a.GetValueOrDefault(k))) && !world.Ledgers.Contains(Tree.S(a.GetValueOrDefault(k)))) rep.Error(w, $"{verb}: '{Tree.S(a.GetValueOrDefault(k))}' is not a camp or a post");
+					break;
+				case "start_quest": case "end_quest":
+					Facts.Add(facts.QuestsRead, Tree.S(a.GetValueOrDefault("quest")), w);
 					break;
 			}
 		}
@@ -266,9 +309,10 @@ public static class Checker
 		foreach (var n in graph.Keys.ToList()) Visit(n, new List<string>());
 	}
 
-	private static void Reachability(List<Dictionary<string, object>> beats, Dictionary<string, Dictionary<string, object>> ids, Facts facts, Report rep)
+	private static void Reachability(List<Dictionary<string, object>> beats, Dictionary<string, Dictionary<string, object>> ids, Facts facts, Report rep, HashSet<string> baseIds)
 	{
 		var possible = new HashSet<string>(Known.EngineFlags);
+		possible.UnionWith(baseIds);   // the beats of the campaign this one extends can happen
 		possible.UnionWith(facts.FlagsSet.Keys);
 		var dead = new HashSet<string>();
 		bool changed = true;
