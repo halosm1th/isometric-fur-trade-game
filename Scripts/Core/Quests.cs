@@ -26,6 +26,9 @@ public sealed class QuestLog
 {
 	public readonly Dictionary<string, QuestState> States = new();
 	public readonly HashSet<string> Declined = new();
+	// A quest the dev jump put the player on (--quest): kept in focus while
+	// it is under way, though others open after it.
+	public string Pinned = "";
 
 	public bool IsDone(string id) => States.TryGetValue(id, out var s) && s.Status == QuestStatus.Done;
 	public bool IsActive(string id) => States.TryGetValue(id, out var s) && s.Status == QuestStatus.Active;
@@ -272,6 +275,7 @@ public static class Quests
 			st.At = at; st.Count = 0; st.TaskSet = false; st.StepDay = Today;
 			Announce(p, q, st);
 		}
+		p.Quests.Pinned = q.Id;
 		GD.Print($"[quest] {q.Id} at step {q.Objectives[st.At].Id}");
 		// The flags this quest's choices read from here on, for the author.
 		var read = new SortedSet<string>();
@@ -446,9 +450,7 @@ public static class Quests
 	// The objective to put on the HUD: the newest quest under way.
 	public static string Focus(PlayerController p)
 	{
-		QuestState best = null;
-		foreach (var st in p.Quests.States.Values)
-			if (st.Status == QuestStatus.Active && (best == null || st.StepDay >= best.StepDay)) best = st;
+		var best = Focused(p);
 		if (best == null || Def(best.Id) is not { } q || best.At >= q.Objectives.Count) return null;
 		return $"{q.Title}: {Describe(q.Objectives[best.At], best)}";
 	}
@@ -456,9 +458,7 @@ public static class Quests
 	// Is this the person the HUD's step (or an offer) is about? (Dev: --talkto=@quest.)
 	public static bool IsFocusPerson(PlayerController p, Npc npc)
 	{
-		QuestState best = null;
-		foreach (var st in p.Quests.States.Values)
-			if (st.Status == QuestStatus.Active && (best == null || st.StepDay >= best.StepDay)) best = st;
+		var best = Focused(p);
 		if (best != null && Def(best.Id) is { } q && best.At < q.Objectives.Count && Matches(q.Objectives[best.At].Who, npc)) return true;
 		return OffersFrom(p, npc).Count > 0;
 	}
@@ -476,8 +476,11 @@ public static class Quests
 		return (at, label);
 	}
 
+	// The quest the HUD, the map and the compass are about: the one a dev
+	// jump pinned while it lasts, else the newest step under way.
 	private static QuestState Focused(PlayerController p)
 	{
+		if (p.Quests.Pinned != "" && p.Quests.States.TryGetValue(p.Quests.Pinned, out var pin) && pin.Status == QuestStatus.Active) return pin;
 		QuestState best = null;
 		foreach (var st in p.Quests.States.Values)
 			if (st.Status == QuestStatus.Active && (best == null || st.StepDay >= best.StepDay)) best = st;
@@ -487,9 +490,7 @@ public static class Quests
 	// Where the HUD's objective is, if it is somewhere.
 	public static Vector2? FocusTarget(PlayerController p)
 	{
-		QuestState best = null;
-		foreach (var st in p.Quests.States.Values)
-			if (st.Status == QuestStatus.Active && (best == null || st.StepDay >= best.StepDay)) best = st;
+		var best = Focused(p);
 		if (best == null || Def(best.Id) is not { } q || best.At >= q.Objectives.Count) return null;
 		var o = q.Objectives[best.At];
 		return o.Kind switch
