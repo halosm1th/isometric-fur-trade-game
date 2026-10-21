@@ -564,7 +564,7 @@ Dev args for menus: `--snap=S1,S2` saves the screen to `user://snap_N.png` at th
 - Roofs are flat placeholder planes; the front wall still fades when you're inside.
 - Player's own weapons have no swing animation; shots are a line and a flash.
 - Delegation is a fixed playbook, not a planner. Message objects exist (`Core/Message.cs`, see *Messages*), but not every order travels as one: the Factor's morning orders still take effect immediately; London's directive and the Fort William minutes go by ship and brigade.
-- No horses, no slavery (§9.2), no crafting or smithing, no smallpox/measles; founding a new post is not built (see `WIKI/Development/Development Status.md`).
+- No slavery (§9.2), no crafting or smithing, no smallpox/measles; founding a new post is not built. (Horses, the buffalo run, war parties and truces are built: `Economy/Plains.cs`, `Ecology/BuffaloRun.cs`, `Economy/War.cs`.) (see `WIKI/Development/Development Status.md`).
 - Balance numbers (need rates, site sizes, prices) are first guesses. Use `--trace` runs at `--speed=1` to watch a week in a few minutes. Note the 30 s default is slower than the 10 s the numbers were first tuned at.
 
 ## Not re-verified (2026-10-13)

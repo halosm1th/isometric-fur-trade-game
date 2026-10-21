@@ -13,8 +13,8 @@ This is a **campaign plus the engine work it needs**. Per design principle 2 ("s
 | 2. Posting | Sep - Nov | Carried inland on the autumn brigade | What does the country look like when the Company is a day's walk behind you? | **No**: nothing reassigns the player's post |
 | 3. The Grass | Year 2 | The Company's man at a plains post | Who will feed you, and what will you owe them? | **Partly** (camps, languages, horses, bonds, favours) |
 | 4. The Opposition | Years 2-5 | A rival at the next palisade | How far will you go for the Company, and for your friends? | **Partly** (Rivalry, Pemmican Proclamation beats) |
-| 5. The Hunt | Years 2-6 | A rider and a provider | Can you feed a post and a band at once? | **Partly** (buffalo runs, horses; no discipline or captains yet) |
-| 6. The War | Years 4-8 | Drawn in by kin and debt | Whose war is it, and what does it cost? | **Foundation only** (horse raids; no war parties) |
+| 5. The Hunt | Years 2-6 | A rider and a provider | Can you feed a post and a band at once? | **Mostly** (buffalo runs, horses, the captain and soldiers; the player cannot yet be made a soldier) |
+| 6. The War | Years 4-8 | Drawn in by kin and debt | Whose war is it, and what does it cost? | **Partly** (horse raids, war parties with morale and retreat, timed truces: `Economy/War.cs`) |
 | 7. The Union | Mar 1821 | Whoever you have become | What is left? | **Yes** (Reckoning of 1821) |
 
 Acts 3-6 overlap; they are a *sequence of emphasis*, not a rail. The player who never leaves York still has a valid game.
@@ -83,7 +83,7 @@ For each act: **hook** (what the player sees), **pressure** (the campaign beats)
   2. **The pemmican chain** (M): kill -> dry -> pound -> fat -> bag -> cart -> post -> brigade. It is the economy of the plains *and* the spark of the war between Colony and Nor'Westers; it also makes a good first multi-step "crafting chain" (longer_goals item 6) without a general crafting system.
   3. **Robes and horses as trade goods** (S): `Buffalo Robe` exists at 2 MB; add its seasonal quality and a horse price in MB so the market (global-trade spec) can see them.
 
-### Act 6. The War *(foundation only)*
+### Act 6. The War *(partly built, 2026-10-21)*
 This is the act the brief ends on, and the one that most needs care.
 
 **Design stance.** The player is *drawn in*, never dropped in. The war is the plains' war (Cree and Assiniboine against the Blackfoot confederacy and Gros Ventre is the one the atlas and `Factions/*.md` already frame; other pairings: Dakota and Ojibwe on the Red and Lake Winnipeg side), fought for horses, hunting ground and honour, and **the Company's guns are one cause of its scale**. The player has three levers and each is a real moral and mechanical cost:
@@ -127,16 +127,16 @@ Library calls the script will want and the tool does not yet have (add to `Libra
 
 | # | Work | Unlocks | Size | Notes |
 |---|---|---|---|---|
-| 1 | **Posting**: reassign the player's (and NPCs') home post | Act 2, founding posts | M | Biggest missing primitive for the brief |
+| 1 | **Posting**: reassign the player's (and NPCs') home post | Act 2, founding posts | M | Partly exists: a campaign action `posting` calls `PlayerController.PostTo`, and the Factor posts a clerk to Oxford House (`Delegation.PostAClerk`). No general reassignment of NPCs |
 | 2 | **Relationship tiers + adoption/naming** | Acts 3, 6 | M | Needs consultation (section 6) |
 | 3 | **Interpreter role + faction language gates** | Acts 3, 6 | M | Language kinship already modelled |
-| 4 | **Hunt captain and discipline** | Act 5 | M | Builds on `BuffaloRun` |
-| 5 | **Pemmican chain** | Acts 4, 5, and the economy | M | First crafting chain |
-| 6 | **War party agent + morale + retreat** | Act 6 | L | Generalises `HorseRaidGoal` |
+| 4 | ~~**Hunt captain and discipline**~~ **built** (2026-10-21 check) | Act 5 | M | `BuffaloRun`: captain, soldiers, the early rider. Inviting the player to be a soldier is still open |
+| 5 | **Pemmican chain** | Acts 4, 5, and the economy | M | NPC households already dry meat and make pemmican (`MakePemmicanGoal`); the player cannot |
+| 6 | ~~**War party agent + morale + retreat**~~ **built** | Act 6 | L | `Economy/War.cs`, `Agents/Goals/WarGoals.cs` (commit `797a6df`) |
 | 7 | **Casualty plumbing and reckoning section** | Acts 6, 7 | M | |
-| 8 | **Truce as an Accord** | Act 6 | M | |
+| 8 | **Truce as an Accord** | Act 6 | M | Timed truces exist (`War.Truce`); the Accord object with terms and a breach does not |
 | 9 | **Seven Oaks and Brandon as places** | Act 4 | L | Content, not code |
-| 10 | **Non-lethal combat outcomes** | Act 4 | M | Verify first; may exist |
+| 10 | **Non-lethal combat outcomes** | Act 4 | M | Partly exists: a killing blow from the other company takes you prisoner (§9.1). No surrender or bluff |
 
 A playable "vertical slice" is **1 + 2 (known/trusted only) + 5 (the chain only as far as the pemmican bag) + the four Act 3-4 beats**: roughly a month of work and enough to feel whether the arc is fun before building the war.
 

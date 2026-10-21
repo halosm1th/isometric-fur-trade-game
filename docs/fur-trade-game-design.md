@@ -2,7 +2,7 @@
 
 *Working design document. Compiled from planning discussion — intended as a shared reference for continued design and implementation work.*
 
-Last verified against the code: 2026-10-13. Most of this document is design intent. Where the build clearly differs, a `> **Implementation note (2026-10-13):**` callout follows the section heading; the aspirational text is left as written. For what is built, see `WIKI/Development/Development Status.md`.
+Last verified against the code: 2026-10-21 (see `docs/audit.md`). Most of this document is design intent. Where the build clearly differs, a `> **Implementation note (date):**` callout follows the section heading; the aspirational text is left as written. For what is built, see `WIKI/Development/Development Status.md`; for a section-by-section comparison, `docs/audit.md`.
 
 *Revision note: this version folds in the follow-up planning discussion — population scale and simulation tiers (Sections 11.1, 18.2), the spawn-site ecology system (Section 16.4), the map boundary and the Southern Department / James Bay region (Section 6), pre-1821 HBC and NWC structure (Section 5), the message system rebuilt around read events (Section 10.1), delegation and task assignment (Section 3.9), and the Fort William council (Section 3.8.1). A later pass added the player-experience layer — a second design test and the director (Sections 2.1, 2.2) and a new lettered Section P. A change list is at the end.*
 
@@ -113,7 +113,7 @@ The game's strongest tension machine is already built: **the ship comes in Augus
 
 **Pacing target: a year in roughly 4–6 hours of play**, not ~24. The ship cycle only works as a heartbeat if a player gets several of them in an ordinary playthrough. Compression is uneven by design: the trading season and the reckoning run dense and close to live; deep winter compresses hardest — except when the winter itself is the drama (Section 17.6), and Section 18.3's drop-to-live rules apply to it like any trail.
 
-> **Implementation note (2026-10-13):** the pacing target is not met. The calendar runs at 30 seconds of play per game hour (`GameCalendar.SecondsPerGameHour`, adjustable from 0.5 to 120 s with `[` and `]`), a game day is 12 minutes, and a 365-day year is about 73 hours of play at the base rate (24 × 365 × 30 s), not 4–6 hours. The four chapters, the quota line counting down to the ship and the reckoning are built as described.
+> **Implementation note (2026-10-21):** the pacing target is not met. The calendar runs at 30 seconds of play per game hour (`GameCalendar.NormalSecondsPerGameHour`; the HUD's clock buttons and `[` `]` change it), so a flat year is about 73 hours. Uneven pacing (`GameCalendar.Pacing`, factor 0.25-3×) makes winter nights quick but the ship, breakup, summer, company and fights slower; worked out for a player alone in fair weather it comes to about 57 hours a year, and more in company. It moves time between seasons rather than shortening the year. The four chapters, the quota line counting down to the ship and the reckoning are built as described.
 
 **Four seasonal chapters, each with one clear stake:**
 - **Freeze-up** — the posting is decided: who winters where, with what outfit (Section 3.9 step 2). Stake: where you'll be and with whom.
@@ -320,6 +320,9 @@ The layer between a Tier 2 directive (Section 3.1) and the shared action vocabul
 **Example.** An inland post reads its orders late in the fall: 40 packs by ship. The factor has 12 men and two clerks. He sends the clerk he trusts, with six men, to a far outpost he has heard has lodges, and keeps the ambitious clerk close on a provisioning hunt. In January the outpost report is overdue, and he can't tell whether the clerk is dead, snowed in, or sitting on a site. He pulls two men off provisioning to check, and the post's food margin thins. Nothing scripted that crisis.
 
 ### 3.10 Skills
+
+> **Implementation note (2026-10-21):** there are four skills, not this list: Hunting (which also governs shooting), Trapping, Trade and Woodcraft (`Agents/Needs.cs`, `Skills`). They improve through use as described, and the player's book shows what fed each one. They are seeded from the character's background and traits, not from personality. There is no stealth, riding, sprinting, medicine, strength, crafting or smithing skill; carry capacity is a constant plus bag bonuses.
+
 Every agent — player and NPC alike — carries a skill value per action-relevant competency: shooting, hunting, trapping, berry-picking/foraging, talking, stealth, horse riding, sprinting, medicine (Section 17.5), strength (Section 12.4), crafting and smithing (Section 12.6), and others as new action chains need them. Skills determine how well an action in Section 3.3's shared vocabulary resolves — a shooting check, a stealth roll, how much a foraging trip yields — rather than gating whether the action can be attempted at all.
 
 - **Base value from personality.** Each character's starting skill baseline is seeded by their personality profile (Section 11.4 — loyalty, discretion, suspicion, ambition, sociability) and background, not rolled independently — an ambitious clerk starts with a talking edge, a hunter raised in a band starts high on hunting/trapping/stealth, a voyageur starts high on sprinting and canoeing endurance. Personality does double duty: it already filters behavior (Section 11.4), and now it also explains *why* two agents in the same role differ in raw competence.
@@ -397,7 +400,7 @@ Each path should have a genuinely different early-game problem to solve, not jus
 
 ### 5.3 Métis / Freeman — Red River
 
-> **Implementation note (2026-10-13):** there is no standalone Métis or freeman starting path. The Métis are a faction with 3 band camps (the Forks, Pembina, the Qu'Appelle) and 18 family camps, hunt captains and Michif, but they wear the voyageur's and country wife's sprite sheets, and the communal hunt of 16.1 is not built. A freeman's son appears only as an NWC background.
+> **Implementation note (2026-10-21):** there is no standalone Métis or freeman starting path. The Métis are a faction with 3 band camps (the Forks, Pembina, the Qu'Appelle) and 18 family camps, hunt captains, Michif and Red River carts (`Economy/Herd.Carts`), but they wear the voyageur's and country wife's sprite sheets. The communal hunt of 16.1 is built for every plains camp (`Ecology/BuffaloRun.cs`: a captain, soldiers, the muster and the run, and the young man who goes early). A freeman's son appears only as an NWC background.
 - Not really "competing" with the companies — the economic engine that feeds both of them, via pemmican and buffalo hunting.
 - Communal buffalo hunts were organized almost like military campaigns (hunt captains, scouts, formation discipline) — see Section 16.1.
 - Freemen (independent traders no longer tied to a company) sit outside the formal hierarchy entirely — highest personal freedom, least institutional backing.
@@ -468,11 +471,14 @@ Distinct zones with distinct feel/mechanics — including distinct wildlife (Sec
 HBC, NWC, and (after 1821) the merged company. See Section 4 for the historical arc between them.
 
 ### 7.2 Indigenous Nations & Intertribal War
+
+> **Implementation note (2026-10-21):** horse raids (`Economy/Plains.cs`), war parties with morale and retreat, and timed truces (`Economy/War.cs`, `Agents/Goals/WarGoals.cs`) are built; guns reach the plains through the Missouri trade (`Economy/MissouriTrade.cs`). Truces are a pair of households and an end date, not Accords (3.8.2).
+
 This is real intertribal war, not scenery. The **Blackfoot Confederacy** (Siksika, Kainai, Piikani) held military dominance on the northwestern plains, in active conflict with **Cree, Assiniboine**, and other groups over territory and horses. Critically, the fur companies were arming one side or another — every gun a post sells tips a real balance of power, so trade decisions aren't neutral commerce, they're taking a side. This conflict isn't background flavor — it physically plays out via the party-collision model in Section 15: a war party is actually moving to raid, and the player can actually run into it.
 
 ### 7.3 Americans — Nuisance Faction
 
-> **Implementation note (2026-10-13):** there is no American faction value, sprite sheet or people. Americans exist as posts on the map (for example Fort Manuel Lisa, 1812), the Missouri villages, and a few campaign beats.
+> **Implementation note (2026-10-21):** `Faction.American` exists. The eight American posts of the atlas stand with American masters and men (commit `ebfb084`; they borrow the voyageur's and country wife's sheets), bands keep a separate regard and debt for the Americans (`Economy/BandLedger.cs`), and there is an American story road with Astor's men on the Columbia (commit `fd8eb32`). The Astor/New York and St. Louis background nodes, the 1816 exclusion law and the trapline poaching AI are not built.
 Doesn't need to be a playable path to matter, and resolves into two differently-shaped background nodes rather than one (Section 10.7):
 - **Astor / New York** — a single-principal node: the American Fur Company (incorporated 1808) was Astor's alone, so one agent's goals decide everything it does. His **Pacific Fur Company** built Fort Astoria in 1811; lost it to the British in the War of 1812 (became Fort George, 1813) — a real available set-piece for "fight Americans" content. The 1811 Southwest Company briefly partnered Astor with the NWC, and when the Pacific Fur Company sold its Columbia holdings to the NWC in October 1813, many of its employees became Nor'Westers — a real personnel pipeline into Section 13.2's recruit pool, not just a change of flag on a map.
 - **St. Louis** — a small merchant association: Manuel Lisa's **Missouri Fur Company** (formed 1809, reorganized 1812 after Astor's buyout offer was rejected) pushing up the Missouri from further south. The Blackfeet besieged its Three Forks post in 1810 — direct fuel for the arming-a-side friction in Section 7.2.
@@ -493,6 +499,9 @@ Section 4.1 already notes that interior violence happens "far from any court's r
 ---
 
 ## 8. Marriage & Kinship System
+
+> **Implementation note (2026-10-21):** only the HBC way is built, and it is applied to every player. `Propose()` in `UI/Conversation.cs` needs rapport 30 with the father and 8 MB of gifts, refuses a second wife to anyone ("The Company allows a man one"), and always moves the bride into York Factory's depot, even for a Nor'Wester or a band-born character. The Nor'West way, polygamy, transition costs and the wives left behind (8.1-8.4) are not built. Children are born to the marriage and grow up (9.4's note).
+
 
 Grounded in a real, documented cultural split (see Sylvia Van Kirk's *Many Tender Ties* for further reading) between how NWC and HBC culture handled "country marriage."
 
@@ -551,7 +560,7 @@ Succession is the game's headline idea, not a consolation prize — Section P.6 
 
 ### 9.4 Aging & Natural Decline
 
-> **Implementation note (2026-10-13):** not built. Characters do not age or decline; succession happens on death (9.3), which is built.
+> **Implementation note (2026-10-21):** partly built. Everyone is a year older each New Year, and an NPC past 45 loses 3 percent of his walking pace a year (`World/Population.cs`, `SicknessAndYears`); children are born to a married player and grow into the post at 16. The player does not decline, nobody dies of age, and age does not touch fighting, carrying or work. Succession on death (9.3) is built.
 Succession doesn't have to wait for violent death. Voyageur labor historically wore men out physically by their 40s, and a character's declining capacity — slower on the portage, worse in a fight, less suited to the brigade circuit — is a real, non-violent path toward handing control to an heir (Section 9.3.3), and a natural nudge toward the political/administrative side of a career (Section 3.7) as the physical one closes off. It also gives the multi-generational family-ambition goal (Section 3.1) a built-in reason to actually change hands over the course of a long game, rather than only doing so through tragedy.
 
 ---
@@ -707,6 +716,9 @@ A few concrete moments, not a fully simulated social graph:
 - Two traveling parties crossing paths on the trail.
 
 ### 11.4 Personality Filters Behavior, Not Just Memory
+
+> **Implementation note (2026-10-21):** the build has five traits, not these five: **Loyalty, Talkative, Suspicion, Ambition, Courage** (`Agents/Npc.cs`, `Personality`). Talkative stands in for both discretion and sociability (it decides who goes to the evening fire, `RoleBehaviour.EveningAtFire`); Courage is new and is the floor of a man's nerve in a fight (`Agents/Nerve.cs`). The player has no personality values.
+
 A small trait set (loyalty, discretion/talkativeness, suspicion, ambition, sociability) decides what an NPC *does* with what they know:
 - Loyal companion → may warn the player privately first.
 - Talkative NPC → spreads it regardless of sensitivity.
@@ -754,7 +766,7 @@ The York-Oxford brigade (`Brigade.cs`) is one road. Every other road is a **run*
 
 ### 12.3 Horses — Plains Mobility & Raiding
 
-> **Implementation note (2026-10-13):** not built. There are no horses: no mount, mounted movement, horse herd as property or raiding. The plains peoples in the game walk, and the buffalo hunt is an ordinary hunt.
+> **Implementation note (2026-10-21):** built. Every plains camp and parkland post owns a herd (`Economy/Herd.cs`) that grazes, thins in winter, foals in May and is raided (`Economy/Plains.cs`); the player can buy, borrow, give, steal and ride one (`Economy/HorseTrade.cs`, `Player/PlayerHorse.cs`); the communal buffalo run and war parties are mounted. The horse is a stand-in sprite until its sheet is drawn.
 The plains' equivalent of the canoe: a horse herd is both transport and wealth, and losing it mid-journey is a real stranding risk parallel to a wrecked canoe or a York boat stuck at a portage. Historically, horse raiding between Blackfoot, Cree, and Assiniboine was itself a major form of the intertribal conflict already established (Section 7.2) — a raid whose entire goal is the herd, not a fight over trade goods or territory. This slots directly into the existing party-collision combat model (Section 15.1): a horse-raiding party is doing exactly what it says, and running into one is a different flavor of encounter than a war party or an ambush, with a different resolution (chase it off, defend the herd, cut losses and let it go). Herd health and grazing become their own resource-management concern on long plains journeys, mirroring the fuel/food concerns of a canoe brigade (Section 17).
 
 ### 12.4 Personal Carry Capacity
@@ -828,6 +840,9 @@ Historically central and genuinely dark: trade liquor bought favorable terms in 
 **Trade liquor can be diluted, and diluting is a real, discoverable gamble, not a free profit lever.** Mixing pure spirits with water, tobacco juice, or pepper at a post — a crafting action like any other (Section 12.6) — stretches a limited supply into far more trade volume, but a wary trading partner can run a Fire Test: a splash on the fire flares if the proof is real and smothers it if it's been cut. Getting caught is a witnessed event like any other (Section 10.2), and one that should land hard on faction standing specifically because it's a betrayal of trust in the middle of the trade relationship itself, not a background statistic.
 
 ### 13.5 Disease & Epidemics
+
+> **Implementation note (2026-10-21):** fever spreads between people who stand together (`World/Population.cs`, `SicknessAndYears`), with immunity reset each year, and scurvy follows days without fresh food. Smallpox, measles, contagion through trade goods and quarantine are not built.
+
 Disease — smallpox above all — is one of the defining, devastating forces of this actual period and region, and deserves the same weight as the darkest systems already in this document (Section 9's death/captivity/slavery), not a background stat drain. Mechanically, it can reuse machinery already built rather than needing an entirely new system: an outbreak spreads through contact the same way fire spreads through flammable material (Section 18.4) — agent-to-agent instead of tile-to-tile, faster where people are close together (a post, a rendezvous, a winter camp), slower where they're not. Under the population model (Section 11.1), an outbreak reaching a specific band is not an abstract percentage — it can genuinely sicken and kill named people the player knows, and a nation devastated by it has its standing, territory, and role in the faction web (Section 7.2) actually change afterward, not as a scripted event but as a real consequence rolling forward through every system downstream of population (goals, marriage availability, trade). Because this reproduces real historical trauma rather than an invented fail-state, it needs a deliberate decision — separate from the mechanical design — about how much weight, visibility, and player agency (warning a community, refusing to facilitate contact, being blamed regardless) it carries, rather than being tuned only for gameplay balance.
 
 **Disease can travel in a trade good, not only in a person.** A contaminated blanket or garment (Section 12.5's item model) can carry a contagion the same way it already carries weight or warmth — meaning a single trade transaction, not just proximity, can start an outbreak, historically one of the darkest and most consequential vectors of this exact period. Whether this happens by accident or by design is exactly the kind of choice the paragraph above already flags as needing deliberate, careful treatment.
@@ -847,6 +862,9 @@ Furs aren't sold at a fixed price. Every pack carries a **quality rating** — t
 **Flooding the market is a real, double-edged weapon.** Selling too large a volume in a single year crashes the price for everyone that year — usable offensively, dumping stock to crush prices right when a cash-strapped rival most needs revenue, at the cost of the flooder's own returns too. Doing this across several consecutive years compounds: the market can't recover fast enough between gluts, and the pressure to keep supplying it drives real overharvest against the finite spawn-site ecology (Section 16.4) — supply and price collapse together. This gives Section 13.7's solvency mechanic, and the "exhaustion, not any single battle, caused the merger" thesis it's built on, a lever a player can actually pull rather than a background truth the game just asserts.
 
 ### 13.7 Company Solvency & the Path to 1821
+
+> **Implementation note (2026-10-21):** not built. There is no solvency ledger and no money. The union of 1821 is carried out in the world (`Economy/Union.cs`: North West posts near Company posts are given up, their people taken on or let go, the rivalry ends), but it is triggered by the campaign's `merger` flag (or `--union`), not by exhaustion. Under the "no script" campaign it never happens. `docs/specs/global-trade.md` is the plan for the missing ledger.
+
 Each company runs a **shared solvency ledger**: capital and available credit, unsold fur stock, outstanding debt (Section 13.3), and running costs including legal fees and violence losses. Trade-war attrition (Section 13.2) feeds directly into it, and it in turn caps how large an outfit can be ordered and how many replacements can actually be hired (Section 13.2, Section 10.7) — a company running low doesn't just feel poorer, it becomes literally unable to fully supply or restaff its own posts next season.
 
 **A company nearing insolvency doesn't just collapse the moment its ledger crosses zero.** The same leadership agents already deciding the yearly directive (Sections 3.8, 10.7) have their own escalating fallback moves first: emergency austerity (voluntarily closing a marginal post rather than losing it to attrition), calling in debts harder (Section 13.3), seeking a bailout or extended credit from the metropole, or cutting wages and rations. These are real decisions made by real agents under the same goal/action framework as everything else (Section 3), not a scripted recovery arc — a company that mismanages its own crisis response can still fail for it.
@@ -871,7 +889,7 @@ Once founded, a new post is simply a new location running the same simulation as
 
 ### 14.1 Seasons
 
-> **Implementation note (2026-10-13):** the calendar and four seasonal chapters are built, with dated freeze-up and breakup events and the goose flights. Per-waterway water-state transitions (the Autumn Scramble, the Spring Lockout) are not.
+> **Implementation note (2026-10-21):** the calendar and four seasonal chapters are built, with dated freeze-up and breakup events and the goose flights. Per-waterway water-state transitions (the Autumn Scramble, the Spring Lockout) are not.
 A season model that maps directly onto the operating calendar already built into the logistics/message system:
 - **Spring breakup (ice-out)** — water routes open, brigades depart, goose hunt begins.
 - **Summer** — main trading/travel season; bison summer hunt; Fort William rendezvous (July).
@@ -890,6 +908,9 @@ Should feed directly into systems already defined rather than being cosmetic:
 - Deep winter reduces game availability, raising the stakes of stored food (pemmican, salted goose, dried fish) — and directly raises hunger/exposure risk (Section 17).
 
 ### 14.3 Day/Night Cycle
+
+> **Implementation note (2026-10-21):** day length is computed from latitude and date, but the latitude is fixed at York's 57° N (`GameCalendar.LatitudeDeg`), so the plains and the Columbia get York's days.
+
 - Affects stealth and interception opportunity (raiding a courier or post at night vs. day).
 - Historically, canoe brigades often rose well before dawn and paddled for hours before breakfast — a realistic travel rhythm worth modeling rather than a flat day/night toggle.
 - Daylight length should vary by latitude/region — extreme swings at Hudson Bay/Churchill (long summer days, brutal short winter days) vs. more moderate swings at Red River or the Columbia — a natural way to make the World & Regions (Section 6) feel distinct.
@@ -919,6 +940,9 @@ Whether a fight can be avoided depends on who the player is with and what's alre
 - **Scale governs whether de-escalation exists at all**: a chance meeting between two small hunting parties can be talked down (a suspicion/diplomacy check). A war party that already committed to a planned raid is already a battle before the player arrives — the only choices left are how to fight, not whether.
 
 ### 15.3 Weapons and Lethality
+
+> **Implementation note (2026-10-21):** hits come off a single health pool (`Agent.TakeDamage`): there are no hit locations, no one-shot kill or crippling, and no limb wound carried forward. Range-scaled misses, the sneak attack and morale (15.4, 15.6, `Agents/Nerve.cs`) are built. Muskets do not use up powder.
+
 - Era-accurate: trade muskets/fusils and pistols are effectively one-shot weapons — a real hit is fatal or crippling, and reload takes real time, so a musket fight is "one good shot, then it's knives and tomahawks." Bows offer faster follow-up at shorter range. Knives, tomahawks, and clubs are the close-quarters finishers.
 - Hits resolve by **location and severity**, not a health bar — a torso/head hit kills or incapacitates; a limb hit or graze becomes a wound that carries forward into Section 17 (infection risk if left untreated).
 
@@ -942,7 +966,7 @@ With one-shot muskets (Section 15.3) and breakable morale (Section 15.4), the fu
 
 ### 16.2 Species by Region
 
-> **Implementation note (2026-10-13):** seven species are in: caribou, goose, beaver, wolf, snowshoe hare, ptarmigan and buffalo (18 herds on the plains, a full yield and a robe, drawn with the caribou sprite). Moose, bears, marten, lynx, foxes, muskrat, fish as an animal, salmon and the rest of the lists below are not built, nor is the hare/lynx cycle.
+> **Implementation note (2026-10-21):** seven species are in: caribou, goose, beaver, wolf, snowshoe hare, ptarmigan and buffalo (18 herds on the plains, a full yield and a robe, drawn with the caribou sprite). Moose, bears, marten, lynx, foxes, muskrat, fish as an animal, salmon and the rest of the lists below are not built, nor is the hare/lynx cycle.
 Ties hunting directly to Section 6's regional identity rather than one universal animal list:
 - **Shield/boreal corridor**: moose, elk, woodland caribou, black bear.
 - **Plains**: bison, pronghorn.
@@ -1037,6 +1061,9 @@ Per Section P.5: inside a working post or camp, routine needs resolve through it
 No loading screens, and no separate interior/exterior spaces. A fort is tiles with properties — walled, roofed, flammable/non-flammable (Section 18.4) — not a different scene. Walls and a roof block wind and precipitation and are what being "indoors" mechanically means, plugging directly into the exposure system (Section 17.3); they don't generate warmth themselves, they trap what an actual fire (Section 18.4) is producing nearby. A fort exists at its map location the whole time — walking up to it, or away from it, is a continuous movement, never a load, and everyone inside keeps living (Section 18.2) whether or not the player happens to be there to see it.
 
 ### 18.2 Concentric Simulation Fidelity
+
+> **Implementation note (2026-10-21):** two tiers, not three (`Core/Tiers.cs`): `Live` within 3,200 px of any player and `Background` beyond 4,200 px, the background resolved once a game day by household (`DailyBatch`), and the wider country's camps and posts in weekly sums. There is no local tier.
+
 The spatial version of the same idea already used for off-screen NPC ticking (Section 11.1) — fidelity scales with proximity/relevance, not a hard boundary. There are three tiers; existence is identical across all of them and only update frequency differs:
 - **Live bubble** (level 1 — the visible area plus a margin around it): about 100 agents at full tick-rate simulation — physics, pathing, individual combat/hunting rolls, real-time weather effects.
 - **Local tier** (level 2 — the larger immediate context): a few hundred agents (the rest of a fort's population, a brigade a day off) on an hourly/daily tick, at reduced resolution but still spatially real, resolving seamlessly into the live bubble on approach — no snap, no load.
@@ -1060,7 +1087,7 @@ This is what makes Section 11.1's "everyone is a full agent" affordable at open-
   - **Entering any fort/post tile** — needs live fidelity to interact with anyone there.
 - Manual drop-out is always available — it's a zoom level, not a locked mode.
 - The design property worth keeping: every automatic trigger is already a place the design puts real stakes, so the zoom level itself becomes a signal — if you're still zoomed out, nothing that matters is currently happening.
-- **Compression target**: tuned together with sleep/wait and the live clock so a full year runs about 4–6 hours of play (Section P.3). *(2026-10-13: not met; the base clock gives a year of about 73 hours, and travel mode does not yet close the gap.)*
+- **Compression target**: tuned together with sleep/wait and the live clock so a full year runs about 4–6 hours of play (Section P.3). *(2026-10-21: not met; the base clock gives a year of about 73 hours, uneven pacing about 57 for a player alone, and travel mode does not yet close the gap. See Section P.3's note.)*
 
 ### 18.4 Fire — A Simulated Object, Not a Tile Flag
 Fire is a real object that sits on a tile and does things over time, not a boolean "sheltered" flag:
@@ -1182,6 +1209,9 @@ Section 18.2's three-tier fidelity model assumed one live bubble around a single
 Single-player time compression can't be unilateral once a second human is in the world. The rule: **if every currently-connected player wants to skip, the shared clock actually skips** — a direct generalization of the ordinary wait/sleep-to-morning mechanic to a full-consensus vote. **If even one player doesn't**, nobody's clock is forced to move faster than real time; instead, whichever players wanted to skip are automatically pulled out into personal auto-pilot — their own character keeps acting sensibly at normal shared speed (auto-traveling, auto-camping, resolving routine chains on its own, per Section 3.2) while everyone else retains full manual control. Nobody's real-time crisis is ever sped through because someone else wanted to fast-forward, and nobody who wants to skip dead time is forced to sit through it manually just because one other player is busy.
 
 ### 21.4 Disconnection Hands Off to the Goal Planner
+
+> **Implementation note (2026-10-21):** not built this way. When a player disconnects the server despawns their character (`Net.OnPeerDisconnected`); the save matches players by name, so they come back on rejoining, but nobody acts for them in between. The consensus skip (21.3) is built; the personal auto-pilot fallback for players who wanted to skip is not.
+
 A disconnected player's character doesn't freeze — it falls back to being driven by the same goal planner that already runs every NPC (Section 3), continuing on the character's last known goals and personality (Section 11.4) until the player reconnects and reclaims it. This costs nothing new to build: it's the same planner already driving every Factor, clerk, and hunter, just permitted to claim a slot that isn't currently held by a live connection. It also means the world stays genuinely persistent if every player logs off at once — background-tier simulation (Section 18.2) just keeps running, the same way it already does for anything far from a player.
 
 ### 21.5 What Falls Out for Free

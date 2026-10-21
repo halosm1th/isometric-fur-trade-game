@@ -7,7 +7,7 @@ status: partial
 
 # The Reckoning of 1821
 
-**Status:** Partial. The yearly **Reckoning** (the "year's account") is Implemented for every road in. The campaign's **1821 union of the companies** is a scripted beat that changes the rivalry and sends news, but there is no dedicated end screen or "epilogue" in the code (design doc 4.3, 13.7 are **Planned**).
+**Status:** Partial. The yearly **Reckoning** (the "year's account") is Implemented for every road in. The **1821 union of the companies** happens in the world when the campaign raises its `merger` flag (`Economy/Union.cs`, 2026-10-20): North West posts near a Company post are given up, their stores carried across, masters and clerks taken on and half the men let go; the rest are kept under the Company, and every Nor'Wester, players included, becomes the Company's. What design doc 1 asks for is not built: the new order does not weigh the player's year against their ambitions to keep them on, cut them loose or set them to cutting others; every player is kept. There is no end screen or epilogue (design doc 4.3), and the union comes from the script, not from the companies' exhaustion (13.7, **Planned**).
 
 > *"The year has a close, and the close is the ship."* (design doc P.3, 14.1)
 

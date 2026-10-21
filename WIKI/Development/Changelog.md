@@ -7,7 +7,7 @@ status: implemented
 
 # Changelog
 
-**Status:** Implemented (reconstructed from `git log`). The repository has **87 commits** in its history, all dated **10 to 12 October 2026** (the project's earlier life, including the September 2026 overnight build of the York Factory test world, predates this history and is described only in `docs/york-factory-test-world.md`). Because the whole history sits inside one month, it is grouped here by month (October 2026) and then by day and theme. Hashes are the first seven characters. Many of the commit messages are long, essay-style design notes with design-doc section numbers; the entries below condense them.
+**Status:** Implemented (reconstructed from `git log`). The repository has **253 commits** in its history, dated **10 to 20 October 2026** (the entries for 13 to 20 October were added on 21 October) (the project's earlier life, including the September 2026 overnight build of the York Factory test world, predates this history and is described only in `docs/york-factory-test-world.md`). Because the whole history sits inside one month, it is grouped here by month (October 2026) and then by day and theme. Hashes are the first seven characters. Many of the commit messages are long, essay-style design notes with design-doc section numbers; the entries below condense them.
 
 > [!info] Reading the log
 > Several sessions worked in parallel on a shared tree ("five sessions share this working tree"), so commits are sometimes snapshots of other sessions' work. One pull request (#1, `fur-trade-simulation`) was merged on 11 October at 16:06 and a final merge of `master` on 12 October.
@@ -87,6 +87,37 @@ status: implemented
 - `c590c95` Every nation its own tongue (ten languages); a herd stands where the year has it (a game begun in July no longer finds buffalo in winter quarters).
 - `e683b05` The buffalo graze out on the plains, a journey from the camps that hunt them, instead of in the middle of the Métis camps.
 - `bb59c3a` Merge of `master`.
+
+### 13 October: brigades, campaign language, docs
+- `60c8523` **Brigades on the country's rivers**: five runs in `Data/World/brigade_runs.json`, resolved as rows of numbers far off and drawn as boats near a player (`World/Convoys.cs`, `ConvoyView.cs`); `21bf063` any player can ride them.
+- `e543fda` The weather drawn on screen, a pointer that says what a click will do, and blood when a blow lands; `b990414` the effects actually appear.
+- `ba4f498`, `52d0e25`, `e6e1adc`, `4ca366b`, `296c5f5` **The campaign language**: conditions, actions, variables and the beat lifecycle, a compiler and decompiler (`tools/CampaignTool`), and `CampaignRunner` as engine-free C#; `ce0b15a` a web editor and example campaigns.
+- `3c74eb6` Weather and frost are regional; the Missouri towns become the market of the plains.
+- `d8782ba` A slot-based inventory with drag and drop.
+- `abd7c52` Specs for the plains story, global trade and tools; the wiki checker.
+- `5e745d0`, `8568634` Two more campaigns (Landfall - Blood on the Bay) and player deeds as journal rumours.
+
+### 18 October: the frame rate
+- `7453590` From 7-14 fps to 50-60: the frame's big costs were the whole world asked every frame; `41510f5` no garbage every frame; `44ffea1` long paths over several frames; `20253a3` unreachable goals known at once.
+- `7f96669`, `a716854` Clock buttons under the date; the clock moves in whole steps.
+
+### 19 October: quests, war and getting to know people
+- `6d2c727` **Quests**: quest lines of chained steps in the campaign language, the game and the conversation; `eb4a4a0` the Company's Servant (the HBC story's first chapter) and a free-roam campaign.
+- `797a6df` **War parties and truces**, and the HBC story's second chapter (the war and the Pemmican War).
+- `ebfb084` **The American posts stand**, with American masters and men (`Faction.American`).
+- `ef8750d` The Nor'Wester's story: Fort Souris, the Métis of the Souris and the Pemmican War.
+- `926a995` **Getting to know people** (`UI/ConversationAcquaint.cs`) and the *Yourself* page in the book.
+- `d1050b5` Travel mode drinks, and stops before it walks you to death; `9d0f30c` an heir no longer rises on the dead man's horse.
+
+### 20 October: the union, the American road, fire, the interface
+- `b12a0df` **The union of 1821 happens in the world** (`Economy/Union.cs`), not only in the letters; `666476b` the story's third chapter on both roads.
+- `fd8eb32`, `f4b2b07`, `6306cf9` **The American road**: Astor's men on the Columbia, the war, the 1820s; the peoples' regard for the Americans.
+- `f04fe9a` The Pemmican War's beats actually happen at Steady adherence; `c92fa2e` a yearly beat dated in the past comes round once.
+- `0f82614` Travel crosses rivers where you find them.
+- `99972b6`, `3bc4f81`, `0a7fb9b` The campaign editor's Map tab and "Play in game" from any quest step (`--quest`, `--watch`).
+- `746b483` **Fire drawn in every hearth**: flames, embers, smoke and sparks by fuel left.
+- `b823b0e` Market news (who knows what about the Missouri corn), the gardens and Missouri trade reworked.
+- `acd6e17` **The interface is the game's own**: nine-patch boards, iron, leather and parchment (`UI/MenuTheme.cs`).
 
 ## Summary by theme
 

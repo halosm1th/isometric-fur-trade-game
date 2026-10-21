@@ -21,7 +21,7 @@ status: planned
 7. **Weather effects on screen** (snow, rain, fog; today only a colour modulate).
 8. **Expanded American parts** (design doc 7.3 and 10.7).
 
-## Specs written (2026-10-13)
+## Specs written (2026-10-13; status re-checked 2026-10-21 in `docs/audit.md`)
 
 - [[The Plains Years]]: a story arc from York to the plains and the intertribal war (`docs/specs/story-plains-years.md`).
 - [[Global Trade]]: a world market, money and the distance gradient (`docs/specs/global-trade.md`).
@@ -32,17 +32,32 @@ status: planned
 | Area | Planned item | Source |
 |---|---|---|
 | Transport | York boats, dog sleds, toboggans, Red River carts; vessel condition for the player | §12; [[York Boat]], [[Dog Sled]] |
-| Plains | Horses as property and mount; the communal buffalo hunt with hunt-captain discipline; horse raiding | §12.3, §16.1; [[Buffalo]] |
+| Plains | (Horses, the communal buffalo run, horse raids, war parties and truces are built.) Battles larger than one party; truces as Accords; the player leading a party | §7.2, §15; `docs/specs/story-plains-years.md` Act 6 |
 | Ecology | The 10-year hare/lynx cycle; herd fragmentation; moose, black bear, marten, muskrat, foxes, lynx, otter, mink, fisher, wolverine, polar bear; elk, pronghorn, grizzly, mountain goat and sheep; salmon; seals and beluga | §16.2; `world-content-needed.md` section 6 |
-| People | Aging; slavery; tradesmen (blacksmith, cooper, carpenter, boatbuilder, tailor, cook, surgeon); interpreters; settlers; a colony governor and sheriff; De Meuron soldiers; Métis hunter and hunt captain | `world-content-needed.md` section 7 |
+| People | Decline with age (ageing itself is in); slavery; tradesmen (blacksmith, cooper, carpenter, boatbuilder, tailor, cook, surgeon); interpreters; settlers; a colony governor and sheriff; De Meuron soldiers; Métis hunter and hunt captain | `world-content-needed.md` section 7 |
 | Economy | Crafting and smithing recipes; perks; founding a new post; warehouse quality-bucketing; the Continental Blockade's fur-market effects | §12.6-12.7, §13 |
-| Information | Black-market intelligence; message forgery and verification; the express courier | §10.3 |
+| Information | (Selling a carried packet is built.) Message forgery and verification; the express courier; blowback; literacy; maps as items | §10.3, §10.6, §10.8 |
 | Water | Per-waterway freeze and breakup; the Autumn Scramble and Spring Lockout; canoe-to-sledge conversion | §14.1 |
-| Disease | Smallpox backstory; measles and whooping cough, 1819 to 1820 | §13.5 |
+| Disease | (Fever contagion is built.) Smallpox backstory; measles and whooping cough, 1819 to 1820; contagion in trade goods; quarantine | §13.5 |
 | Culture | Barks in several voices (Orkney Scots, Canadien French, Cree, Michif, Gaelic); name lists; Hogmanay, the King's birthday and other holidays | `world-content-needed.md` section 9 |
 | Campaign | More beats: Macdonell wintering at York, the Athabasca starvation 1815-16, Lagimodiere's walk, the 1817 Selkirk treaty with Peguis, the 1818 missionaries, the arrests at Grand Rapids 1819 (check) | `world-content-needed.md` section 9 |
 | Metis path | A full third starting road (§5.3), the Forks, Red River farms, carts | [[Metis]], [[Starting Paths]] |
 | Places | Sacred sites as a map layer (with care); battle sites (Seven Oaks); interiors; named York buildings; Fort William's building set | `world-content-needed.md` section 5 |
+
+## Found by the audit (2026-10-21)
+
+Design-doc ideas with no code yet, beyond the table above (the full list is in `docs/audit.md`):
+
+| Area | Item | Source |
+|---|---|---|
+| Marriage | The Nor'West way (living with her people), polygamy for the NWC and Métis, transition costs, wives left behind | §8 |
+| People | Sociability as a trait; skills beyond the four (stealth, riding, medicine, strength, smithing) | §3.10, §11.4 |
+| Combat | Hit location and severity; muskets using powder; surrender and bluff | §15.3, §15.5 |
+| Company | Money, the solvency ledger, the merger from exhaustion, a finite recruit pool, audits and London detecting shaded books | §13.2, §13.7, §3.9 |
+| Council | Proxies, splinters, arrival windows at Fort William; Accords as one object | §3.8.1, §3.8.2 |
+| Survival | Wet clothing, winter strain, wound treatment (herbal and European) | §17.3, §17.5, §17.6 |
+| World | Day length by latitude; a local simulation tier; grass fires and wind direction | §14.3, §18.2, §18.4 |
+| Multiplayer | Disconnected players handed to the goal planner; auto-pilot when not everyone wants to skip | §21.3, §21.4 |
 
 ## Art still wanted
 

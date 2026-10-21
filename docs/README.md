@@ -40,6 +40,10 @@ Conventions:
 - **Unsourced history** is marked *(check)* until it has a citation (see tool T8 in `docs/specs/tools.md`).
 - **Status drift is the main risk.** Example found on 2026-10-13 and fixed: `Development Status.md` said horses were "planned, nothing exists" after `Economy/Plains.cs` had landed. When you merge a system, grep the wiki for its name.
 
-## Known gaps in the wiki (2026-10-13)
+## Known gaps in the wiki (re-checked 2026-10-21)
 
-No pages yet for systems that shipped recently: **Horses and herds**, **Horse raids and feuds**, **Missouri trade** (horse fair, winter corn, the December expedition), **regional weather and ground frost**, **the web campaign editor**. Each should be a short page linked from `Economy` or `Gameplay`.
+Still no pages for systems that have shipped: **Horses and herds**, **Horse raids, war parties and truces**, **Missouri trade** (horse fair, winter corn, the December expedition), **the union of 1821 in the world**, and **market news**. Regional weather is covered by `Gameplay/Weather.md`; quests and the web editor by `WIKI/scripting/`. Each missing page should be short and linked from `Economy` or `Gameplay`.
+
+## Audit
+
+`docs/audit.md` (2026-10-21) compares the design doc and the specs with the code section by section, lists the stale claims fixed on that date, and catalogues the design ideas with no code yet. Re-run it after a large merge.

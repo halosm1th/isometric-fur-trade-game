@@ -7,9 +7,9 @@ status: partial
 
 # Development Status
 
-**Status:** Partial. The game is a playable, networked, first-pass simulation of the fur trade from York Factory out to the whole western country, with placeholder art in places and a long list of design-doc systems still to build. Everything on this page is grounded in the code at commit `bb59c3a` (12 October 2026), the design doc (`docs/fur-trade-game-design.md`, 21 sections) and the asset inventory. The wiki's rule is: a thing is **Implemented** only if the code runs it.
+**Status:** Partial. The game is a playable, networked, first-pass simulation of the fur trade from York Factory out to the whole western country, with placeholder art in places and a long list of design-doc systems still to build. Everything on this page is grounded in the code at commit `acd6e17` (20 October 2026, re-checked 21 October; see `docs/audit.md`), the design doc (`docs/fur-trade-game-design.md`, 21 sections) and the asset inventory. The wiki's rule is: a thing is **Implemented** only if the code runs it.
 
-The repo contains about 26,700 lines of C#, 87 commits (10 to 12 October 2026, preceded by the September overnight build), one world scene and a 1002 x 2361 cell map.
+The repo contains about 36,100 lines of C# in 130 scripts, 253 commits, one world scene and a 1002 x 2361 cell map.
 
 ## System by system
 
@@ -22,8 +22,8 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | Map of the whole western fur-trade country (Hudson Bay to the Pacific, Missouri to Athabasca), 40 px per km | Implemented | Imported from the Pemmican Empire atlas; fogged until explored (§6). See [[World Map]], [[Regions]] |
 | Posts across the map, by founding year; major posts hand-laid | Implemented / Partial | York Factory, Fort William, Moose Factory, Edmonton House, Cumberland House, Fort Chipewyan, Fort Gibraltar laid out; the rest are generated plans. See [[All Trading Posts]] |
 | Regional terrain and flora | Implemented (placeholder tiles) | Prairie, tallgrass, parkland, tundra, Shield, muskeg, mountain. See [[Terrain and Biomes]] |
-| Calendar, seasons, day/night | Implemented | 30 s a game hour; dated events. See [[Calendar and Seasons]] |
-| Weather | Implemented | Clear, overcast, snow, blizzard, rain, storm; rolled in regions about 200 km across from each region's climate and asked for by position (`Weather.At`), so the plains are drier and the Pacific slope wetter than York (commit `3c74eb6`); on screen it is still only a colour modulate. See [[Weather]] |
+| Calendar, seasons, day/night | Implemented | 30 s a game hour with uneven pacing (quick winter nights, slow ship days); dated events. Day length is York's (57 N) everywhere. See [[Calendar and Seasons]] |
+| Weather | Implemented | Clear, overcast, snow, blizzard, rain, storm; rolled in regions about 200 km across from each region's climate and asked for by position (`Weather.At`), so the plains are drier and the Pacific slope wetter than York (commit `3c74eb6`); drawn on screen as snow, rain, whiteout, river fog and the aurora (`UI/WeatherOverlay.cs`). See [[Weather]] |
 | Fire (hearths, blazes, spread) | Implemented (partial) | Hearths, blazes, arson, fire bell. §18.4 flammability partly built |
 | Travel mode (G) | Implemented | §18.3. See [[Travel and Wayfinding]] |
 | Portages and brigade routes | Implemented | Hayes road driven by brigades; other routes mapped only |
@@ -35,7 +35,7 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 |---|---|---|
 | Unified agent model: needs, memory, personality | Implemented | §11. See [[Personality]], [[Memory and Knowledge]] |
 | Goal framework and delegation | Implemented | §3. See [[Delegation]] |
-| Simulation tiers (live / background) | Implemented | See [[Simulation Tiers]] |
+| Simulation tiers (live / background) | Implemented (two of the design's three tiers) | See [[Simulation Tiers]] |
 | Character creation: 4 paths + any band, backgrounds, traits, ambition | Implemented | §5.4. See [[Starting Paths]]. A Métis/freeman path (§5.3) is not yet a standalone path, but Métis camps exist |
 | Standing, ranks, career | Implemented | [[Standing]] |
 | Rival for your seat | Implemented | §3.7. [[Rivalry]] |
@@ -43,14 +43,14 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | Lies, gossip, denial | Implemented | §P.10. [[Gossip, Lies and Leverage]] |
 | Friends and bonds; ambitions | Implemented | [[Friends and Bonds]], [[Ambitions]] |
 | Heirs and succession | Implemented | §9.3. [[Heirs and Succession]] |
-| Marriage and country wives | Implemented (partial) | §8. [[Marriage and Country Wives]] |
+| Marriage and country wives | Partial | §8. The HBC way only, for every player: one wife, who moves into York. No Nor'West way or polygamy. Children are born and grow up. [[Marriage and Country Wives]] |
 | Captivity, parole, ransom | Partial | Light captivity (§9.1) is in; slavery (§9.2) is not |
-| Aging and natural decline | Planned | §9.4, `longer_goals.md` item 2 |
+| Aging and natural decline | Partial | §9.4. A year older each New Year; NPCs past 45 slow; children grow up (`World/Population.cs`). No decline for the player, no death of age |
 | Languages | Implemented | Ten languages with kinship between them. [[Languages]] |
 | Councils and accords | Implemented (first cut) | Fort William council with shares and temper (§3.8.1). [[Councils and Accords]] |
 | London Committee | Partial | Orders, packet, quota. [[London Committee]] |
 | Information and messages (sealed news, mail, packets) | Implemented | §10. [[Information and Messages]] |
-| Black-market intelligence, message forgery | Planned | §10.3 |
+| Black-market intelligence, message forgery | Partial | §10.3. Carried packets can be sold to the other company (`UI/Conversation.cs`, `SellPacket`); no forgery, express couriers or blowback |
 | The Director (selection bias) | Implemented | §2.2. [[The Director]] |
 | The Reckoning of 1821 and the year as told | Implemented (first cut) | [[The Reckoning of 1821]], [[The Year Told]] |
 
@@ -62,14 +62,14 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | Made Beaver and fur prices | Implemented | [[Made Beaver]], [[Fur Prices]] |
 | Credit and debt | Partial (band debt is on the ledgers and counted in the year's reckoning; full §13.3 not checked) | [[Credit and Debt]] |
 | Needs: hunger, thirst, warmth, fatigue, sickness, scurvy | Implemented | [[Needs and Survival]] |
-| Fever, scurvy, wounds | Implemented | [[Health, Wounds and Illness]]. Smallpox, measles (§13.5) planned |
+| Fever, scurvy, wounds | Implemented | [[Health, Wounds and Illness]]. Fever spreads between people standing together. Wounds are a health pool, not hit locations (§15.3); no treatment choice (§17.5). Smallpox, measles (§13.5) planned |
 | Gardens, berries, spruce beer | Implemented | [[Gathering and Gardens]] |
 | Fishing (open water, through the ice) | Implemented (as a background task) | [[Fishing]]. No fish animal yet |
 | Crafting and smithing; recipes; facility-gated | Planned | §12.6 |
 | Perks | Planned | §12.7 |
-| Company solvency, merger inevitability | Partial | §13.7, §4.4 |
+| Company solvency, merger inevitability | Planned (solvency) / Implemented (the union itself) | §13.7, §4.4. No money or solvency ledger. The 1821 union happens in the world (`Economy/Union.cs`) when the campaign raises `merger` |
 | Founding a new post | Planned | §13.8 |
-| Alcohol and addiction | Implemented (intoxication) / Planned (addiction) | §13.4 |
+| Alcohol and addiction | Implemented (intoxication) / Planned (addiction, dilution, the Fire Test) | §13.4 |
 
 ### Wildlife and hunting
 
@@ -77,7 +77,7 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 |---|---|---|
 | Spawn-site ecology | Implemented | 637 sites. [[Ecology]], [[Species Sites]] |
 | Species: caribou, goose, beaver, wolf, hare, ptarmigan | Implemented | [[Wildlife]] |
-| Buffalo | Partial | 18 herds and a full yield; plains camps ride out and run the herd together on the captain's word (`Ecology/BuffaloRun`, commit `d3215ae`); no unique sprites; hunt-captain discipline (§16.1) not yet built |
+| Buffalo | Partial | 18 herds and a full yield; plains camps ride out and run the herd together on the captain's word, and the soldiers deal with a man who goes early (`Ecology/BuffaloRun`, §16.1); no unique sprites |
 | Goose hunt | Implemented | [[Goose]] |
 | Trapping and poaching | Implemented | [[Trapping]] |
 | Hare/lynx cycle; lynx, marten, moose, bear, fox | Planned | `docs/world-content-needed.md` section 6 |
@@ -99,9 +99,11 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | System | Status |
 |---|---|
 | Weapons (musket, bow, knife, tomahawk), melee and ranged, sneak attack | Implemented: [[Combat]] |
-| Group morale, non-lethal outcomes, fights won before the first shot | Not verified against code (§15.4 to 15.6); treat as Planned |
+| Group morale, fights won before the first shot | Implemented: `Agents/Nerve.cs` (who stands with you, who has fallen, surprise), range-scaled misses, sneak attack; war-party morale and retreat in `Economy/War.cs` |
+| Non-lethal outcomes | Partial: a killing blow from the other company takes you prisoner instead (§9.1); no surrender or bluff verb |
+| Hit location and lethality (§15.3) | Planned: damage is a health pool; muskets do not use powder |
 | Horse raids between nations (live where a player is near, numbers elsewhere), feuds | Partial: `Economy/Plains.cs`, `Agents/Goals/PlainsGoals.cs` |
-| War parties, mounted battle, morale, truce | Planned: see `docs/specs/story-plains-years.md` Act 6 |
+| War parties, morale, truce | Implemented: `Economy/War.cs`, `Agents/Goals/WarGoals.cs` (commit `797a6df`). Truces are timed, not Accords; no battle larger than one party |
 
 ### Interface and platform
 
@@ -113,9 +115,11 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | Multiplayer (host, join, dedicated, up to 8) | Implemented. [[Multiplayer]] |
 | Save and load | Implemented (quicksave and autosave). [[Save and Load]] |
 | Campaign scripts | Implemented. [[Campaigns and Adherence]] |
+| Quests (quest lines in the campaign language) | Implemented (`Core/Quests.cs`, `Core/QuestScript.cs`). Not described in the design doc; see `docs/wiki/Quests.md` |
+| Disconnect hand-off to the goal planner (§21.4) | Planned: a disconnected player's character is despawned and restored on rejoining |
 | Audio | Implemented (first batch). [[Audio]] |
-| UI theme and font | Planned |
-| Weather effects on screen | Planned (`longer_goals.md` item 7) |
+| UI theme | Implemented: boards, iron, leather and parchment nine-patches (`UI/MenuTheme.cs`); context cursors (`UI/Cursors.cs`) |
+| Weather effects on screen | Implemented (`UI/WeatherOverlay.cs`) |
 
 ### Art
 
@@ -126,13 +130,15 @@ See [[Asset Inventory]]: 21 character sheets, 6 animal sets, 51 item icons, 37+ 
 - Begin as an HBC hand at York Factory, a Nor'Wester, a Cree or Assiniboine person, or a member of any band in the country ([[Starting Paths]]).
 - Work the post: hunt, trap, fish, gather, haul, trade, write, serve at the table.
 - Rise: declare an ambition, rival another man for the master's seat, earn standing with the ship's report.
-- Travel across the country by foot or canoe, with travel mode.
+- Travel across the country by foot, canoe or horse, with travel mode; take a place in a brigade's boats.
+- On the plains: buy or borrow a horse, run the buffalo with a camp, ride with a war party.
+- Follow a campaign's quest lines (the Company's servant, the Nor'Wester's story, the American road).
 - Play with up to seven others over a shared world, with agreed time skips.
 - Let the year play out: the goose flight, the brigade, the ship, the winter, the spring.
 
 ## What is missing
 
-Crafting, horses, mounted warfare, slavery, aging, the Métis/freeman path as a full third road, hunt-captain discipline, expanded American parts, farming, and the eight-year epilogue. See [[Roadmap]].
+Crafting, slavery, decline with age, the Métis/freeman path as a full third road, the Nor'West way of marriage, hit-location combat, company money and solvency, Astor and St. Louis as background nodes, farming by the player, and the eight-year epilogue. See [[Roadmap]] and `docs/audit.md`.
 
 ## See also
 

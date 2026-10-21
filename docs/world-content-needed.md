@@ -2,7 +2,7 @@
 
 Nations, groups, people, animals, posts, places and assets the game still needs: either missing from the code, or present only as a name. Written 2026-10-10; revised 2026-10-13 against the code as it stands (items done since are ticked off or struck through, real gaps kept).
 
-Last verified against the code: 2026-10-13 For each entry: **what's there now**, **what's missing**, and a rough priority (**P1** affects the York Factory year being played now; **P2** needed once the player leaves York; **P3** the wider map and later years).
+Last verified against the code: 2026-10-13 (sections 2 and 10 touched up 2026-10-21; see `docs/audit.md`) For each entry: **what's there now**, **what's missing**, and a rough priority (**P1** affects the York Factory year being played now; **P2** needed once the player leaves York; **P3** the wider map and later years).
 
 Sources checked: `Agents/Npc.cs` (13 `Role`s), `Ecology/Species.cs` (7 `Species`), `Items/Items.cs` (48 `ItemId`s), `Data/World/world.json` (105 places: 101 posts and 4 camps; 40 px/km, 1002 x 2361 cells), `Data/World/post_plans.json` (6 custom post plans), `Campaigns/historical.json` (13 beats), `Scenes/World/`, `assets/`, and the design doc. Art prompts are in `asset-prompts.md`; sound prompts in `audio-prompts.md`.
 
@@ -56,7 +56,7 @@ Every nation below needs, at least: a band/camp record with homeland and seasona
 
 ## 2. Companies, factions and groups
 
-**There now:** HBC (York, the London Committee in `Economy/LondonCommittee.cs`), NWC (the Nor'Westers' house at York, `NwcLedger.cs`, `Council.cs`), the ten peoples of section 1, `AMER` posts on the map, and `FR` (French-regime) ruins. There is no `American` or `XY` faction value.
+**There now:** HBC (York, the London Committee in `Economy/LondonCommittee.cs`), NWC (the Nor'Westers' house at York, `NwcLedger.cs`, `Council.cs`), the ten peoples of section 1, `AMER` posts on the map, and `FR` (French-regime) ruins. `Faction.American` exists (2026-10-19): the eight American posts stand with American masters and men. There is no `XY` faction value.
 
 | Group | Status | What's missing |
 |---|---|---|
@@ -267,6 +267,6 @@ Art (`asset-prompts.md`) and audio (`audio-prompts.md`) cover most of it. Also o
 - **Animations listed as missing** in `asset-prompts.md` priority 2 (death, side-walk, eat, shoot for existing characters) and 1.7 (children).
 - **Buildings:** the log set and named York buildings (section 5), the Fort William set, lodges and tipis.
 - **Map:** a period-style world map image for the journal/map screen; region and district boundary overlays.
-- **UI:** a font (a period serif or hand-written ledger script for the journal; a clean readable one for menus), a cursor, a proper UI theme, portraits for the conversation screen, the journal / ledger book layout.
+- **UI:** a font (a period serif or hand-written ledger script for the journal; a clean readable one for menus) and portraits for the conversation screen, the journal / ledger book layout.
 - **Window icon:** `icon.svg` is still the Godot logo (export blocker per `asset-inventory.md`); `asset-prompts.md` 8.3 says the art is done, so check it's been swapped in.
 - **Licences:** `critters`, `isometric tileset` and `Assets/` still have no licence on file (`asset-inventory.md` section 10).
