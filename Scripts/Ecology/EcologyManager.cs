@@ -245,7 +245,7 @@ public partial class EcologyManager : Node2D
     // its country, and the knowledge filter in BestSite is what decides -
     // nobody at York has ever seen a buffalo ground.
     public SpawnSite BestBigGame(Economy.Household knownBy = null)
-        => BestSite(Species.Buffalo, knownBy) ?? BestSite(Species.Caribou, knownBy);
+        => BestSite(Species.Buffalo, knownBy) ?? BestSite(Species.Elk, knownBy) ?? BestSite(Species.Caribou, knownBy);
 
     public SpawnSite BestSite(Species s, Economy.Household knownBy = null)
     {
@@ -519,6 +519,7 @@ public partial class EcologyManager : Node2D
     private static int MaxLive(SpawnSite s) => s.Species switch
     {
         Species.Caribou => 7,
+        Species.Elk => 6,
         Species.Buffalo => 9,
         Species.Goose => 12,
         Species.Beaver => 3,

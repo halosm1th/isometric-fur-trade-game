@@ -171,7 +171,7 @@ public class HuntSiteGoal : Goal
                     }
                 }
                 // One caribou is a load; small game you keep working.
-                int enough = _site.Species is Species.Caribou or Species.Buffalo ? 1 : _site.Species == Species.Beaver ? 2 : _site.Species == Species.Goose ? 8 : 4;
+                int enough = _site.Species is Species.Caribou or Species.Buffalo or Species.Elk ? 1 : _site.Species == Species.Beaver ? 2 : _site.Species == Species.Goose ? 8 : 4;
                 bool loaded = npc.Inventory.TotalWeightLbs > 90f || _kills >= enough;
                 if (_worked >= _workHours || loaded || _site.Count <= 0)
                 {

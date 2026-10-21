@@ -370,7 +370,9 @@ public static class Plains
         static bool Pair(Faction x, Faction y, Faction p, Faction q) => x == p && y == q || x == q && y == p;
         return Pair(a, b, Faction.Blackfoot, Faction.Cree) || Pair(a, b, Faction.Blackfoot, Faction.Assiniboine) || Pair(a, b, Faction.Blackfoot, Faction.Plateau)
             || Pair(a, b, Faction.Blackfoot, Faction.Missouri) || Pair(a, b, Faction.Sioux, Faction.Assiniboine) || Pair(a, b, Faction.Sioux, Faction.Ojibwe)
-            || Pair(a, b, Faction.Sioux, Faction.Cree) || Pair(a, b, Faction.Sioux, Faction.Metis) || Pair(a, b, Faction.Sioux, Faction.Missouri);
+            || Pair(a, b, Faction.Sioux, Faction.Cree) || Pair(a, b, Faction.Sioux, Faction.Metis) || Pair(a, b, Faction.Sioux, Faction.Missouri)
+            // The Sauk and Meskwaki against the Dakota on the upper Mississippi.
+            || Pair(a, b, Faction.Sioux, Faction.SaukFox);
     }
 
     private static Faction NationOf(Household h) => h is BandLedger b ? b.Nation : h is FortLedger f ? f.Company : Faction.HBC;

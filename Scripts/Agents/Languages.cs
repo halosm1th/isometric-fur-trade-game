@@ -20,6 +20,8 @@ public static class Languages
         Faction.Coast => "the Coast tongue",
         Faction.Missouri => "Mandan",
         Faction.Metis => "Michif",
+        Faction.Haudenosaunee => "Mohawk",
+        Faction.SaukFox => "Meskwaki",
         _ => "English",
     };
 
@@ -41,10 +43,14 @@ public static class Languages
             (Faction.Assiniboine, Faction.Missouri) or (Faction.Missouri, Faction.Assiniboine) => 0.3f,
             (Faction.Sioux, Faction.Missouri) or (Faction.Missouri, Faction.Sioux) => 0.3f,
             (Faction.Cree, Faction.Blackfoot) or (Faction.Blackfoot, Faction.Cree) => 0.1f,
+            // Meskwaki and Sauk are Algonquian, near enough to Ojibwe and Cree to trade in a few words;
+            // the Iroquoian tongues of the Six Nations and the Wyandot are nothing to any of them.
+            (Faction.SaukFox, Faction.Ojibwe) or (Faction.Ojibwe, Faction.SaukFox) => 0.35f,
+            (Faction.SaukFox, Faction.Cree) or (Faction.Cree, Faction.SaukFox) => 0.25f,
             _ => 0f,
         };
     }
 
     // The peoples of the country, as against the companies and the ship.
-    public static bool IsNation(Faction f) => f is not (Faction.HBC or Faction.NWC or Faction.American or Faction.ShipsCrew or Faction.Wild);
+    public static bool IsNation(Faction f) => f is not (Faction.HBC or Faction.NWC or Faction.American or Faction.ShipsCrew or Faction.Wild or Faction.Crown);
 }

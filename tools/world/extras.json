@@ -116,6 +116,33 @@
       "company": "NWC",
       "year": 1800,
       "note": "Robert Dickson's post among the Dakota at the head of the Minnesota River: the British trade of the upper Mississippi, its goods up from Michilimackinac by way of Prairie du Chien."
+    },
+    {
+      "name": "Prairie du Chien",
+      "kind": "post",
+      "lon": -91.14,
+      "lat": 43.05,
+      "company": "NWC",
+      "year": 1781,
+      "note": "The trading town at the mouth of the Wisconsin: the summer rendezvous of the upper Mississippi trade, British in its goods and its loyalties, French and Métis in its people."
+    },
+    {
+      "name": "La Baye (Green Bay)",
+      "kind": "post",
+      "lon": -88.02,
+      "lat": 44.51,
+      "company": "NWC",
+      "year": 1745,
+      "note": "The old French post at the foot of Green Bay, the Grignons' trade with the Menominee and the Ho-Chunk; the head of the Fox-Wisconsin road to the Mississippi."
+    },
+    {
+      "name": "Milwaukee",
+      "kind": "post",
+      "lon": -87.91,
+      "lat": 43.04,
+      "company": "NWC",
+      "year": 1795,
+      "note": "Jacques Vieau's post on the Milwaukee River among the Potawatomi and the Menominee, outfitted from Michilimackinac."
     }
   ],
   "sites": [
@@ -295,6 +322,27 @@
       "lon": -101.7,
       "lat": 50.45,
       "maj": 0
+    },
+    {
+      "name": "Six Nations of the Grand River",
+      "nation": "Haudenosaunee",
+      "lon": -80.1,
+      "lat": 43.07,
+      "maj": 1
+    },
+    {
+      "name": "Wyandot",
+      "nation": "Haudenosaunee",
+      "lon": -83.2,
+      "lat": 42.15,
+      "maj": 0
+    },
+    {
+      "name": "Meskwaki (Fox)",
+      "nation": "SaukFox",
+      "lon": -90.67,
+      "lat": 42.5,
+      "maj": 0
     }
   ],
   "camps_about": "Camps set down by hand, as they are, after everything else is placed (so nothing moves for them), each after the named camp in the list. The Beaver Hills Cree (Amiskwacîwiyiniwak) by Edmonton House, the Company's allies in the HBC story's Edmonton chapter; the Métis of the Souris by Fort Souris, for the NWC story (their cast is under Cast/Camps in the scene, so the name must not change).",
@@ -305,7 +353,7 @@
       "nation": "Cree",
       "kind": "band",
       "centre": [
-        292,
+        404,
         1056
       ],
       "people": 12
@@ -316,7 +364,7 @@
       "nation": "Metis",
       "kind": "band",
       "centre": [
-        578,
+        690,
         1670
       ],
       "people": 8

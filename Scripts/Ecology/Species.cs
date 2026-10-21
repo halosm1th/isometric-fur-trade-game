@@ -12,6 +12,9 @@ public enum Species
     // The plains (design doc 16.1): the herd that fed half the country
     // and made the pemmican the brigades ran on.
     Buffalo,
+    // The prairie-forest edge of the upper Mississippi and the Lakes country
+    // (design doc 16.2): the big game south of the caribou's range.
+    Elk,
 }
 
 public enum Diet { Prey, Predator }
@@ -40,6 +43,9 @@ public static class SpeciesInfo
         // stand in for it until the sheet comes.
         // A hunted ground fills again quickly from the wider plains behind it;
         // a count here is the herd in a camp's reach (Economy/Plains.BuffaloPerHead).
+        // Elk: a big deer of the parkland and the prairie edge, a beast of
+        // two hundred and fifty pounds of meat. Drawn as the caribou until its sheet comes.
+        { Species.Elk, new("Elk", Diet.Prey, 190f, 150f, 14f, 250f, 0.6f, 0.4f, 0.22f, "res://Scenes/Animals/CaribouFrames.tres") },
         { Species.Buffalo, new("Buffalo", Diet.Prey, 200f, 260f, 25f, 400f, 1.2f, 1.4f, 0.25f, "res://Scenes/Animals/CaribouFrames.tres") },
     };
     public static SpeciesDef Of(Species s) => Defs[s];
@@ -67,6 +73,10 @@ public static class SpeciesInfo
                 // camp comes to the kill, or most of it is left on the plain.
                 into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 70);
                 into.Add(shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotHide : IsometricFurTradeGame.Scripts.Items.ItemId.BuffaloRobe, 1);
+                break;
+            case Species.Elk:
+                into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 40);
+                into.Add(shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotHide : IsometricFurTradeGame.Scripts.Items.ItemId.CaribouHide, 1);
                 break;
             case Species.Caribou:
                 into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Venison, 18);   // ~100 lb of meat: a man eats three to five pounds a day

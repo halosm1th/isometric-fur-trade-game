@@ -26,7 +26,11 @@ PX_PER_KM = 40.0
 TILE_W, TILE_H = 128, 64          # IsoGrid: columns 128 px, rows 32 px
 R_EARTH = 6371.0
 LAT1, LAT2, LAT0, LON0 = 49.0, 59.0, 52.5, -102.75
-WEST, EAST, SOUTH, NORTH = -127.0, -78.5, 44.5, 61.5
+WEST, EAST, SOUTH, NORTH = -127.0, -71.0, 42.0, 61.5   # south to the upper Mississippi, east to Kingston and the Lakes frontier (design doc 6.1)
+# Columns of sea and coast added west of WEST: the outer coast, Haida Gwaii
+# and the panhandle, with some ocean beyond. Whole columns, so every cell east
+# of it only moves over by exactly this many (tools: shift the scene markers too).
+PAD_WEST_COLS = 112
 RES = 32                          # world px per raster pixel while drawing
 
 # Ground classes, in the order the game's WorldMap.Ground enum uses.
@@ -64,7 +68,7 @@ def project_km(lon, lat):
     rho = _rho(lat)
     return rho * math.sin(th), _rho0 - rho * math.cos(th)   # x east, y north (km)
 
-X0 = project_km(WEST, LAT0)[0]
+X0 = project_km(WEST, LAT0)[0] - PAD_WEST_COLS * TILE_W / PX_PER_KM
 X1 = project_km(EAST, LAT0)[0]
 YTOP = project_km(LON0, NORTH)[1]
 YBOT = project_km(LON0, SOUTH)[1]
@@ -237,6 +241,7 @@ NATION_OF = {
     "Mandan": "Missouri", "Hidatsa": "Missouri", "Arikara": "Missouri", "Crow": "Missouri", "Cheyenne": "Missouri", "Arapaho": "Missouri", "Shoshone": "Missouri", "Ho-Chunk (Winnebago)": "Missouri",
     "Chipewyan": "Dene", "Dene (Beaver)": "Dene", "Slavey (Dene)": "Dene", "Dakelh (Carrier)": "Dene", "Tsilhqot'in": "Dene", "Sekani": "Dene", "Tahltan": "Dene", "Kaska": "Dene",
     "Kootenay (Ktunaxa)": "Plateau", "Salish (Flathead)": "Plateau", "Secwépemc (Shuswap)": "Plateau", "Syilx (Okanagan)": "Plateau", "Nlaka'pamux": "Plateau",
+    "Six Nations of the Grand River": "Haudenosaunee", "Wyandot": "Haudenosaunee", "Meskwaki (Fox)": "SaukFox", "Sauk": "SaukFox",
     "Haida": "Coast", "Tsimshian": "Coast", "Nisga'a": "Coast", "Kwakwaka'wakw": "Coast", "Nuu-chah-nulth": "Coast", "Coast Salish": "Coast", "Tlingit": "Coast",
 }
 
@@ -432,7 +437,7 @@ def lay_out(G, places, extras, atlas):
         lon, lat = pe["lon"], pe["lat"]
         kf = [k for k in pe.get("kf", []) if k[0] <= 1811]
         if kf: _, lon, lat = kf[-1]
-        if not (WEST <= lon <= EAST and SOUTH - 1 <= lat <= NORTH): continue
+        if not (WEST - 15 <= lon <= EAST + 3 and SOUTH - 1 <= lat <= NORTH): continue   # the cell check below is the real edge
         peoples.append((pe["name"], nation, lon, lat, pe.get("maj", 0)))
     camps = []
     for name, nation, lon, lat, maj in peoples:

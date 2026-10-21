@@ -31,7 +31,7 @@ public static class Outfits
 
     // Where each company's goods come onto the map, and when (design doc
     // 10.1.5): the Montreal canoes in at the Sault in June; the Pacific Fur
-    // Company's goods up the Columbia from the ship at Astoria in August; the
+    // Company's ship at Astoria in August (Fort Okanogan has its feeder up the Columbia); the
     // Missouri Fur Company's keelboats up from St. Louis in October; the British
     // goods for the Dakota up the Mississippi from Michilimackinac by way of
     // Prairie du Chien to Dickson's post at Lake Traverse in September. London's
@@ -39,7 +39,7 @@ public static class Outfits
     private static readonly (string Post, int Month, float Mb, string Flag, string Story)[] Entries =
     {
         (Entry, 6, YearMb, "blockade:montreal", "The canoes from Montreal are in at Sault Ste. Marie with the North West Company's goods for the year."),
-        ("Fort Okanogan", 8, 1500f, "blockade:pacific", "The Pacific Fur Company's goods are up the Columbia from the ship at Astoria."),
+        ("Fort Astoria", 8, 1500f, "blockade:pacific", "The Tonquin's goods are landed at Astoria for the Pacific Fur Company: the year's trade, round the Horn from New York."),
         ("Fort Manuel Lisa", 10, 1500f, "blockade:missouri", "The keelboats are up the Missouri from St. Louis with the year's goods."),
         ("Lake Traverse", 9, 1500f, "blockade:mississippi", "Dickson's canoes are up from Prairie du Chien with the British goods for the Dakota trade."),
     };

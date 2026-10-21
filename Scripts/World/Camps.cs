@@ -69,6 +69,6 @@ public static class Camps
     {
         Faction.Cree => "Cree", Faction.Assiniboine => "Assiniboine", Faction.Ojibwe => "Ojibwe", Faction.Dene => "Dene",
         Faction.Blackfoot => "Blackfoot", Faction.Sioux => "Sioux", Faction.Plateau => "Plateau people", Faction.Coast => "Coast people",
-        Faction.Missouri => "Missouri people", Faction.Metis => "Métis", _ => f.ToString(),
+        Faction.Missouri => "Missouri people", Faction.Metis => "Métis", Faction.Haudenosaunee => "Haudenosaunee", Faction.SaukFox => "Sauk and Meskwaki", Faction.Crown => "the Crown", _ => f.ToString(),
     };
 }

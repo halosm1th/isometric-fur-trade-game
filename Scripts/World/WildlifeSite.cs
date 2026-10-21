@@ -67,6 +67,7 @@ public partial class WildlifeSite : Node2D
             Species.Goose => new Color(0.85f, 0.85f, 0.95f),
             Species.Caribou => new Color(0.75f, 0.6f, 0.4f),
             Species.Buffalo => new Color(0.45f, 0.3f, 0.2f),
+            Species.Elk => new Color(0.6f, 0.42f, 0.28f),
             Species.Wolf => new Color(0.55f, 0.55f, 0.6f),
             Species.Hare => new Color(0.8f, 0.75f, 0.65f),
             Species.Ptarmigan => new Color(0.95f, 0.95f, 0.9f),
