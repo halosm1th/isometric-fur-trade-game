@@ -1049,12 +1049,17 @@ public partial class PlayerController : Agent
 		if (where.DistanceTo(GlobalPosition) > 220f) return "Too far. Step closer.";
 		var cell = IsoGrid.FromWorld(where);
 		var structures = Sim.Structures; var fire = World.Fire.I;
+		// The thing in hand is only used when there is something here to use
+		// it on; otherwise a click does what the interact key would - open the
+		// door, talk, pick up - so a full hotbar doesn't get in the way.
+		bool somethingHere = InteractHint().StartsWith(Core.Keybinds.KeyFor("interact"));
 		switch (id)
 		{
 			case ItemId.Firewood:
 			{
 				var h = structures?.HearthAt(cell) ?? structures?.HearthNear(where, 120f);
 				if (h != null) { Inventory.Remove(id); h.Feed(def.FuelHours); return h.Lit ? "You feed the fire." : "You lay more wood. It wants a spark yet."; }
+				if (somethingHere) return Interact();
 				if (IsSheltered || (structures?.IsShelteredCell(cell) ?? false)) return "Not indoors. Feed the hearth instead.";
 				if (Sim.Terrain?.IsWaterOrIce(cell) ?? true) return "Not on the water.";
 				var built = structures?.BuildCampfire(cell);
@@ -1074,6 +1079,8 @@ public partial class PlayerController : Agent
 					h.Light();
 					return "The spark takes. The fire catches.";
 				}
+				// A door is opened, not burned - unless you are crouched and mean it.
+				if (somethingHere && !IsSneaking) return Interact();
 				if (structures != null && fire != null && structures.IsFlammable(cell))
 				{
 					// Your own post's timbers only burn on purpose: crouch to mean it.
@@ -1091,6 +1098,7 @@ public partial class PlayerController : Agent
 				return "Nothing there will take a spark: click a fire ring, a hearth, or wood.";
 			}
 			default:
+				if (somethingHere) return Interact();
 				if (def.Kind == ItemKind.Food || def.Kind == ItemKind.Drink || def.Kind == ItemKind.Tool) return UseSlotServer(slot);
 				return Interact();
 		}
