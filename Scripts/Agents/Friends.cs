@@ -108,6 +108,7 @@ public static class Friends
     // Whether he'll pass this on: a man keeps a friend's misdeeds to himself.
     public static bool WillRepeat(Npc n, MemoryEntry m, Npc to)
     {
+        if (n.Recalled.Contains("hush|" + m.Key)) return false;   // talked round to keep it quiet (Conversation's persuasion)
         if (m.Actor == null || m.Actor == to || !Lies.IsMisdeed(m.Text) || !IsFriend(n, m.Actor)) return true;
         return GD.Randf() < 0.1f + n.Personality.Talkative * 0.15f;
     }

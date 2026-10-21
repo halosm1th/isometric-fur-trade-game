@@ -198,7 +198,8 @@ public partial class Conversation
         if (option < 0 || option >= _options.Count) { Close(); return State(); }
         // A bug in one branch of the talk should not slam the door in the
         // player's face: say what went wrong and stay in the conversation.
-        try { _options[option].action(); }
+        // Every exchange teaches you a little of the person (ConversationDepth).
+        try { _options[option].action(); Study(_npc, 0.01f); }
         catch (System.Exception e)
         {
             GD.PushError($"[talk] option {option} with {_npc?.DisplayName} threw: {e.Message}");
@@ -268,7 +269,7 @@ public partial class Conversation
         if (state == "" && npc.Alerted > 0f && npc.Weapon != null) state = " He has not let go of his musket; something has him on his guard.";
         if (state == "") foreach (var l in Losses.All) if (l.Home == npc.HomeStores && l.Fresh) { state = $" His house is still short of {l.Name}; it is in his face."; break; }
         if (npc.IsBandPerson && !_player.HasInterpreterFor(npc)) _player.Learn(npc, 0.02f);   // every talk teaches a little
-        return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{AcquaintedLine(npc)}{busy}{state}{debt}{tongue}";
+        return $"{npc.DisplayName}, {role}, greets you{(mood == "" ? "" : " " + mood)}.{AcquaintedLine(npc)}{busy}{state}{ReadLine(npc)}{debt}{tongue}";
     }
 
     private void ShowTopics(string text)
@@ -432,6 +433,9 @@ public partial class Conversation
         AddOption("How do things stand?", () => ShowTalk(npc, AskNews(npc)));
         AddOption("Tell me about yourself", () => ShowTalk(npc, AskAboutThem(npc)));
         AddOption("What's the talk? (rumours)", () => ShowTalk(npc, AskGossip(npc)));
+        AddOption("What are you about these days?", () => ShowTalk(npc, AskAbout(npc)));
+        if (canTalk) AddOption("Pass the time with them...", () => ShowPassTime(npc));
+        if (canTalk) AddOption("Try to talk them round...", () => ShowPersuade(npc));
         if (canTalk) AddOption("Get to know them...", () => ShowAcquaint(npc));
         if (canTalk) AddOption("Tell them something... (it needn't be true)", () => ShowLieWho(npc, false));
         if (canTalk && StoriesAboutMe(npc).Count > 0) AddOption("What are they saying about me?", () => ShowDeny(npc));
