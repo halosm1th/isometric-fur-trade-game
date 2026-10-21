@@ -14,6 +14,8 @@ namespace IsometricFurTradeGame.Scripts.UI;
 public partial class JournalPanel : Control
 {
     public static bool IsOpen { get; private set; }
+    // Where the book lies on screen, so the talk window can keep clear of it.
+    public static Rect2 Area { get; private set; }
 
     private PanelContainer _panel;
     private TabContainer _tabs;
@@ -102,6 +104,7 @@ public partial class JournalPanel : Control
     {
         IsOpen = _panel.Visible;
         if (!_panel.Visible) return;
+        Area = _panel.GetGlobalRect();
         _refresh -= (float)delta;
         if (_refresh > 0f) return;
         _refresh = _tabs.CurrentTab == 2 ? 0.1f : 0.5f;

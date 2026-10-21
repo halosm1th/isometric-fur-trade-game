@@ -247,9 +247,16 @@ public partial class Conversation
             Role.NwcPartner => "wintering partner of the North West Company, master of the post across the river",
             Role.Voyageur => "a voyageur of the North West Company",
             Role.Wife => "your wife",
+            Role.Farmer => "a farmer hereabouts",
+            Role.Merchant => "a merchant of the town",
+            Role.Artisan => "a tradesman of the town",
+            Role.Soldier => "a soldier of the garrison",
+            Role.Officer => "an officer of the garrison",
+            Role.Priest => "the minister here",
+            Role.Child => "a child of the town",
             _ => "",
         };
-        string busy = npc.Tier == Core.Tier.Background ? " They have been about their own work." : npc.Brain.Top != null ? $" They were {npc.Brain.Top.Label}." : "";
+        string busy = npc.Tier == Core.Tier.Background ? " They have been about their own work." : npc.Brain.Top is { Label: { Length: > 0 } busyAt } ? $" They were {busyAt}." : "";
         string debt = "";
         foreach (var g in Grudges.HeldBy(npc.DisplayName)) if (g.Against == _player.DisplayName) { debt = $" There is blood between you: {g.Victim}. {(npc.IsFighter ? "Their hand is on their knife." : "They will hear what you offer for it, or nothing.")}"; break; }
         if (debt == "" && _player.Spouse is Npc wife && npc.IsBandPerson)
@@ -1042,6 +1049,13 @@ public partial class Conversation
             Role.CreeDaughter => "\"My father decides whom I marry. But he listens to me.\"",
             Role.Sailor => "\"Out of Gravesend in June, home by November if the ice lets us. I do not envy you the winter.\"",
             Role.Wife => "\"I have a foot in both worlds now. Do not forget my family.\"",
+            Role.Farmer => "\"I clear the land and I work it. A good harvest, and the town eats; a bad one, and we all tighten our belts.\"",
+            Role.Merchant => "\"I buy what the country sends down and sell what the ships bring up. Everything has its price, and I know most of them.\"",
+            Role.Artisan => "\"I work with my hands. There is always more work in a new town than hands to do it.\"",
+            Role.Soldier => "\"I go where I am posted and stand where I am told. The pay is poor and late.\"",
+            Role.Officer => "\"I hold the King's commission here. The garrison is my charge, and the frontier is never as quiet as it looks.\"",
+            Role.Priest => "\"I see to the souls of this place - baptisms, marriages, burials. The last keep me busiest.\"",
+            Role.Child => "\"I'm not supposed to talk to strangers.\"",
             _ => "",
         };
         string family = "";
@@ -1052,33 +1066,78 @@ public partial class Conversation
         return $"{s} About {npc.Age} years old. You judge them {temper}, {tongue} sort who {want}.{family} (rapport {npc.RapportWith(_player):0})";
     }
 
+    // What each person has already told you today, so asking again brings
+    // the next thing they know rather than the same line twice.
+    private static readonly Dictionary<Npc, (int day, HashSet<string> told)> _toldToday = new();
+
     private string AskGossip(Npc npc)
     {
-        var lines = new List<string>();
-        foreach (var other in Sim.Npcs)
-        {
-            if (other == npc || other.IsDead || other.Faction != npc.Faction) continue;
-            if (other.Needs.Health < 60) lines.Add($"\"{other.DisplayName} is hurt.\"");
-            else if (other.Needs.Hunger < 35) lines.Add($"\"{other.DisplayName} has not eaten properly in days.\"");
-            else if (other.Role == Role.Labourer && other.AssignedTaskName != "") lines.Add($"\"{other.DisplayName} is set to {other.AssignedTaskName}.\"");
-            else if (other.Role == Role.Clerk) lines.Add(other.Standing > _player.Standing ? $"\"{other.DisplayName} stands well with the Factor - better than you, if you want it plain.\"" : $"\"{other.DisplayName} has not made much of himself this year.\"");
-            else if (other.Spouse == null && !other.IsFemale && other.Role != Role.Factor && other.Role != Role.Sailor) lines.Add($"\"{other.DisplayName} wants a wife, if you ask me.\"");
-        }
-        // What they actually know, secondhand or not (design doc 10.2).
+        int today = (int)(GameCalendar.Instance?.Day ?? 0);
+        if (!_toldToday.TryGetValue(npc, out var t) || t.day != today) _toldToday[npc] = t = (today, new HashSet<string>());
+
+        // News first: what they actually know, secondhand or not (design doc 10.2),
+        // the freshest and weightiest at the top.
+        var news = new List<string>();
         bool garbled = npc.IsBandPerson && _player.FluencyWith(npc) < 0.5f;
-        foreach (var m in npc.Memories)
+        var mems = new List<MemoryEntry>(npc.Memories);
+        mems.Sort((a, b) => (b.Day + b.Weight * 10f).CompareTo(a.Day + a.Weight * 10f));
+        foreach (var m in mems)
         {
+            string mk = m.Key ?? m.Text; if (t.told.Contains(mk) || m.Actor == _player as Agent) continue;   // your own doings are "What are they saying about me?"
             string hedge = m.Directness == 1 ? "\"I saw it myself: " : m.Directness == 2 ? "\"I was told " : "\"They say ";
             // Without a shared tongue even a direct account can come through bent (design doc 10.6).
             var heard = garbled && GD.Randf() < 0.35f ? m.Retell(npc) : m;
-            lines.Add($"{hedge}{heard.Text}\"" + (heard != m ? " (as best you follow it)" : ""));
+            news.Add(mk + "\n" +$"{hedge}{heard.Text}\"" + (heard != m ? " (as best you follow it)" : ""));
         }
-        if (lines.Count == 0) return "\"Nothing worth telling.\"";
-        int n = npc.Personality.Talkative > 0.6f ? 4 : npc.Personality.Talkative > 0.3f ? 2 : 1;
+
+        // Then talk about the people around them - their own house and whoever
+        // is near, not every soul of the same flag across the country - and at
+        // most one line of each sort, so it doesn't read as a roll call.
+        var talk = new Dictionary<string, List<string>>();
+        void Say(string kind, string key, string line) { if (t.told.Contains(key)) return; if (!talk.TryGetValue(kind, out var l)) talk[kind] = l = new List<string>(); l.Add(key + "\n" + line); }
+        foreach (var other in Sim.Npcs)
+        {
+            if (other == npc || other == _player as Agent || other.IsDead) continue;
+            bool known = other.HomeStores != null && other.HomeStores == npc.HomeStores || other.GlobalPosition.DistanceTo(npc.GlobalPosition) < 900f;
+            if (!known) continue;
+            string who = other.DisplayName, k = "p:" + who.Replace(":", "");
+            if (other.IsSick) Say("sick", k, $"\"{who} is down with a fever. Keep clear of him.\"");
+            else if (other.HasScurvy) Say("sick", k, $"\"{who}'s gums have gone black. The scurvy has him.\"");
+            else if (other.Needs.Health < 60) Say("hurt", k, $"\"{who} is hurt, and making less of it than he should.\"");
+            else if (other.Needs.Hunger < 35) Say("hungry", k, $"\"{who} has not eaten properly in days.\"");
+            else if (other.IsDrunk) Say("drunk", k, $"\"{who} is in his cups again.\"");
+            float r = other.RapportWith(_player);
+            if (r > 30f) Say("you", k + ":you", $"\"{who} speaks well of you.\"");
+            else if (r < -15f) Say("you", k + ":you", $"\"{who} has no good word for you. I'd mind him.\"");
+            if (other.Role == Role.Clerk && other.Faction == _player.Faction)
+                Say("rank", k + ":rank", other.Standing > _player.Standing ? $"\"{who} stands well with the master - better than you, if you want it plain.\"" : $"\"{who} has not made much of himself this year.\"");
+            if (other.Role == Role.Labourer && other.AssignedTaskName != "") Say("work", k + ":work", $"\"{who} is set to {other.AssignedTaskName}.\"");
+            if (other.Spouse == null && !other.IsFemale && other.Age >= 20 && other.Role is Role.Labourer or Role.Clerk or Role.Voyageur or Role.CreeHunter)
+                Say("wife", k + ":wife", $"\"{who} wants a wife, if you ask me.\"");
+            if (other.Spouse is Npc sp && other.Children.Count == 0 && !other.IsFemale && GD.Randf() < 0.3f)
+                Say("house", k + ":house", $"\"{who} and {sp.DisplayName} - no children yet. People notice.\"");
+        }
+
+        int n = npc.Personality.Talkative > 0.6f ? 3 : npc.Personality.Talkative > 0.3f ? 2 : 1;
         var picked = new List<string>();
-        for (int i = 0; i < n && lines.Count > 0; i++) { int k = (int)(GD.Randi() % (uint)lines.Count); picked.Add(lines[k]); lines.RemoveAt(k); }
+        // Real news takes the first places; one remark about the neighbours fills out the rest.
+        while (picked.Count < n && news.Count > 0) { picked.Add(news[0]); news.RemoveAt(0); if (picked.Count >= Mathf.Max(1, n - 1)) break; }
+        var kinds = new List<string>(talk.Keys);
+        while (picked.Count < n && kinds.Count > 0)
+        {
+            int ki = (int)(GD.Randi() % (uint)kinds.Count);
+            var l = talk[kinds[ki]]; kinds.RemoveAt(ki);
+            // Not the same man twice in one breath.
+            l.RemoveAll(x => picked.Exists(p => p.StartsWith("p:") && x.StartsWith(p.Substring(0, p.IndexOf(':', 2)) + ":")));
+            if (l.Count > 0) picked.Add(l[(int)(GD.Randi() % (uint)l.Count)]);
+        }
+        while (picked.Count < n && news.Count > 0) { picked.Add(news[0]); news.RemoveAt(0); }
+        if (picked.Count == 0) return t.told.Count > 0 ? "\"That's all I've heard. Ask me another day.\"" : "\"Nothing worth telling.\"";
+
+        var said = new List<string>();
+        foreach (var p in picked) { int cut = p.IndexOf('\n'); t.told.Add(p.Substring(0, cut)); said.Add(p.Substring(cut + 1)); }
         npc.Warm(_player, 0.5f);
-        return string.Join(" ", picked) + (npc.Personality.Talkative < 0.3f ? " They say no more." : "");
+        return string.Join("\n\n", said) + (npc.Personality.Talkative < 0.3f ? "\n\nThey say no more." : "");
     }
 
     // Orders to one of the Company's men. He weighs your rank against his
