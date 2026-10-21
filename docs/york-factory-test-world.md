@@ -474,6 +474,10 @@ Talk to one of your own company's men (labourer or voyageur) with rank *clerk*/*
 
 The six `SkyState`s are drawn now (`UI/WeatherOverlay.cs`), over the world and under the HUD. Snow falls in two layers, the near one larger and faster; a blizzard is a white veil with the snow driving across it; rain comes in sheets; fog lies in bands over the river on an overcast morning between about four and nine; and on a clear winter night the aurora stands over the post, drawn with an additive material so it glows rather than greys. Everything crossfades over about two seconds, and under a roof it drops to a fifth, so you still see it through the door. `-- --sky=Blizzard` holds the sky there for a day.
 
+## The furniture of the menus (design doc 10.8)
+
+The interface was default Godot grey with painted boxes; it is the game's own now (`UI/MenuTheme.cs`, art cut by `tools/sprites/panels.py`). Dark boards with iron corner straps frame every panel - the main menu, the Esc menu, the F1 console, the journal, the help and a conversation - tan leather with dark ink on it makes the buttons, parchment the tabs, and the map, which was always meant to be paper, is drawn on parchment with brass corners. All of it is nine-patch, so it stretches without tearing, and every piece falls back to the old painted box if its art is missing, so a bad import costs you the look and not the menu.
+
 ## What a fire looks like (design doc 18.4)
 
 A hearth was a light and a tile; it has a flame now (`World/Hearth.cs`), drawn over whatever ring of stones or fireplace the tile shows. Six frames at a fire's own restless rate, four of a bed of embers once it is down to its last hour and a half of fuel, a plume of smoke off anything burning (and off one just gone out, for a quarter of a minute), and the odd spark from a well-fed one. Indoors the flame stands taller in its fireplace and the smoke goes up the chimney instead. Every hearth in the world has it: the post's rooms, the camps' lodge fires, and a campfire you lay yourself.

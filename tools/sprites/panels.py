@@ -41,7 +41,14 @@ def run(review=False):
         rgba = np.zeros(sub.shape[:2] + (4,), np.uint8)
         rgba[..., :3] = sub
         rgba[..., 3] = np.where(sl.key_magenta(sub), 255, 0)
-        img = Image.fromarray(sl.despill(rgba))
+        a = sl.despill(rgba)
+        # The divider is a thin iron rule: nearly every pixel of it is an
+        # edge, so the ordinary despill has little to bite on. Anything left
+        # that is still pink is background.
+        if name == "divider":
+            r, g, b = [a[..., i].astype(int) for i in range(3)]
+            a[(r - g > 28) & (b - g > 28), 3] = 0
+        img = Image.fromarray(a)
         bb = img.getbbox()
         if bb:
             img = img.crop(bb)

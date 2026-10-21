@@ -26,9 +26,7 @@ public partial class MapPanel : Control
         _panel = new PanelContainer { Visible = false };
         _panel.SetAnchorsPreset(LayoutPreset.FullRect);
         _panel.OffsetLeft = 40; _panel.OffsetTop = 30; _panel.OffsetRight = -40; _panel.OffsetBottom = -30;
-        var style = new StyleBoxFlat { BgColor = new Color(0.86f, 0.78f, 0.6f, 0.97f), BorderColor = new Color(0.4f, 0.3f, 0.15f) };
-        style.SetBorderWidthAll(3); style.SetCornerRadiusAll(3); style.SetContentMarginAll(10);
-        _panel.AddThemeStyleboxOverride("panel", style);
+        _panel.AddThemeStyleboxOverride("panel", MenuTheme.PaperBox(18));
         AddChild(_panel);
         var box = new VBoxContainer();
         _panel.AddChild(box);

@@ -94,8 +94,11 @@ public partial class WeatherOverlay : Node
         _t += dt;
 
         var state = cal.Weather.Current;
-        bool sheltered = Sim.Player?.IsSheltered ?? false;
-        float inside = sheltered ? 0.18f : 1f;
+        // Nothing of the weather belongs on the front end: the menu has its
+        // own painted evening.
+        bool inWorld = Sim.Player != null && IsInstanceValid(Sim.Player);
+        bool sheltered = inWorld && Sim.Player.IsSheltered;
+        float inside = !inWorld ? 0f : sheltered ? 0.18f : 1f;
 
         float snow = state is SkyState.Snow ? 1f : state == SkyState.Blizzard ? 1f : 0f;
         float rain = state is SkyState.Rain ? 0.9f : state == SkyState.Storm ? 1f : 0f;
@@ -115,7 +118,7 @@ public partial class WeatherOverlay : Node
         _rainy = Mathf.Lerp(_rainy, rain * inside, ease);
         _white = Mathf.Lerp(_white, white * inside, ease);
         _mist = Mathf.Lerp(_mist, mist * inside, ease);
-        _sky = Mathf.Lerp(_sky, sky * (sheltered ? 0f : 1f), ease);
+        _sky = Mathf.Lerp(_sky, inWorld && !sheltered ? sky : 0f, ease);
         if (_snow + _rainy + _white + _mist > 0.002f) _layer.QueueRedraw();
         _sky1?.QueueRedraw();
     }

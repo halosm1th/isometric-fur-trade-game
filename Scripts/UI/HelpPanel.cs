@@ -33,9 +33,7 @@ public partial class HelpPanel : Control
         _panel = new PanelContainer { Visible = false };
         _panel.SetAnchorsPreset(LayoutPreset.Center);
         _panel.GrowHorizontal = GrowDirection.Both; _panel.GrowVertical = GrowDirection.Both;
-        var style = new StyleBoxFlat { BgColor = new Color(0.1f, 0.09f, 0.08f, 0.94f), BorderColor = new Color(0.7f, 0.58f, 0.35f) };
-        style.SetBorderWidthAll(2); style.SetCornerRadiusAll(4); style.SetContentMarginAll(14);
-        _panel.AddThemeStyleboxOverride("panel", style);
+        _panel.AddThemeStyleboxOverride("panel", MenuTheme.PanelBox(20));
         AddChild(_panel);
         var box = new VBoxContainer();
         _panel.AddChild(box);

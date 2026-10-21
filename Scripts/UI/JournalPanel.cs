@@ -31,9 +31,7 @@ public partial class JournalPanel : Control
         _panel.SetAnchorsPreset(LayoutPreset.CenterLeft);
         _panel.GrowVertical = GrowDirection.Both;
         _panel.Position = new Vector2(16, 0);
-        var style = new StyleBoxFlat { BgColor = new Color(0.12f, 0.09f, 0.06f, 0.95f), BorderColor = new Color(0.7f, 0.58f, 0.35f) };
-        style.SetBorderWidthAll(2); style.SetCornerRadiusAll(4); style.SetContentMarginAll(10);
-        _panel.AddThemeStyleboxOverride("panel", style);
+        _panel.AddThemeStyleboxOverride("panel", MenuTheme.PanelBox(18));
         AddChild(_panel);
 
         _tabs = new TabContainer { CustomMinimumSize = new Vector2(520, 460) };
