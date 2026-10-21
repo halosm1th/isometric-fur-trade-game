@@ -61,6 +61,10 @@ public enum ItemId
     Powder,
     IceChisel,
     FishingNet,
+    // The settlers' gardens (World/Towns): potatoes, turnips and cabbages,
+    // kept in the root cellar through the winter, and what kept the towns
+    // from the scurvy the posts suffered.
+    Roots,
 }
 
 public enum ItemKind { Food, Drink, Fuel, Clothing, Fur, Goods, Weapon, Tool }
@@ -94,6 +98,7 @@ public static class Items
         // A robe is a bed and a coat at once, and eight pounds to carry.
         { ItemId.BuffaloRobe,  new("Buffalo robe",   ItemKind.Clothing, 8.0f, IconDir + "caribou_hide.png", Warmth: 8f, ValueMb: 2f) },
         { ItemId.Bread,        new("Loaf of bread",  ItemKind.Food,     1.0f, IconDir + "bread_loaf.png",   Nutrition: 25f, ValueMb: 0.15f) },
+        { ItemId.Roots,        new("Potatoes and roots", ItemKind.Food, 2.0f, IconDir + "corn.png",         Nutrition: 20f, ValueMb: 0.1f) },
         { ItemId.Ale,          new("Tankard of ale", ItemKind.Drink,    2.0f, IconDir + "ale_tankard.png",  Nutrition: 6f, Thirst: 45f, Warmth: 4f, ValueMb: 0.2f, Intoxication: 12f) },
         { ItemId.Rum,          new("Dram of rum",    ItemKind.Drink,    1.0f, IconDir + "rum.png",          Thirst: 10f, Warmth: 8f, ValueMb: 0.8f, Intoxication: 35f) },
         { ItemId.Water,        new("Water",          ItemKind.Drink,    2.0f, IconDir + "water.png",        Thirst: 50f) },
@@ -157,7 +162,7 @@ public static class Items
         (ItemId.Ptarmigan, "ptarmigan"), (ItemId.Tobacco, "twists of tobacco"), (ItemId.Beads, "bunches of beads"),
         (ItemId.Awl, "awls"), (ItemId.Stroud, "yards of stroud"), (ItemId.MbToken, "made-beaver tokens"),
         (ItemId.Powder, "powder and ball"), (ItemId.IceChisel, "ice chisels"), (ItemId.FishingNet, "fishing nets"),
-        (ItemId.Bread, "loaves of bread"), (ItemId.Ale, "tankards of ale"), (ItemId.Rum, "drams of rum"),
+        (ItemId.Bread, "loaves of bread"), (ItemId.Roots, "baskets of potatoes"), (ItemId.Ale, "tankards of ale"), (ItemId.Rum, "drams of rum"),
         (ItemId.Water, "water"), (ItemId.Venison, "fresh meat"), (ItemId.DriedMeat, "dried meat"),
         (ItemId.Firewood, "firewood"), (ItemId.TradeGoods, "trade goods"), (ItemId.Fish, "fish"),
         (ItemId.Knife, "knives"), (ItemId.Flint, "flints and steels"), (ItemId.FishingLine, "fishing line"),

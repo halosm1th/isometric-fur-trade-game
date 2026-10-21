@@ -121,7 +121,7 @@ public partial class Population : Node2D
 			var home = m.Household();
 			if (home == null) continue;   // that household isn't in this world
 			var npc = Spawn(m.DisplayName, m.Role, m.Faction, m.Shifted(m.BedCell, home), m.Shifted(m.WorkCell, home), home, m.Frames ?? _hbcFrames, m.Tint, m.SpriteScale, m.Female);
-			if (m.Age > 0) npc.Age = m.Age;
+			if (m.Age > 0) { npc.Age = m.Age; if (npc.Age < 16) npc.ApplyAppearance(); }
 			m.FillInventory(npc);
 			if (m.Leader) home.Leader = npc;
 			made[m] = npc;
@@ -133,6 +133,8 @@ public partial class Population : Node2D
 		}
 
 		Posts.StaffUnmarked(this);
+		Towns.SeedStores();
+		Stress();
 		Sim.Notice($"York Factory: {Sim.Npcs.Count} souls in the world.");
 	}
 
@@ -189,6 +191,14 @@ public partial class Population : Node2D
 				n.Age++; n.Immune = false;
 				if (n.Age > 45) n.MoveSpeed = Mathf.Max(80f, n.MoveSpeed * 0.97f);
 				// Children of the country grow into the post (design doc 9.4).
+				// A town child of fourteen goes to the family's work: the son to
+				// the fields or his father's trade, the daughter to the house.
+				if (n.Role == Role.Child && n.Age >= 14)
+				{
+					n.Role = n.IsFemale ? Role.Woman : n.Father is { Role: Role.Farmer } ? Role.Farmer : n.Father is { Role: Role.Artisan } ? Role.Artisan : Role.Labourer;
+					n.ResetBehaviour(); n.Brain.Clear(n);
+					n.ApplyAppearance();
+				}
 				if (n.FatherName != "" && n.Age <= 16)
 				{
 					n.SetAppearance(GD.Load<SpriteFrames>(n.FramesPath), n.Tint, Mathf.Lerp(0.6f, 0.8f, Mathf.Clamp(n.Age / 16f, 0f, 1f)));
@@ -356,6 +366,32 @@ public partial class Population : Node2D
 		sb.Append($"  {Tiers.Report()}; animals live: {Sim.Animals.Count}; fort furs {Sim.Fort?.FursInStoreMb:0} MB; goods {Sim.Fort?.Stores.Count(ItemId.TradeGoods)}; ship {Sim.Ship?.Status()}; band cache: {Sim.Band?.Stores.Summary()}; director: {Core.Director.Describe()}");
 		sb.Append($"; outpost: {Sim.Outpost?.Stores.Summary()}");
 		GD.Print(sb.ToString());
+	}
+
+	// Dev aid: `-- --stress=N` adds N labourers spread over the standing
+	// posts far from York, to see what a bigger population costs;
+	// `-- --perf` prints the frame time and the counts every ten seconds.
+	private void Stress()
+	{
+		int n = 0;
+		foreach (string arg in OS.GetCmdlineUserArgs()) if (arg.StartsWith("--stress=")) int.TryParse(arg.Substring(9), out n);
+		var far = new List<TradingPost>();
+		foreach (var p in Posts.Standing()) if (p.Centre.DistanceTo(WorldLayout.FortCentre) > 40000f) far.Add(p);
+		ulong t0 = Time.GetTicksMsec();
+		for (int i = 0; i < n && far.Count > 0; i++)
+		{
+			var p = far[i % far.Count];
+			var c = IsoGrid.Cell(p.House.Top, i % 5, 3);
+			Spawn($"Stress {i}", Role.Labourer, p.Faction, c, p.WoodpileCell, p.Ledger, _labourerFrames, Colors.White);
+		}
+		if (n > 0) GD.Print($"[perf] {n} extra people spawned in {Time.GetTicksMsec() - t0} ms");
+		foreach (string arg in OS.GetCmdlineUserArgs())
+			if (arg == "--perf")
+			{
+				var timer = new Timer { WaitTime = 10.0, Autostart = true };
+				timer.Timeout += () => GD.Print($"[perf] {Engine.GetFramesPerSecond()} fps, process {Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000:0.0} ms, physics {Performance.GetMonitor(Performance.Monitor.TimePhysicsProcess) * 1000:0.0} ms, {Performance.GetMonitor(Performance.Monitor.ObjectNodeCount)} nodes, {Tiers.Report()}, mem {OS.GetStaticMemoryUsage() / 1048576} MB");
+				AddChild(timer);
+			}
 	}
 
 	public Npc Spawn(string name, Role role, Faction faction, Vector2I bed, Vector2I work, Household home, SpriteFrames frames, Color tint, float scale = 0.8f, bool female = false)

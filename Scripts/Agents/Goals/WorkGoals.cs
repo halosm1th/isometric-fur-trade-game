@@ -430,7 +430,7 @@ public class TradeTripGoal : Goal
                 float paid = fort.BuyFurs(npc.Inventory, npc.Inventory, band);
                 int bought = 0, soldFood = 0;
                 if (_buyFood) bought = fort.SellFood(npc.Inventory, npc.Inventory.Count(ItemId.TradeGoods), band);
-                if (_sellProvisions && npc.Inventory.Count(ItemId.Pemmican) >= 4) { int m = 0; foreach (var x in Sim.Npcs) if (x.HomeStores == fort && !x.IsDead) m++; soldFood = fort.BuyProvisions(npc.Inventory, npc.Inventory, m); }
+                if (_sellProvisions && npc.Inventory.Count(ItemId.Pemmican) >= 4) { int m = fort.Alive(); soldFood = fort.BuyProvisions(npc.Inventory, npc.Inventory, m); }
                 Sim.Notice($"{npc.DisplayName} traded at {fort.Title}{(pipe ? "" : " (no tobacco for the pipe)")}: {paid:0} MB in goods{(bought > 0 ? $", bought {bought} of food" : "")}{(soldFood > 0 ? $", sold {soldFood} pemmican" : "")}{(fort.DebtOf(band) > 0 ? $" (owes {fort.DebtOf(band):0.#} MB)" : "")}.");
                 Chronicle.Event($"{npc.DisplayName} traded furs at {fort.Title}.", npc.GlobalPosition, npc, weight: 0.4f);
                 if (fort is Economy.NwcLedger && Sim.Fort != null) { Sim.Fort.LostToRivalMb += paid; Economy.Rivalry.Raise(paid * 0.25f, "furs going to the Nor'Westers"); }

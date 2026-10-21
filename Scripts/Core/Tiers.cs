@@ -28,6 +28,7 @@ public static class Tiers
     private static int _lastBatchDay = -1;
 
     public static int LiveCount, BackgroundCount;
+    private static readonly bool Perf = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--perf") >= 0;
 
     public static void Tick(float delta)
     {
@@ -42,6 +43,7 @@ public static class Tiers
         if (cal != null && cal.Day != _lastBatchDay)
         {
             _lastBatchDay = cal.Day;
+            ulong t0 = Time.GetTicksUsec();
             World.GooseHunt.Tick();
             Reckoning.Spring();
             Economy.Gardens.Tick();
@@ -49,8 +51,11 @@ public static class Tiers
             World.Brigades.Season();
             World.Brigades.Tick();
             World.Convoys.Tick();
+            ulong t1 = Time.GetTicksUsec();
             DailyBatch();
+            if (Perf) GD.Print($"[perf] day {cal.Day}: the day's round {(t1 - t0) / 1000f:0.0} ms, the batch's first slice {(Time.GetTicksUsec() - t1) / 1000f:0.0} ms, {_batch.Count} to go");
         }
+        else if (_batch.Count > 0) BatchSlice();
     }
 
     private static float DistanceToNearestPlayer(Vector2 p)
@@ -116,110 +121,156 @@ public static class Tiers
     }
 
     // One day of a background person's life, in numbers (design doc 18.2).
+    // The day is worked through a slice at a time (2 ms a frame) so that a
+    // big country does not stop the clock once a day; a day still in hand
+    // when the next one comes is finished first.
+    private static readonly System.Collections.Generic.Queue<Npc> _batch = new();
+    private static bool _rushing;
+    private const ulong SliceUsec = 2000;
+
     private static void DailyBatch()
+    {
+        while (_batch.Count > 0) BatchOne(_batch.Dequeue());
+        var cal = GameCalendar.Instance;
+        _rushing = cal.MotionScale > GameCalendar.LazyMotion * 0.75f;   // the 6 of the old baseline
+        foreach (var n in Sim.Npcs) _batch.Enqueue(n);
+        BatchSlice();
+    }
+
+    private static void BatchSlice()
+    {
+        ulong t0 = Time.GetTicksUsec();
+        while (_batch.Count > 0 && Time.GetTicksUsec() - t0 < SliceUsec)
+        {
+            var n = _batch.Dequeue();
+            ulong t1 = Time.GetTicksUsec();
+            BatchOne(n);
+            if (Perf && Time.GetTicksUsec() - t1 > 10000 && GodotObject.IsInstanceValid(n)) GD.Print($"[perf] {n.DisplayName} ({n.Role}, {n.HomeStores?.Title}) took {(Time.GetTicksUsec() - t1) / 1000f:0.0} ms");
+        }
+    }
+
+    private static void BatchOne(Npc n)
     {
         var cal = GameCalendar.Instance;
         // Foul weather is local: a blizzard at York does not keep the Mandan indoors.
         bool Foul(Economy.Household h) => cal.Weather.FoulAt(World.IsoGrid.ToWorld(h.AccessCell));
-        bool rushing = cal.MotionScale > GameCalendar.LazyMotion * 0.75f;   // the 6 of the old baseline
-        // A copy: someone who dies of want in the batch leaves Sim.Npcs mid-loop.
-        foreach (var n in new System.Collections.Generic.List<Npc>(Sim.Npcs))
+        bool rushing = _rushing;
+        if (n == null || !GodotObject.IsInstanceValid(n) || n.IsDead) return;
+        if (n.Away) return;   // the brigade feeds its own
+        // A town house buys its bread at the market when it runs low.
+        if (n.HomeStores is World.TownHousehold townHome) World.Towns.Provision(townHome);
+        // A man standing in his own yard with food on the shelf does not
+        // starve (design doc P.5), whatever the clock is doing - a day can
+        // pass in a couple of seconds under fast-forward, too fast for him
+        // to walk in and eat.
+        // A day that passes in two seconds is a day in which nobody could
+        // have walked anywhere (design doc 18.2): under heavy fast-forward
+        // everyone's day is resolved in numbers, not on foot, or the whole
+        // country starves with food on the shelf.
+        if (n.Tier != Tier.Background && !rushing)
         {
-            if (n == null || !GodotObject.IsInstanceValid(n) || n.IsDead) continue;
-            if (n.Away) continue;   // the brigade feeds its own
-            // A man standing in his own yard with food on the shelf does not
-            // starve (design doc P.5), whatever the clock is doing - a day can
-            // pass in a couple of seconds under fast-forward, too fast for him
-            // to walk in and eat.
-            // A day that passes in two seconds is a day in which nobody could
-            // have walked anywhere (design doc 18.2): under heavy fast-forward
-            // everyone's day is resolved in numbers, not on foot, or the whole
-            // country starves with food on the shelf.
-            if (n.Tier != Tier.Background && !rushing)
+            // Even at an ordinary clock, a man in his own yard with food on
+            // the shelf does not starve (design doc P.5).
+            // A farmer the player is watching has worked his fields today too.
+            if (n.Role == Role.Farmer && n.HomeStores is World.TownHousehold farm && !Foul(farm)) Farm(n, farm);
+            if (n.Needs.Hunger < 25f)
             {
-                // Even at an ordinary clock, a man in his own yard with food on
-                // the shelf does not starve (design doc P.5).
-                if (n.Needs.Hunger < 25f)
-                {
-                    if (n.HomeStores != null && n.GlobalPosition.DistanceTo(World.IsoGrid.ToWorld(n.HomeStores.AccessCell)) < 900f)
-                        n.HomeStores.TakeRation(n, 1);
-                    n.Eat();
-                }
-                continue;
+                if (n.HomeStores != null && n.GlobalPosition.DistanceTo(World.IsoGrid.ToWorld(n.HomeStores.AccessCell)) < 900f)
+                    n.HomeStores.TakeRation(n, 1);
+                n.Eat();
             }
-            var home = n.HomeStores;
-            if (home == null) continue;
+            return;
+        }
+        var home = n.HomeStores;
+        if (home == null) return;
 
-            // A day's worth of being alive, which a hidden body does not get
-            // from the physics loop: the fever runs its course or ends, and
-            // the days without fresh meat mount up.
-            n.DaysSinceFresh += 1f;
-            if (n.IsSick)
-            {
-                n.SickDaysLeft -= 1f;
-                n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 8f);
-                if (n.SickDaysLeft <= 0f) { n.Immune = true; Sim.Notice($"{n.Describe()} is over the fever."); }
-            }
-            else if (n.HasScurvy) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 3f);
+        // A day's worth of being alive, which a hidden body does not get
+        // from the physics loop: the fever runs its course or ends, and
+        // the days without fresh meat mount up.
+        n.DaysSinceFresh += 1f;
+        if (n.IsSick)
+        {
+            n.SickDaysLeft -= 1f;
+            n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 8f);
+            if (n.SickDaysLeft <= 0f) { n.Immune = true; Sim.Notice($"{n.Describe()} is over the fever."); }
+        }
+        else if (n.HasScurvy) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 3f);
 
-            // Eat and drink from the cache, and actually eat it: the scurvy
-            // turns on what a man swallowed, not on a ration being issued.
-            bool ate = home.TakeRation(n, 1) && n.Eat();
-            if (!ate) ate = n.Eat();   // whatever is in his own pack
-            if (!ate) n.Needs.Hunger = Mathf.Max(0f, n.Needs.Hunger - 26f);
-            else n.Needs.Hunger = Mathf.Max(n.Needs.Hunger, 60f);
-            // Snow melted at the fire does for water where there is wood.
-            // Winter is where the house is, not at York.
-            bool frozen = Sim.Terrain?.FrozenAt(World.IsoGrid.ToWorld(home.AccessCell)) ?? cal.IsFrozen;
-            n.Needs.Thirst = home.Stores.Has(ItemId.Water) || !frozen || home.Stores.Has(ItemId.Firewood) ? 100f : Mathf.Max(20f, n.Needs.Thirst - 10f);
-            if (home.Stores.Has(ItemId.Water)) home.Stores.Remove(ItemId.Water);
-            // A fire in the house keeps him warm; a cold hearth doesn't.
-            bool warm = home.Stores.Has(ItemId.Firewood) || !frozen;
-            if (warm) { n.Needs.Warmth = 100f; home.Stores.TakeUpTo(ItemId.Firewood, 1); }
-            else n.Needs.Warmth = Mathf.Max(0f, n.Needs.Warmth - 30f);
-            // Short commons, not a quiet wipe (design doc 17.1): a house with
-            // nothing gets thin over weeks, and the country hears of it in time
-            // for somebody to do something.
-            if (n.Needs.Warmth <= 0f) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 10f);
-            else if (n.Needs.Hunger <= 0f) { n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 3f); ShortCommons(home); }
-            if (ate) _hungryDays.Remove(home);   // the spell is over when there is food again
-            else if (n.Needs.Health < 100f) n.Needs.Health = Mathf.Min(100f, n.Needs.Health + 6f);
-            if (n.Needs.Health <= 0f)
-            {
-                string took = n.IsSick ? "the fever" : n.Needs.Warmth <= 0f ? "cold" : n.HasScurvy && n.Needs.Hunger > 1f ? "the scurvy" : "want";
-                n.DieQuietly();
-                Sim.Notice($"{n.DisplayName} has died of {took} at {home.Title}.");
-                continue;
-            }
+        // A town house's cellar: potatoes and roots with the bread every few
+        // days, which is what kept the settlers clear of the scurvy.
+        if (home is World.TownHousehold && n.DaysSinceFresh > 5f && home.Stores.Remove(ItemId.Roots)) { n.Inventory.Add(ItemId.Roots); n.Consume(ItemId.Roots); }
+        // Eat and drink from the cache, and actually eat it: the scurvy
+        // turns on what a man swallowed, not on a ration being issued.
+        bool ate = home.TakeRation(n, 1) && n.Eat();
+        if (!ate) ate = n.Eat();   // whatever is in his own pack
+        if (!ate) n.Needs.Hunger = Mathf.Max(0f, n.Needs.Hunger - 26f);
+        else n.Needs.Hunger = Mathf.Max(n.Needs.Hunger, 60f);
+        // Snow melted at the fire does for water where there is wood.
+        // Winter is where the house is, not at York.
+        bool frozen = Sim.Terrain?.FrozenAt(World.IsoGrid.ToWorld(home.AccessCell)) ?? cal.IsFrozen;
+        n.Needs.Thirst = home.Stores.Has(ItemId.Water) || !frozen || home.Stores.Has(ItemId.Firewood) ? 100f : Mathf.Max(20f, n.Needs.Thirst - 10f);
+        if (home.Stores.Has(ItemId.Water)) home.Stores.Remove(ItemId.Water);
+        // A fire in the house keeps him warm; a cold hearth doesn't.
+        bool warm = home.Stores.Has(ItemId.Firewood) || !frozen;
+        if (warm) { n.Needs.Warmth = 100f; home.Stores.TakeUpTo(ItemId.Firewood, 1); }
+        else n.Needs.Warmth = Mathf.Max(0f, n.Needs.Warmth - 30f);
+        // Short commons, not a quiet wipe (design doc 17.1): a house with
+        // nothing gets thin over weeks, and the country hears of it in time
+        // for somebody to do something.
+        if (n.Needs.Warmth <= 0f) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 10f);
+        else if (n.Needs.Hunger <= 0f) { n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 3f); ShortCommons(home); }
+        if (ate) _hungryDays.Remove(home);   // the spell is over when there is food again
+        else if (n.Needs.Health < 100f) n.Needs.Health = Mathf.Min(100f, n.Needs.Health + 6f);
+        if (n.Needs.Health <= 0f)
+        {
+            string took = n.IsSick ? "the fever" : n.Needs.Warmth <= 0f ? "cold" : n.HasScurvy && n.Needs.Hunger > 1f ? "the scurvy" : "want";
+            n.DieQuietly();
+            Sim.Notice($"{n.DisplayName} has died of {took} at {home.Title}.");
+            return;
+        }
 
-            if (Foul(home)) continue;   // nobody works in a blizzard
-            // A camp of the wider country feeds itself in its own weekly sum
-            // (Economy/CountryBand): its people are not at York's grounds.
-            if (home is Economy.CountryBand) continue;
+        if (Foul(home)) return;   // nobody works in a blizzard
+        // A camp of the wider country feeds itself in its own weekly sum
+        // (Economy/CountryBand): its people are not at York's grounds.
+        if (home is Economy.CountryBand) return;
 
-            // A day's work, by what the man is for.
-            switch (n.Role)
-            {
-                case Role.Labourer:
-                case Role.Voyageur:
-                    Work(n, home);
-                    break;
-                case Role.CreeHunter:
-                    Hunt(n, home);
-                    break;
-                case Role.Woman:
-                case Role.CreeWoman:
-                case Role.Wife:
-                case Role.CreeDaughter:
-                    House(n, home);
-                    break;
-                case Role.Factor:
-                case Role.Postmaster:
-                case Role.NwcPartner:
-                case Role.CreeChief:
-                    // The leader's day is his books; his orders wait for a live beat.
-                    break;
-            }
+        // A day's work, by what the man is for.
+        switch (n.Role)
+        {
+            case Role.Labourer:
+            case Role.Voyageur:
+                // A town's labourer is a carter, a boatman, a porter on wages: he
+                // brings in the house's wood and buys his bread, he does not hunt.
+                if (home is World.TownHousehold) { if (home.Stores.Count(ItemId.Firewood) < 30) home.Stores.Add(ItemId.Firewood, 4); break; }
+                Work(n, home);
+                break;
+            case Role.CreeHunter:
+                Hunt(n, home);
+                break;
+            case Role.Woman:
+            case Role.CreeWoman:
+            case Role.Wife:
+            case Role.CreeDaughter:
+                House(n, home);
+                break;
+            case Role.Farmer:
+                if (home is World.TownHousehold farmHome) Farm(n, farmHome);
+                break;
+            case Role.Soldier:
+            case Role.Merchant:
+            case Role.Artisan:
+            case Role.Officer:
+            case Role.Priest:
+                // The garrison's fatigue parties and the townsmen bring in their own wood;
+                // the rest of the day is the trade, which feeds the house through the market.
+                if (home.Stores.Count(ItemId.Firewood) < 30) home.Stores.Add(ItemId.Firewood, 4);
+                break;
+            case Role.Factor:
+            case Role.Postmaster:
+            case Role.NwcPartner:
+            case Role.CreeChief:
+                // The leader's day is his books; his orders wait for a live beat.
+                break;
         }
     }
 
@@ -243,9 +294,7 @@ public static class Tiers
 
     private static int Mouths(Economy.Household home)
     {
-        int m = 0;
-        foreach (var o in Sim.Npcs) if (o.HomeStores == home && !o.IsDead) m++;
-        return Mathf.Max(1, m);
+        return Mathf.Max(1, home.Alive());
     }
 
     private static void Work(Npc n, Economy.Household home)
@@ -333,6 +382,46 @@ public static class Tiers
         for (int i = 0; i < got; i++) SpeciesInfo.Yield(Species.Beaver, home.Stores);
         if (got > 0) n.Skills.Learn(ref n.Skills.Trapping, 0.006f);
         return true;
+    }
+
+    // A day on a farm of the cote (World/Towns): the winter's wood, the
+    // fields from the ploughing to the harvest, and the harvest itself, when
+    // the family keeps its year's bread and corn and sells the rest at the
+    // market. Off season the men hunt like anyone else.
+    private const float FieldYield = 40f;   // pieces of food a day's field work comes to at the harvest
+    private static void Farm(Npc n, World.TownHousehold home)
+    {
+        var cal = GameCalendar.Instance;
+        int month = cal.Month;
+        bool cold = month >= 10 || month <= 4;
+        if (cold && home.Stores.Count(ItemId.Firewood) < 30) { home.Stores.Add(ItemId.Firewood, n.Skills.Woodcraft >= 0.5f ? 5 : 4); return; }
+        if (month >= 4 && month <= 8) { home.FieldDays += 1f; return; }
+        if (month >= 9 && home.HarvestYear < cal.Year)
+        {
+            home.HarvestYear = cal.Year;
+            int crop = Mathf.RoundToInt(home.FieldDays * FieldYield);
+            home.FieldDays = 0f;
+            if (crop <= 0) { Sim.Notice($"{home.Title}: nothing was sown, and there is nothing to bring in."); return; }
+            // Wheat, corn, and the potatoes and roots of the garden.
+            home.Stores.Add(ItemId.Bread, crop / 2);
+            home.Stores.Add(ItemId.Corn, crop / 4);
+            home.Stores.Add(ItemId.Roots, crop - crop / 2 - crop / 4);
+            // The year's food for the house, and the rest to market, in the same shares.
+            int keep = home.Alive() * 400;
+            int have = home.Stores.Count(ItemId.Bread) + home.Stores.Count(ItemId.Corn) + home.Stores.Count(ItemId.Roots);
+            int spare = Mathf.Max(0, have - keep);
+            var market = home.Town.Market;
+            if (market != null && spare > 0)
+                foreach (var (id, share) in new[] { (ItemId.Bread, 0.5f), (ItemId.Corn, 0.25f), (ItemId.Roots, 0.25f) })
+                {
+                    int n2 = Mathf.Min(Mathf.RoundToInt(spare * share), home.Stores.Count(id));
+                    home.Stores.Remove(id, n2); market.Stores.Add(id, n2);
+                }
+            Sim.Notice($"{home.Title}: the harvest is in, {crop} pieces of wheat and corn, {spare} of them sold at the market.");
+            return;
+        }
+        if (month >= 9) return;   // the fall work: the ploughing for next year, the stock
+        Hunt(n, home);
     }
 
     private static void House(Npc n, Economy.Household home)

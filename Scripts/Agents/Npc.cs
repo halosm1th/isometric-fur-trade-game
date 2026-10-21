@@ -14,6 +14,8 @@ public enum Role
     CreeChief, CreeHunter, CreeWoman, CreeDaughter,
     Sailor, Wife,
     NwcPartner, Voyageur,
+    // The towns (World/Towns).
+    Farmer, Merchant, Artisan, Soldier, Officer, Priest, Child,
 }
 
 // Four traits that decide what an agent does with what it knows and wants
@@ -49,7 +51,13 @@ public partial class Npc : Agent
     // Where they sleep, and whose stores they draw on.
     public Vector2I BedCell;
     public Vector2I WorkCell;
-    public Household HomeStores;
+    // The household he lives from; it keeps the list of its own people.
+    public Household HomeStores
+    {
+        get => _homeStores;
+        set { if (_homeStores == value) return; _homeStores?.Members.Remove(this); _homeStores = value; value?.Members.Add(this); }
+    }
+    private Household _homeStores;
     public bool Sleeping;
     // Stopped to talk to the player; movement pauses.
     public bool Conversing;
@@ -737,7 +745,7 @@ public partial class Npc : Agent
     }
 
     // The men who carry muskets for the house; leaders, clerks and women don't turn out.
-    public bool IsFighter => !IsFemale && Weapon != null && (Role == Role.Labourer || Role == Role.Voyageur || Role == Role.CreeHunter || Role == Role.Sailor);
+    public bool IsFighter => !IsFemale && Weapon != null && (Role == Role.Labourer || Role == Role.Voyageur || Role == Role.CreeHunter || Role == Role.Sailor || Role == Role.Soldier || Role == Role.Farmer);
 
     // Someone robbing our house is an enemy while they're at it - to the
     // armed men, and only if the house has the numbers (design doc 15.1).

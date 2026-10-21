@@ -465,9 +465,7 @@ public partial class Conversation
 
     private static int CountMouths(Economy.FortLedger house)
     {
-        int n = 0;
-        foreach (var m in Sim.Npcs) if (m.HomeStores == house && !m.IsDead) n++;
-        return n;
+        return house.Alive();
     }
 
     // ---- the sale of a dead man's effects (design doc P.8) -----------------------

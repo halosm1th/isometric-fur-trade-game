@@ -1,0 +1,266 @@
+{
+ "_about": "The towns of the Lakes frontier in 1811 (design doc 6.1), read by tools/world/place_towns.py, which lays each one out on dry ground near its real place and writes its people into the scene as NpcSpawn markers (Cast/Towns). Populations are the town proper about 1811-12; the garrisons are peacetime strength before the war. 'farm' is the share of the town's families who farm (the habitants' ribbon farms of Detroit and the Essex shore, the loyalists' park lots at York and Niagara); the rest are tradesmen, labourers, carters and boatmen. 'names' picks the surname pool; 'french' is the share of French-Canadian families. 'notables' are people known to have lived there then; everyone else is generated. 'lay' is the order the towns take their ground in, where two want the same shore. 'at' is a cell to build round instead of the real place, where that lies inside a bigger neighbour at the map's scale ('at_why' says so).",
+ "towns": [
+  {
+   "name": "Detroit",
+   "polity": "AMER",
+   "lon": -83.05,
+   "lat": 42.33,
+   "year": 1701,
+   "people": 770,
+   "farm": 0.45,
+   "french": 0.6,
+   "names": "american",
+   "note": "The old French town on the strait, rebuilt on Judge Woodward's plan after the fire of 1805: the capital of Michigan Territory, a town of habitants, Scots and Yankee merchants, the first fur market below Michilimackinac.",
+   "church": "Ste. Anne's",
+   "priest": "Father Gabriel Richard",
+   "hall": "the Council House",
+   "stores": [
+    "Joseph Campau",
+    "James Abbott",
+    "Antoine Dequindre",
+    "Robert Abbott",
+    "James May"
+   ],
+   "trades": [
+    "smith",
+    "cooper",
+    "baker",
+    "tanner",
+    "carpenter",
+    "saddler",
+    "tailor"
+   ],
+   "notables": [
+    {
+     "name": "William Hull",
+     "role": "Officer",
+     "house": "the Governor's house",
+     "age": 58,
+     "note": "Governor of Michigan Territory"
+    },
+    {
+     "name": "Solomon Sibley",
+     "role": "Merchant",
+     "house": "the Sibley house",
+     "age": 42
+    }
+   ],
+   "fort": {
+    "name": "Fort Detroit",
+    "soldiers": 94,
+    "officers": 4,
+    "commandant": null,
+    "flag": "AMER"
+   },
+   "lay": 5
+  },
+  {
+   "name": "Amherstburg",
+   "polity": "CROWN",
+   "lon": -83.11,
+   "lat": 42.1,
+   "year": 1796,
+   "people": 400,
+   "farm": 0.35,
+   "french": 0.4,
+   "names": "loyalist",
+   "note": "The King's town at the mouth of the Detroit River, built when the British gave up Detroit in 1796: the Provincial Marine's dockyard, the Indian Department's storehouse, where the western nations come each year for the King's presents.",
+   "church": "the church",
+   "priest": "Reverend Richard Pollard",
+   "hall": "the Indian Department's council house",
+   "stores": [
+    "the Indian Department's storehouse",
+    "Thomas Reynolds",
+    ""
+   ],
+   "trades": [
+    "shipwright",
+    "smith",
+    "cooper",
+    "carpenter",
+    "baker"
+   ],
+   "notables": [
+    {
+     "name": "Matthew Elliott",
+     "role": "Officer",
+     "house": "the Elliott house",
+     "age": 72,
+     "note": "Superintendent of the Indian Department"
+    },
+    {
+     "name": "Thomas McKee",
+     "role": "Officer",
+     "house": "the McKee house",
+     "age": 41,
+     "note": "of the Indian Department"
+    }
+   ],
+   "fort": {
+    "name": "Fort Malden",
+    "soldiers": 120,
+    "officers": 5,
+    "commandant": null,
+    "flag": "CROWN"
+   },
+   "lay": 6
+  },
+  {
+   "name": "York",
+   "polity": "CROWN",
+   "lon": -79.38,
+   "lat": 43.65,
+   "year": 1793,
+   "people": 700,
+   "farm": 0.2,
+   "french": 0.03,
+   "names": "loyalist",
+   "note": "Governor Simcoe's capital of Upper Canada on Toronto Bay: the Parliament buildings, St. James's, a few streets of frame houses and the garrison at the mouth of the Humber road.",
+   "church": "St. James's",
+   "priest": "Reverend George Okill Stuart",
+   "hall": "the Parliament buildings",
+   "stores": [
+    "William Allan",
+    "Laurent Quetton St. George",
+    "Alexander Wood",
+    "Joseph Cawthra"
+   ],
+   "trades": [
+    "smith",
+    "baker",
+    "carpenter",
+    "tailor",
+    "printer",
+    "brewer"
+   ],
+   "notables": [
+    {
+     "name": "William Jarvis",
+     "role": "Officer",
+     "house": "the Jarvis house",
+     "age": 55,
+     "note": "Provincial Secretary"
+    },
+    {
+     "name": "William Dummer Powell",
+     "role": "Officer",
+     "house": "the Powell house",
+     "age": 56,
+     "note": "Justice of the King's Bench"
+    }
+   ],
+   "fort": {
+    "name": "Fort York",
+    "soldiers": 80,
+    "officers": 4,
+    "commandant": null,
+    "flag": "CROWN"
+   },
+   "lay": 4
+  },
+  {
+   "name": "Niagara",
+   "polity": "CROWN",
+   "lon": -79.08,
+   "lat": 43.25,
+   "year": 1781,
+   "people": 500,
+   "farm": 0.35,
+   "french": 0.02,
+   "names": "loyalist",
+   "note": "Newark, the old capital at the mouth of the Niagara: Butler's Rangers' town, St. Mark's, the court house and Navy Hall, and Fort George on the common, looking across the river at the Americans in Fort Niagara.",
+   "church": "St. Mark's",
+   "priest": "Reverend Robert Addison",
+   "hall": "the court house",
+   "stores": [
+    "William Dickson",
+    "John Crooks",
+    ""
+   ],
+   "trades": [
+    "smith",
+    "baker",
+    "cooper",
+    "carpenter",
+    "tanner"
+   ],
+   "notables": [],
+   "fort": {
+    "name": "Fort George",
+    "soldiers": 200,
+    "officers": 8,
+    "commandant": "Major-General Isaac Brock",
+    "flag": "CROWN"
+   },
+   "lay": 2
+  },
+  {
+   "name": "Queenston",
+   "polity": "CROWN",
+   "lon": -79.05,
+   "lat": 43.165,
+   "year": 1789,
+   "people": 150,
+   "farm": 0.4,
+   "french": 0.0,
+   "names": "loyalist",
+   "note": "The landing at the foot of the Niagara escarpment, where the portage road round the falls begins: Robert Hamilton's warehouses and wharf, and a village of loyalist families.",
+   "church": null,
+   "priest": null,
+   "hall": null,
+   "stores": [
+    "Alexander Hamilton",
+    "James Secord"
+   ],
+   "trades": [
+    "smith",
+    "carter",
+    "carpenter"
+   ],
+   "notables": [
+    {
+     "name": "Laura Secord",
+     "role": "Wife",
+     "of": "James Secord",
+     "age": 36
+    }
+   ],
+   "fort": null,
+   "lay": 3,
+   "at": [
+    1189,
+    2222
+   ],
+   "at_why": "Queenston is eleven kilometres up the river from Niagara, which at the map's scale is inside Niagara's own streets: it is built on the next free ground up the shore."
+  },
+  {
+   "name": "Fort Niagara",
+   "polity": "AMER",
+   "lon": -79.04,
+   "lat": 43.26,
+   "year": 1726,
+   "people": 20,
+   "farm": 0.0,
+   "french": 0.0,
+   "names": "american",
+   "note": "The old French stone fort on the American side of the Niagara's mouth, given up by the British in 1796: a garrison of the United States Artillery, a sutler and the officers' families.",
+   "church": null,
+   "priest": null,
+   "hall": null,
+   "stores": [
+    "the sutler's store"
+   ],
+   "trades": [],
+   "notables": [],
+   "fort": {
+    "name": "Fort Niagara",
+    "soldiers": 90,
+    "officers": 5,
+    "commandant": null,
+    "flag": "AMER"
+   },
+   "lay": 1
+  }
+ ]
+}

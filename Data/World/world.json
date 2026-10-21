@@ -18011,6 +18011,3240 @@
     ],
     "note": ""
    }
+  ],
+  "towns": [
+   {
+    "name": "Fort Niagara",
+    "polity": "AMER",
+    "year": 1726,
+    "note": "The old French stone fort on the American side of the Niagara's mouth, given up by the British in 1796: a garrison of the United States Artillery, a sutler and the officers' families.",
+    "top": [
+     1203,
+     2092
+    ],
+    "width": 38,
+    "depth": 74,
+    "buildings": [
+     {
+      "kind": "Store",
+      "name": "the market house",
+      "i": 26,
+      "j": 6,
+      "home": "market"
+     },
+     {
+      "kind": "Store",
+      "name": "the sutler's store",
+      "i": 26,
+      "j": 0,
+      "home": "house 1"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Macomb house and Macomb house",
+      "i": 34,
+      "j": 6,
+      "home": "house 2;house 3"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Coe house and White house",
+      "i": 34,
+      "j": 12,
+      "home": "house 4;house 5"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (1)",
+      "i": 1,
+      "j": 48,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (2)",
+      "i": 10,
+      "j": 48,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (3)",
+      "i": 1,
+      "j": 55,
+      "home": "garrison"
+     },
+     {
+      "kind": "FactorsHouse",
+      "name": "the officers' quarters",
+      "i": 2,
+      "j": 62,
+      "home": "garrison"
+     },
+     {
+      "kind": "PowderMagazine",
+      "name": "the powder magazine",
+      "i": 14,
+      "j": 63,
+      "home": ""
+     }
+    ],
+    "fort": {
+     "i": 0,
+     "j": 46,
+     "width": 20,
+     "depth": 28,
+     "gate": 10,
+     "name": "Fort Niagara"
+    }
+   },
+   {
+    "name": "Niagara",
+    "polity": "CROWN",
+    "year": 1781,
+    "note": "Newark, the old capital at the mouth of the Niagara: Butler's Rangers' town, St. Mark's, the court house and Navy Hall, and Fort George on the common, looking across the river at the Americans in Fort Niagara.",
+    "top": [
+     1203,
+     1901
+    ],
+    "width": 173,
+    "depth": 220,
+    "buildings": [
+     {
+      "kind": "Church",
+      "name": "St. Mark's",
+      "i": 124,
+      "j": 124,
+      "home": ""
+     },
+     {
+      "kind": "Hall",
+      "name": "the court house",
+      "i": 132,
+      "j": 124,
+      "home": ""
+     },
+     {
+      "kind": "Store",
+      "name": "the market house",
+      "i": 132,
+      "j": 130,
+      "home": "market"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the rectory",
+      "i": 124,
+      "j": 118,
+      "home": "house 1"
+     },
+     {
+      "kind": "Store",
+      "name": "William Dickson's store",
+      "i": 124,
+      "j": 130,
+      "home": "house 2"
+     },
+     {
+      "kind": "Store",
+      "name": "John Crooks's store",
+      "i": 140,
+      "j": 124,
+      "home": "house 3"
+     },
+     {
+      "kind": "Store",
+      "name": "George Robinson's store",
+      "i": 140,
+      "j": 130,
+      "home": "house 4"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the smith's shop",
+      "i": 136,
+      "j": 136,
+      "home": "house 5"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the baker's shop",
+      "i": 132,
+      "j": 136,
+      "home": "house 6"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the cooper's shop",
+      "i": 140,
+      "j": 136,
+      "home": "house 7"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the carpenter's shop",
+      "i": 128,
+      "j": 136,
+      "home": "house 8"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the tanner's shop",
+      "i": 144,
+      "j": 136,
+      "home": "house 9"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Baldwin house",
+      "i": 124,
+      "j": 136,
+      "home": "house 105"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Robinson house and Vrooman house",
+      "i": 120,
+      "j": 136,
+      "home": "house 11;house 13"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hunter house and Muirhead house",
+      "i": 136,
+      "j": 142,
+      "home": "house 14;house 17"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the House house and Servos house",
+      "i": 140,
+      "j": 142,
+      "home": "house 18;house 19"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Vrooman house and Kerr house",
+      "i": 132,
+      "j": 142,
+      "home": "house 21;house 22"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Playter house and Willcocks house",
+      "i": 144,
+      "j": 142,
+      "home": "house 23;house 24"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hare house and Small house",
+      "i": 128,
+      "j": 142,
+      "home": "house 25;house 27"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Stevens house and Showers house",
+      "i": 124,
+      "j": 142,
+      "home": "house 28;house 29"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Macaulay house and Hunter house",
+      "i": 140,
+      "j": 148,
+      "home": "house 31;house 32"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ball house and Beman house",
+      "i": 144,
+      "j": 148,
+      "home": "house 33;house 34"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lampman house and McDonell house",
+      "i": 136,
+      "j": 148,
+      "home": "house 35;house 38"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Pell house and Swayze house",
+      "i": 120,
+      "j": 142,
+      "home": "house 39;house 41"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hunter house and Lyons house",
+      "i": 132,
+      "j": 148,
+      "home": "house 42;house 43"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Vrooman house and Muirhead house",
+      "i": 128,
+      "j": 148,
+      "home": "house 44;house 47"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Markle house and Showers house",
+      "i": 124,
+      "j": 148,
+      "home": "house 48;house 49"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Kerr house and McDonell house",
+      "i": 140,
+      "j": 154,
+      "home": "house 50;house 51"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Clark house and McDonell house",
+      "i": 136,
+      "j": 154,
+      "home": "house 52;house 53"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Pell house and Brown house",
+      "i": 120,
+      "j": 148,
+      "home": "house 54;house 55"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Macaulay house and Clark house",
+      "i": 140,
+      "j": 160,
+      "home": "house 56;house 57"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Willcocks house and Johnson house",
+      "i": 102,
+      "j": 130,
+      "home": "house 58;house 60"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Clark house and Butler house",
+      "i": 98,
+      "j": 130,
+      "home": "house 61;house 63"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Vrooman house and Smith house",
+      "i": 94,
+      "j": 130,
+      "home": "house 64;house 65"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Markle house and Cameron house",
+      "i": 94,
+      "j": 124,
+      "home": "house 70;house 71"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Clark house and Playter house",
+      "i": 80,
+      "j": 106,
+      "home": "house 73;house 74"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Pell house and House house",
+      "i": 76,
+      "j": 100,
+      "home": "house 76;house 77"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Willcocks house and Kirby house",
+      "i": 76,
+      "j": 94,
+      "home": "house 78;house 79"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Pell house and Ward house",
+      "i": 76,
+      "j": 88,
+      "home": "house 80;house 84"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Thompson house and Swayze house",
+      "i": 72,
+      "j": 88,
+      "home": "house 85;house 86"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Beman house and Durham house",
+      "i": 72,
+      "j": 82,
+      "home": "house 87;house 88"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Robinson house and Ball house",
+      "i": 72,
+      "j": 94,
+      "home": "house 89;house 91"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Thompson house and Vrooman house",
+      "i": 136,
+      "j": 160,
+      "home": "house 92;house 93"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ross house and Vrooman house",
+      "i": 76,
+      "j": 106,
+      "home": "house 95;house 96"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hamilton house and St. Aubin house",
+      "i": 68,
+      "j": 82,
+      "home": "house 99;house 100"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ridout house and Lyons house",
+      "i": 68,
+      "j": 76,
+      "home": "house 101;house 103"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ketchum house",
+      "i": 56,
+      "j": 24,
+      "home": "house 10"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the McNabb house",
+      "i": 32,
+      "j": 40,
+      "home": "house 12"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lyons house",
+      "i": 56,
+      "j": 40,
+      "home": "house 15"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Scadding house",
+      "i": 32,
+      "j": 32,
+      "home": "house 16"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Butler house",
+      "i": 48,
+      "j": 32,
+      "home": "house 20"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the McDonell house",
+      "i": 80,
+      "j": 160,
+      "home": "house 26"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Small house",
+      "i": 48,
+      "j": 16,
+      "home": "house 30"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ward house",
+      "i": 112,
+      "j": 176,
+      "home": "house 36"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Wilson house",
+      "i": 56,
+      "j": 8,
+      "home": "house 37"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Vrooman house",
+      "i": 48,
+      "j": 128,
+      "home": "house 40"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Thompson house",
+      "i": 144,
+      "j": 216,
+      "home": "house 45"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ketchum house (2)",
+      "i": 16,
+      "j": 16,
+      "home": "house 46"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Showers house",
+      "i": 144,
+      "j": 208,
+      "home": "house 59"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Beman house",
+      "i": 24,
+      "j": 88,
+      "home": "house 62"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Grant house",
+      "i": 136,
+      "j": 200,
+      "home": "house 66"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Fraser house",
+      "i": 40,
+      "j": 24,
+      "home": "house 67"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ward house (2)",
+      "i": 80,
+      "j": 152,
+      "home": "house 68"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Johnson house",
+      "i": 8,
+      "j": 56,
+      "home": "house 69"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ketchum house (3)",
+      "i": 120,
+      "j": 192,
+      "home": "house 72"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Muirhead house",
+      "i": 16,
+      "j": 40,
+      "home": "house 75"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Robinson house",
+      "i": 88,
+      "j": 184,
+      "home": "house 81"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Robinson house (2)",
+      "i": 8,
+      "j": 8,
+      "home": "house 82"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Gamble house",
+      "i": 104,
+      "j": 192,
+      "home": "house 83"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Secord house",
+      "i": 32,
+      "j": 16,
+      "home": "house 90"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Playter house",
+      "i": 112,
+      "j": 184,
+      "home": "house 94"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hall house",
+      "i": 112,
+      "j": 200,
+      "home": "house 97"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Swayze house",
+      "i": 0,
+      "j": 32,
+      "home": "house 98"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Gamble house (2)",
+      "i": 40,
+      "j": 120,
+      "home": "house 102"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ross house",
+      "i": 48,
+      "j": 0,
+      "home": "house 104"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hare house",
+      "i": 16,
+      "j": 72,
+      "home": "house 106"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (1)",
+      "i": 145,
+      "j": 90,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (2)",
+      "i": 154,
+      "j": 90,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (3)",
+      "i": 163,
+      "j": 90,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (4)",
+      "i": 145,
+      "j": 97,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (5)",
+      "i": 154,
+      "j": 97,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (6)",
+      "i": 163,
+      "j": 97,
+      "home": "garrison"
+     },
+     {
+      "kind": "FactorsHouse",
+      "name": "the officers' quarters",
+      "i": 146,
+      "j": 104,
+      "home": "garrison"
+     },
+     {
+      "kind": "PowderMagazine",
+      "name": "the powder magazine",
+      "i": 158,
+      "j": 105,
+      "home": ""
+     }
+    ],
+    "fort": {
+     "i": 144,
+     "j": 88,
+     "width": 29,
+     "depth": 28,
+     "gate": 14,
+     "name": "Fort George"
+    }
+   },
+   {
+    "name": "Queenston",
+    "polity": "CROWN",
+    "year": 1789,
+    "note": "The landing at the foot of the Niagara escarpment, where the portage road round the falls begins: Robert Hamilton's warehouses and wharf, and a village of loyalist families.",
+    "top": [
+     1165,
+     2094
+    ],
+    "width": 96,
+    "depth": 100,
+    "buildings": [
+     {
+      "kind": "Store",
+      "name": "the market house",
+      "i": 78,
+      "j": 34,
+      "home": "market"
+     },
+     {
+      "kind": "Store",
+      "name": "Alexander Hamilton's store",
+      "i": 78,
+      "j": 40,
+      "home": "house 1"
+     },
+     {
+      "kind": "Store",
+      "name": "James Secord's store",
+      "i": 78,
+      "j": 46,
+      "home": "house 2"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the smith's shop",
+      "i": 74,
+      "j": 40,
+      "home": "house 3"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the carter's shop",
+      "i": 82,
+      "j": 52,
+      "home": "house 4"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the carpenter's shop",
+      "i": 88,
+      "j": 52,
+      "home": "house 5"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Macaulay house",
+      "i": 70,
+      "j": 40,
+      "home": "house 32"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Johnson house and McNabb house",
+      "i": 88,
+      "j": 58,
+      "home": "house 6;house 8"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Clark house and Thompson house",
+      "i": 92,
+      "j": 58,
+      "home": "house 10;house 11"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ward house and Thompson house",
+      "i": 74,
+      "j": 46,
+      "home": "house 12;house 13"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ross house and Kirby house",
+      "i": 78,
+      "j": 52,
+      "home": "house 14;house 15"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Showers house and Brown house",
+      "i": 92,
+      "j": 64,
+      "home": "house 16;house 20"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ten Broeck house and Pell house",
+      "i": 66,
+      "j": 40,
+      "home": "house 21;house 25"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Beman house and Fraser house",
+      "i": 70,
+      "j": 46,
+      "home": "house 27;house 28"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ridout house",
+      "i": 72,
+      "j": 88,
+      "home": "house 7"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Warren house",
+      "i": 72,
+      "j": 80,
+      "home": "house 9"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Willcocks house",
+      "i": 40,
+      "j": 40,
+      "home": "house 17"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Servos house",
+      "i": 64,
+      "j": 72,
+      "home": "house 18"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Playter house",
+      "i": 80,
+      "j": 96,
+      "home": "house 19"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ridout house (2)",
+      "i": 0,
+      "j": 8,
+      "home": "house 22"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the McNabb house",
+      "i": 40,
+      "j": 72,
+      "home": "house 23"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Secord house",
+      "i": 32,
+      "j": 64,
+      "home": "house 24"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Servos house (2)",
+      "i": 40,
+      "j": 48,
+      "home": "house 26"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Baldwin house",
+      "i": 0,
+      "j": 16,
+      "home": "house 29"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Macaulay house (2)",
+      "i": 48,
+      "j": 80,
+      "home": "house 30"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Fraser house",
+      "i": 16,
+      "j": 40,
+      "home": "house 31"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the House house",
+      "i": 0,
+      "j": 0,
+      "home": "house 33"
+     }
+    ]
+   },
+   {
+    "name": "York",
+    "polity": "CROWN",
+    "year": 1793,
+    "note": "Governor Simcoe's capital of Upper Canada on Toronto Bay: the Parliament buildings, St. James's, a few streets of frame houses and the garrison at the mouth of the Humber road.",
+    "top": [
+     1199,
+     1873
+    ],
+    "width": 108,
+    "depth": 188,
+    "buildings": [
+     {
+      "kind": "Church",
+      "name": "St. James's",
+      "i": 82,
+      "j": 106,
+      "home": ""
+     },
+     {
+      "kind": "Hall",
+      "name": "the Parliament buildings",
+      "i": 78,
+      "j": 94,
+      "home": ""
+     },
+     {
+      "kind": "Store",
+      "name": "the market house",
+      "i": 78,
+      "j": 100,
+      "home": "market"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the rectory",
+      "i": 86,
+      "j": 112,
+      "home": "house 1"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Jarvis house",
+      "i": 82,
+      "j": 88,
+      "home": "house 2"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Powell house",
+      "i": 82,
+      "j": 112,
+      "home": "house 3"
+     },
+     {
+      "kind": "Store",
+      "name": "William Allan's store",
+      "i": 74,
+      "j": 88,
+      "home": "house 4"
+     },
+     {
+      "kind": "Store",
+      "name": "Laurent Quetton St. George's store",
+      "i": 78,
+      "j": 82,
+      "home": "house 5"
+     },
+     {
+      "kind": "Store",
+      "name": "Alexander Wood's store",
+      "i": 74,
+      "j": 106,
+      "home": "house 6"
+     },
+     {
+      "kind": "Store",
+      "name": "Joseph Cawthra's store",
+      "i": 70,
+      "j": 94,
+      "home": "house 7"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the smith's shop",
+      "i": 74,
+      "j": 100,
+      "home": "house 8"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the baker's shop",
+      "i": 78,
+      "j": 112,
+      "home": "house 9"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the carpenter's shop",
+      "i": 82,
+      "j": 118,
+      "home": "house 10"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the tailor's shop",
+      "i": 74,
+      "j": 82,
+      "home": "house 11"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the printer's shop",
+      "i": 70,
+      "j": 88,
+      "home": "house 12"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the brewer's shop",
+      "i": 70,
+      "j": 100,
+      "home": "house 13"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Willcocks house",
+      "i": 82,
+      "j": 76,
+      "home": "house 161"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ball house and Baldwin house",
+      "i": 70,
+      "j": 82,
+      "home": "house 14;house 15"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ward house and Hamilton house",
+      "i": 86,
+      "j": 76,
+      "home": "house 16;house 17"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Kirby house and Fraser house",
+      "i": 78,
+      "j": 76,
+      "home": "house 19;house 20"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Trudelle house and Pell house",
+      "i": 78,
+      "j": 118,
+      "home": "house 21;house 22"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ball house and Small house",
+      "i": 74,
+      "j": 76,
+      "home": "house 23;house 24"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Swayze house and Grant house",
+      "i": 74,
+      "j": 112,
+      "home": "house 26;house 27"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Gamble house and Grant house",
+      "i": 82,
+      "j": 124,
+      "home": "house 28;house 29"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hamilton house and Durham house",
+      "i": 70,
+      "j": 106,
+      "home": "house 30;house 31"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lampman house and Fraser house",
+      "i": 70,
+      "j": 76,
+      "home": "house 33;house 35"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Muirhead house and Durham house",
+      "i": 64,
+      "j": 88,
+      "home": "house 36;house 37"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Swayze house and Hare house",
+      "i": 64,
+      "j": 82,
+      "home": "house 38;house 39"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Pell house and Secord house",
+      "i": 64,
+      "j": 94,
+      "home": "house 42;house 43"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Heron house and Hall house",
+      "i": 78,
+      "j": 70,
+      "home": "house 44;house 47"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Wilson house and Servos house",
+      "i": 82,
+      "j": 70,
+      "home": "house 48;house 49"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Smith house and Ball house",
+      "i": 74,
+      "j": 70,
+      "home": "house 50;house 53"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lyons house and Lampman house",
+      "i": 74,
+      "j": 118,
+      "home": "house 54;house 55"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hare house and Servos house",
+      "i": 70,
+      "j": 112,
+      "home": "house 56;house 57"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Stevens house and Small house",
+      "i": 64,
+      "j": 76,
+      "home": "house 59;house 62"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Nelles house and Ross house",
+      "i": 64,
+      "j": 100,
+      "home": "house 63;house 64"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lampman house and Markle house",
+      "i": 86,
+      "j": 70,
+      "home": "house 66;house 67"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Durham house and Brown house",
+      "i": 78,
+      "j": 124,
+      "home": "house 68;house 69"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Fraser house and Nelles house",
+      "i": 70,
+      "j": 70,
+      "home": "house 70;house 71"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Willcocks house and Ross house",
+      "i": 60,
+      "j": 88,
+      "home": "house 72;house 73"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the McNabb house and Willcocks house",
+      "i": 82,
+      "j": 130,
+      "home": "house 74;house 75"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hamilton house and Beman house",
+      "i": 60,
+      "j": 94,
+      "home": "house 76;house 77"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Markle house and Markle house",
+      "i": 60,
+      "j": 76,
+      "home": "house 78;house 79"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Johnson house and Ketchum house",
+      "i": 64,
+      "j": 70,
+      "home": "house 80;house 81"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Fraser house and Small house",
+      "i": 70,
+      "j": 118,
+      "home": "house 83;house 84"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ketchum house and Stuart house",
+      "i": 60,
+      "j": 100,
+      "home": "house 86;house 87"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Robinson house and Robinson house",
+      "i": 74,
+      "j": 64,
+      "home": "house 88;house 89"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hall house and Muirhead house",
+      "i": 74,
+      "j": 124,
+      "home": "house 90;house 91"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the McNabb house and Willcocks house (2)",
+      "i": 60,
+      "j": 70,
+      "home": "house 92;house 93"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Kirby house and Hall house",
+      "i": 78,
+      "j": 64,
+      "home": "house 94;house 95"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Muirhead house and House house",
+      "i": 56,
+      "j": 88,
+      "home": "house 96;house 97"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Macaulay house and McNabb house",
+      "i": 70,
+      "j": 64,
+      "home": "house 98;house 99"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Baldwin house and Johnson house",
+      "i": 82,
+      "j": 64,
+      "home": "house 100;house 101"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Willcocks house and Ball house",
+      "i": 78,
+      "j": 130,
+      "home": "house 102;house 103"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Denison house and Muirhead house",
+      "i": 56,
+      "j": 94,
+      "home": "house 104;house 105"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Johnson house and Ball house",
+      "i": 86,
+      "j": 64,
+      "home": "house 106;house 107"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hunter house and Clark house",
+      "i": 64,
+      "j": 64,
+      "home": "house 108;house 109"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ward house and Lampman house",
+      "i": 56,
+      "j": 70,
+      "home": "house 110;house 111"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lampman house and Grant house",
+      "i": 82,
+      "j": 136,
+      "home": "house 112;house 113"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Thompson house and Lyons house",
+      "i": 60,
+      "j": 64,
+      "home": "house 114;house 115"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lampman house and Stevens house",
+      "i": 56,
+      "j": 100,
+      "home": "house 116;house 117"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Willcocks house and Janisse house",
+      "i": 104,
+      "j": 154,
+      "home": "house 119;house 120"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Warren house and Fraser house",
+      "i": 52,
+      "j": 88,
+      "home": "house 121;house 122"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hunter house and Secord house",
+      "i": 70,
+      "j": 124,
+      "home": "house 123;house 124"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the McNabb house and Wilson house",
+      "i": 56,
+      "j": 64,
+      "home": "house 125;house 126"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Fraser house and Ball house",
+      "i": 70,
+      "j": 58,
+      "home": "house 128;house 129"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hare house and Muirhead house",
+      "i": 74,
+      "j": 58,
+      "home": "house 131;house 132"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Baldwin house and Beman house",
+      "i": 74,
+      "j": 130,
+      "home": "house 133;house 137"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Smith house and Hall house",
+      "i": 52,
+      "j": 94,
+      "home": "house 138;house 139"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Stevens house and Gamble house",
+      "i": 78,
+      "j": 58,
+      "home": "house 140;house 142"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Macaulay house and Robinson house",
+      "i": 64,
+      "j": 58,
+      "home": "house 143;house 144"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hall house and Durham house",
+      "i": 82,
+      "j": 58,
+      "home": "house 145;house 146"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Scadding house and McDonell house",
+      "i": 60,
+      "j": 58,
+      "home": "house 147;house 148"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hare house and Ten Broeck house",
+      "i": 78,
+      "j": 136,
+      "home": "house 149;house 150"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Beman house and Macaulay house",
+      "i": 52,
+      "j": 64,
+      "home": "house 151;house 152"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Kerr house and Hall house",
+      "i": 86,
+      "j": 58,
+      "home": "house 154;house 156"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Cameron house and Ten Broeck house",
+      "i": 48,
+      "j": 88,
+      "home": "house 157;house 158"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hall house and Johnson house",
+      "i": 48,
+      "j": 82,
+      "home": "house 159;house 160"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Macaulay house",
+      "i": 40,
+      "j": 120,
+      "home": "house 18"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ward house",
+      "i": 104,
+      "j": 184,
+      "home": "house 25"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Clench house",
+      "i": 16,
+      "j": 72,
+      "home": "house 32"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the House house",
+      "i": 40,
+      "j": 40,
+      "home": "house 34"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Playter house",
+      "i": 48,
+      "j": 136,
+      "home": "house 40"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hare house",
+      "i": 56,
+      "j": 16,
+      "home": "house 41"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ketchum house",
+      "i": 32,
+      "j": 104,
+      "home": "house 45"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Secord house",
+      "i": 8,
+      "j": 32,
+      "home": "house 46"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ten Broeck house",
+      "i": 80,
+      "j": 176,
+      "home": "house 51"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lajeunesse house",
+      "i": 88,
+      "j": 160,
+      "home": "house 52"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Markle house",
+      "i": 24,
+      "j": 32,
+      "home": "house 58"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Stuart house",
+      "i": 64,
+      "j": 152,
+      "home": "house 60"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lampman house",
+      "i": 32,
+      "j": 128,
+      "home": "house 61"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Beman house",
+      "i": 0,
+      "j": 48,
+      "home": "house 65"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Johnson house",
+      "i": 56,
+      "j": 160,
+      "home": "house 82"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Johnson house (2)",
+      "i": 8,
+      "j": 16,
+      "home": "house 85"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Warren house",
+      "i": 0,
+      "j": 40,
+      "home": "house 118"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ross house",
+      "i": 48,
+      "j": 152,
+      "home": "house 127"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Cameron house",
+      "i": 40,
+      "j": 112,
+      "home": "house 130"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Denison house",
+      "i": 48,
+      "j": 128,
+      "home": "house 134"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Swayze house",
+      "i": 8,
+      "j": 8,
+      "home": "house 135"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Playter house (2)",
+      "i": 16,
+      "j": 56,
+      "home": "house 136"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Thompson house",
+      "i": 88,
+      "j": 168,
+      "home": "house 141"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Thompson house (2)",
+      "i": 24,
+      "j": 0,
+      "home": "house 153"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Clench house (2)",
+      "i": 48,
+      "j": 8,
+      "home": "house 155"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Fraser house",
+      "i": 24,
+      "j": 112,
+      "home": "house 162"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Clench house (3)",
+      "i": 40,
+      "j": 16,
+      "home": "house 163"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (1)",
+      "i": 89,
+      "j": 126,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (2)",
+      "i": 98,
+      "j": 126,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (3)",
+      "i": 89,
+      "j": 133,
+      "home": "garrison"
+     },
+     {
+      "kind": "FactorsHouse",
+      "name": "the officers' quarters",
+      "i": 90,
+      "j": 140,
+      "home": "garrison"
+     },
+     {
+      "kind": "PowderMagazine",
+      "name": "the powder magazine",
+      "i": 102,
+      "j": 141,
+      "home": ""
+     }
+    ],
+    "fort": {
+     "i": 88,
+     "j": 124,
+     "width": 20,
+     "depth": 28,
+     "gate": 10,
+     "name": "Fort York"
+    }
+   },
+   {
+    "name": "Detroit",
+    "polity": "AMER",
+    "year": 1701,
+    "note": "The old French town on the strait, rebuilt on Judge Woodward's plan after the fire of 1805: the capital of Michigan Territory, a town of habitants, Scots and Yankee merchants, the first fur market below Michilimackinac.",
+    "top": [
+     1107,
+     2197
+    ],
+    "width": 212,
+    "depth": 188,
+    "buildings": [
+     {
+      "kind": "Church",
+      "name": "Ste. Anne's",
+      "i": 94,
+      "j": 74,
+      "home": ""
+     },
+     {
+      "kind": "Hall",
+      "name": "the Council House",
+      "i": 94,
+      "j": 80,
+      "home": ""
+     },
+     {
+      "kind": "Store",
+      "name": "the market house",
+      "i": 90,
+      "j": 68,
+      "home": "market"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the presbytery",
+      "i": 90,
+      "j": 74,
+      "home": "house 1"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Governor's house",
+      "i": 90,
+      "j": 80,
+      "home": "house 2"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Sibley house",
+      "i": 86,
+      "j": 68,
+      "home": "house 3"
+     },
+     {
+      "kind": "Store",
+      "name": "Joseph Campau's store",
+      "i": 82,
+      "j": 62,
+      "home": "house 4"
+     },
+     {
+      "kind": "Store",
+      "name": "James Abbott's store",
+      "i": 82,
+      "j": 74,
+      "home": "house 5"
+     },
+     {
+      "kind": "Store",
+      "name": "Antoine Dequindre's store",
+      "i": 78,
+      "j": 68,
+      "home": "house 6"
+     },
+     {
+      "kind": "Store",
+      "name": "Robert Abbott's store",
+      "i": 82,
+      "j": 80,
+      "home": "house 7"
+     },
+     {
+      "kind": "Store",
+      "name": "James May's store",
+      "i": 78,
+      "j": 56,
+      "home": "house 8"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the smith's shop",
+      "i": 78,
+      "j": 62,
+      "home": "house 9"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the cooper's shop",
+      "i": 78,
+      "j": 74,
+      "home": "house 10"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the baker's shop",
+      "i": 74,
+      "j": 62,
+      "home": "house 11"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the tanner's shop",
+      "i": 74,
+      "j": 56,
+      "home": "house 12"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the carpenter's shop",
+      "i": 74,
+      "j": 68,
+      "home": "house 13"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the saddler's shop",
+      "i": 128,
+      "j": 110,
+      "home": "house 14"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the tailor's shop",
+      "i": 78,
+      "j": 50,
+      "home": "house 15"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Woodbridge house",
+      "i": 78,
+      "j": 80,
+      "home": "house 170"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Dyson house and Lajeunesse house",
+      "i": 82,
+      "j": 86,
+      "home": "house 16;house 18"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Thomas house and Lefebvre house",
+      "i": 74,
+      "j": 50,
+      "home": "house 19;house 20"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Reaume house and Drouillard house",
+      "i": 74,
+      "j": 74,
+      "home": "house 22;house 23"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Thomas house and Lajeunesse house",
+      "i": 70,
+      "j": 62,
+      "home": "house 24;house 25"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Laframboise house and Moran house",
+      "i": 70,
+      "j": 56,
+      "home": "house 26;house 27"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the White house and Chapin house",
+      "i": 70,
+      "j": 68,
+      "home": "house 30;house 31"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Jones house and Larned house",
+      "i": 70,
+      "j": 50,
+      "home": "house 32;house 34"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Wells house and Dupuis house",
+      "i": 78,
+      "j": 86,
+      "home": "house 35;house 38"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Gouin house and Lefebvre house",
+      "i": 74,
+      "j": 44,
+      "home": "house 40;house 42"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Stone house and Drouillard house",
+      "i": 74,
+      "j": 80,
+      "home": "house 46;house 48"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hamelin house and Bourassa house",
+      "i": 82,
+      "j": 92,
+      "home": "house 49;house 51"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Moran house and Langlois house",
+      "i": 70,
+      "j": 74,
+      "home": "house 54;house 55"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Moran house and Dyson house",
+      "i": 70,
+      "j": 44,
+      "home": "house 56;house 58"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Fuller house and Baby house",
+      "i": 64,
+      "j": 56,
+      "home": "house 59;house 62"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Whipple house and Knaggs house",
+      "i": 64,
+      "j": 50,
+      "home": "house 65;house 66"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Sibley house and Bourassa house",
+      "i": 64,
+      "j": 62,
+      "home": "house 67;house 69"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Bertrand house and Witherell house",
+      "i": 74,
+      "j": 38,
+      "home": "house 70;house 71"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Riopelle house and Cicotte house",
+      "i": 78,
+      "j": 38,
+      "home": "house 73;house 74"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Rousseau house and Wilson house",
+      "i": 74,
+      "j": 86,
+      "home": "house 79;house 81"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Parent house and Pelletier house",
+      "i": 70,
+      "j": 80,
+      "home": "house 83;house 84"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Larned house and Woodbridge house",
+      "i": 64,
+      "j": 44,
+      "home": "house 85;house 87"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Moran house and Chapin house",
+      "i": 64,
+      "j": 68,
+      "home": "house 88;house 90"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Knaggs house and Fuller house",
+      "i": 78,
+      "j": 92,
+      "home": "house 91;house 92"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Riopelle house and Hamelin house",
+      "i": 70,
+      "j": 38,
+      "home": "house 94;house 95"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Chapin house and Coe house",
+      "i": 60,
+      "j": 56,
+      "home": "house 96;house 98"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Jones house and Bondy house",
+      "i": 60,
+      "j": 50,
+      "home": "house 100;house 101"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Sibley house and Fuller house",
+      "i": 82,
+      "j": 98,
+      "home": "house 102;house 108"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Brown house and Parent house",
+      "i": 60,
+      "j": 62,
+      "home": "house 109;house 110"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Dupuis house and Harris house",
+      "i": 60,
+      "j": 44,
+      "home": "house 111;house 113"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Baker house and Hanks house",
+      "i": 64,
+      "j": 38,
+      "home": "house 116;house 117"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Rousseau house and Bertrand house",
+      "i": 64,
+      "j": 74,
+      "home": "house 119;house 121"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Gagnon house and Williams house",
+      "i": 70,
+      "j": 86,
+      "home": "house 122;house 123"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Thomas house and Morand house",
+      "i": 60,
+      "j": 68,
+      "home": "house 124;house 125"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Drouillard house and Laframboise house",
+      "i": 56,
+      "j": 50,
+      "home": "house 126;house 129"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Bourassa house and Rousseau house",
+      "i": 74,
+      "j": 92,
+      "home": "house 130;house 131"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Bondy house and Larned house",
+      "i": 60,
+      "j": 38,
+      "home": "house 132;house 138"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Brown house and Knaggs house",
+      "i": 56,
+      "j": 56,
+      "home": "house 139;house 140"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Moore house and Brown house",
+      "i": 70,
+      "j": 32,
+      "home": "house 142;house 143"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Campau house and Hamelin house",
+      "i": 138,
+      "j": 128,
+      "home": "house 144;house 145"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lajeunesse house and Harris house",
+      "i": 56,
+      "j": 44,
+      "home": "house 146;house 149"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Bondy house and Thomas house",
+      "i": 78,
+      "j": 98,
+      "home": "house 150;house 152"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Reaume house and Riopelle house",
+      "i": 108,
+      "j": 122,
+      "home": "house 153;house 154"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Chene house and Fuller house",
+      "i": 56,
+      "j": 62,
+      "home": "house 157;house 159"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Rousseau house and Allen house",
+      "i": 64,
+      "j": 32,
+      "home": "house 163;house 165"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hunt house and Hamelin house",
+      "i": 64,
+      "j": 80,
+      "home": "house 168;house 169"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Trudelle house",
+      "i": 152,
+      "j": 136,
+      "home": "house 17"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Pease house",
+      "i": 56,
+      "j": 24,
+      "home": "house 21"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Tremblay house",
+      "i": 56,
+      "j": 88,
+      "home": "house 28"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Campau house",
+      "i": 40,
+      "j": 48,
+      "home": "house 29"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Parent house",
+      "i": 64,
+      "j": 96,
+      "home": "house 33"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Trudelle house (2)",
+      "i": 48,
+      "j": 16,
+      "home": "house 36"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Marentette house",
+      "i": 64,
+      "j": 104,
+      "home": "house 37"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Reaume house",
+      "i": 48,
+      "j": 80,
+      "home": "house 39"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Dodemead house",
+      "i": 160,
+      "j": 128,
+      "home": "house 41"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lasselle house",
+      "i": 72,
+      "j": 112,
+      "home": "house 43"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hanks house",
+      "i": 144,
+      "j": 152,
+      "home": "house 44"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Janisse house",
+      "i": 32,
+      "j": 24,
+      "home": "house 45"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hart house",
+      "i": 168,
+      "j": 144,
+      "home": "house 47"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Wells house",
+      "i": 160,
+      "j": 152,
+      "home": "house 50"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Cicotte house",
+      "i": 96,
+      "j": 128,
+      "home": "house 52"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Brown house",
+      "i": 152,
+      "j": 144,
+      "home": "house 53"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hanks house (2)",
+      "i": 152,
+      "j": 160,
+      "home": "house 57"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Root house",
+      "i": 128,
+      "j": 152,
+      "home": "house 60"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Witherell house",
+      "i": 40,
+      "j": 40,
+      "home": "house 61"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Harris house",
+      "i": 24,
+      "j": 48,
+      "home": "house 63"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Bertrand house",
+      "i": 184,
+      "j": 120,
+      "home": "house 64"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Martin house",
+      "i": 48,
+      "j": 72,
+      "home": "house 68"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Dequindre house",
+      "i": 128,
+      "j": 160,
+      "home": "house 72"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Larned house",
+      "i": 168,
+      "j": 136,
+      "home": "house 75"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Martin house (2)",
+      "i": 24,
+      "j": 40,
+      "home": "house 76"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Godfroy house",
+      "i": 24,
+      "j": 64,
+      "home": "house 77"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Moore house",
+      "i": 32,
+      "j": 80,
+      "home": "house 78"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Smith house",
+      "i": 40,
+      "j": 32,
+      "home": "house 80"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Labadie house",
+      "i": 160,
+      "j": 168,
+      "home": "house 82"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Beaubien house",
+      "i": 40,
+      "j": 64,
+      "home": "house 86"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Macomb house",
+      "i": 104,
+      "j": 136,
+      "home": "house 89"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Meloche house",
+      "i": 32,
+      "j": 56,
+      "home": "house 93"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Godfroy house (2)",
+      "i": 176,
+      "j": 160,
+      "home": "house 97"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hamelin house",
+      "i": 64,
+      "j": 120,
+      "home": "house 99"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Baby house",
+      "i": 16,
+      "j": 16,
+      "home": "house 103"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Navarre house",
+      "i": 184,
+      "j": 128,
+      "home": "house 104"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Cloutier house",
+      "i": 32,
+      "j": 8,
+      "home": "house 105"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Gagnon house",
+      "i": 192,
+      "j": 104,
+      "home": "house 106"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hamelin house (2)",
+      "i": 184,
+      "j": 168,
+      "home": "house 107"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Thomas house",
+      "i": 96,
+      "j": 144,
+      "home": "house 112"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Moore house (2)",
+      "i": 24,
+      "j": 72,
+      "home": "house 114"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Moran house",
+      "i": 40,
+      "j": 104,
+      "home": "house 115"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lajeunesse house",
+      "i": 80,
+      "j": 128,
+      "home": "house 118"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Rivard house",
+      "i": 64,
+      "j": 128,
+      "home": "house 120"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Wilson house",
+      "i": 104,
+      "j": 160,
+      "home": "house 127"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Brown house (2)",
+      "i": 32,
+      "j": 16,
+      "home": "house 128"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Fuller house",
+      "i": 184,
+      "j": 176,
+      "home": "house 133"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Bertrand house (2)",
+      "i": 184,
+      "j": 144,
+      "home": "house 134"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Wilson house (2)",
+      "i": 8,
+      "j": 48,
+      "home": "house 135"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Whipple house",
+      "i": 96,
+      "j": 152,
+      "home": "house 136"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Knaggs house",
+      "i": 200,
+      "j": 176,
+      "home": "house 137"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Dequindre house (2)",
+      "i": 0,
+      "j": 0,
+      "home": "house 141"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ouellette house",
+      "i": 192,
+      "j": 88,
+      "home": "house 147"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hart house (2)",
+      "i": 120,
+      "j": 168,
+      "home": "house 148"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Tremblay house (2)",
+      "i": 208,
+      "j": 136,
+      "home": "house 151"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Martin house (3)",
+      "i": 152,
+      "j": 176,
+      "home": "house 155"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Rousseau house",
+      "i": 16,
+      "j": 8,
+      "home": "house 156"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Fuller house (2)",
+      "i": 16,
+      "j": 32,
+      "home": "house 158"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Baby house (2)",
+      "i": 80,
+      "j": 136,
+      "home": "house 160"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Baker house",
+      "i": 184,
+      "j": 80,
+      "home": "house 161"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Parent house (2)",
+      "i": 152,
+      "j": 184,
+      "home": "house 162"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Sibley house (2)",
+      "i": 192,
+      "j": 136,
+      "home": "house 164"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Knaggs house (2)",
+      "i": 208,
+      "j": 144,
+      "home": "house 166"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hamelin house (3)",
+      "i": 136,
+      "j": 168,
+      "home": "house 167"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (1)",
+      "i": 91,
+      "j": 94,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (2)",
+      "i": 100,
+      "j": 94,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (3)",
+      "i": 91,
+      "j": 101,
+      "home": "garrison"
+     },
+     {
+      "kind": "FactorsHouse",
+      "name": "the officers' quarters",
+      "i": 92,
+      "j": 108,
+      "home": "garrison"
+     },
+     {
+      "kind": "PowderMagazine",
+      "name": "the powder magazine",
+      "i": 104,
+      "j": 109,
+      "home": ""
+     }
+    ],
+    "fort": {
+     "i": 90,
+     "j": 92,
+     "width": 20,
+     "depth": 28,
+     "gate": 10,
+     "name": "Fort Detroit"
+    }
+   },
+   {
+    "name": "Amherstburg",
+    "polity": "CROWN",
+    "year": 1796,
+    "note": "The King's town at the mouth of the Detroit River, built when the British gave up Detroit in 1796: the Provincial Marine's dockyard, the Indian Department's storehouse, where the western nations come each year for the King's presents.",
+    "top": [
+     1145,
+     2144
+    ],
+    "width": 124,
+    "depth": 212,
+    "buildings": [
+     {
+      "kind": "Church",
+      "name": "the church",
+      "i": 112,
+      "j": 148,
+      "home": ""
+     },
+     {
+      "kind": "Hall",
+      "name": "the Indian Department's council house",
+      "i": 102,
+      "j": 142,
+      "home": ""
+     },
+     {
+      "kind": "Store",
+      "name": "the market house",
+      "i": 112,
+      "j": 142,
+      "home": "market"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the rectory",
+      "i": 112,
+      "j": 154,
+      "home": "house 1"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Elliott house",
+      "i": 106,
+      "j": 148,
+      "home": "house 2"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the McKee house",
+      "i": 98,
+      "j": 142,
+      "home": "house 3"
+     },
+     {
+      "kind": "Store",
+      "name": "the Indian Department's storehouse",
+      "i": 98,
+      "j": 136,
+      "home": "house 4"
+     },
+     {
+      "kind": "Store",
+      "name": "Thomas Reynolds's store",
+      "i": 112,
+      "j": 136,
+      "home": "house 5"
+     },
+     {
+      "kind": "Store",
+      "name": "Elijah Kerr's store",
+      "i": 102,
+      "j": 130,
+      "home": "house 6"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the shipwright's shop",
+      "i": 106,
+      "j": 136,
+      "home": "house 7"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the smith's shop",
+      "i": 112,
+      "j": 130,
+      "home": "house 8"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the cooper's shop",
+      "i": 102,
+      "j": 124,
+      "home": "house 9"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the carpenter's shop",
+      "i": 106,
+      "j": 124,
+      "home": "house 10"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the baker's shop",
+      "i": 102,
+      "j": 118,
+      "home": "house 11"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ridout house",
+      "i": 106,
+      "j": 118,
+      "home": "house 93"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Small house and Lajeunesse house",
+      "i": 102,
+      "j": 112,
+      "home": "house 12;house 13"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Rousseau house and Servos house",
+      "i": 98,
+      "j": 112,
+      "home": "house 17;house 20"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Kirby house and Robinson house",
+      "i": 98,
+      "j": 106,
+      "home": "house 22;house 23"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Muirhead house and Labadie house",
+      "i": 94,
+      "j": 106,
+      "home": "house 25;house 26"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Bondy house and Navarre house",
+      "i": 102,
+      "j": 106,
+      "home": "house 27;house 28"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Baldwin house and Dequindre house",
+      "i": 94,
+      "j": 100,
+      "home": "house 31;house 33"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Nelles house and Kerr house",
+      "i": 90,
+      "j": 100,
+      "home": "house 35;house 41"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Macaulay house and St. Aubin house",
+      "i": 86,
+      "j": 100,
+      "home": "house 42;house 45"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Janisse house and Scadding house",
+      "i": 82,
+      "j": 100,
+      "home": "house 46;house 47"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Drouillard house and Playter house",
+      "i": 82,
+      "j": 106,
+      "home": "house 48;house 50"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Muirhead house and Tremblay house",
+      "i": 78,
+      "j": 100,
+      "home": "house 51;house 52"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Moran house and Dequindre house",
+      "i": 98,
+      "j": 100,
+      "home": "house 53;house 54"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the St. Aubin house and Bourassa house",
+      "i": 78,
+      "j": 94,
+      "home": "house 55;house 56"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Beman house and Riopelle house",
+      "i": 72,
+      "j": 94,
+      "home": "house 60;house 62"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the McDonell house and Gagnon house",
+      "i": 82,
+      "j": 94,
+      "home": "house 64;house 65"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Bourassa house and Thompson house",
+      "i": 86,
+      "j": 94,
+      "home": "house 67;house 70"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Bondy house and Beman house",
+      "i": 102,
+      "j": 100,
+      "home": "house 72;house 75"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Muirhead house and Rivard house",
+      "i": 90,
+      "j": 94,
+      "home": "house 76;house 78"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lasselle house and Moran house",
+      "i": 94,
+      "j": 94,
+      "home": "house 79;house 80"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Clark house and Denison house",
+      "i": 72,
+      "j": 88,
+      "home": "house 82;house 83"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Janisse house and Swayze house",
+      "i": 68,
+      "j": 88,
+      "home": "house 87;house 88"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Brown house and Butler house",
+      "i": 64,
+      "j": 88,
+      "home": "house 90;house 92"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Clench house",
+      "i": 78,
+      "j": 88,
+      "home": "house 37"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Nelles house",
+      "i": 98,
+      "j": 94,
+      "home": "house 38"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Kerr house",
+      "i": 82,
+      "j": 88,
+      "home": "house 39"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Robinson house",
+      "i": 86,
+      "j": 88,
+      "home": "house 40"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Langlois house",
+      "i": 102,
+      "j": 94,
+      "home": "house 43"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Parent house",
+      "i": 90,
+      "j": 88,
+      "home": "house 44"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Tremblay house",
+      "i": 64,
+      "j": 82,
+      "home": "house 49"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Bertrand house",
+      "i": 68,
+      "j": 82,
+      "home": "house 57"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Secord house",
+      "i": 60,
+      "j": 82,
+      "home": "house 58"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the St. Aubin house",
+      "i": 72,
+      "j": 82,
+      "home": "house 59"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ducharme house",
+      "i": 94,
+      "j": 88,
+      "home": "house 61"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Moran house",
+      "i": 90,
+      "j": 82,
+      "home": "house 63"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the St. Aubin house (2)",
+      "i": 94,
+      "j": 82,
+      "home": "house 66"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Chene house",
+      "i": 48,
+      "j": 70,
+      "home": "house 68"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ducharme house (2)",
+      "i": 90,
+      "j": 76,
+      "home": "house 69"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ouellette house",
+      "i": 82,
+      "j": 70,
+      "home": "house 71"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Brown house",
+      "i": 48,
+      "j": 64,
+      "home": "house 73"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Stuart house",
+      "i": 86,
+      "j": 70,
+      "home": "house 74"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Denison house",
+      "i": 82,
+      "j": 64,
+      "home": "house 77"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ball house",
+      "i": 48,
+      "j": 58,
+      "home": "house 81"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ouellette house (2)",
+      "i": 44,
+      "j": 58,
+      "home": "house 84"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lefebvre house",
+      "i": 82,
+      "j": 58,
+      "home": "house 85"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the McNabb house",
+      "i": 68,
+      "j": 52,
+      "home": "house 86"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Meloche house",
+      "i": 34,
+      "j": 34,
+      "home": "house 89"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Nelles house (2)",
+      "i": 30,
+      "j": 28,
+      "home": "house 91"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Durham house",
+      "i": 44,
+      "j": 28,
+      "home": "house 94"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hunter house",
+      "i": 56,
+      "j": 64,
+      "home": "house 14"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the McDonell house",
+      "i": 80,
+      "j": 80,
+      "home": "house 15"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Riopelle house",
+      "i": 56,
+      "j": 56,
+      "home": "house 16"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Labadie house",
+      "i": 72,
+      "j": 72,
+      "home": "house 18"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Parent house (2)",
+      "i": 72,
+      "j": 64,
+      "home": "house 19"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Reaume house",
+      "i": 56,
+      "j": 72,
+      "home": "house 21"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Playter house",
+      "i": 40,
+      "j": 48,
+      "home": "house 24"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Markle house",
+      "i": 56,
+      "j": 48,
+      "home": "house 29"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Beaubien house",
+      "i": 56,
+      "j": 40,
+      "home": "house 30"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Wilson house",
+      "i": 16,
+      "j": 16,
+      "home": "house 32"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Muirhead house",
+      "i": 0,
+      "j": 0,
+      "home": "house 34"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Parent house (3)",
+      "i": 8,
+      "j": 8,
+      "home": "house 36"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (1)",
+      "i": 105,
+      "j": 186,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (2)",
+      "i": 114,
+      "j": 186,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (3)",
+      "i": 105,
+      "j": 193,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (4)",
+      "i": 114,
+      "j": 193,
+      "home": "garrison"
+     },
+     {
+      "kind": "FactorsHouse",
+      "name": "the officers' quarters",
+      "i": 106,
+      "j": 200,
+      "home": "garrison"
+     },
+     {
+      "kind": "PowderMagazine",
+      "name": "the powder magazine",
+      "i": 118,
+      "j": 201,
+      "home": ""
+     }
+    ],
+    "fort": {
+     "i": 104,
+     "j": 184,
+     "width": 20,
+     "depth": 28,
+     "gate": 10,
+     "name": "Fort Malden"
+    }
+   }
   ]
  }
 }

@@ -71,8 +71,7 @@ public partial class OutpostLedger : FortLedger
         // An inland post lives on country provisions bought from the same
         // people (design doc 13.1): when the shelves are thin the postmaster
         // buys meat before furs, and says so in the week's returns.
-        int mouths = 0;
-        foreach (var n in Sim.Npcs) if (n.HomeStores == this && !n.IsDead) mouths++;
+        int mouths = Alive();
         if (FoodDays(Mathf.Max(1, mouths)) < 14f)
         {
             int canSpend = Mathf.Min(Stores.Count(ItemId.TradeGoods), 10);

@@ -7,7 +7,7 @@ using IsometricFurTradeGame.Scripts.Items;
 
 namespace IsometricFurTradeGame.Scripts.World;
 
-public enum HomePost { Fort, CreeBand, Nwc, Outpost, Assiniboine, Post, Camp }
+public enum HomePost { Fort, CreeBand, Nwc, Outpost, Assiniboine, Post, Camp, Town }
 
 // One person of the starting cast, placed on the map in the editor. The
 // marker stands on his bed; its "Work" child is where he spends the day.
@@ -25,7 +25,8 @@ public partial class NpcSpawn : Node2D
     [Export] public HomePost Home = HomePost.Fort;
     // With Home = Post: which of the atlas's posts (World/Posts.cs) - he is
     // spawned only once that post stands. With Home = Camp: which camp of
-    // the wider country (World/Camps.cs).
+    // the wider country (World/Camps.cs). With Home = Town: the town and the
+    // house, "Detroit|house 12" (World/Towns.cs).
     [Export] public string PostName = "";
     // The household's head (the Factor, the chief, the postmaster).
     [Export] public bool Leader;
@@ -107,6 +108,7 @@ public partial class NpcSpawn : Node2D
         HomePost.Assiniboine => Sim.Assiniboine,
         HomePost.Post => Posts.Named(PostName)?.Ledger,
         HomePost.Camp => Camps.Named(PostName)?.Ledger,
+        HomePost.Town => Towns.House(PostName),
         _ => null,
     };
 

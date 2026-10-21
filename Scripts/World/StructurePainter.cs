@@ -354,6 +354,33 @@ public partial class StructurePainter : TileMapLayer
         RebuildCollision();
     }
 
+    // A town (World/Towns): its garrison's palisade, every building with its
+    // roof, a fire laid in every hearth, and its name at the edge. Collision
+    // is rebuilt once for all of them (RebuildCollisionNow), not per house.
+    public void PaintTown(Town t)
+    {
+        var floor = _floor ?? this;
+        if (t.HasFort) PaintPalisadeAt(t.FortTop, t.FortWidth, t.FortDepth, t.FortGate);
+        foreach (var b in t.Buildings) PaintBuilding(b.Def, floor);
+        if (t.HasFort) SetBack(IsoGrid.Cell(t.FortTop, t.FortWidth / 2, 1), 93);   // the flagstaff
+        // The town's name at its market house, its garrison's at the gate.
+        var heart = t.Buildings.Find(b => b.Home == "market")?.Def ?? t.Buildings[0].Def;
+        PlaceSign(IsoGrid.DownLeft(IsoGrid.DownLeft(heart.DoorCell)), t.Name, t.Polity == "AMER" ? (t.Name == "Detroit" ? "Michigan Territory" : "New York") : "Upper Canada");
+        if (t.HasFort) PlaceSign(IsoGrid.DownLeft(IsoGrid.DownLeft(IsoGrid.Cell(t.FortTop, t.FortGate, t.FortDepth - 1))), t.FortName, t.RulerName == "the Crown" ? "His Majesty's garrison" : "United States garrison");
+        if (Engine.IsEditorHint()) return;
+        var host = GetParent()?.GetParent();
+        foreach (var b in t.Buildings)
+        {
+            EnsureHearth(IsoGrid.Cell(b.Def.Top, 1, 1), 6f);
+            if (host == null) continue;
+            var roof = new TileMapLayer { TileSet = TileSet, ZIndex = 5, ZAsRelative = false, Name = $"Roof_{(t.Name + "_" + b.Def.Name).Replace(' ', '_').Replace('.', '_').Replace('\'', '_').Replace(',', '_')}", Position = new Vector2(0, -RoofLift) };
+            AddRoof(b.Def, roof);
+            host.AddChild(roof);
+        }
+    }
+
+    public void RebuildCollisionNow() => RebuildCollision();
+
     // The nearest open water to a cell (a beaver lodge stands in it).
     private static Vector2I? WaterBeside(Vector2I c)
     {
@@ -498,6 +525,54 @@ public partial class StructurePainter : TileMapLayer
                 SetBack(IsoGrid.Cell(top, 4, 1), SourceBed);
                 SetBack(IsoGrid.Cell(top, 2, 3), SourceBed);
                 SetBack(IsoGrid.Cell(top, 4, 3), SourceBed);
+                break;
+            case BuildingKind.Townhouse:
+                // A family's house: the fire, the bed, the table, and the way
+                // in from the door kept clear.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                SetBack(IsoGrid.Cell(top, 2, 1), SourceBed);
+                SetBack(IsoGrid.Cell(top, 2, 2), SourceTable);
+                break;
+            case BuildingKind.Church:
+                // Pews either side of the aisle, candles at the altar end, a stove.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                foreach (int i in new[] { 1, 2, 4, 5, 6 }) SetBack(IsoGrid.Cell(top, i, 2), SourceTableChairs);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceCandleStand);
+                SetBack(IsoGrid.Cell(top, 6, 1), SourceCandleStand);
+                SetBack(IsoGrid.Cell(top, 4, 1), SourceRug);
+                break;
+            case BuildingKind.Barracks:
+                // Two rows of cots, the arms rack, the mess table.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                for (int i = 2; i <= 6; i++) SetBack(IsoGrid.Cell(top, i, 1), SourceBed);
+                SetBack(IsoGrid.Cell(top, 5, 3), SourceBed);
+                SetBack(IsoGrid.Cell(top, 6, 3), SourceBed);
+                SetBack(IsoGrid.Cell(top, 1, 3), SourceShelfTall);
+                SetBack(IsoGrid.Cell(top, 1, 2), SourceTable);
+                break;
+            case BuildingKind.Store:
+                // A merchant's store: counter, shelves of goods, bales and casks.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                SetBack(IsoGrid.Cell(top, 2, 1), SourceShelfTall);
+                SetBack(IsoGrid.Cell(top, 3, 1), SourceShelf);
+                SetBack(IsoGrid.Cell(top, 4, 1), SourceShelfTall);
+                SetBack(IsoGrid.Cell(top, 4, 2), SourceDisplayCase);
+                SetBack(IsoGrid.Cell(top, 6, 1), SourceCrate);
+                SetBack(IsoGrid.Cell(top, 6, 2), SourceFurBale);
+                SetBack(IsoGrid.Cell(top, 5, 1), SourceCrate);
+                break;
+            case BuildingKind.Workshop:
+                // A tradesman's shop: the bench, his stock, a forge or a stove.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                SetBack(IsoGrid.Cell(top, 2, 1), SourceTable);
+                SetBack(IsoGrid.Cell(top, 2, 2), SourceCrate);
+                break;
+            case BuildingKind.Hall:
+                // A hall of government or council: the long table and the benches.
+                SetBack(IsoGrid.Cell(top, 1, 1), SourceHearthLeft);
+                foreach (int i in new[] { 2, 4, 5, 6 }) SetBack(IsoGrid.Cell(top, i, 2), SourceTableChairs);
+                SetBack(IsoGrid.Cell(top, 6, 1), SourceCandleStand);
+                SetBack(IsoGrid.Cell(top, 4, 1), SourceRug);
                 break;
             case BuildingKind.Warehouse:
                 // Bales of furs one side, cargo the other, an aisle between.

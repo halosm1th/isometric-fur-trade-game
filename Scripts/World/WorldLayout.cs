@@ -4,7 +4,9 @@ using IsometricFurTradeGame.Scripts.Ecology;
 
 namespace IsometricFurTradeGame.Scripts.World;
 
-public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse, FactorsHouse, ClerksHouse, ProvisionStore, SummerMess, GuestHouse, BoatShed, PowderMagazine, TradingPost, GreatHall, PartnersHouse }
+public enum BuildingKind { Depot, Warehouse, MensHouse, NwcHouse, OutpostHouse, FactorsHouse, ClerksHouse, ProvisionStore, SummerMess, GuestHouse, BoatShed, PowderMagazine, TradingPost, GreatHall, PartnersHouse,
+    // The towns (World/Towns): a family's house, the church, the barracks, a merchant's store, a tradesman's shop, a hall of government.
+    Townhouse, Church, Barracks, Store, Workshop, Hall }
 
 public readonly record struct BuildingDef(BuildingKind Kind, string Name, Vector2I Top, int Width, int Depth, int DoorOffset)
 {
@@ -266,7 +268,7 @@ public static class WorldLayout
     {
         if (WorldMap.IsWater(c) || IsBeach(c)) return true;
         var p = IsoGrid.ToWorld(c);
-        if (Posts.NearAny(p, 900f)) return true;
+        if (Posts.NearAny(p, 900f) || Towns.NearAny(p, 500f)) return true;
         // A carrying place is trodden bare at the landing.
         foreach (var lm in WorldMap.Landmarks()) if (lm.Kind == "portage" && lm.At.DistanceTo(p) < 700f) return true;
         float fortDist = p.DistanceTo(FortCentre);

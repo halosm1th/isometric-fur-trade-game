@@ -89,7 +89,7 @@ public static class Delegation
 
         // Provisions (design doc 13.1): days of food, and the scurvy count.
         int mouths = 0, scorbutic = 0;
-        foreach (var n in Sim.Npcs) if (n.HomeStores == fort && !n.IsDead) { mouths++; if (n.DaysSinceFresh > 18f) scorbutic++; }
+        foreach (var n in fort.Members) if (GodotObject.IsInstanceValid(n) && !n.IsDead) { mouths++; if (n.DaysSinceFresh > 18f) scorbutic++; }
         float foodDays = fort.FoodDays(mouths + 1);
         bool gooseSeason = World.GooseHunt.Season && eco?.BestSite(Species.Goose, fort) != null;
         bool foodShort = foodDays < 30f || scorbutic >= 3;
@@ -148,8 +148,8 @@ public static class Delegation
                 Make = n =>
                 {
                     opRef.LastReportSentDay = Cal.Day;
-                    int fit = 0; foreach (var x in Sim.Npcs) if (x.HomeStores == opRef && !x.IsDead && !x.IsSick) fit++;
-                    int mouths2 = 0; foreach (var x in Sim.Npcs) if (x.HomeStores == opRef && !x.IsDead) mouths2++;
+                    int fit = 0; foreach (var x in opRef.Members) if (GodotObject.IsInstanceValid(x) && !x.IsDead && !x.IsSick) fit++;
+                    int mouths2 = opRef.Alive();
                     string news = opRef.LostToRivalMb > 0f ? $"{opRef.LostToRivalMb:0} MB went to the Canadians for want of goods." : "The inland bands are trading.";
                     if (opRef.Leader == null || opRef.Leader.IsDead) news = "The post has no master.";
                     return new CourierGoal(opRef, Sim.Fort, Letters.OutpostReport(leader.DisplayName, opRef.FursInStoreMb, opRef.FoodDays(mouths2), fit, news), opRef.FursInStoreMb > 0f);
@@ -327,7 +327,7 @@ public static class Delegation
         bool sanctioned = fort is NwcLedger nl && nl.RaidsSanctioned && Rivalry.Tension >= 45f;
         if (rival != null && (Rivalry.OpenHostility || sanctioned) && men.Count >= 2 && today - fort.LastRaidDay > 4 && !shipIn)
         {
-            int mouths = 0; foreach (var n in Sim.Npcs) if (n.HomeStores == fort && !n.IsDead) mouths++;
+            int mouths = fort.Alive();
             bool worthIt = fort.FoodDays(mouths + 1) < 30f || fort.Stores.Count(ItemId.TradeGoods) < 15 || Rivalry.Tension >= 90f || fort.RaidedRecently(today);
             if (worthIt && GD.Randf() < 0.35f + leader.Personality.Ambition * 0.4f)
                 raidersSent = Rivalry.OrderRaid(leader, fort, rival, Math.Min(3, men.Count - 1)).Count;

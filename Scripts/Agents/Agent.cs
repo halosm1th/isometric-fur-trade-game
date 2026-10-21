@@ -260,10 +260,11 @@ public partial class Agent : CharacterBody2D
         Needs.Hunger = Mathf.Min(100f, Needs.Hunger + def.Nutrition);
         Needs.Thirst = Mathf.Min(100f, Needs.Thirst + def.Thirst);
         // Fresh meat, and the things that actually answered the scurvy in this
-        // country: berries in their season and spruce beer out of it.
-        if (id == ItemId.Venison || id == ItemId.Goose || id == ItemId.Fish || id == ItemId.Hare || id == ItemId.Ptarmigan || id == ItemId.Berries || id == ItemId.SpruceBeer)
+        // country: berries in their season and spruce beer out of it, and the
+        // settlers' potatoes from the cellar.
+        if (id == ItemId.Venison || id == ItemId.Goose || id == ItemId.Fish || id == ItemId.Hare || id == ItemId.Ptarmigan || id == ItemId.Berries || id == ItemId.SpruceBeer || id == ItemId.Roots)
         {
-            if (HasScurvy) Sim.Notice($"{Describe()} is mending: {(id == ItemId.Berries ? "berries at last" : id == ItemId.SpruceBeer ? "spruce beer at last" : "fresh meat at last")}.");
+            if (HasScurvy) Sim.Notice($"{Describe()} is mending: {(id == ItemId.Berries ? "berries at last" : id == ItemId.SpruceBeer ? "spruce beer at last" : id == ItemId.Roots ? "potatoes at last" : "fresh meat at last")}.");
             DaysSinceFresh = 0f; _scurvyTold = false;
         }
         if (def.Kind == ItemKind.Drink) Needs.Warmth = Mathf.Min(100f, Needs.Warmth + def.Warmth);

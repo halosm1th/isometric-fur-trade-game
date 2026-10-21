@@ -13,6 +13,7 @@ public partial class WorldRoot : Node2D
         Sim.Reset();
         Campaign.Reset();
         Posts.Reset();
+        Towns.Reset();
         Convoys.Reset();
         Camps.Reset();
         Economy.Plains.Reset();
@@ -28,6 +29,7 @@ public partial class WorldRoot : Node2D
         AddChild(new Economy.BandLedger { Name = "AssiniboineLedger", Nation = Agents.Faction.Assiniboine });
         Camps.Begin(this);
         Posts.Begin(this);
+        Towns.Begin(this);
         var ysort = GetNodeOrNull<Node2D>("YSort");
         // The brigades on the country's rivers, drawn where a player is near them.
         ysort?.AddChild(new ConvoyView { Name = "ConvoyView" });

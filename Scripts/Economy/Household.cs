@@ -23,6 +23,15 @@ public partial class Household : Node
     public Agents.Npc Leader;
     // Letters waiting for whoever next holds the office here.
     public readonly List<Message> Mailbox = new();
+    // Everyone whose home this is (Npc.HomeStores keeps it), so a head count
+    // is a look at the house and not at the whole country.
+    public readonly HashSet<Agents.Npc> Members = new();
+    public int Alive()
+    {
+        int m = 0;
+        foreach (var n in Members) if (GodotObject.IsInstanceValid(n) && !n.IsDead) m++;
+        return m;
+    }
 
     // Which wildlife sites this household knows about (design doc 16.4:
     // sites are learned, not given). Names match WorldLayout.Sites.
@@ -67,8 +76,8 @@ public partial class Household : Node
         if (Stores.FoodNutritionTotal > 0f && Stores.Has(ItemId.SaltGeese) && !HasLooseFood() && Stores.Remove(ItemId.SaltGeese))
             Stores.Add(ItemId.DriedGoose, 8);
         var order = World.GooseHunt.Autumn
-            ? new[] { ItemId.Berries, ItemId.Hare, ItemId.Ptarmigan, ItemId.Fish, ItemId.Venison, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican, ItemId.Goose }
-            : new[] { ItemId.Berries, ItemId.Hare, ItemId.Ptarmigan, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican };
+            ? new[] { ItemId.Berries, ItemId.Hare, ItemId.Ptarmigan, ItemId.Fish, ItemId.Venison, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Roots, ItemId.Pemmican, ItemId.Goose }
+            : new[] { ItemId.Berries, ItemId.Hare, ItemId.Ptarmigan, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Roots, ItemId.Pemmican };
         foreach (var id in order)
         {
             while (taken < n && Stores.Remove(id)) { agent.Inventory.Add(id); taken++; }
@@ -79,7 +88,7 @@ public partial class Household : Node
 
     private bool HasLooseFood()
     {
-        foreach (var id in new[] { ItemId.Berries, ItemId.Hare, ItemId.Ptarmigan, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican })
+        foreach (var id in new[] { ItemId.Berries, ItemId.Hare, ItemId.Ptarmigan, ItemId.Fish, ItemId.Venison, ItemId.Goose, ItemId.Roots, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.Corn, ItemId.Bread, ItemId.Pemmican })
             if (Stores.Has(id)) return true;
         return false;
     }

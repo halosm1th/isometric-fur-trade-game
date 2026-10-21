@@ -13,13 +13,16 @@ public static class Appearance
     // The sheet for this NPC, or null to keep what it has.
     public static string For(Npc n)
     {
-        bool child = n.FatherName != "" && n.Age < 14;
-        if (child && n.Faction == Faction.HBC) return Dir + (n.IsFemale ? "ChildGirlFrames.tres" : "ChildBoyFrames.tres");
+        bool child = (n.FatherName != "" || n.Role == Role.Child) && n.Age < 14;
+        if (child && n.Faction is Faction.HBC or Faction.Crown or Faction.American) return Dir + (n.IsFemale ? "ChildGirlFrames.tres" : "ChildBoyFrames.tres");
         return n.Role switch
         {
             Role.Voyageur => Dir + "VoyageurFrames.tres",
             Role.NwcPartner => Dir + "NwcPartnerFrames.tres",
-            Role.Woman or Role.Wife when n.Faction is Faction.HBC or Faction.American => Dir + "CountryWifeFrames.tres",
+            Role.Woman or Role.Wife when n.Faction is Faction.HBC or Faction.American or Faction.Crown => Dir + "CountryWifeFrames.tres",
+            // The towns' people keep the look they were placed with: the
+            // soldier's coat, the merchant's broadcloth, the habitant's capote.
+            Role.Farmer or Role.Merchant or Role.Artisan or Role.Soldier or Role.Officer or Role.Priest => null,
             // The Missouri's engages were St. Louis Creoles: a voyageur's dress.
             Role.Labourer when n.Faction == Faction.American => Dir + "VoyageurFrames.tres",
             Role.Sailor => Dir + "SailorFrames.tres",

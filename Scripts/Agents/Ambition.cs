@@ -84,7 +84,7 @@ public class Ambition
         int mouths = band.Mouths;
         float food = Mathf.Clamp(band.FoodDays(mouths) / 30f, 0f, 1f);
         float standing = Mathf.Clamp(band.StandingWithCompany / 100f, 0f, 1f);
-        int alive = 0; foreach (var n in Sim.Npcs) if (n.HomeStores == band && !n.IsDead) alive++;
+        int alive = band.Alive();
         float whole = Mathf.Clamp(alive / 11f, 0f, 1f);
         return food * 0.4f + standing * 0.3f + whole * 0.3f;
     }

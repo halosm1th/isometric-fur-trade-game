@@ -98,7 +98,9 @@ public static class Posts
         BuildingKind.Depot => (7, 5, 3), BuildingKind.Warehouse => (8, 6, 3), BuildingKind.MensHouse => (7, 5, 3),
         BuildingKind.FactorsHouse => (5, 6, 2), BuildingKind.ClerksHouse => (5, 6, 2), BuildingKind.ProvisionStore => (5, 4, 2),
         BuildingKind.SummerMess => (5, 5, 2), BuildingKind.GuestHouse => (4, 5, 1), BuildingKind.PowderMagazine => (3, 3, 1),
-        BuildingKind.GreatHall => (9, 7, 4), BuildingKind.PartnersHouse => (5, 4, 2), _ => (7, 5, 3),
+        BuildingKind.GreatHall => (9, 7, 4), BuildingKind.PartnersHouse => (5, 4, 2),
+        BuildingKind.Townhouse => (4, 4, 1), BuildingKind.Church => (8, 4, 3), BuildingKind.Barracks => (8, 5, 3), BuildingKind.Store => (8, 4, 3),
+        BuildingKind.Workshop => (4, 4, 1), BuildingKind.Hall => (8, 4, 3), _ => (7, 5, 3),
     };
 
     // The major posts are laid out from Data/World/post_plans.json (hand

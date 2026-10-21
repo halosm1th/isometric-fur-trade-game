@@ -23,7 +23,7 @@ public partial class BandLedger : Household
 	public bool AtOddsWithOtherBand => StandingWithOtherBand < 25f;
 	public BandLedger OtherBand => IsCree ? Sim.Assiniboine : Sim.Band;
 	public IEnumerable<Vector2I> Tipis() => WorldLayout.TipiCellsAt(Camp);
-	public int Mouths { get { int m = 0; foreach (var n in Sim.Npcs) if (n.HomeStores == this && !n.IsDead) m++; return m; } }
+	public int Mouths => Alive();
 	// Plains provisioning (design doc 13.1): the Assiniboine cache fills with
 	// pemmican from the buffalo country while they winter upland.
 	private float _hoursToWeek = 24f * 7f;

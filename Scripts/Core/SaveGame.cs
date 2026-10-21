@@ -80,6 +80,7 @@ public static class SaveGame
             ["campaign"] = Campaign.Save(),
             ["explored"] = UI.Exploration.Save(),
             ["posts"] = PostLedgers(),
+            ["towns"] = TownHouseholds(),
             ["camp"] = new GArr { WorldLayout.CampCentre.X, WorldLayout.CampCentre.Y },
             ["abroad"] = MailOf(Mail.Abroad),
             ["council"] = CouncilState(),
@@ -121,6 +122,18 @@ public static class SaveGame
     {
         var d = new GDict();
         foreach (var p in Posts.Standing()) d[p.Name] = Ledger(p.Ledger);
+        return d;
+    }
+
+    private static GDict TownHouseholds()
+    {
+        var d = new GDict();
+        foreach (var h in Towns.Households())
+        {
+            var hd = Household(h);
+            hd["field"] = h.FieldDays; hd["harvest"] = h.HarvestYear;
+            d[h.FullKey] = hd;
+        }
         return d;
     }
 
@@ -227,8 +240,8 @@ public static class SaveGame
         }
     }
 
-    private static string HomeKey(Household h) => h == Sim.Fort ? "fort" : h == Sim.Nwc ? "nwc" : h == Sim.Band ? "band" : h == Sim.Outpost ? "outpost" : h == Sim.Assiniboine ? "assiniboine" : h is TradingPostLedger tp ? "post:" + tp.Post.Name : h is CountryBand cb ? "camp:" + cb.Country.Name : "";
-    private static Household HomeOf(string k) => k switch { "fort" => Sim.Fort, "nwc" => Sim.Nwc, "band" => Sim.Band, "outpost" => Sim.Outpost, "assiniboine" => Sim.Assiniboine, _ when k.StartsWith("post:") => Posts.Named(k[5..])?.Ledger, _ when k.StartsWith("camp:") => Camps.Named(k[5..])?.Ledger, _ => null };
+    private static string HomeKey(Household h) => h == Sim.Fort ? "fort" : h == Sim.Nwc ? "nwc" : h == Sim.Band ? "band" : h == Sim.Outpost ? "outpost" : h == Sim.Assiniboine ? "assiniboine" : h is TradingPostLedger tp ? "post:" + tp.Post.Name : h is CountryBand cb ? "camp:" + cb.Country.Name : h is TownHousehold th ? "town:" + th.FullKey : "";
+    private static Household HomeOf(string k) => k switch { "fort" => Sim.Fort, "nwc" => Sim.Nwc, "band" => Sim.Band, "outpost" => Sim.Outpost, "assiniboine" => Sim.Assiniboine, _ when k.StartsWith("post:") => Posts.Named(k[5..])?.Ledger, _ when k.StartsWith("camp:") => Camps.Named(k[5..])?.Ledger, _ when k.StartsWith("town:") => Towns.House(k[5..]), _ => null };
 
     private static GDict CouncilState()
     {
@@ -430,6 +443,14 @@ public static class SaveGame
             if (d.ContainsKey("posts"))
                 foreach (var kv in d["posts"].AsGodotDictionary())
                     if (Posts.Named(kv.Key.AsString())?.Ledger is { } pl) LoadLedger(pl, kv.Value.AsGodotDictionary());
+            if (d.ContainsKey("towns"))
+                foreach (var kv in d["towns"].AsGodotDictionary())
+                    if (Towns.House(kv.Key.AsString()) is { } th)
+                    {
+                        var hd = kv.Value.AsGodotDictionary();
+                        LoadHousehold(th, hd);
+                        th.FieldDays = F(hd, "field"); th.HarvestYear = I(hd, "harvest");
+                    }
             if (d.ContainsKey("camp")) Sim.Band?.MoveCamp(CellOf(d["camp"].AsGodotArray()));
             Mail.Abroad.Clear();
             if (d.ContainsKey("abroad")) foreach (var mv in d["abroad"].AsGodotArray()) Mail.Abroad.Add(MailFrom(mv.AsGodotDictionary()));

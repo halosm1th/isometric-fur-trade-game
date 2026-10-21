@@ -23,6 +23,10 @@ public abstract class RoleBehaviour
         Role.CreeHunter => new CreeHunterBehaviour(),
         Role.CreeWoman or Role.CreeDaughter => new CreeWomanBehaviour(),
         Role.Sailor => new SailorBehaviour(),
+        Role.Farmer => new FarmerBehaviour(),
+        Role.Merchant or Role.Artisan or Role.Priest or Role.Officer => new TownsmanBehaviour(),
+        Role.Soldier => new SoldierBehaviour(),
+        Role.Child => new ChildBehaviour(),
         _ => new ClerkBehaviour(),
     };
 
@@ -334,4 +338,50 @@ public class SailorBehaviour : RoleBehaviour
         return new WanderGoal(WorldLayout.WharfEnd, 2, 1f);
     }
     protected override Goal Work(Npc npc) => null;
+}
+
+// The towns (World/Towns). A farmer of the cote is in his fields from the
+// spring ploughing to the harvest, and in the bush for his winter's wood.
+public class FarmerBehaviour : RoleBehaviour
+{
+    protected override Goal Work(Npc npc)
+    {
+        var home = npc.HomeStores;
+        if (!IsWorkHours) return new WanderGoal(home?.AccessCell ?? npc.BedCell, 2, 1f);
+        int month = Cal.Month;
+        if (home != null && home.Stores.Count(ItemId.Firewood) < (month >= 10 || month <= 4 ? 30 : 10)) return new ChopWoodGoal();
+        if (month >= 4 && month <= 9) return new WanderGoal(npc.WorkCell, 3, 0.7f);
+        return new WanderGoal(home?.AccessCell ?? npc.BedCell, 3, 1f);
+    }
+}
+
+// The merchant at his counter, the smith at his forge, the priest at his
+// church, the officer at his orderly room: the day is spent at the work.
+public class TownsmanBehaviour : RoleBehaviour
+{
+    protected override Goal Work(Npc npc)
+    {
+        var home = npc.HomeStores;
+        if (IsWorkHours) return new WanderGoal(npc.WorkCell, 1, 1.5f);
+        return new WanderGoal(home?.AccessCell ?? npc.BedCell, 1, 1.5f);
+    }
+}
+
+// A soldier of the garrison: his turn as sentry or at drill, and the fatigue
+// parties that bring in the fort's wood.
+public class SoldierBehaviour : RoleBehaviour
+{
+    protected override Goal Work(Npc npc)
+    {
+        var home = npc.HomeStores;
+        if (!IsWorkHours) return new WanderGoal(home?.AccessCell ?? npc.BedCell, 1, 1f);
+        if (home != null && home.Stores.Count(ItemId.Firewood) < 30 && GD.Randf() < 0.35f) return new ChopWoodGoal();
+        return new WanderGoal(npc.WorkCell, 1, 0.5f);
+    }
+}
+
+// A child: about the house and the street, never far.
+public class ChildBehaviour : RoleBehaviour
+{
+    protected override Goal Work(Npc npc) => new WanderGoal(npc.HomeStores?.AccessCell ?? npc.BedCell, 4, 1.3f);
 }
