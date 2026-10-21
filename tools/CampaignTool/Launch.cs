@@ -68,15 +68,19 @@ public static class Launch
 		int at = step == null ? 0 : Math.Max(0, steps.FindIndex(s => Tree.S(s.GetValueOrDefault("id")) == step));
 		step ??= steps.Count > 0 ? Tree.S(steps[0].GetValueOrDefault("id")) : null;
 
-		// Where to stand: the step's place or person, else the nearest step before it that has one, else the giver.
+		// Where to stand: the step's person (the game's --spawn takes "leader@Fort Souris"
+		// or a name) or place, else the nearest step before it with one, else the giver.
+		// The start's own people (Person.Factor ...) are given by their house.
+		string Where(string who, string place)
+		{
+			if (!string.IsNullOrEmpty(place)) return place;
+			if (string.IsNullOrEmpty(who)) return null;
+			return Library.Persons.ContainsKey(who) ? MapData.Resolve(who, null).Spot?.Name : who;
+		}
 		string spawn = null;
 		for (int i = at; i >= 0 && spawn == null && i < steps.Count; i--)
-		{
-			var s = steps[i];
-			var (spot, _) = MapData.Resolve(s.ContainsKey("who") ? Tree.S(s["who"]) : null, s.ContainsKey("place") ? Tree.S(s["place"]) : null);
-			if (s.ContainsKey("who") || s.ContainsKey("place")) spawn = spot?.Kind == "person" ? null : spot?.Name;
-		}
-		if (spawn == null && q.TryGetValue("giver", out var g)) spawn = MapData.Resolve(Tree.S(g), null).Spot?.Name;
+			spawn = Where(steps[i].ContainsKey("who") ? Tree.S(steps[i]["who"]) : null, steps[i].ContainsKey("place") ? Tree.S(steps[i]["place"]) : null);
+		if (spawn == null && q.TryGetValue("giver", out var g)) spawn = Where(Tree.S(g), null);
 
 		// When: the day after whatever the quest - or any quest it requires, all the
 		// way back - waits for (a date, or a beat of the story or its history).
@@ -102,6 +106,7 @@ public static class Launch
 		var args = new List<string> { $"--campaign={campaign}", $"--start={road}", $"--quest={quest}{(step != null ? ":" + step : "")}" };
 		if (spawn != null) args.Add($"--spawn={spawn}");
 		if (dateArg != null) args.Add($"--date={dateArg}");
+		args.Add("--watch");   // an Install while it runs reloads the campaign in place
 		string why = $"{road} road, quest {quest}{(step != null ? $" at {step}" : "")}{(spawn != null ? $", at {spawn}" : "")}{(dateArg != null ? $", on {dateArg}" : "")}";
 		return new Plan(campaign, road, quest, step, spawn, dateArg, args, why);
 	}

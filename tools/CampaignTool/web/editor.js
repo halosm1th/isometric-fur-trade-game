@@ -283,6 +283,10 @@ async function install() {
 // Play in game: install, then start the game at a quest step - the one named,
 // or the one under the cursor - on its road, its day, and its place (Launch.cs).
 async function play(quest, step) {
+  // One game per press: a second click while it starts would open a second window.
+  if (state.launching) return;
+  state.launching = true; $('btnPlay').disabled = true;
+  setTimeout(() => { state.launching = false; $('btnPlay').disabled = false; }, 6000);
   try {
     if (el.input.value !== state.clean && state.path) await save();
     const line = el.input.value.slice(0, el.input.selectionStart).split('\n').length;

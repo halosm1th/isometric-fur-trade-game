@@ -18,10 +18,11 @@ public class LaunchTests
 	public void A_step_starts_on_its_road_at_its_place()
 	{
 		var p = For("Neighbours", "Call");
-		Assert.Equal(new[] { "--campaign=company-servant", "--start=HBC", "--quest=Neighbours:Call", "--spawn=Fort Augustus" }, p.Args);
+		Assert.Equal(new[] { "--campaign=company-servant", "--start=HBC", "--quest=Neighbours:Call", "--spawn=partner@Fort Augustus", "--watch" }, p.Args);
 		Assert.Equal("--start=NWC", For("FortSouris", "Report").Args[1]);
 		Assert.Equal("--start=American", For("AmSyilxTrade", "Council").Args[1]);
-		Assert.Equal("Syilx (Okanagan)", For("AmSyilxTrade", "Council").Spawn);
+		Assert.Equal("chief@Syilx (Okanagan)", For("AmSyilxTrade", "Council").Spawn);   // a talk step: its person
+		Assert.Equal("Syilx (Okanagan)", For("AmSyilxTrade", "Camp").Spawn);            // a reach step: its place
 		Assert.Equal("York Factory", For("Landfall", null).Spawn);            // Person.Factor: the Factor's house
 	}
 

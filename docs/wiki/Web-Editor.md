@@ -44,6 +44,8 @@ Colours say what a word *is*, so a misspelling shows up as the wrong colour befo
 
 ## The tabs
 
+**Play in game** (or **Ctrl+Enter**) installs the campaign and starts the game at the quest step the cursor is in; each step listed under a place on the **Map** has its own *play* button. The game starts on that step's road (the quest line's company), standing where the step happens (its person for a talk or bring step, its place for a reach step, else the nearest step before it, else the quest's giver), on the day after whatever the quest - or any quest it requires - waits for, with every earlier quest done and the flags it waits on raised. It runs with `--watch`, so pressing *Install in game* again reloads the campaign in the running game without losing your place. Godot is found from the `GODOT` environment variable, or a `Godot_v*` folder beside the repository; the status line shows what it is doing, and hovering it shows the command it ran.
+
 **Problems** lists the compile error (if any), the checker's errors and warnings, and, if you tick *show notes*, the gentler notes (a flag that nothing reads). Click one to jump to its line.
 
 **JSON** is what the game will read. *Copy* puts it on the clipboard.
