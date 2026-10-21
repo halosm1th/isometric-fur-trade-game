@@ -32,6 +32,33 @@ public partial class Hearth : Node2D
     private PointLight2D _light;
     private float _flicker;
 
+    // The fire itself (design doc 18.4). Until now a hearth was a light and
+    // a tile: the flame is drawn here, over whatever ring of stones or
+    // fireplace the tile shows, so it burns, dies down to embers, smokes and
+    // throws the odd spark.
+    private const string Fx = "res://assets/sprites/fx/";
+    private static readonly System.Collections.Generic.Dictionary<string, Texture2D[]> Art = new();
+    private Sprite2D _flame, _smoke, _sparks;
+    private float _anim, _smokeAnim, _sparkIn = 4f;
+
+    private static Texture2D[] Frames(string name, int n)
+    {
+        if (Art.TryGetValue(name, out var have)) return have;
+        var a = new Texture2D[n];
+        for (int i = 0; i < n; i++) a[i] = GD.Load<Texture2D>($"{Fx}{name}_{i}.png");
+        Art[name] = a;
+        return a;
+    }
+
+    // Each frame is cropped to its own size, so the anchor is set with it:
+    // bottom centre, which is where the fire meets the ground.
+    private static void Put(Sprite2D s, Texture2D t)
+    {
+        if (t == null || s.Texture == t) return;
+        s.Texture = t;
+        s.Offset = new Vector2(-t.GetWidth() / 2f, -t.GetHeight());
+    }
+
     public override void _Ready()
     {
         // Additive lights use the texture's colour, so the edge must go to
@@ -68,6 +95,15 @@ public partial class Hearth : Node2D
             Material = new CanvasItemMaterial { BlendMode = CanvasItemMaterial.BlendModeEnum.Add },
         };
         AddChild(_glow);
+
+        // A fire indoors is in a fireplace and stands tall against the back
+        // of it; one in the open is a low fire in a ring of stones.
+        _smoke = new Sprite2D { Centered = false, Position = new Vector2(0, -34), Scale = Vector2.One * 0.15f, ZIndex = 1, Modulate = new Color(1, 1, 1, 0.3f) };
+        AddChild(_smoke);
+        _flame = new Sprite2D { Centered = false, Position = new Vector2(0, -16), Scale = Vector2.One * (Enclosed ? 0.22f : 0.19f), ZIndex = 0 };
+        AddChild(_flame);
+        _sparks = new Sprite2D { Centered = false, Position = new Vector2(0, -24), Scale = Vector2.One * 0.14f, ZIndex = 1, Visible = false };
+        AddChild(_sparks);
     }
     private Sprite2D _glow;
 
@@ -94,7 +130,48 @@ public partial class Hearth : Node2D
         _glow.Visible = IsBurning && dark > 0.02f;
         _glow.Modulate = new Color(1f, 0.6f, 0.3f, 0.28f * Intensity * pulse * dark);
         _light.Energy *= Mathf.Lerp(0.35f, 1f, dark);
+
+        // The flame: six frames at a fire's own restless rate, or the four
+        // of a bed of embers once the wood is nearly gone.
+        bool embers = IsBurning && FuelHours < 1.5f;
+        _flame.Visible = IsBurning;
+        if (IsBurning)
+        {
+            _anim += (float)delta * (embers ? 4f : 10f);
+            var set = embers ? Frames("embers", 4) : Frames(Enclosed ? "hearthfire" : "campfire", 6);
+            Put(_flame, set[Mathf.PosMod((int)_anim, set.Length)]);
+            _flame.Scale = Vector2.One * (embers ? 0.17f : Enclosed ? 0.22f : 0.19f) * Mathf.Lerp(0.82f, 1.05f, Intensity);
+        }
+
+        // Smoke rises off anything burning, and off a fire just gone out.
+        bool smoking = IsBurning || FuelHours <= 0f && Lit && _smokeOut > 0f;
+        if (IsBurning) _smokeOut = 14f;
+        else if (_smokeOut > 0f) _smokeOut -= (float)delta;
+        _smoke.Visible = smoking && !Enclosed;   // indoors it goes up the chimney
+        if (_smoke.Visible)
+        {
+            _smokeAnim += (float)delta * 3.2f;
+            var puffs = Frames("smoke", 6);
+            Put(_smoke, puffs[Mathf.PosMod((int)_smokeAnim, puffs.Length)]);
+            float strength = IsBurning ? 0.16f + 0.14f * Intensity : 0.26f;
+            _smoke.Modulate = new Color(1, 1, 1, strength);
+        }
+
+        // And a well-fed fire throws sparks now and then.
+        _sparkIn -= (float)delta;
+        if (_sparkIn <= 0f)
+        {
+            _sparkIn = (float)GD.RandRange(2.5, 7.0);
+            if (IsBurning && FuelHours > 3f)
+            {
+                var sp = Frames("sparks", 4);
+                Put(_sparks, sp[GD.RandRange(0, sp.Length - 1)]);
+                _sparks.Visible = true;
+                GetTree().CreateTimer(0.35).Timeout += () => { if (IsInstanceValid(_sparks)) _sparks.Visible = false; };
+            }
+        }
     }
+    private float _smokeOut;
 
     public float HeatAt(Vector2 worldPos)
     {

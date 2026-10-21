@@ -474,6 +474,10 @@ Talk to one of your own company's men (labourer or voyageur) with rank *clerk*/*
 
 The six `SkyState`s are drawn now (`UI/WeatherOverlay.cs`), over the world and under the HUD. Snow falls in two layers, the near one larger and faster; a blizzard is a white veil with the snow driving across it; rain comes in sheets; fog lies in bands over the river on an overcast morning between about four and nine; and on a clear winter night the aurora stands over the post, drawn with an additive material so it glows rather than greys. Everything crossfades over about two seconds, and under a roof it drops to a fifth, so you still see it through the door. `-- --sky=Blizzard` holds the sky there for a day.
 
+## What a fire looks like (design doc 18.4)
+
+A hearth was a light and a tile; it has a flame now (`World/Hearth.cs`), drawn over whatever ring of stones or fireplace the tile shows. Six frames at a fire's own restless rate, four of a bed of embers once it is down to its last hour and a half of fuel, a plume of smoke off anything burning (and off one just gone out, for a quarter of a minute), and the odd spark from a well-fed one. Indoors the flame stands taller in its fireplace and the smoke goes up the chimney instead. Every hearth in the world has it: the post's rooms, the camps' lodge fires, and a campfire you lay yourself.
+
 ## What a fight looks like (design doc 15.6)
 
 Beyond the line and the flash: powder in the pan, then the great white cloud a flintlock made at the muzzle; dust kicked off the ground where a ball goes wide; the arc of a blade; blood thrown when a blow tells; and a pool left where a man falls. The effects hang off the body rather than the scene, so they follow a man still moving when the ball strikes him. `-- --fx` plays each one beside you - they fire about twenty seconds into a run, well after the world has loaded.
