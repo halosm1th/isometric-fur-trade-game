@@ -226,7 +226,7 @@ public static class Posts
             m.FillInventory(npc);
             if (m.Leader) p.Ledger.Leader = npc;
         }
-        if (p.Ledger.Leader == null && p.Faction == Faction.American) Staff(pop, p);
+        if (p.Ledger.Leader == null) Staff(pop, p);   // nobody placed for it in the editor
         Sim.Notice($"{p.Name} is built and manned ({CompanyName(p)}).");
     }
 
@@ -258,6 +258,7 @@ public static class Posts
     {
         ["Fort Manuel Lisa"] = new[] { "Mr. Manuel Lisa", "John Dougherty (clerk)" },
         ["Fort Okanogan"] = new[] { "Mr. David Stuart", "Alexander Ross (clerk)" },
+        ["Lake Traverse"] = new[] { "Mr. Robert Dickson", "Joseph Renville (clerk)" },
         ["Fort Union"] = new[] { "Mr. Kenneth McKenzie", "James Archdale Hamilton (clerk)" },
         ["Fort Clark"] = new[] { "Mr. James Kipp", "Francis Chardon (clerk)" },
         ["Fort Piegan"] = new[] { "Mr. James Kipp", "Jacob Berger (clerk)" },
@@ -272,7 +273,7 @@ public static class Posts
     private static readonly string[] HunterNames = { "George Drouillard", "John Colter", "Edward Rose", "Reuben Lewis", "Jim Bridger", "Hugh Glass", "John Potts", "Andrew Henry" };
     public static readonly Color AmericanTint = new(0.82f, 0.88f, 1f);
 
-    // An American post has no cast placed in the editor: it gets a master,
+    // A post with no cast placed in the editor (the American posts, Lake Traverse) gets a master,
     // his clerk, and its men here.
     public static void Staff(Population pop, TradingPost p)
     {
@@ -308,10 +309,10 @@ public static class Posts
         }
     }
 
-    // Server, at world start: staff the American posts already standing.
+    // Server, at world start: staff the posts already standing that have nobody placed (the American posts, Lake Traverse).
     public static void StaffUnmarked(Population pop)
     {
-        foreach (var p in Standing()) if (p.Ledger.Leader == null && p.Faction == Faction.American) Staff(pop, p);
+        foreach (var p in Standing()) if (p.Ledger.Leader == null) Staff(pop, p);
     }
 
     private static string Pick(string[] first, HashSet<string> taken, string[] last = null)

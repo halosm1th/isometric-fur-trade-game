@@ -84,52 +84,52 @@ public partial class Ship : Node2D
         Cargo.Add(ItemId.Kettle, 4);
         Cargo.Add(ItemId.PointBlanket, 20);
         Cargo.Add(ItemId.Capote, 6);
-        // The rest of London's outfit: what the country trades for (Economy/
-        // StandardOfTrade), landed piece by piece and carried up the roads
-        // to the depots (Economy/Outfits, World/Convoys).
-        foreach (var (id, mb) in Economy.Outfits.Mix)
-            Cargo.Add(id, Mathf.RoundToInt(mb * Economy.Outfits.YearMb / 100f / Items.Items.Of(id).ValueMb));
-        Position = WorldLayout.ShipOffscreen;
-        Visible = true;
-        Current = State.Arriving;
-        _ordersRead = false;
-        if (Sim.Fort != null) Packet = Letters.Directive(Sim.Fort.LondonIncentiveNext, Sim.Fort.QuotaNextMb, GameCalendar.Instance?.Year ?? 1811);
-        Sim.Notice("A sail on the bay: the ship from England is standing in.");
-    }
+		// The rest of London's outfit: what the country trades for (Economy/
+		// StandardOfTrade), landed piece by piece and carried up the roads
+		// to the depots (Economy/Outfits, World/Convoys).
+		foreach (var (id, mb) in Sim.Fort != null ? Economy.PostWants.YearOrder(Sim.Fort) : new System.Collections.Generic.List<(ItemId, float)>(Economy.Outfits.Mix))
+			Cargo.Add(id, Mathf.RoundToInt(mb * Economy.Outfits.YearMb / 100f / Items.Items.Of(id).ValueMb));
+		Position = WorldLayout.ShipOffscreen;
+		Visible = true;
+		Current = State.Arriving;
+		_ordersRead = false;
+		if (Sim.Fort != null) Packet = Letters.Directive(Sim.Fort.LondonIncentiveNext, Sim.Fort.QuotaNextMb, GameCalendar.Instance?.Year ?? 1811);
+		Sim.Notice("A sail on the bay: the ship from England is standing in.");
+	}
 
-    public void Depart()
-    {
-        if (!IsDocked) return;
-        int alive = 0;
-        foreach (var c in Crew) if (c != null && IsInstanceValid(c) && !c.IsDead) alive++;
-        if (alive < 3)
-        {
-            Current = State.Stranded;
-            Sim.Notice("The ship cannot sail: too few of her crew are left alive. She lies at the wharf.");
-            return;
-        }
-        foreach (var c in Crew) if (c != null && IsInstanceValid(c)) c.QueueFree();
-        Crew.Clear();
-        Current = State.Departing;
-        Npc factor = null; foreach (var n in Sim.Npcs) if (n.Role == Role.Factor && !n.IsDead) factor = n;
-        // A Factor with little loyalty and some ambition shades the books:
-        // a share of the furs never reaches the hold (design doc 3.9 step 8).
-        if (factor != null && factor.Personality.Loyalty < 0.35f && factor.Personality.Ambition > 0.5f && Sim.Fort != null)
-        {
-            float skim = 0f;
-            foreach (var id in new[] { Items.ItemId.BeaverPelt, Items.ItemId.WolfPelt })
-            {
-                int n = Hold.Count(id); int take = Mathf.FloorToInt(n * 0.1f);
-                if (take > 0) { Hold.Remove(id, take); skim += Items.Items.Of(id).ValueMb * take; }
-            }
+	public void Depart()
+	{
+		if (!IsDocked) return;
+		int alive = 0;
+		foreach (var c in Crew) if (c != null && IsInstanceValid(c) && !c.IsDead) alive++;
+		if (alive < 3)
+		{
+			Current = State.Stranded;
+			Sim.Notice("The ship cannot sail: too few of her crew are left alive. She lies at the wharf.");
+			return;
+		}
+		foreach (var c in Crew) if (c != null && IsInstanceValid(c)) c.QueueFree();
+		Crew.Clear();
+		Current = State.Departing;
+		Npc factor = null; foreach (var n in Sim.Npcs) if (n.Role == Role.Factor && !n.IsDead) factor = n;
+		// A Factor with little loyalty and some ambition shades the books:
+		// a share of the furs never reaches the hold (design doc 3.9 step 8).
+		if (factor != null && factor.Personality.Loyalty < 0.35f && factor.Personality.Ambition > 0.5f && Sim.Fort != null)
+		{
+			float skim = 0f;
+			foreach (var id in new[] { Items.ItemId.BeaverPelt, Items.ItemId.WolfPelt })
+			{
+				int n = Hold.Count(id); int take = Mathf.FloorToInt(n * 0.1f);
+				if (take > 0) { Hold.Remove(id, take); skim += Items.Items.Of(id).ValueMb * take; }
+			}
 			if (skim > 0f) { Sim.Fort.SkimmedMb += skim; Chronicle.Event($"{factor.DisplayName} kept back furs of his own from the ship's hold.", factor.GlobalPosition, factor, weight: 2f); }
-        }
-        float mb = Hold.TotalValueMb;
+		}
+		float mb = Hold.TotalValueMb;
 		Sim.Notice($"The ship has sailed for London with {mb:0} MB of furs aboard" + (Sim.Fort != null ? $" (quota was {Sim.Fort.QuotaMb:0})." : "."));
-        foreach (var pc in Sim.Players())
-        {
-            if (pc.Faction != Faction.HBC) continue;
-            // The year's unexplained sightings roll up into standing at the same
+		foreach (var pc in Sim.Players())
+		{
+			if (pc.Faction != Faction.HBC) continue;
+			// The year's unexplained sightings roll up into standing at the same
             // cadence as the accounts (design doc 10.5).
             if (factor != null)
             {
@@ -147,7 +147,7 @@ public partial class Ship : Node2D
             if (factor != null)
             {
                 int onHisOwn = 0;
-                foreach (var m in factor.Memories) if (m.Subject == pc.DisplayName && m.Text.Contains("on his own account")) onHisOwn++;
+				foreach (var m in factor.Memories) if (m.Subject == pc.DisplayName && m.Text.Contains("on his own account")) onHisOwn++;
                 if (onHisOwn > 0)
                 {
                     float hit = Mathf.Min(20f, 4f + onHisOwn * 3f);
@@ -165,7 +165,7 @@ public partial class Ship : Node2D
             string was = pc.Rank;
 			pc.Rank = pc.Standing >= 60f ? "postmaster" : pc.Standing >= 35f ? "clerk" : pc.Standing >= 15f ? "labourer" : "on notice";
 			if (pc.Rank != was) pc.Say(pc.Standing >= 35f ? $"The Factor writes well of you in the accounts that sail today. You are rated {pc.Rank}." : $"The Factor's report on you is cool. You are rated {pc.Rank}.");
-            if (pc.Rank == "clerk" || pc.Rank == "postmaster") pc.Inventory.Add(Items.ItemId.TradeGoods, pc.Rank == "postmaster" ? 12 : 6);
+			if (pc.Rank == "clerk" || pc.Rank == "postmaster") pc.Inventory.Add(Items.ItemId.TradeGoods, pc.Rank == "postmaster" ? 12 : 6);
 			// The trade year closes with her: the player's own account of it
 			// goes into his book (design doc P.3).
 			Core.Reckoning.AtShipSailing(pc, mb, Sim.Fort);

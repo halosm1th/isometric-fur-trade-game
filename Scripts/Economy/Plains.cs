@@ -44,7 +44,7 @@ public static class Plains
         foreach (var v in _views.Values) if (GodotObject.IsInstanceValid(v)) v.QueueFree();
         _views.Clear();
         BuffaloRun.Active.Clear(); BuffaloRun.LastRun.Clear();
-        Outfits.Reset(); TradeTrips.Reset(); StandardOfTrade.ResetBeliefs(); Wants.Reset();
+        Outfits.Reset(); TradeTrips.Reset(); StandardOfTrade.ResetBeliefs(); Wants.Reset(); PostWants.Reset();
         War.Reset();
     }
 
@@ -276,7 +276,6 @@ public static class Plains
                     { b.KnownSites.Add(s.Name); b.Believe(s.Name, s.Cell); }
             if (!IsLive(b)) RunInNumbers(b, cal);
             MakePemmican(b);
-            Freight(b, cal);
         }
         Raids(cal);
         War.Weekly(cal);
@@ -664,7 +663,7 @@ public static class Plains
     {
         var f = new Godot.Collections.Dictionary(); foreach (var kv in Feuds) f[kv.Key] = kv.Value;
         var l = new Godot.Collections.Dictionary(); foreach (var kv in BuffaloRun.LastRun) l[kv.Key] = kv.Value;
-        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save(), ["war"] = War.Save(), ["outfits"] = Outfits.Save(), ["trips"] = TradeTrips.Save(), ["wants"] = Wants.Save() };
+        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save(), ["war"] = War.Save(), ["outfits"] = Outfits.Save(), ["trips"] = TradeTrips.Save(), ["wants"] = Wants.Save(), ["indent"] = PostWants.Save() };
     }
 
     public static void Load(Godot.Collections.Dictionary d)
@@ -675,6 +674,7 @@ public static class Plains
         War.Load(d != null && d.ContainsKey("war") ? d["war"].AsGodotDictionary() : null);
         Outfits.Load(d != null && d.ContainsKey("outfits") ? d["outfits"].AsGodotArray() : null);
         Wants.Load(d != null && d.ContainsKey("wants") ? d["wants"].AsGodotDictionary() : null);
+        PostWants.Load(d != null && d.ContainsKey("indent") ? d["indent"].AsGodotDictionary() : null);
         TradeTrips.Load(d != null && d.ContainsKey("trips") ? d["trips"].AsGodotArray() : null);
         if (d == null) return;
         if (d.ContainsKey("feuds")) foreach (var kv in d["feuds"].AsGodotDictionary()) Feuds[kv.Key.AsString()] = kv.Value.AsSingle();

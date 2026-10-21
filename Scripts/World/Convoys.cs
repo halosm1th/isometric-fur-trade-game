@@ -521,12 +521,15 @@ public static class Convoys
 			foreach (var (id, share) in Outfit)
 			{
 				int have = from.Stores.Count(id);
-				int want = Fits(id, Mathf.FloorToInt(have * (leg.Share > 0f ? leg.Share : run.Share > 0f ? run.Share : share)));
+				// Leaning toward what the post at the end asked for last season (Economy/PostWants).
+				float lean = Economy.PostWants.Bias(leg.To, id);
+				int want = Fits(id, Mathf.Min(have, Mathf.FloorToInt(have * (leg.Share > 0f ? leg.Share : run.Share > 0f ? run.Share : share) * lean)));
 				if (want <= 0) continue;
 				int take = from.Stores.TakeUpTo(id, want);
 				if (take > 0) { c.Cargo.Add(id, take); capLbs -= take * Items.Items.Of(id).WeightLbs; }
 			}
 		}
+		if (leg.Cargo == "returns") Economy.PostWants.OnReturnsLeave(c.Id, leg.From);
 		c.LotsAtStart = c.Lots;
 		var cal = GameCalendar.Instance;
 		if (c.Lots < 1)
@@ -804,6 +807,7 @@ public static class Convoys
 		c.To.LastSupplyDay = today;
 		c.ArrivedDay = today; c.HasCamp = false;
 		Unraise($"late:{c.Name}"); Raise($"in:{c.Name}"); Raise("brigade_in");
+		if (c.Leg.Cargo == "returns") Economy.PostWants.OnReturnsIn(c.Id, c.ToName);
 		string line = c.TurnedBack
 			? $"{c.Name} are back at {c.ToName} after being turned back, with {lots} pieces still aboard."
 			: $"{c.Name} are in at {c.ToName}: {lots} pieces landed after {c.DaysOut} days.";

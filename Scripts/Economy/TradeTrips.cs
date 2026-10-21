@@ -36,7 +36,8 @@ public static class TradeTrips
     {
         if (Away(b)) return false;
         var furs = StandardOfTrade.FursFor(b);
-        if (furs.Count == 0) return false;
+        var food = StandardOfTrade.ProvisionsFor(b);
+        if (furs.Count == 0 && food.Count == 0) return false;
         var t = new TradeTrip { Camp = b, Post = post };
         foreach (var n in Sim.Npcs)
         {
@@ -49,6 +50,15 @@ public static class TradeTrips
         }
         if (t.Party.Count == 0) return false;
         foreach (var (id, n) in furs) { b.Stores.Remove(id, n); t.Load.Add(id, n); }
+        // Provisions go as far as the carts, the horses and the men's backs will carry.
+        float lbs = b.Herd.Carts * 800f + b.Herd.Free * 150f + t.Party.Count * 60f - t.Load.TotalWeightLbs;
+        foreach (var (id, n) in food)
+        {
+            int k = Mathf.Min(n, Mathf.FloorToInt(lbs / Mathf.Max(0.1f, Items.Items.Of(id).WeightLbs)));
+            if (k <= 0) continue;
+            b.Stores.Remove(id, k); t.Load.Add(id, k);
+            lbs -= k * Items.Items.Of(id).WeightLbs;
+        }
         float km = IsoGrid.ToWorld(b.Camp).DistanceTo(IsoGrid.ToWorld(post.AccessCell)) / WorldMap.PxPerKm;
         bool riding = b.Herd.Free >= t.Party.Count;
         int oneWay = Mathf.Max(1, Mathf.CeilToInt(km / (riding ? 45f : 25f)));

@@ -1477,6 +1477,19 @@
     579
    ],
    "kind": "camp"
+  },
+  {
+   "name": "Lake Traverse",
+   "lon": -96.6,
+   "lat": 45.7,
+   "cell": [
+    651,
+    2168
+   ],
+   "kind": "post",
+   "company": "NWC",
+   "year": 1800,
+   "note": "Robert Dickson's post among the Dakota at the head of the Minnesota River: the British trade of the upper Mississippi, its goods up from Michilimackinac by way of Prairie du Chien."
   }
  ],
  "layout": {
@@ -11024,6 +11037,16 @@
     ]
    },
    {
+    "name": "Lake Traverse",
+    "company": "NWC",
+    "year": 1800,
+    "closed": 0,
+    "top": [
+     650,
+     2157
+    ]
+   },
+   {
     "name": "Pembina Post",
     "company": "NWC",
     "year": 1801,
@@ -12410,6 +12433,17 @@
     "centre": [
      141,
      180
+    ],
+    "people": 4
+   },
+   {
+    "name": "Dakota (Santee Sioux) family at Lake Traverse",
+    "nation": "Sioux",
+    "kind": "family",
+    "post": "Lake Traverse",
+    "centre": [
+     645,
+     2175
     ],
     "people": 4
    },

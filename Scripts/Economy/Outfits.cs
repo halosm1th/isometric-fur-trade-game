@@ -32,13 +32,16 @@ public static class Outfits
     // Where each company's goods come onto the map, and when (design doc
     // 10.1.5): the Montreal canoes in at the Sault in June; the Pacific Fur
     // Company's goods up the Columbia from the ship at Astoria in August; the
-    // Missouri Fur Company's keelboats up from St. Louis in October. London's
+    // Missouri Fur Company's keelboats up from St. Louis in October; the British
+    // goods for the Dakota up the Mississippi from Michilimackinac by way of
+    // Prairie du Chien to Dickson's post at Lake Traverse in September. London's
     // ship at York is World/Ship.cs. A campaign can stop one with its flag.
     private static readonly (string Post, int Month, float Mb, string Flag, string Story)[] Entries =
     {
         (Entry, 6, YearMb, "blockade:montreal", "The canoes from Montreal are in at Sault Ste. Marie with the North West Company's goods for the year."),
         ("Fort Okanogan", 8, 1500f, "blockade:pacific", "The Pacific Fur Company's goods are up the Columbia from the ship at Astoria."),
         ("Fort Manuel Lisa", 10, 1500f, "blockade:missouri", "The keelboats are up the Missouri from St. Louis with the year's goods."),
+        ("Lake Traverse", 9, 1500f, "blockade:mississippi", "Dickson's canoes are up from Prairie du Chien with the British goods for the Dakota trade."),
     };
     private static readonly System.Collections.Generic.Dictionary<string, int> _entryYears = new();
 
@@ -95,7 +98,7 @@ public static class Outfits
             var at = Posts.Named(e.Post)?.Ledger;
             if (at == null) continue;
             if (Campaign.Has(e.Flag)) { Sim.Notice($"No goods came in at {e.Post} this year."); continue; }
-            foreach (var (id, mb) in Mix) at.Stores.Add(id, Mathf.RoundToInt(mb * e.Mb / 100f / Items.Items.Of(id).ValueMb));
+            foreach (var (id, mb) in PostWants.YearOrder(at)) at.Stores.Add(id, Mathf.RoundToInt(mb * e.Mb / 100f / Items.Items.Of(id).ValueMb));
             if (Plains.Log) GD.Print($"[trade] {cal.DateString} {e.Story} ({e.Mb:0} MB)");
             Chronicle.Event(e.Story, IsoGrid.ToWorld(at.AccessCell), subject: e.Post, weight: 1f);
         }
@@ -252,6 +255,13 @@ public static class Outfits
             if (d < bd) { bd = d; best = name; }
         }
         return best;
+    }
+
+    // A place a brigade takes an outfit out of: a depot on the roads.
+    public static bool IsDepot(string name)
+    {
+        foreach (var run in Convoys.Runs) foreach (var leg in run.Legs) if (leg.From == name && leg.Cargo == "outfit") return true;
+        return false;
     }
 
     // A post as the game begins: the outfit of the year before, part traded.

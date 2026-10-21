@@ -43,6 +43,26 @@ public static class StandardOfTrade
         return lots;
     }
 
+    // The provisions a camp can spare: what is beyond two months of its own keep.
+    public static List<(ItemId, int)> ProvisionsFor(BandLedger b)
+    {
+        var lots = new List<(ItemId, int)>();
+        float keep = Mathf.Max(1, b.Mouths) * 60f;   // day-rations
+        float have = b.Stores.FoodNutritionTotal / 34f;
+        float spare = have - keep;
+        if (spare <= 0f) return lots;
+        foreach (var id in new[] { ItemId.Pemmican, ItemId.DriedMeat, ItemId.Corn })
+        {
+            float per = Items.Items.Of(id).Nutrition / 34f;
+            int n = Mathf.Min(b.Stores.Count(id), Mathf.FloorToInt(spare / per));
+            if (n <= 0) continue;
+            lots.Add((id, n));
+            spare -= n * per;
+            if (spare <= 0f) break;
+        }
+        return lots;
+    }
+
     public static float Worth(Inventory inv)
     {
         float mb = 0f;
@@ -69,7 +89,7 @@ public static class StandardOfTrade
     // come up. So a post that has run out of powder keeps its country until
     // word of it gets round, and wins it back the same way.
     private const float Unknown = 20f;   // what anyone expects of a house nobody has spoken of
-    private static readonly Dictionary<BandLedger, Dictionary<TradingPostLedger, (int Day, float Covers)>> _beliefs = new();
+    private static readonly Dictionary<BandLedger, Dictionary<TradingPostLedger, (int Day, float Covers, bool Food)>> _beliefs = new();
 
     private static readonly Dictionary<BandLedger, int> _lastTrip = new();
     public static void ResetBeliefs() { _beliefs.Clear(); _lastTrip.Clear(); }
@@ -81,10 +101,19 @@ public static class StandardOfTrade
         return Mathf.Lerp(e.Covers, Unknown, Mathf.Clamp(age / 150f, 0f, 1f));
     }
 
-    private static void Learn(BandLedger b, TradingPostLedger post, int day, float covers)
+    private static void Learn(BandLedger b, TradingPostLedger post, int day, float covers, bool food)
     {
         if (!_beliefs.TryGetValue(b, out var m)) _beliefs[b] = m = new();
-        if (!m.TryGetValue(post, out var e) || e.Day <= day) m[post] = (day, covers);
+        if (!m.TryGetValue(post, out var e) || e.Day <= day) m[post] = (day, covers, food);
+    }
+
+    // Does the camp believe the house is buying provisions? What it found
+    // there last; or, if it has never been, what everyone knows - the houses
+    // on the brigade roads buy pemmican.
+    private static bool BelievesBuysFood(BandLedger b, TradingPostLedger post)
+    {
+        if (_beliefs.TryGetValue(b, out var m) && m.TryGetValue(post, out var e) && Plains.Today - e.Day < 200) return e.Food;
+        return Outfits.IsDepot(post.Post.Name);
     }
 
     // Word gets round: each week a camp tells a near neighbour what it last saw at the houses.
@@ -101,8 +130,8 @@ public static class StandardOfTrade
             }
             if (other == null) continue;
             // A telling is a few days older than the seeing, and a little blurred.
-            foreach (var (post, e) in new List<KeyValuePair<TradingPostLedger, (int Day, float Covers)>>(_beliefs[b]))
-                Learn(other, post, e.Day - 3, e.Covers * (float)GD.RandRange(0.8, 1.2));
+            foreach (var (post, e) in new List<KeyValuePair<TradingPostLedger, (int Day, float Covers, bool Food)>>(_beliefs[b]))
+                Learn(other, post, e.Day - 3, e.Covers * (float)GD.RandRange(0.8, 1.2), e.Food);
         }
     }
 
@@ -118,22 +147,26 @@ public static class StandardOfTrade
             var b = camp.Ledger;
             if (b == null || Gardens.IsTown(b)) continue;
             Wants.Week(b);
-            if (!season || TradeTrips.Away(b)) continue;
+            if (TradeTrips.Away(b)) continue;
             // A camp goes in a few times a season - in the fall for its
             // winter's debt, at midwinter, and with the spring hunt - not every week.
             if (_lastTrip.TryGetValue(b, out int last) && Plains.Today - last < 35) continue;
             float furs = 0f; foreach (var (id, n) in FursFor(b)) furs += n * Items.Items.Of(id).ValueMb;
-            // A trip is worth making for a few packs, not for a pelt.
-            if (furs < Mathf.Max(15f, b.Mouths * 2f)) continue;
-            var post = camp.IsFamily && Posts.Named(camp.Post)?.Ledger is { } own ? own : ChoosePost(b);
-            if (post != null && TradeTrips.Start(b, post, cal)) _lastTrip[b] = Plains.Today;
+            float food = 0f; foreach (var (id, n) in ProvisionsFor(b)) food += n * Items.Items.Of(id).ValueMb;
+            // Furs in their season, worth a trip for a few packs; provisions
+            // whenever there is a surplus and a house the camp believes is buying.
+            bool forFurs = season && furs >= Mathf.Max(15f, b.Mouths * 2f);
+            bool forFood = food >= 12f;
+            if (!forFurs && !forFood) continue;
+            var post = camp.IsFamily && Posts.Named(camp.Post)?.Ledger is { } own ? own : ChoosePost(b, !forFurs);
+            if (post != null && (forFurs || BelievesBuysFood(b, post)) && TradeTrips.Start(b, post, cal)) _lastTrip[b] = Plains.Today;
         }
         Gossip();
     }
 
     // A camp's choice of house: the one it believes answers its wants best
     // among those within reach, the nearer favoured.
-    public static TradingPostLedger ChoosePost(BandLedger b)
+    public static TradingPostLedger ChoosePost(BandLedger b, bool forFood = false)
     {
         TradingPostLedger best = null; float bestScore = 0f;
         var at = IsoGrid.ToWorld(b.Camp);
@@ -143,6 +176,7 @@ public static class StandardOfTrade
             float d = IsoGrid.ToWorld(p.Ledger.AccessCell).DistanceTo(at);
             if (d > ReachPx) continue;
             float score = (1f + Believed(b, p.Ledger)) * (1f - 0.5f * d / ReachPx) * Safety(b, p.Ledger);
+            if (forFood) score *= BelievesBuysFood(b, p.Ledger) ? 3f : 0.1f;
             if (score > bestScore) { bestScore = score; best = p.Ledger; }
         }
         return best;   // null: no house it can safely reach
@@ -171,21 +205,65 @@ public static class StandardOfTrade
     // "trade goods" bale: thread, buttons, vermilion, needles) for no more
     // than a third. What is not paid for goes home with them. They see the
     // shelves, and remember them.
-    public static void Trade(TradingPostLedger post, BandLedger b, Inventory furs, Inventory into, GameCalendar cal)
+    public static void Trade(TradingPostLedger post, BandLedger b, Inventory load, Inventory into, GameCalendar cal)
     {
-        float owed = Worth(furs);
-        if (owed < 1f) return;
-        float paid = 0f;
         var counts = new Dictionary<ItemId, int>();
         var shortOf = new List<string>();
-        // What it most needs for the price, a little at a time, until the furs
-        // are spent or nothing on the shelves is worth having.
+        // The furs first: what the post is there for.
+        float owed = 0f;
+        foreach (var (id, n) in load.All()) if (!PostWants.IsProvision(id)) owed += n * Items.Items.Of(id).ValueMb;
+        float paid = owed >= 1f ? Pay(post, b, owed, into, counts, shortOf, true) : 0f;
+        float taken = Hand(load, post, owed > 0f ? paid / owed : 0f, id => !PostWants.IsProvision(id));
+        // Then the provisions, as far as the post is short of food: the
+        // season's keep and the brigades' rations (Economy/PostWants).
+        float foodTaken = 0f;
+        float shortRations = PostWants.FoodShort(post);
+        if (shortRations > 1f)
+        {
+            float offered = 0f, offeredRations = 0f;
+            foreach (var (id, n) in load.All()) if (PostWants.IsProvision(id)) { offered += n * Items.Items.Of(id).ValueMb; offeredRations += n * Items.Items.Of(id).Nutrition / 34f; }
+            if (offered > 0.5f)
+            {
+                float frac = Mathf.Clamp(shortRations / Mathf.Max(1f, offeredRations), 0f, 1f);
+                float foodOwed = offered * frac;
+                float foodPaid = Pay(post, b, foodOwed, into, counts, shortOf, false);
+                foodTaken = Hand(load, post, offered > 0f ? foodPaid / offered : 0f, PostWants.IsProvision);
+                paid += foodPaid;
+            }
+        }
+        var bought = new List<string>();
+        foreach (var (id, n) in counts) bought.Add($"{n} {Items.Items.Of(id).Name.ToLower()}");
+        post.FursTakenMb += taken;
+        post.GoodsPaidMb += paid;
+        float lost = owed - taken;
+        if (lost > 1f) post.LostToRivalMb += lost;
+        post.ShortOf = shortOf;
+        Learn(b, post, Plains.Today, Covers(post, b), PostWants.FoodShort(post) > 1f);
+        if (Plains.Log)
+            GD.Print($"[trade] {cal.DateString} {b.Name} at {post.Post.Name}: {taken:0} MB of furs{(foodTaken > 0f ? $" and {foodTaken:0} MB of provisions" : "")} for {(bought.Count > 0 ? string.Join(", ", bought) : "nothing")}{(lost > 1f ? $"; {lost:0} MB carried home again" : "")}{(shortOf.Count > 0 ? $"; wanted {string.Join(", ", shortOf)}" : "")}");
+        if (taken + foodTaken > 0f) Chronicle.Event($"{b.Name} traded {taken + foodTaken:0} made beaver in {(foodTaken > taken ? "provisions" : "furs")} at {post.Post.Name} for {string.Join(", ", bought)}.", IsoGrid.ToWorld(post.AccessCell), subject: post.Post.Name, weight: 0.3f);
+        if (lost > owed * 0.5f && shortOf.Count > 0)
+        {
+            Chronicle.Event($"{b.Name} came to {post.Post.Name} wanting {string.Join(" and ", shortOf)}, found none, and carried their furs home again.", IsoGrid.ToWorld(post.AccessCell), subject: post.Post.Name, weight: 1f);
+            if (Plains.NearPlayer(IsoGrid.ToWorld(post.AccessCell), 8000f))
+                Sim.Notice($"{b.Name} came in to {post.Post.Name} wanting {string.Join(" and ", shortOf)}. There was none on the shelves, and they took their furs away again.");
+        }
+    }
+
+    // Pay `owed` made beaver in what the camp most needs for the price, a
+    // little at a time, until it is paid or nothing on the shelves is worth
+    // having; then sundries for up to a third. What the camp wanted and the
+    // post had not got goes on the post's indent (Economy/PostWants).
+    private static float Pay(TradingPostLedger post, BandLedger b, float owed, Inventory into, Dictionary<ItemId, int> counts, List<string> shortOf, bool indent)
+    {
+        float paid = 0f;
         for (int guard = 0; guard < 200 && owed - paid >= 0.1f; guard++)
         {
             ItemId pick = default; int take = 0; float best = 0.05f;
             foreach (var (id, shortBy, weight) in Wants.Deficits(b, into))
             {
                 float price = Price(post, id);
+                if (post.Stores.Count(id) < shortBy && weight > 0.3f && indent && guard == 0) PostWants.Ask(post, id, shortBy - post.Stores.Count(id));
                 if (post.Stores.Count(id) == 0) { if (weight > 0.3f && !shortOf.Contains(Items.Items.Of(id).Name.ToLower())) shortOf.Add(Items.Items.Of(id).Name.ToLower()); continue; }
                 if (price > owed - paid + 0.01f) continue;
                 float value = weight / Mathf.Sqrt(price);
@@ -200,35 +278,25 @@ public static class StandardOfTrade
             paid += take * Price(post, pick);
             counts[pick] = counts.GetValueOrDefault(pick) + take;
         }
-        var bought = new List<string>();
-        foreach (var (id, n) in counts) bought.Add($"{n} {Items.Items.Of(id).Name.ToLower()}");
         int sundries = Mathf.Min(post.Stores.Count(ItemId.TradeGoods), Mathf.FloorToInt(Mathf.Min(owed - paid, owed / 3f)));
-        if (sundries > 0) { post.Stores.Remove(ItemId.TradeGoods, sundries); into.Add(ItemId.TradeGoods, sundries); paid += sundries; bought.Add($"{sundries} sundries"); }
-        // The furs change hands in proportion to what was paid.
-        float frac = Mathf.Clamp(paid / owed, 0f, 1f);
-        float taken = 0f;
-        foreach (var (id, n) in new List<(ItemId, int)>(furs.All()))
+        if (sundries > 0) { post.Stores.Remove(ItemId.TradeGoods, sundries); into.Add(ItemId.TradeGoods, sundries); paid += sundries; counts[ItemId.TradeGoods] = counts.GetValueOrDefault(ItemId.TradeGoods) + sundries; }
+        return paid;
+    }
+
+    // The goods that were paid for change hands; the rest go home.
+    private static float Hand(Inventory load, FortLedger post, float frac, System.Func<ItemId, bool> which)
+    {
+        frac = Mathf.Clamp(frac, 0f, 1f);
+        float mb = 0f;
+        foreach (var (id, n) in new List<(ItemId, int)>(load.All()))
         {
+            if (!which(id)) continue;
             int k = Mathf.FloorToInt(n * frac + 0.001f);
             if (k <= 0) continue;
-            furs.Remove(id, k);
+            load.Remove(id, k);
             post.Stores.Add(id, k);
-            taken += k * Items.Items.Of(id).ValueMb;
+            mb += k * Items.Items.Of(id).ValueMb;
         }
-        post.FursTakenMb += taken;
-        post.GoodsPaidMb += paid;
-        float lost = owed - taken;
-        if (lost > 1f) post.LostToRivalMb += lost;
-        post.ShortOf = shortOf;
-        Learn(b, post, Plains.Today, Covers(post, b));
-        if (Plains.Log)
-            GD.Print($"[trade] {cal.DateString} {b.Name} at {post.Post.Name}: {taken:0} MB of furs for {(bought.Count > 0 ? string.Join(", ", bought) : "nothing")}{(lost > 1f ? $"; {lost:0} MB carried home again" : "")}{(shortOf.Count > 0 ? $"; wanted {string.Join(", ", shortOf)}" : "")}");
-        if (taken > 0f) Chronicle.Event($"{b.Name} traded {taken:0} made beaver in furs at {post.Post.Name} for {string.Join(", ", bought)}.", IsoGrid.ToWorld(post.AccessCell), subject: post.Post.Name, weight: 0.3f);
-        if (lost > owed * 0.5f && shortOf.Count > 0)
-        {
-            Chronicle.Event($"{b.Name} came to {post.Post.Name} wanting {string.Join(" and ", shortOf)}, found none, and carried their furs home again.", IsoGrid.ToWorld(post.AccessCell), subject: post.Post.Name, weight: 1f);
-            if (Plains.NearPlayer(IsoGrid.ToWorld(post.AccessCell), 8000f))
-                Sim.Notice($"{b.Name} came in to {post.Post.Name} wanting {string.Join(" and ", shortOf)}. There was none on the shelves, and they took their furs away again.");
-        }
+        return mb;
     }
 }

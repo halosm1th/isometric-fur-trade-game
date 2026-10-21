@@ -107,6 +107,15 @@
       "kind": "camp",
       "lon": -92.85,
       "lat": 56.95
+    },
+    {
+      "name": "Lake Traverse",
+      "kind": "post",
+      "lon": -96.6,
+      "lat": 45.7,
+      "company": "NWC",
+      "year": 1800,
+      "note": "Robert Dickson's post among the Dakota at the head of the Minnesota River: the British trade of the upper Mississippi, its goods up from Michilimackinac by way of Prairie du Chien."
     }
   ],
   "sites": [
