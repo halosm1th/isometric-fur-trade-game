@@ -36,7 +36,10 @@ public partial class JournalPanel : Control
         _panel.AddThemeStyleboxOverride("panel", MenuTheme.PanelBox(18));
         AddChild(_panel);
 
-        _tabs = new TabContainer { CustomMinimumSize = new Vector2(520, 460) };
+        // The book: wooden boards outside, a parchment page within, written in ink.
+        _tabs = new TabContainer { CustomMinimumSize = new Vector2(620, 500) };
+        _tabs.AddThemeStyleboxOverride("panel", MenuTheme.PaperBox(44));
+        _tabs.AddThemeFontSizeOverride("font_size", 15);
         _panel.AddChild(_tabs);
         _journal = MakeTab("Journal (J)");
         _log = MakeTab("Log (L)");
@@ -66,9 +69,13 @@ public partial class JournalPanel : Control
 
     private RichTextLabel MakeTab(string name)
     {
-        var scroll = new ScrollContainer { Name = name, CustomMinimumSize = new Vector2(500, 420) };
-        var rtl = new RichTextLabel { BbcodeEnabled = true, FitContent = true, CustomMinimumSize = new Vector2(490, 0), ScrollActive = false, SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        rtl.AddThemeFontSizeOverride("normal_font_size", 12);
+        var scroll = new ScrollContainer { Name = name, CustomMinimumSize = new Vector2(530, 420), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        var rtl = new RichTextLabel { BbcodeEnabled = true, FitContent = true, CustomMinimumSize = new Vector2(510, 0), ScrollActive = false, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        foreach (var f in new[] { "normal_font_size", "bold_font_size", "italics_font_size" }) rtl.AddThemeFontSizeOverride(f, 14);
+        rtl.AddThemeColorOverride("default_color", MenuTheme.DarkInk);
+        rtl.AddThemeConstantOverride("line_separation", 3);
+        rtl.AddThemeConstantOverride("table_h_separation", 10);
+        rtl.AddThemeConstantOverride("table_v_separation", 4);
         scroll.AddChild(rtl);
         _tabs.AddChild(scroll);
         return rtl;
@@ -104,6 +111,11 @@ public partial class JournalPanel : Control
     {
         IsOpen = _panel.Visible;
         if (!_panel.Visible) return;
+        // Left side, below the clock and clear of the needs bars when there's room.
+        var screen = GetViewportRect();
+        float top = screen.Position.Y + 120f, bottom = screen.End.Y - 250f;
+        float y = Mathf.Max(top, Mathf.Min(screen.Position.Y + (screen.Size.Y - _panel.Size.Y) / 2f, bottom - _panel.Size.Y));
+        _panel.GlobalPosition = new Vector2(screen.Position.X + 16f, Mathf.Max(screen.Position.Y + 8f, Mathf.Min(y, screen.End.Y - _panel.Size.Y - 8f)));
         Area = _panel.GetGlobalRect();
         _refresh -= (float)delta;
         if (_refresh > 0f) return;
@@ -169,16 +181,26 @@ public partial class JournalPanel : Control
         }
         sb.Append(Core.Campaign.JournalText);
         FillAmbitions(sb);
-        for (int i = lines.Count - 1; i >= 0; i--) sb.AppendLine(lines[i]);
-        _journal.Text = sb.Length == 0 ? "Nothing yet worth the ink. Only what you see with your own eyes goes in here." : sb.ToString();
+        if (lines.Count > 0) sb.AppendLine(Head("The days"));
+        string lastDate = null;
+        for (int i = lines.Count - 1; i >= 0; i--)
+        {
+            // "date: what happened" - the date once, over everything written that day.
+            int cut = lines[i].IndexOf(": ");
+            string date = cut > 0 && cut < 24 ? lines[i].Substring(0, cut) : null;
+            string text = date != null ? lines[i].Substring(cut + 2) : lines[i];
+            if (date != null && date != lastDate) { sb.AppendLine($"[i][color={Sepia}]{date}[/color][/i]"); lastDate = date; }
+            sb.AppendLine($"[indent]{text}[/indent]");
+        }
+        _journal.Text = sb.Length == 0 ? Faint("Nothing yet worth the ink. Only what you see with your own eyes goes in here.") : Ink(sb.ToString());
     }
 
     private void FillLog()
     {
         var sb = new System.Text.StringBuilder();
         var h = NoticeLog.History;
-        for (int i = h.Count - 1; i >= 0; i--) sb.AppendLine($"[color=#bba]{h[i].when}[/color]  {h[i].text}");
-        _log.Text = sb.Length == 0 ? "Nothing has happened yet." : sb.ToString();
+        for (int i = h.Count - 1; i >= 0; i--) sb.AppendLine($"[color={Sepia}]{h[i].when}[/color]   {h[i].text}");
+        _log.Text = sb.Length == 0 ? Faint("Nothing has happened yet.") : Ink(sb.ToString());
     }
 
     private void FillPack()
@@ -197,7 +219,7 @@ public partial class JournalPanel : Control
         }
         sb.AppendLine();
         sb.AppendLine("[color=#998]The first row is the hotbar. Drag items between squares to arrange them (an occupied square swaps). Right-click uses an item, or wears / takes off clothing.[/color]");
-        _pack.Text = sb.ToString();
+        _pack.Text = Ink(sb.ToString());
 
         EnsureGrid();
         for (int i = 0; i < _gridSlots.Count; i++) _gridSlots[i].Refresh(_player, i < Hotbar.Slots ? Core.Keybinds.KeyFor($"hotbar_{i + 1}") : "");
@@ -206,10 +228,39 @@ public partial class JournalPanel : Control
     // ---- yourself (design doc 12.7) ---------------------------------------------------
     // Nothing here is a new mechanic: it is the state the simulation already
     // keeps on you, laid out for the one agent allowed to see it directly.
-    private static string Head(string t) => $"[color=#dcb][b]{t}[/b][/color]";
-    private static string Bar(float v, int n = 10) { int k = Mathf.Clamp(Mathf.RoundToInt(v * n), 0, n); return $"[color=#cb8]{new string('|', k)}[/color][color=#554]{new string('.', n - k)}[/color]"; }
-    private static string Need(float v) => v >= 75f ? "well" : v >= 50f ? "fair" : v >= Needs.Weak ? "[color=#eb8]poor[/color]" : "[color=#f88]failing[/color]";
-    private static string Tongue(float f) => f >= 0.7f ? "fluent" : f >= 0.4f ? "getting by" : f >= 0.3f ? "a few words" : "signs only";
+    // Inks on the page: the hand's brown-black (the label's default), a red
+    // for headings and trouble, a green for gains, sepia for what is faint.
+    private const string Rubric = "#7a2a12", Red = "#9c1f14", Amber = "#8a5a0c", Green = "#2f6a24", Blue = "#24456e", Brown = "#5a3d22", Sepia = "#6e5a44", Pale = "#8f7c64";
+    private static string Head(string t) => $"[font_size=17][color={Rubric}][b]{t}[/b][/color][/font_size]";
+    private const string Pixel = "res://assets/ui/pixel.png";
+    private static string Faint(string t) => $"[color={Sepia}][i]{t}[/i][/color]";
+    // A bar ruled on the page: filled in ink, the rest a pale wash.
+    // It takes the ink of the word written beside it, so the two read as one.
+    private static string Bar(float v, string ink = "#5a3d22", int n = 10)
+    {
+        int k = Mathf.Clamp(Mathf.RoundToInt(v * n), 0, n);
+        const int W = 64, H = 8;   // the whole bar, in pixels
+        int fill = Mathf.RoundToInt(W * k / (float)n);
+        string Seg(int w, string c) => w <= 0 ? "" : $"[img width={w} height={H} color={c}]{Pixel}[/img]";
+        return Seg(fill, ink) + Seg(W - fill, "#cdb894");
+    }
+
+    // The rest of the game writes its pages for a dark board; on paper the
+    // same colours need to be inks. Headings get the rubric.
+    private static readonly System.Text.RegularExpressions.Regex HeadTag = new(@"\[color=#dcb\]\[b\](.*?)\[/b\]\[/color\]");
+    private static string Ink(string t)
+    {
+        t = HeadTag.Replace(t, m => Head(m.Groups[1].Value));
+        return t.Replace("#dcb", Rubric).Replace("#998", Sepia).Replace("#bba", Sepia).Replace("#776", Pale)
+                .Replace("#f88", Red).Replace("#e98", Red).Replace("#eb8", Amber).Replace("#9c8", Green).Replace("#cb8", "#5a3d22");
+    }
+    // Each word with its ink; a bar beside it is drawn in the same.
+    private static string NeedInk(float v) => v >= 75f ? Green : v >= 50f ? Brown : v >= Needs.Weak ? Amber : Red;
+    private static string Need(float v) => $"[color={NeedInk(v)}]{(v >= 75f ? "well" : v >= 50f ? "fair" : v >= Needs.Weak ? "poor" : "failing")}[/color]";
+    // "Green" is a raw hand, so it is written in green; a master in the rubric.
+    private static string SkillInk(float s) => s >= 0.75f ? Rubric : s >= 0.5f ? Blue : s >= 0.3f ? Brown : Green;
+    private static string TongueInk(float f) => f >= 0.7f ? Rubric : f >= 0.4f ? Blue : f >= 0.3f ? Brown : Sepia;
+    private static string Tongue(float f) => f >= 0.7f ? "fluent" : f >= 0.4f ? "getting by" : f >= 0.3f ? "a few words" : f > 0.02f ? "signs only" : "nothing";
 
     private void FillSelf()
     {
@@ -219,7 +270,7 @@ public partial class JournalPanel : Control
         var cal = GameCalendar.Instance;
 
         // Who you are.
-        sb.AppendLine($"[font_size=15][b]{p.DisplayName}[/b][/font_size], {p.Age} years old");
+        sb.AppendLine($"[font_size=20][b]{p.DisplayName}[/b][/font_size]   [color=#998]{p.Age} years old[/color]");
         if (p.IsBandPerson) sb.AppendLine($"   Born to the {World.Camps.NationName(p.Faction)}{(p.HomeCamp != "" ? $", of {p.HomeCamp}" : "")}");
         else sb.AppendLine($"   {Cap(p.Rank)} of {(p.HomePost is Economy.TradingPostLedger tp ? tp.Post.CompanyName : World.Posts.CompanyOf(p))}{(p.HomePost != null ? $", at {PlaceOf(p.HomePost)}" : "")}");
         if (p.BackgroundTitle != "") sb.AppendLine($"   {p.BackgroundTitle}{(p.TraitTitles.Count > 0 ? "; " + string.Join(", ", p.TraitTitles).ToLower() : "")}");
@@ -229,15 +280,18 @@ public partial class JournalPanel : Control
             float d = p.Standing - was;
             string trend = Mathf.Abs(d) < 0.5f ? "" : d > 0 ? $"  [color=#9c8](+{d:0} this year)[/color]" : $"  [color=#e98]({d:0} this year)[/color]";
             sb.AppendLine($"   Standing {Bar(p.Standing / 100f)} {p.Standing:0} - {StandingWord(p.Standing)}{trend}");
-            sb.AppendLine($"   {p.TasksDone} tasks done, {p.TasksRefused} refused; {p.PrivateWorthMb:0.#} MB of your own put by");
+            sb.AppendLine($"   Savings: {p.PrivateWorthMb:0.#} made beaver of your own [color=#998](MB - the trade's money)[/color]");
+            sb.AppendLine($"   Tasks: {p.TasksDone} done, {p.TasksRefused} refused");
         }
         sb.AppendLine();
 
         // The body.
         sb.AppendLine(Head("Your body"));
         var n = p.Needs;
-        sb.AppendLine($"   Health {Bar(n.Health / 100f)} {Need(n.Health)}      Food   {Bar(n.Hunger / 100f)} {Need(n.Hunger)}");
-        sb.AppendLine($"   Water  {Bar(n.Thirst / 100f)} {Need(n.Thirst)}      Warmth {Bar(n.Warmth / 100f)} {Need(n.Warmth)}");
+        sb.Append("[table=6]");
+        foreach (var (label, v) in new[] { ("Health", n.Health), ("Food", n.Hunger), ("Water", n.Thirst), ("Warmth", n.Warmth) })
+            sb.Append($"[cell]{label}[/cell][cell]{Bar(v / 100f, NeedInk(v))}[/cell][cell]{Need(v)}     [/cell]");
+        sb.AppendLine("[/table]");
         var conds = new List<string>();
         if (p.IsSick) conds.Add($"[color=#f88]fever[/color], {p.SickDaysLeft:0} days more");
         if (p.HasScurvy) conds.Add($"[color=#f88]scurvy[/color] - {p.DaysSinceFresh:0} days since fresh food; berries, fresh meat or spruce beer will mend it");
@@ -256,22 +310,53 @@ public partial class JournalPanel : Control
         // why a number moved rather than just that it did).
         sb.AppendLine(Head("What you can do"));
         var sk = p.Skills;
+        // One table so the bars line up; why a skill moved and what comes
+        // next go small under its word.
+        sb.Append("[table=3]");
         for (int i = 0; i < 4; i++)
         {
             float v = sk[i];
             var (gain, from) = sk.Recent(i, 30);
             var (next, at) = Skills.NextStep(v);
             string trend = gain >= 0.0005f ? $"  [color=#9c8]+{gain:0.000} this month[/color]" : "";
-            sb.AppendLine($"   {Skills.Names[i]} {Bar(v)} {sk.Describe(v)} ({v:0.00}){trend}");
+            string notes = "";
             if (from.Count > 0)
             {
                 var parts = new List<string>();
                 for (int k = 0; k < from.Count && k < 3; k++) parts.Add($"{from[k].Why} ({from[k].Times}x)");
-                sb.AppendLine($"      [color=#998]from {string.Join(", ", parts)}[/color]");
+                notes += $"\n[font_size=12][color=#998][i]from {string.Join(", ", parts)}[/i][/color][/font_size]";
             }
-            if (next != "") sb.AppendLine($"      [color=#776]{next} at {at:0.00}; it {HowToLearn(i)}[/color]");
+            if (next != "") notes += $"\n[font_size=12][color=#776]{next} at {at:0.00}; it {HowToLearn(i)}[/color][/font_size]";
+            sb.Append($"[cell]{Skills.Names[i]}[/cell][cell]{Bar(v, SkillInk(v))}[/cell][cell][b][color={SkillInk(v)}]{sk.Describe(v)}[/color][/b] ({v:0.00}){trend}{notes}[/cell]");
         }
-        sb.AppendLine($"   Cree {Bar(p.CreeFluency)} {Tongue(p.CreeFluency)}      Nakoda {Bar(p.AssiniboineFluency)} {Tongue(p.AssiniboineFluency)}");
+        sb.AppendLine("[/table]");
+        sb.AppendLine();
+
+        // Tongues (design doc 10.6). Only Cree and Nakoda are learned; every
+        // other people's tongue is heard as far as it is kin to one of them
+        // (Agents/Languages), so the page says how you come by each.
+        sb.AppendLine(Head("Tongues"));
+        var have = new List<(string name, float f, string how)>(); var none = new List<string>();
+        foreach (var nation in System.Enum.GetValues<Faction>())
+        {
+            if (!Agents.Languages.IsNation(nation)) continue;
+            float cree = p.CreeFluency * Agents.Languages.Kin(Faction.Cree, nation);
+            float nak = p.AssiniboineFluency * Agents.Languages.Kin(Faction.Assiniboine, nation);
+            float own = p.IsBandPerson ? Agents.Languages.Kin(p.Faction, nation) : 0f;
+            float f = Mathf.Max(own, Mathf.Max(cree, nak));
+            string name = nation == Faction.Assiniboine ? "Nakoda" : Agents.Languages.Name(nation);
+            if (f <= 0.02f) { none.Add(name); continue; }
+            string how = own >= f && own > 0f ? (nation == p.Faction ? "your own people's" : $"near your own")
+                : nation is Faction.Cree or Faction.Assiniboine ? "learned by talk"
+                : cree >= nak ? "heard through your Cree" : "heard through your Nakoda";
+            have.Add((name, f, how));
+        }
+        have.Sort((a, b) => b.f.CompareTo(a.f));
+        sb.Append("[table=4]");
+        foreach (var (name, f, how) in have)
+            sb.Append($"[cell]{name}[/cell][cell]{Bar(f, TongueInk(f))}[/cell][cell][color={TongueInk(f)}]{Tongue(f)}[/color] ({f:0.00})[/cell][cell][font_size=12][color=#998][i]{how}[/i][/color][/font_size][/cell]");
+        sb.AppendLine("[/table]");
+        if (none.Count > 0) sb.AppendLine($"[font_size=12][color=#998][i]Not a word of {string.Join(", ", none)}. Talk to their people, or bring someone who has it.[/i][/color][/font_size]");
         sb.AppendLine();
 
         // The people (design doc P.8): who you count on, and who counts against you.
@@ -289,7 +374,7 @@ public partial class JournalPanel : Control
         string Names(List<(Npc, float)> l) { var s = new List<string>(); for (int k = 0; k < l.Count && k < 6; k++) s.Add($"{l[k].Item1.DisplayName} ({RapportWord(l[k].Item2)})"); return string.Join(", ", s); }
         sb.AppendLine(friends.Count > 0 ? $"   Well disposed: {Names(friends)}" : "   Nobody yet thinks of you as a friend.");
         if (enemies.Count > 0) sb.AppendLine($"   [color=#e98]Against you: {Names(enemies)}[/color]");
-        _self.Text = sb.ToString();
+        _self.Text = Ink(sb.ToString());
     }
 
     private static string PlaceOf(Economy.FortLedger post) =>
