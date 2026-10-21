@@ -37,9 +37,20 @@ Your **axe** (you start with one) fells the nearest spruce within 150 px when yo
 
 The Mandan, Hidatsa and Arikara are **farming towns in earth lodges**, not hunting bands, and the great market of the plains ([[Missouri Villages]]). The game models their trade:
 
-- **Harvest.** In September and October each town adds **30 corn per mouth** to its stores ("the corn is in, and the lodges are full of it"). In July and August green corn and squash add 3 berries per mouth, keeping them clear of scurvy.
-- **The fair.** June to September, any camp within about a fortnight's travel brings dried meat and takes corn at **two for one**.
+- **The crop.** Corn is grown, not conjured. In May (June if the spring is late) each town sows its own **seed corn**, one measure a mouth; a town that ate or traded away its seed sows less. Through the summer the stand is tended under the sky its region rolls: rain helps it, a dry clear summer wears it down, hail, late snow and frost cut it, and too few hands for the rows lets the weeds in. In July and August green corn and squash add 3 berries per mouth, keeping them clear of scurvy.
+- **The gathering.** The corn ripens together in the first week of September and is gathered **by hand in a short window**, like wild rice: the town's people bring in about 30 a mouth a week, the ripe ears shatter a little every week they stand, the first hard frost takes most of what is left, and whatever is still standing in November is lost. A full stand returns about 150 a seed. A town is judged good, fair, poor or failed on what it brought in against what it hoped for.
+- **The fair.** June to September, a camp that believes a town has corn to spare brings dried meat and takes corn at **two for one**. The town keeps 20 a mouth back.
 - **The northern leg.** The [[Assiniboine]] are the middlemen between the Missouri towns and the Bay: they buy up to 40 corn a week, paying in pemmican, and the posts buy it from them. You see "<band> are back from the Missouri towns with N of corn."
+- **The winter trade and the December trip.** Through the winter camps come in for corn, and each December a post with goods sends men down to the town it believes has the most. See below.
+
+### Who knows what about the corn
+
+Nobody reads a town's lodges from a distance. Camps and posts know the towns exist and that they grow corn, and have the habit of the country (full after the harvest, lean before the next); beyond that they know only what they have **seen** or been **told**.
+
+- **Seeing** is a visit: a camp, a post's men or the Assiniboine at a town learn what the town has and how the crop came in.
+- **Being told** is two houses meeting: a camp bringing pemmican to a post, the Assiniboine selling at York, a train at a town. They swap what they have heard, the fresher news wins, and every telling blurs the count and adds a hop.
+- **Deciding** uses the belief and not the truth. A camp sets out for the town it believes has corn; if the lodges are bare it comes home knowing it. A post that has heard the crop failed sends nobody; one that has heard nothing goes on the habit of the country and may find nothing.
+- The head of a house **remembers** a crop that is news to him, so it travels in the gossip like anything else: ask at the posts.
 
 Corn (food 32, 1 lb, 0.25 MB) is food and trade goods, **not** a cure for scurvy. See [[Trade Goods]] and [[Economy]].
 

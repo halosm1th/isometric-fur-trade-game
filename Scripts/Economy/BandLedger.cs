@@ -107,6 +107,7 @@ public partial class BandLedger : Household
 		post.Stores.Remove(ItemId.TradeGoods, pay);
 		Stores.Add(ItemId.TradeGoods, pay);
 		post.GoodsPaidMb += pay;
+		MarketNews.Meet(this, post);   // what the Assiniboine saw at the towns, they tell at the post
 		Sim.Notice($"{Name} brought {lot} pieces of pemmican down to {post.Title} and took {pay} in goods for it.");
 		Chronicle.Event($"{Name} sold {lot} pemmican at {post.Title}.", IsoGrid.ToWorld(post.AccessCell), subject: Name, weight: 0.5f);
 	}

@@ -66,6 +66,7 @@ public static class MissouriTrade
             b.Herd.Lose(n);
             town.Herd.Horses += n;
             Log(cal, $"{b.Name} brought {n} horses to {town.Name} for {paid}");
+            MarketNews.Observe(b, town); MarketNews.Meet(b, town);
             Chronicle.Event($"{b.Name} came in to {town.Name} with {n} horses from the south and went home with {paid}.", IsoGrid.ToWorld(town.Camp), subject: town.Name, weight: 0.5f);
         }
         foreach (var b in bands)
@@ -82,6 +83,7 @@ public static class MissouriTrade
             town.Herd.Lose(n);
             b.Herd.Horses += n;
             Log(cal, $"{b.Name} bought {n} horses at {town.Name} for {paid}");
+            MarketNews.Observe(b, town); MarketNews.Meet(b, town);
             Chronicle.Event($"{b.Name} went down to {town.Name} and came home with {n} horses, paid for in {paid}.", IsoGrid.ToWorld(b.Camp), subject: b.Name, weight: 0.6f);
             if (Plains.NearPlayer(IsoGrid.ToWorld(b.Camp), 12000f) || Plains.NearPlayer(IsoGrid.ToWorld(town.Camp), 12000f))
                 Sim.Notice($"{b.Name} are back from the Missouri towns with {n} horses, paid for in {paid}.");
@@ -96,15 +98,27 @@ public static class MissouriTrade
         {
             var b = c.Ledger;
             if (b == null || Gardens.IsTown(b) || c.IsFamily || GD.Randf() > 0.35f) continue;
-            var town = NearestTown(towns, b.Camp, out float d);
-            if (town == null || d > MarketReachPx || town.Stores.Count(ItemId.Corn) < town.Mouths * 20) continue;
+            // A camp sets out for the town it believes has corn - which is the town it
+            // last saw or heard of, not the town that has it. The trip may find the
+            // lodges bare; the camp comes home knowing it.
+            var town = MarketNews.Best(b, towns, MarketReachPx, Mathf.Max(5f, b.Mouths * 2f), cal);
+            if (town == null) continue;
+            // The town keeps its winter's corn and its seed.
             int corn = Mathf.Min(town.Stores.Count(ItemId.Corn) - town.Mouths * 20, b.Mouths * 8);
-            if (corn <= 0) continue;
+            if (corn <= 0)
+            {
+                Log(cal, $"{b.Name} went to {town.Name} for corn and found none to spare");
+                MarketNews.Observe(b, town); MarketNews.Meet(b, town);
+                continue;
+            }
             string paid = Pay(b, town, corn * 0.25f, out float owing);
-            if (owing > corn * 0.25f * 0.5f) continue;
-            town.Stores.Remove(ItemId.Corn, corn);
-            b.Stores.Add(ItemId.Corn, corn);
-            Log(cal, $"{b.Name} took {corn} corn from {town.Name} for {paid}");
+            if (owing <= corn * 0.25f * 0.5f)
+            {
+                town.Stores.Remove(ItemId.Corn, corn);
+                b.Stores.Add(ItemId.Corn, corn);
+                Log(cal, $"{b.Name} took {corn} corn from {town.Name} for {paid}");
+            }
+            MarketNews.Observe(b, town); MarketNews.Meet(b, town);
         }
     }
 
@@ -141,17 +155,24 @@ public static class MissouriTrade
     // in the new year with robes, corn and horses.
     private static void Expedition(List<CountryBand> towns, GameCalendar cal)
     {
-        foreach (var town in towns)
+        foreach (var standing in Posts.Standing())
         {
-            FortLedger post = null; float bd = 20000f;
-            foreach (var p in Posts.Standing())
+            var post = standing.Ledger;
+            if (post == null) continue;
+            // The post sends its men where it believes the corn is: what the
+            // Assiniboine and the camps have told it, or the habit of the country
+            // if it has heard nothing. Bad news keeps them at home.
+            var town = MarketNews.Best(post, towns, 20000f, 40f, cal);
+            if (town == null)
             {
-                if (p.Ledger == null) continue;
-                float d = IsoGrid.ToWorld(p.Ledger.AccessCell).DistanceTo(IsoGrid.ToWorld(town.Camp));
-                if (d < bd) { bd = d; post = p.Ledger; }
+                // Only a post with a town in reach has a decision to make.
+                foreach (var t in towns)
+                    if (MarketNews.Knows(post, t) && IsoGrid.ToWorld(post.AccessCell).DistanceTo(IsoGrid.ToWorld(t.Camp)) <= 20000f)
+                    { Log(cal, $"{post.Title} sent no one down (it has heard: {MarketNews.Describe(post)})"); break; }
+                continue;
             }
-            if (post == null) { Log(cal, $"no post within reach of {town.Name} to send men down"); continue; }
             if (post.Stores.Count(ItemId.TradeGoods) < 10) { Log(cal, $"{post.Title} has nothing to send down to {town.Name}"); continue; }
+            Log(cal, $"{post.Title} sends men to {town.Name} (it has heard: {MarketNews.Describe(post)})");
             int goods = Mathf.Min(Mathf.Max(10, post.Stores.Count(ItemId.TradeGoods) / 3), 60);
             int guns = Mathf.Min(post.Stores.Count(ItemId.Musket), 4);
             post.Stores.Remove(ItemId.TradeGoods, goods);
@@ -161,7 +182,8 @@ public static class MissouriTrade
             // What the town gives for it, at the town's prices.
             float worth = goods + guns * 14f;
             int robes = town.Stores.TakeUpTo(ItemId.BuffaloRobe, Mathf.RoundToInt(worth * 0.3f / 2f));
-            int corn = town.Stores.TakeUpTo(ItemId.Corn, Mathf.RoundToInt(worth * 0.3f / 0.25f));
+            // The town sells its surplus, not its seed or its winter.
+            int corn = town.Stores.TakeUpTo(ItemId.Corn, Mathf.Min(Mathf.RoundToInt(worth * 0.3f / 0.25f), Mathf.Max(0, town.Stores.Count(ItemId.Corn) - town.Mouths * 10)));
             int horses = Mathf.Min(town.Herd.Free / 4, Mathf.RoundToInt(worth * 0.25f / Herd.ValueMb));
             int beaver = town.Stores.TakeUpTo(ItemId.BeaverPelt, 10), wolf = town.Stores.TakeUpTo(ItemId.WolfPelt, 10);
             int furs = beaver + wolf;
@@ -170,6 +192,8 @@ public static class MissouriTrade
             post.Stores.Add(ItemId.BuffaloRobe, robes);
             post.Stores.Add(ItemId.Corn, corn);
             if (horses > 0) { town.Herd.Lose(horses); post.Herd.Horses += horses; }
+            // They are at the town now and see how it stands; the post learns it when they are home.
+            MarketNews.Observe(post, town); MarketNews.Meet(post, town);
             string brought = $"{robes} robes, {corn} corn, {horses} horses and {furs} furs";
             Log(cal, $"{post.Title} men to {town.Name}: {goods} goods and {guns} guns for {brought}");
             Chronicle.Event($"Men from {post.Title} went down to {town.Name} with {goods} in goods and {guns} guns and came back with {brought}.", IsoGrid.ToWorld(post.AccessCell), subject: post.Title, weight: 0.8f);
