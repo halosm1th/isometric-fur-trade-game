@@ -27,7 +27,7 @@ public static class Outfits
     public const string Entry = "Sault Ste. Marie";
     // A year's goods for a company, in made beaver: on the scale of the
     // returns - York alone sent home twenty thousand and more a year.
-    public const float YearMb = 6000f;
+    public const float YearMb = 8000f;
 
     // Where each company's goods come onto the map, and when (design doc
     // 10.1.5): the Montreal canoes in at the Sault in June; the Pacific Fur

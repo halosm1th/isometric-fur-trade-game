@@ -27,34 +27,9 @@ public static class StandardOfTrade
 {
     public const float ReachPx = 16000f;   // a few days' travel to a post
 
-    // (good, how many a person keeps on hand). A camp tops itself up to that.
-    private static readonly (ItemId Id, float PerHead)[] PlainsWants =
-    {
-        (ItemId.Powder, 1.5f), (ItemId.Musket, 0.3f), (ItemId.Kettle, 0.25f), (ItemId.Knife, 0.5f), (ItemId.Awl, 1f),
-        (ItemId.Tobacco, 1f), (ItemId.Beads, 0.6f), (ItemId.Stroud, 0.5f), (ItemId.Axe, 0.15f), (ItemId.PointBlanket, 0.15f),
-        (ItemId.Flint, 0.3f), (ItemId.Rum, 0.4f),
-    };
-    private static readonly (ItemId Id, float PerHead)[] Woods =
-    {
-        (ItemId.SteelTrap, 0.5f), (ItemId.Axe, 0.3f), (ItemId.Powder, 1.2f), (ItemId.Musket, 0.2f), (ItemId.IceChisel, 0.2f),
-        (ItemId.FishingNet, 0.12f), (ItemId.PointBlanket, 0.3f), (ItemId.Kettle, 0.25f), (ItemId.Tobacco, 1f), (ItemId.Awl, 1f),
-        (ItemId.Knife, 0.5f), (ItemId.Stroud, 0.5f), (ItemId.Beads, 0.4f), (ItemId.Flint, 0.3f), (ItemId.Rum, 0.3f),
-    };
-    private static readonly (ItemId Id, float PerHead)[] Coast =
-    {
-        (ItemId.PointBlanket, 0.5f), (ItemId.Kettle, 0.3f), (ItemId.Beads, 0.8f), (ItemId.Knife, 0.5f), (ItemId.Musket, 0.15f),
-        (ItemId.Powder, 0.8f), (ItemId.Stroud, 0.5f), (ItemId.Tobacco, 0.8f), (ItemId.Axe, 0.2f), (ItemId.Awl, 0.6f),
-    };
-
-    public static (ItemId Id, float PerHead)[] WantsOf(BandLedger b)
-        => b.Nation is Faction.Coast or Faction.Plateau ? Coast
-         : b.Herd.Horses > 0 || b.Nation is Faction.Blackfoot or Faction.Sioux or Faction.Missouri or Faction.Metis ? PlainsWants
-         : Woods;
-
-    // The goods a post may pay in; anything else on its shelves is its own.
-    public static bool IsTradeGood(ItemId id) => id is ItemId.Powder or ItemId.Musket or ItemId.Kettle or ItemId.Knife or ItemId.Awl
-        or ItemId.Tobacco or ItemId.Beads or ItemId.Stroud or ItemId.Axe or ItemId.PointBlanket or ItemId.Flint or ItemId.Rum
-        or ItemId.SteelTrap or ItemId.IceChisel or ItemId.FishingNet or ItemId.Capote or ItemId.TradeGoods;
+    // What a good costs at a post: the standard, shaded by how well the post
+    // pays for furs (a house that pays more for a pelt asks less for its goods).
+    public static float Price(FortLedger post, ItemId id) => Items.Items.Of(id).ValueMb / Mathf.Clamp(post.PeltPrice, 0.6f, 1.6f);
 
     // The furs a camp has to sell: pelts, and the robes beyond one a head kept for its own beds.
     public static List<(ItemId, int)> FursFor(BandLedger b)
@@ -75,15 +50,13 @@ public static class StandardOfTrade
         return mb;
     }
 
-    // How much of what this camp wants a post's shelves hold, in made beaver.
+    // How much of what this camp needs a post's shelves hold, in made beaver,
+    // the pressing needs counting for more.
     private static float Covers(FortLedger post, BandLedger b)
     {
         float mb = 0f;
-        foreach (var (id, per) in WantsOf(b))
-        {
-            int want = Mathf.CeilToInt(per * Mathf.Max(1, b.Mouths)) - b.Stores.Count(id);
-            if (want > 0) mb += Mathf.Min(want, post.Stores.Count(id)) * Items.Items.Of(id).ValueMb;
-        }
+        foreach (var (id, shortBy, weight) in Wants.Deficits(b))
+            mb += Mathf.Min(shortBy, post.Stores.Count(id)) * Items.Items.Of(id).ValueMb * (0.5f + weight);
         return mb;
     }
 
@@ -144,7 +117,7 @@ public static class StandardOfTrade
         {
             var b = camp.Ledger;
             if (b == null || Gardens.IsTown(b)) continue;
-            Wear(b);
+            Wants.Week(b);
             if (!season || TradeTrips.Away(b)) continue;
             // A camp goes in a few times a season - in the fall for its
             // winter's debt, at midwinter, and with the spring hunt - not every week.
@@ -169,10 +142,28 @@ public static class StandardOfTrade
             if (p.Ledger == null) continue;
             float d = IsoGrid.ToWorld(p.Ledger.AccessCell).DistanceTo(at);
             if (d > ReachPx) continue;
-            float score = (1f + Believed(b, p.Ledger)) * (1f - 0.5f * d / ReachPx);
+            float score = (1f + Believed(b, p.Ledger)) * (1f - 0.5f * d / ReachPx) * Safety(b, p.Ledger);
             if (score > bestScore) { bestScore = score; best = p.Ledger; }
         }
-        return best;
+        return best;   // null: no house it can safely reach
+    }
+
+    // Nobody carries their furs into their enemies' country (design doc 7.2):
+    // a house whose own country - the camps nearest it - is a people this
+    // camp is at war with is a house it does not go to; with nowhere else,
+    // it keeps its furs. A truce opens it.
+    private static float Safety(BandLedger b, FortLedger post)
+    {
+        var at = IsoGrid.ToWorld(post.AccessCell);
+        BandLedger owner = null; float bd = 7000f;
+        foreach (var c in Camps.All)
+        {
+            if (c.Ledger == null || c.Ledger == b) continue;
+            float d = IsoGrid.ToWorld(c.Ledger.Camp).DistanceTo(at);
+            if (d < bd) { bd = d; owner = c.Ledger; }
+        }
+        if (owner == null || owner.Nation == b.Nation || !Plains.Enemies(b.Nation, owner.Nation) || War.AtPeace(b, owner)) return 1f;
+        return 0f;   // they keep their furs rather than take them there
     }
 
     // The exchange, made on the day the party is at the post: their furs at
@@ -185,22 +176,32 @@ public static class StandardOfTrade
         float owed = Worth(furs);
         if (owed < 1f) return;
         float paid = 0f;
-        var bought = new List<string>();
+        var counts = new Dictionary<ItemId, int>();
         var shortOf = new List<string>();
-        foreach (var (id, per) in WantsOf(b))
+        // What it most needs for the price, a little at a time, until the furs
+        // are spent or nothing on the shelves is worth having.
+        for (int guard = 0; guard < 200 && owed - paid >= 0.1f; guard++)
         {
-            float value = Items.Items.Of(id).ValueMb;
-            int want = Mathf.CeilToInt(per * Mathf.Max(1, b.Mouths)) - b.Stores.Count(id) - into.Count(id);
-            if (want <= 0) continue;
-            int n = Mathf.Min(want, Mathf.Min(post.Stores.Count(id), Mathf.FloorToInt((owed - paid) / value)));
-            if (post.Stores.Count(id) == 0 && want >= 2) shortOf.Add(Items.Items.Of(id).Name.ToLower());
-            if (n <= 0) continue;
-            post.Stores.Remove(id, n);
-            into.Add(id, n);
-            paid += n * value;
-            bought.Add($"{n} {Items.Items.Of(id).Name.ToLower()}");
-            if (owed - paid < 0.1f) break;
+            ItemId pick = default; int take = 0; float best = 0.05f;
+            foreach (var (id, shortBy, weight) in Wants.Deficits(b, into))
+            {
+                float price = Price(post, id);
+                if (post.Stores.Count(id) == 0) { if (weight > 0.3f && !shortOf.Contains(Items.Items.Of(id).Name.ToLower())) shortOf.Add(Items.Items.Of(id).Name.ToLower()); continue; }
+                if (price > owed - paid + 0.01f) continue;
+                float value = weight / Mathf.Sqrt(price);
+                if (value <= best) continue;
+                best = value; pick = id;
+                take = Mathf.Max(1, Mathf.Min(Mathf.Min(shortBy, post.Stores.Count(id)), Mathf.CeilToInt(shortBy / 3f)));
+                take = Mathf.Min(take, Mathf.FloorToInt((owed - paid) / price));
+            }
+            if (take <= 0) break;
+            post.Stores.Remove(pick, take);
+            into.Add(pick, take);
+            paid += take * Price(post, pick);
+            counts[pick] = counts.GetValueOrDefault(pick) + take;
         }
+        var bought = new List<string>();
+        foreach (var (id, n) in counts) bought.Add($"{n} {Items.Items.Of(id).Name.ToLower()}");
         int sundries = Mathf.Min(post.Stores.Count(ItemId.TradeGoods), Mathf.FloorToInt(Mathf.Min(owed - paid, owed / 3f)));
         if (sundries > 0) { post.Stores.Remove(ItemId.TradeGoods, sundries); into.Add(ItemId.TradeGoods, sundries); paid += sundries; bought.Add($"{sundries} sundries"); }
         // The furs change hands in proportion to what was paid.
@@ -228,26 +229,6 @@ public static class StandardOfTrade
             Chronicle.Event($"{b.Name} came to {post.Post.Name} wanting {string.Join(" and ", shortOf)}, found none, and carried their furs home again.", IsoGrid.ToWorld(post.AccessCell), subject: post.Post.Name, weight: 1f);
             if (Plains.NearPlayer(IsoGrid.ToWorld(post.AccessCell), 8000f))
                 Sim.Notice($"{b.Name} came in to {post.Post.Name} wanting {string.Join(" and ", shortOf)}. There was none on the shelves, and they took their furs away again.");
-        }
-    }
-
-    // What a camp has wears out and is used up: powder is shot off, tobacco
-    // smoked, rum drunk, and a kettle, an axe or a gun breaks in the end.
-    public static void Wear(BandLedger b)
-    {
-        int mouths = Mathf.Max(1, b.Mouths);
-        void Use(ItemId id, float perHeadPerWeek)
-        {
-            float x = perHeadPerWeek * mouths;
-            int n = Mathf.FloorToInt(x) + (GD.Randf() < x % 1f ? 1 : 0);
-            if (n > 0) b.Stores.TakeUpTo(id, n);
-        }
-        Use(ItemId.Powder, 0.12f); Use(ItemId.Tobacco, 0.15f); Use(ItemId.Rum, 0.1f); Use(ItemId.Awl, 0.03f); Use(ItemId.Beads, 0.02f);
-        Use(ItemId.Stroud, 0.02f); Use(ItemId.Flint, 0.01f);
-        foreach (var id in new[] { ItemId.Kettle, ItemId.Axe, ItemId.Musket, ItemId.SteelTrap, ItemId.Knife, ItemId.IceChisel, ItemId.FishingNet, ItemId.PointBlanket })
-        {
-            int have = b.Stores.Count(id);
-            if (have > 0 && GD.Randf() < have * 0.012f) b.Stores.Remove(id);
         }
     }
 }

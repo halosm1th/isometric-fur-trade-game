@@ -44,7 +44,7 @@ public static class Plains
         foreach (var v in _views.Values) if (GodotObject.IsInstanceValid(v)) v.QueueFree();
         _views.Clear();
         BuffaloRun.Active.Clear(); BuffaloRun.LastRun.Clear();
-        Outfits.Reset(); TradeTrips.Reset(); StandardOfTrade.ResetBeliefs();
+        Outfits.Reset(); TradeTrips.Reset(); StandardOfTrade.ResetBeliefs(); Wants.Reset();
         War.Reset();
     }
 
@@ -251,6 +251,8 @@ public static class Plains
     {
         if (kills <= 0) return 0;
         float haul = b.Herd.Carts > 0 ? 1f : b.Herd.Horses > 0 ? 0.8f : 0.45f;
+        // The powder that ran, and the hides for the women's awls and knives (Economy/Wants).
+        Wants.OnHunt(b, kills, Mathf.RoundToInt(kills * haul));
         int dried = Mathf.RoundToInt(kills * 40 * haul);
         b.Stores.Add(ItemId.DriedMeat, dried);
         b.Stores.Add(ItemId.Venison, Mathf.RoundToInt(kills * 10 * haul));
@@ -434,6 +436,7 @@ public static class Plains
             target.Herd.Lose(n);
             raider.Herd.Horses += n;
             Heat(target, raider, 1f);
+            if (target is BandLedger tb) Wants.OnRaided(tb, armed > 0.2f);
             Chronicle.Event($"{raider.Name}'s young men ran off {n} horses from {NameOf(target)}.", where, subject: raider.Name, weight: 1f);
             if (told) Sim.Notice($"Horse thieves: {raider.Name}'s young men ran off {n} horses from {NameOf(target)} in the night.");
             return;
@@ -445,6 +448,7 @@ public static class Plains
             if (dead != null)
             {
                 Heat(raider, target, 2f);
+                Wants.OnFight(raider, 3, defended > 0.2f, true);
                 Chronicle.Event($"{dead.DisplayName} of {raider.Name} was killed going after {NameOf(target)}'s horses.", where, dead, raider.Name, 2f);
                 if (told) Sim.Notice($"{dead.DisplayName} of {raider.Name} was killed stealing horses from {NameOf(target)}. His people will want it answered.");
                 dead.DieQuietly();
@@ -537,6 +541,8 @@ public static class Plains
             int dead = 0;
             foreach (var r in raid.Party) if (r == null || !GodotObject.IsInstanceValid(r) || r.IsDead) dead++;
             if (taken > 0) { raid.Raider.Herd.Horses += taken; Heat(raid.Target, raid.Raider, 1f); }
+            if (raid.Target is BandLedger rt) Wants.OnRaided(rt, raid.Raider.Stores.Count(ItemId.Musket) > 0);
+            if (raid.Told && raid.Raider is BandLedger rr) Wants.OnFight(rr, raid.Party.Count, raid.Target.Stores.Count(ItemId.Musket) > 0, dead > 0);
             if (dead > 0) Heat(raid.Raider, raid.Target, 2f * dead);
             string how = taken > 0 ? $"got away with {taken} horses" : "went home with nothing";
             Chronicle.Event($"{NameOf(raid.Raider)}'s young men came for {NameOf(raid.Target)}'s horses and {how}{(dead > 0 ? $"; {dead} of them did not go home" : "")}.", IsoGrid.ToWorld(raid.Target.AccessCell), subject: NameOf(raid.Raider), weight: 1.5f);
@@ -658,7 +664,7 @@ public static class Plains
     {
         var f = new Godot.Collections.Dictionary(); foreach (var kv in Feuds) f[kv.Key] = kv.Value;
         var l = new Godot.Collections.Dictionary(); foreach (var kv in BuffaloRun.LastRun) l[kv.Key] = kv.Value;
-        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save(), ["war"] = War.Save(), ["outfits"] = Outfits.Save(), ["trips"] = TradeTrips.Save() };
+        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save(), ["war"] = War.Save(), ["outfits"] = Outfits.Save(), ["trips"] = TradeTrips.Save(), ["wants"] = Wants.Save() };
     }
 
     public static void Load(Godot.Collections.Dictionary d)
@@ -668,6 +674,7 @@ public static class Plains
         MarketNews.Load(d != null && d.ContainsKey("news") ? d["news"].AsGodotDictionary() : null);
         War.Load(d != null && d.ContainsKey("war") ? d["war"].AsGodotDictionary() : null);
         Outfits.Load(d != null && d.ContainsKey("outfits") ? d["outfits"].AsGodotArray() : null);
+        Wants.Load(d != null && d.ContainsKey("wants") ? d["wants"].AsGodotDictionary() : null);
         TradeTrips.Load(d != null && d.ContainsKey("trips") ? d["trips"].AsGodotArray() : null);
         if (d == null) return;
         if (d.ContainsKey("feuds")) foreach (var kv in d["feuds"].AsGodotDictionary()) Feuds[kv.Key.AsString()] = kv.Value.AsSingle();

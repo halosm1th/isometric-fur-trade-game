@@ -119,7 +119,7 @@ public static class TradeTrips
 
     private static void Home(TradeTrip t, int index, GameCalendar cal)
     {
-        foreach (var (id, n) in new List<(ItemId, int)>(t.Goods.All())) t.Camp.Stores.Add(id, n);
+        foreach (var (id, n) in new List<(ItemId, int)>(t.Goods.All())) { t.Camp.Stores.Add(id, n); Wants.OnTraded(t.Camp, id, n); }
         foreach (var (id, n) in new List<(ItemId, int)>(t.Load.All())) t.Camp.Stores.Add(id, n);
         foreach (var n in t.Party) if (n.Away) PutBack(n, IsoGrid.ToWorld(n.StandCellNear(t.Camp.AccessCell)));
         All.RemoveAt(index);

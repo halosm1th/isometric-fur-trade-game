@@ -58,6 +58,15 @@ public partial class CountryBand : BandLedger
         // piece a person a day, and a camp that ran short froze in November.
         int wood = mouths * 10;
         if (Stores.Count(ItemId.Firewood) < wood) Stores.Add(ItemId.Firewood, wood - Stores.Count(ItemId.Firewood));
-        if (cal.Month is >= 10 or <= 4) Stores.Add(ItemId.BeaverPelt, (int)GD.RandRange(0, Country.IsFamily ? 1 : 3));
+        if (cal.Month is >= 10 or <= 4)
+        {
+            // Steel traps take more beaver than deadfalls, and wear for it (Economy/Wants).
+            float traps = Mathf.Clamp(Stores.Count(ItemId.SteelTrap) / (float)Mathf.Max(1, mouths), 0f, 1f);
+            int pelts = (int)GD.RandRange(0, Country.IsFamily ? 1 : 3) + Mathf.RoundToInt(traps * (Country.IsFamily ? 1f : 3f) * GD.Randf());
+            Stores.Add(ItemId.BeaverPelt, pelts);
+            Wants.OnTrapping(this, pelts);
+        }
+        // The week's hunting for the pot (Economy/Wants): a few beasts, the hides to dress.
+        Wants.OnHunt(this, Mathf.Max(1, mouths / 6), Mathf.Max(1, mouths / 8));
     }
 }
