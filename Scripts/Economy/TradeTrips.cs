@@ -19,7 +19,7 @@ public class TradeTrip
 {
     public BandLedger Camp;
     public TradingPostLedger Post;
-    public int ArriveDay, HomeDay;
+    public int StartDay, ArriveDay, HomeDay;
     public bool Traded, Visiting;
     public readonly Inventory Load = new(), Goods = new();
     public readonly List<Npc> Party = new();
@@ -62,11 +62,22 @@ public static class TradeTrips
         float km = IsoGrid.ToWorld(b.Camp).DistanceTo(IsoGrid.ToWorld(post.AccessCell)) / WorldMap.PxPerKm;
         bool riding = b.Herd.Free >= t.Party.Count;
         int oneWay = Mathf.Max(1, Mathf.CeilToInt(km / (riding ? 45f : 25f)));
+        t.StartDay = Plains.Today;
         t.ArriveDay = Plains.Today + oneWay;
         t.HomeDay = t.ArriveDay + 1 + oneWay;
         All.Add(t);
         if (Plains.Log) GD.Print($"[trade] {cal.DateString} {t.Party.Count} men of {b.Name} set out for {post.Post.Name} ({km:0} km, {oneWay} days {(riding ? "riding" : "afoot")}) with {StandardOfTrade.Worth(t.Load):0} MB of furs");
         return true;
+    }
+
+    // Where the party is on the road now, as the days have gone (for the observer).
+    public static Vector2 Where(TradeTrip t)
+    {
+        foreach (var n in t.Party) if (n != null && GodotObject.IsInstanceValid(n) && n.Visible && !n.Away) return n.GlobalPosition;
+        var camp = IsoGrid.ToWorld(t.Camp.Camp); var post = IsoGrid.ToWorld(t.Post.Post.GateOutside);
+        float day = Plains.Today + (GameCalendar.Instance?.Hour ?? 12f) / 24f;
+        if (!t.Traded) return camp.Lerp(post, Mathf.Clamp((day - t.StartDay) / Mathf.Max(1f, t.ArriveDay - t.StartDay), 0f, 1f));
+        return post.Lerp(camp, Mathf.Clamp((day - t.ArriveDay - 1f) / Mathf.Max(1f, t.HomeDay - t.ArriveDay - 1f), 0f, 1f));
     }
 
     // Once a day.

@@ -28,6 +28,7 @@ public partial class MainMenu : Control
         foreach (string arg in OS.GetCmdlineUserArgs())
         {
             if (arg == "--solo") solo = true;
+            if (arg == "--observe") solo = solo || (!host && !server && join == null);
             else if (arg == "--host") host = true;
             else if (arg == "--server") server = true;
             else if (arg.StartsWith("--join=")) join = arg.Substring(7);
@@ -287,6 +288,8 @@ public partial class MainMenu : Control
 
         box.AddChild(new HSeparator());
         Big(box, "Next: who you are").Pressed += () => ShowCharacter("new", _newGame);
+        // No character: fly over the country and watch it go (Core/Observer).
+        Big(box, "Watch the world (no character)").Pressed += () => { Core.Observer.On = true; Apply(); NetHub.I.StartSolo(); Go(); };
         Big(box, "Back").Pressed += () => Show(_home);
         return box;
     }

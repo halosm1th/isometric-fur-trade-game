@@ -160,7 +160,7 @@ public partial class WayfindingHud : Control
             {
                 _homeRevealed = true; Exploration.RevealHome(_player);
                 // Dev aid: `-- --revealmap` lifts the fog off the whole country.
-                if (System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--revealmap") >= 0)
+                if (System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--revealmap") >= 0 || Core.Observer.On)
                     for (float y = 0; y < Exploration.Height * Exploration.CellPx; y += Exploration.CellPx)
                         for (float x = 0; x < Exploration.Width * Exploration.CellPx; x += Exploration.CellPx) Exploration.Reveal(new Vector2(x, y), 10f);
             }

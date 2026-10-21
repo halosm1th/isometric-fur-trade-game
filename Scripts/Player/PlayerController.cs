@@ -266,7 +266,7 @@ public partial class PlayerController : Agent
 		_sprite.AnimationFinished += () => { string a = _sprite.Animation; if (a == "eat" || a == "drink") _busyUntil = 0f; };
 
 		if (IsServerCopy) GiveStartingKit();
-		if (IsLocal) BecomeLocal();
+		if (IsLocal) { BecomeLocal(); if (Observer.On) BecomeGhost(); }
 	}
 
 	private void GiveStartingKit()
@@ -533,6 +533,8 @@ public partial class PlayerController : Agent
 		if (_dialogue != null && _dialogue.IsOpen) return;
 		if (UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping) return;
 		if (UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen) return;
+		// Watching, not playing: the camera's keys, then the clock's, and nothing else.
+		if (Ghost && ObserverInput(@event)) { GetViewport().SetInputAsHandled(); return; }
 		// The clock: Space stops it, [ and ] slow and quicken it (host).
 		if (@event.IsActionPressed("pause_clock")) { NetHub.I?.TogglePause(); GetViewport().SetInputAsHandled(); return; }
 		if (@event.IsActionPressed("clock_slower")) { NetHub.I?.ChangeSpeed(2f); return; }
@@ -543,6 +545,7 @@ public partial class PlayerController : Agent
 			if (key.Keycode == Key.F5) { SaveGame.Save(); Say(SaveGame.LastMessage); return; }
 			if (key.Keycode == Key.F9) { if (!SaveGame.BeginLoad(GetTree())) Say(SaveGame.LastMessage); return; }
 		}
+		if (Ghost) return;
 
 		if (@event is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left })
 		{
@@ -732,6 +735,7 @@ public partial class PlayerController : Agent
 
 	private void LocalMove(float dt)
 	{
+		if (Ghost) { ObserverMove(dt); return; }
 		UpdateReadyBar();
 		if (IsDead)
 		{

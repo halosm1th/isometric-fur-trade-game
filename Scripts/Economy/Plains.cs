@@ -554,6 +554,12 @@ public static class Plains
         }
     }
 
+    // The raids going on with people just now (for the observer).
+    public static IEnumerable<(Household Raider, Household Target, Npc Lead)> LiveRaids()
+    {
+        foreach (var r in _raids) yield return (r.Raider, r.Target, r.Party.Count > 0 ? r.Party[0] : null);
+    }
+
     // Raiders among the herd cut out what they can drive.
     public static int CutOut(Npc raider, Household target)
     {

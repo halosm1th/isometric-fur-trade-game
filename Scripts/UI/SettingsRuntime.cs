@@ -62,7 +62,8 @@ public partial class SettingsRuntime : Node
     public override void _Process(double delta)
     {
         var cam = GetViewport().GetCamera2D();
-        if (cam != null && (cam.Zoom != Settings.CameraZoom || cam.PositionSmoothingEnabled != Settings.CameraSmoothing)) Settings.ApplyCamera();
+        // The observer flies its own zoom (Player/PlayerObserver).
+        if (cam != null && !Core.Observer.On && (cam.Zoom != Settings.CameraZoom || cam.PositionSmoothingEnabled != Settings.CameraSmoothing)) Settings.ApplyCamera();
 
         _fps.Visible = Settings.ShowFps;
         if (_fps.Visible) _fps.Text = $"{Engine.GetFramesPerSecond()} fps";

@@ -158,6 +158,7 @@ public static class Sim
         foreach (var a in Agents)
         {
             if (a == null || !GodotObject.IsInstanceValid(a) || a.IsDead) continue;
+            if (a is Player.PlayerController { Ghost: true }) continue;   // the observer (Core/Observer)
             var p = a.GlobalPosition;
             long k = Key(Mathf.FloorToInt(p.X / Bucket), Mathf.FloorToInt(p.Y / Bucket));
             if (!_grid.TryGetValue(k, out var list)) _grid[k] = list = new List<Agent>(8);
