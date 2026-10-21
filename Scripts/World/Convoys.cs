@@ -33,6 +33,9 @@ public sealed class ConvoyLeg
 {
 	public string From = "", To = "", Cargo = "outfit";
 	public int Month, Day;
+	// This leg's share of the sending depot's stock, by how much of the
+	// country lies beyond it (Economy/Outfits); 0 = the run's own.
+	public float Share;
 }
 
 public sealed class ConvoyRun
@@ -41,6 +44,9 @@ public sealed class ConvoyRun
 	public Faction Company = Faction.HBC;
 	public CraftKind Craft = new();
 	public int Boats = 3, Men = 7;
+	// A feeder's share of each good at its depot (one post among those it
+	// supplies); 0 = the great roads' own fractions (Outfit).
+	public float Share;
 	public readonly List<string> Stops = new();
 	public readonly List<ConvoyLeg> Legs = new();
 }
@@ -229,6 +235,8 @@ public static class Convoys
 			}
 			Runs.Add(run);
 		}
+		// Every lesser post gets its own feeder from the nearest depot (Economy/Outfits).
+		Economy.Outfits.AddFeederRuns(Runs, kinds);
 	}
 
 	public static void Reset()
@@ -476,6 +484,7 @@ public static class Convoys
 		(ItemId.TradeGoods, 0.55f), (ItemId.Musket, 0.4f), (ItemId.PointBlanket, 0.5f), (ItemId.SteelTrap, 0.5f),
 		(ItemId.Kettle, 0.4f), (ItemId.Rum, 0.4f), (ItemId.Tobacco, 0.5f), (ItemId.Powder, 0.4f),
 		(ItemId.Beads, 0.5f), (ItemId.Awl, 0.5f), (ItemId.Stroud, 0.5f), (ItemId.Axe, 0.3f), (ItemId.Capote, 0.4f),
+		(ItemId.Knife, 0.5f), (ItemId.IceChisel, 0.4f), (ItemId.FishingNet, 0.4f), (ItemId.Flint, 0.5f),
 	};
 
 	private static readonly ItemId[] Rations = { ItemId.Pemmican, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.SaltGeese };
@@ -493,14 +502,18 @@ public static class Convoys
 			Upstream = leg.Cargo == "outfit", Boats = run.Boats, Crew = run.Boats * run.Men,
 			Guide = GuideFor(run),
 		};
-		int cap = run.Craft.LotsPerBoat * run.Boats;
+		// A boat carries pieces of ninety pounds (design doc 12): what fills her
+		// is weight, so a case of awls is one piece and not two hundred.
+		float capLbs = run.Craft.LotsPerBoat * run.Boats * 90f;
+		int Fits(ItemId id, int n) => Mathf.Min(n, Mathf.FloorToInt(capLbs / Mathf.Max(0.05f, Items.Items.Of(id).WeightLbs)));
 		if (leg.Cargo == "returns")
 		{
 			foreach (var (id, n) in new List<(ItemId, int)>(from.Stores.All()))
 			{
-				if (Items.Items.Of(id).Kind != ItemKind.Fur || cap <= 0) continue;
-				int take = from.Stores.TakeUpTo(id, Mathf.Min(n, cap));
-				if (take > 0) { c.Cargo.Add(id, take); cap -= take; }
+				if (Items.Items.Of(id).Kind != ItemKind.Fur && id != ItemId.BuffaloRobe || capLbs <= 0f) continue;
+				// A post keeps a few robes for its own beds.
+				int take = from.Stores.TakeUpTo(id, Fits(id, id == ItemId.BuffaloRobe ? n - 4 : n));
+				if (take > 0) { c.Cargo.Add(id, take); capLbs -= take * Items.Items.Of(id).WeightLbs; }
 			}
 		}
 		else
@@ -508,10 +521,10 @@ public static class Convoys
 			foreach (var (id, share) in Outfit)
 			{
 				int have = from.Stores.Count(id);
-				int want = Mathf.Min(cap, Mathf.FloorToInt(have * share));
+				int want = Fits(id, Mathf.FloorToInt(have * (leg.Share > 0f ? leg.Share : run.Share > 0f ? run.Share : share)));
 				if (want <= 0) continue;
 				int take = from.Stores.TakeUpTo(id, want);
-				if (take > 0) { c.Cargo.Add(id, take); cap -= take; }
+				if (take > 0) { c.Cargo.Add(id, take); capLbs -= take * Items.Items.Of(id).WeightLbs; }
 			}
 		}
 		c.LotsAtStart = c.Lots;
@@ -520,6 +533,7 @@ public static class Convoys
 		{
 			string idle = leg.Cargo == "returns" ? $"{c.Name} lay at {leg.From} with nothing to carry down: no furs on the books." : $"{c.Name} could not be loaded at {leg.From}: the shelves were bare.";
 			Chronicle.Event(idle, Landing(leg.From), null, c.Name, 1.2f);
+			if (Economy.Plains.Log) GD.Print($"[convoys] {cal.DateString} {idle}");
 			Hear(c, idle, "the stores were empty at the landing", 1f);
 			Raise($"late:{c.Name}");
 			return null;
@@ -548,6 +562,7 @@ public static class Convoys
 		Unraise($"lost:{c.Name}"); Unraise($"robbed:{c.Name}"); Unraise($"turned:{c.Name}");   // a new crossing starts clean
 		string what = leg.Cargo == "returns" ? "the winter's returns" : "the outfit";
 		string line = $"{c.Name} leave {leg.From} for {leg.To}: {c.Boats} {run.Craft.Name}s, {c.Crew} men under {c.Guide}, {c.Lots} pieces of {what}.";
+		if (Economy.Plains.Log) GD.Print($"[convoys] {cal.DateString} {line} ({Economy.StandardOfTrade.Worth(c.Cargo):0} MB)");
 		Chronicle.Event(line, Landing(leg.From), null, c.Name, 1.2f);
 		Hear(c, line, "", 1f);
 		return c;
@@ -565,6 +580,8 @@ public static class Convoys
 
 	private static void DayOf(Convoy c, GameCalendar cal, int today)
 	{
+		// In and landed: it waits at the landing to be cleared away, it does not arrive again every day.
+		if (c.Now == ConvoyState.Arrived) return;
 		c.Along = Mathf.Min(c.Path.Length, c.Along + c.Step);
 		c.Step = 0f;
 		c.DaysOut++;
@@ -790,6 +807,7 @@ public static class Convoys
 		string line = c.TurnedBack
 			? $"{c.Name} are back at {c.ToName} after being turned back, with {lots} pieces still aboard."
 			: $"{c.Name} are in at {c.ToName}: {lots} pieces landed after {c.DaysOut} days.";
+		if (Economy.Plains.Log) GD.Print($"[convoys] {line}");
 		Chronicle.Event(line, Landing(c.ToName), null, c.Name, 1.2f);
 		Hear(c, line, "", 1.2f);
 

@@ -232,6 +232,26 @@ public class Inventory
         return true;
     }
 
+    // Move up to `lbs` of goods into another inventory, whole items only, in
+    // the order they are held - a man's load off a ship's deck or out of a
+    // warehouse, by weight and not by count (design doc 12.4). `which`
+    // narrows it (furs only, say). Returns the pieces moved.
+    public int MoveByWeight(Inventory to, float lbs, System.Func<ItemId, bool> which = null)
+    {
+        int moved = 0;
+        foreach (var (id, n) in new System.Collections.Generic.List<(ItemId, int)>(All()))
+        {
+            if (lbs <= 0f) break;
+            if (which != null && !which(id)) continue;
+            float w = System.Math.Max(0.05f, Items.Of(id).WeightLbs);
+            int k = System.Math.Min(n, (int)System.Math.Floor(lbs / w));
+            if (k <= 0) continue;
+            Remove(id, k); to.Add(id, k);
+            lbs -= k * w; moved += k;
+        }
+        return moved;
+    }
+
     // Take up to n; returns how many actually came out.
     public int TakeUpTo(ItemId id, int n)
     {

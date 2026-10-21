@@ -1353,13 +1353,9 @@ public partial class PlayerController : Agent
 			var ship = Sim.Ship;
 			if (Faction == Faction.HBC && ship != null && ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 160f && ship.Cargo.SlotCount > 0)
 			{
-				int carried = 0;
-				foreach (var (id, n) in new List<(ItemId, int)>(ship.Cargo.All()))
-				{
-					int take = Mathf.Min(n, 4 - carried); if (take <= 0) break;
-					ship.Cargo.Remove(id, take); Inventory.Add(id, take); carried += take;
-				}
-				return $"You shoulder {carried} lots from the ship. Take them to the warehouse.";
+				// What you can carry, a piece at least (design doc 12.4).
+				int carried = ship.Cargo.MoveByWeight(Inventory, Mathf.Max(90f, CarryCapacityLbs - Inventory.TotalWeightLbs));
+				return $"You shoulder {carried} pieces of cargo from the ship. Take them to the warehouse.";
 			}
 		}
 

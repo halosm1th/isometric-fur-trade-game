@@ -480,24 +480,10 @@ public class CarryCargoGoal : Goal
                 if (!ChildFinished(out var r)) return GoalStatus.Running;
                 if (r != GoalStatus.Done) return GoalStatus.Failed;
                 int carried = 0;
-                if (_unload)
-                {
-                    foreach (var (id, n) in new System.Collections.Generic.List<(ItemId, int)>(ship.Cargo.All()))
-                    {
-                        int take = Mathf.Min(n, 4 - carried);
-                        if (take <= 0) break;
-                        ship.Cargo.Remove(id, take); npc.Inventory.Add(id, take); carried += take;
-                    }
-                }
-                else
-                {
-                    foreach (var id in new[] { ItemId.BeaverPelt, ItemId.ThinPelt, ItemId.ShotPelt, ItemId.ShotHide, ItemId.CaribouHide, ItemId.WolfPelt })
-                    {
-                        int take = fort.Stores.TakeUpTo(id, 6 - carried);
-                        npc.Inventory.Add(id, take); carried += take;
-                        if (carried >= 6) break;
-                    }
-                }
+                // A load is what a man can carry, a piece at least (design doc 12.4).
+                float load = Mathf.Max(90f, npc.CarryCapacityLbs - npc.Inventory.TotalWeightLbs);
+                if (_unload) carried = ship.Cargo.MoveByWeight(npc.Inventory, load);
+                else carried = fort.Stores.MoveByWeight(npc.Inventory, load, Economy.Shipping.IsReturn);
                 if (carried == 0) return GoalStatus.Done; // nothing left to move
                 _phase = 2;
                 return Delegate(new GoToGoal(to, 90f));

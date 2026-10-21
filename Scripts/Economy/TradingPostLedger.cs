@@ -15,6 +15,8 @@ public partial class TradingPostLedger : FortLedger
 {
     public TradingPost Post;
     private float _hoursToWeek = 24f * 7f;
+    // What its country last came in wanting and did not find (Economy/StandardOfTrade).
+    public System.Collections.Generic.List<string> ShortOf = new();
 
     public override Agents.Faction Company => Post?.Faction ?? Agents.Faction.HBC;
 
@@ -30,9 +32,8 @@ public partial class TradingPostLedger : FortLedger
         Stores.Add(ItemId.Pemmican, 25);
         Stores.Add(ItemId.DriedMeat, 20);
         Stores.Add(ItemId.Firewood, 25);
-        Stores.Add(ItemId.TradeGoods, 40);
-        Stores.Add(ItemId.Tobacco, 8);
-        Stores.Add(ItemId.Musket, 4);      // trade guns: the thing every nation wanted, and the one that tipped their wars
+        // The goods of last year's outfit, part traded (Economy/Outfits).
+        Outfits.Seed(this);
         Stores.Add(ItemId.Water, 10);
         Stores.Add(ItemId.Axe, 1);
         Stores.Add(ItemId.FishingLine, 2);
@@ -61,20 +62,8 @@ public partial class TradingPostLedger : FortLedger
         Stores.Add(ItemId.DriedMeat, mouths * (winter ? 5 : 7));
         if (winter) Stores.Add(ItemId.Pemmican, mouths);
         if (Stores.Count(ItemId.Firewood) < 20) Stores.Add(ItemId.Firewood, 6);
-        // The trade: a few packs a season from the bands that winter near.
-        if (cal.Month is >= 10 or <= 5 && Stores.Count(ItemId.TradeGoods) > 2)
-        {
-            int pelts = (int)GD.RandRange(0, 3);
-            Stores.Add(ItemId.BeaverPelt, pelts);
-            Stores.Remove(ItemId.TradeGoods, Mathf.Min(pelts, Stores.Count(ItemId.TradeGoods)));
-            FursTakenMb += pelts;
-        }
-        // A post lives on its brigade (World/Convoys.cs): when the boats are late or lost
-        // and the shelves are bare, the bands that winter near carry their furs to the other house.
-        else if (cal.Month is >= 10 or <= 5)
-        {
-            LostToRivalMb += 2f;
-            Chronicle.Event($"a party came to {Post.Name} and found the shelves bare; they went on to the other house.", IsoGrid.ToWorld(AccessCell), subject: Post.Name, weight: 1f);
-        }
+        // The trade itself is the country's camps coming in with their furs
+        // (Economy/StandardOfTrade); the goods come up, and the furs go down,
+        // with the post's own feeder brigade (Economy/Outfits, World/Convoys).
     }
 }

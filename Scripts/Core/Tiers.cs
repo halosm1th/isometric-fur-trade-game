@@ -250,6 +250,9 @@ public static class Tiers
 
     private static void Work(Npc n, Economy.Household home)
     {
+        // Ship time at the bay comes before everything: the cargo ashore, then
+        // the year's furs aboard, two pieces a man a day (Economy/Shipping).
+        if (Economy.Shipping.WorkTheShip(n, home)) return;
         // Wood first, then whatever the post is short of.
         if (home.Stores.Count(ItemId.Firewood) < 30) { home.Stores.Add(ItemId.Firewood, n.Skills.Woodcraft >= 0.5f ? 5 : 4); n.Skills.Learn(ref n.Skills.Woodcraft, 0.004f); return; }
         // Traps if there is a line to work; otherwise out after meat. A man

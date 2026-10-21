@@ -84,6 +84,11 @@ public partial class Ship : Node2D
         Cargo.Add(ItemId.Kettle, 4);
         Cargo.Add(ItemId.PointBlanket, 20);
         Cargo.Add(ItemId.Capote, 6);
+        // The rest of London's outfit: what the country trades for (Economy/
+        // StandardOfTrade), landed piece by piece and carried up the roads
+        // to the depots (Economy/Outfits, World/Convoys).
+        foreach (var (id, mb) in Economy.Outfits.Mix)
+            Cargo.Add(id, Mathf.RoundToInt(mb * Economy.Outfits.YearMb / 100f / Items.Items.Of(id).ValueMb));
         Position = WorldLayout.ShipOffscreen;
         Visible = true;
         Current = State.Arriving;

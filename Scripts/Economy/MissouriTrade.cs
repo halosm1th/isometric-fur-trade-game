@@ -129,7 +129,7 @@ public static class MissouriTrade
         var parts = new List<string>();
         (ItemId id, float value, string name)[] media =
         {
-            (ItemId.Musket, 14f, "guns"), (ItemId.TradeGoods, 1f, "goods"), (ItemId.BuffaloRobe, 2f, "robes"),
+            (ItemId.Musket, 14f, "guns"), (ItemId.Powder, 1f, "powder and ball"), (ItemId.Kettle, 2f, "kettles"), (ItemId.Knife, 0.5f, "knives"), (ItemId.Tobacco, 1f, "tobacco"), (ItemId.Beads, 0.5f, "beads"), (ItemId.TradeGoods, 1f, "goods"), (ItemId.BuffaloRobe, 2f, "robes"),
             (ItemId.Pemmican, 0.3f, "pemmican"), (ItemId.Corn, 0.25f, "corn"), (ItemId.DriedMeat, 0.25f, "dried meat"),
         };
         float left = mb;
@@ -171,16 +171,24 @@ public static class MissouriTrade
                     { Log(cal, $"{post.Title} sent no one down (it has heard: {MarketNews.Describe(post)})"); break; }
                 continue;
             }
-            if (post.Stores.Count(ItemId.TradeGoods) < 10) { Log(cal, $"{post.Title} has nothing to send down to {town.Name}"); continue; }
-            Log(cal, $"{post.Title} sends men to {town.Name} (it has heard: {MarketNews.Describe(post)})");
-            int goods = Mathf.Min(Mathf.Max(10, post.Stores.Count(ItemId.TradeGoods) / 3), 60);
-            int guns = Mathf.Min(post.Stores.Count(ItemId.Musket), 4);
-            post.Stores.Remove(ItemId.TradeGoods, goods);
-            if (guns > 0) post.Stores.Remove(ItemId.Musket, guns);
-            town.Stores.Add(ItemId.TradeGoods, goods);
-            town.Stores.Add(ItemId.Musket, guns);
+            // A few horse-loads of what the towns trade for, out of the post's own outfit:
+            // guns and powder first, then kettles, knives, awls, tobacco, beads and cloth.
+            float worth = 0f;
+            int guns = 0, goods = 0;
+            var load = new System.Collections.Generic.List<string>();
+            foreach (var (id, most) in new (ItemId, int)[] { (ItemId.Musket, 4), (ItemId.Powder, 20), (ItemId.Kettle, 4), (ItemId.Knife, 10), (ItemId.Awl, 30), (ItemId.Tobacco, 10), (ItemId.Beads, 10), (ItemId.Stroud, 6), (ItemId.TradeGoods, 15) })
+            {
+                int k = Mathf.Min(most, post.Stores.Count(id) / 3);
+                if (k <= 0) continue;
+                post.Stores.Remove(id, k);
+                town.Stores.Add(id, k);
+                worth += k * Items.Items.Of(id).ValueMb;
+                if (id == ItemId.Musket) guns = k; else goods += k;
+                load.Add($"{k} {Items.Items.Of(id).Name.ToLower()}");
+            }
+            if (worth < 10f) { Log(cal, $"{post.Title} has nothing to send down to {town.Name}"); continue; }
+            Log(cal, $"{post.Title} sends men to {town.Name} with {string.Join(", ", load)} (it has heard: {MarketNews.Describe(post)})");
             // What the town gives for it, at the town's prices.
-            float worth = goods + guns * 14f;
             int robes = town.Stores.TakeUpTo(ItemId.BuffaloRobe, Mathf.RoundToInt(worth * 0.3f / 2f));
             // The town sells its surplus, not its seed or its winter.
             int corn = town.Stores.TakeUpTo(ItemId.Corn, Mathf.Min(Mathf.RoundToInt(worth * 0.3f / 0.25f), Mathf.Max(0, town.Stores.Count(ItemId.Corn) - town.Mouths * 10)));
