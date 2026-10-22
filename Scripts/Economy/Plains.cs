@@ -40,7 +40,7 @@ public static class Plains
     public static void Reset()
     {
         _lastDay = -1; _hourAcc = 1f; _live.Clear(); Feuds.Clear(); _raids.Clear(); _tonight.Clear();
-        Gardens.Reset(); MarketNews.Reset(); Lacrosse.Reset();
+        Gardens.Reset(); MarketNews.Reset(); Lacrosse.Reset(); Companies.Reset();
         foreach (var v in _views.Values) if (GodotObject.IsInstanceValid(v)) v.QueueFree();
         _views.Clear();
         BuffaloRun.Active.Clear(); BuffaloRun.LastRun.Clear();
@@ -66,6 +66,7 @@ public static class Plains
             foreach (var hh in Horses.All()) hh.Herd.Day(hh);
             TradeTrips.Day(cal);
             Lacrosse.Day(cal);
+            Companies.Daily(cal);
             Shipping.CrewDay();
             Recount();
             if (!first && Today % 7 == 0) Weekly(cal);
@@ -673,7 +674,7 @@ public static class Plains
     {
         var f = new Godot.Collections.Dictionary(); foreach (var kv in Feuds) f[kv.Key] = kv.Value;
         var l = new Godot.Collections.Dictionary(); foreach (var kv in BuffaloRun.LastRun) l[kv.Key] = kv.Value;
-        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save(), ["war"] = War.Save(), ["outfits"] = Outfits.Save(), ["trips"] = TradeTrips.Save(), ["wants"] = Wants.Save(), ["indent"] = PostWants.Save() };
+        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save(), ["war"] = War.Save(), ["outfits"] = Outfits.Save(), ["trips"] = TradeTrips.Save(), ["wants"] = Wants.Save(), ["indent"] = PostWants.Save(), ["companies"] = Companies.Save() };
     }
 
     public static void Load(Godot.Collections.Dictionary d)
@@ -685,6 +686,7 @@ public static class Plains
         Outfits.Load(d != null && d.ContainsKey("outfits") ? d["outfits"].AsGodotArray() : null);
         Wants.Load(d != null && d.ContainsKey("wants") ? d["wants"].AsGodotDictionary() : null);
         PostWants.Load(d != null && d.ContainsKey("indent") ? d["indent"].AsGodotDictionary() : null);
+        Companies.Load(d != null && d.ContainsKey("companies") ? d["companies"].AsGodotDictionary() : null);
         TradeTrips.Load(d != null && d.ContainsKey("trips") ? d["trips"].AsGodotArray() : null);
         if (d == null) return;
         if (d.ContainsKey("feuds")) foreach (var kv in d["feuds"].AsGodotDictionary()) Feuds[kv.Key.AsString()] = kv.Value.AsSingle();

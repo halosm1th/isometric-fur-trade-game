@@ -30,9 +30,9 @@ public static class Appearance
             Role.Factor => Dir + "FactorFrames.tres",
             // The trading captain's sheet is a Cree one: a Blackfoot or a
             // Mandan chief wears his own nation's instead.
-            Role.CreeChief when n.Faction is Faction.Cree or Faction.HBC => Dir + "CreeCaptainFrames.tres",
-            Role.Woman or Role.Wife or Role.CreeWoman or Role.CreeDaughter => ForNation(n.Faction, true),
-            Role.CreeHunter or Role.CreeChief => ForNation(n.Faction),
+            Role.Chief when n.Faction is Faction.Cree or Faction.HBC => Dir + "CreeCaptainFrames.tres",
+            Role.Woman or Role.Wife or Role.BandWoman or Role.BandDaughter => ForNation(n.Faction, true),
+            Role.Hunter or Role.Chief => ForNation(n.Faction),
             _ => null,
         };
     }

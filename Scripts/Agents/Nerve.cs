@@ -46,7 +46,7 @@ public static class Nerve
 			if (o.Faction == n.Faction)
 			{
 				friends++;
-				if (o.Role is Role.Factor or Role.Postmaster or Role.NwcPartner or Role.CreeChief or Role.Clerk) leader = true;
+				if (o.Role is Role.Factor or Role.Postmaster or Role.NwcPartner or Role.Chief or Role.Clerk) leader = true;
 			}
 			else if (threat != null && o.Faction == threat.Faction) foes++;
 		}
@@ -59,7 +59,7 @@ public static class Nerve
 		if (n.Needs.Health < 30f) nerve -= 0.3f;
 		if (n.Weapon == Items.ItemId.Musket) nerve += 0.1f;
 		if (Shaken(n.Faction)) nerve -= 0.25f;
-		if (n.Role == Role.CreeHunter) nerve += 0.1f;             // his own country
+		if (n.Role == Role.Hunter) nerve += 0.1f;             // his own country
 		if (n.Intoxication > 40f) nerve += 0.15f;                 // rum courage
 		return nerve > 0.45f;
 	}

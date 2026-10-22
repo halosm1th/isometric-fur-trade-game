@@ -13,7 +13,7 @@ namespace IsometricFurTradeGame.Scripts.Economy;
 // reckoning is here.
 public static class HorseTrade
 {
-    public static bool CampHasHorses(Npc npc) => npc.IsBandPerson && npc.HomeStores is BandLedger b && b.Herd.Free >= 2 && (npc.Role is Role.CreeChief or Role.CreeHunter);
+    public static bool CampHasHorses(Npc npc) => npc.IsBandPerson && npc.HomeStores is BandLedger b && b.Herd.Free >= 2 && (npc.Role is Role.Chief or Role.Hunter);
 
     public static bool PostLends(Npc npc, Player.PlayerController pc)
         => npc.HomeStores is FortLedger f && f.Herd.Free >= 2 && npc.Faction == pc.Faction && npc.Role is Role.Factor or Role.Postmaster or Role.NwcPartner;

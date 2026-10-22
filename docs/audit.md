@@ -40,7 +40,7 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 | 1 | 1821 weighs the player | Missing | `Economy/Union.cs` keeps every player on. Nothing measures them against their ambitions |
 | 2.2 | Director | Built | `Core/Director.cs`: memory choice, `Equal()` tie-break by player proximity (7 callers), `MayActNow`, `--nodirector` |
 | 2.3 | Campaign scripts and adherence | Built | `Core/CampaignRunner.cs`: Firm forces at 2× grace, Strict at 1×; logged `[forced]` |
-| P.2 | Ambitions | Partial | Five offered. `FoundAPost` exists, is not offered, and its progress is hard-coded to 0 (`Agents/Ambition.cs:57`) |
+| P.2 | Ambitions | Partial | Five offered. (`FoundAPost` removed until it can be built) |
 | P.3 | A year in 4-6 hours | **Not met** | About 73 h flat. Uneven pacing gives about 57 h for a player alone in fair weather (my arithmetic from `GameCalendar.Pacing`; not measured in play) |
 | P.4 | Journal chains, focus panel, notices | Built | `Core/Reveal.cs`, `Core/Focus.cs`, `UI/NoticeLog.cs` |
 | P.6 | Succession | Built | `Agents/Heirs.cs` |
@@ -86,7 +86,7 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 | 12.6 | Crafting | Missing (except NPC food chains) | `MakePemmicanGoal`, drying meat, spruce beer |
 | 12.7 | Book pages; perks | Partial | *Yourself* page built. Perks missing |
 | 13.1 | Starvation cascade | Partial | Short commons are tracked. The fallback ladder (famine foods, eating draft animals) was not found |
-| 13.2 | Recruit pool | **Diverges** | §5 item 3 |
+| 13.2 | Recruit pool | Partial | Hiring limited by the company's purse and the war (`Economy/Companies`); no finite pool of men or lagged news yet |
 | 13.3 | Debt | Partial | Band debt per company. Debt is not used as a weapon |
 | 13.4 | Alcohol | Partial | Intoxication only |
 | 13.5 | Disease | Partial | Fever spreads between people standing together (`Population.SicknessAndYears`). No epidemics, contagion through goods, or quarantine |
@@ -157,14 +157,14 @@ Places where a code comment, a citation or a doc describes behaviour that isn't 
 
 | # | The claim | Where | What the code actually does |
 |---|---|---|---|
-| 1 | "A Factor ... shades the books (design doc 3.9 step 8)". Step 8 says "the lie resolves at that read event" | `World/Ship.cs:115` | Furs are skimmed into `FortLedger.SkimmedMb`. London never reads it (`LondonCommittee.cs` doesn't look), so it never resolves. The only consequence is a barter tell ("does not quite add up", `Barter.cs:120`) |
-| 2 | "Powder and ball" is stocked, traded and named as the musket's charge | `Items.cs`, the stores at every post | Muskets never use it up. (The wiki item page and `world-content-needed.md` §8 both admit this; the game itself does not) |
-| 3 | "The ship lands enough new hands to bring the post back to strength (design doc 5.5)" | `World/Population.cs:390` | Recruits are drawn from a fixed list of 24 Orkney names, skipping anyone already alive. After about 24 recruits the ship lands nobody, by accident rather than by any pool or finances (§13.2) |
+| 1 | "A Factor ... shades the books (design doc 3.9 step 8)". Step 8 says "the lie resolves at that read event" | `World/Ship.cs:115` | **Fixed (Oct 2026):** London compares the furs landed with York's account (`LondonCommittee.Audit`); the chance of noticing grows with the gap. Once is a letter and lost standing; twice, or a gross theft, and the Factor is recalled on the next ship and the post passes to the next man (`Npc.Recall`) |
+| 2 | "Powder and ball" is stocked, traded and named as the musket's charge | `Items.cs`, the stores at every post | **Fixed (Oct 2026):** a horn is twenty charges and a shot spends one, refilled from the pack or the house's store; without powder a gun is a club (`Agent.UseCharge`); hunts in the day's sum need powder to use the gun |
+| 3 | "The ship lands enough new hands to bring the post back to strength (design doc 5.5)" | `World/Population.cs:390` | **Fixed (Oct 2026):** names are drawn from Orkney (and Canadian) given names and surnames, hundreds of them; how many are hired is the company's purse and the war (`Economy/Companies.Hires`) |
 | 4 | "A year should take four to six hours of play" | `Core/GameCalendar.cs:32` | The uneven pacing beneath the comment slows the busy seasons as much as it speeds winter nights. About 57 h |
 | 5 | "Four traits" | `Agents/Npc.cs:19` | Five fields, and not the doc's five |
 | 6 | Skills cite "design doc 3.10" | `Agents/Needs.cs:11` | 4 of the 12 or so skills |
-| 7 | `AmbitionKind.FoundAPost` with title, pledge, rival target and Director keywords | `Ambition.cs`, `Rival.cs:173`, `Director.cs:170` | Never offered; progress is always 0. Dead code wired into three systems |
-| 8 | Role names `CreeChief`, `CreeHunter`, `CreeWoman`, `CreeDaughter` | `Agents/Npc.cs:14` | Used for every nation's people: a Blackfoot chief is `Role.CreeChief`. The names mislead readers and save files |
+| 7 | `AmbitionKind.FoundAPost` with title, pledge, rival target and Director keywords | `Ambition.cs`, `Rival.cs:173`, `Director.cs:170` | **Removed (Oct 2026)** until founding a post can be built properly |
+| 8 | Role names `CreeChief`, `CreeHunter`, `CreeWoman`, `CreeDaughter` | `Agents/Npc.cs:14` | **Fixed (Oct 2026):** `Chief`, `Hunter`, `BandWoman`, `BandDaughter`, with the old names kept as aliases of the same numbers for saves and code not yet moved over |
 | 9 | Orders are messages, inert until read (§3.9 step 4, §10.1.1) | Design doc | The Factor's morning orders take effect at once. Only London's directive and the council's minutes travel (the York test-world notes admit this) |
 | 10 | "The Reckoning of 1821": the new order weighs what the player has become (design doc §1) | `WIKI/Systems/The Reckoning of 1821.md`, `Union.cs` | Every player is kept on; nobody is weighed. (Page corrected in this pass) |
 | 11 | Fire "spreads ... according to the weather; a gale drives it" | `World/Fire.cs:9`, `:92` | Weather scales how often it spreads, never which way. There is no wind direction |

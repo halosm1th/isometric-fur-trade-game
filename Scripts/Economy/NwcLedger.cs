@@ -86,6 +86,6 @@ public partial class NwcLedger : FortLedger
         foreach (var pc in Sim.Players()) Core.Reckoning.AtBrigadeAway(pc, this, shipped);
         // A partner left to his own judgment sets the price the country requires.
         if (PriceAtDiscretion && Sim.Fort != null) PeltPrice = Mathf.Clamp(Mathf.Max(PeltPrice, Sim.Fort.PeltPrice * 1.25f), 0.5f, 3f);
-        (GetTree().GetFirstNodeInGroup("population") as Population)?.LandVoyageurs(3);
+        (GetTree().GetFirstNodeInGroup("population") as Population)?.LandVoyageurs(3, Companies.Hires(Agents.Faction.NWC, 3));
     }
 }

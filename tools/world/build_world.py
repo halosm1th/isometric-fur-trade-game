@@ -161,6 +161,10 @@ def main():
             if op[cx, cy] == COL["Ford"]:
                 wx, wy = cell_world(cx, cy)
                 if not lp[min(W - 1, int(wx / RES)), min(H - 1, int(wy / RES))]: op[cx, cy] = COL["Ocean"]
+    # Hand-placed crossings (extras.json "fords", map cells): where a town and
+    # its fort, or two halves of a town, are on either side of a creek.
+    for fx, fy in extras.get("fords", []):
+        if 0 <= fx < COLS and 0 <= fy < ROWS: op[fx, fy] = COL["Ford"]
 
     places = []
     def add_place(name, lon, lat, **kw):

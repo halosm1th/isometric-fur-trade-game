@@ -65,6 +65,32 @@ public static class TownLife
         return door;
     }
 
+    // Dev: `-- --townpaths` walks every town once the world is up: from its
+    // market to every house door, and from the garrison's gate to the church,
+    // and says what can't be reached on foot.
+    public static void CheckPaths()
+    {
+        foreach (var t in Towns.All)
+        {
+            if (!t.Standing || t.Market == null) continue;
+            var from = t.Market.AccessCell;
+            int bad = 0, all = 0; var sample = new List<string>();
+            foreach (var h in t.Houses.Values)
+            {
+                if (h == t.Market) continue;
+                all++;
+                if ((Sim.Paths?.FindPath(from, h.AccessCell)?.Count ?? 0) == 0) { bad++; if (sample.Count < 4) sample.Add($"{h.Title} {h.AccessCell}"); }
+            }
+            string fort = "";
+            if (t.HasFort && Church(t) is { } ch)
+            {
+                var gate = IsoGrid.Cell(t.FortTop, t.FortGate, t.FortDepth + 1);
+                fort = (Sim.Paths?.FindPath(gate, ch.Def.DoorCell)?.Count ?? 0) == 0 ? $"; {t.FortName} cut off from the church" : $"; {t.FortName} reaches the church";
+            }
+            GD.Print($"[townpaths] {t.Name}: {all - bad}/{all} houses reachable from the market{fort}{(bad > 0 ? " - e.g. " + string.Join(", ", sample) : "")}");
+        }
+    }
+
     // ---- Sunday ------------------------------------------------------------------------
 
     // Morning service, nine till half past eleven: everyone who can walk is

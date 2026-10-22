@@ -11,11 +11,14 @@ namespace IsometricFurTradeGame.Scripts.Agents;
 public enum Role
 {
     Factor, Clerk, Labourer, Woman, Postmaster,
-    CreeChief, CreeHunter, CreeWoman, CreeDaughter,
+    // A camp's people, of whatever nation (they were once all named for the Cree).
+    Chief, Hunter, BandWoman, BandDaughter,
     Sailor, Wife,
     NwcPartner, Voyageur,
     // The towns (World/Towns).
     Farmer, Merchant, Artisan, Soldier, Officer, Priest, Child,
+    // The old names, the same numbers: older saves and code still read them.
+    CreeChief = Chief, CreeHunter = Hunter, CreeWoman = BandWoman, CreeDaughter = BandDaughter,
 }
 
 // Four traits that decide what an agent does with what it knows and wants
@@ -828,7 +831,7 @@ public partial class Npc : Agent
     }
 
     // The men who carry muskets for the house; leaders, clerks and women don't turn out.
-    public bool IsFighter => !IsFemale && Weapon != null && (Role == Role.Labourer || Role == Role.Voyageur || Role == Role.CreeHunter || Role == Role.Sailor || Role == Role.Soldier || Role == Role.Farmer);
+    public bool IsFighter => !IsFemale && Weapon != null && (Role == Role.Labourer || Role == Role.Voyageur || Role == Role.Hunter || Role == Role.Sailor || Role == Role.Soldier || Role == Role.Farmer);
 
     // Someone robbing our house is an enemy while they're at it - to the
     // armed men, and only if the house has the numbers (design doc 15.1).
@@ -844,7 +847,7 @@ public partial class Npc : Agent
     }
 
     // A voyageur carried two ninety-pound pieces over a portage.
-    public override float BaseCarryLbs => Role == Role.Voyageur ? 110f : Role == Role.Labourer || Role == Role.CreeHunter ? 65f : IsFemale ? 45f : 50f;
+    public override float BaseCarryLbs => Role == Role.Voyageur ? 110f : Role == Role.Labourer || Role == Role.Hunter ? 65f : IsFemale ? 45f : 50f;
 
     // ---- helpers for goals ---------------------------------------------------
 
@@ -945,12 +948,12 @@ public partial class Npc : Agent
             if (HomeStores != null) HomeStores.Leader = null;
             Sim.Notice($"{DisplayName} is dead. {char.ToUpper(where[0])}{where.Substring(1)} is without a master{(heir != null ? $"; {heir.DisplayName} keeps the men together" : "")}.");
         }
-        else if (Role == Role.CreeChief)
+        else if (Role == Role.Chief)
         {
             Npc heir = null;
-            foreach (var n in Sim.Npcs) if (n.Role == Role.CreeHunter && n.HomeStores == HomeStores && !n.IsDead && (heir == null || n.Personality.Ambition > heir.Personality.Ambition)) heir = n;
+            foreach (var n in Sim.Npcs) if (n.Role == Role.Hunter && n.HomeStores == HomeStores && !n.IsDead && (heir == null || n.Personality.Ambition > heir.Personality.Ambition)) heir = n;
             if (heir == null) return;
-            heir.Role = Role.CreeChief;
+            heir.Role = Role.Chief;
             if (HomeStores != null) HomeStores.Leader = heir;
             heir.DisplayName += " (chief)";
             heir.ResetBehaviour(); heir.Brain.Clear(heir);
@@ -970,6 +973,10 @@ public partial class Npc : Agent
     // Killed where nobody was looking, and the world says how: he is mourned
     // and his place filled like any other death.
     public void Die(string cause) { if (IsDead) return; DeathCause = cause; Needs.Health = 0f; OnDeath(); }
+
+    // Called home (London's recall of a Factor who shaded the books): his post
+    // passes to the next man as it would at his death, and he goes.
+    public void Recall(string where) { if (IsDead) return; Succession(); SendOffMap(where); }
 
     // Out of the country (OffMap): out of sight, out of his house's books,
     // fed wherever he has gone.

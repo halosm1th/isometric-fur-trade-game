@@ -240,10 +240,10 @@ public partial class Conversation
             Role.Postmaster => npc.HomeStores is Economy.TradingPostLedger tp ? $"master of {tp.Post.Name}, {tp.Post.CompanyName}'s post" : "postmaster of Oxford House, the Company's inland post",
             Role.Labourer => npc.Faction == Faction.American ? $"an engagé of {World.Posts.CompanyOf(npc)}" : "a Company labourer",
             Role.Woman => "a woman of the post",
-            Role.CreeChief => "leading man of the band camped by the river",
-            Role.CreeHunter => "a hunter of the band",
-            Role.CreeWoman => "a woman of the band",
-            Role.CreeDaughter => npc.Father != null ? $"{npc.Father.DisplayName}'s daughter" : "a young woman of the band",
+            Role.Chief => "leading man of the band camped by the river",
+            Role.Hunter => "a hunter of the band",
+            Role.BandWoman => "a woman of the band",
+            Role.BandDaughter => npc.Father != null ? $"{npc.Father.DisplayName}'s daughter" : "a young woman of the band",
             Role.Sailor => "one of the ship's people",
             Role.NwcPartner => "wintering partner of the North West Company, master of the post across the river",
             Role.Voyageur => "a voyageur of the North West Company",
@@ -296,13 +296,13 @@ public partial class Conversation
             AddOption($"[New] {q.Title}", () => ShowOffer(npc, qq));
         }
         // What's pressing comes first: a letter to hand over, a debt to settle.
-        if (npc.Role == Role.CreeChief && (_player.Task.Kind == TaskKind.DeliverLetter && !_player.Task.IsComplete && _player.Task.Done == 0 || HasMailFor(npc)))
+        if (npc.Role == Role.Chief && (_player.Task.Kind == TaskKind.DeliverLetter && !_player.Task.IsComplete && _player.Task.Done == 0 || HasMailFor(npc)))
             AddOption("Hand him the Factor's letter", () => ShowTopics(DeliverLetter(npc)));
         foreach (var m in new List<Message>(_player.Mail))
         {
             if (m.Read) continue;
             bool addressed = m.To == npc.DisplayName || m.To == Mail.RoleName(npc);
-            if (addressed && npc.Role != Role.CreeChief) AddOption($"Hand over the {m.Kind} from {m.From}", () => ShowTopics(HandOver(npc, m)));
+            if (addressed && npc.Role != Role.Chief) AddOption($"Hand over the {m.Kind} from {m.From}", () => ShowTopics(HandOver(npc, m)));
         }
         foreach (var g in new List<Grudge>(Grudges.HeldBy(npc.DisplayName)))
         {
@@ -331,7 +331,7 @@ public partial class Conversation
         if (npc.Convoy != null) AddOption("The brigade...", () => StartScene(World.Convoys.Meet(_player, npc.Convoy)));
         AddOption("Talk...", () => ShowTalk(npc));
         if (ownLeader || (ownMan && canCommand) || npc.Following == _player || CanAskAlong(npc)) AddOption("Work and orders...", () => ShowWork(npc));
-        if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.CreeChief || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster)
+        if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.Chief || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster)
             AddOption("Trade", () => ShowTrade(npc));
         if (Economy.HorseTrade.Options(npc, _player).Count > 0) AddOption("Horses...", () => ShowHorses(npc));
         if (npc.IsFemale && _player.Needs.Health < 70f && !_player.IsDead)
@@ -339,7 +339,7 @@ public partial class Conversation
         AddOption("Give a gift", () => ShowGive(npc));
         if (npc.Needs.Hunger < 45f && _player.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
             AddOption($"Offer them something to eat ({Items.Items.Of(food).Name})", () => ShowTopics(OfferFood(npc, food)));
-        if (npc.IsBandPerson && (npc.Role == Role.CreeChief || npc.Role == Role.CreeHunter)) AddOption("Family and marriage...", () => ShowFamily(npc));
+        if (npc.IsBandPerson && (npc.Role == Role.Chief || npc.Role == Role.Hunter)) AddOption("Family and marriage...", () => ShowFamily(npc));
         if (leader && (Economy.Rivalry.AreRivals(npc.Faction, _player.Faction) || ownLeader && Sim.Nwc != null && _player.Faction != Faction.American)) AddOption("The companies...", () => ShowCompanies(npc));
         // Held by the other side (design doc 9.1): buy your way out, or give your word.
         if (leader && _player.CaptiveOf != null && Economy.Rivalry.PostOf(npc.Faction) == _player.CaptiveOf)
@@ -439,7 +439,7 @@ public partial class Conversation
         if (canTalk) AddOption("Get to know them...", () => ShowAcquaint(npc));
         if (canTalk) AddOption("Tell them something... (it needn't be true)", () => ShowLieWho(npc, false));
         if (canTalk && StoriesAboutMe(npc).Count > 0) AddOption("What are they saying about me?", () => ShowDeny(npc));
-        if ((npc.IsBandPerson && npc.Role is Role.CreeChief or Role.CreeHunter) || npc.Role is Role.Labourer or Role.Voyageur or Role.NwcPartner)
+        if ((npc.IsBandPerson && npc.Role is Role.Chief or Role.Hunter) || npc.Role is Role.Labourer or Role.Voyageur or Role.NwcPartner)
             AddOption("Where is the game?", () => ShowTalk(npc, AskHunting(npc)));
         if (npc.Role == Role.Factor && Sim.Fort != null)
         {
@@ -451,7 +451,7 @@ public partial class Conversation
             AddOption(npc.Role == Role.Factor ? "What does London want of us?" : "What do the partners want of us?", () => ShowTalk(npc, AskDirective(npc)));
         if (npc.HomeStores is Economy.FortLedger house && npc.Faction == _player.Faction && World.Convoys.Expecting(house).Count > 0)
             AddOption("When do we look for the brigade?", () => ShowTalk(npc, AskBrigade(house)));
-        if (npc.Role == Role.CreeChief && npc.HomeStores is Economy.BandLedger cb && cb.OtherBand != null && cb.StandingWithOtherBand < 60f && canTalk)
+        if (npc.Role == Role.Chief && npc.HomeStores is Economy.BandLedger cb && cb.OtherBand != null && cb.StandingWithOtherBand < 60f && canTalk)
             AddOption($"Speak for peace with {cb.OtherBand.Name}", () => ShowTalk(npc, BrokerPeace(npc, cb)));
         if (npc.Role == Role.NwcPartner && Sim.Nwc != null && Sim.Nwc.DirectiveReadDay > -100 && npc.Faction == _player.Faction)
             AddOption("What did the council decide?", () => ShowTalk(npc, $"\"{Sim.Nwc.DirectiveText}\""));
@@ -766,7 +766,7 @@ public partial class Conversation
         {
             AddOption("Ask about marriage in the custom of the country", () => ShowFamily(npc, AskMarriage(npc)));
             foreach (var d in npc.Children)
-                if (d.Role == Role.CreeDaughter && d.Spouse == null && !d.IsDead)
+                if (d.Role == Role.BandDaughter && d.Spouse == null && !d.IsDead)
                     AddOption($"Ask for {d.DisplayName}'s hand", () => ShowFamily(npc, Propose(npc, d)));
         }
         AddOption("Back", () => ShowTopics(Greeting(npc)));
@@ -1047,10 +1047,10 @@ public partial class Conversation
             Role.Clerk => "\"I keep the books and the counter. A clerk who does well may have a post of his own one day.\"",
             Role.Labourer => "\"Orkneyman, five-year contract. Cut wood, haul cargo, shoot geese, freeze. The pay goes home to my mother.\"",
             Role.Woman => "\"My man is one of the servants here. I keep the house and the fires; without us the post would go cold.\"",
-            Role.CreeChief => "\"This is our country. The Company sits on the shore; we bring what it wants and take what we need.\"",
-            Role.CreeHunter => "\"I hunt for the camp. Beaver for the trade, caribou for the pot.\"",
-            Role.CreeWoman => "\"I dress the hides and keep the lodge. The pemmican is women's work, and so is most of the rest.\"",
-            Role.CreeDaughter => "\"My father decides whom I marry. But he listens to me.\"",
+            Role.Chief => "\"This is our country. The Company sits on the shore; we bring what it wants and take what we need.\"",
+            Role.Hunter => "\"I hunt for the camp. Beaver for the trade, caribou for the pot.\"",
+            Role.BandWoman => "\"I dress the hides and keep the lodge. The pemmican is women's work, and so is most of the rest.\"",
+            Role.BandDaughter => "\"My father decides whom I marry. But he listens to me.\"",
             Role.Sailor => "\"Out of Gravesend in June, home by November if the ice lets us. I do not envy you the winter.\"",
             Role.Wife => "\"I have a foot in both worlds now. Do not forget my family.\"",
             Role.Farmer => "\"I clear the land and I work it. A good harvest, and the town eats; a bad one, and we all tighten our belts.\"",
@@ -1116,7 +1116,7 @@ public partial class Conversation
             if (other.Role == Role.Clerk && other.Faction == _player.Faction)
                 Say("rank", k + ":rank", other.Standing > _player.Standing ? $"\"{who} stands well with the master - better than you, if you want it plain.\"" : $"\"{who} has not made much of himself this year.\"");
             if (other.Role == Role.Labourer && other.AssignedTaskName != "") Say("work", k + ":work", $"\"{who} is set to {other.AssignedTaskName}.\"");
-            if (other.Spouse == null && !other.IsFemale && other.Age >= 20 && other.Role is Role.Labourer or Role.Clerk or Role.Voyageur or Role.CreeHunter)
+            if (other.Spouse == null && !other.IsFemale && other.Age >= 20 && other.Role is Role.Labourer or Role.Clerk or Role.Voyageur or Role.Hunter)
                 Say("wife", k + ":wife", $"\"{who} wants a wife, if you ask me.\"");
             if (other.Spouse is Npc sp && other.Children.Count == 0 && !other.IsFemale && GD.Randf() < 0.3f)
                 Say("house", k + ":house", $"\"{who} and {sp.DisplayName} - no children yet. People notice.\"");
@@ -1420,7 +1420,7 @@ public partial class Conversation
     private string AskMarriage(Npc npc)
     {
         var daughters = new List<Npc>();
-        foreach (var c in npc.Children) if (c.Role == Role.CreeDaughter && c.Spouse == null && !c.IsDead) daughters.Add(c);
+        foreach (var c in npc.Children) if (c.Role == Role.BandDaughter && c.Spouse == null && !c.IsDead) daughters.Add(c);
         string s = "\"A man who wants a wife from us shows two things: that he is a friend, and that he can provide. He brings gifts to her father - blankets, a gun, cloth, kettles - and he comes back more than once. Then he asks. Your Company allows a man one wife; we do not hold you to that, but your Factor will.\"";
         s += $" Your standing with {npc.DisplayName}: rapport {npc.RapportWith(_player):0} (needs 30), gifts {npc.GiftsFromPlayerMb:0.#} MB (needs 8).";
         if (daughters.Count > 0) s += $" Unmarried daughters: {string.Join(", ", daughters.ConvertAll(d => d.DisplayName))}. Ask for her hand from this menu when you are ready.";

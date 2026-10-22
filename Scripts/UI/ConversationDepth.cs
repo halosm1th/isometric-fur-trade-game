@@ -312,11 +312,11 @@ public partial class Conversation
                 foreach (var m in seen) npc.Recalled.Add("hush|" + m.Key);
                 return "\"I saw nothing. I'll go on seeing nothing - for now.\"";
             }));
-        if (npc.IsBandPerson && npc.HomeStores is Economy.BandLedger band && npc.Role is Role.CreeChief or Role.CreeHunter && !_player.IsBandPerson)
+        if (npc.IsBandPerson && npc.HomeStores is Economy.BandLedger band && npc.Role is Role.Chief or Role.Hunter && !_player.IsBandPerson)
             list.Add(new("furs", $"Bring your furs to {(_player.Faction == Faction.NWC ? "our house" : _player.Faction == Faction.American ? "our post" : "the Company")}", 0.3f, () =>
             {
-                band.AddStandingWith(_player.Faction, npc.Role == Role.CreeChief ? 6f : 3f);
-                return npc.Role == Role.CreeChief ? "\"I will say so at the fire. The young men listen to me, mostly.\"" : "\"I'll bring mine. I can't speak for the others.\"";
+                band.AddStandingWith(_player.Faction, npc.Role == Role.Chief ? 6f : 3f);
+                return npc.Role == Role.Chief ? "\"I will say so at the fire. The young men listen to me, mostly.\"" : "\"I'll bring mine. I can't speak for the others.\"";
             }));
         if (Economy.Rivalry.AreRivals(npc.Faction, _player.Faction) && npc.HomeStores?.Leader is Npc theirs && theirs != npc)
             list.Add(new("plans", $"Tell me what {theirs.DisplayName} is planning", 0.35f, () =>

@@ -33,7 +33,11 @@ public static class Union
 	{
 		if (Done || !Net.Net.IsServer) return;
 		// Dev: `-- --union` makes the companies one the first morning, to watch it.
-		if (!Campaign.Has("merger") && System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--union") < 0) return;
+		// One company exhausted by the rivalry (Economy/Companies): its creditors
+		// will have a union, whatever year it is.
+		bool exhausted = Campaign.Has("nwc_exhausted") || Campaign.Has("hbc_exhausted");
+		if (!Campaign.Has("merger") && !exhausted && System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--union") < 0) return;
+		if (exhausted && !Campaign.Has("merger")) Sim.Headline("The companies are to be one: the rivalry has ruined them both, and the creditors will not wait for 1821.");
 		Apply();
 	}
 

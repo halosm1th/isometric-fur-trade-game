@@ -167,7 +167,6 @@ public static class Director
 		AmbitionKind.PrivateTrade => new[] { "furs", "trade", "goods", "price" },
 		AmbitionKind.DriveOffTheRival => new[] { "Nor'Wester", "the other house", "raid", "seize" },
 		AmbitionKind.KeepTheBandWhole => new[] { "the band", "hungry", "want", "camp" },
-		AmbitionKind.FoundAPost => new[] { "Oxford House", "post", "the charge of", "inland" },
 		_ => Array.Empty<string>(),
 	};
 

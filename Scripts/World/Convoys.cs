@@ -808,6 +808,9 @@ public static class Convoys
 		c.ArrivedDay = today; c.HasCamp = false;
 		Unraise($"late:{c.Name}"); Raise($"in:{c.Name}"); Raise("brigade_in");
 		if (c.Leg.Cargo == "returns") Economy.PostWants.OnReturnsIn(c.Id, c.ToName);
+		// At the edge of the map the returns go on down to market (Economy/Companies).
+		if (c.Leg.Cargo == "returns" && Economy.Outfits.IsEntry(c.ToName))
+			Economy.Companies.ReturnsHome(c.Company, c.To, c.ToName switch { "Fort Astoria" => "at New York", "Fort Manuel Lisa" => "at St. Louis", "Lake Traverse" => "at Michilimackinac", _ => "at Montreal" });
 		string line = c.TurnedBack
 			? $"{c.Name} are back at {c.ToName} after being turned back, with {lots} pieces still aboard."
 			: $"{c.Name} are in at {c.ToName}: {lots} pieces landed after {c.DaysOut} days.";

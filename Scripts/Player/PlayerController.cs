@@ -429,6 +429,8 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--autosave=") && double.TryParse(arg.Substring(11), out double secs)) GetTree().CreateTimer(secs).Timeout += () => { SaveGame.Save(); GD.Print("[save] " + SaveGame.LastMessage); };
 			// Dev: die at a given second, so succession can be watched end to end.
 			if (arg.StartsWith("--killme=") && double.TryParse(arg.Substring(9), out double kms) && NetHub.IsServer) GetTree().CreateTimer(kms).Timeout += () => { TakeDamage(9999f, NearestNpc(900f)); GD.Print("[dev] the player is killed"); GetTree().CreateTimer(4.0).Timeout += () => { GD.Print("[dev] " + (LookAtInheritance() is var ih ? $"heir would be {ih.Name} ({ih.Relation}), burdens {ih.Burdens.Count}" : "")); NetHub.I?.Act("respawn", new Godot.Collections.Array()); }; };
+			// Dev: `--townpaths` checks every town can be walked (Agents/TownLife).
+			if (arg == "--townpaths" && NetHub.IsServer) GetTree().CreateTimer(5.0).Timeout += TownLife.CheckPaths;
 			if (arg == "--leave") GetTree().CreateTimer(6.0).Timeout += () => { var d = UI.DialogueMenu.Instance; if (d != null && d.IsOpen) NetHub.I?.DialogueRequest(d.CurrentNpc, d.OptionCount - 1); };
 		}
 	}
@@ -681,7 +683,7 @@ public partial class PlayerController : Agent
 			// Left behind (design doc 8.4): she goes back to her people, and they remember it.
 			var band = wife.Father?.HomeStores as Economy.BandLedger ?? Sim.Band;
 			wife.Spouse = null; Spouse = null;
-			wife.Role = Role.CreeDaughter; wife.HomeStores = band; wife.ResetBehaviour(); wife.Brain.Clear(wife);
+			wife.Role = Role.BandDaughter; wife.HomeStores = band; wife.ResetBehaviour(); wife.Brain.Clear(wife);
 			if (band != null) { wife.BedCell = new List<Vector2I>(band.Tipis())[0]; wife.WorkCell = IsoGrid.Cell(band.Camp, 1, 2); band.StandingWithCompany = Mathf.Max(0f, band.StandingWithCompany - 15f); }
 			foreach (var n in Sim.Npcs) if (n.HomeStores == band) n.ChangeRapport(this, -20f);
 			Core.Reveal.Lands(this, $"{wife.DisplayName} has gone back to her people.", "", 1.6f);

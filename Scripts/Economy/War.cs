@@ -79,7 +79,7 @@ public static class War
 	{
 		var list = new List<Npc>();
 		foreach (var n in Sim.Npcs)
-			if (n.HomeStores == h && !n.IsDead && !n.IsFemale && !n.Away && n.HeldBy == null && (n.IsFighter || n.Role == Role.CreeChief || h is FortLedger && n.Weapon != null))
+			if (n.HomeStores == h && !n.IsDead && !n.IsFemale && !n.Away && n.HeldBy == null && (n.IsFighter || n.Role == Role.Chief || h is FortLedger && n.Weapon != null))
 				list.Add(n);
 		return list;
 	}

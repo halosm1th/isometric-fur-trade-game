@@ -87,8 +87,10 @@ public partial class Ship : Node2D
 		// The rest of London's outfit: what the country trades for (Economy/
 		// StandardOfTrade), landed piece by piece and carried up the roads
 		// to the depots (Economy/Outfits, World/Convoys).
+		// As much as last year's furs and the Company's purse allow (Economy/Companies).
+		float order = Economy.Companies.Order(Faction.HBC, Economy.Outfits.YearMb);
 		foreach (var (id, mb) in Sim.Fort != null ? Economy.PostWants.YearOrder(Sim.Fort) : new System.Collections.Generic.List<(ItemId, float)>(Economy.Outfits.Mix))
-			Cargo.Add(id, Mathf.RoundToInt(mb * Economy.Outfits.YearMb / 100f / Items.Items.Of(id).ValueMb));
+			Cargo.Add(id, Mathf.RoundToInt(mb * order / 100f / Items.Items.Of(id).ValueMb));
 		Position = WorldLayout.ShipOffscreen;
 		Visible = true;
 		Current = State.Arriving;
@@ -124,7 +126,15 @@ public partial class Ship : Node2D
 			}
 			if (skim > 0f) { Sim.Fort.SkimmedMb += skim; Chronicle.Event($"{factor.DisplayName} kept back furs of his own from the ship's hold.", factor.GlobalPosition, factor, weight: 2f); }
 		}
+		// A Factor London has recalled goes home on her (Economy/LondonCommittee).
+		if (Economy.LondonCommittee.Recalled && factor != null)
+		{
+			Economy.LondonCommittee.Recalled = false;
+			Sim.Headline($"{factor.DisplayName} sails for London on the ship, recalled to answer for the accounts.");
+			factor.Recall("recalled to London to answer for the accounts");
+		}
 		float mb = Hold.TotalValueMb;
+		Economy.Companies.Sell(Faction.HBC, mb, "at the London sale");
 		Sim.Notice($"The ship has sailed for London with {mb:0} MB of furs aboard" + (Sim.Fort != null ? $" (quota was {Sim.Fort.QuotaMb:0})." : "."));
 		foreach (var pc in Sim.Players())
 		{
@@ -216,7 +226,7 @@ public partial class Ship : Node2D
 
 	private void Dock()
 	{
-		_population?.LandRecruits(6);
+		_population?.LandRecruits(6, Economy.Companies.Hires(Faction.HBC, 6));
 		Current = State.Docked;
 		_dockedHours = 0f;
 		Sim.Notice("The ship is alongside the wharf. All hands to the landing.");

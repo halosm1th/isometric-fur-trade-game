@@ -84,7 +84,7 @@ public static class Mail
         Role.Factor => "the Factor at York Factory",
         Role.Postmaster => n.HomeStores == Sim.Outpost ? "the postmaster at Oxford House" : $"the master at {n.HomeStores?.Title.Replace(" stores", "") ?? "his post"}",
         Role.NwcPartner => "the wintering partner",
-        Role.CreeChief => "the chief of the band",
+        Role.Chief => "the chief of the band",
         _ => n.DisplayName,
     };
 

@@ -6,7 +6,7 @@ using IsometricFurTradeGame.Scripts.Items;
 
 namespace IsometricFurTradeGame.Scripts.Agents;
 
-public enum AmbitionKind { None, RiseAtThePost, MarryIn, PrivateTrade, DriveOffTheRival, KeepTheBandWhole, FoundAPost }
+public enum AmbitionKind { None, RiseAtThePost, MarryIn, PrivateTrade, DriveOffTheRival, KeepTheBandWhole }
 
 // What the player is doing with the year, as against what the year is
 // doing to them (design doc P.2). An ambition is an ordinary Tier 1 goal -
@@ -29,7 +29,6 @@ public class Ambition
         AmbitionKind.PrivateTrade => "Grow rich on private trade",
         AmbitionKind.DriveOffTheRival => "Drive the other company off this river",
         AmbitionKind.KeepTheBandWhole => "Keep the band fed and whole",
-        AmbitionKind.FoundAPost => "Found a post of your own",
         _ => "",
     };
 
@@ -40,7 +39,6 @@ public class Ambition
         AmbitionKind.PrivateTrade => "to come out of this country with something of my own",
         AmbitionKind.DriveOffTheRival => "to see the Canadians off this river",
         AmbitionKind.KeepTheBandWhole => "that the band shall not starve for the Company's price",
-        AmbitionKind.FoundAPost => "to set up a post of my own inland",
         _ => "",
     };
 
@@ -54,7 +52,6 @@ public class Ambition
             AmbitionKind.PrivateTrade => Mathf.Clamp(p.PrivateWorthMb / 120f, 0f, 1f),
             AmbitionKind.DriveOffTheRival => Sim.Nwc == null ? 1f : Mathf.Clamp(1f - Sim.Nwc.Stores.Count(ItemId.TradeGoods) / 90f, 0f, 1f) * 0.6f + Mathf.Clamp(Rivalry.Tension / 100f, 0f, 1f) * 0.4f,
             AmbitionKind.KeepTheBandWhole => BandHealth(),
-            AmbitionKind.FoundAPost => 0f,   // not yet buildable; the doc's 13.8 work
             _ => 0f,
         };
         Best = Mathf.Max(Best, v);
@@ -69,7 +66,7 @@ public class Ambition
         {
             if (n.IsDead || n.Children.Count == 0) continue;
             bool hasDaughter = false;
-            foreach (var c in n.Children) if (c.Role == Role.CreeDaughter && c.Spouse == null && !c.IsDead) hasDaughter = true;
+            foreach (var c in n.Children) if (c.Role == Role.BandDaughter && c.Spouse == null && !c.IsDead) hasDaughter = true;
             if (!hasDaughter) continue;
             float r = Mathf.Clamp(n.RapportWith(p) / 30f, 0f, 1f) * 0.5f + Mathf.Clamp(n.GiftsFromPlayerMb / 8f, 0f, 1f) * 0.5f;
             best = Mathf.Max(best, r);
@@ -101,7 +98,6 @@ public class Ambition
             AmbitionKind.PrivateTrade => $"{p.PrivateWorthMb:0} MB of your own, counting what you carry and what you've cached",
             AmbitionKind.DriveOffTheRival => Sim.Nwc != null ? $"their shelves hold {Sim.Nwc.Stores.Count(ItemId.TradeGoods)} pieces; the rivalry stands at {Rivalry.Tension:0}" : "they are gone",
             AmbitionKind.KeepTheBandWhole => Sim.Band != null ? $"the band has {Sim.Band.FoodDays(Sim.Band.Mouths):0} days of food, standing {Sim.Band.StandingWithCompany:0}" : "",
-            AmbitionKind.FoundAPost => "not yet: you would need the Company's leave and men",
             _ => "",
         };
         return $"{Title} - {state}. {next}";

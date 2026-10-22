@@ -111,11 +111,11 @@ public static class Quests
 		return role switch
 		{
 			"leader" or "master" or "factor" => npc == house.Leader,
-			"chief" => npc == house.Leader || npc.Role == Role.CreeChief,
+			"chief" => npc == house.Leader || npc.Role == Role.Chief,
 			"partner" => npc == house.Leader || npc.Role == Role.NwcPartner,
 			"clerk" => npc.Role == Role.Clerk,
-			"hunter" => npc.Role == Role.CreeHunter,
-			"man" => npc.Role is Role.Labourer or Role.Voyageur or Role.CreeHunter,
+			"hunter" => npc.Role == Role.Hunter,
+			"man" => npc.Role is Role.Labourer or Role.Voyageur or Role.Hunter,
 			"woman" => npc.IsFemale,
 			_ => true,   // anyone of that place
 		};

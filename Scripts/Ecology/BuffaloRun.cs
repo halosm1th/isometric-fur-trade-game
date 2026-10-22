@@ -187,7 +187,7 @@ public class BuffaloRun
         if (!Broken) Spook();
         int haul = Plains.Settle(Band, Kills);
         foreach (var n in Sim.Npcs)
-            if (n.HomeStores == Band && n.Role == Role.CreeWoman && n.Tier == Tier.Live && !n.IsDead && !n.Sleeping && GD.Randf() < 0.6f)
+            if (n.HomeStores == Band && n.Role == Role.BandWoman && n.Tier == Tier.Live && !n.IsDead && !n.Sleeping && GD.Randf() < 0.6f)
             {
                 n.Brain.Clear(n);
                 n.Brain.Push(n, new Agents.Goals.GoToGoal(Site.Cell, Site.RadiusPx * 0.5f));

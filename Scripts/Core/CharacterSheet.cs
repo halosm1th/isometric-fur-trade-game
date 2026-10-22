@@ -237,9 +237,9 @@ public static class CharacterSheet
         var men = _men.GetValueOrDefault(camp.Nation, _men[Faction.Cree]);
         var women = _women.GetValueOrDefault(camp.Nation, _women[Faction.Cree]);
         var c = camp.Centre;
-        var elder = pop.Spawn(men[0], Role.CreeHunter, camp.Nation, World.IsoGrid.Cell(c, 1, 2), World.IsoGrid.Cell(c, 2, 1), camp.Ledger, manFrames, Colors.White);
-        var woman = pop.Spawn(women[0], Role.CreeWoman, camp.Nation, World.IsoGrid.Cell(c, 2, 2), World.IsoGrid.Cell(c, 1, 1), camp.Ledger, womanFrames, Colors.White, 0.8f, true);
-        var cousin = pop.Spawn(men[1], Role.CreeHunter, camp.Nation, World.IsoGrid.Cell(c, 3, 2), World.IsoGrid.Cell(c, 3, 1), camp.Ledger, manFrames, Colors.White);
+        var elder = pop.Spawn(men[0], Role.Hunter, camp.Nation, World.IsoGrid.Cell(c, 1, 2), World.IsoGrid.Cell(c, 2, 1), camp.Ledger, manFrames, Colors.White);
+        var woman = pop.Spawn(women[0], Role.BandWoman, camp.Nation, World.IsoGrid.Cell(c, 2, 2), World.IsoGrid.Cell(c, 1, 1), camp.Ledger, womanFrames, Colors.White, 0.8f, true);
+        var cousin = pop.Spawn(men[1], Role.Hunter, camp.Nation, World.IsoGrid.Cell(c, 3, 2), World.IsoGrid.Cell(c, 3, 1), camp.Ledger, manFrames, Colors.White);
         elder.Age = GD.RandRange(42, 55); cousin.Age = GD.RandRange(17, 24);
         elder.Spouse = woman; woman.Spouse = elder;
         foreach (var n in new[] { elder, cousin }) { n.Inventory.Add(metis ? ItemId.Musket : ItemId.Bow); if (metis) n.Inventory.Add(ItemId.Powder); n.Inventory.Add(ItemId.Knife); n.Inventory.Add(ItemId.DriedMeat, 3); n.Skills.Seed(0.6f, 0.5f, 0.3f, 0.5f); }

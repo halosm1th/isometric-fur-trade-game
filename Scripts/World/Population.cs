@@ -13,11 +13,6 @@ public partial class Population : Node2D
 {
 	[Export] public PackedScene NpcScene;
 
-	private static readonly string[] OrkneyMen =
-	{
-		"James Isbister", "William Flett", "Magnus Spence", "John Linklater", "Thomas Corrigal",
-		"Peter Sinclair", "Andrew Setter", "George Tait", "Robert Garrick", "Malcolm Sabiston",
-	};
 	// Placeholder Cree given names (Cree words in common romanisation), to be
 	// replaced with properly researched period names.
 	private static readonly string[] CreeMen = { "Maskwa", "Wapistan", "Mahihkan", "Pisiskiw", "Kihiw", "Mistatim" };
@@ -425,9 +420,28 @@ public partial class Population : Node2D
 		return npc;
 	}
 
+	// Recruits' names: a Christian name and one of the islands' (or the
+	// parishes') own surnames, never a man already alive. Several hundred to
+	// draw on; how many come is the company's purse (Economy/Companies), not
+	// the length of a list.
+	private static readonly string[] OrkneyGiven = { "John", "James", "William", "Thomas", "Magnus", "Peter", "Robert", "George", "David", "Andrew", "Hugh", "Malcolm", "Alexander", "Adam", "Edward", "Nicol" };
+	private static readonly string[] OrkneySurnames = { "Isbister", "Flett", "Spence", "Linklater", "Corrigal", "Sinclair", "Setter", "Tait", "Garrick", "Sabiston", "Rendall", "Harcus", "Kirkness", "Cromarty", "Budge", "Groat", "Omand", "Halcrow", "Moar", "Mowat", "Clouston", "Drever", "Heddle", "Hourston", "Inkster", "Leask", "Louttit", "Scarth", "Twatt", "Yorston", "Folster", "Firth" };
+	private static readonly string[] CanadianGiven = { "Baptiste", "Joseph", "Pierre", "Francois", "Louis", "Antoine", "Michel", "Charles", "Jacques", "Toussaint", "Augustin", "Basile", "Etienne", "Jean-Baptiste", "Amable", "Olivier" };
+	private static readonly string[] CanadianSurnames = { "Lagimodiere", "Falcon", "Desjarlais", "Cadotte", "Nolin", "Deschamps", "Lapointe", "Charbonneau", "Lajeunesse", "Primeau", "Roy", "Beaulieu", "Cardinal", "Grignon", "Laframboise", "Paquette", "Trottier", "Brisebois", "Leblanc", "Dubois", "Gagnon", "Ouellette", "Cote", "Belanger", "Lefebvre", "Pelletier" };
+	private static string NewName(string[] given, string[] surnames, HashSet<string> taken)
+	{
+		for (int tries = 0; tries < 200; tries++)
+		{
+			string n = $"{given[GD.RandRange(0, given.Length - 1)]} {surnames[GD.RandRange(0, surnames.Length - 1)]}";
+			if (!taken.Contains(n)) return n;
+		}
+		return null;
+	}
+
 	// The Company recruited in Orkney every year (design doc 5.5): the ship
 	// lands enough new hands to bring the post back to strength.
-	public int LandRecruits(int wanted)
+	// wanted: the strength the post should be brought to; most: as many as the Company can take on (Economy/Companies).
+	public int LandRecruits(int wanted, int most = 99)
 	{
 		var fort = Sim.Fort; var mens = WorldLayout.MensHouse;
 		if (fort == null) return 0;
@@ -435,12 +449,14 @@ public partial class Population : Node2D
 		var taken = new HashSet<string>();
 		foreach (var n in Sim.Npcs) { if (!n.IsDead) taken.Add(n.DisplayName); if (n.HomeStores == fort && n.Role == Role.Labourer && !n.IsDead) alive++; }
 		int landed = 0;
-		for (int i = 0; alive + landed < wanted && i < OrkneyMen.Length; i++)
+		for (int i = 0; alive + landed < wanted && landed < most; i++)
 		{
-			if (taken.Contains(OrkneyMen[i])) continue;
+			string name = NewName(OrkneyGiven, OrkneySurnames, taken);
+			if (name == null) break;
+			taken.Add(name);
 			int slot = alive + landed;
 			var bed = slot < 5 ? IsoGrid.Cell(mens.Top, 1 + slot, 2) : IsoGrid.Cell(mens.Top, 1 + slot % 5, 3);
-			var m = Spawn(OrkneyMen[i], Role.Labourer, Faction.HBC, bed, IsoGrid.Cell(WorldLayout.FortTop, 8 + slot, 8), fort, _labourerFrames, Colors.White);
+			var m = Spawn(name, Role.Labourer, Faction.HBC, bed, IsoGrid.Cell(WorldLayout.FortTop, 8 + slot, 8), fort, _labourerFrames, Colors.White);
 			m.Inventory.Add(ItemId.Capote); m.Inventory.Add(ItemId.Knife); m.Inventory.Add(ItemId.Bread, 2);
 			m.Age = GD.RandRange(17, 24);
 			m.GlobalPosition = IsoGrid.ToWorld(WorldLayout.WharfEnd) + new Vector2(GD.RandRange(-40, 40), 30 + i * 10);
@@ -452,20 +468,21 @@ public partial class Population : Node2D
 	}
 
 	// Fort William sends men north with the brigade the same way.
-	public int LandVoyageurs(int wanted)
+	public int LandVoyageurs(int wanted, int most = 99)
 	{
 		var nwc = Sim.Nwc; var house = WorldLayout.NwcHouse;
 		if (nwc == null) return 0;
-		string[] names = { "Baptiste Lagimodiere", "Pierre Falcon", "Antoine Desjarlais", "Joseph Cadotte", "Louis Nolin", "Francois Deschamps", "Jean-Baptiste Lajimoniere" };
 		int alive = 0;
 		var taken = new HashSet<string>();
 		foreach (var n in Sim.Npcs) { if (!n.IsDead) taken.Add(n.DisplayName); if (n.Faction == Faction.NWC && n.Role == Role.Voyageur && !n.IsDead) alive++; }
 		int landed = 0;
-		for (int i = 0; alive + landed < wanted && i < names.Length; i++)
+		for (int i = 0; alive + landed < wanted && landed < most; i++)
 		{
-			if (taken.Contains(names[i])) continue;
+			string name = NewName(CanadianGiven, CanadianSurnames, taken);
+			if (name == null) break;
+			taken.Add(name);
 			int slot = alive + landed;
-			var v = Spawn(names[i], Role.Voyageur, Faction.NWC, IsoGrid.Cell(house.Top, 2 + slot % 3, 3), IsoGrid.Cell(WorldLayout.NwcTop, 6, 5), nwc, _factorFrames, new Color(0.85f, 0.75f, 0.75f));
+			var v = Spawn(name, Role.Voyageur, Faction.NWC, IsoGrid.Cell(house.Top, 2 + slot % 3, 3), IsoGrid.Cell(WorldLayout.NwcTop, 6, 5), nwc, _factorFrames, new Color(0.85f, 0.75f, 0.75f));
 			v.Inventory.Add(ItemId.Capote); v.Inventory.Add(ItemId.Knife); v.Inventory.Add(ItemId.Pemmican, 2);
 			v.Brain.Push(v, new Agents.Goals.ReportForDutyGoal());
 			landed++;

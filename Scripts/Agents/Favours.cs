@@ -124,9 +124,9 @@ public static class Favours
         target = null;
         if (n.DaysSinceFresh > 28f) return FavourKind.FreshMeat;
         if (n.IsSick && n.HomeStores != null) return FavourKind.CoverWork;
-        if (n.Spouse == null && !n.IsFemale && n.Role is Role.CreeHunter or Role.Labourer or Role.Voyageur && n.Personality.Ambition > 0.4f)
+        if (n.Spouse == null && !n.IsFemale && n.Role is Role.Hunter or Role.Labourer or Role.Voyageur && n.Personality.Ambition > 0.4f)
             foreach (var d in Sim.Npcs)
-                if (!d.IsDead && d.Role == Role.CreeDaughter && d.Spouse == null && d.Father != null && !d.Father.IsDead && d.Father != n) { target = d.Father.DisplayName; return FavourKind.SpeakForCourting; }
+                if (!d.IsDead && d.Role == Role.BandDaughter && d.Spouse == null && d.Father != null && !d.Father.IsDead && d.Father != n) { target = d.Father.DisplayName; return FavourKind.SpeakForCourting; }
         foreach (var m in n.Memories)
             if (m.Text.Contains(" robbed") && m.Text.Contains("traps") && (m.Actor == null || m.Actor == n) && m.Directness == 1) { target = m.Text; return FavourKind.FindTrapThief; }
         return FavourKind.None;

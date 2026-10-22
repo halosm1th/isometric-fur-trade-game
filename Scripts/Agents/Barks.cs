@@ -305,8 +305,8 @@ public static class Barks
             {
                 Role.Voyageur => Pick("(sings 'A la claire fontaine', and the others take up the chorus)", "(sings a paddling song, beating time on his knee)"),
                 Role.Labourer => Pick("(plays a reel on a borrowed fiddle)", "(sings an Orkney air, slow and low)"),
-                Role.CreeHunter or Role.CreeChief => Pick("(tells of Wisahkecahk and how he tricked the ducks)", "(tells of the winter the caribou did not come)"),
-                Role.CreeWoman or Role.CreeDaughter => Pick("(tells the children a story of the Thunderbirds)", "(tells how the rabbit got its long ears)", "(sings a lullaby to the smallest child)"),
+                Role.Hunter or Role.Chief => Pick("(tells of Wisahkecahk and how he tricked the ducks)", "(tells of the winter the caribou did not come)"),
+                Role.BandWoman or Role.BandDaughter => Pick("(tells the children a story of the Thunderbirds)", "(tells how the rabbit got its long ears)", "(sings a lullaby to the smallest child)"),
                 Role.Woman or Role.Wife => Pick("(sings low over her sewing)", "(tells of her mother's people up the coast)"),
                 Role.Factor or Role.Clerk or Role.Postmaster => "(reads aloud from a London newspaper a year old)",
                 _ => null,
@@ -382,7 +382,7 @@ public static class Barks
             Role.Labourer when p.Ambition > 0.7f => Pick("I'll not carry wood all my life.", "One day I'll keep the books, you'll see."),
             Role.Labourer when p.Loyalty < 0.3f => Pick("Three more winters and I'm home to Orkney.", "The Nor'Westers pay better, they say."),
             Role.Clerk when p.Ambition > 0.6f => Pick("Oxford House wants a proper master.", "A man could make a name inland."),
-            Role.CreeHunter when s.Spouse == null => Pick("A man needs a wife to work his furs.", "I'll go courting when the geese come."),
+            Role.Hunter when s.Spouse == null => Pick("A man needs a wife to work his furs.", "I'll go courting when the geese come."),
             Role.Voyageur => Pick("Paddle, eat, sleep. A good life.", "Montreal is a long way off."),
             _ => null,
         };

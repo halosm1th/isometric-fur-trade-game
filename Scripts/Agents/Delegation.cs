@@ -51,7 +51,7 @@ public static class Delegation
             if (l.IsDead || l.Faction != n.Faction) continue;
             if (n.Faction == Faction.HBC && l.Role == Role.Factor) return l;
             if (n.Faction == Faction.NWC && l.Role == Role.NwcPartner) return l;
-            if (n.IsBandPerson && l.Role == Role.CreeChief && l.HomeStores == n.HomeStores) return l;
+            if (n.IsBandPerson && l.Role == Role.Chief && l.HomeStores == n.HomeStores) return l;
         }
         return null;
     }

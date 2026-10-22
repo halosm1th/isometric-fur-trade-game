@@ -54,7 +54,7 @@ public static class Heirs
         {
             if (n.IsDead) continue;
             if (n.FatherName == dead.DisplayName && !n.IsFemale && n.Age >= 15) { son = n; break; }
-            if (kin == null && dead.Spouse is Npc w && n.HomeStores == w.HomeStores && n.Role == Role.CreeHunter && n != w) kin = n;
+            if (kin == null && dead.Spouse is Npc w && n.HomeStores == w.HomeStores && n.Role == Role.Hunter && n != w) kin = n;
         }
 
         if (son != null)

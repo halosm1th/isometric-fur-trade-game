@@ -42,7 +42,7 @@ public static class TradeTrips
         foreach (var n in Sim.Npcs)
         {
             if (t.Party.Count >= Mathf.Clamp(b.Mouths / 4, 2, 4)) break;
-            if (n.HomeStores != b || n.IsDead || n.Away || n.IsFemale || n.HeldBy != null || n.Role is not (Role.CreeHunter or Role.CreeChief)) continue;
+            if (n.HomeStores != b || n.IsDead || n.Away || n.IsFemale || n.HeldBy != null || n.Role is not (Role.Hunter or Role.Chief)) continue;
             // A man a player is watching sets out on foot; the rest are simply gone.
             if (n.Tier == Tier.Live) { if (n.Brain.Has<BuffaloRunGoal>() || n.Brain.Has<HorseRaidGoal>()) continue; n.Brain.Clear(n); n.Brain.Push(n, new GoToGoal(post.Post.GateOutside, 200f)); }
             else TakeAway(n, t);

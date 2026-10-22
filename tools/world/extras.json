@@ -378,5 +378,24 @@
    ],
    "people": 8
   }
+ ],
+ "fords_about": "Map cells painted as fords after the rivers: a town cut off from its fort or from part of itself by a creek (Amherstburg and Fort Malden, Niagara and Fort George, Mackinac). Found with -- --townpaths in a summer game.",
+ "fords": [
+  [
+   1119,
+   2389
+  ],
+  [
+   1209,
+   2145
+  ],
+  [
+   1047,
+   1855
+  ],
+  [
+   1048,
+   1856
+  ]
  ]
 }

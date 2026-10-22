@@ -170,7 +170,6 @@ public static class Rivals
 		foreach (var a in p.Ambitions)
 		{
 			if (a.Abandoned) continue;
-			if (a.Kind == AmbitionKind.FoundAPost) return "the charge of Oxford House";
 			if (a.Kind == AmbitionKind.RiseAtThePost) return p.Rank == "clerk" ? "the charge of a post" : "the clerk's desk";
 		}
 		return "";

@@ -100,8 +100,9 @@ public static class Outfits
             var at = Posts.Named(e.Post)?.Ledger;
             if (at == null) continue;
             if (Campaign.Has(e.Flag)) { Sim.Notice($"No goods came in at {e.Post} this year."); continue; }
-            foreach (var (id, mb) in PostWants.YearOrder(at)) at.Stores.Add(id, Mathf.RoundToInt(mb * e.Mb / 100f / Items.Items.Of(id).ValueMb));
-            if (Plains.Log) GD.Print($"[trade] {cal.DateString} {e.Story} ({e.Mb:0} MB)");
+            float order = Companies.Order(at.Company, e.Mb);
+            foreach (var (id, mb) in PostWants.YearOrder(at)) at.Stores.Add(id, Mathf.RoundToInt(mb * order / 100f / Items.Items.Of(id).ValueMb));
+            if (Plains.Log) GD.Print($"[trade] {cal.DateString} {e.Story} ({order:0} MB)");
             Chronicle.Event(e.Story, IsoGrid.ToWorld(at.AccessCell), subject: e.Post, weight: 1f);
         }
     }
@@ -264,6 +265,9 @@ public static class Outfits
     }
 
     // A place a brigade takes an outfit out of: a depot on the roads.
+    // Where a company's goods come onto the map, and its furs leave it.
+    public static bool IsEntry(string name) { foreach (var e in Entries) if (e.Post == name) return true; return false; }
+
     public static bool IsDepot(string name)
     {
         foreach (var run in Convoys.Runs) foreach (var leg in run.Legs) if (leg.From == name && leg.Cargo == "outfit") return true;
