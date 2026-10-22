@@ -142,13 +142,16 @@ def place_fort(anchor, spec):
     per_row = 3 if nb > 4 else 2
     rows = math.ceil(nb / per_row)
     fw, fd = 2 + per_row * 9, 2 + rows * 7 + 8 + 4
+    # On the town's own side of the water: Fort Niagara is not to be built
+    # over the river from its houses.
+    region = reachable(anchor)
     best = None
     for r in range(0, 60):
         for di in range(-r, r + 1):
             for dj in (-r, r) if abs(di) != r else range(-r, r + 1):
                 top = B.Cell(anchor, di * 2, dj * 2)
                 cells = list(B.Rhombus(B.Cell(top, -2, -2), fw + 4, fd + 4))
-                if free(cells): best = (di * 2, dj * 2); break
+                if free(cells) and all(c in region for c in cells): best = (di * 2, dj * 2); break
             if best: break
         if best: break
     if best is None: raise SystemExit(f"no room for {spec['name']}")
@@ -180,19 +183,25 @@ def lay_out(t, rng):
 SHORT = []
 DEBUG = []   # (cells, colour) for the --debug picture
 
-def reachable(anchor, radius_px=30000):
-    """Dry ground joined to the town's centre without crossing water: a town
-    does not spill over the river into its neighbour's country."""
-    ax, ay = B.cell_world(*anchor)
-    seen = {anchor}; todo = [anchor]
+_reach = {}
+def reachable(anchor, steps=360):
+    """Dry ground a man can walk to from the town's centre without crossing
+    water, within a few hundred steps: a town does not spill over the river
+    into its neighbour's country, nor round the end of a lake to the far
+    shore (Fort Mackinac was once built across the Straits from its town).
+    Counted in steps on foot, not as the crow flies."""
+    if anchor in _reach: return _reach[anchor]
+    from collections import deque
+    seen = {anchor: 0}; todo = deque([anchor])
     while todo:
-        c = todo.pop()
+        c = todo.popleft()
+        d = seen[c]
+        if d >= steps: continue
         for n in (B.DR(c), B.DL(c), B.UL(c), B.UR(c)):
             if n in seen or not dry(n): continue
-            x, y = B.cell_world(*n)
-            if math.hypot(x - ax, y - ay) > radius_px: continue
-            seen.add(n); todo.append(n)
-    return seen
+            seen[n] = d + 1; todo.append(n)
+    _reach[anchor] = set(seen)
+    return _reach[anchor]
 
 def town_lots(anchor, need):
     """Lots spreading over connected dry ground from the centre, nearest first."""
@@ -589,6 +598,11 @@ for PASS in ("cores", "all"):
                         p.work = parade[(k * 13) % len(parade)]
                 look(p, False)
             people_by_house.append(("the garrison", "garrison", gp))
+        # Every building on ground joined to the town's centre (a check: the
+        # lots and farms are placed that way, and the fort now is).
+        region = reachable(anchor)
+        astray = [n for k, n, i, j, h in blds if not all(c in region for c in B.Rhombus(B.Cell(anchor, i, j), SIZE[k][0], SIZE[k][1]))]
+        if astray: SHORT.append(f"{t['name']}: {len(astray)} buildings across the water from the town: {', '.join(astray[:6])}")
         # Rebase everything on the town's own top corner.
         cells_ij = [(i, j) for _, _, i, j, _ in blds]
         if fort: cells_ij += [(fort["i"], fort["j"]), (fort["i"] + fort["width"], fort["j"] + fort["depth"])]
