@@ -270,6 +270,8 @@ public static class Tiers
                 if (home.Stores.Count(ItemId.Firewood) < 30) home.Stores.Add(ItemId.Firewood, 4);
                 // A merchant's share of the market's till, carried home (Economy/Money).
                 if (n.Role == Role.Merchant && home is World.TownHousehold mh) TownLife.MerchantDay(n, mh);
+                // A soldier's evening in town, his pay spent over the counter.
+                if (n.Role == Role.Soldier && home is World.TownHousehold sh) TownLife.SoldierDay(n, sh);
                 break;
             case Role.Factor:
             case Role.Postmaster:

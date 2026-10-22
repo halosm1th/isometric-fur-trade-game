@@ -665,6 +665,8 @@ public static class TownLife
     public static Goal Soldier(Npc npc, TownHousehold home, bool sentry, bool onDuty)
     {
         if (Sunday(npc, home.Town, sentry && onDuty) is { } church) return church;
+        // The evening, off duty: a few pence of his pay spent in town.
+        if (Hour >= 16f && Hour < 21f && !(sentry && onDuty) && Liberty(npc, home) is { } evening) return evening;
         if (!WorkHours) return null;
         if (Weekday == DayOfWeek.Sunday && !(sentry && onDuty)) return Rest(npc, home);
         // Morning parade: the whole garrison on the square, eight till nine.
@@ -673,6 +675,55 @@ public static class TownLife
         if (Shopping(npc, home, Mathf.Max(1, home.Alive())) is { } party) return party;
         if (home.Stores.Count(ItemId.Firewood) < 30 && Hash(npc, Cal.Day) % 3 == 0) return new ChopWoodGoal();
         return new ChoreGoal("off duty", Walk("back to the barracks", home.AccessCell, 120f), Work("cleaning his musket and kit", 1f));
+    }
+
+    // A soldier's pay went over the counter (design doc 12.5's coin, carried):
+    // once a day, about one man in two takes ninepence of his pay from the
+    // barracks chest and buys a dram, or ale, at the market, drinks it there,
+    // and brings back what he didn't spend. Without it the garrison's pay piled
+    // up in the barracks and never reached the town.
+    public const int Spending = 9;
+    private static readonly Dictionary<Npc, int> _liberty = new();
+    private static bool HasLiberty(Npc npc, TownHousehold home) =>
+        _liberty.GetValueOrDefault(npc) != Today && Hash(npc, Today) % 2 == 0 && home.Stores.Count(ItemId.Coin) >= Spending && home.Town?.Market != null;
+
+    private static Goal Liberty(Npc npc, TownHousehold home)
+    {
+        if (!HasLiberty(npc, home)) return null;
+        _liberty[npc] = Today;
+        var market = home.Town.Market;
+        return new ChoreGoal("an evening in town",
+            Walk("draw his pay from the chest", home.AccessCell, 120f),
+            Do(n => { n.Inventory.Add(ItemId.Coin, home.Stores.TakeUpTo(ItemId.Coin, Spending)); }),
+            Walk("go into town", Spot(npc, market.AccessCell), 60f),
+            Do(n => { Drink(n, market); }),
+            Work("drinking in town", 1.5f),
+            Walk("back to the barracks", home.AccessCell, 120f),
+            Do(n => SetDown(n, home))).SetDownAt(home);
+    }
+
+    // Rum if he can run to it, ale if not, at the market's price; drunk where he stands.
+    private static void Drink(Npc n, TownHousehold market)
+    {
+        foreach (var id in new[] { ItemId.Rum, ItemId.Ale })
+        {
+            int price = Money.Price(market, id);
+            if (!market.Stores.Has(id) || n.Inventory.Count(ItemId.Coin) < price) continue;
+            n.Inventory.Remove(ItemId.Coin, price); market.Stores.Add(ItemId.Coin, price);
+            market.Stores.Remove(id); n.Inventory.Add(id); n.Consume(id);
+            if (n.Inventory.Count(ItemId.Coin) < Money.Price(market, ItemId.Ale)) break;
+        }
+    }
+
+    // Out of sight: the same evening, in the day's sum.
+    public static void SoldierDay(Npc npc, TownHousehold home)
+    {
+        if (!HasLiberty(npc, home)) return;
+        _liberty[npc] = Today;
+        npc.Inventory.Add(ItemId.Coin, home.Stores.TakeUpTo(ItemId.Coin, Spending));
+        Drink(npc, home.Town.Market);
+        npc.Intoxication = 0f;   // slept off by morning
+        SetDown(npc, home);
     }
 
     // ---- children ------------------------------------------------------------------------------

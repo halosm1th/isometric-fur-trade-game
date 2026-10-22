@@ -151,7 +151,9 @@ public static class Money
         ShipSurplus();
         StoreGoods();
         Commissariat();
+        MessBill();
         OrderFlour();
+        OrderDrink();
         foreach (var h in Towns.Households())
         {
             int pay = 0;
@@ -215,7 +217,12 @@ public static class Money
     // The King's (or the Republic's) provisions: a garrison was fed from the
     // commissariat's stores, shipped up the lakes, not off its town's market.
     // Once a month, a month's rations for everyone in the barracks - bread,
-    // salt meat, and the garrison garden's roots against the scurvy.
+    // salt meat, and the garrison garden's roots against the scurvy - and the
+    // stoppages for them taken back out of the pay chest, fourpence a day a
+    // man, as the army did: a private saw what was left of his pay, not all
+    // of it. Without the stoppages the pay and the rations both came in from
+    // outside for nothing, and the barracks' chest grew without end.
+    public const int Stoppage = 4 * 30;
     private static void Commissariat()
     {
         foreach (var h in Towns.Households())
@@ -226,6 +233,33 @@ public static class Money
             h.Stores.Add(ItemId.Bread, n * 24);
             h.Stores.Add(ItemId.DriedMeat, n * 6);
             h.Stores.Add(ItemId.Roots, n * 8);
+            h.Stores.TakeUpTo(ItemId.Coin, n * Stoppage);
+        }
+    }
+
+    // The garrison's account with the town, settled once a month: the
+    // officers' mess (wine, a cook, their servants' keep - fifty shillings an
+    // officer) and, if the chest holds more than two months' pay, half the
+    // rest on the regiment's town accounts - boots, shirts, the canteen. The
+    // mess sergeant carries it to the market through his own pack.
+    private static void MessBill()
+    {
+        foreach (var t in Towns.All)
+        {
+            if (!t.Standing || t.Market is not { } m || t.Garrison is not { } g) continue;
+            int officers = 0, pay = 0; Npc sergeant = null;
+            foreach (var p in g.Members)
+            {
+                if (p.IsDead) continue;
+                if (p.Role == Role.Officer) { officers++; pay += 900; }
+                if (p.Role == Role.Soldier) { pay += 180; sergeant ??= p; }
+            }
+            if (sergeant == null) continue;
+            int chest = g.Stores.Count(ItemId.Coin);
+            int bill = Mathf.Min(chest, officers * 600 + Mathf.Max(0, chest - officers * 600 - pay * 2) / 2);
+            if (bill <= 0) continue;
+            sergeant.Inventory.Add(ItemId.Coin, g.Stores.TakeUpTo(ItemId.Coin, bill));
+            m.Stores.Add(ItemId.Coin, sergeant.Inventory.TakeUpTo(ItemId.Coin, bill));
         }
     }
 
@@ -254,6 +288,28 @@ public static class Money
         }
     }
 
+    // Rum and ale for the garrison's custom: once a month the merchants order
+    // up enough for each man to drink ten times, as far as the till can pay -
+    // rum at threepence landed, ale at a penny.
+    private static void OrderDrink()
+    {
+        foreach (var t in Towns.All)
+        {
+            if (!t.Standing || t.Market is not { } m) continue;
+            int soldiers = 0;
+            foreach (var h in t.Houses.Values) foreach (var p in h.Members) if (p.Role == Role.Soldier && !p.IsDead) soldiers++;
+            int want = 10 + soldiers * 10;
+            foreach (var (id, landed) in new[] { (ItemId.Rum, 3), (ItemId.Ale, 1) })
+            {
+                int short_ = want - m.Stores.Count(id);
+                int n = Mathf.Min(short_, (m.Stores.Count(ItemId.Coin) - 120) / landed);
+                if (n <= 0) continue;
+                m.Stores.Remove(ItemId.Coin, n * landed);
+                m.Stores.Add(id, n);
+            }
+        }
+    }
+
     // A new game: what each house has in its box, by what the house is, and
     // the merchants' float in the market's till.
     public static void Seed(TownHousehold h)
@@ -279,7 +335,8 @@ public static class Money
             if (c == 0) broke++;
             foreach (var m in h.Members) { if (m.Role == Role.Farmer) { farms += c; break; } if (m.Role == Role.Merchant) { merchants += c; break; } }
         }
-        return $"till {Format(t.Market?.Stores.Count(ItemId.Coin) ?? 0)} | houses {Format(houses)} (farms {Format(farms)}, merchants {Format(merchants)}), {broke} with none | on the book {Format(owed)} from {debtors} houses, store pay owed {Format(credit)}";
+        int garrison = t.Garrison?.Stores.Count(ItemId.Coin) ?? 0;
+        return $"till {Format(t.Market?.Stores.Count(ItemId.Coin) ?? 0)} | garrison chest {Format(garrison)} | houses {Format(houses)} (farms {Format(farms)}, merchants {Format(merchants)}), {broke} with none | on the book {Format(owed)} from {debtors} houses, store pay owed {Format(credit)}";
     }
 
     // ---- saves ---------------------------------------------------------------------------
