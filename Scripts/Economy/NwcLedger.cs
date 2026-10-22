@@ -78,7 +78,7 @@ public partial class NwcLedger : FortLedger
         RaidsSanctioned = false;
         var mandate = Council.Convene(this, partner, shipped, QuotaMb);
         int pieces = OutfitPieces;
-        Stores.Add(ItemId.TradeGoods, pieces); Stores.Add(ItemId.Pemmican, pieces / 3); Stores.Add(ItemId.Rum, RumShareSetting > 0.3f ? 60 : 25); Stores.Add(ItemId.Musket, 4); Stores.Add(ItemId.SteelTrap, 8);
+        Stores.Add(ItemId.TradeGoods, pieces); Stores.Add(ItemId.Pemmican, pieces / 3); Stores.Add(ItemId.Rum, Core.Laws.CompanyDry(Agents.Faction.NWC) ? 0 : RumShareSetting > 0.3f ? 60 : 25); Stores.Add(ItemId.Musket, 4); Stores.Add(ItemId.SteelTrap, 8);
         Sim.Notice($"The brigade from Fort William has come and gone: {shipped:0} MB of furs off to Montreal, {pieces} pieces landed, and the minutes of the council for the partner.");
         if (partner != null) Mail.Give(mandate, partner); else Mail.Open(mandate, null);
         // A Nor'Wester's year closes with the brigade, as a Company man's does

@@ -62,13 +62,13 @@ public abstract class RoleBehaviour
         if (fire != null) return fire;
         // Hangover: a man still drunk at first light does no work worth the name.
         if (npc.Intoxication > 35f && IsWorkHours) return new WanderGoal(npc.BedCell, 1, 0.8f);
+        // A motion before the town or the council: canvassing for it, or the meeting (Core/Laws).
+        if (Core.Laws.Errand(npc) is { } motion) return motion;
         if (npc.AssignedTask != null && IsWorkHours && !(npc.AssignedTaskIsHunt && Cal.Hour >= 12f))
         {
             var g = npc.AssignedTask(npc);
             if (g != null) return g;
         }
-        // A motion before the town or the council: canvassing for it, or the meeting (Core/Laws).
-        if (Core.Laws.Errand(npc) is { } motion) return motion;
         return Work(npc) ?? new WanderGoal(npc.WorkCell, 2, 1f);
     }
 
@@ -274,7 +274,7 @@ public class CreeChiefBehaviour : RoleBehaviour
             if (!band.WillTradeWith(post) || post.Stores.Count(ItemId.TradeGoods) < 5) continue;
             float walk = IsoGrid.ToWorld(post.AccessCell).DistanceTo(IsoGrid.ToWorld(band.AccessCell));
             float score = post.PeltPrice * (0.5f + post.StandingOf(band) / 100f) / (1f + walk / 4000f);
-            if (post.Stores.Has(ItemId.Rum)) score *= 1f + band.RumTaste / 200f;
+            if (post.Stores.Has(ItemId.Rum) && !Core.Laws.Dry(band)) score *= 1f + band.RumTaste / 200f;
             if (post.DebtOf(band) > 0f) score *= 1.15f;   // you go back where you owe
             if (score > bestScore) { bestScore = score; best = post; }
         }

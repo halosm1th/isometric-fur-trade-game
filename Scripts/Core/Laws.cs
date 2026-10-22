@@ -51,11 +51,12 @@ public class Body
     public BodyKind Kind;
     public Town Town;
     public BandLedger Band;
+    public Faction Firm;              // a company's: the Bay's Committee, the North West partners
     public float Majority = 0.5f;     // the share of the votes cast a motion needs
     public int Chest;                 // duties collected, in pence: the poor relief
     public readonly List<Law> Laws = new();
     public Law Get(LawKind k) => Laws.Find(l => l.Kind == k);
-    public string Meeting => Kind switch { BodyKind.Town => "town meeting", BodyKind.Band => "council", _ => "Committee" };
+    public string Meeting => Kind switch { BodyKind.Town => "town meeting", BodyKind.Band => "council", _ => Firm == Faction.NWC ? "partners' council" : "Committee" };
 
     // Who may vote, worked out once a day.
     private List<Voter> _voters;
@@ -85,6 +86,11 @@ public class Body
                 foreach (var n in Sim.Npcs)
                     if (n.HomeStores == Band && !n.IsDead && n.OffMap == "" && n.Role is Role.Chief or Role.Hunter)
                         list.Add(new Voter { Name = n.DisplayName, Npc = n, Weight = n.Role == Role.Chief ? 3f : 1f });
+                break;
+            case BodyKind.Company when Firm == Faction.NWC:
+                // The wintering partners and the agents at Fort William, by their shares (Economy/Council).
+                Council.Seed();
+                foreach (var c in Council.Members) list.Add(new Voter { Name = c.Name, Weight = c.Shares });
                 break;
             case BodyKind.Company:
                 foreach (var (name, w) in Committee) list.Add(new Voter { Name = name, Weight = w });
@@ -169,7 +175,8 @@ public static class Laws
         if (h is BandLedger bl) return Bodies.Find(b => b.Band == bl) ?? AddBand(bl);
         return null;
     }
-    public static Body Company => Bodies.Find(b => b.Kind == BodyKind.Company);
+    public static Body Company => CompanyOf(Faction.HBC);
+    public static Body CompanyOf(Faction f) { Ensure(); return Bodies.Find(b => b.Kind == BodyKind.Company && b.Firm == f); }
 
     // The share of a year's food the town's market must hold before any goes
     // down the lakes (Economy/Money.ShipSurplus). No law, no mark.
@@ -189,7 +196,7 @@ public static class Laws
     // No spirits sold in the town, drunk in the camp, or given across a
     // company's counter.
     public static bool Dry(Household h) => Of(h)?.Get(LawKind.NoSpirits) != null;
-    public static bool CompanyDry(Faction company) => company == Faction.HBC && Company?.Get(LawKind.NoSpirits) != null;
+    public static bool CompanyDry(Faction company) => CompanyOf(company)?.Get(LawKind.NoSpirits) != null;
 
     public static string Short(LawKind k) => k switch
     {
@@ -204,7 +211,7 @@ public static class Laws
         LawKind.KeepBread => $"that the market keep {Bread(v)} before any is shipped down the lakes",
         LawKind.ExportDuty => $"that a duty of {Mathf.RoundToInt(v * 100)} in the hundred be paid on grain shipped down the lakes",
         LawKind.ImportDuty => $"that a duty of {Mathf.RoundToInt(v * 100)} in the hundred be paid on store goods brought up",
-        _ => b?.Kind == BodyKind.Company ? "that no spirits be given in trade at the Company's posts" : b?.Kind == BodyKind.Band ? "that no rum be taken into the camp" : "that no spirits be sold in the town",
+        _ => b?.Kind == BodyKind.Company ? (b.Firm == Faction.NWC ? "that no spirits be given in trade at the North West Company's posts" : "that no spirits be given in trade at the Company's posts") : b?.Kind == BodyKind.Band ? "that no rum be taken into the camp" : "that no spirits be sold in the town",
     };
     // A third of the year's food in each of the three main kinds is the town's food until the harvest.
     private static string Bread(float v)
@@ -230,7 +237,10 @@ public static class Laws
         _seeded = true;
         foreach (var t in Towns.All) if (t.Standing) AddTown(t);
         foreach (var bl in Sim.Bands) if (bl != null) AddBand(bl);
-        Bodies.Add(new Body { Key = "company:HBC", Name = "the Governor and Committee", Kind = BodyKind.Company, Majority = 0.5f });
+        // The camps of the country keep their own ledgers, not in Sim.Bands.
+        foreach (var c in Camps.All) if (c.Ledger != null && !Bodies.Exists(b => b.Band == c.Ledger)) AddBand(c.Ledger);
+        Bodies.Add(new Body { Key = "company:HBC", Name = "the Governor and Committee", Kind = BodyKind.Company, Firm = Faction.HBC, Majority = 0.5f });
+        Bodies.Add(new Body { Key = "company:NWC", Name = "the partners at Fort William", Kind = BodyKind.Company, Firm = Faction.NWC, Majority = 0.5f });
     }
     private static Body AddTown(Town t)
     {
@@ -299,8 +309,11 @@ public static class Laws
                 return n.Role switch { Role.Priest => 0.8f, Role.Merchant => -0.4f, _ => 0f } - Mathf.Clamp(n.Intoxication / 50f, 0f, 0.4f) + own * 0.8f - n.Personality.Talkative * 0.2f;
         }
     }
-    private static float CommitteeStance(string name, LawKind k)
+    private static float CommitteeStance(Body b, string name, LawKind k)
     {
+        // A partner lives by the furs the rum fetches; the agents in Montreal count its cost.
+        if (b.Firm == Faction.NWC && Council.Members.Find(c => c.Name == name) is { } cn)
+            return (cn.AgentFirm ? 0.1f : -0.15f) - cn.Ambition * 0.4f + cn.Loyalty * 0.2f + ((Hash(name + (int)k) % 1000) / 1000f - 0.5f) * 0.3f;
         // London's view of the rum: dear, dangerous, and the Canadians give it freely.
         float own = (Hash(name + (int)k) % 1000) / 1000f - 0.5f;
         return 0.1f + own * 0.6f;
@@ -312,7 +325,7 @@ public static class Laws
     public static float Lean(Proposal p, Voter v)
     {
         float interest;
-        if (v.Npc == null) interest = CommitteeStance(v.Name, p.Kind) * Tightening(p);
+        if (v.Npc == null) interest = CommitteeStance(p.Body, v.Name, p.Kind) * Tightening(p);
         else
         {
             interest = Stance(v.Npc, p.Body, p.Kind) * Tightening(p) - v.Npc.Personality.Suspicion * 0.12f;
@@ -375,7 +388,11 @@ public static class Laws
         p.Opponent = best?.DisplayName ?? "";
         Open.Add(p);
         _lastTried[b.Key + "|" + (int)k] = Today;
-        string line = $"{p.Sponsor} is going round {Where(b)} for a motion {p.Title}{(p.Opponent != "" ? $"; {p.Opponent} is against it" : "")}.";
+        // A company's motion is set down for its next sitting as soon as it is written.
+        if (!b.Sits) { p.Stage = MotionStage.Called; p.MeetingDay = NextSitting(b); }
+        string line = b.Sits
+            ? $"{p.Sponsor} is going round {Where(b)} for a motion {p.Title}{(p.Opponent != "" ? $"; {p.Opponent} is against it" : "")}."
+            : $"{p.Sponsor} has written to {b.Name} proposing {p.Title}; it will be read on {DateOf(p.MeetingDay < 0 ? NextSitting(b) : p.MeetingDay):d MMMM yyyy}.";
         Minute(b, line);
         if (!quiet && sponsor is Npc sn) Chronicle.Event(line, sn.GlobalPosition, sn, weight: 0.6f);
         if (!quiet) Tell(b, line);
@@ -389,7 +406,7 @@ public static class Laws
     // of which fail.
     private static void Agitators(Body b)
     {
-        if (!b.Sits || OpenFor(b) != null) return;
+        if (OpenFor(b) != null) return;
         var voters = b.Voters();
         if (voters.Count < 3) return;
         foreach (var n in Candidates(b))
@@ -429,7 +446,9 @@ public static class Laws
                 bool own = n.HomeStores is TownHousehold th && th.Town == b.Town && th.Key != "garrison";
                 if (own || !n.IsBandPerson && n.GlobalPosition.DistanceSquaredTo(b.Town.Centre) < 1800f * 1800f) yield return n;
             }
-            else if (n.HomeStores == b.Band) yield return n;
+            else if (b.Kind == BodyKind.Band) { if (n.HomeStores == b.Band) yield return n; }
+            // A company's own officers write to their masters: the Factor to London, a partner to Fort William.
+            else if (n.Faction == b.Firm && n.Role is Role.Factor or Role.NwcPartner or Role.Postmaster) yield return n;
         }
     }
 
@@ -446,6 +465,7 @@ public static class Laws
             foreach (var b in Bodies) Agitators(b);
             foreach (var p in Open.ToArray()) DayOf(p);
             if (cal.Day == 1) Relief();
+            if (Trace && (cal.Day == 1 || cal.Day == 15)) FoodReport();
             Open.RemoveAll(p => p.Stage == MotionStage.Decided && today - p.MeetingDay > 30);
         }
         if (Mathf.Abs(cal.Hour - _lastHour) < 0.05f) return;
@@ -493,6 +513,15 @@ public static class Laws
         Minute(p.Body, line);
         Tell(p.Body, line);
         if (Speaker(p.Sponsor) is Npc sn) { sn.Bark($"Meeting {When(p)}. Come and be heard."); Chronicle.Event(line, sn.GlobalPosition, sn, weight: 0.5f); }
+    }
+
+    // London reads its letters with the returns in November; the partners
+    // sit at the rendezvous in July.
+    public static int NextSitting(Body b)
+    {
+        int y = Cal?.Year ?? 1811, month = b.Firm == Faction.NWC ? 7 : 11, day = b.Firm == Faction.NWC ? 15 : 1;
+        int d = y * 366 + new DateTime(y, month, day).DayOfYear;
+        return d > Today ? d : (y + 1) * 366 + new DateTime(y + 1, month, day).DayOfYear;
     }
 
     public static DateTime DateOf(int day)
@@ -627,7 +656,8 @@ public static class Laws
         }
         p.Stage = MotionStage.Decided;
         var b = p.Body;
-        string tally = b.Kind == BodyKind.Band ? "" : $" ({yes:0} to {no:0})";
+        string title = p.Title;   // before the law changes under it
+        string tally = b.Kind == BodyKind.Band ? "" : b.Kind == BodyKind.Company ? $" ({yes:0.#} to {no:0.#}{(b.Firm == Faction.NWC ? " shares" : "")})" : $" ({yes:0} to {no:0})";
         if (all <= 0f || (yes + no) < all * 0.3f) { p.Result = "no quorum"; Announce(p, $"The {b.Meeting} at {Where(b)} could not decide the motion {p.Title}: too few came."); return; }
         bool carried = yes / (yes + no) > b.Majority;
         p.Result = carried ? "carried" : "lost";
@@ -637,7 +667,7 @@ public static class Laws
             if (p.Motion == Motion.Enact) b.Laws.Add(new Law { Kind = p.Kind, Value = p.Value, Since = Cal?.Year ?? 1811, By = $"moved by {p.Sponsor}" });
         }
         string verb = b.Kind == BodyKind.Band ? (carried ? "agreed" : "would not agree") : carried ? "carried" : "threw out";
-        Announce(p, $"The {b.Meeting} {(b.Kind == BodyKind.Town ? "of " + b.Town.Name + " " : "")}{verb} the motion {p.Title}{tally}.");
+        Announce(p, $"The {b.Meeting} {(b.Kind == BodyKind.Town ? "of " + b.Town.Name + " " : "")}{verb} the motion {title}{tally}.");
         // The sponsor's standing rises or falls with it.
         if (Speaker(p.Sponsor) is Npc sn) sn.Standing = Mathf.Clamp(sn.Standing + (carried ? 6f : -3f), 0f, 100f);
         if (Speaker(p.Opponent) is Npc on) on.Standing = Mathf.Clamp(on.Standing + (carried ? -3f : 4f), 0f, 100f);
@@ -766,16 +796,80 @@ public static class Laws
         return list;
     }
 
+    // The body whose laws hold where someone stands: the town they are in, the
+    // camp they are at, or else their own company's masters (UI/JournalPanel).
+    public static Body Near(Agent a)
+    {
+        if (a == null) return null;
+        Ensure();
+        foreach (var b in Bodies)
+            if (b.Kind == BodyKind.Town && a.GlobalPosition.DistanceSquaredTo(b.Town.Centre) < 3000f * 3000f) return b;
+        foreach (var b in Bodies)
+            if (b.Kind == BodyKind.Band && b.Band != null && GodotObject.IsInstanceValid(b.Band) && a.GlobalPosition.DistanceSquaredTo(IsoGrid.ToWorld(b.Band.Camp)) < 2500f * 2500f) return b;
+        return CompanyOf(a.Faction);
+    }
+
+    // What a body has laid down, what is before it, and the last of its minutes.
+    public static List<string> Summary(Body b)
+    {
+        var list = new List<string>();
+        if (b.Laws.Count == 0) list.Add("No rule laid down on bread, duties or spirits.");
+        foreach (var l in b.Laws) list.Add(Text(l, b) + ".");
+        if (b.Kind == BodyKind.Town && b.Chest > 0) list.Add($"In the poor chest: {Money.Format(b.Chest, b.Town)}.");
+        if (OpenFor(b) is { } p)
+            list.Add($"Before it: a motion {p.Title}, moved by {p.Sponsor}{(p.Opponent != "" ? $", opposed by {p.Opponent}" : "")} - " +
+                (p.Stage == MotionStage.Canvassing ? "being carried round." : b.Sits ? $"the {b.Meeting} sits {When(p)}." : $"to be read {DateOf(p.MeetingDay):d MMMM yyyy}."));
+        foreach (var m in MinutesOf(b, 3)) list.Add(m);
+        return list;
+    }
+
     // Said aloud to whoever is near enough to hear of it.
     private static void Tell(Body b, string line, bool headline = false)
     {
         Vector2 at = b.Kind == BodyKind.Town ? b.Town.Centre : b.Band != null ? IsoGrid.ToWorld(b.Band.Camp) : Vector2.Zero;
         foreach (var pc in Sim.Players())
-            if (pc != null && GodotObject.IsInstanceValid(pc) && (b.Kind == BodyKind.Company ? pc.Faction == Faction.HBC : pc.GlobalPosition.DistanceSquaredTo(at) < 4000f * 4000f))
+            if (pc != null && GodotObject.IsInstanceValid(pc) && (b.Kind == BodyKind.Company ? pc.Faction == b.Firm : pc.GlobalPosition.DistanceSquaredTo(at) < 4000f * 4000f))
             {
                 if (headline) Sim.Headline(line); else Sim.Notice(line);
                 return;
             }
+    }
+
+    // Dev (--lawtrace), twice a month: each town's bread law, the market's
+    // food, and how many of its people are going hungry.
+    private static void FoodReport()
+    {
+        foreach (var b in Bodies)
+        {
+            if (b.Kind != BodyKind.Town || b.Town.Market is not { } m) continue;
+            int food = m.Stores.Count(ItemId.Bread) + m.Stores.Count(ItemId.Flour) * Fields.LoavesPerMeal + m.Stores.Count(ItemId.Grain) + m.Stores.Count(ItemId.Corn) + m.Stores.Count(ItemId.Roots);
+            int people = 0, hungry = 0, starving = 0;
+            foreach (var h in b.Town.Houses.Values)
+                foreach (var n in h.Members)
+                {
+                    if (!GodotObject.IsInstanceValid(n) || n.IsDead) continue;
+                    people++;
+                    if (n.Needs.Hunger < 40f) hungry++;
+                    if (n.Needs.Hunger < 10f) starving++;
+                }
+            GD.Print($"[lawfood] {Cal?.DateString} {b.Town.Name}: {(b.Get(LawKind.KeepBread) is { } kb ? Bread(kb.Value) : "no bread law")} | market food {food} for {people} | hungry {hungry}, starving {starving} | till {Money.Format(m.Stores.Count(ItemId.Coin))}");
+        }
+    }
+
+    // Dev: `-- --lawoff=Town:KeepBread` strikes a law at the start, as if a
+    // meeting had repealed it, to watch what follows.
+    private static void DevLawOff()
+    {
+        foreach (var a in OS.GetCmdlineUserArgs())
+        {
+            if (!a.StartsWith("--lawoff=")) continue;
+            var parts = a[9..].Split(':');
+            if (parts.Length < 2 || !Enum.TryParse<LawKind>(parts[1], true, out var k)) continue;
+            var b = Bodies.Find(x => x.Key.EndsWith(":" + parts[0]));
+            if (b == null) { GD.Print($"[laws] no body called {parts[0]}"); continue; }
+            b.Laws.RemoveAll(l => l.Kind == k);
+            Minute(b, $"(dev) {Short(k)} struck off.");
+        }
     }
 
     // Dev: `-- --motion=Town:KeepBread:repeal` puts the motion now, moved by
@@ -787,6 +881,8 @@ public static class Laws
     {
         if (_devDone) return;
         _devDone = true;
+        Ensure();
+        DevLawOff();
         foreach (var a in OS.GetCmdlineUserArgs())
         {
             if (!a.StartsWith("--motion=")) continue;
@@ -795,11 +891,14 @@ public static class Laws
             Ensure();
             var b = Bodies.Find(x => x.Key.EndsWith(":" + parts[0]) || x.Name.EndsWith(parts[0]));
             if (b == null) { GD.Print($"[laws] no body called {parts[0]}"); continue; }
+            bool soon = parts.Length > 3 && parts[3] == "soon";
             var m = parts.Length > 2 && parts[2] == "repeal" ? Motion.Repeal : Motion.Enact;
             Npc best = null;
             foreach (var n in Candidates(b)) if (best == null || Persuasion(n) > Persuasion(best)) best = n;
             if (best != null && parts.Length > 3 && parts[3] == "silver") { best.Personality.Talkative = 1f; best.Personality.Ambition = 1f; best.Skills.Trade = 1f; best.Standing = 80f; }
-            Propose(b, k, m, DefaultValue(k), best);
+            var dp = Propose(b, k, m, DefaultValue(k), best);
+            // `:soon` - a company's motion decided in two days instead of at its sitting.
+            if (dp != null && !b.Sits && soon) dp.MeetingDay = Today + 2;
         }
     }
 

@@ -18,13 +18,14 @@ public partial class Conversation
         if (npc.HomeStores is TownHousehold th && th.Town != null && th.Town.Standing) return Laws.Of(th.Town);
         if (npc.HomeStores is BandLedger bl && npc.Role is Role.Chief or Role.Hunter) return Laws.Of(bl);
         if (npc.Role == Role.Factor && npc.Faction == Faction.HBC) return Laws.Company;
+        if (npc.Role == Role.NwcPartner && npc.Faction == Faction.NWC) return Laws.CompanyOf(Faction.NWC);
         return null;
     }
 
     private static string LawsLabel(Npc npc) => LawsBody(npc)?.Kind switch
     {
         BodyKind.Band => "The council's rules...",
-        BodyKind.Company => "The Committee's orders...",
+        BodyKind.Company => LawsBody(npc).Firm == Faction.NWC ? "The partners' orders..." : "The Committee's orders...",
         _ => "The town's laws...",
     };
 
@@ -55,7 +56,7 @@ public partial class Conversation
         }
         if (p != null && p.Sponsor == _player.DisplayName && p.Stage == MotionStage.Canvassing && b.Sits)
             AddOption($"Call the {b.Meeting} for three days hence", () => { Laws.Call(p, 3); ShowLaws(npc, $"\"Three days, then. I'll be there.\""); });
-        if (p == null) AddOption(b.Kind == BodyKind.Company ? "Write to the Committee proposing..." : "Put a motion...", () => ShowMotions(npc, b));
+        if (p == null) AddOption(b.Kind == BodyKind.Company ? $"Write to {b.Name} proposing..." : "Put a motion...", () => ShowMotions(npc, b));
         AddOption("Back", () => ShowTopics(Greeting(npc)));
     }
 
@@ -81,7 +82,7 @@ public partial class Conversation
 
     private void ShowMotions(Npc npc, Body b)
     {
-        _text = b.Kind == BodyKind.Company ? "What will you put to London?" : "What will you move?";
+        _text = b.Kind == BodyKind.Company ? $"What will you put to {b.Name}?" : "What will you move?";
         ClearOptions();
         foreach (var k in Laws.Competent(b))
         {
@@ -111,14 +112,9 @@ public partial class Conversation
         p.PlayerSign = 1;
         if (b.Kind == BodyKind.Company)
         {
-            // A letter home with the ship: read at the November committee with the returns.
+            // A letter: home with the ship for the November committee, or up with the brigade to the July rendezvous.
             foreach (var cv in b.Voters()) Laws.Persuade(p, _player, cv, 1, 0.3f);
-            var cal = GameCalendar.Instance;
-            int y = cal?.Year ?? 1811;
-            int nov = y * 366 + new DateTime(y, 11, 1).DayOfYear;
-            if (nov <= Laws.Today) nov = (y + 1) * 366 + new DateTime(y + 1, 11, 1).DayOfYear;
-            p.Stage = MotionStage.Called; p.MeetingDay = nov;
-            ShowLaws(npc, "\"I'll send it home with the packet. Don't expect them to thank you for it.\"");
+            ShowLaws(npc, b.Firm == Faction.NWC ? "\"I'll carry it up to Fort William. The partners will make of it what they like.\"" : "\"I'll send it home with the packet. Don't expect them to thank you for it.\"");
             return;
         }
         if (npc.RapportWith(_player) > 0f) Laws.Persuade(p, _player, b.Voters().Find(x => x.Npc == npc) ?? new Voter { Name = npc.DisplayName, Npc = npc }, 1);

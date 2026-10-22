@@ -181,6 +181,13 @@ public partial class JournalPanel : Control
         }
         sb.Append(Core.Campaign.JournalText);
         FillAmbitions(sb);
+        // The law where you stand (Core/Laws), kept by the host.
+        if (Net.Net.IsServer && Laws.Near(_player) is { } law)
+        {
+            sb.AppendLine(Head(char.ToUpper(law.Name[0]) + law.Name[1..]));
+            foreach (var l in Laws.Summary(law)) sb.AppendLine($"[indent]{l}[/indent]");
+            sb.AppendLine();
+        }
         if (lines.Count > 0) sb.AppendLine(Head("The days"));
         string lastDate = null;
         for (int i = lines.Count - 1; i >= 0; i--)

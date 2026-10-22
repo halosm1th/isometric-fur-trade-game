@@ -176,7 +176,9 @@ public static class Wants
             Used(b, ItemId.IceChisel, lodges * 0.01f * w.A(ItemId.IceChisel));
             Used(b, ItemId.FishingNet, lodges * 0.012f * w.A(ItemId.FishingNet));
         }
-        Used(b, ItemId.Rum, mouths * 0.02f * b.RumTaste / 20f);
+        // A camp whose council has turned the rum away drinks none, and the taste goes faster (Core/Laws).
+        if (Core.Laws.Dry(b)) b.RumTaste *= 0.97f;
+        else Used(b, ItemId.Rum, mouths * 0.02f * b.RumTaste / 20f);
         Used(b, ItemId.Beads, mouths * 0.01f);
         Used(b, ItemId.Stroud, mouths * 0.01f * w.A(ItemId.Stroud));
         // Tools break.
