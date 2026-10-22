@@ -89,6 +89,9 @@ public partial class Agent : CharacterBody2D
     public Agent LastAttacker { get; private set; }
     public void ForgetAttacker() { LastAttacker = null; LastAttackedAgo = 999f; }
     public float LastAttackedAgo { get; private set; } = 999f;
+    // Whose blow it was that killed us, if a blow did; a man hit an hour ago
+    // who then starves did not die of the blow.
+    public Agent Killer { get; private set; }
 
     private bool _deathAnnounced;
     private float _stepTimer;
@@ -206,7 +209,7 @@ public partial class Agent : CharacterBody2D
         _deathAnnounced = true;
         Velocity = Vector2.Zero;
         // What is left on the ground where he fell.
-        if (LastAttacker != null) CombatFx.Pool(this);
+        if (Killer != null) CombatFx.Pool(this);
         if (this is not Animal) Sim.Noise(GlobalPosition, 220f, this, "fall");
         EmitSignal(SignalName.Died);
         Net.Net.I?.AnnounceDeath(this);
@@ -217,7 +220,7 @@ public partial class Agent : CharacterBody2D
     {
         _deathAnnounced = false;
         Needs.Health = 100f; Needs.Hunger = Needs.Thirst = Needs.Warmth = 100f;
-        LastAttacker = null; LastAttackedAgo = 999f;
+        LastAttacker = null; LastAttackedAgo = 999f; Killer = null;
         CollisionLayer = 1; CollisionMask = 1;
         RemoveFromGroup("corpses");
     }
@@ -480,7 +483,7 @@ public partial class Agent : CharacterBody2D
         LastAttacker = from;
         LastAttackedAgo = 0f;
         EmitSignal(SignalName.Damaged, amount);
-        if (IsDead) OnDeath();
+        if (IsDead) { Killer = from; OnDeath(); }
     }
 
     public virtual bool IsHostileTo(Agent other)

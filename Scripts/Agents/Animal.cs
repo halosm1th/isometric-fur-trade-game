@@ -29,8 +29,11 @@ public partial class Animal : Agent
 
     public SpeciesDef Def => SpeciesInfo.Of(Species);
     public bool IsPredator => Def.Diet == Diet.Predator;
-    // Will it go for people? Predators always; prey only when starving.
-    public bool IsDangerous => !IsDead && (IsPredator || Hungry);
+    // Will it go for people? Predators always; prey only when starving, and
+    // only prey with something to hurt a man with: a starving goose or hare
+    // is still a goose or hare, and keeps its distance.
+    public bool IsHarmless => Def.BiteDamage <= 0f;
+    public bool IsDangerous => !IsDead && !IsHarmless && (IsPredator || Hungry);
 
     public override void _Ready()
     {
@@ -114,7 +117,7 @@ public partial class Animal : Agent
     private void Think(float dt)
     {
         // Threat check for prey: any human close by.
-        if (!IsPredator && !Hungry || (IsPredator && Needs.Health < Def.Health * 0.3f))
+        if (!IsPredator && !IsDangerous || (IsPredator && Needs.Health < Def.Health * 0.3f))
         {
             var human = NearestHuman(260f);
             if (human != null) { _mode = Mode.Flee; _quarry = human; _modeTimer = 3f; return; }

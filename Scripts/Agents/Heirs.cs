@@ -124,7 +124,7 @@ public static class Heirs
         var forebear = new Forebear
         {
             Name = p.DisplayName, Born = (cal?.Year ?? 1811) - p.Age, Died = cal?.Year ?? 1811, Rank = p.Rank,
-            End = p.LastAttacker != null ? $"Killed by {p.LastAttacker.Describe()}." : "Died in the country.",
+            End = p.Killer != null ? $"Killed by {p.Killer.Describe()}." : "Died in the country.",
             Did = Done(p),
         };
         p.House.Add(forebear);
