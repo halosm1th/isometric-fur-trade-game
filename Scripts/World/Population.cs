@@ -197,7 +197,7 @@ public partial class Population : Node2D
 				}
 				if (n.FatherName != "" && n.Age <= 16)
 				{
-					n.SetAppearance(GD.Load<SpriteFrames>(n.FramesPath), n.Tint, Mathf.Lerp(0.6f, 0.8f, Mathf.Clamp(n.Age / 16f, 0f, 1f)));
+					n.SpriteScale = Mathf.Lerp(0.6f, 0.8f, Mathf.Clamp(n.Age / 16f, 0f, 1f)); n.ApplyAppearance();
 					if (n.Age == 16) Sim.Notice($"{n.DisplayName} is grown and takes a man's work at the post.");
 				}
 			}

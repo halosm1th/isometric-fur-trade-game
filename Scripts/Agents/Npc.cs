@@ -255,7 +255,7 @@ public partial class Npc : Agent
             if (sheet != null && sheet != FramesPath) { FramesPath = sheet; Tint = Colors.White; }
         }
         _tint = Tint;
-        _sprite.SpriteFrames = GD.Load<SpriteFrames>(FramesPath);
+        _sprite.SpriteFrames = Doll.Load(FramesPath);
         _sprite.Modulate = Tint;
         _sprite.Scale = Vector2.One * SpriteScale;
         // Frames stand on the bottom edge of their canvas, centred; canvases differ by sheet.
@@ -735,10 +735,19 @@ public partial class Npc : Agent
         else _stuckTime = 0f;
     }
 
+    private int _lookTick;
+
     private void Animate()
     {
         if (_sprite == null) return;
         if (HurtFlash > 0f) _sprite.Modulate = new Color(1f, 0.45f, 0.45f); else if (_sprite.Modulate.G < 0.5f) _sprite.Modulate = _tint;
+        // A doll's look follows what he has on: a capote put on in the
+        // first frost shows, so does the gun he picked up.
+        if (Net.Net.IsServer && Doll.Is(FramesPath) && ++_lookTick % 60 == 0)
+        {
+            string look = Doll.For(this);
+            if (look != FramesPath) { FramesPath = look; ApplyAppearance(); }
+        }
         if (_sinceEatAnim < 0.9f) return; // let one-shot anims play
         var v = Velocity;
         string target;

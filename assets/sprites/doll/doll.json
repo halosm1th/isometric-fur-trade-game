@@ -1,0 +1,52 @@
+{
+ "order": [
+  "body",
+  "face",
+  "hair",
+  "moccasins",
+  "trousers",
+  "shirt",
+  "breechcloth",
+  "sash",
+  "capote",
+  "tuque",
+  "gun"
+ ],
+ "anims": {
+  "idle": {
+   "frames": 1,
+   "fps": 5,
+   "loop": true
+  },
+  "idle_side": {
+   "frames": 1,
+   "fps": 5,
+   "loop": true
+  },
+  "idle_back": {
+   "frames": 1,
+   "fps": 5,
+   "loop": true
+  },
+  "walk": {
+   "frames": 4,
+   "fps": 8,
+   "loop": true
+  },
+  "walk_side": {
+   "frames": 4,
+   "fps": 8,
+   "loop": true
+  },
+  "walk_back": {
+   "frames": 4,
+   "fps": 8,
+   "loop": true
+  },
+  "shoot": {
+   "frames": 4,
+   "fps": 9,
+   "loop": false
+  }
+ }
+}
