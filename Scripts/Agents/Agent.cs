@@ -367,9 +367,29 @@ public partial class Agent : CharacterBody2D
     // Brief red flash when hit; subclasses with a sprite read this.
     public float HurtFlash { get; private set; }
 
+    // Powder and ball (design doc 12.5): a horn and a bag are about twenty
+    // charges; a musket shot spends one. An empty horn is filled from the
+    // pack, or for a man of a house from its store; a man with no powder
+    // left can only club with his gun.
+    public const int ChargesPerHorn = 20;
+    public int Charges;
+    public bool HasCharge() => Charges > 0 || Inventory.Has(ItemId.Powder) || this is Npc { HomeStores: { } h } && h.Stores.Has(ItemId.Powder);
+    public bool UseCharge()
+    {
+        if (Charges <= 0)
+        {
+            if (Inventory.Remove(ItemId.Powder)) Charges = ChargesPerHorn;
+            else if (this is Npc { HomeStores: { } h } && h.Stores.Remove(ItemId.Powder)) Charges = ChargesPerHorn;
+            else return false;
+        }
+        Charges--;
+        return true;
+    }
+
     public (float damage, float range, float cooldown) AttackProfile()
     {
         var w = Weapon;
+        if (w == ItemId.Musket && !HasCharge()) return (18f, 75f, 1.4f);   // the butt of an empty gun
         if (w != null)
         {
             var d = Items.Items.Of(w.Value);
@@ -439,10 +459,11 @@ public partial class Agent : CharacterBody2D
         // something that hasn't noticed you lands like a butcher's stroke.
         float mult = Needs.CapabilityFactor;
         if (IsSneaking && target.Unaware) mult *= 2.5f;
-        if (range > 100f) CombatFx.Shot(this, target.GlobalPosition + new Vector2(0, -40), Weapon == ItemId.Musket);
-        if (Weapon == ItemId.Musket && range > 100f) CombatFx.Musket(this, target.GlobalPosition);
+        bool fired = Weapon == ItemId.Musket && range > 100f && UseCharge();
+        if (range > 100f) CombatFx.Shot(this, target.GlobalPosition + new Vector2(0, -40), fired);
+        if (fired) CombatFx.Musket(this, target.GlobalPosition);
         else if (range <= 100f) CombatFx.Swing(this, target);
-        if (Weapon == ItemId.Musket) Sim.Noise(GlobalPosition, 1500f, this, "shot");
+        if (fired) Sim.Noise(GlobalPosition, 1500f, this, "shot");
         else if (range > 100f) Sim.Noise(GlobalPosition, 200f, this, "step");
         // Hold your fire until the range is right (design doc 15.6): a smooth
         // bore at the edge of its reach mostly throws the ball away, and at

@@ -1031,10 +1031,13 @@ public partial class PlayerController : Agent
 			Say("You raise your hand against men you gave your word to. Whoever saw it will tell it.");
 		}
 		var before = Weapon;
+		bool empty = before == ItemId.Musket && !HasCharge();
 		bool hit = Attack(target);
-		if (before == ItemId.Musket) _oneShotAnim = "shoot";
+		if (before == ItemId.Musket && !empty) _oneShotAnim = "shoot";
+		if (empty && !hit) return "Your horn is empty: no powder for the gun. You can only club with it, close in.";
 		if (hit && target.IsDead && target is Animal dead && dead.IsDangerous) Task.Progress(TaskKind.DriveOffAnimals, 1);
 		string what = Weapon != null ? Items.Items.Of(Weapon.Value).Name : "fists";
+		if (hit && empty) return target.IsDead ? $"{target.Describe()} is dead." : $"No powder: you club {target.Describe()} with the butt of the gun.";
 		if (hit) return target.IsDead ? $"{target.Describe()} is dead." : $"You strike {target.Describe()} with your {what.ToLower()}.";
 		return "Missed.";
 	}

@@ -226,6 +226,7 @@ public static class Posts
             var npc = pop.Spawn(m.DisplayName, m.Role, m.Faction, m.BedCell, m.WorkCell, p.Ledger, m.Frames, m.Tint, m.SpriteScale, m.Female);
             if (m.Age > 0) npc.Age = m.Age;
             m.FillInventory(npc);
+            if (npc.Inventory.Has(Items.ItemId.Musket) && !npc.Inventory.Has(Items.ItemId.Powder)) npc.Inventory.Add(Items.ItemId.Powder);
             if (m.Leader) p.Ledger.Leader = npc;
         }
         if (p.Ledger.Leader == null) Staff(pop, p);   // nobody placed for it in the editor
@@ -290,7 +291,7 @@ public static class Posts
         var clerkFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/ClerkFrames.tres");
         Vector2I In(int i, int j) => IsoGrid.Cell(p.House.Top, i, j);
         var lead = pop.Spawn(master, Role.Postmaster, p.Faction, In(1, 1), p.AccessCell, p.Ledger, clerkFrames, tint);
-        lead.Inventory.Add(Items.ItemId.Musket); lead.Inventory.Add(Items.ItemId.Capote); lead.Inventory.Add(Items.ItemId.Pemmican, 2);
+        lead.Inventory.Add(Items.ItemId.Musket); lead.Inventory.Add(Items.ItemId.Powder); lead.Inventory.Add(Items.ItemId.Capote); lead.Inventory.Add(Items.ItemId.Pemmican, 2);
         p.Ledger.Leader = lead;
         taken.Add(master);
         if (p.StaffClerk || known != null)
@@ -307,7 +308,7 @@ public static class Posts
             taken.Add(name);
             var m = pop.Spawn(name, Role.Labourer, p.Faction, In(1 + i % 5, 3), p.WoodpileCell, p.Ledger, frames, tint);
             m.Inventory.Add(Items.ItemId.Capote); m.Inventory.Add(Items.ItemId.Knife); m.Inventory.Add(Items.ItemId.Pemmican, 2);
-            if (i % 2 == 0) m.Inventory.Add(Items.ItemId.Musket);
+            if (i % 2 == 0) { m.Inventory.Add(Items.ItemId.Musket); m.Inventory.Add(Items.ItemId.Powder); }
         }
     }
 

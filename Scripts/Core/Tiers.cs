@@ -361,8 +361,10 @@ public static class Tiers
         }
         float chance = Mathf.Clamp(site.Count / site.Capacity, 0.05f, 1f) * (0.16f + n.Skills.Hunting * 0.24f);
         if (GD.Randf() >= chance) return;
-        site.Take(SpeciesInfo.PerKill(site.Species, n.Weapon == ItemId.Musket));
-        SpeciesInfo.Yield(site.Species, home.Stores, n.Weapon == ItemId.Musket);
+        // A gun kills cleaner and further, while there is powder for it.
+        bool gun = n.Weapon == ItemId.Musket && n.UseCharge();
+        site.Take(SpeciesInfo.PerKill(site.Species, gun));
+        SpeciesInfo.Yield(site.Species, home.Stores, gun);
         n.Skills.Learn(ref n.Skills.Hunting, 0.004f);
         n.DaysSinceFresh = 0f;
     }

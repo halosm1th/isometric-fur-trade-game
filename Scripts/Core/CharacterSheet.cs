@@ -89,7 +89,7 @@ public static class CharacterSheet
             new("Canadian in Astor's pay", "A voyageur from the St. Lawrence the Americans hired away from the Nor'Westers at Montreal. You know the canoe and the portage, and half the North men by name.",
                 pc => { pc.Skills.Woodcraft = 0.3f; pc.Skills.Hunting = 0.25f; pc.Inventory.Add(ItemId.Tumpline); }),
             new("Kentucky hunter", "You came overland with Mr. Hunt's party, a long rifle and no patience for counting houses. You feed the post, and you know which way is east.",
-                pc => { pc.Skills.Hunting = 0.45f; pc.Skills.Woodcraft = 0.3f; pc.Inventory.Add(ItemId.Musket); }),
+                pc => { pc.Skills.Hunting = 0.45f; pc.Skills.Woodcraft = 0.3f; pc.Inventory.Add(ItemId.Musket); pc.Inventory.Add(ItemId.Powder); }),
         },
         _ => new BackgroundDef[]
         {
@@ -242,7 +242,7 @@ public static class CharacterSheet
         var cousin = pop.Spawn(men[1], Role.CreeHunter, camp.Nation, World.IsoGrid.Cell(c, 3, 2), World.IsoGrid.Cell(c, 3, 1), camp.Ledger, manFrames, Colors.White);
         elder.Age = GD.RandRange(42, 55); cousin.Age = GD.RandRange(17, 24);
         elder.Spouse = woman; woman.Spouse = elder;
-        foreach (var n in new[] { elder, cousin }) { n.Inventory.Add(metis ? ItemId.Musket : ItemId.Bow); n.Inventory.Add(ItemId.Knife); n.Inventory.Add(ItemId.DriedMeat, 3); n.Skills.Seed(0.6f, 0.5f, 0.3f, 0.5f); }
+        foreach (var n in new[] { elder, cousin }) { n.Inventory.Add(metis ? ItemId.Musket : ItemId.Bow); if (metis) n.Inventory.Add(ItemId.Powder); n.Inventory.Add(ItemId.Knife); n.Inventory.Add(ItemId.DriedMeat, 3); n.Skills.Seed(0.6f, 0.5f, 0.3f, 0.5f); }
         woman.Inventory.Add(ItemId.Kettle); woman.Inventory.Add(ItemId.DriedMeat, 3);
         camp.Ledger.Stores.Add(ItemId.DriedMeat, 20); camp.Ledger.Stores.Add(ItemId.Firewood, 12); camp.Ledger.Stores.Add(ItemId.BeaverPelt, 4);
         camp.Ledger.Leader ??= elder;

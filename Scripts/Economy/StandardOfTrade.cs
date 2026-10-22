@@ -29,7 +29,38 @@ public static class StandardOfTrade
 
     // What a good costs at a post: the standard, shaded by how well the post
     // pays for furs (a house that pays more for a pelt asks less for its goods).
-    public static float Price(FortLedger post, ItemId id) => Items.Items.Of(id).ValueMb / Mathf.Clamp(post.PeltPrice, 0.6f, 1.6f);
+    public static float Price(FortLedger post, ItemId id) => Items.Items.Of(id).ValueMb * Carriage(post, id) / Mathf.Clamp(post.PeltPrice, 0.6f, 1.6f);
+
+    // Goods cost more the further they have been carried: the Nor'Westers'
+    // prices in the Athabasca were half again and more what they were at the
+    // lakes; the Bay's standard of trade was set in London and rose far less
+    // inland. Distance from where the company's goods come onto the map
+    // (Economy/Outfits), and by the pound: a kettle rises more than beads.
+    private static readonly Dictionary<(FortLedger, ItemId), float> _carriage = new();
+    public static float Carriage(FortLedger post, ItemId id)
+    {
+        if (_carriage.TryGetValue((post, id), out float f)) return f;
+        var at = World.IsoGrid.ToWorld(post.AccessCell);
+        string[] entries = post.Company switch
+        {
+            Agents.Faction.NWC => new[] { Outfits.Entry },
+            Agents.Faction.American => new[] { "Fort Astoria", "Fort Manuel Lisa" },
+            _ => new[] { "York Factory" },
+        };
+        float km = float.MaxValue;
+        foreach (var e in entries)
+        {
+            var where = e == "York Factory" ? World.WorldLayout.FortCentre : World.Posts.Named(e)?.Centre;
+            if (where is Vector2 w) km = Mathf.Min(km, w.DistanceTo(at) / World.WorldMap.PxPerKm);
+        }
+        if (km == float.MaxValue) km = 0f;
+        float perThousand = post.Company switch { Agents.Faction.NWC => 0.28f, Agents.Faction.American => 0.22f, _ => 0.1f };
+        var d = Items.Items.Of(id);
+        float heavy = Mathf.Clamp(0.5f + d.WeightLbs / Mathf.Max(0.1f, d.ValueMb) * 0.6f, 0.6f, 1.6f);   // pounds carried for each beaver of worth
+        f = 1f + km / 1000f * perThousand * heavy;
+        _carriage[(post, id)] = f;
+        return f;
+    }
 
     // The furs a camp has to sell: pelts, and the robes beyond one a head kept for its own beds.
     public static List<(ItemId, int)> FursFor(BandLedger b)

@@ -22,7 +22,7 @@ public partial class Ship : Node2D
     public readonly Inventory Hold = new();    // furs taken aboard
     public readonly List<Npc> Crew = new();
 
-    [Export] public float SailSpeed = 90f;   // px/s at normal time
+    [Export] public float SailSpeed = 90f;   // px a real second at the normal clock (GameCalendar.NormalSecondsPerGameHour)
     private Sprite2D _sprite;
     private Population _population;
     private float _dockedHours;
@@ -191,8 +191,11 @@ public partial class Ship : Node2D
 	{
 		var cal = GameCalendar.Instance;
 		if (cal == null || !Net.Net.IsServer) return;
-		// Sailing speed follows game time so a skip still brings her in.
-		float step = SailSpeed * cal.DeltaGameHours * cal.SecondsPerGameHour;
+		// She sails in game time, at the pace she makes at the normal clock:
+		// at any clock - the test clock, a skip, a slow day - she stands in
+		// over the same hours (once she sailed by the real second, and at a
+		// fast clock took three weeks to berth while the inland posts starved).
+		float step = SailSpeed * GameCalendar.NormalSecondsPerGameHour * cal.DeltaGameHours;
 
 		switch (Current)
 		{
