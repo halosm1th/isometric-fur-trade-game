@@ -1019,7 +1019,7 @@ public partial class Npc : Agent
         // Say what took him: a death nobody can account for is no use to
         // anybody (design doc P.4).
         string cause = DeathCause != null ? DeathCause
-            : LastAttacker != null && LastAttackedAgo < 30f ? $"killed by {LastAttacker.Describe()}"
+            : Killer != null ? $"killed by {Killer.Describe()}"
             : IsSick ? "of the fever"
             : HasScurvy ? "of the scurvy"
             : Needs.Warmth <= 1f ? "of the cold"
@@ -1027,14 +1027,14 @@ public partial class Npc : Agent
             : "of want";
         // A quiet death is told by whoever caused it (the daily batch says what took him), not twice.
         if (!_quietDeath) Sim.Notice($"{DisplayName} has died {cause}.");
-        string how = DeathCause == null && LastAttacker != null && LastAttackedAgo < 30f ? $"{DisplayName} was killed by {LastAttacker.Describe()}." : $"{DisplayName} died {cause}.";
-        Chronicle.Event(how, GlobalPosition, LastAttacker != null && LastAttackedAgo < 30f ? LastAttacker : null, DisplayName, 2f);
-        if (IsBandPerson && LastAttacker != null && LastAttackedAgo < 30f) (HomeStores as BandLedger)?.OnMemberKilledBy(LastAttacker);
+        string how = DeathCause == null && Killer != null ? $"{DisplayName} was killed by {Killer.Describe()}." : $"{DisplayName} died {cause}.";
+        Chronicle.Event(how, GlobalPosition, Killer, DisplayName, 2f);
+        if (IsBandPerson && Killer != null) (HomeStores as BandLedger)?.OnMemberKilledBy(Killer);
         // Fights are won before the first shot (design doc 15.6): a man down is
         // where a party's nerve usually goes.
-        if (LastAttacker != null && LastAttackedAgo < 30f) Nerve.TheyBreak(this, LastAttacker);
+        if (Killer != null) Nerve.TheyBreak(this, Killer);
         // Blood debts (design doc 7.4): a killing makes one, a killer's death pays one, a holder's death passes one on.
-        if (LastAttacker != null && LastAttackedAgo < 30f) Grudges.OnKilled(this, LastAttacker);
+        if (Killer != null) Grudges.OnKilled(this, Killer);
         foreach (var g in new List<Grudge>(Grudges.All)) if (!g.Settled && g.Against == DisplayName) { Grudges.Settle(g, true); Sim.Notice($"{DisplayName} is dead; the debt for {g.Victim} is paid in blood."); }
         Grudges.OnHolderDied(this);
         if (Spouse is Npc widow) widow.Spouse = null;
