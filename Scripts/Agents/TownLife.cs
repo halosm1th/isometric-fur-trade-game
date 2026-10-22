@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using IsometricFurTradeGame.Scripts.Agents.Goals;
 using IsometricFurTradeGame.Scripts.Core;
+using IsometricFurTradeGame.Scripts.Economy;
 using IsometricFurTradeGame.Scripts.Items;
 using IsometricFurTradeGame.Scripts.World;
 using static IsometricFurTradeGame.Scripts.Agents.Goals.ChoreGoal;
@@ -45,7 +46,7 @@ public static class TownLife
 
     // Whatever of the house's goods someone has in their arms goes into the
     // house: what a chore cut off short leaves behind (ChoreGoal.Abandon).
-    private static readonly ItemId[] Carried = { ItemId.Bread, ItemId.Flour, ItemId.Grain, ItemId.Wheat, ItemId.Corn, ItemId.Roots, ItemId.Fish, ItemId.Venison, ItemId.DriedMeat, ItemId.Pemmican };
+    private static readonly ItemId[] Carried = { ItemId.Coin, ItemId.Bread, ItemId.Flour, ItemId.Grain, ItemId.Wheat, ItemId.Corn, ItemId.Roots, ItemId.Fish, ItemId.Venison, ItemId.DriedMeat, ItemId.Pemmican };
     private static ChoreGoal SetDownAt(this ChoreGoal g, TownHousehold home)
     {
         g.Abandon = n => { foreach (var id in Carried) { int k = n.Inventory.Count(id); if (k > 0) home.Stores.Add(id, n.Inventory.TakeUpTo(id, k)); } };
@@ -150,19 +151,25 @@ public static class TownLife
                 var market = home.Town.Market;
                 var seed = Fields.Seed(plot.Crop);
                 return new ChoreGoal($"buy seed {crop}",
+                    Walk("take money from the box", home.AccessCell, 100f),
+                    Do(n => { n.Inventory.Add(ItemId.Coin, home.Stores.TakeUpTo(ItemId.Coin, 120)); }),
                     Walk($"go to market for seed {crop}", Spot(npc, market.AccessCell), 50f),
                     Do(n =>
                     {
-                        // As much as the unsown ground wants and he can carry.
+                        // As much as the unsown ground wants, he can carry and can pay for.
                         int want = 0;
                         foreach (var q in farm.Plots) if (q.Crop == plot.Crop && q.Stage is PlotStage.Stubble or PlotStage.Ploughed) want += Fields.SeedPer(q.Crop);
                         want = Mathf.Max(0, want - home.Stores.Count(seed));
-                        int k = market.Stores.TakeUpTo(seed, Mathf.Min(want, Mathf.FloorToInt((n.CarryCapacityLbs - n.Inventory.TotalWeightLbs) / Items.Items.Of(seed).WeightLbs)));
+                        int price = Money.Price(market, seed);
+                        int k = Mathf.Min(market.Stores.Count(seed), Mathf.Min(want, Mathf.FloorToInt((n.CarryCapacityLbs - n.Inventory.TotalWeightLbs) / Items.Items.Of(seed).WeightLbs)));
+                        k = Mathf.Min(k, (n.Inventory.Count(ItemId.Coin) + Mathf.Max(0, Money.CreditLimit(home) - Money.Owed(home))) / Mathf.Max(1, price));
+                        if (k <= 0 || !Money.Pay(n, home, market, k * price)) return false;
+                        market.Stores.Remove(seed, k);
                         n.Inventory.Add(seed, k);
-                        return k > 0;
+                        return true;
                     }),
                     Walk($"carry the seed {crop} home", home.AccessCell, 100f),
-                    Do(n => { home.Stores.Add(seed, n.Inventory.TakeUpTo(seed, 9999)); })).SetDownAt(home);
+                    Do(n => { home.Stores.Add(seed, n.Inventory.TakeUpTo(seed, 9999)); SetDown(n, home); })).SetDownAt(home);
             }
             case "hoe":
                 return new ChoreGoal($"hoe the {crop}",
@@ -198,7 +205,9 @@ public static class TownLife
 
     private static string Reaping(Crop c) => c switch { Crop.Wheat => "reap and bind the wheat", Crop.Corn => "pick the corn", _ => "dig the potatoes" };
 
-    // A load of the surplus on his back to the market, and left there.
+    // A load of the surplus on his back to the market, sold for what the
+    // merchants will pay, and the money - and whatever they could not pay
+    // for - carried home again.
     private static Goal ToMarket(Npc npc, TownHousehold home)
     {
         var market = home.Town?.Market;
@@ -209,7 +218,7 @@ public static class TownLife
             Do(n =>
             {
                 int left = Fields.Surplus(home);
-                foreach (var id in Fields.Sellable)
+                foreach (var id in Fields.SellOrder(market))
                 {
                     if (left <= 0) break;
                     float room = n.CarryCapacityLbs - n.Inventory.TotalWeightLbs;
@@ -220,7 +229,9 @@ public static class TownLife
             }),
             Walk("carry the grain to market", Spot(npc, market.AccessCell), 50f),
             Work("selling at the market", 0.4f),
-            Do(n => { foreach (var (id, k) in load) market.Stores.Add(id, n.Inventory.TakeUpTo(id, k)); })).SetDownAt(home);
+            Do(n => { foreach (var (id, k) in load) SellTo(n, market, id, k, home); }),
+            Walk("carry the money home", home.AccessCell, 100f),
+            Do(n => SetDown(n, home))).SetDownAt(home);
     }
 
     private static Goal Rest(Npc npc, TownHousehold home) =>
@@ -228,8 +239,17 @@ public static class TownLife
 
     // ---- the woman of the house ---------------------------------------------------------
 
-    // Who went to market today for each house, so two don't go.
-    private static readonly Dictionary<TownHousehold, int> _marketing = new();
+    // Trips to market today for each house: one for a family, a party of
+    // several for a garrison - a basket feeds about eight for a week.
+    private static readonly Dictionary<TownHousehold, (int day, int trips)> _marketing = new();
+    private static bool MayGoToMarket(TownHousehold home, int mouths)
+    {
+        var (day, trips) = _marketing.GetValueOrDefault(home);
+        if (day != Today) trips = 0;
+        if (trips >= Mathf.Max(1, mouths / 8)) return false;
+        _marketing[home] = (Today, trips + 1);
+        return true;
+    }
     private static readonly Dictionary<Npc, int> _washed = new(), _gardened = new();
     private static int Today => Cal?.Day + (Cal?.Month ?? 0) * 31 + (Cal?.Year ?? 0) * 400 ?? 0;
 
@@ -274,8 +294,82 @@ public static class TownLife
                 Walk("carry them in", home.AccessCell, 100f),
                 Do(n => { home.Stores.Add(ItemId.Roots, n.Inventory.TakeUpTo(ItemId.Roots, 9999)); })).SetDownAt(home);
         }
+        // Money to spare: store goods from the market, once a week.
+        if (StoreGoods(npc, home) is { } goods) return goods;
+        // Once a week, if there is money in the box, work for a tradesman: the
+        // kettle mended, a barrel made, shoes soled - paid at his door.
+        if (Errand(npc, home) is { } errand) return errand;
         // And the endless rest of it: mending, spinning, the children.
         return new ChoreGoal("mend and spin", Walk("go in", home.AccessCell, 100f), Work("mend and spin by the fire", 1.5f));
+    }
+
+    private static readonly Dictionary<TownHousehold, int> _errandWeek = new(), _goodsWeek = new();
+
+    // What a house keeps by against a lean week: a fortnight's bread, and a
+    // few shillings. Anything over it may be spent.
+    private static int Reserve(TownHousehold home) => Mathf.Max(1, home.Alive()) * 14 * 5 + 60;
+    private static int SpendOnGoods(TownHousehold home)
+    {
+        var market = home.Town?.Market;
+        if (market == null || home == market || Money.Owed(home) > 0) return 0;
+        int spare = home.Stores.Count(ItemId.Coin) - Reserve(home);
+        int price = Money.Price(market, ItemId.TradeGoods);
+        return spare < price ? 0 : Mathf.Min(market.Stores.Count(ItemId.TradeGoods), spare / 2 / price);
+    }
+    private static Goal StoreGoods(Npc npc, TownHousehold home)
+    {
+        int week = Today / 7;
+        if (_goodsWeek.GetValueOrDefault(home) == week || Hash(npc, Today) % 4 != 0) return null;
+        int n = SpendOnGoods(home);
+        if (n <= 0) return null;
+        _goodsWeek[home] = week;
+        var market = home.Town.Market;
+        int price = Money.Price(market, ItemId.TradeGoods);
+        return new ChoreGoal("buy store goods",
+            Walk("take money from the box", home.AccessCell, 100f),
+            Do(m => { m.Inventory.Add(ItemId.Coin, home.Stores.TakeUpTo(ItemId.Coin, n * price)); }),
+            Walk("go to the store", Spot(npc, market.AccessCell), 50f),
+            Work("choosing cloth and tea at the store", 0.5f),
+            Do(m => { int k = Mathf.Min(n, Mathf.Min(market.Stores.Count(ItemId.TradeGoods), m.Inventory.Count(ItemId.Coin) / price)); if (k > 0 && Money.Pay(m, null, market, k * price)) { market.Stores.Remove(ItemId.TradeGoods, k); m.Inventory.Add(ItemId.TradeGoods, k); } }),
+            Walk("carry the parcels home", home.AccessCell, 100f),
+            Do(m => { home.Stores.Add(ItemId.TradeGoods, m.Inventory.TakeUpTo(ItemId.TradeGoods, 9999)); SetDown(m, home); })).SetDownAt(home);
+    }
+
+    // Day labour: a town labourer hires out to whoever will pay - a merchant
+    // for portering at his store, any day; a farm at the harvest, August to
+    // October - eighteen pence for the day, paid at the end of it.
+    private static TownHousehold Hiring(Npc npc, TownHousehold home)
+    {
+        var who = new List<TownHousehold>();
+        bool harvest = Cal.Month >= 8 && Cal.Month <= 10;
+        foreach (var h in home.Town.Houses.Values)
+        {
+            if (h == home || h.Stores.Count(ItemId.Coin) < Reserve(h) + DayWage) continue;
+            if (harvest && Fields.IsFarm(h)) who.Add(h);
+            else foreach (var m in h.Members) if (m.Role == Role.Merchant && !m.IsDead) { who.Add(h); break; }
+        }
+        return who.Count == 0 ? null : who[Hash(npc, Today) % who.Count];
+    }
+    public const int DayWage = 18;
+    private static TownHousehold Tradesman(TownHousehold home, Npc npc)
+    {
+        var shops = new List<TownHousehold>();
+        foreach (var h in home.Town.Houses.Values) if (h != home && h.Building.Kind == BuildingKind.Workshop) shops.Add(h);
+        return shops.Count == 0 ? null : shops[Hash(npc, Today / 7) % shops.Count];
+    }
+    private static Goal Errand(Npc npc, TownHousehold home)
+    {
+        int week = Today / 7;
+        if (_errandWeek.GetValueOrDefault(home) == week || home.Stores.Count(ItemId.Coin) < 60 || Hash(npc, Today) % 5 != 0) return null;
+        if (Tradesman(home, npc) is not { } shop) return null;
+        _errandWeek[home] = week;
+        return new ChoreGoal($"go to {shop.Building.Name}",
+            Walk("take money from the box", home.AccessCell, 100f),
+            Do(n => { n.Inventory.Add(ItemId.Coin, home.Stores.TakeUpTo(ItemId.Coin, 12)); }),
+            Walk($"go to {shop.Building.Name}", Spot(npc, shop.AccessCell), 60f),
+            Work($"wait while the work is done at {shop.Building.Name}", 0.6f),
+            Do(n => { shop.Stores.Add(ItemId.Coin, n.Inventory.TakeUpTo(ItemId.Coin, 12)); }),
+            Walk("go home", home.AccessCell, 100f)).SetDownAt(home);
     }
 
     // The house's own garden bed: the nearest garden ground to its door.
@@ -300,34 +394,72 @@ public static class TownLife
         if (market == null || home == market || home.FoodDays(mouths) >= 7f) return null;
         // Each house has its own hour for the market, so the town isn't all there at once.
         if (Hour < 8f + Hash(npc, 5) % 8) return null;
-        if (_marketing.GetValueOrDefault(home) == Today) return null;
-        _marketing[home] = Today;
+        if (!MayGoToMarket(home, mouths)) return null;
         var got = new List<(ItemId, int)>();
-        return new ChoreGoal("go to market",
+        return new ChoreGoal(home.Key == "garrison" ? "draw provisions at the market" : "go to market",
+            Walk("take money from the box", home.AccessCell, 100f),
+            Do(n => { n.Inventory.Add(ItemId.Coin, home.Stores.TakeUpTo(ItemId.Coin, Purse(home, mouths))); }),
             Walk("go to market", Spot(npc, market.AccessCell), 50f),
-            Do(n => Buy(n, market, mouths * 7, got) > 0),
+            Do(n => { Money.PayDown(home, n, market); return Buy(n, market, mouths * 7, got, home) > 0; }),
             Work("haggle at the market", 0.4f),
             Walk("carry the marketing home", home.AccessCell, 100f),
-            Do(n => { foreach (var (id, k) in got) home.Stores.Add(id, n.Inventory.TakeUpTo(id, k)); })).SetDownAt(home);
+            Do(n => SetDown(n, home))).SetDownAt(home);
     }
 
     // What a basket holds from the market: bread first, then meal and wheat
     // to bake, corn and potatoes - as many pieces as the house wants and the
     // buyer can carry. Into the buyer's own pack; `got` says what.
-    private static readonly ItemId[] MarketFood = { ItemId.Bread, ItemId.Flour, ItemId.Grain, ItemId.Roots, ItemId.Corn, ItemId.Fish, ItemId.Venison, ItemId.DriedMeat, ItemId.Pemmican };
-    public static int Buy(Npc buyer, TownHousehold market, int want, List<(ItemId, int)> got)
+    private static readonly ItemId[] MarketFood = { ItemId.Roots, ItemId.Bread, ItemId.Flour, ItemId.Grain, ItemId.Corn, ItemId.Fish, ItemId.Venison, ItemId.DriedMeat, ItemId.Pemmican };
+    // Each lot paid for at the market's price out of the buyer's pocket, or
+    // on the house's account while it has credit (Economy/Money).
+    public static int Buy(Npc buyer, TownHousehold market, int want, List<(ItemId, int)> got, TownHousehold house = null)
     {
         int total = 0;
+        // A third of it potatoes and roots, first: they are what keeps a town
+        // clear of the scurvy that a house on bread alone gets.
+        int rootsWant = want / 3;
         foreach (var id in MarketFood)
         {
             if (want <= 0) break;
             float room = buyer.CarryCapacityLbs - buyer.Inventory.TotalWeightLbs;
-            int k = market.Stores.TakeUpTo(id, Mathf.Min(want, Mathf.FloorToInt(room / Items.Items.Of(id).WeightLbs)));
-            if (k <= 0) continue;
+            int cap = id == ItemId.Roots ? Mathf.Max(1, rootsWant) : want;
+            int k = Mathf.Min(market.Stores.Count(id), Mathf.Min(cap, Mathf.FloorToInt(room / Items.Items.Of(id).WeightLbs)));
+            int price = Money.Price(market, id);
+            // As many as can be paid for, cash first and then the book.
+            int afford = (buyer.Inventory.Count(ItemId.Coin) + (house == null ? 0 : Mathf.Max(0, Money.CreditLimit(house) - Money.Owed(house)))) / Mathf.Max(1, price);
+            k = Mathf.Min(k, afford);
+            if (k <= 0 || !Money.Pay(buyer, house, market, k * price)) continue;
+            market.Stores.Remove(id, k);
             buyer.Inventory.Add(id, k); got.Add((id, k));
             want -= id == ItemId.Flour ? k * Fields.LoavesPerMeal : k; total += k;
+            if (id == ItemId.Roots) rootsWant = 0;
         }
         return total;
+    }
+
+    // What the house sends to market with: enough for a week's food at
+    // ordinary prices, and what it owes the store.
+    private static int Purse(TownHousehold home, int mouths) => mouths * 7 * 5 + Money.Owed(home);
+
+    // Selling k of a thing to the merchants: paid in coin as far as the till
+    // goes, and the rest in store pay to the seller's house (Economy/Money).
+    public static int SellTo(Npc seller, TownHousehold market, ItemId id, int k, TownHousehold house = null)
+    {
+        int price = Money.BuyPrice(market, id);
+        k = Mathf.Min(k, seller.Inventory.Count(id));
+        if (house == null) k = Mathf.Min(k, market.Stores.Count(ItemId.Coin) / Mathf.Max(1, price));
+        if (k <= 0) return 0;
+        market.Stores.Add(id, seller.Inventory.TakeUpTo(id, k));
+        int coin = market.Stores.TakeUpTo(ItemId.Coin, k * price);
+        seller.Inventory.Add(ItemId.Coin, coin);
+        Money.CreditTo(house, k * price - coin);
+        return k;
+    }
+
+    // Everything of the house's in someone's arms, put away in the house.
+    private static void SetDown(Npc n, TownHousehold home)
+    {
+        foreach (var id in Carried) { int k = n.Inventory.Count(id); if (k > 0) home.Stores.Add(id, n.Inventory.TakeUpTo(id, k)); }
     }
 
     // The same trip out of sight (Core/Tiers, once a day for each person):
@@ -336,13 +468,14 @@ public static class TownLife
     public static void Provision(TownHousehold home, Npc shopper)
     {
         var market = home.Town?.Market;
-        if (market == null || home == market || shopper.Role is Role.Soldier or Role.Officer || shopper.Role == Role.Child && shopper.Age < 10) return;
+        if (market == null || home == market || shopper.Role == Role.Officer || shopper.Role == Role.Child && shopper.Age < 10) return;
         int mouths = Mathf.Max(1, home.Alive());
-        if (home.FoodDays(mouths) >= 7f || _marketing.GetValueOrDefault(home) == Today) return;
-        _marketing[home] = Today;
+        if (home.FoodDays(mouths) >= 7f || !MayGoToMarket(home, mouths)) return;
         var got = new List<(ItemId, int)>();
-        Buy(shopper, market, mouths * 7, got);
-        foreach (var (id, k) in got) home.Stores.Add(id, shopper.Inventory.TakeUpTo(id, k));
+        shopper.Inventory.Add(ItemId.Coin, home.Stores.TakeUpTo(ItemId.Coin, Purse(home, mouths)));
+        Money.PayDown(home, shopper, market);
+        Buy(shopper, market, mouths * 7, got, home);
+        SetDown(shopper, home);
     }
 
     // A day of the house's work in a sum, for a woman out of sight: the
@@ -352,6 +485,24 @@ public static class TownLife
         int mouths = Mathf.Max(1, home.Alive());
         if (home.Stores.Count(ItemId.Bread) < mouths * 4) home.Stores.Add(ItemId.Bread, home.Stores.TakeUpTo(ItemId.Flour, 6) * Fields.LoavesPerMeal);
         if (home.Stores.Count(ItemId.Flour) < 6) home.Stores.Add(ItemId.Flour, home.Stores.TakeUpTo(ItemId.Grain, Mathf.Min(6, Grindable(home))));
+        int week = Today / 7;
+        // Store goods, if there is money to spare, through her own pocket.
+        if (_goodsWeek.GetValueOrDefault(home) != week && SpendOnGoods(home) is var g and > 0 && home.Town.Market is { } mk)
+        {
+            _goodsWeek[home] = week;
+            int price = Money.Price(mk, ItemId.TradeGoods);
+            npc.Inventory.Add(ItemId.Coin, home.Stores.TakeUpTo(ItemId.Coin, g * price));
+            if (Money.Pay(npc, null, mk, g * price)) { mk.Stores.Remove(ItemId.TradeGoods, g); npc.Inventory.Add(ItemId.TradeGoods, g); }
+            home.Stores.Add(ItemId.TradeGoods, npc.Inventory.TakeUpTo(ItemId.TradeGoods, 9999));
+            SetDown(npc, home);
+        }
+        // The week's errand to a tradesman, through her own pocket.
+        if (_errandWeek.GetValueOrDefault(home) != week && home.Stores.Count(ItemId.Coin) >= 60 && Tradesman(home, npc) is { } shop)
+        {
+            _errandWeek[home] = week;
+            npc.Inventory.Add(ItemId.Coin, home.Stores.TakeUpTo(ItemId.Coin, 12));
+            shop.Stores.Add(ItemId.Coin, npc.Inventory.TakeUpTo(ItemId.Coin, 12));
+        }
     }
 
     // The wheat the house may grind: all of it, less a farm's seed.
@@ -367,6 +518,28 @@ public static class TownLife
         switch (npc.Role)
         {
             case Role.Merchant:
+                // First thing, money for a till that has run low; at the end of
+                // the day, his share of what is over carried home.
+                if (Hour < 10f && home.Town.Market is { } low && Stake(npc, home) is var stake and > 0 && _takings.GetValueOrDefault(npc) != -Today)
+                {
+                    _takings[npc] = -Today;
+                    return new ChoreGoal("take money to the till",
+                        Walk("take money from the box", home.AccessCell, 100f),
+                        Do(n => { n.Inventory.Add(ItemId.Coin, home.Stores.TakeUpTo(ItemId.Coin, stake)); }),
+                        Walk("take money to the market house", Spot(npc, low.AccessCell), 50f),
+                        Do(n => { low.Stores.Add(ItemId.Coin, n.Inventory.TakeUpTo(ItemId.Coin, stake)); })).SetDownAt(home);
+                }
+                // At the end of the day, his share of the market's till carried home.
+                if (Hour >= 16.5f && _takings.GetValueOrDefault(npc) != Today && home.Town.Market is { } till)
+                {
+                    _takings[npc] = Today;
+                    return new ChoreGoal("carry the day's takings home",
+                        Walk("go to the market house", Spot(npc, till.AccessCell), 50f),
+                        Work("count the till", 0.3f),
+                        Do(n => { n.Inventory.Add(ItemId.Coin, till.Stores.TakeUpTo(ItemId.Coin, Takings(n, home))); }),
+                        Walk("carry the takings home", home.AccessCell, 100f),
+                        Do(n => SetDown(n, home))).SetDownAt(home);
+                }
                 return new ChoreGoal("keep the store", Walk("open the store", npc.WorkCell, 60f), Work("behind the counter", 2f));
             case Role.Artisan:
                 return new ChoreGoal("at his trade", Walk("go to the shop", npc.WorkCell, 60f), Work(Trade(npc), 2f));
@@ -382,6 +555,52 @@ public static class TownLife
                 return new ChoreGoal("at the orderly room", Walk("go to the orderly room", npc.WorkCell, 60f), Work("at the orderly room", 2f));
         }
         return null;
+    }
+
+    // The merchants own the market's stock between them: each takes home his
+    // share of whatever the till holds over its float, once a day.
+    private static readonly Dictionary<Npc, int> _takings = new();
+    private static int Takings(Npc merchant, TownHousehold home)
+    {
+        var market = home.Town.Market;
+        int merchants = 0;
+        foreach (var h in home.Town.Houses.Values) foreach (var m in h.Members) if (m.Role == Role.Merchant && !m.IsDead) merchants++;
+        int over = market.Stores.Count(ItemId.Coin) - Float(home.Town);
+        return over <= 0 ? 0 : over / 4 / Mathf.Max(1, merchants);
+    }
+
+    // A till below half its float: the merchants make it up out of their own
+    // boxes, each his share, so they can go on buying.
+    private static int Float(Town t) => 400 + t.Houses.Count * 20;
+    private static int Stake(Npc merchant, TownHousehold home)
+    {
+        int merchants = 0;
+        foreach (var h in home.Town.Houses.Values) foreach (var m in h.Members) if (m.Role == Role.Merchant && !m.IsDead) merchants++;
+        int short_ = Float(home.Town) - home.Town.Market.Stores.Count(ItemId.Coin);
+        return short_ <= 0 ? 0 : Mathf.Min(home.Stores.Count(ItemId.Coin) - 120, short_ / Mathf.Max(1, merchants));
+    }
+
+    private static readonly Dictionary<Npc, int> _hired = new();
+
+    // A town labourer's day out of sight: hired at the harvest if a farm
+    // will pay, the wage carried home in his own pocket.
+    public static void LabourerDay(Npc npc, TownHousehold home)
+    {
+        if (Fields.IsFarm(home) || home.Building.Kind is BuildingKind.Store or BuildingKind.Workshop || Weekday == DayOfWeek.Sunday) return;
+        if (Hiring(npc, home) is not { } farm || _hired.GetValueOrDefault(npc) == Today) return;
+        _hired[npc] = Today;
+        npc.Inventory.Add(ItemId.Coin, farm.Stores.TakeUpTo(ItemId.Coin, DayWage));
+        SetDown(npc, home);
+    }
+
+    // Out of sight: the same walks, in the day's sum.
+    public static void MerchantDay(Npc merchant, TownHousehold home)
+    {
+        if (home.Town.Market is not { } till || _takings.GetValueOrDefault(merchant) == Today) return;
+        _takings[merchant] = Today;
+        if (Stake(merchant, home) is var stake and > 0) { merchant.Inventory.Add(ItemId.Coin, home.Stores.TakeUpTo(ItemId.Coin, stake)); till.Stores.Add(ItemId.Coin, merchant.Inventory.TakeUpTo(ItemId.Coin, stake)); }
+        merchant.Inventory.Add(ItemId.Coin, till.Stores.TakeUpTo(ItemId.Coin, Takings(merchant, home)));
+        SetDown(merchant, home);
     }
 
     // A tradesman's work, by the name of his shop where it says.
@@ -411,12 +630,32 @@ public static class TownLife
         if (kind == BuildingKind.Store) return new ChoreGoal("clerking in the store", Walk("go to the store", npc.WorkCell, 60f), Work("clerking in the store", 2f));
         if (kind == BuildingKind.Workshop) return new ChoreGoal("an apprentice at the trade", Walk("go to the shop", npc.WorkCell, 60f), Work($"{Trade(npc)}, learning the trade", 2f));
         if (home.Stores.Count(ItemId.Firewood) < 30) return new ChopWoodGoal();
+        if (Hour < 9f && Hiring(npc, home) is { } farm && _hired.GetValueOrDefault(npc) != Today)
+        {
+            _hired[npc] = Today;
+            bool field = Fields.IsFarm(farm);
+            var plot = field ? Fields.Of(farm)?.Plots.Find(p => p.Stage is PlotStage.Ripe or PlotStage.Stooked) : null;
+            return new ChoreGoal(field ? $"hired for the harvest at {farm.Building.Name}" : $"portering at {farm.Building.Name}",
+                Walk($"go to {farm.Building.Name} for a day's work", plot?.Cell ?? Spot(npc, farm.AccessCell), 80f),
+                Work(field ? "a hired hand at the harvest" : $"carrying goods at {farm.Building.Name}", 6f),
+                Do(n => { n.Inventory.Add(ItemId.Coin, farm.Stores.TakeUpTo(ItemId.Coin, DayWage)); }),
+                Walk("walk home with the day's wage", home.AccessCell, 100f),
+                Do(n => SetDown(n, home))).SetDownAt(home);
+        }
         // Carting: a load to somebody's door somewhere in the town, and back.
         var blds = home.Town.Buildings;
         if (blds.Count > 0 && Hash(npc, Cal.Day * 24 + (int)Hour) % 3 == 0)
         {
-            var to = blds[Hash(npc, Cal.Day * 31 + (int)Hour) % blds.Count].Def;
-            return new ChoreGoal("carting in the town", Walk($"cart a load to {to.Name}", Spot(npc, to.DoorCell), 60f), Work($"unloading at {to.Name}", 0.5f), Walk("back with the empty cart", home.AccessCell, 100f));
+            var b = blds[Hash(npc, Cal.Day * 31 + (int)Hour) % blds.Count];
+            var to = b.Def;
+            // Whoever the load is for pays the carter fourpence at the door.
+            var payer = Towns.House(home.Town.Name + "|" + b.Home.Split(';')[0]);
+            return new ChoreGoal("carting in the town",
+                Walk($"cart a load to {to.Name}", Spot(npc, to.DoorCell), 60f),
+                Work($"unloading at {to.Name}", 0.5f),
+                Do(n => { if (payer != null && payer != home) n.Inventory.Add(ItemId.Coin, payer.Stores.TakeUpTo(ItemId.Coin, 4)); }),
+                Walk("back with the empty cart", home.AccessCell, 100f),
+                Do(n => SetDown(n, home))).SetDownAt(home);
         }
         return new ChoreGoal("odd jobs", Walk("look for work", npc.WorkCell, 80f), Work("at odd jobs about the town", 1.5f));
     }
@@ -431,6 +670,7 @@ public static class TownLife
         // Morning parade: the whole garrison on the square, eight till nine.
         if (Hour >= 8f && Hour < 9f && !(sentry && onDuty)) return new ChoreGoal("on parade", Walk("fall in for parade", npc.WorkCell, 50f), Work("on parade", 9f - Hour));
         if (onDuty) return new ChoreGoal(sentry ? "on sentry" : "at drill", Walk(sentry ? "relieve the sentry" : "fall in for drill", npc.WorkCell, 50f), Work(sentry ? "on sentry" : "at drill", 1f));
+        if (Shopping(npc, home, Mathf.Max(1, home.Alive())) is { } party) return party;
         if (home.Stores.Count(ItemId.Firewood) < 30 && Hash(npc, Cal.Day) % 3 == 0) return new ChopWoodGoal();
         return new ChoreGoal("off duty", Walk("back to the barracks", home.AccessCell, 120f), Work("cleaning his musket and kit", 1f));
     }

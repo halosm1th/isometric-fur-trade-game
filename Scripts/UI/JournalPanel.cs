@@ -210,6 +210,8 @@ public partial class JournalPanel : Control
         sb.AppendLine($"[b]Load[/b] {_player.Inventory.TotalWeightLbs:0} / {_player.CarryCapacityLbs:0} lb{(_player.IsOverloaded ? "  [color=#f88](overloaded - you are slow and hungry)[/color]" : "")}");
         sb.AppendLine($"[b]In hand[/b] {(_player.Weapon != null ? Items.Items.Of(_player.Weapon.Value).Name : "nothing")}     [b]Worn[/b] warmth {_player.Inventory.ClothingWarmth:0}");
         sb.AppendLine($"[b]Worth[/b] {_player.Inventory.TotalValueMb:0.#} MB in all     [b]Cree[/b] {(_player.CreeFluency >= 0.7f ? "fluent" : _player.CreeFluency >= 0.4f ? "getting by" : _player.CreeFluency >= 0.3f ? "a few words" : "signs only")} ({_player.CreeFluency:0.00})   [b]Nakoda[/b] {(_player.AssiniboineFluency >= 0.7f ? "fluent" : _player.AssiniboineFluency >= 0.4f ? "getting by" : _player.AssiniboineFluency >= 0.3f ? "a few words" : "signs only")} ({_player.AssiniboineFluency:0.00})");
+        // Coin of the towns (Economy/Money), as a town would write it.
+        if (_player.Inventory.Count(Items.ItemId.Coin) > 0) sb.AppendLine($"[b]Money[/b] {Economy.Money.Format(_player.Inventory.Count(Items.ItemId.Coin), _player.Faction == Agents.Faction.American)}");
         sb.AppendLine($"[color=#998]Skills, body and standing are on the Yourself page ({Core.Keybinds.KeyFor("character")}).[/color]");
         foreach (var g in Grudges.Against(_player.DisplayName)) sb.AppendLine($"[color=#f88]Blood debt:[/color] {g.Holder} holds you to account for {g.Victim} - {g.DebtMb:0} MB would settle it.");
         if (_player.Mail.Count > 0)

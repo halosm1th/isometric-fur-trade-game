@@ -66,6 +66,15 @@ public partial class Conversation
         return plan;
     }
 
+    // What someone is visibly about, for a greeting: the innermost goal that
+    // is not a spell of waiting or a walk.
+    private static string Doing(Npc npc)
+    {
+        var st = npc.Brain.Stack;
+        for (int i = st.Count - 1; i >= 0; i--) { var l = st[i].Label; if (!Idle(l)) return l; }
+        return "";
+    }
+
     private static bool Idle(string label) => label == "" || label == "about" || label.StartsWith("wait") || label == "on their way somewhere" || label == "sitting by the fire";
 
     // What sort of thing a goal is, for a man who can only sense it.

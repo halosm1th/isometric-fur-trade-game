@@ -243,7 +243,7 @@ public static class Tiers
             case Role.Voyageur:
                 // A town's labourer is a carter, a boatman, a porter on wages: he
                 // brings in the house's wood and buys his bread, he does not hunt.
-                if (home is World.TownHousehold) { if (home.Stores.Count(ItemId.Firewood) < 30) home.Stores.Add(ItemId.Firewood, 4); break; }
+                if (home is World.TownHousehold th) { if (home.Stores.Count(ItemId.Firewood) < 30) home.Stores.Add(ItemId.Firewood, 4); TownLife.LabourerDay(n, th); break; }
                 Work(n, home);
                 break;
             case Role.CreeHunter:
@@ -267,6 +267,8 @@ public static class Tiers
                 // The garrison's fatigue parties and the townsmen bring in their own wood;
                 // the rest of the day is the trade, which feeds the house through the market.
                 if (home.Stores.Count(ItemId.Firewood) < 30) home.Stores.Add(ItemId.Firewood, 4);
+                // A merchant's share of the market's till, carried home (Economy/Money).
+                if (n.Role == Role.Merchant && home is World.TownHousehold mh) TownLife.MerchantDay(n, mh);
                 break;
             case Role.Factor:
             case Role.Postmaster:

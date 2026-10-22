@@ -70,6 +70,9 @@ public enum ItemId
     Wheat,
     Grain,
     Flour,
+    // Coin of the towns (Economy/Money): one is a penny of Halifax currency,
+    // shown as shillings and pence, or dollars and cents in an American town.
+    Coin,
 }
 
 public enum ItemKind { Food, Drink, Fuel, Clothing, Fur, Goods, Weapon, Tool }
@@ -107,6 +110,7 @@ public static class Items
         { ItemId.Wheat,        new("Sheaf of wheat", ItemKind.Goods,    2.0f, IconDir + "corn.png",         ValueMb: 0.04f) },
         { ItemId.Grain,        new("Wheat (threshed)", ItemKind.Goods,  1.5f, IconDir + "pack_basket.png",  ValueMb: 0.06f) },
         { ItemId.Flour,        new("Meal",           ItemKind.Goods,    1.0f, IconDir + "pemmican_bag.png", ValueMb: 0.08f) },
+        { ItemId.Coin,         new("Money (pence)",  ItemKind.Goods,    0.005f, IconDir + "mb_token.png",   ValueMb: 1f / 120f) },
         { ItemId.Ale,          new("Tankard of ale", ItemKind.Drink,    2.0f, IconDir + "ale_tankard.png",  Nutrition: 6f, Thirst: 45f, Warmth: 4f, ValueMb: 0.2f, Intoxication: 12f) },
         { ItemId.Rum,          new("Dram of rum",    ItemKind.Drink,    1.0f, IconDir + "rum.png",          Thirst: 10f, Warmth: 8f, ValueMb: 0.8f, Intoxication: 35f) },
         { ItemId.Water,        new("Water",          ItemKind.Drink,    2.0f, IconDir + "water.png",        Thirst: 50f) },
@@ -171,7 +175,7 @@ public static class Items
         (ItemId.Awl, "awls"), (ItemId.Stroud, "yards of stroud"), (ItemId.MbToken, "made-beaver tokens"),
         (ItemId.Powder, "powder and ball"), (ItemId.IceChisel, "ice chisels"), (ItemId.FishingNet, "fishing nets"),
         (ItemId.Bread, "loaves of bread"), (ItemId.Roots, "baskets of potatoes"),
-        (ItemId.Wheat, "sheaves of wheat"), (ItemId.Grain, "pecks of wheat"), (ItemId.Flour, "measures of meal"), (ItemId.Ale, "tankards of ale"), (ItemId.Rum, "drams of rum"),
+        (ItemId.Wheat, "sheaves of wheat"), (ItemId.Coin, "pence"), (ItemId.Grain, "pecks of wheat"), (ItemId.Flour, "measures of meal"), (ItemId.Ale, "tankards of ale"), (ItemId.Rum, "drams of rum"),
         (ItemId.Water, "water"), (ItemId.Venison, "fresh meat"), (ItemId.DriedMeat, "dried meat"),
         (ItemId.Firewood, "firewood"), (ItemId.TradeGoods, "trade goods"), (ItemId.Fish, "fish"),
         (ItemId.Knife, "knives"), (ItemId.Flint, "flints and steels"), (ItemId.FishingLine, "fishing line"),

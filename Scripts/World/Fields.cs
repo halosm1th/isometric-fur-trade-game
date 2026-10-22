@@ -158,6 +158,7 @@ public static class Fields
         foreach (var (town, a) in byTown)
         {
             var m = Towns.Named(town)?.Market?.Stores;
+            if (Towns.Named(town) is { } tt) GD.Print($"[money] {GameCalendar.Instance?.DateString} {town}: {Economy.Money.Report(tt)}");
             GD.Print($"[farm] {GameCalendar.Instance?.DateString} {town}: stubble {a[0]} ploughed {a[1]} sown {a[2]} growing {a[3]} ripe {a[4]} stooked {a[5]} | farms: sheaves {a[6]} wheat {a[7]} corn {a[8]} potatoes {a[9]} | market: bread {m?.Count(ItemId.Bread)} meal {m?.Count(ItemId.Flour)} wheat {m?.Count(ItemId.Grain)} corn {m?.Count(ItemId.Corn)} potatoes {m?.Count(ItemId.Roots)}");
         }
     }
@@ -274,8 +275,16 @@ public static class Fields
         return n;
     }
 
-    // The goods a load for market is made of, most plentiful first.
+    // The goods a load for market is made of: whatever the market is
+    // shortest of goes on the farmer's back first, so a town short of
+    // potatoes gets potatoes, not a fourth load of wheat.
     public static readonly ItemId[] Sellable = { ItemId.Grain, ItemId.Corn, ItemId.Roots, ItemId.Flour };
+    public static List<ItemId> SellOrder(TownHousehold market)
+    {
+        var l = new List<ItemId>(Sellable);
+        if (market != null) l.Sort((a, b) => market.Stores.Count(a).CompareTo(market.Stores.Count(b)));
+        return l;
+    }
 
     // ---- out of sight: the same steps, a day at a time -----------------------------
 
@@ -334,9 +343,14 @@ public static class Fields
         foreach (var q in f.Plots) if (q.Crop == p.Crop && q.Stage is PlotStage.Stubble or PlotStage.Ploughed) want += SeedPer(q.Crop);
         want = Mathf.Max(0, want - f.Home.Stores.Count(id));
         float room = farmer.CarryCapacityLbs - farmer.Inventory.TotalWeightLbs;
-        int n = market.Stores.TakeUpTo(id, Mathf.Min(want, Mathf.FloorToInt(room / Items.Items.Of(id).WeightLbs)));
-        farmer.Inventory.Add(id, n);
-        f.Home.Stores.Add(id, farmer.Inventory.TakeUpTo(id, n));
+        int price = Economy.Money.Price(market, id);
+        farmer.Inventory.Add(ItemId.Coin, f.Home.Stores.TakeUpTo(ItemId.Coin, want * price));
+        int n = Mathf.Min(market.Stores.Count(id), Mathf.Min(want, Mathf.FloorToInt(room / Items.Items.Of(id).WeightLbs)));
+        n = Mathf.Min(n, (farmer.Inventory.Count(ItemId.Coin) + Mathf.Max(0, Economy.Money.CreditLimit(f.Home) - Economy.Money.Owed(f.Home))) / Mathf.Max(1, price));
+        if (n > 0 && Economy.Money.Pay(farmer, f.Home, market, n * price)) { market.Stores.Remove(id, n); farmer.Inventory.Add(id, n); }
+        else n = 0;
+        f.Home.Stores.Add(id, farmer.Inventory.TakeUpTo(id, 9999));
+        f.Home.Stores.Add(ItemId.Coin, farmer.Inventory.TakeUpTo(ItemId.Coin, 99999));
         return n;
     }
 
@@ -348,14 +362,15 @@ public static class Fields
         return done;
     }
 
-    // One load on the farmer's back from the house to the market, and left
-    // there. Returns what was carried, for the farm's notice.
+    // One load on the farmer's back from the house to the market, sold for
+    // what the merchants will pay; the money, and whatever they could not
+    // pay for, carried home. Returns what was sold.
     public static int SellLoad(Npc farmer, TownHousehold home)
     {
         var market = home.Town?.Market;
         if (market == null) return 0;
-        int left = Surplus(home), carried = 0;
-        foreach (var id in Sellable)
+        int left = Surplus(home), sold = 0;
+        foreach (var id in SellOrder(market))
         {
             if (left <= 0) break;
             float room = farmer.CarryCapacityLbs - farmer.Inventory.TotalWeightLbs;
@@ -363,10 +378,12 @@ public static class Fields
             int n = home.Stores.TakeUpTo(id, Mathf.Min(fit, left));
             if (n <= 0) continue;
             farmer.Inventory.Add(id, n);
-            market.Stores.Add(id, farmer.Inventory.TakeUpTo(id, n));
-            left -= n; carried += n;
+            sold += Agents.TownLife.SellTo(farmer, market, id, n, home);
+            home.Stores.Add(id, farmer.Inventory.TakeUpTo(id, 9999));
+            left -= n;
         }
-        return carried;
+        home.Stores.Add(ItemId.Coin, farmer.Inventory.TakeUpTo(ItemId.Coin, 99999));
+        return sold;
     }
 
     // ---- saves -------------------------------------------------------------------------

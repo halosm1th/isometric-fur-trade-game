@@ -257,7 +257,7 @@ public partial class Conversation
             Role.Child => "a child of the town",
             _ => "",
         };
-        string busy = npc.Tier == Core.Tier.Background ? " They have been about their own work." : npc.Brain.Top is { Label: { Length: > 0 } busyAt } ? $" They were {busyAt}." : "";
+        string busy = npc.Tier == Core.Tier.Background ? " They have been about their own work." : Doing(npc) is { Length: > 0 } busyAt ? $" They were {busyAt}." : "";
         string debt = "";
         foreach (var g in Grudges.HeldBy(npc.DisplayName)) if (g.Against == _player.DisplayName) { debt = $" There is blood between you: {g.Victim}. {(npc.IsFighter ? "Their hand is on their knife." : "They will hear what you offer for it, or nothing.")}"; break; }
         if (debt == "" && _player.Spouse is Npc wife && npc.IsBandPerson)
@@ -336,6 +336,8 @@ public partial class Conversation
         if (Economy.HorseTrade.Options(npc, _player).Count > 0) AddOption("Horses...", () => ShowHorses(npc));
         if (npc.IsFemale && _player.Needs.Health < 70f && !_player.IsDead)
             AddOption("Ask her to see to your wounds", () => ShowTopics(Treat(npc)));
+        // A town merchant's counter, for coin (UI/ConversationStore).
+        if (npc.Role == Role.Merchant && MarketOf(npc) != null) AddOption("The store...", () => ShowStore(npc));
         AddOption("Give a gift", () => ShowGive(npc));
         if (npc.Needs.Hunger < 45f && _player.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
             AddOption($"Offer them something to eat ({Items.Items.Of(food).Name})", () => ShowTopics(OfferFood(npc, food)));

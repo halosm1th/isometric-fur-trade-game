@@ -259,6 +259,7 @@ public static class Towns
                 h.Stores.Add(ItemId.Firewood, 40);
                 h.Stores.Add(ItemId.Water, 6);
                 if (h.Key == "garrison") h.Stores.Add(ItemId.Musket, 2);
+                Money.Seed(h);
                 // A farm's seed wheat, kept back from the last harvest for its fields.
                 if (farm && Fields.Of(h) is { } fields) foreach (var p in fields.Plots) if (p.Crop == Crop.Wheat) h.Stores.Add(ItemId.Grain, Fields.SeedPer(p.Crop));
                 h.HarvestYear = (cal?.Year ?? 1811) - (dayOfYear >= 250 ? 0 : 1);
@@ -269,6 +270,7 @@ public static class Towns
             t.Market.Stores.Add(ItemId.Corn, townMouths * townDays / 4);
             t.Market.Stores.Add(ItemId.Ale, townMouths / 2);
             t.Market.Stores.Add(ItemId.Rum, townMouths / 4);
+            Money.Seed(t.Market);
         }
     }
 
@@ -278,6 +280,7 @@ public static class Towns
         foreach (var t in All)
             if (t.Standing) foreach (var h in t.Houses.Values) h.SpoilDay();
         Fields.Day();
+        Money.Day();
     }
 
     // ---- the war (Core/Campaign: the town actions) -------------------------------
