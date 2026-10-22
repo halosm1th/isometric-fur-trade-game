@@ -65,6 +65,11 @@ public enum ItemId
     // kept in the root cellar through the winter, and what kept the towns
     // from the scurvy the posts suffered.
     Roots,
+    // The farms' wheat, one step at a time (World/Fields): reaped and bound
+    // in sheaves, threshed to grain, ground to meal, baked to bread.
+    Wheat,
+    Grain,
+    Flour,
 }
 
 public enum ItemKind { Food, Drink, Fuel, Clothing, Fur, Goods, Weapon, Tool }
@@ -99,6 +104,9 @@ public static class Items
         { ItemId.BuffaloRobe,  new("Buffalo robe",   ItemKind.Clothing, 8.0f, IconDir + "caribou_hide.png", Warmth: 8f, ValueMb: 2f) },
         { ItemId.Bread,        new("Loaf of bread",  ItemKind.Food,     1.0f, IconDir + "bread_loaf.png",   Nutrition: 25f, ValueMb: 0.15f) },
         { ItemId.Roots,        new("Potatoes and roots", ItemKind.Food, 2.0f, IconDir + "corn.png",         Nutrition: 20f, ValueMb: 0.1f) },
+        { ItemId.Wheat,        new("Sheaf of wheat", ItemKind.Goods,    2.0f, IconDir + "corn.png",         ValueMb: 0.04f) },
+        { ItemId.Grain,        new("Wheat (threshed)", ItemKind.Goods,  1.5f, IconDir + "pack_basket.png",  ValueMb: 0.06f) },
+        { ItemId.Flour,        new("Meal",           ItemKind.Goods,    1.0f, IconDir + "pemmican_bag.png", ValueMb: 0.08f) },
         { ItemId.Ale,          new("Tankard of ale", ItemKind.Drink,    2.0f, IconDir + "ale_tankard.png",  Nutrition: 6f, Thirst: 45f, Warmth: 4f, ValueMb: 0.2f, Intoxication: 12f) },
         { ItemId.Rum,          new("Dram of rum",    ItemKind.Drink,    1.0f, IconDir + "rum.png",          Thirst: 10f, Warmth: 8f, ValueMb: 0.8f, Intoxication: 35f) },
         { ItemId.Water,        new("Water",          ItemKind.Drink,    2.0f, IconDir + "water.png",        Thirst: 50f) },
@@ -162,7 +170,8 @@ public static class Items
         (ItemId.Ptarmigan, "ptarmigan"), (ItemId.Tobacco, "twists of tobacco"), (ItemId.Beads, "bunches of beads"),
         (ItemId.Awl, "awls"), (ItemId.Stroud, "yards of stroud"), (ItemId.MbToken, "made-beaver tokens"),
         (ItemId.Powder, "powder and ball"), (ItemId.IceChisel, "ice chisels"), (ItemId.FishingNet, "fishing nets"),
-        (ItemId.Bread, "loaves of bread"), (ItemId.Roots, "baskets of potatoes"), (ItemId.Ale, "tankards of ale"), (ItemId.Rum, "drams of rum"),
+        (ItemId.Bread, "loaves of bread"), (ItemId.Roots, "baskets of potatoes"),
+        (ItemId.Wheat, "sheaves of wheat"), (ItemId.Grain, "pecks of wheat"), (ItemId.Flour, "measures of meal"), (ItemId.Ale, "tankards of ale"), (ItemId.Rum, "drams of rum"),
         (ItemId.Water, "water"), (ItemId.Venison, "fresh meat"), (ItemId.DriedMeat, "dried meat"),
         (ItemId.Firewood, "firewood"), (ItemId.TradeGoods, "trade goods"), (ItemId.Fish, "fish"),
         (ItemId.Knife, "knives"), (ItemId.Flint, "flints and steels"), (ItemId.FishingLine, "fishing line"),

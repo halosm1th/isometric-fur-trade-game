@@ -159,8 +159,10 @@ public static class Tiers
         bool rushing = _rushing;
         if (n == null || !GodotObject.IsInstanceValid(n) || n.IsDead) return;
         if (n.Away) return;   // the brigade feeds its own
-        // A town house buys its bread at the market when it runs low.
-        if (n.HomeStores is World.TownHousehold townHome) World.Towns.Provision(townHome);
+        // A town house buys its bread at the market when it runs low: out of
+        // sight, one of its people makes the trip in the day's sum, through
+        // their own pack (Agents/TownLife); in sight they walk it.
+        if ((n.Tier == Tier.Background || rushing) && n.HomeStores is World.TownHousehold townHome) TownLife.Provision(townHome, n);
         // A man standing in his own yard with food on the shelf does not
         // starve (design doc P.5), whatever the clock is doing - a day can
         // pass in a couple of seconds under fast-forward, too fast for him
@@ -173,8 +175,6 @@ public static class Tiers
         {
             // Even at an ordinary clock, a man in his own yard with food on
             // the shelf does not starve (design doc P.5).
-            // A farmer the player is watching has worked his fields today too.
-            if (n.Role == Role.Farmer && n.HomeStores is World.TownHousehold farm && !Foul(farm)) Farm(n, farm);
             if (n.Needs.Hunger < 25f)
             {
                 if (n.HomeStores != null && n.GlobalPosition.DistanceTo(World.IsoGrid.ToWorld(n.HomeStores.AccessCell)) < 900f)
@@ -253,6 +253,7 @@ public static class Tiers
             case Role.CreeWoman:
             case Role.Wife:
             case Role.CreeDaughter:
+                if (home is World.TownHousehold townHouse) TownLife.HouseDay(n, townHouse);
                 House(n, home);
                 break;
             case Role.Farmer:
@@ -392,40 +393,16 @@ public static class Tiers
     // fields from the ploughing to the harvest, and the harvest itself, when
     // the family keeps its year's bread and corn and sells the rest at the
     // market. Off season the men hunt like anyone else.
-    private const float FieldYield = 40f;   // pieces of food a day's field work comes to at the harvest
+    // A farmer's day out of sight (design doc 18.2): the same steps on the
+    // same plots as the farmer in view (World/Fields), a day's worth at once -
+    // and in the dead of winter, his wood and his hunting.
     private static void Farm(Npc n, World.TownHousehold home)
     {
-        var cal = GameCalendar.Instance;
-        int month = cal.Month;
+        int month = GameCalendar.Instance.Month;
         bool cold = month >= 10 || month <= 4;
         if (cold && home.Stores.Count(ItemId.Firewood) < 30) { home.Stores.Add(ItemId.Firewood, n.Skills.Woodcraft >= 0.5f ? 5 : 4); return; }
-        if (month >= 4 && month <= 8) { home.FieldDays += 1f; return; }
-        if (month >= 9 && home.HarvestYear < cal.Year)
-        {
-            home.HarvestYear = cal.Year;
-            int crop = Mathf.RoundToInt(home.FieldDays * FieldYield);
-            home.FieldDays = 0f;
-            if (crop <= 0) { Sim.Notice($"{home.Title}: nothing was sown, and there is nothing to bring in."); return; }
-            // Wheat, corn, and the potatoes and roots of the garden.
-            home.Stores.Add(ItemId.Bread, crop / 2);
-            home.Stores.Add(ItemId.Corn, crop / 4);
-            home.Stores.Add(ItemId.Roots, crop - crop / 2 - crop / 4);
-            // The year's food for the house, and the rest to market, in the same shares.
-            int keep = home.Alive() * 400;
-            int have = home.Stores.Count(ItemId.Bread) + home.Stores.Count(ItemId.Corn) + home.Stores.Count(ItemId.Roots);
-            int spare = Mathf.Max(0, have - keep);
-            var market = home.Town.Market;
-            if (market != null && spare > 0)
-                foreach (var (id, share) in new[] { (ItemId.Bread, 0.5f), (ItemId.Corn, 0.25f), (ItemId.Roots, 0.25f) })
-                {
-                    int n2 = Mathf.Min(Mathf.RoundToInt(spare * share), home.Stores.Count(id));
-                    home.Stores.Remove(id, n2); market.Stores.Add(id, n2);
-                }
-            Sim.Notice($"{home.Title}: the harvest is in, {crop} pieces of wheat and corn, {spare} of them sold at the market.");
-            return;
-        }
-        if (month >= 9) return;   // the fall work: the ploughing for next year, the stock
-        Hunt(n, home);
+        if (World.Fields.WorkDay(n, home)) return;
+        if (month <= 3 || month >= 11) Hunt(n, home);
     }
 
     private static void House(Npc n, Economy.Household home)

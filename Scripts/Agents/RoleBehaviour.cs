@@ -201,6 +201,8 @@ public class LabourerBehaviour : RoleBehaviour
     private int _actingDay = -1;
     protected override Goal Work(Npc npc)
     {
+        // A town's labourer - most of them a farmer's or a tradesman's grown son (Agents/TownLife).
+        if (npc.HomeStores is World.TownHousehold townHome) return TownLife.Labourer(npc, townHome) ?? new WanderGoal(townHome.AccessCell, 1, 1f);
         // A post with no master (design doc 3.9): the steadiest man gives the orders till one comes.
         if (npc.HomeStores is Economy.FortLedger f && (f.Leader == null || !GodotObject.IsInstanceValid(f.Leader) || f.Leader.IsDead) && Cal.Hour >= 7f && _actingDay != Cal.Day)
         {
@@ -227,6 +229,9 @@ public class HouseholdBehaviour : RoleBehaviour
         if (fire != null) return fire;
         var water = WaterDuty(npc, 12);
         if (water != null) return water;
+        // A town house's day is its own: the market, the quern and the oven,
+        // the wash and the garden (Agents/TownLife).
+        if (npc.HomeStores is World.TownHousehold townHome) return TownLife.Woman(npc, townHome) ?? new WanderGoal(townHome.AccessCell, 1, 1f);
         // A town house buys its bread at the market (World/Towns); its women
         // go down to the river with a line only when the house is nearly bare.
         // The post's women fish for the mess against a fortnight for ten.
@@ -352,11 +357,9 @@ public class FarmerBehaviour : RoleBehaviour
     protected override Goal Work(Npc npc)
     {
         var home = npc.HomeStores;
-        if (!IsWorkHours) return new WanderGoal(home?.AccessCell ?? npc.BedCell, 2, 1f);
-        int month = Cal.Month;
-        if (home != null && home.Stores.Count(ItemId.Firewood) < (month >= 10 || month <= 4 ? 30 : 10)) return new ChopWoodGoal();
-        if (month >= 4 && month <= 9) return new WanderGoal(npc.WorkCell, 3, 0.7f);
-        return new WanderGoal(home?.AccessCell ?? npc.BedCell, 3, 1f);
+        // The year's work on his own fields, step by step (World/Fields, Agents/TownLife).
+        if (home is World.TownHousehold farm && TownLife.Farmer(npc, farm) is { } job) return job;
+        return new WanderGoal(home?.AccessCell ?? npc.BedCell, 2, 1f);
     }
 }
 
@@ -367,7 +370,7 @@ public class TownsmanBehaviour : RoleBehaviour
     protected override Goal Work(Npc npc)
     {
         var home = npc.HomeStores;
-        if (IsWorkHours) return new WanderGoal(npc.WorkCell, 1, 1.5f);
+        if (home is World.TownHousehold th && TownLife.Townsman(npc, th) is { } job) return job;
         return new WanderGoal(home?.AccessCell ?? npc.BedCell, 1, 1.5f);
     }
 }
@@ -384,6 +387,12 @@ public class SoldierBehaviour : RoleBehaviour
         // A third of the garrison at drill or on sentry in any hour, turn and
         // turn about; the rest about the barracks.
         bool onDuty = World.IsoGrid.Hash(new Vector2I(Cal.Day * 24 + (int)Cal.Hour, npc.NetId), 79) < 0.34f;
+        // A sentry's post is outside the palisade; everyone else's is on the square.
+        if (home is World.TownHousehold th && th.Town.HasFort)
+        {
+            var fort = new BuildingDef(BuildingKind.Barracks, "", th.Town.FortTop, th.Town.FortWidth, th.Town.FortDepth, 0);
+            if (TownLife.Soldier(npc, th, !fort.Contains(npc.WorkCell), onDuty) is { } job) return job;
+        }
         return onDuty ? new WanderGoal(npc.WorkCell, 1, 0.5f) : new WanderGoal(home?.AccessCell ?? npc.BedCell, 3, 1.2f);
     }
 }
@@ -391,5 +400,6 @@ public class SoldierBehaviour : RoleBehaviour
 // A child: about the house and the street, never far.
 public class ChildBehaviour : RoleBehaviour
 {
-    protected override Goal Work(Npc npc) => new WanderGoal(npc.HomeStores?.AccessCell ?? npc.BedCell, 4, 1.3f);
+    protected override Goal Work(Npc npc) =>
+        (npc.HomeStores is World.TownHousehold th ? TownLife.Child(npc, th) : null) ?? new WanderGoal(npc.HomeStores?.AccessCell ?? npc.BedCell, 4, 1.3f);
 }

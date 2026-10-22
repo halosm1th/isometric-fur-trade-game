@@ -259,6 +259,8 @@ public static class Towns
                 h.Stores.Add(ItemId.Firewood, 40);
                 h.Stores.Add(ItemId.Water, 6);
                 if (h.Key == "garrison") h.Stores.Add(ItemId.Musket, 2);
+                // A farm's seed wheat, kept back from the last harvest for its fields.
+                if (farm && Fields.Of(h) is { } fields) foreach (var p in fields.Plots) if (p.Crop == Crop.Wheat) h.Stores.Add(ItemId.Grain, Fields.SeedPer(p.Crop));
                 h.HarvestYear = (cal?.Year ?? 1811) - (dayOfYear >= 250 ? 0 : 1);
             }
             int townDays = toHarvest + 30;
@@ -275,33 +277,9 @@ public static class Towns
     {
         foreach (var t in All)
             if (t.Standing) foreach (var h in t.Houses.Values) h.SpoilDay();
+        Fields.Day();
     }
 
-    // A house running low buys at the town's market (once a day for the
-    // house): a fortnight's bread for everyone in it, as far as the market
-    // has it. A market that runs dry is news (Tiers' short commons follows).
-    private static readonly ItemId[] MarketFood = { ItemId.Roots, ItemId.Bread, ItemId.Corn, ItemId.Fish, ItemId.Venison, ItemId.DriedMeat, ItemId.Pemmican };
-    private static readonly Dictionary<TownHousehold, int> _boughtOn = new();
-    public static void Provision(TownHousehold h)
-    {
-        var market = h.Town?.Market;
-        if (market == null || h == market) return;
-        int today = GameCalendar.Instance?.Day ?? 0;
-        if (_boughtOn.TryGetValue(h, out int on) && on == today) return;
-        _boughtOn[h] = today;
-        int mouths = h.Alive();
-        if (mouths == 0 || h.FoodDays(mouths) >= 7f) return;
-        // A third of it roots when the market has them, the rest bread and corn.
-        int want = mouths * 14;
-        int roots = market.Stores.TakeUpTo(ItemId.Roots, want / 3);
-        if (roots > 0) { h.Stores.Add(ItemId.Roots, roots); want -= roots; }
-        foreach (var id in MarketFood)
-        {
-            if (want <= 0) break;
-            int got = market.Stores.TakeUpTo(id, want);
-            if (got > 0) { h.Stores.Add(id, got); want -= got; }
-        }
-    }
     // ---- the war (Core/Campaign: the town actions) -------------------------------
 
     // History being recalled at the start (Campaign.Recall): nothing is said,

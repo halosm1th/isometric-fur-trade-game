@@ -86,6 +86,7 @@ public static class SaveGame
             ["council"] = CouncilState(),
             ["grudges"] = GrudgeState(),
             ["acquaint"] = UI.Acquaintance.Save(),
+            ["fields"] = Fields.Save(),
             ["losses"] = Losses.Save(HomeKey),
             ["favours"] = Favours.Save(),
             ["fort"] = Ledger(Sim.Fort),
@@ -460,6 +461,7 @@ public static class SaveGame
             if (d.ContainsKey("abroad")) foreach (var mv in d["abroad"].AsGodotArray()) Mail.Abroad.Add(MailFrom(mv.AsGodotDictionary()));
             if (d.ContainsKey("council")) LoadCouncil(d["council"].AsGodotDictionary());
             UI.Acquaintance.Restore(d.TryGetValue("acquaint", out var aq) ? aq.AsGodotDictionary() : new GDict());
+            Fields.Restore(d.TryGetValue("fields", out var fd) ? fd.AsGodotDictionary() : new GDict());
             Grudges.All.Clear();
             if (d.ContainsKey("grudges")) foreach (var gv in d["grudges"].AsGodotArray()) { var gd = gv.AsGodotDictionary(); Grudges.All.Add(new Grudge { Holder = S(gd, "holder"), Against = S(gd, "against"), Victim = S(gd, "victim"), Day = I(gd, "day"), DebtMb = F(gd, "debt"), Settled = B(gd, "settled"), Blood = B(gd, "blood") }); }
 
