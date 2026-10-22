@@ -43,7 +43,16 @@ public static class Known
 		["war_party"] = (new[] { "from", "against" }, new[] { "why", "with_player" }),
 		["truce"] = (new[] { "a", "b" }, new[] { "days" }),
 		["feud"] = (new[] { "holder", "against" }, new[] { "add" }),
+		// The towns at war (World/Towns.cs).
+		["town_falls"] = (new[] { "town", "to" }, new[] { "prisoners" }),
+		["move_garrison"] = (new[] { "from", "to" }, new[] { "count" }),
+		["garrison_leaves"] = (new[] { "town" }, new[] { "where", "count" }),
+		["garrison_returns"] = (new[] { "town" }, new[] { "count" }),
+		["casualties"] = (new[] { "town", "count" }, new[] { "cause", "role" }),
+		["kill"] = (new[] { "who" }, new[] { "cause" }),
+		["burn"] = (new[] { "town" }, new[] { "building" }),
 	};
+	public static readonly string[] Holders = { "Crown", "American" };
 	public static readonly string[] BrigadeEffects = { "delay", "turn_back", "lose", "cancel", "launch" };
 	public static readonly HashSet<string> Predicates = new() { "flag", "beat", "after", "before", "chance", "month", "post", "dead", "player_faction", "season", "convoy_late", "convoy_lost", "convoy_robbed", "convoy_turned_back", "convoy_out", "convoy_in", "convoy_wintering", "quest", "quest_active", "quest_failed", "posted", "at_peace" };
 	public static readonly HashSet<string> Metrics = new() { "var", "month", "year", "day", "day_of_year", "count", "beat_age", "tension", "standing", "stock", "furs", "convoys_active", "convoy_days_late", "convoy_days_out", "rapport", "regard", "feud" };
@@ -73,6 +82,9 @@ public static class Known
 		public readonly HashSet<string> Items = new();
 		public readonly List<string> Tasks = new();
 		public readonly HashSet<string> Camps = new();
+		// The towns (layout.towns): their buildings, and whether each has a garrison.
+		public readonly Dictionary<string, HashSet<string>> Towns = new();
+		public readonly HashSet<string> Garrisoned = new();
 
 		public WorldData()
 		{
@@ -104,8 +116,20 @@ public static class Known
 			foreach (var t in tbody.Split(',')) { var n = t.Trim(); if (n.Length > 0 && n != "None") Tasks.Add(n); }
 			// The country's camps by name: a quest can send you to one, or to its people.
 			using (var doc = JsonDocument.Parse(File.ReadAllText(Path.Combine(Root, "Data/World/world.json"))))
-				if (doc.RootElement.TryGetProperty("layout", out var lay) && lay.TryGetProperty("camps", out var cs))
-					foreach (var c in cs.EnumerateArray()) Camps.Add(c.GetProperty("name").GetString());
+				if (doc.RootElement.TryGetProperty("layout", out var lay))
+				{
+					if (lay.TryGetProperty("camps", out var cs))
+						foreach (var c in cs.EnumerateArray()) Camps.Add(c.GetProperty("name").GetString());
+					if (lay.TryGetProperty("towns", out var ts))
+						foreach (var t in ts.EnumerateArray())
+						{
+							var name = t.GetProperty("name").GetString();
+							var blds = new HashSet<string>();
+							foreach (var b in t.GetProperty("buildings").EnumerateArray()) blds.Add(b.GetProperty("name").GetString());
+							Towns[name] = blds;
+							if (t.TryGetProperty("fort", out var f) && f.ValueKind == JsonValueKind.Object) Garrisoned.Add(name);
+						}
+				}
 		}
 	}
 

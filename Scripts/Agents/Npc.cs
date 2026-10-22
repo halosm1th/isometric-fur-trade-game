@@ -37,6 +37,13 @@ public partial class Npc : Agent
     // Away with a brigade (design doc 12.1): not at the post, not on the
     // day's orders, and fed out of the canoes rather than out of the store.
     public bool Away;
+    // Gone out of the country for good, or until he is let go: a prisoner of
+    // war sent down to Quebec, a garrison marched off to Kingston (World/Towns).
+    // Still a person - named, remembered, owed and owing - just not here.
+    public string OffMap = "", OffMapFrom = "";
+    // What killed him, when the world knows better than his wounds (a battle
+    // fought out of anyone's sight: World/Towns.Casualties).
+    public string DeathCause;
     public string AwayWith = "";
     public World.Convoy Convoy;   // a hand of a brigade on the country's rivers (World/ConvoyView.cs): real only while someone is near, never saved
 
@@ -960,6 +967,22 @@ public partial class Npc : Agent
 
     // A body restored from a save: dead where it lay, no alarm.
     public void DieQuietly() { _quietDeath = true; Needs.Health = 0f; OnDeath(); }
+    // Killed where nobody was looking, and the world says how: he is mourned
+    // and his place filled like any other death.
+    public void Die(string cause) { if (IsDead) return; DeathCause = cause; Needs.Health = 0f; OnDeath(); }
+
+    // Out of the country (OffMap): out of sight, out of his house's books,
+    // fed wherever he has gone.
+    public void SendOffMap(string where, string from = "")
+    {
+        if (IsDead) return;
+        OffMap = where; OffMapFrom = from;
+        Brain.Clear(this); StopMoving();
+        Away = true; HomeStores = null;
+        Tier = Core.Tier.Background;
+        Visible = false; ProcessMode = ProcessModeEnum.Disabled;
+        Net.Net.I?.AnnounceTier(this, true);
+    }
     private bool _quietDeath;
 
     protected override void OnDeath()
@@ -988,14 +1011,16 @@ public partial class Npc : Agent
         if (!_quietDeath) Losses.Record(this);
         // Say what took him: a death nobody can account for is no use to
         // anybody (design doc P.4).
-        string cause = LastAttacker != null && LastAttackedAgo < 30f ? $"killed by {LastAttacker.Describe()}"
+        string cause = DeathCause != null ? DeathCause
+            : LastAttacker != null && LastAttackedAgo < 30f ? $"killed by {LastAttacker.Describe()}"
             : IsSick ? "of the fever"
             : HasScurvy ? "of the scurvy"
             : Needs.Warmth <= 1f ? "of the cold"
             : Needs.Hunger <= 1f ? "of hunger"
             : "of want";
-        Sim.Notice($"{DisplayName} has died {cause}.");
-        string how = LastAttacker != null && LastAttackedAgo < 30f ? $"{DisplayName} was killed by {LastAttacker.Describe()}." : $"{DisplayName} died {cause}.";
+        // A quiet death is told by whoever caused it (the daily batch says what took him), not twice.
+        if (!_quietDeath) Sim.Notice($"{DisplayName} has died {cause}.");
+        string how = DeathCause == null && LastAttacker != null && LastAttackedAgo < 30f ? $"{DisplayName} was killed by {LastAttacker.Describe()}." : $"{DisplayName} died {cause}.";
         Chronicle.Event(how, GlobalPosition, LastAttacker != null && LastAttackedAgo < 30f ? LastAttacker : null, DisplayName, 2f);
         if (IsBandPerson && LastAttacker != null && LastAttackedAgo < 30f) (HomeStores as BandLedger)?.OnMemberKilledBy(LastAttacker);
         // Fights are won before the first shot (design doc 15.6): a man down is

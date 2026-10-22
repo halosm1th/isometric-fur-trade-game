@@ -291,6 +291,79 @@
     5
    ],
    "empty": 0.0
+  },
+  {
+   "name": "Mackinac Island",
+   "polity": "AMER",
+   "lon": -84.62,
+   "lat": 45.85,
+   "year": 1781,
+   "people": 250,
+   "farm": 0.1,
+   "french": 0.6,
+   "names": "american",
+   "note": "The island at the straits between Lakes Huron and Michigan: Fort Mackinac on the bluff, built by the British in 1781 and given up to the Americans in 1796, and below it the village of the Michilimackinac traders, their clerks and engages and their Odawa and Ojibwe kin, the summer rendezvous of the upper country's trade.",
+   "church": "Ste. Anne's",
+   "priest": null,
+   "hall": null,
+   "stores": [
+    "Michael Dousman",
+    ""
+   ],
+   "trades": [
+    "smith",
+    "cooper",
+    "baker"
+   ],
+   "notables": [],
+   "fort": {
+    "name": "Fort Mackinac",
+    "soldiers": 57,
+    "officers": 4,
+    "commandant": "Lieutenant Porter Hanks",
+    "flag": "AMER"
+   },
+   "lot": [
+    5,
+    5
+   ],
+   "empty": 0.1,
+   "lay": 7
+  },
+  {
+   "name": "St. Joseph Island",
+   "polity": "CROWN",
+   "lon": -83.95,
+   "lat": 46.25,
+   "year": 1796,
+   "people": 30,
+   "farm": 0.2,
+   "french": 0.5,
+   "names": "loyalist",
+   "note": "The King's most westerly post, built when Michilimackinac was handed to the Americans: Fort St. Joseph on its point at the mouth of the St. Marys River, a company of the 10th Royal Veteran Battalion, the North West Company's store, and the Indian Department's house where the upper nations come for their presents.",
+   "church": null,
+   "priest": null,
+   "hall": null,
+   "stores": [
+    "the North West Company's store"
+   ],
+   "trades": [
+    "smith"
+   ],
+   "notables": [],
+   "fort": {
+    "name": "Fort St. Joseph",
+    "soldiers": 42,
+    "officers": 3,
+    "commandant": "Captain Charles Roberts",
+    "flag": "CROWN"
+   },
+   "lot": [
+    5,
+    5
+   ],
+   "empty": 0.1,
+   "lay": 8
   }
  ]
 }

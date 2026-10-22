@@ -20,7 +20,8 @@ campaign TheRiversRun(
                  "water, early freezes, boats lost and boats late - and what " +
                  "the Factor does about it.",
     seed: 1812,
-    postsByFoundingYear: true
+    postsByFoundingYear: true,
+    include: "lakes-war"   // the war of 1812 on the Lakes frontier (src/parts/lakes-war.camp)
 );
 
 int troubles;

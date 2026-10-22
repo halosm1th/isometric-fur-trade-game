@@ -593,6 +593,102 @@ How hot the holder's score against the other is, 0-10.
 world.feud("Blackfoot", "Beaver Hills Cree (Amiskwacîwiyiniwak)") >= 4
 ```
 
+### `world.townFalls(town, to, prisoners?)`
+
+`world.townFalls(string town, string to, bool prisoners?) : effect`
+
+A town changes hands (to: "Crown" or "American"). Its garrison, if it was the loser's, is taken prisoner and goes out of the country with its families (prisoners: false lets them stay); the townspeople stay. Its boards say whose it is now.
+
+- `town` (string): The town, by its name on the map ("Detroit", "Mackinac Island").
+- `to` (string): Who holds it now: "Crown" or "American".
+- `prisoners` (bool, optional): false to let the loser's garrison stay where it is (when it has already gone, or the town is only occupied); prisoners are taken if not given.
+
+```c
+world.townFalls("Detroit", "Crown")
+```
+
+### `world.moveGarrison(from, to, count?)`
+
+`world.moveGarrison(string from, string to, int count?) : effect`
+
+So many soldiers of one town's garrison, and an officer, go to another town's fort (20 if not given): a fort taken and held, a post reinforced.
+
+- `from` (string): The town whose garrison sends the men.
+- `to` (string): The town whose fort they go to.
+- `count` (int, optional): How many soldiers go (an officer with them); 20 if not given.
+
+```c
+world.moveGarrison("Amherstburg", "Detroit", 60)
+```
+
+### `world.garrisonLeaves(town, where?, count?)`
+
+`world.garrisonLeaves(string town, string where?, int count?) : effect`
+
+A town's garrison marches out of the country ("to Kingston"): all of it, or so many. They are still people, only gone.
+
+- `town` (string): The town whose garrison marches away.
+- `where` (string, optional): Where they go, as it reads in the news ("to Kingston"); "out of the country" if not given.
+- `count` (int, optional): How many go; the whole garrison if not given.
+
+```c
+world.garrisonLeaves("York", "to Kingston")
+```
+
+### `world.garrisonReturns(town, count?)`
+
+`world.garrisonReturns(string town, int count?) : effect`
+
+Men who went out of the country from a town (prisoners, or a garrison that marched away) come back to its fort: those who serve whoever holds it now - the paroled and exchanged, a garrison back from where it went.
+
+- `town` (string): The town they went from and come back to.
+- `count` (int, optional): How many come back; all who can if not given.
+
+```c
+world.garrisonReturns("Niagara")
+```
+
+### `world.casualties(town, count, cause?, role?)`
+
+`world.casualties(string town, int count, string cause?, string role?) : effect`
+
+So many men of a town killed in a fight fought out of sight: of its garrison, or of its men of a role (role: "Farmer" for the militia). They are mourned and their places filled as any death.
+
+- `town` (string): The town whose men are killed.
+- `count` (int): How many.
+- `cause` (string, optional): How they died, as it reads ("at Queenston Heights"); "in the fighting" if not given.
+- `role` (string, optional): Whose men: a role of the town's people ("Farmer" for the militia); the garrison's soldiers if not given.
+
+```c
+world.casualties("Niagara", 14, "at Queenston Heights")
+```
+
+### `world.kill(who, cause?)`
+
+`world.kill(string who, string cause?) : effect`
+
+A named person dies, and the world says how.
+
+- `who` (string): The person's name, exactly as in the cast.
+- `cause` (string, optional): How they died, as it reads; "in the fighting" if not given.
+
+```c
+world.kill("Major-General Isaac Brock", "at Queenston Heights, leading the charge up the heights")
+```
+
+### `world.burn(town, building?)`
+
+`world.burn(string town, string building?) : effect`
+
+A building of a town is set alight (every one of them if none is named; "fort" for its garrison's buildings); the fire takes it from there.
+
+- `town` (string): The town.
+- `building` (string, optional): One of its buildings by name ("the Parliament buildings"), or "fort" for its garrison's; every building if not given.
+
+```c
+world.burn("York", "the Parliament buildings")
+```
+
 ### `world.atPeace(a, b)`
 
 `world.atPeace(string a, string b) : bool`
@@ -1065,4 +1161,4 @@ TheHunt.fail()
 - **`Task`**: The work a quest step can hand the player, as the Factor would: Task.CarryCargo, Task.Firewood, Task.Brigade ... (Player/PlayerTask.cs).
   Values: `Task.Firewood`, `Task.CarryCargo`, `Task.DriveOffAnimals`, `Task.DeliverLetter`, `Task.Raid`, `Task.Report`, `Task.Courier`, `Task.Geese`, `Task.Brigade`
 
-Items: `Ale`, `Awl`, `Axe`, `Beads`, `BeaverPelt`, `Berries`, `Bow`, `Bread`, `BuffaloRobe`, `Capote`, `CaribouHide`, `Corn`, `DriedGoose`, `DriedMeat`, `Firewood`, `Fish`, `FishingLine`, `FishingNet`, `Flint`, `Goose`, `Hare`, `HideCoat`, `IceChisel`, `Kettle`, `Knife`, `MbToken`, `Musket`, `PackBasket`, `Pemmican`, `PointBlanket`, `Powder`, `Ptarmigan`, `Rum`, `SaltGeese`, `ShotHide`, `ShotPelt`, `Snowshoes`, `SpruceBeer`, `SteelTrap`, `Stroud`, `ThinPelt`, `Tobacco`, `Tomahawk`, `TradeGoods`, `Tumpline`, `Venison`, `Water`, `WolfPelt`.
+Items: `Ale`, `Awl`, `Axe`, `Beads`, `BeaverPelt`, `Berries`, `Bow`, `Bread`, `BuffaloRobe`, `Capote`, `CaribouHide`, `Corn`, `DriedGoose`, `DriedMeat`, `Firewood`, `Fish`, `FishingLine`, `FishingNet`, `Flint`, `Goose`, `Hare`, `HideCoat`, `IceChisel`, `Kettle`, `Knife`, `MbToken`, `Musket`, `PackBasket`, `Pemmican`, `PointBlanket`, `Powder`, `Ptarmigan`, `Roots`, `Rum`, `SaltGeese`, `ShotHide`, `ShotPelt`, `Snowshoes`, `SpruceBeer`, `SteelTrap`, `Stroud`, `ThinPelt`, `Tobacco`, `Tomahawk`, `TradeGoods`, `Tumpline`, `Venison`, `Water`, `WolfPelt`.

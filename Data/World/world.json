@@ -72395,6 +72395,5661 @@
      "gate": 10,
      "name": "Fort Detroit"
     }
+   },
+   {
+    "name": "Mackinac Island",
+    "polity": "AMER",
+    "year": 1781,
+    "note": "The island at the straits between Lakes Huron and Michigan: Fort Mackinac on the bluff, built by the British in 1781 and given up to the Americans in 1796, and below it the village of the Michilimackinac traders, their clerks and engages and their Odawa and Ojibwe kin, the summer rendezvous of the upper country's trade.",
+    "top": [
+     1045,
+     1816
+    ],
+    "width": 124,
+    "depth": 130,
+    "buildings": [
+     {
+      "kind": "Church",
+      "name": "Ste. Anne's",
+      "i": 48,
+      "j": 56,
+      "home": ""
+     },
+     {
+      "kind": "Store",
+      "name": "the market house",
+      "i": 48,
+      "j": 42,
+      "home": "market"
+     },
+     {
+      "kind": "Store",
+      "name": "Michael Dousman's store",
+      "i": 43,
+      "j": 49,
+      "home": "house 1"
+     },
+     {
+      "kind": "Store",
+      "name": "Joseph Labadie's store",
+      "i": 37,
+      "j": 56,
+      "home": "house 2"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the smith's shop",
+      "i": 43,
+      "j": 42,
+      "home": "house 3"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the cooper's shop",
+      "i": 38,
+      "j": 49,
+      "home": "house 4"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the baker's shop",
+      "i": 42,
+      "j": 63,
+      "home": "house 5"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Lefebvre house",
+      "i": 47,
+      "j": 35,
+      "home": "house 6"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Bondy house",
+      "i": 34,
+      "j": 49,
+      "home": "house 7"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Ducharme house",
+      "i": 38,
+      "j": 63,
+      "home": "house 9"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Hanks house",
+      "i": 33,
+      "j": 63,
+      "home": "house 10"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Reaume house",
+      "i": 25,
+      "j": 49,
+      "home": "house 11"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Taylor house",
+      "i": 21,
+      "j": 35,
+      "home": "house 12"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Tremblay house",
+      "i": 26,
+      "j": 56,
+      "home": "house 16"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Witherell house",
+      "i": 20,
+      "j": 42,
+      "home": "house 22"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Griswold house",
+      "i": 33,
+      "j": 70,
+      "home": "house 24"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Chene house",
+      "i": 20,
+      "j": 49,
+      "home": "house 31"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Dyson house",
+      "i": 26,
+      "j": 63,
+      "home": "house 33"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Jones house",
+      "i": 17,
+      "j": 42,
+      "home": "house 34"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Labadie house",
+      "i": 21,
+      "j": 56,
+      "home": "house 38"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Sibley house",
+      "i": 34,
+      "j": 77,
+      "home": "house 42"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Coe house",
+      "i": 16,
+      "j": 49,
+      "home": "house 44"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Drouillard house",
+      "i": 37,
+      "j": 84,
+      "home": "house 49"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Parent house",
+      "i": 27,
+      "j": 70,
+      "home": "house 53"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Tuttle house",
+      "i": 20,
+      "j": 63,
+      "home": "house 55"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Riopelle house",
+      "i": 10,
+      "j": 42,
+      "home": "house 56"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Langlois house",
+      "i": 17,
+      "j": 56,
+      "home": "house 57"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Smith house and Moran house",
+      "i": 10,
+      "j": 49,
+      "home": "house 8;house 13"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Tuttle house and Chene house",
+      "i": 16,
+      "j": 7,
+      "home": "house 14;house 15"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Reaume house and Cicotte house",
+      "i": 33,
+      "j": 84,
+      "home": "house 17;house 19"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the St. Aubin house and Williams house",
+      "i": 20,
+      "j": 70,
+      "home": "house 20;house 21"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lasselle house and Dupuis house",
+      "i": 16,
+      "j": 63,
+      "home": "house 23;house 25"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Chene house and Gouin house",
+      "i": 38,
+      "j": 91,
+      "home": "house 26;house 29"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Tremblay house and Harris house",
+      "i": 5,
+      "j": 42,
+      "home": "house 30;house 32"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Cloutier house and Dupuis house",
+      "i": 11,
+      "j": 56,
+      "home": "house 35;house 36"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Cloutier house and Root house",
+      "i": 33,
+      "j": 0,
+      "home": "house 37;house 39"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Gagnon house and Macomb house",
+      "i": 37,
+      "j": 0,
+      "home": "house 40;house 41"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Dupuis house and Sibley house",
+      "i": 5,
+      "j": 49,
+      "home": "house 45;house 46"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Lasselle house and Drouillard house",
+      "i": 0,
+      "j": 35,
+      "home": "house 47;house 51"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Taylor house and Whipple house",
+      "i": 16,
+      "j": 70,
+      "home": "house 52;house 54"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Hanks house and Marentette house",
+      "i": 20,
+      "j": 77,
+      "home": "house 58;house 59"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Baby house",
+      "i": 104,
+      "j": 94,
+      "home": "house 18"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Rivard house",
+      "i": 104,
+      "j": 102,
+      "home": "house 27"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Pelletier house",
+      "i": 112,
+      "j": 118,
+      "home": "house 28"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Larned house",
+      "i": 120,
+      "j": 110,
+      "home": "house 43"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Rousseau house",
+      "i": 120,
+      "j": 126,
+      "home": "house 48"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Macomb house",
+      "i": 104,
+      "j": 110,
+      "home": "house 50"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (1)",
+      "i": 99,
+      "j": 68,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (2)",
+      "i": 108,
+      "j": 68,
+      "home": "garrison"
+     },
+     {
+      "kind": "FactorsHouse",
+      "name": "the officers' quarters",
+      "i": 100,
+      "j": 75,
+      "home": "garrison"
+     },
+     {
+      "kind": "PowderMagazine",
+      "name": "the powder magazine",
+      "i": 112,
+      "j": 76,
+      "home": ""
+     }
+    ],
+    "props": [
+     {
+      "kind": "garden",
+      "i": 42,
+      "j": 41
+     },
+     {
+      "kind": "garden",
+      "i": 42,
+      "j": 44
+     },
+     {
+      "kind": "woodpile",
+      "i": 42,
+      "j": 45
+     },
+     {
+      "kind": "garden",
+      "i": 37,
+      "j": 49
+     },
+     {
+      "kind": "garden",
+      "i": 37,
+      "j": 50
+     },
+     {
+      "kind": "woodpile",
+      "i": 37,
+      "j": 52
+     },
+     {
+      "kind": "garden",
+      "i": 42,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 43,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 44,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 46,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 46,
+      "j": 64
+     },
+     {
+      "kind": "garden",
+      "i": 46,
+      "j": 65
+     },
+     {
+      "kind": "woodpile",
+      "i": 46,
+      "j": 66
+     },
+     {
+      "kind": "garden",
+      "i": 47,
+      "j": 34
+     },
+     {
+      "kind": "garden",
+      "i": 49,
+      "j": 34
+     },
+     {
+      "kind": "garden",
+      "i": 50,
+      "j": 35
+     },
+     {
+      "kind": "garden",
+      "i": 50,
+      "j": 36
+     },
+     {
+      "kind": "garden",
+      "i": 50,
+      "j": 38
+     },
+     {
+      "kind": "garden",
+      "i": 51,
+      "j": 34
+     },
+     {
+      "kind": "garden",
+      "i": 51,
+      "j": 36
+     },
+     {
+      "kind": "woodpile",
+      "i": 50,
+      "j": 38
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 50
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 51
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 52
+     },
+     {
+      "kind": "garden",
+      "i": 33,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 33,
+      "j": 49
+     },
+     {
+      "kind": "garden",
+      "i": 33,
+      "j": 50
+     },
+     {
+      "kind": "garden",
+      "i": 33,
+      "j": 51
+     },
+     {
+      "kind": "garden",
+      "i": 35,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 48
+     },
+     {
+      "kind": "woodpile",
+      "i": 33,
+      "j": 52
+     },
+     {
+      "kind": "garden",
+      "i": 37,
+      "j": 63
+     },
+     {
+      "kind": "garden",
+      "i": 37,
+      "j": 64
+     },
+     {
+      "kind": "garden",
+      "i": 39,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 41,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 41,
+      "j": 64
+     },
+     {
+      "kind": "woodpile",
+      "i": 41,
+      "j": 66
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 56
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 58
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 59
+     },
+     {
+      "kind": "garden",
+      "i": 33,
+      "j": 59
+     },
+     {
+      "kind": "garden",
+      "i": 34,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 34,
+      "j": 58
+     },
+     {
+      "kind": "garden",
+      "i": 35,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 35,
+      "j": 57
+     },
+     {
+      "kind": "garden",
+      "i": 35,
+      "j": 59
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 56
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 58
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 63
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 64
+     },
+     {
+      "kind": "garden",
+      "i": 33,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 63
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 64
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 65
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 66
+     },
+     {
+      "kind": "woodpile",
+      "i": 36,
+      "j": 66
+     },
+     {
+      "kind": "garden",
+      "i": 26,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 27,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 28,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 28,
+      "j": 51
+     },
+     {
+      "kind": "garden",
+      "i": 28,
+      "j": 52
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 49
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 50
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 51
+     },
+     {
+      "kind": "woodpile",
+      "i": 28,
+      "j": 52
+     },
+     {
+      "kind": "garden",
+      "i": 20,
+      "j": 35
+     },
+     {
+      "kind": "garden",
+      "i": 20,
+      "j": 36
+     },
+     {
+      "kind": "garden",
+      "i": 20,
+      "j": 38
+     },
+     {
+      "kind": "garden",
+      "i": 21,
+      "j": 34
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 34
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 35
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 36
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 37
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 38
+     },
+     {
+      "kind": "woodpile",
+      "i": 24,
+      "j": 38
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 58
+     },
+     {
+      "kind": "garden",
+      "i": 26,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 27,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 28,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 56
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 57
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 58
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 59
+     },
+     {
+      "kind": "woodpile",
+      "i": 29,
+      "j": 59
+     },
+     {
+      "kind": "garden",
+      "i": 21,
+      "j": 41
+     },
+     {
+      "kind": "garden",
+      "i": 22,
+      "j": 41
+     },
+     {
+      "kind": "garden",
+      "i": 23,
+      "j": 43
+     },
+     {
+      "kind": "garden",
+      "i": 23,
+      "j": 44
+     },
+     {
+      "kind": "garden",
+      "i": 23,
+      "j": 45
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 42
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 43
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 45
+     },
+     {
+      "kind": "woodpile",
+      "i": 23,
+      "j": 45
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 69
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 70
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 71
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 72
+     },
+     {
+      "kind": "garden",
+      "i": 33,
+      "j": 69
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 70
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 71
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 72
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 73
+     },
+     {
+      "kind": "woodpile",
+      "i": 36,
+      "j": 73
+     },
+     {
+      "kind": "garden",
+      "i": 20,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 23,
+      "j": 51
+     },
+     {
+      "kind": "garden",
+      "i": 23,
+      "j": 52
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 49
+     },
+     {
+      "kind": "woodpile",
+      "i": 23,
+      "j": 52
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 63
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 65
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 66
+     },
+     {
+      "kind": "garden",
+      "i": 27,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 66
+     },
+     {
+      "kind": "woodpile",
+      "i": 29,
+      "j": 66
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 41
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 42
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 43
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 44
+     },
+     {
+      "kind": "garden",
+      "i": 16,
+      "j": 43
+     },
+     {
+      "kind": "garden",
+      "i": 16,
+      "j": 45
+     },
+     {
+      "kind": "garden",
+      "i": 17,
+      "j": 41
+     },
+     {
+      "kind": "woodpile",
+      "i": 16,
+      "j": 45
+     },
+     {
+      "kind": "garden",
+      "i": 20,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 20,
+      "j": 56
+     },
+     {
+      "kind": "garden",
+      "i": 20,
+      "j": 58
+     },
+     {
+      "kind": "garden",
+      "i": 20,
+      "j": 59
+     },
+     {
+      "kind": "garden",
+      "i": 21,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 22,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 23,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 56
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 57
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 58
+     },
+     {
+      "kind": "woodpile",
+      "i": 24,
+      "j": 59
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 77
+     },
+     {
+      "kind": "garden",
+      "i": 33,
+      "j": 80
+     },
+     {
+      "kind": "garden",
+      "i": 34,
+      "j": 76
+     },
+     {
+      "kind": "garden",
+      "i": 35,
+      "j": 76
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 76
+     },
+     {
+      "kind": "woodpile",
+      "i": 33,
+      "j": 80
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 51
+     },
+     {
+      "kind": "garden",
+      "i": 17,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 18,
+      "j": 48
+     },
+     {
+      "kind": "woodpile",
+      "i": 19,
+      "j": 52
+     },
+     {
+      "kind": "garden",
+      "i": 37,
+      "j": 83
+     },
+     {
+      "kind": "garden",
+      "i": 38,
+      "j": 83
+     },
+     {
+      "kind": "garden",
+      "i": 40,
+      "j": 84
+     },
+     {
+      "kind": "garden",
+      "i": 40,
+      "j": 85
+     },
+     {
+      "kind": "garden",
+      "i": 40,
+      "j": 86
+     },
+     {
+      "kind": "garden",
+      "i": 41,
+      "j": 83
+     },
+     {
+      "kind": "garden",
+      "i": 41,
+      "j": 85
+     },
+     {
+      "kind": "woodpile",
+      "i": 40,
+      "j": 87
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 69
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 70
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 71
+     },
+     {
+      "kind": "garden",
+      "i": 26,
+      "j": 70
+     },
+     {
+      "kind": "garden",
+      "i": 26,
+      "j": 73
+     },
+     {
+      "kind": "garden",
+      "i": 27,
+      "j": 69
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 69
+     },
+     {
+      "kind": "woodpile",
+      "i": 26,
+      "j": 73
+     },
+     {
+      "kind": "garden",
+      "i": 20,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 21,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 23,
+      "j": 63
+     },
+     {
+      "kind": "garden",
+      "i": 23,
+      "j": 64
+     },
+     {
+      "kind": "garden",
+      "i": 23,
+      "j": 66
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 63
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 64
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 66
+     },
+     {
+      "kind": "woodpile",
+      "i": 23,
+      "j": 66
+     },
+     {
+      "kind": "garden",
+      "i": 10,
+      "j": 41
+     },
+     {
+      "kind": "garden",
+      "i": 12,
+      "j": 41
+     },
+     {
+      "kind": "garden",
+      "i": 13,
+      "j": 45
+     },
+     {
+      "kind": "garden",
+      "i": 14,
+      "j": 41
+     },
+     {
+      "kind": "garden",
+      "i": 14,
+      "j": 43
+     },
+     {
+      "kind": "garden",
+      "i": 14,
+      "j": 44
+     },
+     {
+      "kind": "woodpile",
+      "i": 13,
+      "j": 45
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 58
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 59
+     },
+     {
+      "kind": "garden",
+      "i": 16,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 16,
+      "j": 56
+     },
+     {
+      "kind": "garden",
+      "i": 16,
+      "j": 57
+     },
+     {
+      "kind": "garden",
+      "i": 16,
+      "j": 58
+     },
+     {
+      "kind": "garden",
+      "i": 16,
+      "j": 59
+     },
+     {
+      "kind": "garden",
+      "i": 19,
+      "j": 55
+     },
+     {
+      "kind": "woodpile",
+      "i": 16,
+      "j": 59
+     },
+     {
+      "kind": "garden",
+      "i": 11,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 13,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 14,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 14,
+      "j": 49
+     },
+     {
+      "kind": "woodpile",
+      "i": 14,
+      "j": 52
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 9
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 10
+     },
+     {
+      "kind": "garden",
+      "i": 16,
+      "j": 6
+     },
+     {
+      "kind": "garden",
+      "i": 18,
+      "j": 6
+     },
+     {
+      "kind": "woodpile",
+      "i": 15,
+      "j": 10
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 83
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 85
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 86
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 87
+     },
+     {
+      "kind": "garden",
+      "i": 33,
+      "j": 83
+     },
+     {
+      "kind": "garden",
+      "i": 35,
+      "j": 83
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": 83
+     },
+     {
+      "kind": "woodpile",
+      "i": 32,
+      "j": 87
+     },
+     {
+      "kind": "garden",
+      "i": 20,
+      "j": 69
+     },
+     {
+      "kind": "garden",
+      "i": 21,
+      "j": 69
+     },
+     {
+      "kind": "garden",
+      "i": 23,
+      "j": 69
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 69
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 73
+     },
+     {
+      "kind": "woodpile",
+      "i": 24,
+      "j": 73
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 76
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 77
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 78
+     },
+     {
+      "kind": "garden",
+      "i": 26,
+      "j": 77
+     },
+     {
+      "kind": "garden",
+      "i": 26,
+      "j": 78
+     },
+     {
+      "kind": "garden",
+      "i": 28,
+      "j": 77
+     },
+     {
+      "kind": "garden",
+      "i": 28,
+      "j": 78
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 76
+     },
+     {
+      "kind": "garden",
+      "i": 29,
+      "j": 77
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 63
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 65
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 66
+     },
+     {
+      "kind": "garden",
+      "i": 16,
+      "j": 62
+     },
+     {
+      "kind": "garden",
+      "i": 17,
+      "j": 62
+     },
+     {
+      "kind": "woodpile",
+      "i": 15,
+      "j": 66
+     },
+     {
+      "kind": "garden",
+      "i": 37,
+      "j": 92
+     },
+     {
+      "kind": "garden",
+      "i": 37,
+      "j": 93
+     },
+     {
+      "kind": "garden",
+      "i": 38,
+      "j": 90
+     },
+     {
+      "kind": "garden",
+      "i": 39,
+      "j": 90
+     },
+     {
+      "kind": "garden",
+      "i": 40,
+      "j": 90
+     },
+     {
+      "kind": "garden",
+      "i": 41,
+      "j": 90
+     },
+     {
+      "kind": "woodpile",
+      "i": 37,
+      "j": 94
+     },
+     {
+      "kind": "garden",
+      "i": 6,
+      "j": 41
+     },
+     {
+      "kind": "garden",
+      "i": 8,
+      "j": 41
+     },
+     {
+      "kind": "garden",
+      "i": 9,
+      "j": 42
+     },
+     {
+      "kind": "garden",
+      "i": 9,
+      "j": 45
+     },
+     {
+      "kind": "woodpile",
+      "i": 9,
+      "j": 45
+     },
+     {
+      "kind": "garden",
+      "i": 10,
+      "j": 56
+     },
+     {
+      "kind": "garden",
+      "i": 10,
+      "j": 57
+     },
+     {
+      "kind": "garden",
+      "i": 10,
+      "j": 59
+     },
+     {
+      "kind": "garden",
+      "i": 12,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 13,
+      "j": 55
+     },
+     {
+      "kind": "garden",
+      "i": 14,
+      "j": 55
+     },
+     {
+      "kind": "woodpile",
+      "i": 10,
+      "j": 59
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 1
+     },
+     {
+      "kind": "garden",
+      "i": 32,
+      "j": 3
+     },
+     {
+      "kind": "garden",
+      "i": 34,
+      "j": -1
+     },
+     {
+      "kind": "garden",
+      "i": 35,
+      "j": -1
+     },
+     {
+      "kind": "garden",
+      "i": 36,
+      "j": -1
+     },
+     {
+      "kind": "woodpile",
+      "i": 32,
+      "j": 3
+     },
+     {
+      "kind": "garden",
+      "i": 38,
+      "j": -1
+     },
+     {
+      "kind": "garden",
+      "i": 39,
+      "j": -1
+     },
+     {
+      "kind": "garden",
+      "i": 41,
+      "j": 1
+     },
+     {
+      "kind": "garden",
+      "i": 41,
+      "j": 3
+     },
+     {
+      "kind": "woodpile",
+      "i": 41,
+      "j": 3
+     },
+     {
+      "kind": "garden",
+      "i": 7,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 8,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 9,
+      "j": 48
+     },
+     {
+      "kind": "garden",
+      "i": 9,
+      "j": 50
+     },
+     {
+      "kind": "garden",
+      "i": 9,
+      "j": 51
+     },
+     {
+      "kind": "woodpile",
+      "i": 9,
+      "j": 52
+     },
+     {
+      "kind": "garden",
+      "i": 3,
+      "j": 34
+     },
+     {
+      "kind": "garden",
+      "i": 4,
+      "j": 35
+     },
+     {
+      "kind": "woodpile",
+      "i": 4,
+      "j": 38
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 69
+     },
+     {
+      "kind": "garden",
+      "i": 15,
+      "j": 70
+     },
+     {
+      "kind": "garden",
+      "i": 18,
+      "j": 69
+     },
+     {
+      "kind": "garden",
+      "i": 19,
+      "j": 69
+     },
+     {
+      "kind": "woodpile",
+      "i": 15,
+      "j": 73
+     },
+     {
+      "kind": "garden",
+      "i": 20,
+      "j": 76
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 76
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 78
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 79
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 80
+     },
+     {
+      "kind": "woodpile",
+      "i": 24,
+      "j": 80
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 94
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 95
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 96
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 97
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 98
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 99
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 94
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 95
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 96
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 97
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 98
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 99
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 94
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 95
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 96
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 97
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 98
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 99
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 94
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 95
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 96
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 97
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 98
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 99
+     },
+     {
+      "kind": "woodpile",
+      "i": 108,
+      "j": 97
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 102
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 103
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 104
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 105
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 106
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 107
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 102
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 103
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 104
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 105
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 106
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 107
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 102
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 103
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 104
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 105
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 106
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 107
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 102
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 103
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 104
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 105
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 106
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 107
+     },
+     {
+      "kind": "woodpile",
+      "i": 108,
+      "j": 105
+     },
+     {
+      "kind": "field",
+      "i": 117,
+      "j": 118
+     },
+     {
+      "kind": "field",
+      "i": 117,
+      "j": 119
+     },
+     {
+      "kind": "field",
+      "i": 117,
+      "j": 120
+     },
+     {
+      "kind": "field",
+      "i": 117,
+      "j": 121
+     },
+     {
+      "kind": "field",
+      "i": 117,
+      "j": 122
+     },
+     {
+      "kind": "field",
+      "i": 117,
+      "j": 123
+     },
+     {
+      "kind": "field",
+      "i": 118,
+      "j": 118
+     },
+     {
+      "kind": "field",
+      "i": 118,
+      "j": 119
+     },
+     {
+      "kind": "field",
+      "i": 118,
+      "j": 120
+     },
+     {
+      "kind": "field",
+      "i": 118,
+      "j": 121
+     },
+     {
+      "kind": "field",
+      "i": 118,
+      "j": 122
+     },
+     {
+      "kind": "field",
+      "i": 118,
+      "j": 123
+     },
+     {
+      "kind": "field",
+      "i": 119,
+      "j": 118
+     },
+     {
+      "kind": "field",
+      "i": 119,
+      "j": 119
+     },
+     {
+      "kind": "field",
+      "i": 119,
+      "j": 120
+     },
+     {
+      "kind": "field",
+      "i": 119,
+      "j": 121
+     },
+     {
+      "kind": "field",
+      "i": 119,
+      "j": 122
+     },
+     {
+      "kind": "field",
+      "i": 119,
+      "j": 123
+     },
+     {
+      "kind": "field",
+      "i": 120,
+      "j": 118
+     },
+     {
+      "kind": "field",
+      "i": 120,
+      "j": 119
+     },
+     {
+      "kind": "field",
+      "i": 120,
+      "j": 120
+     },
+     {
+      "kind": "field",
+      "i": 120,
+      "j": 121
+     },
+     {
+      "kind": "field",
+      "i": 120,
+      "j": 122
+     },
+     {
+      "kind": "field",
+      "i": 120,
+      "j": 123
+     },
+     {
+      "kind": "woodpile",
+      "i": 116,
+      "j": 121
+     },
+     {
+      "kind": "field",
+      "i": 125,
+      "j": 110
+     },
+     {
+      "kind": "field",
+      "i": 125,
+      "j": 111
+     },
+     {
+      "kind": "field",
+      "i": 125,
+      "j": 112
+     },
+     {
+      "kind": "field",
+      "i": 125,
+      "j": 113
+     },
+     {
+      "kind": "field",
+      "i": 125,
+      "j": 114
+     },
+     {
+      "kind": "field",
+      "i": 125,
+      "j": 115
+     },
+     {
+      "kind": "field",
+      "i": 126,
+      "j": 110
+     },
+     {
+      "kind": "field",
+      "i": 126,
+      "j": 111
+     },
+     {
+      "kind": "field",
+      "i": 126,
+      "j": 112
+     },
+     {
+      "kind": "field",
+      "i": 126,
+      "j": 113
+     },
+     {
+      "kind": "field",
+      "i": 126,
+      "j": 114
+     },
+     {
+      "kind": "field",
+      "i": 126,
+      "j": 115
+     },
+     {
+      "kind": "field",
+      "i": 127,
+      "j": 110
+     },
+     {
+      "kind": "field",
+      "i": 127,
+      "j": 111
+     },
+     {
+      "kind": "field",
+      "i": 127,
+      "j": 112
+     },
+     {
+      "kind": "field",
+      "i": 127,
+      "j": 113
+     },
+     {
+      "kind": "field",
+      "i": 127,
+      "j": 114
+     },
+     {
+      "kind": "field",
+      "i": 127,
+      "j": 115
+     },
+     {
+      "kind": "field",
+      "i": 128,
+      "j": 110
+     },
+     {
+      "kind": "field",
+      "i": 128,
+      "j": 111
+     },
+     {
+      "kind": "field",
+      "i": 128,
+      "j": 112
+     },
+     {
+      "kind": "field",
+      "i": 128,
+      "j": 113
+     },
+     {
+      "kind": "field",
+      "i": 128,
+      "j": 114
+     },
+     {
+      "kind": "field",
+      "i": 128,
+      "j": 115
+     },
+     {
+      "kind": "woodpile",
+      "i": 124,
+      "j": 113
+     },
+     {
+      "kind": "field",
+      "i": 125,
+      "j": 126
+     },
+     {
+      "kind": "field",
+      "i": 125,
+      "j": 127
+     },
+     {
+      "kind": "field",
+      "i": 125,
+      "j": 128
+     },
+     {
+      "kind": "field",
+      "i": 125,
+      "j": 129
+     },
+     {
+      "kind": "field",
+      "i": 125,
+      "j": 130
+     },
+     {
+      "kind": "field",
+      "i": 125,
+      "j": 131
+     },
+     {
+      "kind": "field",
+      "i": 126,
+      "j": 126
+     },
+     {
+      "kind": "field",
+      "i": 126,
+      "j": 127
+     },
+     {
+      "kind": "field",
+      "i": 126,
+      "j": 128
+     },
+     {
+      "kind": "field",
+      "i": 126,
+      "j": 129
+     },
+     {
+      "kind": "field",
+      "i": 126,
+      "j": 130
+     },
+     {
+      "kind": "field",
+      "i": 126,
+      "j": 131
+     },
+     {
+      "kind": "field",
+      "i": 127,
+      "j": 126
+     },
+     {
+      "kind": "field",
+      "i": 127,
+      "j": 127
+     },
+     {
+      "kind": "field",
+      "i": 127,
+      "j": 128
+     },
+     {
+      "kind": "field",
+      "i": 127,
+      "j": 129
+     },
+     {
+      "kind": "field",
+      "i": 127,
+      "j": 130
+     },
+     {
+      "kind": "field",
+      "i": 127,
+      "j": 131
+     },
+     {
+      "kind": "field",
+      "i": 128,
+      "j": 126
+     },
+     {
+      "kind": "field",
+      "i": 128,
+      "j": 127
+     },
+     {
+      "kind": "field",
+      "i": 128,
+      "j": 128
+     },
+     {
+      "kind": "field",
+      "i": 128,
+      "j": 129
+     },
+     {
+      "kind": "field",
+      "i": 128,
+      "j": 130
+     },
+     {
+      "kind": "field",
+      "i": 128,
+      "j": 131
+     },
+     {
+      "kind": "woodpile",
+      "i": 124,
+      "j": 129
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 110
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 111
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 112
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 113
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 114
+     },
+     {
+      "kind": "field",
+      "i": 109,
+      "j": 115
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 110
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 111
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 112
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 113
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 114
+     },
+     {
+      "kind": "field",
+      "i": 110,
+      "j": 115
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 110
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 111
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 112
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 113
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 114
+     },
+     {
+      "kind": "field",
+      "i": 111,
+      "j": 115
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 110
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 111
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 112
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 113
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 114
+     },
+     {
+      "kind": "field",
+      "i": 112,
+      "j": 115
+     },
+     {
+      "kind": "woodpile",
+      "i": 108,
+      "j": 113
+     }
+    ],
+    "streets": [
+     [
+      0,
+      39
+     ],
+     [
+      0,
+      40
+     ],
+     [
+      1,
+      39
+     ],
+     [
+      1,
+      40
+     ],
+     [
+      2,
+      39
+     ],
+     [
+      2,
+      40
+     ],
+     [
+      3,
+      39
+     ],
+     [
+      3,
+      40
+     ],
+     [
+      4,
+      39
+     ],
+     [
+      4,
+      40
+     ],
+     [
+      5,
+      46
+     ],
+     [
+      5,
+      47
+     ],
+     [
+      5,
+      53
+     ],
+     [
+      5,
+      54
+     ],
+     [
+      6,
+      46
+     ],
+     [
+      6,
+      47
+     ],
+     [
+      6,
+      53
+     ],
+     [
+      6,
+      54
+     ],
+     [
+      7,
+      46
+     ],
+     [
+      7,
+      47
+     ],
+     [
+      7,
+      53
+     ],
+     [
+      7,
+      54
+     ],
+     [
+      8,
+      46
+     ],
+     [
+      8,
+      47
+     ],
+     [
+      8,
+      53
+     ],
+     [
+      8,
+      54
+     ],
+     [
+      9,
+      46
+     ],
+     [
+      9,
+      47
+     ],
+     [
+      9,
+      53
+     ],
+     [
+      9,
+      54
+     ],
+     [
+      10,
+      46
+     ],
+     [
+      10,
+      47
+     ],
+     [
+      10,
+      53
+     ],
+     [
+      10,
+      54
+     ],
+     [
+      10,
+      60
+     ],
+     [
+      10,
+      61
+     ],
+     [
+      11,
+      46
+     ],
+     [
+      11,
+      47
+     ],
+     [
+      11,
+      53
+     ],
+     [
+      11,
+      54
+     ],
+     [
+      11,
+      60
+     ],
+     [
+      11,
+      61
+     ],
+     [
+      12,
+      46
+     ],
+     [
+      12,
+      47
+     ],
+     [
+      12,
+      53
+     ],
+     [
+      12,
+      54
+     ],
+     [
+      12,
+      60
+     ],
+     [
+      12,
+      61
+     ],
+     [
+      13,
+      46
+     ],
+     [
+      13,
+      47
+     ],
+     [
+      13,
+      53
+     ],
+     [
+      13,
+      54
+     ],
+     [
+      13,
+      60
+     ],
+     [
+      13,
+      61
+     ],
+     [
+      14,
+      46
+     ],
+     [
+      14,
+      47
+     ],
+     [
+      14,
+      53
+     ],
+     [
+      14,
+      54
+     ],
+     [
+      14,
+      60
+     ],
+     [
+      14,
+      61
+     ],
+     [
+      15,
+      11
+     ],
+     [
+      15,
+      12
+     ],
+     [
+      15,
+      46
+     ],
+     [
+      15,
+      47
+     ],
+     [
+      15,
+      53
+     ],
+     [
+      15,
+      54
+     ],
+     [
+      15,
+      60
+     ],
+     [
+      15,
+      61
+     ],
+     [
+      15,
+      67
+     ],
+     [
+      15,
+      68
+     ],
+     [
+      15,
+      74
+     ],
+     [
+      15,
+      75
+     ],
+     [
+      16,
+      11
+     ],
+     [
+      16,
+      12
+     ],
+     [
+      16,
+      46
+     ],
+     [
+      16,
+      47
+     ],
+     [
+      16,
+      53
+     ],
+     [
+      16,
+      54
+     ],
+     [
+      16,
+      60
+     ],
+     [
+      16,
+      61
+     ],
+     [
+      16,
+      67
+     ],
+     [
+      16,
+      68
+     ],
+     [
+      16,
+      74
+     ],
+     [
+      16,
+      75
+     ],
+     [
+      17,
+      11
+     ],
+     [
+      17,
+      12
+     ],
+     [
+      17,
+      46
+     ],
+     [
+      17,
+      47
+     ],
+     [
+      17,
+      53
+     ],
+     [
+      17,
+      54
+     ],
+     [
+      17,
+      60
+     ],
+     [
+      17,
+      61
+     ],
+     [
+      17,
+      67
+     ],
+     [
+      17,
+      68
+     ],
+     [
+      17,
+      74
+     ],
+     [
+      17,
+      75
+     ],
+     [
+      18,
+      11
+     ],
+     [
+      18,
+      12
+     ],
+     [
+      18,
+      46
+     ],
+     [
+      18,
+      47
+     ],
+     [
+      18,
+      53
+     ],
+     [
+      18,
+      54
+     ],
+     [
+      18,
+      60
+     ],
+     [
+      18,
+      61
+     ],
+     [
+      18,
+      67
+     ],
+     [
+      18,
+      68
+     ],
+     [
+      18,
+      74
+     ],
+     [
+      18,
+      75
+     ],
+     [
+      19,
+      11
+     ],
+     [
+      19,
+      12
+     ],
+     [
+      19,
+      46
+     ],
+     [
+      19,
+      47
+     ],
+     [
+      19,
+      53
+     ],
+     [
+      19,
+      54
+     ],
+     [
+      19,
+      60
+     ],
+     [
+      19,
+      61
+     ],
+     [
+      19,
+      67
+     ],
+     [
+      19,
+      68
+     ],
+     [
+      19,
+      74
+     ],
+     [
+      19,
+      75
+     ],
+     [
+      20,
+      39
+     ],
+     [
+      20,
+      40
+     ],
+     [
+      20,
+      46
+     ],
+     [
+      20,
+      47
+     ],
+     [
+      20,
+      53
+     ],
+     [
+      20,
+      54
+     ],
+     [
+      20,
+      60
+     ],
+     [
+      20,
+      61
+     ],
+     [
+      20,
+      67
+     ],
+     [
+      20,
+      68
+     ],
+     [
+      20,
+      74
+     ],
+     [
+      20,
+      75
+     ],
+     [
+      20,
+      81
+     ],
+     [
+      20,
+      82
+     ],
+     [
+      21,
+      39
+     ],
+     [
+      21,
+      40
+     ],
+     [
+      21,
+      46
+     ],
+     [
+      21,
+      47
+     ],
+     [
+      21,
+      53
+     ],
+     [
+      21,
+      54
+     ],
+     [
+      21,
+      60
+     ],
+     [
+      21,
+      61
+     ],
+     [
+      21,
+      67
+     ],
+     [
+      21,
+      68
+     ],
+     [
+      21,
+      74
+     ],
+     [
+      21,
+      75
+     ],
+     [
+      21,
+      81
+     ],
+     [
+      21,
+      82
+     ],
+     [
+      22,
+      39
+     ],
+     [
+      22,
+      40
+     ],
+     [
+      22,
+      46
+     ],
+     [
+      22,
+      47
+     ],
+     [
+      22,
+      53
+     ],
+     [
+      22,
+      54
+     ],
+     [
+      22,
+      60
+     ],
+     [
+      22,
+      61
+     ],
+     [
+      22,
+      67
+     ],
+     [
+      22,
+      68
+     ],
+     [
+      22,
+      74
+     ],
+     [
+      22,
+      75
+     ],
+     [
+      22,
+      81
+     ],
+     [
+      22,
+      82
+     ],
+     [
+      23,
+      39
+     ],
+     [
+      23,
+      40
+     ],
+     [
+      23,
+      46
+     ],
+     [
+      23,
+      47
+     ],
+     [
+      23,
+      53
+     ],
+     [
+      23,
+      54
+     ],
+     [
+      23,
+      60
+     ],
+     [
+      23,
+      61
+     ],
+     [
+      23,
+      67
+     ],
+     [
+      23,
+      68
+     ],
+     [
+      23,
+      74
+     ],
+     [
+      23,
+      75
+     ],
+     [
+      23,
+      81
+     ],
+     [
+      23,
+      82
+     ],
+     [
+      24,
+      39
+     ],
+     [
+      24,
+      40
+     ],
+     [
+      24,
+      46
+     ],
+     [
+      24,
+      47
+     ],
+     [
+      24,
+      53
+     ],
+     [
+      24,
+      54
+     ],
+     [
+      24,
+      60
+     ],
+     [
+      24,
+      61
+     ],
+     [
+      24,
+      67
+     ],
+     [
+      24,
+      68
+     ],
+     [
+      24,
+      74
+     ],
+     [
+      24,
+      75
+     ],
+     [
+      24,
+      81
+     ],
+     [
+      24,
+      82
+     ],
+     [
+      25,
+      53
+     ],
+     [
+      25,
+      54
+     ],
+     [
+      25,
+      60
+     ],
+     [
+      25,
+      61
+     ],
+     [
+      25,
+      67
+     ],
+     [
+      25,
+      68
+     ],
+     [
+      25,
+      74
+     ],
+     [
+      25,
+      75
+     ],
+     [
+      26,
+      53
+     ],
+     [
+      26,
+      54
+     ],
+     [
+      26,
+      60
+     ],
+     [
+      26,
+      61
+     ],
+     [
+      26,
+      67
+     ],
+     [
+      26,
+      68
+     ],
+     [
+      26,
+      74
+     ],
+     [
+      26,
+      75
+     ],
+     [
+      27,
+      53
+     ],
+     [
+      27,
+      54
+     ],
+     [
+      27,
+      60
+     ],
+     [
+      27,
+      61
+     ],
+     [
+      27,
+      67
+     ],
+     [
+      27,
+      68
+     ],
+     [
+      27,
+      74
+     ],
+     [
+      27,
+      75
+     ],
+     [
+      28,
+      53
+     ],
+     [
+      28,
+      54
+     ],
+     [
+      28,
+      60
+     ],
+     [
+      28,
+      61
+     ],
+     [
+      28,
+      67
+     ],
+     [
+      28,
+      68
+     ],
+     [
+      28,
+      74
+     ],
+     [
+      28,
+      75
+     ],
+     [
+      29,
+      53
+     ],
+     [
+      29,
+      54
+     ],
+     [
+      29,
+      60
+     ],
+     [
+      29,
+      61
+     ],
+     [
+      29,
+      67
+     ],
+     [
+      29,
+      68
+     ],
+     [
+      29,
+      74
+     ],
+     [
+      29,
+      75
+     ],
+     [
+      30,
+      48
+     ],
+     [
+      30,
+      49
+     ],
+     [
+      30,
+      50
+     ],
+     [
+      30,
+      51
+     ],
+     [
+      30,
+      52
+     ],
+     [
+      30,
+      53
+     ],
+     [
+      30,
+      54
+     ],
+     [
+      30,
+      55
+     ],
+     [
+      30,
+      56
+     ],
+     [
+      30,
+      57
+     ],
+     [
+      30,
+      58
+     ],
+     [
+      30,
+      59
+     ],
+     [
+      30,
+      60
+     ],
+     [
+      30,
+      61
+     ],
+     [
+      30,
+      62
+     ],
+     [
+      30,
+      63
+     ],
+     [
+      30,
+      64
+     ],
+     [
+      30,
+      65
+     ],
+     [
+      30,
+      66
+     ],
+     [
+      30,
+      67
+     ],
+     [
+      30,
+      68
+     ],
+     [
+      30,
+      69
+     ],
+     [
+      30,
+      70
+     ],
+     [
+      30,
+      71
+     ],
+     [
+      30,
+      72
+     ],
+     [
+      30,
+      73
+     ],
+     [
+      30,
+      74
+     ],
+     [
+      30,
+      75
+     ],
+     [
+      31,
+      48
+     ],
+     [
+      31,
+      49
+     ],
+     [
+      31,
+      50
+     ],
+     [
+      31,
+      51
+     ],
+     [
+      31,
+      52
+     ],
+     [
+      31,
+      53
+     ],
+     [
+      31,
+      54
+     ],
+     [
+      31,
+      55
+     ],
+     [
+      31,
+      56
+     ],
+     [
+      31,
+      57
+     ],
+     [
+      31,
+      58
+     ],
+     [
+      31,
+      59
+     ],
+     [
+      31,
+      60
+     ],
+     [
+      31,
+      61
+     ],
+     [
+      31,
+      62
+     ],
+     [
+      31,
+      63
+     ],
+     [
+      31,
+      64
+     ],
+     [
+      31,
+      65
+     ],
+     [
+      31,
+      66
+     ],
+     [
+      31,
+      67
+     ],
+     [
+      31,
+      68
+     ],
+     [
+      31,
+      69
+     ],
+     [
+      31,
+      70
+     ],
+     [
+      31,
+      71
+     ],
+     [
+      31,
+      72
+     ],
+     [
+      31,
+      73
+     ],
+     [
+      31,
+      74
+     ],
+     [
+      31,
+      75
+     ],
+     [
+      32,
+      4
+     ],
+     [
+      32,
+      5
+     ],
+     [
+      32,
+      53
+     ],
+     [
+      32,
+      54
+     ],
+     [
+      32,
+      67
+     ],
+     [
+      32,
+      68
+     ],
+     [
+      32,
+      74
+     ],
+     [
+      32,
+      75
+     ],
+     [
+      32,
+      81
+     ],
+     [
+      32,
+      82
+     ],
+     [
+      32,
+      88
+     ],
+     [
+      32,
+      89
+     ],
+     [
+      33,
+      4
+     ],
+     [
+      33,
+      5
+     ],
+     [
+      33,
+      53
+     ],
+     [
+      33,
+      54
+     ],
+     [
+      33,
+      67
+     ],
+     [
+      33,
+      68
+     ],
+     [
+      33,
+      74
+     ],
+     [
+      33,
+      75
+     ],
+     [
+      33,
+      81
+     ],
+     [
+      33,
+      82
+     ],
+     [
+      33,
+      88
+     ],
+     [
+      33,
+      89
+     ],
+     [
+      34,
+      4
+     ],
+     [
+      34,
+      5
+     ],
+     [
+      34,
+      53
+     ],
+     [
+      34,
+      54
+     ],
+     [
+      34,
+      67
+     ],
+     [
+      34,
+      68
+     ],
+     [
+      34,
+      74
+     ],
+     [
+      34,
+      75
+     ],
+     [
+      34,
+      81
+     ],
+     [
+      34,
+      82
+     ],
+     [
+      34,
+      88
+     ],
+     [
+      34,
+      89
+     ],
+     [
+      35,
+      4
+     ],
+     [
+      35,
+      5
+     ],
+     [
+      35,
+      53
+     ],
+     [
+      35,
+      54
+     ],
+     [
+      35,
+      67
+     ],
+     [
+      35,
+      68
+     ],
+     [
+      35,
+      74
+     ],
+     [
+      35,
+      75
+     ],
+     [
+      35,
+      81
+     ],
+     [
+      35,
+      82
+     ],
+     [
+      35,
+      88
+     ],
+     [
+      35,
+      89
+     ],
+     [
+      36,
+      4
+     ],
+     [
+      36,
+      5
+     ],
+     [
+      36,
+      53
+     ],
+     [
+      36,
+      54
+     ],
+     [
+      36,
+      67
+     ],
+     [
+      36,
+      68
+     ],
+     [
+      36,
+      74
+     ],
+     [
+      36,
+      75
+     ],
+     [
+      36,
+      81
+     ],
+     [
+      36,
+      82
+     ],
+     [
+      36,
+      88
+     ],
+     [
+      36,
+      89
+     ],
+     [
+      37,
+      4
+     ],
+     [
+      37,
+      5
+     ],
+     [
+      37,
+      53
+     ],
+     [
+      37,
+      54
+     ],
+     [
+      37,
+      60
+     ],
+     [
+      37,
+      61
+     ],
+     [
+      37,
+      67
+     ],
+     [
+      37,
+      68
+     ],
+     [
+      37,
+      88
+     ],
+     [
+      37,
+      89
+     ],
+     [
+      37,
+      95
+     ],
+     [
+      37,
+      96
+     ],
+     [
+      38,
+      4
+     ],
+     [
+      38,
+      5
+     ],
+     [
+      38,
+      53
+     ],
+     [
+      38,
+      54
+     ],
+     [
+      38,
+      60
+     ],
+     [
+      38,
+      61
+     ],
+     [
+      38,
+      67
+     ],
+     [
+      38,
+      68
+     ],
+     [
+      38,
+      88
+     ],
+     [
+      38,
+      89
+     ],
+     [
+      38,
+      95
+     ],
+     [
+      38,
+      96
+     ],
+     [
+      39,
+      4
+     ],
+     [
+      39,
+      5
+     ],
+     [
+      39,
+      53
+     ],
+     [
+      39,
+      54
+     ],
+     [
+      39,
+      60
+     ],
+     [
+      39,
+      61
+     ],
+     [
+      39,
+      67
+     ],
+     [
+      39,
+      68
+     ],
+     [
+      39,
+      88
+     ],
+     [
+      39,
+      89
+     ],
+     [
+      39,
+      95
+     ],
+     [
+      39,
+      96
+     ],
+     [
+      40,
+      4
+     ],
+     [
+      40,
+      5
+     ],
+     [
+      40,
+      53
+     ],
+     [
+      40,
+      54
+     ],
+     [
+      40,
+      60
+     ],
+     [
+      40,
+      61
+     ],
+     [
+      40,
+      67
+     ],
+     [
+      40,
+      68
+     ],
+     [
+      40,
+      88
+     ],
+     [
+      40,
+      89
+     ],
+     [
+      40,
+      95
+     ],
+     [
+      40,
+      96
+     ],
+     [
+      41,
+      4
+     ],
+     [
+      41,
+      5
+     ],
+     [
+      41,
+      53
+     ],
+     [
+      41,
+      54
+     ],
+     [
+      41,
+      60
+     ],
+     [
+      41,
+      61
+     ],
+     [
+      41,
+      67
+     ],
+     [
+      41,
+      68
+     ],
+     [
+      41,
+      88
+     ],
+     [
+      41,
+      89
+     ],
+     [
+      41,
+      95
+     ],
+     [
+      41,
+      96
+     ],
+     [
+      42,
+      46
+     ],
+     [
+      42,
+      47
+     ],
+     [
+      42,
+      53
+     ],
+     [
+      42,
+      54
+     ],
+     [
+      42,
+      60
+     ],
+     [
+      42,
+      61
+     ],
+     [
+      42,
+      67
+     ],
+     [
+      42,
+      68
+     ],
+     [
+      43,
+      46
+     ],
+     [
+      43,
+      47
+     ],
+     [
+      43,
+      53
+     ],
+     [
+      43,
+      54
+     ],
+     [
+      43,
+      60
+     ],
+     [
+      43,
+      61
+     ],
+     [
+      43,
+      67
+     ],
+     [
+      43,
+      68
+     ],
+     [
+      44,
+      46
+     ],
+     [
+      44,
+      47
+     ],
+     [
+      44,
+      53
+     ],
+     [
+      44,
+      54
+     ],
+     [
+      44,
+      60
+     ],
+     [
+      44,
+      61
+     ],
+     [
+      44,
+      67
+     ],
+     [
+      44,
+      68
+     ],
+     [
+      45,
+      46
+     ],
+     [
+      45,
+      47
+     ],
+     [
+      45,
+      53
+     ],
+     [
+      45,
+      54
+     ],
+     [
+      45,
+      60
+     ],
+     [
+      45,
+      61
+     ],
+     [
+      45,
+      67
+     ],
+     [
+      45,
+      68
+     ],
+     [
+      46,
+      46
+     ],
+     [
+      46,
+      47
+     ],
+     [
+      46,
+      53
+     ],
+     [
+      46,
+      54
+     ],
+     [
+      46,
+      60
+     ],
+     [
+      46,
+      61
+     ],
+     [
+      46,
+      67
+     ],
+     [
+      46,
+      68
+     ],
+     [
+      47,
+      39
+     ],
+     [
+      47,
+      40
+     ],
+     [
+      47,
+      46
+     ],
+     [
+      47,
+      47
+     ],
+     [
+      47,
+      53
+     ],
+     [
+      47,
+      54
+     ],
+     [
+      47,
+      60
+     ],
+     [
+      47,
+      61
+     ],
+     [
+      48,
+      39
+     ],
+     [
+      48,
+      40
+     ],
+     [
+      48,
+      46
+     ],
+     [
+      48,
+      47
+     ],
+     [
+      48,
+      53
+     ],
+     [
+      48,
+      54
+     ],
+     [
+      48,
+      60
+     ],
+     [
+      48,
+      61
+     ],
+     [
+      49,
+      39
+     ],
+     [
+      49,
+      40
+     ],
+     [
+      49,
+      46
+     ],
+     [
+      49,
+      47
+     ],
+     [
+      49,
+      53
+     ],
+     [
+      49,
+      54
+     ],
+     [
+      49,
+      60
+     ],
+     [
+      49,
+      61
+     ],
+     [
+      50,
+      39
+     ],
+     [
+      50,
+      40
+     ],
+     [
+      50,
+      46
+     ],
+     [
+      50,
+      47
+     ],
+     [
+      50,
+      53
+     ],
+     [
+      50,
+      54
+     ],
+     [
+      50,
+      60
+     ],
+     [
+      50,
+      61
+     ],
+     [
+      51,
+      39
+     ],
+     [
+      51,
+      40
+     ],
+     [
+      51,
+      46
+     ],
+     [
+      51,
+      47
+     ],
+     [
+      51,
+      53
+     ],
+     [
+      51,
+      54
+     ],
+     [
+      51,
+      60
+     ],
+     [
+      51,
+      61
+     ],
+     [
+      52,
+      46
+     ],
+     [
+      52,
+      47
+     ],
+     [
+      52,
+      60
+     ],
+     [
+      52,
+      61
+     ],
+     [
+      53,
+      46
+     ],
+     [
+      53,
+      47
+     ],
+     [
+      53,
+      60
+     ],
+     [
+      53,
+      61
+     ],
+     [
+      54,
+      46
+     ],
+     [
+      54,
+      47
+     ],
+     [
+      54,
+      60
+     ],
+     [
+      54,
+      61
+     ],
+     [
+      55,
+      46
+     ],
+     [
+      55,
+      47
+     ],
+     [
+      55,
+      60
+     ],
+     [
+      55,
+      61
+     ],
+     [
+      56,
+      46
+     ],
+     [
+      56,
+      47
+     ],
+     [
+      56,
+      60
+     ],
+     [
+      56,
+      61
+     ]
+    ],
+    "fort": {
+     "i": 98,
+     "j": 66,
+     "width": 20,
+     "depth": 21,
+     "gate": 10,
+     "name": "Fort Mackinac"
+    }
+   },
+   {
+    "name": "St. Joseph Island",
+    "polity": "CROWN",
+    "year": 1796,
+    "note": "The King's most westerly post, built when Michilimackinac was handed to the Americans: Fort St. Joseph on its point at the mouth of the St. Marys River, a company of the 10th Royal Veteran Battalion, the North West Company's store, and the Indian Department's house where the upper nations come for their presents.",
+    "top": [
+     1061,
+     1745
+    ],
+    "width": 69,
+    "depth": 53,
+    "buildings": [
+     {
+      "kind": "Store",
+      "name": "the market house",
+      "i": 61,
+      "j": 44,
+      "home": "market"
+     },
+     {
+      "kind": "Store",
+      "name": "the North West Company's store",
+      "i": 56,
+      "j": 37,
+      "home": "house 1"
+     },
+     {
+      "kind": "Workshop",
+      "name": "the smith's shop",
+      "i": 49,
+      "j": 30,
+      "home": "house 2"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Pelletier house",
+      "i": 35,
+      "j": 23,
+      "home": "house 4"
+     },
+     {
+      "kind": "Cabin",
+      "name": "the Stuart house",
+      "i": 26,
+      "j": 23,
+      "home": "house 6"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Reaume house",
+      "i": 39,
+      "j": 23,
+      "home": "house 8"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Janisse house",
+      "i": 0,
+      "j": 24,
+      "home": "house 3"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Warren house",
+      "i": 24,
+      "j": 8,
+      "home": "house 5"
+     },
+     {
+      "kind": "Townhouse",
+      "name": "the Ketchum house",
+      "i": 24,
+      "j": 0,
+      "home": "house 7"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (1)",
+      "i": 25,
+      "j": 34,
+      "home": "garrison"
+     },
+     {
+      "kind": "Barracks",
+      "name": "the barracks (2)",
+      "i": 34,
+      "j": 34,
+      "home": "garrison"
+     },
+     {
+      "kind": "FactorsHouse",
+      "name": "the officers' quarters",
+      "i": 26,
+      "j": 41,
+      "home": "garrison"
+     },
+     {
+      "kind": "PowderMagazine",
+      "name": "the powder magazine",
+      "i": 38,
+      "j": 42,
+      "home": ""
+     }
+    ],
+    "props": [
+     {
+      "kind": "garden",
+      "i": 49,
+      "j": 36
+     },
+     {
+      "kind": "garden",
+      "i": 49,
+      "j": 40
+     },
+     {
+      "kind": "garden",
+      "i": 50,
+      "j": 37
+     },
+     {
+      "kind": "garden",
+      "i": 50,
+      "j": 38
+     },
+     {
+      "kind": "garden",
+      "i": 50,
+      "j": 39
+     },
+     {
+      "kind": "garden",
+      "i": 52,
+      "j": 36
+     },
+     {
+      "kind": "garden",
+      "i": 52,
+      "j": 37
+     },
+     {
+      "kind": "garden",
+      "i": 52,
+      "j": 38
+     },
+     {
+      "kind": "garden",
+      "i": 53,
+      "j": 36
+     },
+     {
+      "kind": "garden",
+      "i": 53,
+      "j": 37
+     },
+     {
+      "kind": "garden",
+      "i": 53,
+      "j": 38
+     },
+     {
+      "kind": "garden",
+      "i": 53,
+      "j": 39
+     },
+     {
+      "kind": "garden",
+      "i": 49,
+      "j": 29
+     },
+     {
+      "kind": "garden",
+      "i": 53,
+      "j": 31
+     },
+     {
+      "kind": "garden",
+      "i": 53,
+      "j": 33
+     },
+     {
+      "kind": "woodpile",
+      "i": 53,
+      "j": 33
+     },
+     {
+      "kind": "garden",
+      "i": 34,
+      "j": 22
+     },
+     {
+      "kind": "garden",
+      "i": 34,
+      "j": 23
+     },
+     {
+      "kind": "garden",
+      "i": 34,
+      "j": 24
+     },
+     {
+      "kind": "garden",
+      "i": 34,
+      "j": 25
+     },
+     {
+      "kind": "garden",
+      "i": 34,
+      "j": 26
+     },
+     {
+      "kind": "garden",
+      "i": 35,
+      "j": 22
+     },
+     {
+      "kind": "garden",
+      "i": 37,
+      "j": 22
+     },
+     {
+      "kind": "garden",
+      "i": 38,
+      "j": 22
+     },
+     {
+      "kind": "garden",
+      "i": 38,
+      "j": 24
+     },
+     {
+      "kind": "garden",
+      "i": 38,
+      "j": 25
+     },
+     {
+      "kind": "woodpile",
+      "i": 38,
+      "j": 26
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 22
+     },
+     {
+      "kind": "garden",
+      "i": 24,
+      "j": 23
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 22
+     },
+     {
+      "kind": "garden",
+      "i": 25,
+      "j": 24
+     },
+     {
+      "kind": "garden",
+      "i": 26,
+      "j": 22
+     },
+     {
+      "kind": "garden",
+      "i": 27,
+      "j": 22
+     },
+     {
+      "kind": "garden",
+      "i": 28,
+      "j": 22
+     },
+     {
+      "kind": "woodpile",
+      "i": 25,
+      "j": 26
+     },
+     {
+      "kind": "garden",
+      "i": 39,
+      "j": 22
+     },
+     {
+      "kind": "garden",
+      "i": 41,
+      "j": 22
+     },
+     {
+      "kind": "garden",
+      "i": 43,
+      "j": 22
+     },
+     {
+      "kind": "garden",
+      "i": 43,
+      "j": 24
+     },
+     {
+      "kind": "garden",
+      "i": 43,
+      "j": 25
+     },
+     {
+      "kind": "woodpile",
+      "i": 43,
+      "j": 26
+     },
+     {
+      "kind": "field",
+      "i": 5,
+      "j": 24
+     },
+     {
+      "kind": "field",
+      "i": 5,
+      "j": 25
+     },
+     {
+      "kind": "field",
+      "i": 5,
+      "j": 26
+     },
+     {
+      "kind": "field",
+      "i": 5,
+      "j": 27
+     },
+     {
+      "kind": "field",
+      "i": 5,
+      "j": 28
+     },
+     {
+      "kind": "field",
+      "i": 5,
+      "j": 29
+     },
+     {
+      "kind": "field",
+      "i": 6,
+      "j": 24
+     },
+     {
+      "kind": "field",
+      "i": 6,
+      "j": 25
+     },
+     {
+      "kind": "field",
+      "i": 6,
+      "j": 26
+     },
+     {
+      "kind": "field",
+      "i": 6,
+      "j": 27
+     },
+     {
+      "kind": "field",
+      "i": 6,
+      "j": 28
+     },
+     {
+      "kind": "field",
+      "i": 6,
+      "j": 29
+     },
+     {
+      "kind": "field",
+      "i": 7,
+      "j": 24
+     },
+     {
+      "kind": "field",
+      "i": 7,
+      "j": 25
+     },
+     {
+      "kind": "field",
+      "i": 7,
+      "j": 26
+     },
+     {
+      "kind": "field",
+      "i": 7,
+      "j": 27
+     },
+     {
+      "kind": "field",
+      "i": 7,
+      "j": 28
+     },
+     {
+      "kind": "field",
+      "i": 7,
+      "j": 29
+     },
+     {
+      "kind": "field",
+      "i": 8,
+      "j": 24
+     },
+     {
+      "kind": "field",
+      "i": 8,
+      "j": 25
+     },
+     {
+      "kind": "field",
+      "i": 8,
+      "j": 26
+     },
+     {
+      "kind": "field",
+      "i": 8,
+      "j": 27
+     },
+     {
+      "kind": "field",
+      "i": 8,
+      "j": 28
+     },
+     {
+      "kind": "field",
+      "i": 8,
+      "j": 29
+     },
+     {
+      "kind": "woodpile",
+      "i": 4,
+      "j": 27
+     },
+     {
+      "kind": "field",
+      "i": 29,
+      "j": 8
+     },
+     {
+      "kind": "field",
+      "i": 29,
+      "j": 9
+     },
+     {
+      "kind": "field",
+      "i": 29,
+      "j": 10
+     },
+     {
+      "kind": "field",
+      "i": 29,
+      "j": 11
+     },
+     {
+      "kind": "field",
+      "i": 29,
+      "j": 12
+     },
+     {
+      "kind": "field",
+      "i": 29,
+      "j": 13
+     },
+     {
+      "kind": "field",
+      "i": 30,
+      "j": 8
+     },
+     {
+      "kind": "field",
+      "i": 30,
+      "j": 9
+     },
+     {
+      "kind": "field",
+      "i": 30,
+      "j": 10
+     },
+     {
+      "kind": "field",
+      "i": 30,
+      "j": 11
+     },
+     {
+      "kind": "field",
+      "i": 30,
+      "j": 12
+     },
+     {
+      "kind": "field",
+      "i": 30,
+      "j": 13
+     },
+     {
+      "kind": "field",
+      "i": 31,
+      "j": 8
+     },
+     {
+      "kind": "field",
+      "i": 31,
+      "j": 9
+     },
+     {
+      "kind": "field",
+      "i": 31,
+      "j": 10
+     },
+     {
+      "kind": "field",
+      "i": 31,
+      "j": 11
+     },
+     {
+      "kind": "field",
+      "i": 31,
+      "j": 12
+     },
+     {
+      "kind": "field",
+      "i": 31,
+      "j": 13
+     },
+     {
+      "kind": "field",
+      "i": 32,
+      "j": 8
+     },
+     {
+      "kind": "field",
+      "i": 32,
+      "j": 9
+     },
+     {
+      "kind": "field",
+      "i": 32,
+      "j": 10
+     },
+     {
+      "kind": "field",
+      "i": 32,
+      "j": 11
+     },
+     {
+      "kind": "field",
+      "i": 32,
+      "j": 12
+     },
+     {
+      "kind": "field",
+      "i": 32,
+      "j": 13
+     },
+     {
+      "kind": "woodpile",
+      "i": 28,
+      "j": 11
+     },
+     {
+      "kind": "field",
+      "i": 29,
+      "j": 0
+     },
+     {
+      "kind": "field",
+      "i": 29,
+      "j": 1
+     },
+     {
+      "kind": "field",
+      "i": 29,
+      "j": 2
+     },
+     {
+      "kind": "field",
+      "i": 29,
+      "j": 3
+     },
+     {
+      "kind": "field",
+      "i": 29,
+      "j": 4
+     },
+     {
+      "kind": "field",
+      "i": 29,
+      "j": 5
+     },
+     {
+      "kind": "field",
+      "i": 30,
+      "j": 0
+     },
+     {
+      "kind": "field",
+      "i": 30,
+      "j": 1
+     },
+     {
+      "kind": "field",
+      "i": 30,
+      "j": 2
+     },
+     {
+      "kind": "field",
+      "i": 30,
+      "j": 3
+     },
+     {
+      "kind": "field",
+      "i": 30,
+      "j": 4
+     },
+     {
+      "kind": "field",
+      "i": 30,
+      "j": 5
+     },
+     {
+      "kind": "field",
+      "i": 31,
+      "j": 0
+     },
+     {
+      "kind": "field",
+      "i": 31,
+      "j": 1
+     },
+     {
+      "kind": "field",
+      "i": 31,
+      "j": 2
+     },
+     {
+      "kind": "field",
+      "i": 31,
+      "j": 3
+     },
+     {
+      "kind": "field",
+      "i": 31,
+      "j": 4
+     },
+     {
+      "kind": "field",
+      "i": 31,
+      "j": 5
+     },
+     {
+      "kind": "field",
+      "i": 32,
+      "j": 0
+     },
+     {
+      "kind": "field",
+      "i": 32,
+      "j": 1
+     },
+     {
+      "kind": "field",
+      "i": 32,
+      "j": 2
+     },
+     {
+      "kind": "field",
+      "i": 32,
+      "j": 3
+     },
+     {
+      "kind": "field",
+      "i": 32,
+      "j": 4
+     },
+     {
+      "kind": "field",
+      "i": 32,
+      "j": 5
+     },
+     {
+      "kind": "woodpile",
+      "i": 28,
+      "j": 3
+     }
+    ],
+    "streets": [
+     [
+      24,
+      27
+     ],
+     [
+      24,
+      28
+     ],
+     [
+      25,
+      27
+     ],
+     [
+      25,
+      28
+     ],
+     [
+      26,
+      27
+     ],
+     [
+      26,
+      28
+     ],
+     [
+      27,
+      27
+     ],
+     [
+      27,
+      28
+     ],
+     [
+      28,
+      27
+     ],
+     [
+      28,
+      28
+     ],
+     [
+      34,
+      27
+     ],
+     [
+      34,
+      28
+     ],
+     [
+      35,
+      27
+     ],
+     [
+      35,
+      28
+     ],
+     [
+      36,
+      27
+     ],
+     [
+      36,
+      28
+     ],
+     [
+      37,
+      27
+     ],
+     [
+      37,
+      28
+     ],
+     [
+      38,
+      27
+     ],
+     [
+      38,
+      28
+     ],
+     [
+      39,
+      27
+     ],
+     [
+      39,
+      28
+     ],
+     [
+      40,
+      27
+     ],
+     [
+      40,
+      28
+     ],
+     [
+      41,
+      27
+     ],
+     [
+      41,
+      28
+     ],
+     [
+      42,
+      27
+     ],
+     [
+      42,
+      28
+     ],
+     [
+      43,
+      27
+     ],
+     [
+      43,
+      28
+     ],
+     [
+      49,
+      34
+     ],
+     [
+      49,
+      35
+     ],
+     [
+      50,
+      34
+     ],
+     [
+      50,
+      35
+     ],
+     [
+      51,
+      34
+     ],
+     [
+      51,
+      35
+     ],
+     [
+      52,
+      34
+     ],
+     [
+      52,
+      35
+     ],
+     [
+      53,
+      34
+     ],
+     [
+      53,
+      35
+     ],
+     [
+      54,
+      29
+     ],
+     [
+      54,
+      30
+     ],
+     [
+      54,
+      31
+     ],
+     [
+      54,
+      32
+     ],
+     [
+      54,
+      33
+     ],
+     [
+      54,
+      34
+     ],
+     [
+      54,
+      35
+     ],
+     [
+      55,
+      29
+     ],
+     [
+      55,
+      30
+     ],
+     [
+      55,
+      31
+     ],
+     [
+      55,
+      32
+     ],
+     [
+      55,
+      33
+     ],
+     [
+      55,
+      34
+     ],
+     [
+      55,
+      35
+     ],
+     [
+      56,
+      41
+     ],
+     [
+      56,
+      42
+     ],
+     [
+      57,
+      41
+     ],
+     [
+      57,
+      42
+     ],
+     [
+      58,
+      41
+     ],
+     [
+      58,
+      42
+     ],
+     [
+      59,
+      41
+     ],
+     [
+      59,
+      42
+     ],
+     [
+      60,
+      41
+     ],
+     [
+      60,
+      42
+     ],
+     [
+      61,
+      41
+     ],
+     [
+      61,
+      42
+     ],
+     [
+      61,
+      48
+     ],
+     [
+      61,
+      49
+     ],
+     [
+      62,
+      41
+     ],
+     [
+      62,
+      42
+     ],
+     [
+      62,
+      48
+     ],
+     [
+      62,
+      49
+     ],
+     [
+      63,
+      41
+     ],
+     [
+      63,
+      42
+     ],
+     [
+      63,
+      48
+     ],
+     [
+      63,
+      49
+     ],
+     [
+      64,
+      41
+     ],
+     [
+      64,
+      42
+     ],
+     [
+      64,
+      48
+     ],
+     [
+      64,
+      49
+     ],
+     [
+      65,
+      41
+     ],
+     [
+      65,
+      42
+     ],
+     [
+      65,
+      48
+     ],
+     [
+      65,
+      49
+     ],
+     [
+      66,
+      48
+     ],
+     [
+      66,
+      49
+     ],
+     [
+      67,
+      48
+     ],
+     [
+      67,
+      49
+     ],
+     [
+      68,
+      48
+     ],
+     [
+      68,
+      49
+     ],
+     [
+      69,
+      48
+     ],
+     [
+      69,
+      49
+     ],
+     [
+      70,
+      48
+     ],
+     [
+      70,
+      49
+     ]
+    ],
+    "fort": {
+     "i": 24,
+     "j": 32,
+     "width": 20,
+     "depth": 21,
+     "gate": 10,
+     "name": "Fort St. Joseph"
+    }
    }
   ]
  }

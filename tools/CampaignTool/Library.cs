@@ -196,6 +196,35 @@ public static class Library
 		Fn("world", "heatFeud", P1("holder:string", "against:string", "amount:int?"), "effect", "The holder's old score against the other grows (0-10): at 4 and more they ride against them, in the season, unless there is a truce.", "world.heatFeud(\"Blackfoot\", \"Beaver Hills Cree (Amiskwac\u00eewiyiniwak)\", 3)",
 			(c, s, a) => Fx(c, "feud", ("holder", a.S("holder")), ("against", a.S("against")), ("add", a.Has("amount") ? a.N("amount") : null)));
 		Fn("world", "feud", P1("holder:string", "against:string"), "int", "How hot the holder's score against the other is, 0-10.", "world.feud(\"Blackfoot\", \"Beaver Hills Cree (Amiskwac\u00eewiyiniwak)\") >= 4", (c, s, a) => Metric("feud", a.S("holder"), a.S("against")));
+		// ---- the towns at war (World/Towns.cs)
+		Fn("world", "townFalls", P1("town:string", "to:string", "prisoners:bool?"), "effect",
+			"A town changes hands (to: \"Crown\" or \"American\"). Its garrison, if it was the loser's, is taken prisoner and goes out of the country with its families (prisoners: false lets them stay); the townspeople stay. Its boards say whose it is now.",
+			"world.townFalls(\"Detroit\", \"Crown\")",
+			(c, s, a) => Fx(c, "town_falls", ("town", a.S("town")), ("to", a.S("to")), ("prisoners", a.Has("prisoners") && a["prisoners"] is false ? false : null)));
+		Fn("world", "moveGarrison", P1("from:string", "to:string", "count:int?"), "effect",
+			"So many soldiers of one town's garrison, and an officer, go to another town's fort (20 if not given): a fort taken and held, a post reinforced.",
+			"world.moveGarrison(\"Amherstburg\", \"Detroit\", 60)",
+			(c, s, a) => Fx(c, "move_garrison", ("from", a.S("from")), ("to", a.S("to")), ("count", a.Has("count") ? a.N("count") : null)));
+		Fn("world", "garrisonLeaves", P1("town:string", "where:string?", "count:int?"), "effect",
+			"A town's garrison marches out of the country (\"to Kingston\"): all of it, or so many. They are still people, only gone.",
+			"world.garrisonLeaves(\"York\", \"to Kingston\")",
+			(c, s, a) => Fx(c, "garrison_leaves", ("town", a.S("town")), ("where", a.Has("where") ? a.S("where") : null), ("count", a.Has("count") ? a.N("count") : null)));
+		Fn("world", "garrisonReturns", P1("town:string", "count:int?"), "effect",
+			"Men who went out of the country from a town (prisoners, or a garrison that marched away) come back to its fort: those who serve whoever holds it now - the paroled and exchanged, a garrison back from where it went.",
+			"world.garrisonReturns(\"Niagara\")",
+			(c, s, a) => Fx(c, "garrison_returns", ("town", a.S("town")), ("count", a.Has("count") ? a.N("count") : null)));
+		Fn("world", "casualties", P1("town:string", "count:int", "cause:string?", "role:string?"), "effect",
+			"So many men of a town killed in a fight fought out of sight: of its garrison, or of its men of a role (role: \"Farmer\" for the militia). They are mourned and their places filled as any death.",
+			"world.casualties(\"Niagara\", 14, \"at Queenston Heights\")",
+			(c, s, a) => Fx(c, "casualties", ("town", a.S("town")), ("count", a.N("count")), ("cause", a.Has("cause") ? a.S("cause") : null), ("role", a.Has("role") ? a.S("role") : null)));
+		Fn("world", "kill", P1("who:string", "cause:string?"), "effect",
+			"A named person dies, and the world says how.",
+			"world.kill(\"Major-General Isaac Brock\", \"at Queenston Heights, leading the charge up the heights\")",
+			(c, s, a) => Fx(c, "kill", ("who", a.S("who")), ("cause", a.Has("cause") ? a.S("cause") : null)));
+		Fn("world", "burn", P1("town:string", "building:string?"), "effect",
+			"A building of a town is set alight (every one of them if none is named; \"fort\" for its garrison's buildings); the fire takes it from there.",
+			"world.burn(\"York\", \"the Parliament buildings\")",
+			(c, s, a) => Fx(c, "burn", ("town", a.S("town")), ("building", a.Has("building") ? a.S("building") : null)));
 		Fn("world", "atPeace", P1("a:string", "b:string"), "bool", "True while two peoples have a truce.", "world.atPeace(\"Beaver Hills Cree (Amiskwac\u00eewiyiniwak)\", \"Blackfoot\")", (c, s, a) => new CondV(CJson.Predicate("at_peace", new() { a.S("a"), a.S("b") })));
 		Fn("world", "wonWar", P1("band:string"), "bool", "True once a war party of that camp has won a fight.", "world.wonWar(\"Blackfoot\")", (c, s, a) => Pred("flag", "war:" + a.S("band") + ":won"));
 		Fn("world", "lostWar", P1("band:string"), "bool", "True once a war party of that camp has been beaten.", "world.lostWar(\"Blackfoot\")", (c, s, a) => Pred("flag", "war:" + a.S("band") + ":lost"));
@@ -308,6 +337,25 @@ public static class Library
 		["world.warParty.against"] = "Who they ride against: another camp, or a post by its exact name (\"Brandon House\").",
 		["world.warParty.why"] = "What they ride for, for the log and the news: \"for their dead and their horses\".",
 		["world.warParty.withPlayer"] = "true: the player (the one a quest runs for) rides with them, and the fight is fought for real.",
+		["world.townFalls.town"] = "The town, by its name on the map (\"Detroit\", \"Mackinac Island\").",
+		["world.townFalls.to"] = "Who holds it now: \"Crown\" or \"American\".",
+		["world.townFalls.prisoners"] = "false to let the loser's garrison stay where it is (when it has already gone, or the town is only occupied); prisoners are taken if not given.",
+		["world.moveGarrison.from"] = "The town whose garrison sends the men.",
+		["world.moveGarrison.to"] = "The town whose fort they go to.",
+		["world.moveGarrison.count"] = "How many soldiers go (an officer with them); 20 if not given.",
+		["world.garrisonLeaves.town"] = "The town whose garrison marches away.",
+		["world.garrisonLeaves.where"] = "Where they go, as it reads in the news (\"to Kingston\"); \"out of the country\" if not given.",
+		["world.garrisonLeaves.count"] = "How many go; the whole garrison if not given.",
+		["world.garrisonReturns.town"] = "The town they went from and come back to.",
+		["world.garrisonReturns.count"] = "How many come back; all who can if not given.",
+		["world.casualties.town"] = "The town whose men are killed.",
+		["world.casualties.count"] = "How many.",
+		["world.casualties.cause"] = "How they died, as it reads (\"at Queenston Heights\"); \"in the fighting\" if not given.",
+		["world.casualties.role"] = "Whose men: a role of the town's people (\"Farmer\" for the militia); the garrison's soldiers if not given.",
+		["world.kill.who"] = "The person's name, exactly as in the cast.",
+		["world.kill.cause"] = "How they died, as it reads; \"in the fighting\" if not given.",
+		["world.burn.town"] = "The town.",
+		["world.burn.building"] = "One of its buildings by name (\"the Parliament buildings\"), or \"fort\" for its garrison's; every building if not given.",
 		["world.truce.a"] = "One side: a camp, or a post by its exact name.",
 		["world.truce.b"] = "The other side: a camp, or a post by its exact name.",
 		["world.truce.days"] = "How long the peace holds, in days (365 if not given).",

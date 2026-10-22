@@ -23,7 +23,8 @@ campaign TheLongPeace(
                  "and the Proclamation becomes a bargain; let it slip and the " +
                  "historical road is waiting.",
     seed: 1819,
-    postsByFoundingYear: true
+    postsByFoundingYear: true,
+    include: "lakes-war"   // the war of 1812 on the Lakes frontier (src/parts/lakes-war.camp)
 );
 
 int goodSummers;      // summers the brigades got through

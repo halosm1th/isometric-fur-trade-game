@@ -1,0 +1,320 @@
+// The war of 1812 on the Lakes frontier, as it fell on the towns and forts
+// of the map (World/Towns): a part, included by the campaigns that run
+// through 1812-1815. Its beats are fixed in the history; what happens at
+// each is to the town's people - garrisons taken, moved, marched away or
+// killed, buildings burned, a fort's flag changed - and the news goes out
+// by the usual roads. Peacetime strengths are the towns' (tools/world/towns.json).
+
+beat MackinacTaken(
+    id: "mackinac-taken",
+    title: "Michilimackinac taken from the Americans",
+    date: date(1812, 7, 17),
+    keywords: ["Michilimackinac", "Mackinac", "Roberts", "Hanks", "war"]
+) {
+    OnActivate() {
+        // Roberts came over from St. Joseph by night with his veterans, a
+        // hundred and eighty Canadians and engages of the North West Company,
+        // and some four hundred Ojibwe and Odawa. Hanks had not been told
+        // there was a war; he gave up the fort without a shot.
+        world.townFalls("Mackinac Island", "Crown");
+        world.moveGarrison("St. Joseph Island", "Mackinac Island", 40);
+        flags.set("mackinac_british");
+        shout("Michilimackinac is taken: Captain Roberts has the fort from the Americans without a shot fired.");
+        news(
+            from: "Michilimackinac",
+            to: Person.Partner,
+            subject: "Michilimackinac is ours",
+            text: "Captain Roberts took the fort on the island on the 17th with our " +
+                  "voyageurs and the Ojibwe and Odawa from St. Joseph. Not a shot " +
+                  "fired. The upper country is open to us and shut to Astor.",
+            days: 40,
+            company: Company.NWC
+        );
+    }
+}
+
+beat DetroitSurrenders(
+    id: "detroit-surrenders",
+    title: "General Hull surrenders Detroit to Brock and Tecumseh",
+    date: date(1812, 8, 16),
+    keywords: ["Detroit", "Hull", "Brock", "Tecumseh", "war"]
+) {
+    OnActivate() {
+        world.townFalls("Detroit", "Crown");
+        world.moveGarrison("Amherstburg", "Detroit", 60);
+        // Hanks of Michilimackinac, brought down to answer for its loss, was
+        // killed in the fort by a British round shot the day before.
+        world.kill("Lieutenant Porter Hanks", "at Detroit, by a round shot, waiting on his court of inquiry");
+        flags.set("detroit_british");
+        shout("Detroit has surrendered: General Hull has given up the fort and the territory to General Brock and Tecumseh.");
+        news(
+            from: "Montreal",
+            to: Person.Partner,
+            subject: "Detroit taken",
+            text: "Hull has surrendered Detroit and the whole of Michigan with it to " +
+                  "General Brock. Tecumseh's people were with Brock. The Americans " +
+                  "have nothing left on the upper lakes.",
+            days: 60,
+            company: Company.NWC
+        );
+        news(
+            from: "the Governor and Committee, London",
+            to: Person.Factor,
+            subject: "the American war goes well",
+            text: "Detroit and Michilimackinac are both taken from the Americans. " +
+                  "The Canadians will have the upper lakes to themselves; watch their " +
+                  "prices on the Saskatchewan.",
+            days: 330
+        );
+    }
+}
+
+beat QueenstonHeights(
+    id: "queenston-heights",
+    title: "The battle of Queenston Heights: the Americans thrown back, Brock killed",
+    date: date(1812, 10, 13),
+    keywords: ["Queenston", "Brock", "Niagara", "war"]
+) {
+    OnActivate() {
+        world.kill("Major-General Isaac Brock", "at Queenston Heights, leading the charge up the hill");
+        world.casualties("Niagara", 12, "at Queenston Heights");
+        world.casualties("Queenston", 2, "at Queenston Heights, with the militia", "Farmer");
+        flags.set("brock_killed");
+        shout("The Americans crossed at Queenston and were thrown back off the heights, nine hundred of them taken, but General Brock is killed.");
+    }
+}
+
+beat YorkTaken(
+    id: "york-taken",
+    title: "York taken and its Parliament burned",
+    date: date(1813, 4, 27),
+    keywords: ["York", "Parliament", "Kingston", "war"]
+) {
+    OnActivate() {
+        // The garrison fought on the shore, blew up the grand magazine as it
+        // went - killing General Pike and many of his men - and marched for
+        // Kingston. The Americans held the town for a few days, burned the
+        // Parliament buildings, and sailed.
+        world.casualties("York", 60, "defending York");
+        world.garrisonLeaves("York", "to Kingston");
+        world.burn("York", "the Parliament buildings");
+        flags.set("york_burned");
+        shout("The Americans have taken York: the garrison has marched for Kingston and the Parliament buildings are burning.");
+    }
+}
+
+beat FortGeorgeTaken(
+    id: "fort-george-taken",
+    title: "Fort George and Newark taken by the Americans",
+    date: date(1813, 5, 27),
+    keywords: ["Fort George", "Niagara", "Newark", "war"]
+) {
+    OnActivate() {
+        world.casualties("Niagara", 50, "at Fort George");
+        world.garrisonLeaves("Niagara", "to Burlington Heights");
+        world.townFalls("Niagara", "American", prisoners: false);
+        flags.set("niagara_american");
+        shout("Fort George has fallen to the Americans; the garrison has gone back to Burlington Heights.");
+    }
+}
+
+beat YorkGarrisonedAgain(
+    id: "york-garrisoned-again",
+    title: "York garrisoned again",
+    date: date(1813, 10, 15),
+    keywords: ["York", "Kingston", "war"]
+) {
+    OnActivate() {
+        // After the second American landing in July the King's troops came
+        // back up from Kingston to hold the capital.
+        world.garrisonReturns("York");
+    }
+}
+
+beat LakeErie(
+    id: "lake-erie",
+    title: "The British squadron taken on Lake Erie",
+    date: date(1813, 9, 10),
+    keywords: ["Lake Erie", "Perry", "Barclay", "war"]
+) {
+    OnActivate() {
+        flags.set("lake_erie_lost");
+        news(
+            from: "Montreal",
+            to: Person.Partner,
+            subject: "Lake Erie lost",
+            text: "Barclay's squadron is taken on Lake Erie. Procter cannot be " +
+                  "supplied at Amherstburg; Detroit will have to be given up.",
+            days: 45,
+            company: Company.NWC
+        );
+    }
+}
+
+beat WesternDistrictAbandoned(
+    id: "western-district-abandoned",
+    title: "Detroit and Amherstburg given up; Fort Malden burned",
+    date: date(1813, 9, 27),
+    keywords: ["Detroit", "Amherstburg", "Fort Malden", "Procter", "war"]
+) {
+    OnActivate() {
+        world.burn("Amherstburg", "fort");
+        world.garrisonLeaves("Amherstburg", "up the Thames with Procter");
+        world.garrisonLeaves("Detroit", "up the Thames with Procter");
+        world.townFalls("Detroit", "American", prisoners: false);
+        world.townFalls("Amherstburg", "American", prisoners: false);
+        // Hull's men, paroled and exchanged, are back in the fort with Harrison's army.
+        world.garrisonReturns("Detroit");
+        flags.set("detroit_american");
+        shout("Procter has burned Fort Malden and given up Detroit and Amherstburg; the army is going up the Thames.");
+    }
+}
+
+beat TheThames(
+    id: "the-thames",
+    title: "The battle of the Thames: Tecumseh killed",
+    date: date(1813, 10, 5),
+    keywords: ["Thames", "Tecumseh", "Procter", "Moraviantown", "war"]
+) {
+    OnActivate() {
+        flags.set("tecumseh_killed");
+        shout("Procter's army is broken on the Thames, and Tecumseh is dead. The western nations' war is over.");
+        news(
+            from: "Montreal",
+            to: Person.Partner,
+            subject: "Tecumseh dead",
+            text: "Procter was beaten at Moraviantown and Tecumseh killed. The " +
+                  "nations of the west will make what terms they can. We hold " +
+                  "Michilimackinac still.",
+            days: 60,
+            company: Company.NWC
+        );
+    }
+}
+
+beat NewarkBurned(
+    id: "newark-burned",
+    title: "The Americans burn Newark as they leave it",
+    date: date(1813, 12, 10),
+    keywords: ["Niagara", "Newark", "war"]
+) {
+    OnActivate() {
+        // McClure's men turned the people out into the snow and burned the
+        // town before they crossed back over the river.
+        world.burn("Niagara");
+        world.townFalls("Niagara", "Crown", prisoners: false);
+        world.garrisonReturns("Niagara");
+        flags.set("newark_burned");
+        shout("The Americans have burned Newark to the ground and gone back over the river; its people are out in the snow.");
+    }
+}
+
+beat FortNiagaraTaken(
+    id: "fort-niagara-taken",
+    title: "Fort Niagara taken by night",
+    date: date(1813, 12, 19),
+    keywords: ["Fort Niagara", "war"]
+) {
+    OnActivate() {
+        world.casualties("Fort Niagara", 60, "when the British stormed the fort by night");
+        world.townFalls("Fort Niagara", "Crown");
+        world.moveGarrison("Niagara", "Fort Niagara", 60);
+        flags.set("fort_niagara_british");
+        shout("Fort Niagara is taken by night with the bayonet, in answer for Newark.");
+    }
+}
+
+beat PrairieDuChienOccupied(
+    id: "prairie-du-chien-occupied",
+    title: "The Americans at Prairie du Chien",
+    date: date(1814, 6, 2),
+    keywords: ["Prairie du Chien", "Mississippi", "Fort Shelby", "war"]
+) {
+    OnActivate() {
+        // Clark's gunboats came up from St. Louis and built Fort Shelby over
+        // the town: the Mississippi road to Lake Traverse is shut.
+        flags.set("blockade:mississippi");
+        news(
+            from: "Michilimackinac",
+            to: Person.Partner,
+            subject: "the Mississippi shut",
+            text: "The Americans have come up from St. Louis and built a fort at " +
+                  "Prairie du Chien. No goods will go up the Mississippi to Lake " +
+                  "Traverse until they are put out.",
+            days: 30,
+            company: Company.NWC
+        );
+    }
+}
+
+beat PrairieDuChienRetaken(
+    id: "prairie-du-chien-retaken",
+    title: "Fort Shelby taken; the Mississippi open again",
+    date: date(1814, 7, 20),
+    keywords: ["Prairie du Chien", "McKay", "Mississippi", "war"]
+) {
+    OnActivate() {
+        // McKay came down from Michilimackinac with the Michigan Fencibles,
+        // the Canadian volunteers, and the Dakota, Ho-Chunk and Menominee.
+        flags.clear("blockade:mississippi");
+        news(
+            from: "Michilimackinac",
+            to: Person.Partner,
+            subject: "Prairie du Chien retaken",
+            text: "McKay has taken Fort Shelby with the Dakota, Ho-Chunk and " +
+                  "Menominee. The Mississippi is ours again and the goods can go " +
+                  "up to Lake Traverse.",
+            days: 30,
+            company: Company.NWC
+        );
+    }
+}
+
+beat TreatyOfGhent(
+    id: "treaty-of-ghent",
+    title: "Peace with the Americans (the Treaty of Ghent)",
+    date: date(1814, 12, 24),
+    keywords: ["Ghent", "peace", "war"]
+) {
+    OnActivate() {
+        flags.set("peace_of_ghent");
+        news(
+            from: "the Governor and Committee, London",
+            to: Person.Factor,
+            subject: "peace with America",
+            text: "Peace is signed with the Americans at Ghent. Everything taken is " +
+                  "to be given back as it was.",
+            days: 200
+        );
+    }
+}
+
+beat StatusQuoAnteBellum(
+    id: "status-quo-ante-bellum",
+    title: "The forts given back as they were before the war",
+    date: date(1815, 7, 18),
+    keywords: ["Ghent", "Michilimackinac", "Fort Niagara", "Amherstburg", "peace"]
+) {
+    OnActivate() {
+        world.garrisonLeaves("Mackinac Island", "to Drummond Island");
+        world.townFalls("Mackinac Island", "American", prisoners: false);
+        world.moveGarrison("Fort Niagara", "Niagara", 200);
+        world.townFalls("Fort Niagara", "American", prisoners: false);
+        world.garrisonReturns("Fort Niagara");
+        world.garrisonReturns("Mackinac Island");
+        world.townFalls("Amherstburg", "Crown", prisoners: false);
+        world.garrisonReturns("Amherstburg");
+        flags.set("forts_returned");
+        shout("By the peace the forts are given back: Michilimackinac and Fort Niagara to the Americans, Amherstburg to the King.");
+        news(
+            from: "Michilimackinac",
+            to: Person.Partner,
+            subject: "Michilimackinac given back",
+            text: "The island is given back to the Americans by the treaty. The " +
+                  "garrison goes to Drummond Island. Astor's people will be up the " +
+                  "lakes again before long.",
+            days: 40,
+            company: Company.NWC
+        );
+    }
+}

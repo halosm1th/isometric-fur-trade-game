@@ -134,6 +134,8 @@ public static class SaveGame
             hd["field"] = h.FieldDays; hd["harvest"] = h.HarvestYear;
             d[h.FullKey] = hd;
         }
+        // Who holds each town now (the war changes it: World/Towns.Falls).
+        foreach (var t in Towns.All) if (t.Standing) d["held:" + t.Name] = t.Polity;
         return d;
     }
 
@@ -297,6 +299,7 @@ public static class SaveGame
             d["role"] = (int)n.Role; d["female"] = n.IsFemale; d["fatherName"] = n.FatherName;
             d["bed"] = new GArr { n.BedCell.X, n.BedCell.Y }; d["work"] = new GArr { n.WorkCell.X, n.WorkCell.Y };
             d["home"] = HomeKey(n.HomeStores);
+            if (n.OffMap != "") { d["offMap"] = n.OffMap; d["offFrom"] = n.OffMapFrom; }
             d["frames"] = n.FramesPath; d["tint"] = n.Tint.ToHtml(); d["scale"] = n.SpriteScale;
             var p = n.Personality;
             d["personality"] = new GArr { p.Loyalty, p.Talkative, p.Suspicion, p.Ambition, p.Courage };
@@ -445,7 +448,8 @@ public static class SaveGame
                     if (Posts.Named(kv.Key.AsString())?.Ledger is { } pl) LoadLedger(pl, kv.Value.AsGodotDictionary());
             if (d.ContainsKey("towns"))
                 foreach (var kv in d["towns"].AsGodotDictionary())
-                    if (Towns.House(kv.Key.AsString()) is { } th)
+                    if (kv.Key.AsString().StartsWith("held:")) { if (Towns.Named(kv.Key.AsString()[5..]) is { } held) Towns.SetHolder(held, kv.Value.AsString()); }
+                    else if (Towns.House(kv.Key.AsString()) is { } th)
                     {
                         var hd = kv.Value.AsGodotDictionary();
                         LoadHousehold(th, hd);
@@ -525,6 +529,7 @@ public static class SaveGame
                 npc.HeldBy = S(nd, "held") switch { "nwc" => Sim.Nwc, "fort" => Sim.Fort, "outpost" => Sim.Outpost, _ => null }; npc.HeldUntilDay = I(nd, "heldUntil", -1);
                 if (npc.HeldBy != null) npc.Brain.Push(npc, new Agents.Goals.HeldPrisonerGoal(npc.HeldBy));
                 npc.AssignedTaskName = S(nd, "task");
+                if (S(nd, "offMap") != "") npc.SendOffMap(S(nd, "offMap"), S(nd, "offFrom"));
                 if (nd.ContainsKey("mourned")) foreach (var kv in nd["mourned"].AsGodotDictionary()) npc.Mourned[kv.Key.AsString()] = kv.Value.AsInt32();
                 foreach (var r in S(nd, "recalled").Split(";;", System.StringSplitOptions.RemoveEmptyEntries)) npc.Recalled.Add(r);
                 foreach (var mv in nd["memories"].AsGodotArray())

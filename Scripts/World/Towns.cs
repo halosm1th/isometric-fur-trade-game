@@ -39,6 +39,13 @@ public class Town
     public Faction Faction => Polity == "AMER" ? Faction.American : Faction.Crown;
     public Vector2 Centre => IsoGrid.ToWorld(IsoGrid.Cell(Top, Width / 2, Depth / 2));
     public string RulerName => Polity == "AMER" ? "the United States" : "the Crown";
+    // Its own country, and its board's line under the name: whose it is now.
+    public string Home = "";
+    public string TownSub => Polity == (Home == "" ? Polity : Home)
+        ? (Polity == "AMER" ? (Name == "Detroit" ? "Michigan Territory" : Name.Contains("Mackinac") ? "Michigan Territory" : "New York") : "Upper Canada")
+        : Polity == "AMER" ? "held by the United States" : "held for the King";
+    public string FortSub => Polity == "AMER" ? "United States garrison" : "His Majesty's garrison";
+    public TownHousehold Garrison => Houses.GetValueOrDefault("garrison");
 }
 
 // A household of a town: a family in its house, the garrison in its
@@ -77,6 +84,7 @@ public static class Towns
                 Name = d["name"].AsString(), Polity = d["polity"].AsString(), Year = d["year"].AsInt32(), Top = top,
                 Width = d["width"].AsInt32(), Depth = d["depth"].AsInt32(), Note = d.TryGetValue("note", out var nv) ? nv.AsString() : "",
             };
+            t.Home = t.Polity;
             if (d.TryGetValue("fort", out var fv) && fv.VariantType == Variant.Type.Dictionary)
             {
                 var f = fv.AsGodotDictionary();
@@ -293,5 +301,178 @@ public static class Towns
             int got = market.Stores.TakeUpTo(id, want);
             if (got > 0) { h.Stores.Add(id, got); want -= got; }
         }
+    }
+    // ---- the war (Core/Campaign: the town actions) -------------------------------
+
+    // History being recalled at the start (Campaign.Recall): nothing is said,
+    // and the dead of a battle before play began are simply gone.
+    public static bool Quiet;
+    private static void Tell(string text, bool headline = false) { if (Quiet) return; if (headline) Sim.Headline(text); else Sim.Notice(text); }
+    private static void Dies(Npc n, string cause)
+    {
+        if (!Quiet) { n.Die(cause); return; }
+        n.DeathCause = cause;
+        n.DieQuietly();
+        n.QueueFree();
+    }
+
+    // Whose the town is (a save, or a fall).
+    public static void SetHolder(Town t, string polity)
+    {
+        t.Polity = polity == "CROWN" || polity == "Crown" ? "CROWN" : polity == "AMER" || polity == "American" ? "AMER" : t.Polity;
+        Sim.Structures?.Resign(t.Name, t.TownSub);
+        if (t.HasFort) Sim.Structures?.Resign(t.FortName, t.FortSub);
+    }
+
+    // The town changes hands. Its garrison, if it is still there and was the
+    // loser's, is taken: the soldiers and their officers go down the country
+    // as prisoners, their families with them. The townspeople stay - they
+    // live there, whoever holds the fort.
+    public static string Falls(string town, string to, bool prisoners)
+    {
+        var t = Named(town);
+        if (t == null) return $"no town called {town}";
+        string from = t.Polity;
+        SetHolder(t, to);
+        int taken = 0;
+        if (prisoners && t.Garrison is { } g)
+            foreach (var n in new List<Npc>(g.Members))
+            {
+                if (!GodotObject.IsInstanceValid(n) || n.IsDead || n.Faction != (from == "AMER" ? Faction.American : Faction.Crown)) continue;
+                n.SendOffMap(from == "AMER" ? "a prisoner of war at Quebec" : "a prisoner of war in the United States", t.Name);
+                taken++;
+            }
+        Tell($"{t.Name} has fallen to {t.RulerName}{(taken > 0 ? $"; {taken} of its garrison are taken prisoner" : "")}.", true);
+        return null;
+    }
+
+    // Soldiers moved from one garrison to another (a fort taken and held, a
+    // post reinforced): the given number of men and an officer, by water.
+    public static string MoveGarrison(string from, string to, int count)
+    {
+        var a = Named(from); var b = Named(to);
+        if (a?.Garrison == null || b?.Garrison == null) return $"no garrison at {(a?.Garrison == null ? from : to)}";
+        var barracks = b.Garrison.Building;
+        int moved = 0; bool officer = false;
+        foreach (var n in new List<Npc>(a.Garrison.Members))
+        {
+            if (!GodotObject.IsInstanceValid(n) || n.IsDead || n.Away) continue;
+            if (n.Role == Role.Officer && officer) continue;
+            if (n.Role != Role.Soldier && n.Role != Role.Officer) continue;
+            if (moved >= count && (officer || n.Role != Role.Officer)) continue;
+            Quarter(n, b, moved);
+            if (n.Role == Role.Officer) officer = true; else moved++;
+        }
+        if (b.Garrison.Leader == null || !GodotObject.IsInstanceValid(b.Garrison.Leader) || b.Garrison.Leader.IsDead || b.Garrison.Leader.Away)
+            foreach (var n in b.Garrison.Members) if (n.Role == Role.Officer && !n.IsDead && !n.Away) { b.Garrison.Leader = n; break; }
+        Tell($"{moved} men of the garrison at {a.Name} are sent to {b.Name}.");
+        return null;
+    }
+
+    // A man given a bed in a town's barracks and a place on its parade.
+    private static void Quarter(Npc n, Town b, int k)
+    {
+        var barracks = b.Garrison.Building;
+        n.Brain.Clear(n); n.StopMoving();
+        n.HomeStores = b.Garrison;
+        n.BedCell = IsoGrid.Cell(barracks.Top, 1 + k % Mathf.Max(1, barracks.Width - 2), 1 + k / Mathf.Max(1, barracks.Width - 2) % Mathf.Max(1, barracks.Depth - 2));
+        n.WorkCell = b.HasFort ? IsoGrid.Cell(b.FortTop, 2 + k * 7 % Mathf.Max(1, b.FortWidth - 4), 3 + k * 3 % Mathf.Max(1, b.FortDepth - 6)) : barracks.Threshold;
+        n.GlobalPosition = IsoGrid.ToWorld(n.StandCellNear(n.BedCell));
+        n.ResetPhysicsInterpolation();
+    }
+
+    // Men who went out of the country from this town come back to it - the
+    // paroled and exchanged prisoners, a garrison back from where it marched -
+    // those who serve whoever holds it now. All of them, or so many.
+    public static string GarrisonReturns(string town, int count)
+    {
+        var t = Named(town);
+        if (t?.Garrison == null) return $"no garrison at {town}";
+        int back = 0;
+        foreach (var n in new List<Npc>(Sim.Npcs))
+        {
+            if (count > 0 && back >= count) break;
+            if (!GodotObject.IsInstanceValid(n) || n.IsDead || n.OffMap == "" || n.OffMapFrom != t.Name || n.Faction != t.Faction) continue;
+            n.OffMap = ""; n.OffMapFrom = ""; n.Away = false;
+            Quarter(n, t, back);
+            // Back in the background: the tiers bring him into sight when a player is near.
+            n.Visible = false;
+            back++;
+        }
+        if (t.Garrison.Leader == null || !GodotObject.IsInstanceValid(t.Garrison.Leader) || t.Garrison.Leader.IsDead || t.Garrison.Leader.Away)
+            foreach (var n in t.Garrison.Members) if (n.Role == Role.Officer && !n.IsDead && !n.Away) { t.Garrison.Leader = n; break; }
+        Tell($"{back} of the garrison of {t.Name} are back in its fort.");
+        return null;
+    }
+
+    // A garrison marches out of the country (to Kingston, to Burlington, down
+    // to Montreal): all of it, or the given number.
+    public static string GarrisonLeaves(string town, string where, int count)
+    {
+        var t = Named(town);
+        if (t?.Garrison == null) return $"no garrison at {town}";
+        int gone = 0;
+        foreach (var n in new List<Npc>(t.Garrison.Members))
+        {
+            if (count > 0 && gone >= count) break;
+            if (!GodotObject.IsInstanceValid(n) || n.IsDead || n.Away) continue;
+            n.SendOffMap(where, t.Name); gone++;
+        }
+        Tell($"The garrison of {t.Name}, {gone} souls, has marched {where}.");
+        return null;
+    }
+
+    // Men killed in a fight fought out of the player's sight: of the
+    // garrison, or of the town's men of a role (the militia are its farmers).
+    public static string Casualties(string town, int count, string cause, string role)
+    {
+        var t = Named(town);
+        if (t == null) return $"no town called {town}";
+        var pool = new List<Npc>();
+        bool any = string.IsNullOrEmpty(role);
+        Role want = Role.Soldier;
+        if (!any && !System.Enum.TryParse(role, true, out want)) return $"no role called {role}";
+        foreach (var h in t.Houses.Values)
+        {
+            if (any && h.Key != "garrison") continue;
+            foreach (var n in h.Members)
+                if (GodotObject.IsInstanceValid(n) && !n.IsDead && !n.Away && !n.IsFemale && n.Age >= 16 && (any ? n.Role is Role.Soldier or Role.Officer : n.Role == want)) pool.Add(n);
+        }
+        int killed = 0;
+        while (killed < count && pool.Count > 0)
+        {
+            int i = GD.RandRange(0, pool.Count - 1);
+            Dies(pool[i], cause);
+            pool.RemoveAt(i); killed++;
+        }
+        return null;
+    }
+
+    // A named person killed (Brock at Queenston, Tecumseh at the Thames).
+    public static string Kill(string who, string cause)
+    {
+        foreach (var n in Sim.Npcs) if (n.DisplayName == who && !n.IsDead) { Dies(n, cause); return null; }
+        return $"nobody called {who} is alive";
+    }
+
+    // A building of a town set alight (York's Parliament, Newark in December
+    // 1813), every one ("*"), or the fort's own ("fort": Fort Malden left
+    // burning). The fire takes it from there.
+    public static string Burn(string town, string building)
+    {
+        var t = Named(town);
+        if (t == null) return $"no town called {town}";
+        int lit = 0;
+        foreach (var b in t.Buildings)
+        {
+            bool fort = building == "fort" && (b.Home == "garrison" || b.Def.Kind == BuildingKind.PowderMagazine);
+            if (building != "*" && !fort && b.Def.Name != building) continue;
+            var c = IsoGrid.Cell(b.Def.Top, b.Def.Width / 2, b.Def.Depth / 2);
+            string verb = b.Def.Name.EndsWith("s") ? "are" : "is";
+            if (Fire.I != null && Fire.I.Ignite(c, $"{b.Def.Name} at {t.Name} {verb} burning.")) lit++;
+            if (building != "*" && building != "fort") break;
+        }
+        Tell(building == "*" ? $"{t.Name} is burning." : building == "fort" ? $"{t.FortName} is burning." : $"{building} at {t.Name} {(building.EndsWith("s") ? "are" : "is")} burning.", true);
+        return lit > 0 || building is "*" or "fort" ? null : $"no building called {building} at {town}";
     }
 }

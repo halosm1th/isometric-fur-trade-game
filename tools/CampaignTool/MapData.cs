@@ -80,6 +80,15 @@ public static class MapData
 			spots[name] = new Spot { Name = name, Kind = Tree.S(c0["kind"]) == "family" ? "family" : "camp", Nation = Tree.S(c0.GetValueOrDefault("nation")), Post = Tree.S(c0.GetValueOrDefault("post")),
 				X = x, Y = y, People = c0.GetValueOrDefault("people") is double pp ? (int)pp : 0 };
 		}
+		if (lay.TryGetValue("towns", out var towns))
+			foreach (var to in Tree.AsList(towns))
+			{
+				var t0 = (Dictionary<string, object>)to; var c = Cell(t0["top"]);
+				var (x, y) = Offset(c[0], c[1], (int)Tree.N(t0["width"]) / 2, (int)Tree.N(t0["depth"]) / 2);
+				string name = Tree.S(t0["name"]);
+				spots[name] = new Spot { Name = name, Kind = "town", Company = Tree.S(t0.GetValueOrDefault("polity")), X = x, Y = y,
+					Year = t0.GetValueOrDefault("year") is double ty ? (int)ty : 0 };
+			}
 		foreach (var s in spots.Values)
 			places.Add(Tree.Dict(("name", s.Name), ("kind", s.Kind), ("company", s.Company), ("nation", s.Nation), ("post", s.Post),
 				("x", s.X), ("y", s.Y), ("year", (double)s.Year), ("closed", (double)s.Closed), ("people", (double)s.People)));
@@ -168,6 +177,8 @@ public static class MapData
 		"Outpost" => "Oxford House",
 		"CreeBand" => "Cree winter camp (York)",
 		"Assiniboine" => "Assiniboine winter camp",
+		// A townsman's household is "Town|house": his place is the town.
+		"Town" => postName.Contains('|') ? postName[..postName.IndexOf('|')] : postName,
 		_ => postName,
 	};
 

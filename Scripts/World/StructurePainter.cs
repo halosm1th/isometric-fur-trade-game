@@ -387,8 +387,8 @@ public partial class StructurePainter : TileMapLayer
         }
         // The town's name at its market house, its garrison's at the gate.
         var heart = t.Buildings.Find(b => b.Home == "market")?.Def ?? t.Buildings[0].Def;
-        PlaceSign(IsoGrid.DownLeft(IsoGrid.DownLeft(heart.DoorCell)), t.Name, t.Polity == "AMER" ? (t.Name == "Detroit" ? "Michigan Territory" : "New York") : "Upper Canada");
-        if (t.HasFort) PlaceSign(IsoGrid.DownLeft(IsoGrid.DownLeft(IsoGrid.Cell(t.FortTop, t.FortGate, t.FortDepth - 1))), t.FortName, t.RulerName == "the Crown" ? "His Majesty's garrison" : "United States garrison");
+        PlaceSign(IsoGrid.DownLeft(IsoGrid.DownLeft(heart.DoorCell)), t.Name, t.TownSub);
+        if (t.HasFort) PlaceSign(IsoGrid.DownLeft(IsoGrid.DownLeft(IsoGrid.Cell(t.FortTop, t.FortGate, t.FortDepth - 1))), t.FortName, t.FortSub);
         if (Engine.IsEditorHint()) return;
         var host = GetParent()?.GetParent();
         foreach (var b in t.Buildings)
@@ -405,6 +405,13 @@ public partial class StructurePainter : TileMapLayer
     }
 
     public void RebuildCollisionNow() => RebuildCollision();
+
+    // A town or a fort has changed hands: its boards say whose it is now.
+    public void Resign(string text, string sub)
+    {
+        var host = GetParent() ?? this;
+        if (host.GetNodeOrNull<PostSign>("Sign_" + text.Replace(' ', '_').Replace('.', '_').Replace("'", "_")) is { } sign) { sign.Sub = sub; sign.QueueRedraw(); }
+    }
 
     // The nearest open water to a cell (a beaver lodge stands in it).
     private static Vector2I? WaterBeside(Vector2I c)

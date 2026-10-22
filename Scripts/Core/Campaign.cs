@@ -380,6 +380,16 @@ public static class Campaign
         private static string S(Dictionary<string, object> a, string k, string def = "") => a.TryGetValue(k, out var v) ? CampaignLogic.Str(v) : def;
         private static double N(Dictionary<string, object> a, string k, double def = 0) => a.TryGetValue(k, out var v) ? CampaignLogic.Num(v) : def;
 
+        private static void Warn(string beat, string problem) { if (problem != null) GD.PushWarning($"[campaign] {beat}: {problem}"); }
+
+        // History before play began: the town actions again, without a word.
+        public void Recall(string act, Dictionary<string, object> a)
+        {
+            World.Towns.Quiet = true;
+            try { Effect(act, a); }
+            finally { World.Towns.Quiet = false; }
+        }
+
         public void Effect(string name, Dictionary<string, object> a)
         {
             string beat = S(a, "_beat");
@@ -443,6 +453,15 @@ public static class Campaign
                     break;
                 case "truce": Economy.War.Truce(Quests.HouseholdAt(S(a, "a")), Quests.HouseholdAt(S(a, "b")), (int)N(a, "days", 365)); break;
                 case "feud": Economy.Plains.HeatFeud(Quests.HouseholdAt(S(a, "holder")), Quests.HouseholdAt(S(a, "against")), (float)N(a, "add", 1)); break;
+                // The towns at war (World/Towns): changing hands, garrisons moved,
+                // marched off or killed, a named man killed, a building burned.
+                case "town_falls": Warn(beat, World.Towns.Falls(S(a, "town"), S(a, "to"), !(a.TryGetValue("prisoners", out var pr) && pr is false))); break;
+                case "move_garrison": Warn(beat, World.Towns.MoveGarrison(S(a, "from"), S(a, "to"), (int)N(a, "count", 20))); break;
+                case "garrison_returns": Warn(beat, World.Towns.GarrisonReturns(S(a, "town"), (int)N(a, "count", 0))); break;
+                case "garrison_leaves": Warn(beat, World.Towns.GarrisonLeaves(S(a, "town"), S(a, "where", "out of the country"), (int)N(a, "count", 0))); break;
+                case "casualties": Warn(beat, World.Towns.Casualties(S(a, "town"), (int)N(a, "count", 1), S(a, "cause", "in the fighting"), S(a, "role"))); break;
+                case "kill": Warn(beat, World.Towns.Kill(S(a, "who"), S(a, "cause", "in the fighting"))); break;
+                case "burn": Warn(beat, World.Towns.Burn(S(a, "town"), S(a, "building", "*"))); break;
                 default: GD.PushWarning($"[campaign] {beat}: unknown action '{name}'"); break;
             }
         }

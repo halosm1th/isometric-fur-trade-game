@@ -14,6 +14,10 @@ public interface ICampaignHost : ICampaignWorld
 	void Note(string text);
 	void NewYear(int year);
 	void Founded(string place);
+	// History before the first day of play that changed who holds what (a
+	// town taken, a garrison moved, marched off or killed): done again, quietly,
+	// so a game begun in 1815 finds the forts as the war left them.
+	void Recall(string act, Dictionary<string, object> a) { }
 }
 
 public sealed class CampaignBeat
@@ -172,6 +176,7 @@ public sealed class CampaignRunner
 				if (act == "flag") State.Flags.Add(CampaignLogic.Str(a["name"]));
 				else if (act == "unflag") State.Flags.Remove(CampaignLogic.Str(a["name"]));
 				else if (act == "found_post") host.Founded(a.TryGetValue("place", out var pl) ? CampaignLogic.Str(pl) : "");
+				else if (act is "town_falls" or "move_garrison" or "garrison_leaves" or "garrison_returns" or "casualties" or "kill") host.Recall(act, a);
 			}
 			State.Done.Add(b.Id); State.Flags.Add(b.Id); State.DoneDay[b.Id] = b.Date;
 			History.Add(b.Id);

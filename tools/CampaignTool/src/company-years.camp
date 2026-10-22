@@ -28,7 +28,8 @@ campaign CompanyYears(
                  "is fixed or pressed on the world; the brigades on the rivers " +
                  "answer to what the world does.",
     seed: 1821,
-    postsByFoundingYear: true
+    postsByFoundingYear: true,
+    include: "lakes-war"   // the war of 1812 on the Lakes frontier (src/parts/lakes-war.camp)
 );
 
 // ---------------------------------------------------------------- counters

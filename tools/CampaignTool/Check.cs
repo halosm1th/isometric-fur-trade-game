@@ -229,6 +229,17 @@ public static partial class Checker
 					if (a.GetValueOrDefault("days") is not double dd || dd < 0) rep.Error(w, "after needs a number of days");
 					CheckActions(a.GetValueOrDefault("then"), w + " > then", rep, facts, world);
 					break;
+				case "town_falls": case "move_garrison": case "garrison_leaves": case "garrison_returns": case "casualties": case "burn":
+					foreach (var k in verb == "move_garrison" ? new[] { "from", "to" } : new[] { "town" })
+					{
+						string tn = Tree.S(a.GetValueOrDefault(k));
+						if (!world.Towns.ContainsKey(tn)) rep.Error(w, $"{verb}: '{tn}' is not a town on the map");
+						else if ((verb is "move_garrison" or "garrison_leaves" or "garrison_returns") && !world.Garrisoned.Contains(tn)) rep.Error(w, $"{verb}: {tn} has no garrison");
+					}
+					if (verb == "town_falls" && !Known.Holders.Contains(Tree.S(a.GetValueOrDefault("to")))) rep.Error(w, $"town_falls: to must be one of {string.Join(", ", Known.Holders)}");
+					if (verb == "burn" && a.ContainsKey("building") && world.Towns.TryGetValue(Tree.S(a.GetValueOrDefault("town")), out var bl) && Tree.S(a["building"]) != "fort" && !bl.Contains(Tree.S(a["building"])))
+						rep.Error(w, $"burn: {Tree.S(a.GetValueOrDefault("town"))} has no building called '{Tree.S(a["building"])}'");
+					break;
 				case "found_post":
 					if (!world.Posts.Contains(Tree.S(a.GetValueOrDefault("place")))) rep.Error(w, $"found_post: '{Tree.S(a.GetValueOrDefault("place"))}' is not a post on the map");
 					break;

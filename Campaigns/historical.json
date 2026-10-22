@@ -830,6 +830,586 @@
           "headline": true
         }
       ]
+    },
+    {
+      "id": "mackinac-taken",
+      "title": "Michilimackinac taken from the Americans",
+      "kind": "fixed",
+      "date": "1812-07-17",
+      "keywords": [
+        "Michilimackinac",
+        "Mackinac",
+        "Roberts",
+        "Hanks",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "town_falls",
+          "town": "Mackinac Island",
+          "to": "Crown"
+        },
+        {
+          "do": "move_garrison",
+          "from": "St. Joseph Island",
+          "to": "Mackinac Island",
+          "count": 40
+        },
+        {
+          "do": "flag",
+          "name": "mackinac_british"
+        },
+        {
+          "do": "say",
+          "text": "Michilimackinac is taken: Captain Roberts has the fort from the Americans without a shot fired.",
+          "headline": true
+        },
+        {
+          "do": "news",
+          "from": "Michilimackinac",
+          "to": "the wintering partner",
+          "subject": "Michilimackinac is ours",
+          "text": "Captain Roberts took the fort on the island on the 17th with our voyageurs and the Ojibwe and Odawa from St. Joseph. Not a shot fired. The upper country is open to us and shut to Astor.",
+          "days": 40,
+          "company": "NWC"
+        }
+      ]
+    },
+    {
+      "id": "detroit-surrenders",
+      "title": "General Hull surrenders Detroit to Brock and Tecumseh",
+      "kind": "fixed",
+      "date": "1812-08-16",
+      "keywords": [
+        "Detroit",
+        "Hull",
+        "Brock",
+        "Tecumseh",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "town_falls",
+          "town": "Detroit",
+          "to": "Crown"
+        },
+        {
+          "do": "move_garrison",
+          "from": "Amherstburg",
+          "to": "Detroit",
+          "count": 60
+        },
+        {
+          "do": "kill",
+          "who": "Lieutenant Porter Hanks",
+          "cause": "at Detroit, by a round shot, waiting on his court of inquiry"
+        },
+        {
+          "do": "flag",
+          "name": "detroit_british"
+        },
+        {
+          "do": "say",
+          "text": "Detroit has surrendered: General Hull has given up the fort and the territory to General Brock and Tecumseh.",
+          "headline": true
+        },
+        {
+          "do": "news",
+          "from": "Montreal",
+          "to": "the wintering partner",
+          "subject": "Detroit taken",
+          "text": "Hull has surrendered Detroit and the whole of Michigan with it to General Brock. Tecumseh's people were with Brock. The Americans have nothing left on the upper lakes.",
+          "days": 60,
+          "company": "NWC"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "the American war goes well",
+          "text": "Detroit and Michilimackinac are both taken from the Americans. The Canadians will have the upper lakes to themselves; watch their prices on the Saskatchewan.",
+          "days": 330
+        }
+      ]
+    },
+    {
+      "id": "queenston-heights",
+      "title": "The battle of Queenston Heights: the Americans thrown back, Brock killed",
+      "kind": "fixed",
+      "date": "1812-10-13",
+      "keywords": [
+        "Queenston",
+        "Brock",
+        "Niagara",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "kill",
+          "who": "Major-General Isaac Brock",
+          "cause": "at Queenston Heights, leading the charge up the hill"
+        },
+        {
+          "do": "casualties",
+          "town": "Niagara",
+          "count": 12,
+          "cause": "at Queenston Heights"
+        },
+        {
+          "do": "casualties",
+          "town": "Queenston",
+          "count": 2,
+          "cause": "at Queenston Heights, with the militia",
+          "role": "Farmer"
+        },
+        {
+          "do": "flag",
+          "name": "brock_killed"
+        },
+        {
+          "do": "say",
+          "text": "The Americans crossed at Queenston and were thrown back off the heights, nine hundred of them taken, but General Brock is killed.",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "york-taken",
+      "title": "York taken and its Parliament burned",
+      "kind": "fixed",
+      "date": "1813-04-27",
+      "keywords": [
+        "York",
+        "Parliament",
+        "Kingston",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "casualties",
+          "town": "York",
+          "count": 60,
+          "cause": "defending York"
+        },
+        {
+          "do": "garrison_leaves",
+          "town": "York",
+          "where": "to Kingston"
+        },
+        {
+          "do": "burn",
+          "town": "York",
+          "building": "the Parliament buildings"
+        },
+        {
+          "do": "flag",
+          "name": "york_burned"
+        },
+        {
+          "do": "say",
+          "text": "The Americans have taken York: the garrison has marched for Kingston and the Parliament buildings are burning.",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "fort-george-taken",
+      "title": "Fort George and Newark taken by the Americans",
+      "kind": "fixed",
+      "date": "1813-05-27",
+      "keywords": [
+        "Fort George",
+        "Niagara",
+        "Newark",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "casualties",
+          "town": "Niagara",
+          "count": 50,
+          "cause": "at Fort George"
+        },
+        {
+          "do": "garrison_leaves",
+          "town": "Niagara",
+          "where": "to Burlington Heights"
+        },
+        {
+          "do": "town_falls",
+          "town": "Niagara",
+          "to": "American",
+          "prisoners": false
+        },
+        {
+          "do": "flag",
+          "name": "niagara_american"
+        },
+        {
+          "do": "say",
+          "text": "Fort George has fallen to the Americans; the garrison has gone back to Burlington Heights.",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "york-garrisoned-again",
+      "title": "York garrisoned again",
+      "kind": "fixed",
+      "date": "1813-10-15",
+      "keywords": [
+        "York",
+        "Kingston",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "garrison_returns",
+          "town": "York"
+        }
+      ]
+    },
+    {
+      "id": "lake-erie",
+      "title": "The British squadron taken on Lake Erie",
+      "kind": "fixed",
+      "date": "1813-09-10",
+      "keywords": [
+        "Lake Erie",
+        "Perry",
+        "Barclay",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "lake_erie_lost"
+        },
+        {
+          "do": "news",
+          "from": "Montreal",
+          "to": "the wintering partner",
+          "subject": "Lake Erie lost",
+          "text": "Barclay's squadron is taken on Lake Erie. Procter cannot be supplied at Amherstburg; Detroit will have to be given up.",
+          "days": 45,
+          "company": "NWC"
+        }
+      ]
+    },
+    {
+      "id": "western-district-abandoned",
+      "title": "Detroit and Amherstburg given up; Fort Malden burned",
+      "kind": "fixed",
+      "date": "1813-09-27",
+      "keywords": [
+        "Detroit",
+        "Amherstburg",
+        "Fort Malden",
+        "Procter",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "burn",
+          "town": "Amherstburg",
+          "building": "fort"
+        },
+        {
+          "do": "garrison_leaves",
+          "town": "Amherstburg",
+          "where": "up the Thames with Procter"
+        },
+        {
+          "do": "garrison_leaves",
+          "town": "Detroit",
+          "where": "up the Thames with Procter"
+        },
+        {
+          "do": "town_falls",
+          "town": "Detroit",
+          "to": "American",
+          "prisoners": false
+        },
+        {
+          "do": "town_falls",
+          "town": "Amherstburg",
+          "to": "American",
+          "prisoners": false
+        },
+        {
+          "do": "garrison_returns",
+          "town": "Detroit"
+        },
+        {
+          "do": "flag",
+          "name": "detroit_american"
+        },
+        {
+          "do": "say",
+          "text": "Procter has burned Fort Malden and given up Detroit and Amherstburg; the army is going up the Thames.",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "the-thames",
+      "title": "The battle of the Thames: Tecumseh killed",
+      "kind": "fixed",
+      "date": "1813-10-05",
+      "keywords": [
+        "Thames",
+        "Tecumseh",
+        "Procter",
+        "Moraviantown",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "tecumseh_killed"
+        },
+        {
+          "do": "say",
+          "text": "Procter's army is broken on the Thames, and Tecumseh is dead. The western nations' war is over.",
+          "headline": true
+        },
+        {
+          "do": "news",
+          "from": "Montreal",
+          "to": "the wintering partner",
+          "subject": "Tecumseh dead",
+          "text": "Procter was beaten at Moraviantown and Tecumseh killed. The nations of the west will make what terms they can. We hold Michilimackinac still.",
+          "days": 60,
+          "company": "NWC"
+        }
+      ]
+    },
+    {
+      "id": "newark-burned",
+      "title": "The Americans burn Newark as they leave it",
+      "kind": "fixed",
+      "date": "1813-12-10",
+      "keywords": [
+        "Niagara",
+        "Newark",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "burn",
+          "town": "Niagara"
+        },
+        {
+          "do": "town_falls",
+          "town": "Niagara",
+          "to": "Crown",
+          "prisoners": false
+        },
+        {
+          "do": "garrison_returns",
+          "town": "Niagara"
+        },
+        {
+          "do": "flag",
+          "name": "newark_burned"
+        },
+        {
+          "do": "say",
+          "text": "The Americans have burned Newark to the ground and gone back over the river; its people are out in the snow.",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "fort-niagara-taken",
+      "title": "Fort Niagara taken by night",
+      "kind": "fixed",
+      "date": "1813-12-19",
+      "keywords": [
+        "Fort Niagara",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "casualties",
+          "town": "Fort Niagara",
+          "count": 60,
+          "cause": "when the British stormed the fort by night"
+        },
+        {
+          "do": "town_falls",
+          "town": "Fort Niagara",
+          "to": "Crown"
+        },
+        {
+          "do": "move_garrison",
+          "from": "Niagara",
+          "to": "Fort Niagara",
+          "count": 60
+        },
+        {
+          "do": "flag",
+          "name": "fort_niagara_british"
+        },
+        {
+          "do": "say",
+          "text": "Fort Niagara is taken by night with the bayonet, in answer for Newark.",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "prairie-du-chien-occupied",
+      "title": "The Americans at Prairie du Chien",
+      "kind": "fixed",
+      "date": "1814-06-02",
+      "keywords": [
+        "Prairie du Chien",
+        "Mississippi",
+        "Fort Shelby",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "blockade:mississippi"
+        },
+        {
+          "do": "news",
+          "from": "Michilimackinac",
+          "to": "the wintering partner",
+          "subject": "the Mississippi shut",
+          "text": "The Americans have come up from St. Louis and built a fort at Prairie du Chien. No goods will go up the Mississippi to Lake Traverse until they are put out.",
+          "days": 30,
+          "company": "NWC"
+        }
+      ]
+    },
+    {
+      "id": "prairie-du-chien-retaken",
+      "title": "Fort Shelby taken; the Mississippi open again",
+      "kind": "fixed",
+      "date": "1814-07-20",
+      "keywords": [
+        "Prairie du Chien",
+        "McKay",
+        "Mississippi",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "unflag",
+          "name": "blockade:mississippi"
+        },
+        {
+          "do": "news",
+          "from": "Michilimackinac",
+          "to": "the wintering partner",
+          "subject": "Prairie du Chien retaken",
+          "text": "McKay has taken Fort Shelby with the Dakota, Ho-Chunk and Menominee. The Mississippi is ours again and the goods can go up to Lake Traverse.",
+          "days": 30,
+          "company": "NWC"
+        }
+      ]
+    },
+    {
+      "id": "treaty-of-ghent",
+      "title": "Peace with the Americans (the Treaty of Ghent)",
+      "kind": "fixed",
+      "date": "1814-12-24",
+      "keywords": [
+        "Ghent",
+        "peace",
+        "war"
+      ],
+      "happens": [
+        {
+          "do": "flag",
+          "name": "peace_of_ghent"
+        },
+        {
+          "do": "news",
+          "from": "the Governor and Committee, London",
+          "to": "the Factor at York Factory",
+          "subject": "peace with America",
+          "text": "Peace is signed with the Americans at Ghent. Everything taken is to be given back as it was.",
+          "days": 200
+        }
+      ]
+    },
+    {
+      "id": "status-quo-ante-bellum",
+      "title": "The forts given back as they were before the war",
+      "kind": "fixed",
+      "date": "1815-07-18",
+      "keywords": [
+        "Ghent",
+        "Michilimackinac",
+        "Fort Niagara",
+        "Amherstburg",
+        "peace"
+      ],
+      "happens": [
+        {
+          "do": "garrison_leaves",
+          "town": "Mackinac Island",
+          "where": "to Drummond Island"
+        },
+        {
+          "do": "town_falls",
+          "town": "Mackinac Island",
+          "to": "American",
+          "prisoners": false
+        },
+        {
+          "do": "move_garrison",
+          "from": "Fort Niagara",
+          "to": "Niagara",
+          "count": 200
+        },
+        {
+          "do": "town_falls",
+          "town": "Fort Niagara",
+          "to": "American",
+          "prisoners": false
+        },
+        {
+          "do": "garrison_returns",
+          "town": "Fort Niagara"
+        },
+        {
+          "do": "garrison_returns",
+          "town": "Mackinac Island"
+        },
+        {
+          "do": "town_falls",
+          "town": "Amherstburg",
+          "to": "Crown",
+          "prisoners": false
+        },
+        {
+          "do": "garrison_returns",
+          "town": "Amherstburg"
+        },
+        {
+          "do": "flag",
+          "name": "forts_returned"
+        },
+        {
+          "do": "say",
+          "text": "By the peace the forts are given back: Michilimackinac and Fort Niagara to the Americans, Amherstburg to the King.",
+          "headline": true
+        },
+        {
+          "do": "news",
+          "from": "Michilimackinac",
+          "to": "the wintering partner",
+          "subject": "Michilimackinac given back",
+          "text": "The island is given back to the Americans by the treaty. The garrison goes to Drummond Island. Astor's people will be up the lakes again before long.",
+          "days": 40,
+          "company": "NWC"
+        }
+      ]
     }
   ]
 }
