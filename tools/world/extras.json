@@ -1,373 +1,382 @@
 {
-  "_about": "Hand additions to the atlas geography (lon, lat). Natural Earth's 50m rivers leave out the Hayes, the York Factory - Oxford House road; it is traced here approximately. Edit and re-run build_world.py.",
-  "rivers": [
-    {
-      "name": "Hayes",
-      "major": true,
-      "pts": [
-        [
-          -92.3,
-          57.0
-        ],
-        [
-          -92.62,
-          56.8
-        ],
-        [
-          -92.95,
-          56.58
-        ],
-        [
-          -93.35,
-          56.3
-        ],
-        [
-          -93.8,
-          55.98
-        ],
-        [
-          -94.2,
-          55.6
-        ],
-        [
-          -94.55,
-          55.25
-        ],
-        [
-          -94.72,
-          55.05
-        ],
-        [
-          -95.0,
-          54.95
-        ],
-        [
-          -95.3,
-          54.93
-        ]
-      ]
-    },
-    {
-      "name": "Hayes estuary",
-      "width_px": 700,
-      "pts": [
-        [
-          -92.62,
-          56.8
-        ],
-        [
-          -92.42,
-          56.93
-        ],
-        [
-          -92.3,
-          57.0
-        ],
-        [
-          -92.12,
-          57.08
-        ],
-        [
-          -91.95,
-          57.15
-        ]
-      ]
-    }
-  ],
-  "places": [
-    {
-      "name": "Nor'Westers' house (York)",
-      "kind": "nwc_post",
-      "lon": -93.55,
-      "lat": 56.55,
-      "company": "NWC",
-      "year": 1801,
-      "note": "The game's rival post, up-country from York Factory."
-    },
-    {
-      "name": "Cree winter camp (York)",
-      "kind": "camp",
-      "lon": -93.45,
-      "lat": 56.8
-    },
-    {
-      "name": "Cree summer camp (York)",
-      "kind": "camp",
-      "lon": -92.55,
-      "lat": 56.98
-    },
-    {
-      "name": "Assiniboine winter camp",
-      "kind": "camp",
-      "lon": -95.7,
-      "lat": 54.8
-    },
-    {
-      "name": "Assiniboine summer camp",
-      "kind": "camp",
-      "lon": -92.85,
-      "lat": 56.95
-    },
-    {
-      "name": "Lake Traverse",
-      "kind": "post",
-      "lon": -96.6,
-      "lat": 45.7,
-      "company": "NWC",
-      "year": 1800,
-      "note": "Robert Dickson's post among the Dakota at the head of the Minnesota River: the British trade of the upper Mississippi, its goods up from Michilimackinac by way of Prairie du Chien."
-    },
-    {
-      "name": "Prairie du Chien",
-      "kind": "post",
-      "lon": -91.14,
-      "lat": 43.05,
-      "company": "NWC",
-      "year": 1781,
-      "note": "The trading town at the mouth of the Wisconsin: the summer rendezvous of the upper Mississippi trade, British in its goods and its loyalties, French and Métis in its people."
-    },
-    {
-      "name": "La Baye (Green Bay)",
-      "kind": "post",
-      "lon": -88.02,
-      "lat": 44.51,
-      "company": "NWC",
-      "year": 1745,
-      "note": "The old French post at the foot of Green Bay, the Grignons' trade with the Menominee and the Ho-Chunk; the head of the Fox-Wisconsin road to the Mississippi."
-    },
-    {
-      "name": "Milwaukee",
-      "kind": "post",
-      "lon": -87.91,
-      "lat": 43.04,
-      "company": "NWC",
-      "year": 1795,
-      "note": "Jacques Vieau's post on the Milwaukee River among the Potawatomi and the Menominee, outfitted from Michilimackinac."
-    }
-  ],
-  "sites": [
-    {
-      "name": "Caribou herd",
-      "species": "Caribou",
-      "lon": -94.2,
-      "lat": 56.3,
-      "count": 90,
-      "capacity": 140,
-      "radius": 900,
-      "route": [
-        [
-          -94.2,
-          56.3
-        ],
-        [
-          -94.3,
-          56.25
-        ],
-        [
-          -94.1,
-          56.35
-        ],
-        [
-          -93.8,
-          56.6
-        ],
-        [
-          -93.5,
-          56.85
-        ],
-        [
-          -93.2,
-          57.05
-        ],
-        [
-          -93.0,
-          57.15
-        ],
-        [
-          -93.3,
-          57.05
-        ],
-        [
-          -93.6,
-          56.8
-        ],
-        [
-          -93.9,
-          56.6
-        ],
-        [
-          -94.1,
-          56.4
-        ],
-        [
-          -94.2,
-          56.3
-        ]
-      ]
-    },
-    {
-      "name": "Goose marsh",
-      "species": "Goose",
-      "lon": -92.79,
-      "lat": 57.455,
-      "count": 180,
-      "capacity": 300,
-      "radius": 700,
-      "note": "On the bay shore just beyond Sloops Creek from the post (moved with the fort, Oct 2026)."
-    },
-    {
-      "name": "Beaver lodge (upper)",
-      "species": "Beaver",
-      "lon": -92.75,
-      "lat": 56.72,
-      "count": 40,
-      "capacity": 60,
-      "radius": 350
-    },
-    {
-      "name": "Beaver lodge (bend)",
-      "species": "Beaver",
-      "lon": -93.3,
-      "lat": 56.32,
-      "count": 45,
-      "capacity": 60,
-      "radius": 350
-    },
-    {
-      "name": "Beaver lodge (lower)",
-      "species": "Beaver",
-      "lon": -93.85,
-      "lat": 55.98,
-      "count": 36,
-      "capacity": 60,
-      "radius": 350
-    },
-    {
-      "name": "Wolf den",
-      "species": "Wolf",
-      "lon": -94.6,
-      "lat": 56.05,
-      "count": 6,
-      "capacity": 10,
-      "radius": 800
-    },
-    {
-      "name": "Beaver lodge (Knee Lake)",
-      "species": "Beaver",
-      "lon": -94.75,
-      "lat": 55.08,
-      "count": 50,
-      "capacity": 70,
-      "radius": 350
-    },
-    {
-      "name": "Beaver lodge (Oxford)",
-      "species": "Beaver",
-      "lon": -95.05,
-      "lat": 54.86,
-      "count": 55,
-      "capacity": 75,
-      "radius": 380
-    }
-  ],
-  "portages_about": "Carrying places on the York Factory - Oxford House road, upstream order. Rock Portage is at Rock Depot, about 200 km upriver where the York boats gave way to canoes; Borwick's Falls is above it on the Hill River stretch; Trout Falls (and the Knife Portage) on the Trout River between Knee Lake and Oxford Lake. Hill's Gates and Robinson Portage are ABOVE Oxford House on the way to Norway House, so they are not on this road. Positions are approximate (Hayes River - Wikipedia; Nancy Marguerite Anderson, 'Landmarks on the Hayes River'): check against an HBC map.",
-  "portages": [
-    {
-      "name": "Rock Portage",
-      "lon": -93.75,
-      "lat": 56.0
-    },
-    {
-      "name": "Borwick's Falls",
-      "lon": -94.05,
-      "lat": 55.75
-    },
-    {
-      "name": "Trout Falls",
-      "lon": -94.95,
-      "lat": 54.97
-    }
-  ],
-  "post_closures_about": "Posts the atlas lists by founding year that were gone by the game's start. Hudson House 1787 (FortWiki; some sources 1789); Pine Fort abandoned several times, last 1811 (Manitoba Heritage Council). The rest are from memory and want checking: Manchester House 1793, South Branch House 1794, Buckingham House and the Saskatchewan Fort George 1800, Chesterfield House 1802, Grand Portage 1803 (the NWC moved to Kaministiquia), Kootenay House 1812.",
-  "post_closures": {
-    "Hudson House": 1787,
-    "Manchester House": 1793,
-    "South Branch House": 1794,
-    "Buckingham House": 1800,
-    "Fort George": 1800,
-    "Chesterfield House": 1802,
-    "Grand Portage": 1803,
-    "Pine Fort": 1811,
-    "Kootenay House": 1812
+ "_about": "Hand additions to the atlas geography (lon, lat). Natural Earth's 50m rivers leave out the Hayes, the York Factory - Oxford House road; it is traced here approximately. Edit and re-run build_world.py.",
+ "rivers": [
+  {
+   "name": "Hayes",
+   "major": true,
+   "pts": [
+    [
+     -92.3,
+     57.0
+    ],
+    [
+     -92.62,
+     56.8
+    ],
+    [
+     -92.95,
+     56.58
+    ],
+    [
+     -93.35,
+     56.3
+    ],
+    [
+     -93.8,
+     55.98
+    ],
+    [
+     -94.2,
+     55.6
+    ],
+    [
+     -94.55,
+     55.25
+    ],
+    [
+     -94.72,
+     55.05
+    ],
+    [
+     -95.0,
+     54.95
+    ],
+    [
+     -95.3,
+     54.93
+    ]
+   ]
   },
-  "peoples_about": "Peoples the atlas has no entry for, placed like its own: a band camp at lon/lat in 1811. The Métis (Bois-Brûlés) of the Red River, Pembina and the Qu'Appelle, the buffalo hunters and pemmican makers of design doc 5.3.",
-  "peoples": [
-    {
-      "name": "Métis of the Forks",
-      "nation": "Metis",
-      "lon": -97.15,
-      "lat": 49.8,
-      "maj": 1
-    },
-    {
-      "name": "Métis at Pembina",
-      "nation": "Metis",
-      "lon": -97.25,
-      "lat": 48.98,
-      "maj": 0
-    },
-    {
-      "name": "Métis of the Qu'Appelle",
-      "nation": "Metis",
-      "lon": -101.7,
-      "lat": 50.45,
-      "maj": 0
-    },
-    {
-      "name": "Six Nations of the Grand River",
-      "nation": "Haudenosaunee",
-      "lon": -80.1,
-      "lat": 43.07,
-      "maj": 1
-    },
-    {
-      "name": "Wyandot",
-      "nation": "Haudenosaunee",
-      "lon": -83.2,
-      "lat": 42.15,
-      "maj": 0
-    },
-    {
-      "name": "Meskwaki (Fox)",
-      "nation": "SaukFox",
-      "lon": -90.67,
-      "lat": 42.5,
-      "maj": 0
-    }
-  ],
-  "camps_about": "Camps set down by hand, as they are, after everything else is placed (so nothing moves for them), each after the named camp in the list. The Beaver Hills Cree (Amiskwacîwiyiniwak) by Edmonton House, the Company's allies in the HBC story's Edmonton chapter; the Métis of the Souris by Fort Souris, for the NWC story (their cast is under Cast/Camps in the scene, so the name must not change).",
-  "camps": [
-    {
-      "after": "Plains Cree",
-      "name": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
-      "nation": "Cree",
-      "kind": "band",
-      "centre": [
-        404,
-        1056
-      ],
-      "people": 12
-    },
-    {
-      "after": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
-      "name": "Métis of the Souris",
-      "nation": "Metis",
-      "kind": "band",
-      "centre": [
-        690,
-        1670
-      ],
-      "people": 8
-    }
-  ]
+  {
+   "name": "Hayes estuary",
+   "width_px": 700,
+   "pts": [
+    [
+     -92.62,
+     56.8
+    ],
+    [
+     -92.42,
+     56.93
+    ],
+    [
+     -92.3,
+     57.0
+    ],
+    [
+     -92.12,
+     57.08
+    ],
+    [
+     -91.95,
+     57.15
+    ]
+   ]
+  }
+ ],
+ "places": [
+  {
+   "name": "Nor'Westers' house (York)",
+   "kind": "nwc_post",
+   "lon": -93.55,
+   "lat": 56.55,
+   "company": "NWC",
+   "year": 1801,
+   "note": "The game's rival post, up-country from York Factory."
+  },
+  {
+   "name": "Cree winter camp (York)",
+   "kind": "camp",
+   "lon": -93.45,
+   "lat": 56.8
+  },
+  {
+   "name": "Cree summer camp (York)",
+   "kind": "camp",
+   "lon": -92.55,
+   "lat": 56.98
+  },
+  {
+   "name": "Assiniboine winter camp",
+   "kind": "camp",
+   "lon": -95.7,
+   "lat": 54.8
+  },
+  {
+   "name": "Assiniboine summer camp",
+   "kind": "camp",
+   "lon": -92.85,
+   "lat": 56.95
+  },
+  {
+   "name": "Lake Traverse",
+   "kind": "post",
+   "lon": -96.6,
+   "lat": 45.7,
+   "company": "NWC",
+   "year": 1800,
+   "note": "Robert Dickson's post among the Dakota at the head of the Minnesota River: the British trade of the upper Mississippi, its goods up from Michilimackinac by way of Prairie du Chien."
+  },
+  {
+   "name": "Prairie du Chien",
+   "kind": "post",
+   "lon": -91.14,
+   "lat": 43.05,
+   "company": "NWC",
+   "year": 1781,
+   "note": "The trading town at the mouth of the Wisconsin: the summer rendezvous of the upper Mississippi trade, British in its goods and its loyalties, French and Métis in its people."
+  },
+  {
+   "name": "La Baye (Green Bay)",
+   "kind": "post",
+   "lon": -88.02,
+   "lat": 44.51,
+   "company": "NWC",
+   "year": 1745,
+   "note": "The old French post at the foot of Green Bay, the Grignons' trade with the Menominee and the Ho-Chunk; the head of the Fox-Wisconsin road to the Mississippi."
+  },
+  {
+   "name": "Milwaukee",
+   "kind": "post",
+   "lon": -87.91,
+   "lat": 43.04,
+   "company": "NWC",
+   "year": 1795,
+   "note": "Jacques Vieau's post on the Milwaukee River among the Potawatomi and the Menominee, outfitted from Michilimackinac."
+  },
+  {
+   "name": "Fort Coulonge",
+   "kind": "post",
+   "lon": -76.73,
+   "lat": 45.85,
+   "company": "NWC",
+   "year": 1784,
+   "note": "The North West Company's house on the Ottawa below the Calumet portages: where the Montreal canoes' goods come into the country (Economy/Outfits)."
+  }
+ ],
+ "sites": [
+  {
+   "name": "Caribou herd",
+   "species": "Caribou",
+   "lon": -94.2,
+   "lat": 56.3,
+   "count": 90,
+   "capacity": 140,
+   "radius": 900,
+   "route": [
+    [
+     -94.2,
+     56.3
+    ],
+    [
+     -94.3,
+     56.25
+    ],
+    [
+     -94.1,
+     56.35
+    ],
+    [
+     -93.8,
+     56.6
+    ],
+    [
+     -93.5,
+     56.85
+    ],
+    [
+     -93.2,
+     57.05
+    ],
+    [
+     -93.0,
+     57.15
+    ],
+    [
+     -93.3,
+     57.05
+    ],
+    [
+     -93.6,
+     56.8
+    ],
+    [
+     -93.9,
+     56.6
+    ],
+    [
+     -94.1,
+     56.4
+    ],
+    [
+     -94.2,
+     56.3
+    ]
+   ]
+  },
+  {
+   "name": "Goose marsh",
+   "species": "Goose",
+   "lon": -92.79,
+   "lat": 57.455,
+   "count": 180,
+   "capacity": 300,
+   "radius": 700,
+   "note": "On the bay shore just beyond Sloops Creek from the post (moved with the fort, Oct 2026)."
+  },
+  {
+   "name": "Beaver lodge (upper)",
+   "species": "Beaver",
+   "lon": -92.75,
+   "lat": 56.72,
+   "count": 40,
+   "capacity": 60,
+   "radius": 350
+  },
+  {
+   "name": "Beaver lodge (bend)",
+   "species": "Beaver",
+   "lon": -93.3,
+   "lat": 56.32,
+   "count": 45,
+   "capacity": 60,
+   "radius": 350
+  },
+  {
+   "name": "Beaver lodge (lower)",
+   "species": "Beaver",
+   "lon": -93.85,
+   "lat": 55.98,
+   "count": 36,
+   "capacity": 60,
+   "radius": 350
+  },
+  {
+   "name": "Wolf den",
+   "species": "Wolf",
+   "lon": -94.6,
+   "lat": 56.05,
+   "count": 6,
+   "capacity": 10,
+   "radius": 800
+  },
+  {
+   "name": "Beaver lodge (Knee Lake)",
+   "species": "Beaver",
+   "lon": -94.75,
+   "lat": 55.08,
+   "count": 50,
+   "capacity": 70,
+   "radius": 350
+  },
+  {
+   "name": "Beaver lodge (Oxford)",
+   "species": "Beaver",
+   "lon": -95.05,
+   "lat": 54.86,
+   "count": 55,
+   "capacity": 75,
+   "radius": 380
+  }
+ ],
+ "portages_about": "Carrying places on the York Factory - Oxford House road, upstream order. Rock Portage is at Rock Depot, about 200 km upriver where the York boats gave way to canoes; Borwick's Falls is above it on the Hill River stretch; Trout Falls (and the Knife Portage) on the Trout River between Knee Lake and Oxford Lake. Hill's Gates and Robinson Portage are ABOVE Oxford House on the way to Norway House, so they are not on this road. Positions are approximate (Hayes River - Wikipedia; Nancy Marguerite Anderson, 'Landmarks on the Hayes River'): check against an HBC map.",
+ "portages": [
+  {
+   "name": "Rock Portage",
+   "lon": -93.75,
+   "lat": 56.0
+  },
+  {
+   "name": "Borwick's Falls",
+   "lon": -94.05,
+   "lat": 55.75
+  },
+  {
+   "name": "Trout Falls",
+   "lon": -94.95,
+   "lat": 54.97
+  }
+ ],
+ "post_closures_about": "Posts the atlas lists by founding year that were gone by the game's start. Hudson House 1787 (FortWiki; some sources 1789); Pine Fort abandoned several times, last 1811 (Manitoba Heritage Council). The rest are from memory and want checking: Manchester House 1793, South Branch House 1794, Buckingham House and the Saskatchewan Fort George 1800, Chesterfield House 1802, Grand Portage 1803 (the NWC moved to Kaministiquia), Kootenay House 1812.",
+ "post_closures": {
+  "Hudson House": 1787,
+  "Manchester House": 1793,
+  "South Branch House": 1794,
+  "Buckingham House": 1800,
+  "Fort George": 1800,
+  "Chesterfield House": 1802,
+  "Grand Portage": 1803,
+  "Pine Fort": 1811,
+  "Kootenay House": 1812
+ },
+ "peoples_about": "Peoples the atlas has no entry for, placed like its own: a band camp at lon/lat in 1811. The Métis (Bois-Brûlés) of the Red River, Pembina and the Qu'Appelle, the buffalo hunters and pemmican makers of design doc 5.3.",
+ "peoples": [
+  {
+   "name": "Métis of the Forks",
+   "nation": "Metis",
+   "lon": -97.15,
+   "lat": 49.8,
+   "maj": 1
+  },
+  {
+   "name": "Métis at Pembina",
+   "nation": "Metis",
+   "lon": -97.25,
+   "lat": 48.98,
+   "maj": 0
+  },
+  {
+   "name": "Métis of the Qu'Appelle",
+   "nation": "Metis",
+   "lon": -101.7,
+   "lat": 50.45,
+   "maj": 0
+  },
+  {
+   "name": "Six Nations of the Grand River",
+   "nation": "Haudenosaunee",
+   "lon": -80.1,
+   "lat": 43.07,
+   "maj": 1
+  },
+  {
+   "name": "Wyandot",
+   "nation": "Haudenosaunee",
+   "lon": -83.2,
+   "lat": 42.15,
+   "maj": 0
+  },
+  {
+   "name": "Meskwaki (Fox)",
+   "nation": "SaukFox",
+   "lon": -90.67,
+   "lat": 42.5,
+   "maj": 0
+  }
+ ],
+ "camps_about": "Camps set down by hand, as they are, after everything else is placed (so nothing moves for them), each after the named camp in the list. The Beaver Hills Cree (Amiskwacîwiyiniwak) by Edmonton House, the Company's allies in the HBC story's Edmonton chapter; the Métis of the Souris by Fort Souris, for the NWC story (their cast is under Cast/Camps in the scene, so the name must not change).",
+ "camps": [
+  {
+   "after": "Plains Cree",
+   "name": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+   "nation": "Cree",
+   "kind": "band",
+   "centre": [
+    404,
+    1056
+   ],
+   "people": 12
+  },
+  {
+   "after": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
+   "name": "Métis of the Souris",
+   "nation": "Metis",
+   "kind": "band",
+   "centre": [
+    690,
+    1670
+   ],
+   "people": 8
+  }
+ ]
 }

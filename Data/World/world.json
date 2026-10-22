@@ -1711,6 +1711,19 @@
    "company": "NWC",
    "year": 1795,
    "note": "Jacques Vieau's post on the Milwaukee River among the Potawatomi and the Menominee, outfitted from Michilimackinac."
+  },
+  {
+   "name": "Fort Coulonge",
+   "kind": "post",
+   "lon": -76.73,
+   "lat": 45.85,
+   "company": "NWC",
+   "year": 1784,
+   "cell": [
+    1232,
+    1712
+   ],
+   "note": "The North West Company's house on the Ottawa below the Calumet portages: the first post on the Montreal canoes' road up the river, where the year's goods come into the country and the furs go down to Lachine."
   }
  ],
  "layout": {
@@ -15117,6 +15130,15 @@
     "top": [
      670,
      2381
+    ]
+   },
+   {
+    "name": "Fort Coulonge",
+    "company": "NWC",
+    "year": 1784,
+    "top": [
+     1227,
+     1722
     ]
    }
   ],

@@ -24,13 +24,15 @@ namespace IsometricFurTradeGame.Scripts.Economy;
 // reach winters on what it has.
 public static class Outfits
 {
-    public const string Entry = "Sault Ste. Marie";
+    public const string Entry = "Fort Coulonge";
     // A year's goods for a company, in made beaver: on the scale of the
     // returns - York alone sent home twenty thousand and more a year.
     public const float YearMb = 8000f;
 
     // Where each company's goods come onto the map, and when (design doc
-    // 10.1.5): the Montreal canoes in at the Sault in June; the Pacific Fur
+    // 10.1.5): the Montreal canoes up the Ottawa to Fort Coulonge in May, on
+    // the map's edge, and from there up the river road to the Sault and over
+    // the lake to Fort William (AddFeederRuns); the Pacific Fur
     // Company's ship at Astoria in August (Fort Okanogan has its feeder up the Columbia); the
     // Missouri Fur Company's keelboats up from St. Louis in October; the British
     // goods for the Dakota up the Mississippi from Michilimackinac by way of
@@ -38,7 +40,7 @@ public static class Outfits
     // ship at York is World/Ship.cs. A campaign can stop one with its flag.
     private static readonly (string Post, int Month, float Mb, string Flag, string Story)[] Entries =
     {
-        (Entry, 6, YearMb, "blockade:montreal", "The canoes from Montreal are in at Sault Ste. Marie with the North West Company's goods for the year."),
+        (Entry, 5, YearMb, "blockade:montreal", "The canoes from Lachine are up the Ottawa at Fort Coulonge with the North West Company's goods for the year."),
         ("Fort Astoria", 8, 1500f, "blockade:pacific", "The Tonquin's goods are landed at Astoria for the Pacific Fur Company: the year's trade, round the Horn from New York."),
         ("Fort Manuel Lisa", 10, 1500f, "blockade:missouri", "The keelboats are up the Missouri from St. Louis with the year's goods."),
         ("Lake Traverse", 9, 1500f, "blockade:mississippi", "Dickson's canoes are up from Prairie du Chien with the British goods for the Dakota trade."),
@@ -108,8 +110,9 @@ public static class Outfits
 
     // Called by Convoys when it reads the great roads: one run from the
     // nearest supplied depot to every post the roads do not reach, leaving a
-    // few days after that depot's own outfit is due in, and the lake run from
-    // the Sault to Fort William.
+    // few days after that depot's own outfit is due in, and the canoes from
+    // Lachine up the Ottawa, the Mattawa, Lake Nipissing and the French River to
+    // the Sault and over Lake Superior to Fort William.
     public static void AddFeederRuns(List<ConvoyRun> runs, Dictionary<string, CraftKind> kinds)
     {
         var canoe = kinds.TryGetValue("canoe", out var c) ? c : new CraftKind();
@@ -118,12 +121,15 @@ public static class Outfits
         // what they hold is a post's year, not a depot's.
         var north = new CraftKind { Name = "north canoe", Up = canoe.Up * 0.9f, Down = canoe.Down, LotsPerBoat = 8, Sprite = canoe.Sprite, Scale = canoe.Scale * 0.85f };
         var horses = new CraftKind { Name = "pack train", Up = 30f, Down = 32f, LotsPerBoat = 2, Sprite = "", Scale = 0.6f };
-        if (Posts.Named(Entry) != null && Posts.Named("Fort William") != null)
+        const string Sault = "Sault Ste. Marie";
+        if (Posts.Named(Entry) != null && Posts.Named(Sault) != null && Posts.Named("Fort William") != null)
         {
-            var lake = new ConvoyRun { Name = "the canoes on the lake", Company = Faction.NWC, Craft = canoe, Boats = 8, Men = 8 };
-            lake.Stops.Add(Entry); lake.Stops.Add("Fort William");
-            lake.Legs.Add(new ConvoyLeg { From = Entry, To = "Fort William", Cargo = "outfit", Month = 6, Day = 8 });
-            lake.Legs.Add(new ConvoyLeg { From = "Fort William", To = Entry, Cargo = "returns", Month = 7, Day = 20 });
+            var lake = new ConvoyRun { Name = "the canoes from Lachine", Company = Faction.NWC, Craft = canoe, Boats = 8, Men = 8 };
+            lake.Stops.Add(Entry); lake.Stops.Add(Sault); lake.Stops.Add("Fort William");
+            lake.Legs.Add(new ConvoyLeg { From = Entry, To = Sault, Cargo = "outfit", Month = 5, Day = 12 });
+            lake.Legs.Add(new ConvoyLeg { From = Sault, To = "Fort William", Cargo = "outfit", Month = 6, Day = 8 });
+            lake.Legs.Add(new ConvoyLeg { From = "Fort William", To = Sault, Cargo = "returns", Month = 7, Day = 20 });
+            lake.Legs.Add(new ConvoyLeg { From = Sault, To = Entry, Cargo = "returns", Month = 7, Day = 28 });
             runs.Add(lake);
         }
 
