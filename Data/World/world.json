@@ -15151,7 +15151,7 @@
      406,
      1233
     ],
-    "people": 12
+    "people": 90
    },
    {
     "name": "Blood (Kainai)",
@@ -15161,7 +15161,7 @@
      376,
      1509
     ],
-    "people": 8
+    "people": 85
    },
    {
     "name": "Peigan (Piikani)",
@@ -15171,7 +15171,7 @@
      380,
      1653
     ],
-    "people": 8
+    "people": 90
    },
    {
     "name": "Sarcee (Tsuut'ina)",
@@ -15181,7 +15181,7 @@
      364,
      1342
     ],
-    "people": 8
+    "people": 45
    },
    {
     "name": "Gros Ventre",
@@ -15191,7 +15191,7 @@
      461,
      1622
     ],
-    "people": 12
+    "people": 70
    },
    {
     "name": "Plains Cree",
@@ -15201,7 +15201,7 @@
      537,
      1196
     ],
-    "people": 12
+    "people": 75
    },
    {
     "name": "Beaver Hills Cree (Amiskwacîwiyiniwak)",
@@ -15211,7 +15211,7 @@
      404,
      1056
     ],
-    "people": 12
+    "people": 70
    },
    {
     "name": "Métis of the Souris",
@@ -15221,7 +15221,7 @@
      690,
      1670
     ],
-    "people": 8
+    "people": 45
    },
    {
     "name": "Woodland Cree",
@@ -15231,7 +15231,7 @@
      657,
      899
     ],
-    "people": 12
+    "people": 35
    },
    {
     "name": "Swampy Cree",
@@ -15241,7 +15241,7 @@
      834,
      804
     ],
-    "people": 8
+    "people": 35
    },
    {
     "name": "Assiniboine",
@@ -15251,7 +15251,7 @@
      583,
      1529
     ],
-    "people": 12
+    "people": 80
    },
    {
     "name": "Nakoda (Stoney)",
@@ -15261,7 +15261,7 @@
      363,
      1277
     ],
-    "people": 12
+    "people": 50
    },
    {
     "name": "Plains Ojibwa (Saulteaux)",
@@ -15271,7 +15271,7 @@
      775,
      1603
     ],
-    "people": 12
+    "people": 50
    },
    {
     "name": "Ojibwa (Anishinaabe)",
@@ -15281,7 +15281,7 @@
      893,
      1692
     ],
-    "people": 12
+    "people": 40
    },
    {
     "name": "Dakota (Santee Sioux)",
@@ -15291,7 +15291,7 @@
      778,
      2205
     ],
-    "people": 12
+    "people": 70
    },
    {
     "name": "Lakota (Teton Sioux)",
@@ -15301,7 +15301,7 @@
      641,
      2347
     ],
-    "people": 12
+    "people": 90
    },
    {
     "name": "Mandan",
@@ -15311,7 +15311,7 @@
      650,
      1959
     ],
-    "people": 12
+    "people": 120
    },
    {
     "name": "Hidatsa",
@@ -15321,7 +15321,7 @@
      635,
      1914
     ],
-    "people": 8
+    "people": 110
    },
    {
     "name": "Arikara",
@@ -15331,7 +15331,7 @@
      671,
      2145
     ],
-    "people": 8
+    "people": 100
    },
    {
     "name": "Crow",
@@ -15341,7 +15341,7 @@
      494,
      2177
     ],
-    "people": 12
+    "people": 85
    },
    {
     "name": "Shoshone",
@@ -15351,7 +15351,7 @@
      395,
      2132
     ],
-    "people": 12
+    "people": 60
    },
    {
     "name": "Kootenay (Ktunaxa)",
@@ -15361,7 +15361,7 @@
      318,
      1541
     ],
-    "people": 12
+    "people": 45
    },
    {
     "name": "Salish (Flathead)",
@@ -15371,7 +15371,7 @@
      334,
      1872
     ],
-    "people": 8
+    "people": 50
    },
    {
     "name": "Chipewyan",
@@ -15381,7 +15381,7 @@
      581,
      416
     ],
-    "people": 12
+    "people": 35
    },
    {
     "name": "Dene (Beaver)",
@@ -15391,7 +15391,7 @@
      333,
      451
     ],
-    "people": 12
+    "people": 30
    },
    {
     "name": "Odawa (Ottawa)",
@@ -15401,7 +15401,7 @@
      1059,
      1908
     ],
-    "people": 8
+    "people": 45
    },
    {
     "name": "Coast Salish",
@@ -15411,7 +15411,7 @@
      136,
      1449
     ],
-    "people": 8
+    "people": 60
    },
    {
     "name": "Dakelh (Carrier)",
@@ -15421,7 +15421,7 @@
      167,
      714
     ],
-    "people": 12
+    "people": 35
    },
    {
     "name": "Tsilhqot'in",
@@ -15431,7 +15431,7 @@
      165,
      1061
     ],
-    "people": 8
+    "people": 35
    },
    {
     "name": "Sekani",
@@ -15441,7 +15441,7 @@
      184,
      393
     ],
-    "people": 8
+    "people": 25
    },
    {
     "name": "Secwépemc (Shuswap)",
@@ -15451,7 +15451,7 @@
      234,
      1225
     ],
-    "people": 8
+    "people": 45
    },
    {
     "name": "Syilx (Okanagan)",
@@ -15461,7 +15461,7 @@
      239,
      1473
     ],
-    "people": 8
+    "people": 45
    },
    {
     "name": "Nlaka'pamux",
@@ -15471,7 +15471,7 @@
      205,
      1353
     ],
-    "people": 8
+    "people": 45
    },
    {
     "name": "Cheyenne",
@@ -15481,7 +15481,7 @@
      606,
      2291
     ],
-    "people": 12
+    "people": 70
    },
    {
     "name": "Oji-Cree",
@@ -15491,7 +15491,7 @@
      848,
      1159
     ],
-    "people": 8
+    "people": 30
    },
    {
     "name": "Menominee",
@@ -15501,7 +15501,7 @@
      961,
      2152
     ],
-    "people": 8
+    "people": 45
    },
    {
     "name": "Ho-Chunk (Winnebago)",
@@ -15511,7 +15511,7 @@
      944,
      2337
     ],
-    "people": 8
+    "people": 50
    },
    {
     "name": "Métis of the Forks",
@@ -15521,7 +15521,7 @@
      745,
      1638
     ],
-    "people": 12
+    "people": 45
    },
    {
     "name": "Métis at Pembina",
@@ -15531,7 +15531,7 @@
      746,
      1716
     ],
-    "people": 8
+    "people": 45
    },
    {
     "name": "Métis of the Qu'Appelle",
@@ -15541,7 +15541,7 @@
      635,
      1500
     ],
-    "people": 8
+    "people": 45
    },
    {
     "name": "Nipissing family at Moose Factory",
@@ -15552,7 +15552,7 @@
      1082,
      1172
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Woodland Cree family at Cumberland House",
@@ -15563,7 +15563,7 @@
      617,
      1048
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Chipewyan family at Fort Chipewyan",
@@ -15574,7 +15574,7 @@
      459,
      413
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Blackfoot family at Edmonton House",
@@ -15585,7 +15585,7 @@
      392,
      1069
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Ojibwa (Anishinaabe) family at Fort William",
@@ -15596,7 +15596,7 @@
      909,
      1635
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Forks family at Fort Gibraltar",
@@ -15607,7 +15607,7 @@
      742,
      1601
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Nipissing family at Albany Fort",
@@ -15618,7 +15618,7 @@
      1051,
      1043
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Swampy Cree family at Fort Severn",
@@ -15629,7 +15629,7 @@
      903,
      732
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Swampy Cree family at Churchill (Pr. of Wales Fort)",
@@ -15640,7 +15640,7 @@
      769,
      368
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Odawa (Ottawa) family at Michipicoten",
@@ -15651,7 +15651,7 @@
      1021,
      1666
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Oji-Cree family at Henley House",
@@ -15662,7 +15662,7 @@
      993,
      1256
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Oji-Cree family at Gloucester House",
@@ -15673,7 +15673,7 @@
      929,
      1341
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Ojibwa (Anishinaabe) family at Grand Portage",
@@ -15684,7 +15684,7 @@
      906,
      1760
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Plains Cree family at Hudson House",
@@ -15695,7 +15695,7 @@
      519,
      1183
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Plains Cree family at Ile-a-la-Crosse",
@@ -15706,7 +15706,7 @@
      516,
      848
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Odawa (Ottawa) family at Michilimackinac",
@@ -15717,7 +15717,7 @@
      1044,
      1984
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Plains Cree family at Green Lake",
@@ -15728,7 +15728,7 @@
      505,
      994
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Plains Cree family at Lac la Ronge",
@@ -15739,7 +15739,7 @@
      567,
      921
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Odawa (Ottawa) family at Sault Ste. Marie",
@@ -15750,7 +15750,7 @@
      1042,
      1887
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Qu'Appelle family at Pine Fort",
@@ -15761,7 +15761,7 @@
      664,
      1628
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Plains Cree family at Manchester House",
@@ -15772,7 +15772,7 @@
      479,
      1122
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Plains Cree family at South Branch House",
@@ -15783,7 +15783,7 @@
      545,
      1218
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Oji-Cree family at Osnaburgh House",
@@ -15794,7 +15794,7 @@
      874,
      1334
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Qu'Appelle family at Fort Esperance",
@@ -15805,7 +15805,7 @@
      631,
      1557
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Plains Ojibwa (Saulteaux) family at Rainy Lake House",
@@ -15816,7 +15816,7 @@
      823,
      1757
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Odawa (Ottawa) family at Brunswick House",
@@ -15827,7 +15827,7 @@
      1042,
      1429
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Plains Cree family at Nipawi",
@@ -15838,7 +15838,7 @@
      583,
      1153
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Qu'Appelle family at Swan River House",
@@ -15849,7 +15849,7 @@
      640,
      1309
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Qu'Appelle family at Montagne a la Bosse",
@@ -15860,7 +15860,7 @@
      660,
      1612
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Plains Ojibwa (Saulteaux) family at Red Lake Post",
@@ -15871,7 +15871,7 @@
      797,
      1849
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Odawa (Ottawa) family at La Cloche",
@@ -15882,7 +15882,7 @@
      1101,
      1834
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Blackfoot family at Fort George",
@@ -15893,7 +15893,7 @@
      426,
      1014
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Blackfoot family at Buckingham House",
@@ -15904,7 +15904,7 @@
      428,
      1054
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Forks family at Fort Bas de la Riviere",
@@ -15915,7 +15915,7 @@
      753,
      1489
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Qu'Appelle family at Brandon House",
@@ -15926,7 +15926,7 @@
      662,
      1652
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Oji-Cree family at Martin Falls",
@@ -15937,7 +15937,7 @@
      962,
      1228
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Qu'Appelle family at Fort Souris",
@@ -15948,7 +15948,7 @@
      679,
      1662
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Blackfoot family at Fort Augustus",
@@ -15959,7 +15959,7 @@
      401,
      1028
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Plains Cree family at Carlton House",
@@ -15970,7 +15970,7 @@
      528,
      1154
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Qu'Appelle family at Fort Alexandria",
@@ -15981,7 +15981,7 @@
      631,
      1402
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Forks family at Portage la Prairie",
@@ -15992,7 +15992,7 @@
      706,
      1587
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Forks family at Manitoba House",
@@ -16003,7 +16003,7 @@
      702,
      1444
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Blackfoot family at Fort Vermilion",
@@ -16014,7 +16014,7 @@
      442,
      1052
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis at Pembina family at Turtle River House",
@@ -16025,7 +16025,7 @@
      729,
      1819
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Nakoda (Stoney) family at Rocky Mountain House",
@@ -16036,7 +16036,7 @@
      353,
      1200
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Assiniboine family at Nut Lake",
@@ -16047,7 +16047,7 @@
      595,
      1283
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Gros Ventre family at Chesterfield House",
@@ -16058,7 +16058,7 @@
      447,
      1428
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Sekani family at Fort Nelson (BC)",
@@ -16069,7 +16069,7 @@
      253,
      180
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Dakota (Santee Sioux) family at Lake Traverse",
@@ -16080,7 +16080,7 @@
      757,
      2175
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis at Pembina family at Pembina Post",
@@ -16091,7 +16091,7 @@
      727,
      1726
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Dene (Beaver) family at Lesser Slave Lake Ho.",
@@ -16102,7 +16102,7 @@
      357,
      762
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Dene (Beaver) family at Dunvegan",
@@ -16113,7 +16113,7 @@
      300,
      656
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Dakelh (Carrier) family at Fort McLeod",
@@ -16124,7 +16124,7 @@
      211,
      674
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Dakelh (Carrier) family at Fort St. James",
@@ -16135,7 +16135,7 @@
      181,
      726
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Dakelh (Carrier) family at Fort Fraser",
@@ -16146,7 +16146,7 @@
      171,
      769
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Kootenay (Ktunaxa) family at Kootenay House",
@@ -16157,7 +16157,7 @@
      325,
      1417
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Dakelh (Carrier) family at Fort George (BC)",
@@ -16168,7 +16168,7 @@
      201,
      812
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Salish (Flathead) family at Flathead House",
@@ -16179,7 +16179,7 @@
      337,
      1847
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Oji-Cree family at Island Lake House",
@@ -16190,7 +16190,7 @@
      768,
      1054
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Salish (Flathead) family at Spokane House",
@@ -16201,7 +16201,7 @@
      266,
      1768
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Nlaka'pamux family at Fort Kamloops",
@@ -16212,7 +16212,7 @@
      225,
      1316
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Secwépemc (Shuswap) family at Jasper House",
@@ -16223,7 +16223,7 @@
      300,
      1079
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Woodland Cree family at Norway House",
@@ -16234,7 +16234,7 @@
      714,
      1055
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Forks family at Fort Douglas",
@@ -16245,7 +16245,7 @@
      725,
      1576
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Plains Ojibwa (Saulteaux) family at Lac Seul House",
@@ -16256,7 +16256,7 @@
      840,
      1490
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Salish (Flathead) family at Fort Nez Perces",
@@ -16267,7 +16267,7 @@
      221,
      1988
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Swampy Cree family at Great Whale River",
@@ -16278,7 +16278,7 @@
      1094,
      538
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Tsilhqot'in family at Fort Alexandria (BC)",
@@ -16289,7 +16289,7 @@
      206,
      1017
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Forks family at Upper Fort Garry",
@@ -16300,7 +16300,7 @@
      724,
      1621
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Dakelh (Carrier) family at Fort Babine",
@@ -16311,7 +16311,7 @@
      145,
      552
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Qu'Appelle family at Fort Pelly",
@@ -16322,7 +16322,7 @@
      623,
      1359
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Blackfoot family at Fort Assiniboine",
@@ -16333,7 +16333,7 @@
      366,
      902
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Coast Salish family at Fort Vancouver",
@@ -16344,7 +16344,7 @@
      133,
      1941
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Syilx (Okanagan) family at Fort Colvile",
@@ -16355,7 +16355,7 @@
      263,
      1656
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Sekani family at Fort Connolly",
@@ -16366,7 +16366,7 @@
      177,
      451
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Coast Salish family at Fort Langley",
@@ -16377,7 +16377,7 @@
      164,
      1458
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Blackfoot family at Fort Pitt",
@@ -16388,7 +16388,7 @@
      461,
      1066
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Tsilhqot'in family at Fort Chilcotin",
@@ -16399,7 +16399,7 @@
      172,
      1054
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Forks family at Lower Fort Garry",
@@ -16410,7 +16410,7 @@
      742,
      1555
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Métis of the Qu'Appelle family at Fort Ellice",
@@ -16421,7 +16421,7 @@
      639,
      1583
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Coast Salish family at Fort Nisqually",
@@ -16432,7 +16432,7 @@
      143,
      1749
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Plains Ojibwa (Saulteaux) family at Rat Portage",
@@ -16443,7 +16443,7 @@
      793,
      1586
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Swampy Cree family at Fort George (Chisasibi)",
@@ -16454,7 +16454,7 @@
      1088,
      729
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Sekani family at Dease Lake",
@@ -16465,7 +16465,7 @@
      123,
      61
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Coast Salish family at Fort Victoria",
@@ -16476,7 +16476,7 @@
      131,
      1518
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Assiniboine family at Touchwood Hills",
@@ -16487,7 +16487,7 @@
      589,
      1422
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Assiniboine family at Fort Qu'Appelle",
@@ -16498,7 +16498,7 @@
      584,
      1495
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "James Bay Cree (Eeyou)",
@@ -16508,7 +16508,7 @@
      1137,
      911
     ],
-    "people": 8
+    "people": 30
    },
    {
     "name": "Yankton (Nakota)",
@@ -16518,7 +16518,7 @@
      707,
      2394
     ],
-    "people": 8
+    "people": 70
    },
    {
     "name": "Anishinaabe (Mississauga)",
@@ -16528,7 +16528,7 @@
      1170,
      2045
     ],
-    "people": 8
+    "people": 40
    },
    {
     "name": "Nipissing",
@@ -16538,7 +16538,7 @@
      1153,
      1743
     ],
-    "people": 8
+    "people": 30
    },
    {
     "name": "Haida",
@@ -16548,7 +16548,7 @@
      67,
      658
     ],
-    "people": 12
+    "people": 70
    },
    {
     "name": "Tsimshian",
@@ -16558,7 +16558,7 @@
      93,
      562
     ],
-    "people": 8
+    "people": 65
    },
    {
     "name": "Nisga'a",
@@ -16568,7 +16568,7 @@
      107,
      480
     ],
-    "people": 8
+    "people": 55
    },
    {
     "name": "Tlingit",
@@ -16578,7 +16578,7 @@
      109,
      51
     ],
-    "people": 8
+    "people": 65
    },
    {
     "name": "Kwakwaka'wakw",
@@ -16588,7 +16588,7 @@
      91,
      1096
     ],
-    "people": 8
+    "people": 65
    },
    {
     "name": "Nuu-chah-nulth",
@@ -16598,7 +16598,7 @@
      82,
      1232
     ],
-    "people": 12
+    "people": 60
    },
    {
     "name": "Tahltan",
@@ -16608,7 +16608,7 @@
      136,
      95
     ],
-    "people": 8
+    "people": 30
    },
    {
     "name": "Arapaho",
@@ -16618,7 +16618,7 @@
      536,
      2369
     ],
-    "people": 8
+    "people": 60
    },
    {
     "name": "Potawatomi",
@@ -16628,7 +16628,7 @@
      1050,
      2359
     ],
-    "people": 8
+    "people": 50
    },
    {
     "name": "Six Nations of the Grand River",
@@ -16638,7 +16638,7 @@
      1185,
      2193
     ],
-    "people": 12
+    "people": 100
    },
    {
     "name": "Wyandot",
@@ -16648,7 +16648,7 @@
      1115,
      2422
     ],
-    "people": 8
+    "people": 45
    },
    {
     "name": "Meskwaki (Fox)",
@@ -16658,7 +16658,7 @@
      924,
      2547
     ],
-    "people": 8
+    "people": 65
    },
    {
     "name": "James Bay Cree (Eeyou) family at Eastmain House",
@@ -16669,7 +16669,7 @@
      1119,
      942
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Nipissing family at Fort Temiscamingue",
@@ -16680,7 +16680,7 @@
      1149,
      1609
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Menominee family at La Baye (Green Bay)",
@@ -16691,7 +16691,7 @@
      972,
      2220
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "James Bay Cree (Eeyou) family at Rupert House",
@@ -16702,7 +16702,7 @@
      1116,
      1014
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "James Bay Cree (Eeyou) family at Waswanipi",
@@ -16713,7 +16713,7 @@
      1191,
      1214
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Meskwaki (Fox) family at Prairie du Chien",
@@ -16724,7 +16724,7 @@
      912,
      2471
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "James Bay Cree (Eeyou) family at Nemiscau",
@@ -16735,7 +16735,7 @@
      1165,
      957
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Nipissing family at Fort Abitibi",
@@ -16746,7 +16746,7 @@
      1128,
      1464
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Ho-Chunk (Winnebago) family at Milwaukee",
@@ -16757,7 +16757,7 @@
      981,
      2427
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "James Bay Cree (Eeyou) family at Mistassini",
@@ -16768,7 +16768,7 @@
      1232,
      1036
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Kwakwaka'wakw family at Fort McLoughlin",
@@ -16779,7 +16779,7 @@
      90,
      955
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Tsimshian family at Fort Simpson (Nass)",
@@ -16790,7 +16790,7 @@
      71,
      558
     ],
-    "people": 4
+    "people": 6
    },
    {
     "name": "Kwakwaka'wakw family at Fort Rupert (BC)",
@@ -16801,7 +16801,7 @@
      78,
      1163
     ],
-    "people": 4
+    "people": 6
    }
   ],
   "routes": [

@@ -326,7 +326,7 @@ public partial class StructurePainter : TileMapLayer
         // family's lodge and fire outside a post.
         foreach (var c in Camps.All)
         {
-            if (!c.IsFamily) { PaintCampAt(c.Centre, Economy.Gardens.IsTownNamed(c.Name)); continue; }
+            if (!c.IsFamily) { PaintCampAt(c.Centre, Economy.Gardens.IsTownNamed(c.Name), c.Lodges); continue; }
             SetBack(c.Centre, SourceCampfire);
             foreach (var t in c.Tipis()) SetBack(t, SourceTipi);
         }
@@ -743,7 +743,18 @@ public partial class StructurePainter : TileMapLayer
         _camps["the Assiniboine"] = WorldLayout.AssiniboineWinterCamp;
     }
 
-    private static IEnumerable<(Vector2I cell, int source)> CampCells(Vector2I centre, bool town = false)
+    // The camp's own pieces, and its further lodges in rings round the fire
+    // for a band bigger than five lodges (World/Camps.LodgeCells).
+    private static IEnumerable<(Vector2I cell, int source)> CampCells(Vector2I centre, bool town = false, int lodges = 5)
+    {
+        foreach (var piece in CampPieces(centre, town)) yield return piece;
+        int lodge = !town ? SourceTipi : (GameCalendar.Instance?.Month ?? 8) is 12 or 1 or 2 or 3 ? WorldLayout.EarthLodgeWinter : WorldLayout.EarthLodge;
+        int k = 0, have = town ? 6 : 5;
+        foreach (var c in CountryCamp.LodgeCells(centre, lodges))
+            if (k++ >= have) yield return (c, lodge);
+    }
+
+    private static IEnumerable<(Vector2I cell, int source)> CampPieces(Vector2I centre, bool town = false)
     {
         yield return (centre, SourceCampfire);
         var c = centre;
@@ -777,9 +788,9 @@ public partial class StructurePainter : TileMapLayer
         yield return (IsoGrid.Cell(c, 2, -2), SourceWoodpile);
     }
 
-    private void PaintCampAt(Vector2I centre, bool town = false)
+    private void PaintCampAt(Vector2I centre, bool town = false, int lodges = 5)
     {
-        foreach (var (cell, source) in CampCells(centre, town)) SetBack(cell, source);
+        foreach (var (cell, source) in CampCells(centre, town, lodges)) SetBack(cell, source);
     }
 
     // Where each band's tipis stand now, by band name; the generated map has them at the winter grounds.

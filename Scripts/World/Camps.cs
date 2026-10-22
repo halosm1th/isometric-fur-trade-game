@@ -19,7 +19,28 @@ public class CountryCamp
     public IEnumerable<Vector2I> Tipis()
     {
         if (IsFamily) { yield return IsoGrid.Cell(Centre, 2, 0); yield break; }
-        foreach (var c in WorldLayout.TipiCellsAt(Centre)) yield return c;
+        foreach (var c in LodgeCells(Centre, Lodges)) yield return c;
+    }
+    // About eight to a lodge: a band of seventy pitches nine lodges.
+    public int Lodges => IsFamily ? 1 : Mathf.Max(5, (People + 7) / 8);
+    // How far out its lodges stand, for the clearing round a camp.
+    public float RadiusPx => IsFamily ? 300f : 260f + 3f * 70f * Mathf.Ceil((Lodges - 5) / 8f + 1f);
+
+    // The lodges in rings round the fire: the first five where a camp has
+    // always pitched them (WorldLayout.TipiCellsAt), then eight to a ring,
+    // three cells further out each time.
+    public static IEnumerable<Vector2I> LodgeCells(Vector2I centre, int n)
+    {
+        int k = 0;
+        foreach (var c in WorldLayout.TipiCellsAt(centre)) { if (k++ >= n) yield break; yield return c; }
+        var first = new[] { (-3, -3), (3, -3), (-3, 3) };
+        foreach (var (i, j) in first) { if (k++ >= n) yield break; yield return IsoGrid.Cell(centre, i, j); }
+        for (int r = 6; k < n; r += 3)
+            foreach (var (i, j) in new[] { (r, 0), (0, r), (-r, 0), (0, -r), (r, r), (-r, -r), (r, -r), (-r, r), (r, r / 2), (-r, -r / 2), (r / 2, -r), (-r / 2, r) })
+            {
+                if (k++ >= n) yield break;
+                yield return IsoGrid.Cell(centre, i, j);
+            }
     }
 }
 
@@ -48,6 +69,30 @@ public static class Camps
     }
 
     public static CountryCamp Named(string name) => name != null && _byName.TryGetValue(name, out var c) ? c : null;
+
+    // Ground kept clear round a camp's lodges (WorldLayout.Cleared). By area.
+    private const float GridPx = 4096f;
+    private static Dictionary<Vector2I, List<CountryCamp>> _grid;
+    public static bool NearAny(Vector2 at)
+    {
+        if (_grid == null)
+        {
+            _grid = new();
+            foreach (var c in All)
+            {
+                var w = IsoGrid.ToWorld(c.Centre);
+                var k = new Vector2I(Mathf.FloorToInt(w.X / GridPx), Mathf.FloorToInt(w.Y / GridPx));
+                if (!_grid.TryGetValue(k, out var l)) _grid[k] = l = new();
+                l.Add(c);
+            }
+        }
+        int kx = Mathf.FloorToInt(at.X / GridPx), ky = Mathf.FloorToInt(at.Y / GridPx);
+        for (int dx = -1; dx <= 1; dx++)
+            for (int dy = -1; dy <= 1; dy++)
+                if (_grid.TryGetValue(new Vector2I(kx + dx, ky + dy), out var l))
+                    foreach (var c in l) if (IsoGrid.ToWorld(c.Centre).DistanceTo(at) < c.RadiusPx) return true;
+        return false;
+    }
 
     public static void Reset() { foreach (var c in All) c.Ledger = null; }
 

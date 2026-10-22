@@ -61,8 +61,13 @@ public partial class CountryBand : BandLedger
         if (cal.Month is >= 10 or <= 4)
         {
             // Steel traps take more beaver than deadfalls, and wear for it (Economy/Wants).
-            float traps = Mathf.Clamp(Stores.Count(ItemId.SteelTrap) / (float)Mathf.Max(1, mouths), 0f, 1f);
-            int pelts = (int)GD.RandRange(0, Country.IsFamily ? 1 : 3) + Mathf.RoundToInt(traps * (Country.IsFamily ? 1f : 3f) * GD.Randf());
+            // A week's trapping by the camp's trappers - about one in six of
+            // its people - each with a deadfall line or two and, with steel
+            // traps, more.
+            int trappers = Mathf.Max(1, mouths / 6);
+            float traps = Mathf.Clamp(Stores.Count(ItemId.SteelTrap) / (float)Mathf.Max(1, trappers * 4), 0f, 1f);
+            int pelts = 0;
+            for (int i = 0; i < trappers; i++) pelts += (GD.Randf() < 0.35f ? 1 : 0) + (GD.Randf() < traps * 0.5f ? 1 : 0);
             Stores.Add(ItemId.BeaverPelt, pelts);
             Wants.OnTrapping(this, pelts);
         }
