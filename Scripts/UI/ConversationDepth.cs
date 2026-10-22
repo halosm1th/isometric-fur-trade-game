@@ -179,9 +179,29 @@ public partial class Conversation
         foreach (var l in Losses.All) if (l.Home == npc.HomeStores && l.Fresh) { list.Add(new("loss:" + l.Name, $"\"I keep thinking about {l.Name}. He was sitting just there a week ago.\"", Lean.Wistful)); break; }
         foreach (var m in npc.Memories)
             if (m.Directness <= 2 && m.Weight >= 0.6f && m.Actor != _player as Agent) { list.Add(new("heard:" + m.Key, $"\"Did you hear? {m.Text} What do you make of that?\"", Lean.Question)); break; }
+        // The old story of the straits (Economy/Lacrosse): the Ojibwe's game
+        // outside Fort Michilimackinac on the King's birthday in 1763, told by
+        // the old people of the Anishinaabe camps and the old traders of the
+        // upper lakes, the way it was told to them or the way they saw it.
+        if (OldStoryTeller(npc))
+            list.Add(new("tale:1763", npc.IsBandPerson
+                ? (npc.Age >= 55 ? "\"I was a boy at the straits when our people played baaga'adowe with the Sauk outside the English fort. The ball went over the pickets by the gate, and the young men ran in after it. The women had the hatchets under their blankets. The fort was ours before the soldiers knew it was not a game.\""
+                                 : "\"My grandfather was at the straits when our people played baaga'adowe outside the English fort on their king's birthday. The ball went over by the gate, and the young men ran in after it; the women had the hatchets under their blankets. That is why they still watch the gate when we play.\"")
+                : "\"You know how the old fort at Michilimackinac was taken, in the year sixty-three? A ball game outside the gate, on the King's birthday, the soldiers watching with their arms stacked. The ball went in at the gate and the players after it. Henry the trader lay in a garret under the rafters and lived to tell it.\"", Lean.Wistful));
         if (!npc.IsBandPerson && npc.Role is Role.Labourer or Role.Voyageur or Role.Sailor)
             list.Add(new("home", npc.Faction == Faction.NWC ? "\"Some nights I dream of the river at Sorel, the bells on a Sunday. Then I wake up here.\"" : "\"I dreamt of home last night. Peat smoke and my mother's voice. Woke up to the man in the next bunk snoring.\"", Lean.Wistful));
         return list;
+    }
+
+    // Who tells the story of 1763: an old Anishinaabe of the upper lakes, or
+    // an old hand of the Michilimackinac trade.
+    private static bool OldStoryTeller(Npc npc)
+    {
+        if (npc.Age < 40) return false;
+        if (npc.HomeStores is Economy.CountryBand cb)
+            return cb.Country.Nation == Faction.Ojibwe && (cb.Country.Name.StartsWith("Odawa") || cb.Country.Name.StartsWith("Ojibwa") || cb.Country.Name.StartsWith("Anishinaabe") || cb.Country.Name.StartsWith("Potawatomi") || cb.Country.Name.StartsWith("Nipissing"));
+        string place = (npc.HomeStores as World.TownHousehold)?.Town.Name ?? (npc.HomeStores as Economy.TradingPostLedger)?.Post.Name ?? "";
+        return npc.Age >= 50 && place is "Mackinac Island" or "Michilimackinac" or "Sault Ste. Marie" or "St. Joseph Island" or "Detroit";
     }
 
     private void ShowPassTime(Npc npc)

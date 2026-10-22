@@ -40,7 +40,7 @@ public static class Plains
     public static void Reset()
     {
         _lastDay = -1; _hourAcc = 1f; _live.Clear(); Feuds.Clear(); _raids.Clear(); _tonight.Clear();
-        Gardens.Reset(); MarketNews.Reset();
+        Gardens.Reset(); MarketNews.Reset(); Lacrosse.Reset();
         foreach (var v in _views.Values) if (GodotObject.IsInstanceValid(v)) v.QueueFree();
         _views.Clear();
         BuffaloRun.Active.Clear(); BuffaloRun.LastRun.Clear();
@@ -65,6 +65,7 @@ public static class Plains
             _lastDay = cal.Day;
             foreach (var hh in Horses.All()) hh.Herd.Day(hh);
             TradeTrips.Day(cal);
+            Lacrosse.Day(cal);
             Shipping.CrewDay();
             Recount();
             if (!first && Today % 7 == 0) Weekly(cal);
@@ -282,6 +283,7 @@ public static class Plains
         MissouriTrade.Week(cal);
         Outfits.Week(cal);
         StandardOfTrade.Week(cal);
+        Lacrosse.Week(cal);
         if (Log)
         {
             foreach (var c in Camps.All)
