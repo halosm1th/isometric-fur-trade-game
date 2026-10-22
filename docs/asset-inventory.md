@@ -1,12 +1,12 @@
 # Asset Inventory
 
-Last verified against the repo: 2026-10-13
+Last verified against the repo: 2026-10-22 (sections "What changed since 2026-10-13", 2, 3, 6 and 7; the rest as of 2026-10-13)
 
-What art the game has, where it came from, what is still a stand-in, and what is cut but not yet wired up. Rewritten 2026-10-11 against commit `b2064f4` and brought up to date 2026-10-13 against `1c73b55` (plus the uncommitted working tree). Checked by following what the code actually loads (`GD.Load` calls, the `*Frames.tres` resources, `terrain_tileset.tres`, `Items.cs`, `Appearance.cs`, `NeedsHud.cs`, `Audio.cs`) and by listing `assets/**` against those references.
+What art the game has, where it came from, what is still a stand-in, and what is cut but not yet wired up. Rewritten 2026-10-11 against commit `b2064f4`, brought up to date 2026-10-13 against `1c73b55`, and again 2026-10-22 against `717a843`. Checked by following what the code actually loads (`GD.Load` calls, the `*Frames.tres` resources, `terrain_tileset.tres`, `Items.cs`, `Appearance.cs`, `NeedsHud.cs`, `Audio.cs`) and by listing `assets/**` against those references.
 
 **This file is the catalogue of what exists.** Art the game does *not* have is not listed here — it lives in the companion docs, which this file deliberately does not duplicate:
 
-- `asset-prompts.md` — art still to be made, as Gemini prompts with reference sheets. Outstanding work only: the nations' women's sheets, the buffalo, the animals the code does not have, and the font and theme files. Several sheets (effects, panels, cursors, the night sky) are drawn but not yet cut; those are tracked here and in that file's checklist.
+- `asset-prompts.md` — art still to be made, as Gemini prompts with reference sheets. Outstanding work only: the towns' people and buildings, the women of every nation and the new Lakes peoples, the buffalo, elk and horse, the borrowed item icons, fonts and portraits, the large fire, and the animals the code does not have.
 - `audio-prompts.md` — what sound is in the game (70 files) and what is still wanted.
 - `world-content-needed.md` — nations, people, places and species missing from the code.
 
@@ -16,7 +16,19 @@ Where this file notes a gap, it is only to explain the status of a file that exi
 
 ---
 
-## What changed since the last inventory (2026-10-11)
+## What changed since 2026-10-13
+
+- **Cut and wired** (most of it on 2026-10-12, which the 13 Oct pass missed): the weather overlays and the aurora (`assets/ui/weather/`, played by `UI/WeatherOverlay.cs`), the five cursors (`assets/ui/cursors/`, `UI/Cursors.cs`), the combat effects (`assets/sprites/fx/`: muzzle and pan flash, smoke, blood hit and pool, impact dust, slash, arrow, blast, lightning; `Agents/CombatFx.cs`), the hearth and campfire flames, embers, smoke and sparks (`746b483`), and the UI panels, buttons, tabs, divider and scrollbar as nine-patches (`assets/ui/panels/`, `acd6e17`). Section 7's table below is kept only for the sheets still uncut.
+- **New ground tiles:** `scree`, `alpine`, `snowfield` for the mountains (recolours, `fe645f8`).
+- **New stand-ins, no new art:** the horse is a generated grey pony (`assets/sprites/animals/horse_standin/`, 80 frames, `tools/sprites/make_horse_standin.py`), tinted to the coat. `Species.Elk` (the southern woods and parklands, `cbfc52d`) wears the caribou's frames, as the buffalo does.
+- **New people, all in borrowed sheets.** The Lakes towns (`0423a15`) placed 683 soldiers, 38 officers, 333 farmers, 53 artisans, 19 merchants and 4 priests, plus town women and children, dressed by `tools/world/place_towns.py` (`look()`) in tinted labourer, Factor, clerk, voyageur and country-wife sheets. The Haudenosaunee, Wyandot, Sauk, Meskwaki, Ho-Chunk and Menominee (`cbfc52d`) fall through `Appearance.ForNation` to the Cree hunter and the Cree woman.
+- **New buildings, old walls.** `BuildingKind` gained Townhouse, Church, Barracks, Store, Workshop, Hall, Cabin and House. All are the whitewashed log set with Kenney furniture (pews are `table_chairs`). The farms' fields (`World/Fields.cs`) paint as the Missouri garden plot.
+- **Items: 53 `ItemId`s** (was 48). `Roots`, `Wheat`, `Grain`, `Flour` and `Coin` were added, and all five borrow another item's icon (section 3).
+- **Audio:** unchanged, still 70 files.
+
+What all of that still needs is in `asset-prompts.md` (art) and `audio-prompts.md` Priority 0 (sound).
+
+## What changed between 2026-10-11 and 2026-10-13
 
 - Character sheets went from **14 to 22**: a `factor` sheet and seven nation men (`ojibwe`, `blackfoot`, `dakota`, `dene`, `plateau`, `coast`, `mandan`) arrived in `8a69ec7`. `Appearance.ForNation` now covers all ten nations' men.
 - Items: **48 `ItemId`s** (was 38). Berries, corn and spruce beer have icons of their own.
@@ -79,7 +91,9 @@ Every sheet is a full 4-way set (SE/SW/NE/NW) cut into per-species folders. The 
 | Goose | 84 | idle, walk, takeoff, fly, death | Yes | **Final** — migration is visible |
 | Hare | 104 | idle, walk, run, death × winter **and** `summer_*` | Yes (`Species.Hare`) | **Final** |
 | Ptarmigan | 104 | idle, walk, fly, death × winter **and** `summer_*` | Yes (`Species.Ptarmigan`) | **Final** |
-| Buffalo | — | none: `Species.Buffalo` points at `CaribouFrames.tres` | Yes (`Species.Buffalo`, `9110382`) | **Placeholder** — a bull plains buffalo drawn as a caribou. Prompt: `asset-prompts.md` 5.7 |
+| Buffalo | — | none: `Species.Buffalo` points at `CaribouFrames.tres` | Yes (`Species.Buffalo`, `9110382`) | **Placeholder** — a bull plains buffalo drawn as a caribou. Prompt: `asset-prompts.md` 4.1 |
+| Elk | — | none: `Species.Elk` points at `CaribouFrames.tres` | Yes (`cbfc52d`) | **Placeholder** — drawn as a caribou. Prompt: `asset-prompts.md` 4.2 |
+| Horse | 80 (`horse_standin/`) | idle, walk, run, graze, 4-way | Not a `Species`: `Agents/Mount.cs`, `Economy/Herd.cs` | **Placeholder** — a generated grey pony tinted to the coat; `Mount.cs` takes `HorseFrames.tres` when it exists. Prompt: `asset-prompts.md` 4.3 |
 
 `Animal.cs` (`Anim()`) picks `idle`, `walk`, `run` or `fly`, `attack` and `death`, and **does** switch hare and ptarmigan between the white winter coat and `summer_*` (white only in `Season.Winter`; Breakup, OpenWater and FreezeUp all use the summer coat). Cut but never selected: wolf `howl`, beaver `gnaw` / `swim` / `slap`, goose `takeoff`, caribou `cow_*`. No new art is needed for those, only behaviour that plays them.
 
@@ -87,12 +101,16 @@ Every sheet is a full 4-way set (SE/SW/NE/NW) cut into per-species folders. The 
 
 ## 3. Items (`assets/sprites/items/`, 54 icons at 64×64)
 
-**48 `ItemId`s** in `Items.cs`. Every one has an icon, but two do not have a file of their own:
+**53 `ItemId`s** in `Items.cs`. Every one has an icon, but seven do not have a file of their own (prompts: `asset-prompts.md` 5):
 
 | Item | Icon it uses | Status |
 |---|---|---|
-| `BuffaloRobe` | `caribou_hide.png` (shared with `CaribouHide`) | **Placeholder** — a robe is a dressed hide with the hair on and should look like one. Prompted with the buffalo in `asset-prompts.md` 5.7. |
+| `BuffaloRobe` | `caribou_hide.png` (shared with `CaribouHide`) | **Placeholder** — a robe is a dressed hide with the hair on and should look like one. |
 | `Ptarmigan` | `animals/ptarmigan/death_se_0.png`, the bird's own death frame | **Placeholder** |
+| `Roots`, `Wheat` | `corn.png` | **Placeholder** (the towns, 2026-10-21) |
+| `Grain` | `pack_basket.png` | **Placeholder** |
+| `Flour` | `pemmican_bag.png` | **Placeholder** |
+| `Coin` | `mb_token.png` | **Placeholder** (`Economy/Money.cs`, 2026-10-22) |
 
 The other 46 items each load their own file. `Berries` (`berries.png`), `Corn` (`corn.png`) and `SpruceBeer` (`spruce_beer.png`) were drawn in `8a69ec7`; `Powder` uses `powder_horn.png`; `salt_geese.png` is the goose cask.
 
@@ -154,8 +172,11 @@ Nothing in `Scripts/` or `Scenes/` references the three `vehicles/` files; they 
 | `menu_background.jpg` | **Final** — used by `MainMenu.tscn` |
 | `needs/` — 12 icons at 48×48 | **Partly wired.** `NeedsHud.cs:47` builds the path from the row name, and `Rows` holds only four: Health, Warmth, Food, Water. So `cold` `drunk` `fatigue` `fever` `load` `scurvy` `standing` `wounded` are cut and unused — eight icons waiting on eight HUD rows for states the sim already tracks. |
 | `crests/` — hbc, nwc, cree, assiniboine | **Cut, unwired.** Nothing loads a crest. Natural homes: the journal panel, dialogue headers, the map, the standing display. |
+| `panels/` — panel_wood, panel_paper, button (×3 states), tab_on/off, divider, scrollbar | **Final** — nine-patches for every panel, menu, the journal and the map (`acd6e17`) |
+| `cursors/` — default, talk, trade, attack, busy | **Final** — `UI/Cursors.cs` |
+| `weather/` — snow light and heavy, blizzard, rain, fog (4 frames each), aurora | **Final** — `UI/WeatherOverlay.cs` |
 
-**Theme and fonts.** There is no `.theme`, `.tres` theme, `.ttf` or `.otf` file in the repo. A theme is built **in code**: `UI/MenuTheme.cs` (dark wood and brass `StyleBoxFlat`s, default font size 15) is shared by the main menu, the Esc menu and the settings screen; the in-world panels use Godot's default. Everything uses the engine default font, and six call sites use `ThemeDB.FallbackFont` directly (`MapPanel`, `TravelMode`, `Wayfinding`, `NpcSpawn`, `PostSign`, `WildlifeSite`). There is no `project.godot` theme setting. Prompts for the font choice and for textured panel art: `asset-prompts.md` §5.
+**Fonts.** There is still no `.ttf` or `.otf` file in the repo; everything uses the engine default, and seven call sites use `ThemeDB.FallbackFont` directly (`MapPanel`, `ObserverView`, `TravelMode`, `Wayfinding`, `NpcSpawn`, `PostSign`, `WildlifeSite`). The font choice is `asset-prompts.md` 6.1.
 
 ---
 
@@ -163,25 +184,14 @@ Nothing in `Scripts/` or `Scenes/` references the three `vehicles/` files; they 
 
 **Drawn but not cut or wired** — raw Gemini sheets in `assets/external/NEW HBC ASSETS/`; no script in `tools/sprites/` slices them and nothing loads them:
 
-| Sheet | Holds |
-|---|---|
-| `fire.jpg` | campfire and smoke animation rows (the prompt's 4.1) |
-| `light snow.jpg`, `Heavy snow.jpg`, `blizzard.jpg`, `rain.jpg`, `fog.jpg` | weather overlay tiles (4.2) |
-| `Combat effects in theory.jpg` | muzzle flash, blood, dust, arrow (4.3) |
-| `Night Sky.jpg` | aurora band (4.4) |
-| `Panels.jpg`, `Mouse cursors.jpg` | panel, button and scrollbar pieces; five cursors (5.2, 5.3) |
-
-`Visual FX Sheet.jpg` is a fantasy-spell sheet (fireball, heal, lightning, ice spike, poison, dark orb) that does not suit the setting and is not used. Two sheets were opened and checked: `fire.jpg` has all five rows, but its LARGE FIRE row sits on a baked-in stone-wall background instead of magenta, so that row needs regenerating before it can be cut; `Combat effects in theory.jpg` has all six rows but carries a Gemini/PioneerPixel copyright line along the bottom (crop it) and the muzzle flash is drawn with a musket attached. The weather, night sky, panel and cursor sheets were not opened, so their quality is unverified.
+As of 2026-10-22 every sheet that was here has been cut and wired (fire, weather, aurora, combat effects, panels, cursors) except the **LARGE FIRE** row of `fire.jpg`, which sits on a baked-in stone wall and has to be redrawn (`asset-prompts.md` 7). `Visual FX Sheet.jpg` is a fantasy-spell sheet that does not suit the setting and is not used.
 
 **Still drawn in code, no art file:**
 
-- **Fire / blaze** (`Blaze.cs`) — tinted, scaled `campfire.png` plus a `PointLight2D`. No spreading-fire frames, no smoke, no scorched ground.
-- **Hearth glow** (`Hearth.cs`) — radial `GradientTexture2D` light.
-- **Muzzle flash** (`CombatFx.cs`) — light only; no projectile, smoke, or blood.
-- **Health bar / ready bar** — `DrawRect`.
-- **Map panel** (`MapPanel.cs`) — draws `Data/World/ground.png` with coloured squares for posts; the four crests would fit here.
-- **Day/night and weather** (`WorldAtmosphere.cs`) — `CanvasModulate` only. No snowfall, rain, fog, stars or aurora despite `SkyState` having Snow, Blizzard, Rain and Storm.
-- **World labels** (`PostSign.cs`, `NpcSpawn.cs`, `WildlifeSite.cs`) — fallback-font text.
+- **A burning building** (`Blaze.cs`): a tinted, stretched `campfire.png` plus a `PointLight2D`. It now has to carry the towns burned in the war.
+- **Health bar / ready bar:** `DrawRect`.
+- **Map panel** (`MapPanel.cs`): parchment and brass now, with `Data/World/ground.png` and coloured squares for posts; the crests would fit here.
+- **World labels** (`PostSign.cs`, `NpcSpawn.cs`, `WildlifeSite.cs`): fallback-font text.
 
 ---
 

@@ -1,10 +1,10 @@
 # Audio Prompts for Gemini
 
-Last verified against the repo: 2026-10-13
+Last verified against the repo: 2026-10-22
 
-Music, ambience and sound effects the game needs, written as prompts to paste into Gemini. It's the sound version of `asset-prompts.md`. Written 2026-10-10. **Updated 2026-10-13:** the first batch is in the game: 70 files in `assets/audio/` (six Gemini music tracks, 10 ambient loops, 52 effects and 2 UI sounds; Freesound CC0 clips plus synthesised stand-ins), played by the `Audio` autoload in `Scripts/Core/Audio.cs`. The section **In the game now** below says what exists and when it plays. Everything else in this file is still wanted; a row whose ID is marked **(in game)** below is delivered, fully or as a stand-in or a single take (see the table for which).
+Music, ambience and sound effects the game needs, written as prompts to paste into Gemini. It's the sound version of `asset-prompts.md`. Written 2026-10-10. **Updated 2026-10-22:** no sound has been added since 13 October, but the world has: the Lakes towns and their farms, the war of 1812, horses, elk, lacrosse and money. Their sounds are in **Priority 0** below, ahead of the older wants. **Updated 2026-10-13:** the first batch is in the game: 70 files in `assets/audio/` (six Gemini music tracks, 10 ambient loops, 52 effects and 2 UI sounds; Freesound CC0 clips plus synthesised stand-ins), played by the `Audio` autoload in `Scripts/Core/Audio.cs`. The section **In the game now** below says what exists and when it plays. Everything else in this file is still wanted; a row whose ID is marked **(in game)** below is delivered, fully or as a stand-in or a single take (see the table for which).
 
-The game hooks each prompt is meant for are named where they exist: `SkyState` (Clear, Overcast, Snow, Blizzard, Rain, Storm) in `Core/Weather.cs`, `Season` (Winter, Breakup, OpenWater, FreezeUp) in `Core/GameCalendar.cs`, the seven `Species` in `Ecology/Species.cs` (caribou, goose, beaver, wolf, hare, ptarmigan, buffalo), and the campaign beats in `Campaigns/historical.json`.
+The game hooks each prompt is meant for are named where they exist: `SkyState` (Clear, Overcast, Snow, Blizzard, Rain, Storm) in `Core/Weather.cs`, `Season` (Winter, Breakup, OpenWater, FreezeUp) in `Core/GameCalendar.cs`, the eight `Species` in `Ecology/Species.cs` (caribou, goose, beaver, wolf, hare, ptarmigan, elk, buffalo) and the horse (`Agents/Mount.cs`), the towns (`World/Towns.cs`, `Agents/TownLife.cs`, `World/Fields.cs`), and the campaigns in `tools/CampaignTool/src/` (the war of 1812 is `parts/lakes-war.camp`).
 
 ---
 
@@ -108,6 +108,105 @@ Create a seamless looping ambient soundscape for a historical video game set on 
 ```
 Create a single isolated sound effect for a historical video game set at a Hudson's Bay Company fur-trade post in 1811. Realistic, recorded close and dry like a foley recording, no music, no background ambience, no room reverb unless the brief says indoors, no voices unless the brief asks for them. Clean silence before and after the sound, trimmed tight: starts within 0.05 seconds, no long tail. Mono. Length as given below.
 ```
+
+---
+
+## Priority 0: the towns, the war and the plains (new since 2026-10-13)
+
+The SFX and AMBIENT HEADERS say "a fur-trade post on Hudson Bay". For the town rows, paste the header with that phrase changed to *"a small town of Upper Canada or the Detroit River in 1812"*.
+
+### 0.1 The towns (AMBIENT, 60 s, LOOP, unless a length is given)
+
+| ID | When | Prompt (after the header) |
+|---|---|---|
+| `amb_town_day` | In a town, daytime | The main street of a small frontier town of wooden houses in 1812 on a summer morning: a cart creaking past on a dirt road, a horse's hooves, a blacksmith's hammer ringing on an anvil a street away, a dog, chickens, a door shutting, a hand saw, indistinct voices in English and French with no clear words. No music. |
+| `amb_town_night` | In a town, night | The same town at night: crickets, a dog barking far off, a sentry's slow footsteps on planks, the river, one window's muffled laughter. |
+| `amb_market` | At the market house (`Towns.Market`) | A small market house on market day: many voices haggling in English and French without clear words, coins on a wooden counter, a cart unloading sacks, geese and chickens in crates, a cow lowing. |
+| `amb_garrison` | Inside a garrison's palisade | A garrison parade ground by day: boots marching on packed earth, a sergeant's distant shouted commands (no clear words), musket butts grounded together, a drum tapping a step, a flag rope slapping a pole. |
+| `amb_church_inside` | Inside a church | A wooden church during a quiet weekday: a ticking stove, the creak of a pew, footsteps on boards, a cough, wind outside. Large but not cathedral-like. |
+| `church_bell_sunday` | Sunday morning in a town | (SFX, 15 s) A single small church bell in a wooden steeple, rung slowly for a Sunday service and heard across a town. |
+| `church_bell_toll` | A death in the town | (SFX, 12 s) The same bell tolled slowly, once every three seconds, for a funeral. |
+| `anvil_01..05` | An artisan at work | (SFX, 0.6 s) A hand hammer striking hot iron on an anvil, ringing. |
+| `bellows` | The forge | (SFX, 2 s) A blacksmith's leather bellows pumped twice, the coals roaring up. |
+| `coins_01..03` | Money changes hands (`Economy/Money.cs`) | (SFX, 0.8 s) A few silver and copper coins counted out onto a wooden counter. |
+| `coin_purse` | Paying from the purse | (SFX, 1 s) A leather purse opened and coins shaken out into a palm. |
+| `town_meeting` | A town meeting makes or repeals a law (`Core/Laws.cs`) | (60 s, LOOP) A crowded town meeting in a small hall: a murmur of many men, a gavel knocked, one raised voice and a rumble of agreement, benches scraping. No clear words. |
+
+### 0.2 The farm year (SFX; each matches a step in `World/Fields.cs`)
+
+| ID | Length | Prompt (after the header) |
+|---|---|---|
+| `plough_loop` | 10 s, LOOP | An iron-shod wooden plough drawn by two oxen through heavy clay: the share tearing the sod, the chains clinking, the oxen's heavy steps and breathing, a man's low "gee" now and then. |
+| `sow_01..03` | 1.5 s | A handful of wheat seed broadcast across ploughed earth: a sweep of the arm, a soft patter of grain. |
+| `hoe_01..05` | 0.5 s | A hoe chopping into dry soil and weeds. |
+| `sickle_01..05` | 0.8 s | A sickle cutting a fistful of ripe wheat stalks: a dry rasping slice. |
+| `scythe_01..03` | 1.2 s | A long scythe swung through standing hay: a whispering swish. |
+| `flail_01..05` | 0.5 s | A wooden flail beating sheaves on a threshing floor: a hollow whack, the grain rattling. |
+| `quern_loop` | 8 s, LOOP | Grinding grain between two stones: a steady gritty rumble. |
+| `cart_ox_loop` | 10 s, LOOP | A two-wheeled wooden ox-cart on a rutted dirt road: dry axles shrieking and groaning, slow hooves. |
+| `cow_moo`, `pig_grunt`, `rooster`, `hens_loop` | 2-6 s | The farmyard (for the towns' livestock once they exist). |
+
+### 0.3 The war of 1812 (SFX)
+
+| ID | Length | Prompt (after the header) |
+|---|---|---|
+| `volley_01..03` | 3 s | A line of thirty British infantrymen firing a volley of flintlock muskets together: one ragged crashing roar, then the echo. |
+| `field_gun` | 3 s | A six-pounder field gun firing close by: an enormous boom, the carriage jumping, a ringing in the air. |
+| `cannon_fort_distant` | 5 s | Heavy fortress guns firing across a river from a mile away: deep thuds and rolling echoes. |
+| `round_shot_whistle` | 2 s | A cannonball passing overhead with a ripping whistle and smashing into timber. |
+| `drum_beat_to_arms` | 8 s, LOOP | A British army side drum beating to arms: a rapid urgent roll. |
+| `drum_march_loop` | 10 s, LOOP | A side drum beating the quick-march step, steady, outdoors. |
+| `bugle_call` | 4 s | A single cavalry bugle or a fifer's short call across a camp. |
+| `bayonet_fix` | 1 s | A line of men fixing bayonets: a ripple of metallic clicks and scrapes. |
+| `war_cry_distant` | 4 s | Many men's battle cries heard from far across a wood. Indistinct, no words, not caricatured. |
+| `town_burning_loop` | 30 s, LOOP | Several wooden houses burning at night: a deep roar, timbers collapsing, glass bursting, a bell ringing in the distance. |
+| `surrender_drum` | 6 s | A drum beating the "parley" (a slow, even beat) and then stopping. |
+
+### 0.4 Horses, elk and the plains (SFX)
+
+Horses are ridden, raided and herded (`Agents/Mount.cs`, `Economy/Herd.cs`) and have no sound; the `horse_*` and `bison_*` rows in Priority 3 are still wanted too.
+
+| ID | Length | Prompt (after the header) |
+|---|---|---|
+| `hooves_walk_loop` | 6 s, LOOP | An unshod pony walking on prairie sod. |
+| `hooves_trot_loop` | 6 s, LOOP | The same pony trotting. |
+| `hooves_gallop_loop` | 6 s, LOOP | The same pony at full gallop. |
+| `horse_snort_01..03` | 1 s | A horse snorting and blowing. |
+| `herd_stampede_horses` | 8 s | A stolen horse herd driven off at a gallop in the night: many hooves, whinnies, a man's low whistle. |
+| `elk_bugle_01..02` | 4 s | A bull elk's autumn bugle: a rising squeal into a high whistle, then grunts. |
+| `buffalo_run` | 12 s | The communal buffalo run: a herd stampeding, riders' whoops, arrows and a musket shot over the thunder. |
+
+### 0.5 Lacrosse (`Economy/Lacrosse.cs`)
+
+| ID | Length | Prompt |
+|---|---|---|
+| `amb_lacrosse_game` | 60 s, LOOP | AMBIENT HEADER (with "Hudson Bay" changed to "an open meadow by the Great Lakes"): a big ball game between two villages heard from the edge of the field: wooden sticks clacking together, running feet on grass, bursts of cheering and shouts from both crowds, laughter. No music, no drums, no chanting. |
+| `lacrosse_stick_01..05` | 0.4 s | SFX HEADER: two wooden lacrosse sticks clashing. |
+| `lacrosse_goal_cheer` | 4 s | SFX HEADER: one side's crowd roaring as a point is scored. No words. |
+
+### 0.6 Music for the new country
+
+Paste the MUSIC HEADER, but replace its first sentence with *"Compose an instrumental music track for a historical video game set on the Upper Canada and Detroit frontier in 1812."* and add "fife, military side drum, harpsichord, and a small parlour piano" to the allowed instruments.
+
+| ID | Length | Brief |
+|---|---|---|
+| `mus_town_day` | 90 s | A town of the Lakes frontier in peacetime. A light parlour tune on fiddle and piano, a country-dance in 6/8, homely and settled, very different from the lonely fur-trade cues. |
+| `mus_habitant_fiddle` | 2 min, LOOP | A French-Canadian habitant kitchen party: a fast reel on fiddle with podorythmie foot-tapping and spoons. |
+| `mus_fife_drum_march` | 60 s, LOOP | A British regimental fife-and-drum quick march outdoors, in the style of "The British Grenadiers" (public domain; use that tune or "The Girl I Left Behind Me"). |
+| `mus_yankee_march` | 60 s, LOOP | An American fife-and-drum march to "Yankee Doodle" (public domain). |
+| `mus_war_dread` | 60 s, LOOP | The frontier at war: a muffled side drum, a low cello, a fife phrase played slowly and out of tune. Fear in the towns. |
+| `mus_hymn` | 60 s | A Sunday in the town church: a plain 18th-century English hymn tune ("Old Hundredth") on a small organ, nothing else. |
+
+Campaign set-pieces of the war (`parts/lakes-war.camp`), each 60 to 90 s:
+
+| ID | Beat | Brief |
+|---|---|---|
+| `mus_michilimackinac_1812` | Michilimackinac taken without a shot, 17 July 1812 | A tense, quiet drum figure that resolves without ever breaking into fighting; a single fife phrase at the end. |
+| `mus_detroit_surrender` | Detroit surrendered, 16 August 1812 | A slow British march turning triumphant, then a single fiddle line, uncertain. |
+| `mus_queenston` | Queenston Heights and Brock's death, 13 October 1812 | A driving drum and fiddle battle figure that breaks off into a slow lament. |
+| `mus_york_burned` | York taken and the Parliament burned, 27 April 1813 | Heavy, low, ominous: a cello drone, a fife played slowly, the sound of loss. |
+| `mus_thames` | The Thames and Tecumseh's death, 5 October 1813 | A sombre, restrained lament on cello and wooden flute. No imitation Indigenous music and nothing triumphant: the end of a confederacy. |
+| `mus_ghent` | The peace of Ghent | A quiet, ambivalent close: the fife march and the habitant reel played slowly together, ending unresolved. |
 
 ---
 
@@ -245,7 +344,7 @@ Muskets are one-shot weapons (design doc 15.3): the shot must sound heavy and fi
 
 ## Priority 3: animals
 
-All of these are SFX HEADER, mono. Animals in the code now: caribou, goose, beaver, wolf, hare, ptarmigan and buffalo; of those only wolf, goose, raven and loon have sound in the game, and hare, ptarmigan, caribou, beaver and buffalo (`bison_*` rows) are still silent. The rest are for when they're added (see `world-content-needed.md`).
+All of these are SFX HEADER, mono. Animals in the code now: caribou, goose, beaver, wolf, hare, ptarmigan, elk and buffalo, plus the horse; of those only the wolf and goose (and the raven and loon, as ambience) have sound in the game. Hare, ptarmigan, caribou, beaver, elk, buffalo (`bison_*` rows) and horse are still silent (see also 0.4). The rest are for when they're added (see `world-content-needed.md`).
 
 | ID | Prompt |
 |---|---|
@@ -401,6 +500,13 @@ Lower-case, underscores, numbered takes `_01`. WAV, OGG and MP3 all load, and mu
 ## Summary checklist
 
 "Partial" means some of the section is in the game; see **In the game now**.
+
+- [ ] 0.1 The towns (12): none
+- [ ] 0.2 The farm year (9): none
+- [ ] 0.3 The war of 1812 (11): none (`cannon_distant` stands in for every gun)
+- [ ] 0.4 Horses, elk and the plains (7): none
+- [ ] 0.5 Lacrosse (3): none
+- [ ] 0.6 Music for the new country (6 + 6 set-pieces): none
 
 - [ ] 1.1 Footsteps (9 surfaces x 5): partial (snow, snow crust, mud, planks)
 - [ ] 1.2 Ambient beds (13): partial (winter wind, blizzard, river, rain)

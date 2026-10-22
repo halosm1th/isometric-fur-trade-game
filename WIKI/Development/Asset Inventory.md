@@ -7,7 +7,9 @@ status: implemented
 
 # Asset Inventory
 
-**Status:** Implemented (a catalogue). Based on `docs/asset-inventory.md` (rewritten 2026-10-11 against commit `b2064f4`) and brought up to date with the commits that followed (Gemini nation sheets `8a69ec7`, hares and ptarmigan `58aa1fe`, props wired in `0cb7d40` and `527793a`, the buffalo `9110382`, the audio batch `6937ae2`). Where the inventory doc and the current code disagree, this page follows the code and says so.
+**Status:** Implemented (a catalogue). Based on `docs/asset-inventory.md` (rewritten 2026-10-11, last brought up to date 2026-10-22 against `717a843`). Where the inventory doc and the current code disagree, this page follows the code and says so. What is still to be drawn or recorded is in `docs/asset-prompts.md` and `docs/audio-prompts.md`.
+
+**New since 13 October, still in borrowed art:** the Lakes towns' soldiers, officers, farmers, tradesmen, merchants and priests (tinted labourer, Factor and clerk sheets); the Haudenosaunee, Wyandot, Sauk, Meskwaki, Ho-Chunk and Menominee (the Cree hunter's sheet); the elk (the caribou's); the horse (a generated grey stand-in); every town building (the York log walls); and the coin, roots, wheat, grain and meal icons. **Cut and wired since 13 October:** the weather and aurora, the cursors, the UI panels, the combat effects, and fire in every hearth.
 
 Status key: **Final** (game-specific art in use), **Placeholder** (in use but a stand-in), **Cut, unwired** (art in the repo, nothing loads it).
 
@@ -39,7 +41,9 @@ All are full 4-way sets (SE/SW/NE/NW). The old loose two-frame files in `assets/
 | Goose | 84 | idle, walk, takeoff, fly, death | Final |
 | Hare | 104 | idle, walk, run, death x winter and summer coat | Final, wired 11 Oct |
 | Ptarmigan | 104 | idle, walk, fly, death x winter and summer plumage | Final, wired 11 Oct |
-| **Buffalo** | n/a | none: uses `CaribouFrames.tres` | **Placeholder** (prompt: asset-prompts 5.7) |
+| **Buffalo** | n/a | none: uses `CaribouFrames.tres` | **Placeholder** (prompt: asset-prompts 4.1) |
+| **Elk** | n/a | none: uses `CaribouFrames.tres` | **Placeholder** (prompt: asset-prompts 4.2) |
+| **Horse** | 80 | idle, walk, run, graze (a generated stand-in) | **Placeholder** (prompt: asset-prompts 4.3) |
 
 The animal controller selects only idle, walk, run or fly, attack and death; howl, gnaw, swim, slap, takeoff and the cow variants are cut but unused. See [[Wildlife]].
 
@@ -90,14 +94,16 @@ See [[Transport]].
 | `menu_background.jpg` (York Factory at dusk) | Final: `MainMenu.tscn` |
 | 12 need icons (cold, drunk, fatigue, fever, food, health, load, scurvy, standing, warmth, water, wounded) | Partly wired: the HUD shows four rows (Health, Warmth, Food, Water); the other eight are cut and unused |
 | 4 faction crests (hbc, nwc, cree, assiniboine) | Cut, unwired |
+| Panels, buttons, tabs, divider, scrollbar (nine-patch) | Final since 20 Oct |
+| 5 cursors; weather overlays and aurora | Final |
 
-No `.theme`, `.ttf` or `.otf` exists; six call sites use `ThemeDB.FallbackFont`. See [[Journal, Map and UI]].
+No `.ttf` or `.otf` exists; seven call sites use `ThemeDB.FallbackFont`. See [[Journal, Map and UI]].
 
 ![[ui-crest-hbc.png|90]] ![[ui-crest-nwc.png|90]] ![[ui-crest-cree.png|90]] ![[ui-crest-assiniboine.png|90]]
 
 ## Drawn in code (no art file)
 
-Fire and blaze (tinted campfire plus a PointLight2D), hearth glow, muzzle flash (light only), health and ready bars, the map panel (ground.png with coloured squares), day/night and weather (`CanvasModulate` only: no snow, rain, fog, stars or aurora), world labels. See [[Weather]].
+A burning building (tinted campfire plus a PointLight2D: the large-fire sheet must be redrawn), health and ready bars, the map's post markers, world labels. Hearth fires, combat effects and weather now have art. See [[Weather]].
 
 ## Audio
 
