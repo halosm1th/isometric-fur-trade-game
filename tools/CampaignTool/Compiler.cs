@@ -182,13 +182,19 @@ internal sealed partial class Compiler
 					if (root.ContainsKey("start")) throw new CampError("give start or startYear, not both", a.NameAt);
 					root["start_year"] = v is double sy && sy == Math.Floor(sy) && sy >= 1700 && sy <= 2100 ? sy : throw new CampError($"startYear is a year (1700-2100), but got {Describe(v)}", a.Value.At);
 					break;
+				case "startPath":
+					root["start_path"] = v is EnumV { Type: "Path" } pv ? pv.Value : throw new CampError($"startPath is a road in ({string.Join(", ", Library.Paths.Select(p => "Path." + p))}), but got {Describe(v)}", a.Value.At);
+					break;
+				case "startAt":
+					root["start_at"] = v is string sa && sa.Trim().Length > 0 ? sa : throw new CampError($"startAt is a place by its name (a post, a town, a camp or a place on the map), but got {Describe(v)}", a.Value.At);
+					break;
 				default: throw new CampError($"the campaign header has no '{a.Name}'.{Suggest(a.Name, HeaderArgs)} (its values are {string.Join(", ", HeaderArgs)})", a.NameAt);
 			}
 		}
 		if (!titled) throw new CampError("the campaign needs a title: campaign " + c.Name + "(title: \"...\")", c.At);
 	}
 
-	private static readonly string[] HeaderArgs = { "title", "description", "note", "seed", "postsByFoundingYear", "extends", "include", "start", "startYear" };
+	private static readonly string[] HeaderArgs = { "title", "description", "note", "seed", "postsByFoundingYear", "extends", "include", "start", "startYear", "startPath", "startAt" };
 
 	private string Text(object v, Arg a) => v is string s ? s : throw new CampError($"{a.Name} is text, but got {Describe(v)}", a.Value.At);
 

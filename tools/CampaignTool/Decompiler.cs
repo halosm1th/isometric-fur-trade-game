@@ -126,6 +126,8 @@ public sealed partial class Decompiler
 		if (Tree.S(_doc.GetValueOrDefault("start")) is var st && Regex.IsMatch(st, @"^\d{4}-\d\d-\d\d$"))
 			args.Add($"start: date({int.Parse(st[..4])}, {int.Parse(st[5..7])}, {int.Parse(st[8..])})");
 		if (_doc.TryGetValue("start_year", out var sy)) args.Add($"startYear: {Tree.S(sy)}");
+		if (Tree.S(_doc.GetValueOrDefault("start_path")) is { Length: > 0 } sp) args.Add(Library.Paths.Contains(sp) ? $"startPath: Path.{sp}" : throw new CampError($"start_path '{sp}' is not a road in ({string.Join(", ", Library.Paths)})"));
+		if (Tree.S(_doc.GetValueOrDefault("start_at")) is { Length: > 0 } sa) args.Add($"startAt: {Quote(sa)}");
 		return $"campaign {NameFor(_name)}(\n{Ind}{string.Join(",\n" + Ind, args)}\n);\n";
 	}
 
@@ -325,6 +327,8 @@ public sealed partial class Decompiler
 		{
 			if (d.ContainsKey("m") && d.Keys.All(k => k is "m" or "a" or "op" or "v"))
 				candidates.Add(MetricText(Tree.S(d["m"]), Tree.AsList(d.GetValueOrDefault("a")).Select(Tree.S).ToList(), d.TryGetValue("op", out var op) ? Tree.S(op) : ">=", Tree.N(d.GetValueOrDefault("v"))));
+			if (d.ContainsKey("p") && d.Keys.All(k => k is "p" or "a") && Tree.AsList(d.GetValueOrDefault("a")).Count == 0 && Tree.S(d["p"]) == "deserted")
+				candidates.Add("player.deserted");
 		}
 		foreach (var cand in candidates)
 			if (cand != null && CondOk(cand, leaf)) return cand;
@@ -485,7 +489,7 @@ public sealed partial class Decompiler
 						$"from: {Quote(Tree.S(a["from"]))}", $"to: {to}", $"subject: {Str(Tree.S(a["subject"]), inner.Length + 9)}",
 						$"text: {Str(Tree.S(a["text"]), inner.Length + 6)}", $"days: {N("days")}",
 					};
-					if (a.ContainsKey("company")) args.Add($"company: {(Tree.S(a["company"]) is "HBC" or "NWC" or "American" ? "Company." + Tree.S(a["company"]) : Q("company"))}");
+					if (a.ContainsKey("company")) args.Add($"company: {(Known.Companies.Contains(Tree.S(a["company"])) ? "Company." + Tree.S(a["company"]) : Q("company"))}");
 					string text = $"{pad}news(\n{inner}{string.Join(",\n" + inner, args)}\n{pad});";
 					var cand = text.Split('\n').ToList();
 					if (StmtOk(text.Trim(), a)) return cand;
@@ -517,7 +521,7 @@ public sealed partial class Decompiler
 			case "stock" when Only(a, "post", "item", "add") && Has("post", "item", "add"): simple.Add($"world.addStock({Q("post")}, {ItemText(Tree.S(a["item"]))}, {N("add")});"); break;
 			case "say" when Only(a, "text", "to", "headline") && Has("text"):
 				{
-					string who = a.TryGetValue("to", out var t) ? ", " + (Tree.S(t) is "HBC" or "NWC" or "American" ? "Company." + Tree.S(t) : Tree.S(t) == "all" ? "Company.All" : Q("to")) : "";
+					string who = a.TryGetValue("to", out var t) ? ", " + (Known.Companies.Contains(Tree.S(t)) ? "Company." + Tree.S(t) : Tree.S(t) == "all" ? "Company.All" : Q("to")) : "";
 					string call = a.GetValueOrDefault("headline") is true ? "shout" : "say";
 					simple.Add($"{call}({Str(Tree.S(a["text"]), col + call.Length + 1)}{who});");
 					break;
@@ -528,6 +532,8 @@ public sealed partial class Decompiler
 			case "regard" when Only(a, "place", "add") && Has("place", "add"): simple.Add($"world.addRegard({Q("place")}, {N("add")});"); break;
 			case "give" or "take" when Only(a, "item", "count") && Has("item"): simple.Add($"player.{verb}({ItemText(Tree.S(a["item"]))}{(a.ContainsKey("count") ? ", " + N("count") : "")});"); break;
 			case "note" when Only(a, "text") && Has("text"): simple.Add($"player.note({Str(Tree.S(a["text"]), col + 12)});"); break;
+			case "desert" when Only(a, "to") && (!Has("to") || Known.Companies.Contains(Tree.S(a["to"])) && Tree.S(a["to"]) != "Free"): simple.Add(Has("to") ? $"player.desert(Company.{Tree.S(a["to"])});" : "player.desert();"); break;
+			case "pardon" when Only(a): simple.Add("player.pardon();"); break;
 			case "start_quest" when Only(a, "quest") && Has("quest") && _quests.TryGetValue(Tree.S(a["quest"]), out var sq): simple.Add($"{sq}.start();"); break;
 			case "end_quest" when Only(a, "quest", "failed") && Has("quest") && _quests.TryGetValue(Tree.S(a["quest"]), out var eq): simple.Add(a.GetValueOrDefault("failed") is true ? $"{eq}.fail();" : $"{eq}.complete();"); break;
 			case "brigade" when Only(a, "run", "effect", "days", "leg") && Has("run") && a.ContainsKey("effect"):

@@ -48,7 +48,9 @@ campaign CompanysServant(
     seed: 1811,                               // the dice: the same seed gives the same history
     postsByFoundingYear: true,                // posts appear on 1 January of their founding year
     extends: "historical",                    // play that campaign's beats too
-    start: date(1815, 5, 1)                   // the world's first day (or startYear: 1815)
+    start: date(1815, 5, 1),                  // the world's first day (or startYear: 1815)
+    startPath: Path.Crown,                    // every player's road in (leave out: their own choice)
+    startAt: "Niagara"                        // where every new character is set down
 );
 ```
 
@@ -63,6 +65,8 @@ campaign CompanysServant(
 | `include` | Parts of this script kept in their own files: `include: "american-road"` reads `tools/CampaignTool/src/parts/american-road.camp` (several: `"a, b"`). A part has no header; its consts, beats and quest lines are this campaign's own, and it all compiles into one JSON. Errors in a part name the part and its own line. |
 | `start` | The world's first day, on every starting path: `date(1815, 5, 1)`. See [a campaign's own start](World-Reference#a-campaigns-own-start). |
 | `startYear` | Only the year: each starting path keeps its own day in it. Give `start` or `startYear`, not both. |
+| `startPath` | The road every player comes in by, whatever they pick: `Path.HBC`, `Path.NWC`, `Path.Cree`, `Path.Assiniboine`, `Path.Nation`, `Path.American` or `Path.Crown` (a private soldier of a garrison). The character page shows it fixed. See [who the players are](World-Reference#who-the-players-are-and-where-they-begin). |
+| `startAt` | Where every new character is set down: a post, a town or its fort, a camp, or a place on the map, by name. See [who the players are](World-Reference#who-the-players-are-and-where-they-begin). |
 
 The name after `campaign` (`CompanysServant`) is only a name for the script; the game knows a campaign by its file name.
 

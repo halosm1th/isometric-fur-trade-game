@@ -107,7 +107,7 @@ beat X(date: date(1812, 1, 1)) { OnActivate() { player.postTo(""Nowhere House"")
 		var rep = Checker.Check(U.Compile(src));
 		var lines = string.Join("\n", rep.Lines());
 		Assert.Contains("'Atlantis' is not a post, a camp or a place", lines);
-		Assert.Contains("'Nowhere House' is not a post or a camp", lines);
+		Assert.Contains("'Nowhere House' is not a post, a camp or a garrisoned town", lines);
 		Assert.Contains("posting: 'Nowhere House' is not a post with books", lines);
 		Assert.Empty(Checker.Check(U.Compile(Sample)).Errors);
 	}

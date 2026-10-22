@@ -53,7 +53,7 @@ public sealed partial class Decompiler
 	}
 
 	private static string WhoText(string who) => Library.Persons.ContainsKey(who) ? $"Person.{who}" : Quote(who);
-	private static string CompanyText(string c) => c is "HBC" or "NWC" or "American" ? $"Company.{c}" : throw new CampError($"'{c}' is not a company a quest can be for");
+	private static string CompanyText(string c) => Known.Companies.Contains(c) ? $"Company.{c}" : throw new CampError($"'{c}' is not a company a quest can be for");
 
 	private static string Header(string word, string name, List<string> args)
 	{

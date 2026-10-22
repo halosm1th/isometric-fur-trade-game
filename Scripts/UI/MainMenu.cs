@@ -378,6 +378,14 @@ public partial class MainMenu : Control
         amb.ItemSelected += _ => Refresh();
         path.Select((int)Core.CharacterSheet.Path);
         Refresh();
+        // A campaign that brings everyone in by one road (its start_path): shown, and not to be changed.
+        _fixRoad = ours =>
+        {
+            var forced = ours ? Core.Campaign.StartPathOf(Core.Campaign.Id) : null;
+            path.Disabled = forced != null;
+            path.TooltipText = forced != null ? "This campaign brings every player in by this road." : "";
+            if (forced is Core.StartPath road && path.GetSelectedId() != (int)road) { path.Select(path.GetItemIndex((int)road)); Refresh(); }
+        };
 
         void Commit()
         {
@@ -404,9 +412,13 @@ public partial class MainMenu : Control
     }
 
     // mode: "new" (solo or host), "host" (from multiplayer), "join" (to _joinTo).
+    private System.Action<bool> _fixRoad;
+
     private void ShowCharacter(string mode, Control from)
     {
         _cameFrom = from;
+        // Joining, the host's campaign decides (CharacterSheet.Apply); here, the one picked on the new-game page.
+        _fixRoad?.Invoke(mode != "join");
         _cBegin.Visible = mode == "new";
         _cHost.Visible = mode is "new" or "host";
         _cHost.Text = mode == "host" ? $"Host a new game (port {NetHub.DefaultPort})" : "Begin and host";

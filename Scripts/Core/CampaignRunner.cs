@@ -50,6 +50,11 @@ public sealed class CampaignScript
 	// each path keeping its own day in it. Neither: 1811, the paths' days.
 	public string Start = "";
 	public int StartYear;
+	// Who every player comes in as, if the script says: StartPath is a road
+	// in by its name (HBC ... Crown), the same for every character made for
+	// this world; StartAt a place they are set down at (a post, a town, a
+	// camp, a place on the map). Either may be empty: the player's own choice.
+	public string StartPath = "", StartAt = "";
 	public readonly List<QuestLine> QuestLines = new();
 
 	public static CampaignScript Parse(Dictionary<string, object> root, string fallbackTitle = "")
@@ -63,6 +68,8 @@ public sealed class CampaignScript
 		s.Extends = Text(root, "extends", "");
 		s.Start = Text(root, "start", "");
 		s.StartYear = Int(root, "start_year", 0);
+		s.StartPath = Text(root, "start_path", "");
+		s.StartAt = Text(root, "start_at", "");
 		s.QuestLines.AddRange(QuestParse.Lines(root.GetValueOrDefault("questlines")));
 		if (root.GetValueOrDefault("vars") is Dictionary<string, object> vars) foreach (var kv in vars) s.InitialVars[kv.Key] = CampaignLogic.Num(kv.Value);
 		if (root.GetValueOrDefault("beats") is not List<object> beats) return s;

@@ -840,6 +840,8 @@ public partial class Npc : Agent
         if (other is Player.PlayerController cap && cap.CaptiveOf != null) return false;   // a prisoner is nobody's quarry
         if (other is Npc heldMan && heldMan.HeldBy != null) return false;
         if (base.IsHostileTo(other)) return true;
+        // A deserter from our colours, to the soldiers of a garrison: a man to be taken (PlayerController.Retaken).
+        if (other is Player.PlayerController run && run.Deserter && run.DesertedFrom == Faction && Role is Role.Soldier or Role.Officer && Weapon != null) return true;
         if (other.Raiding && other.RaidTarget == Faction && IsFighter) return Economy.Rivalry.HouseHasOdds(Faction, other.GlobalPosition);
         // Two nations at odds (design doc 7.2): the hunters of one see the other's as enemies in the bush.
         if (IsBandPerson && other.IsBandPerson && other.Faction != Faction && IsFighter && HomeStores is BandLedger mine && mine.AtOddsWithOtherBand && other is Npc on && on.IsFighter) return true;

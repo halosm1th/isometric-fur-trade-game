@@ -81,7 +81,9 @@ Read these carefully:
 |---|---|---|
 | `open_hostility` | the tension first reaches 70 (the game's threshold for armed parties) | **never**, even when tension falls again; ask `world.tension >= 70` for "now" |
 | `heard:<beat id>` | a letter sent by that beat's `news(...)` is read, or intercepted and read by the other company | never |
-| `deed:truce`, `deed:raid`, `deed:escort`, `deed:courier` | the player does it (see [Player deeds and rumours](Player-Deeds-and-Rumours)) | never |
+| `deed:truce`, `deed:raid`, `deed:escort`, `deed:courier`, `deed:desert` | the player does it (see [Player deeds and rumours](Player-Deeds-and-Rumours)) | never |
+| `deserter:taken` | a deserter is taken back alive by the soldiers of the side they left (see [Deserters](Effects-in-the-Game#deserters)) | never |
+| `start:knows-the-boatman` | a soldier on the `Crown` road remembers the stranger's boat at his parade (see [Who the players are](World-Reference#who-the-players-are-and-where-they-begin)) | never |
 | `<beat id>` | the beat finishes | never (a repeating beat's stays raised) |
 
 `heard:` is the way to make a story wait for the news to *arrive*, not merely to be sent:

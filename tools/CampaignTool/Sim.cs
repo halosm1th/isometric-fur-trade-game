@@ -86,6 +86,7 @@ public sealed class SimHost : ICampaignHost
 			case "post": return PostExists(arg);
 			case "dead": return Tree.AsList(_sc.GetValueOrDefault("dead")).Select(Tree.S).Contains(arg);
 			case "player_faction": return string.Equals(arg, _sc.TryGetValue("player_faction", out var f) ? Tree.S(f) : "HBC", StringComparison.OrdinalIgnoreCase);
+			case "deserted": return _sc.GetValueOrDefault("deserted") is true;
 			case "season":
 				{
 					int m = CampaignLogic.DateOf(Today).Month;
@@ -116,6 +117,18 @@ public sealed class SimHost : ICampaignHost
 		{
 			case "tension": _tensionDelta += Tree.N(a.GetValueOrDefault("add")); break;
 			case "found_post": _founded.Add(Tree.S(a.GetValueOrDefault("place"))); break;
+			// The scenario's one player goes over (or to nobody's), and is wanted until pardoned.
+			case "desert":
+				{
+					string to = a.TryGetValue("to", out var dt) ? Tree.S(dt) : "Free";
+					string from = _sc.TryGetValue("player_faction", out var pf) ? Tree.S(pf) : "HBC";
+					if (string.Equals(to, from, StringComparison.OrdinalIgnoreCase)) break;
+					if (from != "Free") _sc["deserted"] = true;
+					_sc["player_faction"] = to;
+					Runner.State.Deed("desert");
+					break;
+				}
+			case "pardon": _sc["deserted"] = false; break;
 			case "stock":
 				{
 					string k = $"{Tree.S(a.GetValueOrDefault("post"))}|{Tree.S(a.GetValueOrDefault("item"))}";
@@ -152,7 +165,7 @@ public static class Sim
 	public static readonly Dictionary<string, Adherence> Levels = new() { ["Gentle"] = Adherence.Gentle, ["Steady"] = Adherence.Steady, ["Firm"] = Adherence.Firm, ["Strict"] = Adherence.Strict };
 
 	public static Dictionary<string, object> DefaultScenario() => Tree.Dict(
-		("start", "1811-08-20"), ("end", "1821-12-31"), ("adherence", "Steady"), ("player_faction", "HBC"),
+		("start", "1811-08-20"), ("end", "1821-12-31"), ("adherence", "Steady"), ("player_faction", "HBC"), ("deserted", false),
 		("tension", Tree.Dict(("1811-01-01", 20.0))), ("standing", 20.0));
 
 	public static SimResult Simulate(Dictionary<string, object> doc, Dictionary<string, object> scenario = null, uint? seed = null, string level = null)
@@ -168,6 +181,9 @@ public static class Sim
 			int y = CampaignLogic.DateOf(CampaignLogic.DayNumber(own)).Year;
 			if (CampaignLogic.DayNumber(Tree.S(sc["end"])) < CampaignLogic.DayNumber(own)) sc["end"] = $"{y + 10:0000}-12-31";
 		}
+		// The script's road in is the player's side, unless the scenario says.
+		string road = Tree.S(doc.GetValueOrDefault("start_path"));
+		if (road is "HBC" or "NWC" or "American" or "Crown") sc["player_faction"] = road;
 		if (scenario != null) foreach (var kv in scenario) sc[kv.Key] = kv.Value;
 		var script = CampaignScript.Parse(doc);
 		var runner = new CampaignRunner { Level = Levels[level ?? Tree.S(sc["adherence"])] };
