@@ -29,6 +29,8 @@ public partial class ChatBox : Control
             if (@event.IsActionPressed("ui_cancel")) { _line.Text = ""; _line.Visible = false; GetViewport().SetInputAsHandled(); }
             return;
         }
+        // Watching the world, Tab is the next thing happening (PlayerObserver).
+        if (Core.Sim.Player is Player.PlayerController { Ghost: true }) return;
         if (@event.IsActionPressed("chat"))
         {
             _line.Visible = true;
