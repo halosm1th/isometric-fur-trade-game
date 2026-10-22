@@ -67,6 +67,8 @@ public abstract class RoleBehaviour
             var g = npc.AssignedTask(npc);
             if (g != null) return g;
         }
+        // A motion before the town or the council: canvassing for it, or the meeting (Core/Laws).
+        if (Core.Laws.Errand(npc) is { } motion) return motion;
         return Work(npc) ?? new WanderGoal(npc.WorkCell, 2, 1f);
     }
 
@@ -114,6 +116,7 @@ public abstract class RoleBehaviour
         if (s == null || npc.IsFemale) return null;
         if (Cal.Hour < 19f || Cal.Hour >= 22f) return null;
         if (!s.Stores.Has(ItemId.Rum) && !s.Stores.Has(ItemId.Ale)) return null;
+        if (Core.Laws.Dry(s)) return null;   // the town or the camp has voted it out
         float inclination = 0.3f + npc.Personality.Talkative * 0.4f - npc.Personality.Loyalty * 0.3f;
         return GD.Randf() < inclination * 0.5f ? new CarouseGoal() : null;
     }

@@ -165,11 +165,13 @@ public static class Money
     }
 
     // The merchants' trade with the outside (the metropole abstraction, 10.7):
-    // once a month, any grain, meal, corn or potatoes in the market beyond what
-    // the town will eat until the next harvest is in, and a month over, goes
-    // down the lakes - to the commissariat, to Montreal - and the money comes
-    // back to the till. Without it a good harvest would fill the market and
-    // empty the till for good; with too low a mark it ships the winter's bread.
+    // once a month, half of any grain, meal, corn or potatoes in the market
+    // beyond the town's mark goes down the lakes - to the commissariat, to
+    // Montreal - and the money comes back to the till. Without it a good
+    // harvest would fill the market and empty the till for good; with too low
+    // a mark it ships the winter's bread. The mark is a law of the town's
+    // (Core/Laws: a third of the food until the harvest, as the magistrates
+    // laid it down), and a town meeting can change it or do away with it.
     private static readonly ItemId[] Exports = { ItemId.Grain, ItemId.Flour, ItemId.Corn, ItemId.Roots, ItemId.Bread };
     private static void ShipSurplus()
     {
@@ -179,14 +181,15 @@ public static class Money
             var cal = GameCalendar.Instance;
             int doy = (int)(cal?.DayOfYear ?? 0f);
             int toHarvest = (doy < 250 ? 250 - doy : 365 - doy + 250) + 30;
-            int keep = Mathf.Max(1, TownMouths(t) * toHarvest / 3);   // a third of the year's food in each of the main kinds
+            int keep = Mathf.RoundToInt(TownMouths(t) * toHarvest * Laws.BreadKept(t));   // in each of the main kinds
             foreach (var id in Exports)
             {
                 int over = m.Stores.Count(id) - keep;
                 if (over <= 0) continue;
                 int n = over / 2;
                 m.Stores.Remove(id, n);
-                m.Stores.Add(ItemId.Coin, n * BuyPrice(m, id));
+                int paid = n * BuyPrice(m, id);
+                m.Stores.Add(ItemId.Coin, paid - Laws.Levy(t, LawKind.ExportDuty, paid));
             }
         }
     }
@@ -204,7 +207,7 @@ public static class Money
             int want = TownMouths(t) / 2 - m.Stores.Count(ItemId.TradeGoods);
             int spare = m.Stores.Count(ItemId.Coin) - (400 + t.Houses.Count * 20) / 2;
             int n = Mathf.Min(want, spare / StoreGoodsCost);
-            if (n > 0) { m.Stores.Remove(ItemId.Coin, n * StoreGoodsCost); m.Stores.Add(ItemId.TradeGoods, n); }
+            if (n > 0) { m.Stores.Remove(ItemId.Coin, n * StoreGoodsCost + Laws.Levy(t, LawKind.ImportDuty, n * StoreGoodsCost)); m.Stores.Add(ItemId.TradeGoods, n); }
             foreach (var h in t.Houses.Values) if (h != m) h.Stores.TakeUpTo(ItemId.TradeGoods, Mathf.Max(1, h.Alive() / 4));
         }
     }

@@ -338,6 +338,7 @@ public partial class Conversation
             AddOption("Ask her to see to your wounds", () => ShowTopics(Treat(npc)));
         // A town merchant's counter, for coin (UI/ConversationStore).
         if (npc.Role == Role.Merchant && MarketOf(npc) != null) AddOption("The store...", () => ShowStore(npc));
+        if (LawsBody(npc) != null) AddOption(LawsLabel(npc), () => ShowLaws(npc));
         AddOption("Give a gift", () => ShowGive(npc));
         if (npc.Needs.Hunger < 45f && _player.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
             AddOption($"Offer them something to eat ({Items.Items.Of(food).Name})", () => ShowTopics(OfferFood(npc, food)));

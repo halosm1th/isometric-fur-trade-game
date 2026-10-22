@@ -41,6 +41,7 @@ public static class Tiers
         }
         var cal = GameCalendar.Instance;
         if (cal != null) Economy.Lacrosse.Tick(cal);
+        if (cal != null) { Laws.DevMotion(); Laws.Tick(cal); }
         if (cal != null && cal.Day != _lastBatchDay)
         {
             _lastBatchDay = cal.Day;

@@ -225,7 +225,7 @@ public partial class FortLedger : Household
 				Stores.Add(id);
 				// Part of the price in rum, when there's rum and the band takes it.
                 int rum = 0;
-                if (RumShare > 0f && Stores.Has(ItemId.Rum) && GD.Randf() < RumShare * 2f) { rum = Mathf.Min(goods, Mathf.Max(1, Mathf.RoundToInt(goods * RumShare * 2f))); }
+                if (RumShare > 0f && Stores.Has(ItemId.Rum) && !Core.Laws.CompanyDry(Company) && !Core.Laws.Dry(band) && GD.Randf() < RumShare * 2f) { rum = Mathf.Min(goods, Mathf.Max(1, Mathf.RoundToInt(goods * RumShare * 2f))); }
                 Stores.Remove(ItemId.TradeGoods, goods - rum);
                 buyerGoodsTo.Add(ItemId.TradeGoods, goods - rum);
                 if (rum > 0)
