@@ -84,9 +84,9 @@
 [ext_resource type="Texture2D" uid="uid://bq84qbpoiwpj" path="res://assets/tiles/landscape/shield.png" id="tex_r74"]
 [ext_resource type="Texture2D" uid="uid://dkpnkd3klj6ql" path="res://assets/tiles/landscape/muskeg.png" id="tex_r75"]
 [ext_resource type="Texture2D" uid="uid://bniqsuntsubfw" path="res://assets/tiles/landscape/mountain.png" id="tex_r76"]
-[ext_resource type="Texture2D" path="res://assets/tiles/landscape/scree.png" id="tex_r77"]
-[ext_resource type="Texture2D" path="res://assets/tiles/landscape/alpine.png" id="tex_r78"]
-[ext_resource type="Texture2D" path="res://assets/tiles/landscape/snowfield.png" id="tex_r79"]
+[ext_resource type="Texture2D" uid="uid://h1thx46mlm20" path="res://assets/tiles/landscape/scree.png" id="tex_r77"]
+[ext_resource type="Texture2D" uid="uid://bm0b7u7t5slel" path="res://assets/tiles/landscape/alpine.png" id="tex_r78"]
+[ext_resource type="Texture2D" uid="uid://du1q7bp8eikli" path="res://assets/tiles/landscape/snowfield.png" id="tex_r79"]
 [ext_resource type="Texture2D" uid="uid://cu6281lmdbt7e" path="res://assets/tiles/props/tamarack.png" id="tex_r80"]
 [ext_resource type="Texture2D" uid="uid://cxboancsgd2qo" path="res://assets/tiles/props/willow.png" id="tex_r81"]
 [ext_resource type="Texture2D" uid="uid://mgqjvkb7bxvs" path="res://assets/tiles/props/rocks.png" id="tex_r82"]
@@ -600,6 +600,12 @@ texture_region_size = Vector2i(132, 99)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, -16)
 
+[sub_resource type="TileSetAtlasSource" id="Atlas_r76_mountain"]
+texture = ExtResource("tex_r76")
+texture_region_size = Vector2i(132, 99)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, -16)
+
 [sub_resource type="TileSetAtlasSource" id="Atlas_r77_scree"]
 texture = ExtResource("tex_r77")
 texture_region_size = Vector2i(132, 99)
@@ -614,12 +620,6 @@ texture_region_size = Vector2i(132, 99)
 
 [sub_resource type="TileSetAtlasSource" id="Atlas_r79_snowfield"]
 texture = ExtResource("tex_r79")
-texture_region_size = Vector2i(132, 99)
-0:0/0 = 0
-0:0/0/texture_origin = Vector2i(0, -16)
-
-[sub_resource type="TileSetAtlasSource" id="Atlas_r76_mountain"]
-texture = ExtResource("tex_r76")
 texture_region_size = Vector2i(132, 99)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, -16)

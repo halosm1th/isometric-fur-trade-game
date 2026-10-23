@@ -71,11 +71,11 @@ public partial class FortLedger : Household
     }
 
     // Standing and debt are between this counter and a particular band (design doc 3.6, 13.3).
-    // The Americans keep their own books with a band, apart from either British company's.
-    public float StandingOf(BandLedger b) => b == null ? 50f : Company switch { Agents.Faction.NWC => b.StandingWithNwc, Agents.Faction.American => b.StandingWithAmericans, _ => b.StandingWithCompany };
-    public void SetStanding(BandLedger b, float v) { if (b == null) return; if (Company == Agents.Faction.NWC) b.StandingWithNwc = v; else if (Company == Agents.Faction.American) b.StandingWithAmericans = v; else b.StandingWithCompany = v; }
-    public float DebtOf(BandLedger b) => b == null ? 0f : Company switch { Agents.Faction.NWC => b.DebtNwcMb, Agents.Faction.American => b.DebtAmericanMb, _ => b.DebtMb };
-    public void SetDebt(BandLedger b, float v) { if (b == null) return; if (Company == Agents.Faction.NWC) b.DebtNwcMb = v; else if (Company == Agents.Faction.American) b.DebtAmericanMb = v; else b.DebtMb = v; }
+	// The Americans keep their own books with a band, apart from either British company's.
+	public float StandingOf(BandLedger b) => b == null ? 50f : Company switch { Agents.Faction.NWC => b.StandingWithNwc, Agents.Faction.American => b.StandingWithAmericans, _ => b.StandingWithCompany };
+	public void SetStanding(BandLedger b, float v) { if (b == null) return; if (Company == Agents.Faction.NWC) b.StandingWithNwc = v; else if (Company == Agents.Faction.American) b.StandingWithAmericans = v; else b.StandingWithCompany = v; }
+	public float DebtOf(BandLedger b) => b == null ? 0f : Company switch { Agents.Faction.NWC => b.DebtNwcMb, Agents.Faction.American => b.DebtAmericanMb, _ => b.DebtMb };
+	public void SetDebt(BandLedger b, float v) { if (b == null) return; if (Company == Agents.Faction.NWC) b.DebtNwcMb = v; else if (Company == Agents.Faction.American) b.DebtAmericanMb = v; else b.DebtMb = v; }
 
 	// The post buys provisions off a band that has them - the Assiniboine's
 	// pemmican (design doc 13.1). Goods per piece; only when the mess is short.
@@ -164,8 +164,7 @@ public partial class FortLedger : Household
 		if (_hoursToProvisions > 0f) return;
 		_hoursToProvisions += 24f * 7f;
 
-		int mouths = 0;
-		foreach (var n in Sim.Npcs) if (n.HomeStores == this && !n.IsDead) mouths++;
+		int mouths = Alive();
 		if (mouths == 0 || FoodDays(mouths) > 25f) return;
 		BandLedger from = null;
 		foreach (var b in Sim.Bands) if (b != null && b.WillTradeWith(this) && b.Stores.Count(ItemId.Pemmican) + b.Stores.Count(ItemId.DriedMeat) > 10) { from = b; break; }
@@ -224,14 +223,14 @@ public partial class FortLedger : Household
 				seller.Remove(id);
 				Stores.Add(id);
 				// Part of the price in rum, when there's rum and the band takes it.
-                int rum = 0;
-                if (RumShare > 0f && Stores.Has(ItemId.Rum) && !Core.Laws.CompanyDry(Company) && !Core.Laws.Dry(band) && GD.Randf() < RumShare * 2f) { rum = Mathf.Min(goods, Mathf.Max(1, Mathf.RoundToInt(goods * RumShare * 2f))); }
-                Stores.Remove(ItemId.TradeGoods, goods - rum);
-                buyerGoodsTo.Add(ItemId.TradeGoods, goods - rum);
-                if (rum > 0)
-                {
-                    rum = Stores.TakeUpTo(ItemId.Rum, rum);
-                    buyerGoodsTo.Add(ItemId.Rum, rum);
+				int rum = 0;
+				if (RumShare > 0f && Stores.Has(ItemId.Rum) && !Core.Laws.CompanyDry(Company) && !Core.Laws.Dry(band) && GD.Randf() < RumShare * 2f) { rum = Mathf.Min(goods, Mathf.Max(1, Mathf.RoundToInt(goods * RumShare * 2f))); }
+				Stores.Remove(ItemId.TradeGoods, goods - rum);
+				buyerGoodsTo.Add(ItemId.TradeGoods, goods - rum);
+				if (rum > 0)
+				{
+					rum = Stores.TakeUpTo(ItemId.Rum, rum);
+					buyerGoodsTo.Add(ItemId.Rum, rum);
 					// Drink buys goodwill quickly and cheaply - that's the trap.
 					SetStanding(band, Mathf.Min(100f, StandingOf(band) + 1.5f * rum));
 					band?.OnRum(rum);
@@ -246,20 +245,20 @@ public partial class FortLedger : Household
 
 	// A band buys food with trade goods; a band in good standing is
 	// advanced food on credit against next season's furs (design doc 13.3).
-    public int SellFood(Inventory buyer, int goodsToSpend, BandLedger band = null)
-    {
-        int sold = 0;
-        band ??= Sim.Band;
-        bool credit = band != null && StandingOf(band) > 40f && DebtOf(band) < 15f;
-        int creditUnits = credit ? 5 : 0;
-        while ((goodsToSpend > 0 && buyer.Has(ItemId.TradeGoods)) || creditUnits > 0)
-        {
-            bool onCredit = !(goodsToSpend > 0 && buyer.Has(ItemId.TradeGoods));
-            if (onCredit) { creditUnits--; SetDebt(band, DebtOf(band) + 1f); }
-            ItemId? food = null;
-            foreach (var id in new[] { ItemId.DriedGoose, ItemId.DriedMeat, ItemId.Pemmican, ItemId.Bread })
-                if (Stores.Count(id) > 20) { food = id; break; }   // keeps a reserve for its own men
-            if (food == null) break;
+	public int SellFood(Inventory buyer, int goodsToSpend, BandLedger band = null)
+	{
+		int sold = 0;
+		band ??= Sim.Band;
+		bool credit = band != null && StandingOf(band) > 40f && DebtOf(band) < 15f;
+		int creditUnits = credit ? 5 : 0;
+		while ((goodsToSpend > 0 && buyer.Has(ItemId.TradeGoods)) || creditUnits > 0)
+		{
+			bool onCredit = !(goodsToSpend > 0 && buyer.Has(ItemId.TradeGoods));
+			if (onCredit) { creditUnits--; SetDebt(band, DebtOf(band) + 1f); }
+			ItemId? food = null;
+			foreach (var id in new[] { ItemId.DriedGoose, ItemId.DriedMeat, ItemId.Pemmican, ItemId.Bread })
+				if (Stores.Count(id) > 20) { food = id; break; }   // keeps a reserve for its own men
+			if (food == null) break;
 			// One unit of goods buys a few days of food at the post's mark-up.
 			int pieces = Mathf.Max(1, Mathf.RoundToInt(3f / FoodPriceMultiplier));
 			if (!onCredit) { buyer.Remove(ItemId.TradeGoods); goodsToSpend--; }
