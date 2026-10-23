@@ -33,6 +33,35 @@ sc = bpy.context.scene
 look.setup_scene()
 # A doll fitted to painted sheets (fit.py) turns as far as their side frame.
 look.FACINGS["side"] = rig.get("side_turn", look.FACINGS["side"])
+if "side_turn" in rig:
+    # Its three-quarter poses too, painted from that same side frame.
+    look.FACINGS["three"] = rig["side_turn"]
+    look.PAINTED_VIEW["three"] = "right"
+# DOLL_SS=4 renders four times over, for outline.py to bring down to size.
+sc.render.resolution_percentage = 100 * int(os.environ.get("DOLL_SS", "1"))
+DEPTH = None
+if bpy.data.materials.get("painted_shirt"):
+    # The painted sheets draw a dark line where an arm crosses the body.
+    # Each frame of a projected man also saves its depth, for outline.py to
+    # find where the surface steps back - an arm before his chest - and ink it.
+    bpy.context.view_layer.use_pass_z = True
+    sc.use_nodes = True
+    nt = sc.node_tree
+    for n in list(nt.nodes):
+        nt.nodes.remove(n)
+    rl = nt.nodes.new("CompositorNodeRLayers")
+    comp = nt.nodes.new("CompositorNodeComposite")
+    nt.links.new(rl.outputs["Image"], comp.inputs["Image"])
+    # The camera stands 20 m off; he is within a metre of the origin.
+    mr = nt.nodes.new("CompositorNodeMapRange")
+    mr.inputs[1].default_value, mr.inputs[2].default_value = 19.0, 21.0
+    mr.use_clamp = True
+    nt.links.new(rl.outputs["Depth"], mr.inputs[0])
+    DEPTH = nt.nodes.new("CompositorNodeOutputFile")
+    DEPTH.format.file_format = 'PNG'
+    DEPTH.format.color_mode = 'BW'
+    DEPTH.format.color_depth = '16'
+    nt.links.new(mr.outputs[0], DEPTH.inputs[0])
 
 
 # ------------------------------------------------------------- the hands
@@ -256,6 +285,10 @@ def set_layers(show, holdout=()):
 
 def render(path):
     sc.render.filepath = path
+    if DEPTH:
+        # Written as <frame>_depth<frame number>.png beside it.
+        DEPTH.base_path = os.path.dirname(path)
+        DEPTH.file_slots[0].path = os.path.splitext(os.path.basename(path))[0] + "_depth"
     bpy.ops.render.render(write_still=True)
 
 
@@ -285,6 +318,8 @@ def main():
         ground()
         if hands:
             hands(t, i)
+        bpy.context.view_layer.update()
+        look.painted_arms(rig)
         for th in THINGS:
             if th in bpy.data.objects:
                 bpy.data.objects[th].hide_render = th not in things

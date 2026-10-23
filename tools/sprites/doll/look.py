@@ -258,12 +258,34 @@ PAINTED_VIEW = {"front": "front", "side": "right", "back": "back", "three": "fro
 
 
 def painted_view(facing):
-    m = bpy.data.materials.get("painted")
-    if not m:
-        return
-    for n in m.node_tree.nodes:
-        if n.name.startswith("cam_"):
-            n.outputs[0].default_value = 1.0 if n.name == "cam_" + PAINTED_VIEW[facing] else 0.0
+    for m in bpy.data.materials:
+        if not m.name.startswith("painted_"):
+            continue
+        for n in m.node_tree.nodes:
+            if n.name.startswith("cam_"):
+                n.outputs[0].default_value = 1.0 if n.name == "cam_" + PAINTED_VIEW[facing] else 0.0
+
+
+def painted_arms(rig):
+    """How far each arm has swung from the pose it was painted in
+    (projected.py), 0 to 1, into the painted materials' dev_l / dev_r."""
+    dev = {}
+    for sd in "lr":
+        worst = 0.0
+        for b in (f"upperarm_{sd}", f"lowerarm_{sd}"):
+            if "painted_" + b not in rig:
+                return
+            pb = rig.pose.bones[b]
+            now = (pb.tail - pb.head).normalized()
+            worst = max(worst, math.degrees(now.angle(Vector(rig["painted_" + b]))))
+        # Unchanged to 15 degrees, wholly cloth past 45.
+        dev[sd] = min(1.0, max(0.0, (worst - 15.0) / 30.0))
+    for m in bpy.data.materials:
+        if m.name.startswith("painted_"):
+            for sd in "lr":
+                n = m.node_tree.nodes.get("dev_" + sd)
+                if n:
+                    n.outputs[0].default_value = dev[sd]
 
 
 # Facing name -> rotation of the figure about z (the camera looks along +y,

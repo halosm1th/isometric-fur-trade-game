@@ -163,7 +163,7 @@ fwd = (cam.matrix_world.to_3x3() @ Vector((0, 0, -1))).normalized()
 uvs = {o.name: {} for o in meshes}        # view -> per-vertex uv
 wts = {o.name: {} for o in meshes}        # view -> per-vertex weight
 seen = {o.name: {} for o in meshes}       # view -> 1 where that painting shows the vertex
-images = {}
+images, paints = {}, {}
 for view, (turn, frame, mirror) in VIEWS.items():
     rig.rotation_euler = (0, 0, math.radians(turn))
     bpy.context.view_layer.update()
@@ -173,6 +173,7 @@ for view, (turn, frame, mirror) in VIEWS.items():
     path = os.path.join(TMP, f"paint_{view}.png")
     write(paint, path)
     images[view] = path
+    paints[view] = paint
     drows, prows = rows(dmask), rows(pmask)
     for o in meshes:
         e = o.evaluated_get(dg)
@@ -198,12 +199,62 @@ for view, (turn, frame, mirror) in VIEWS.items():
         e.to_mesh_clear()
 
 rig.rotation_euler = (0, 0, 0)
+# Which way each arm bone pointed while it was painted: render.py turns an
+# arm from its projected paint to its sleeve's cloth as it swings away.
+ARM_BONES = ("upperarm_l", "lowerarm_l", "upperarm_r", "lowerarm_r")
+for b in ARM_BONES:
+    pb = rig.pose.bones[b]
+    rig["painted_" + b] = list((pb.tail - pb.head).normalized())
+
+# ---------------------------------------------------------------- the sleeves
+#
+# A hanging arm is a strip ten pixels wide in the painting; raised, that
+# strip is stretched over twice the area and the cloth turns to mush. So an
+# arm away from its painted pose wears its own cloth instead: a swatch cut
+# from where the painting shows that sleeve, tiled round the arm in the
+# mesh's undeformed coordinates (so it doesn't swim) and lit as he turns.
+
+PX_PER_M = 1 / look.PX
+ARM_GROUPS = ("upperarm_", "lowerarm_", "hand_", "thumb_", "index_", "middle_", "ring_", "pinky_")
+
+
+def arm_weights(o):
+    """Per vertex, how much the left and the right arm carry it."""
+    n = len(o.data.vertices)
+    side = {"l": np.zeros(n), "r": np.zeros(n)}
+    idx = {g.index: g.name for g in o.vertex_groups}
+    for v in o.data.vertices:
+        for g in v.groups:
+            name = idx[g.group]
+            for sd in "lr":
+                if name.startswith(ARM_GROUPS) and name.endswith("_" + sd):
+                    side[sd][v.index] += g.weight
+    return np.clip(side["l"], 0, 1), np.clip(side["r"], 0, 1)
+
+
+def swatch(o, arm, uv_front, seen_front):
+    """The painted front frame's pixels where it shows this piece's arms:
+    the middle of their bounding box, as a small tile. None if it shows none."""
+    pick = (arm > 0.5) & (seen_front > 0.5)
+    if pick.sum() < 6:
+        return None
+    px = np.stack([uv_front[pick, 0] * W - 0.5, (1 - uv_front[pick, 1]) * H - 0.5], 1)
+    # A patch from the middle of the one arm, not a box round both (that
+    # takes in the chest and the sash between them). Small enough to stay
+    # on the arm, big enough for a few checks of the cloth.
+    cx, cy = np.median(px, 0)
+    hw, hh = (3, 4) if len(px) > 40 else (1, 1)
+    x0, y0 = int(round(cx)) - hw, int(round(cy)) - hh
+    tile = paints["front"][y0:y0 + 2 * hh, x0:x0 + 2 * hw].copy()
+    path = os.path.join(TMP, f"swatch_{o.name}.png")
+    write(tile, path)
+    return path, tile.shape[1], tile.shape[0]
 
 
 # ---------------------------------------------------------------- material
 
-def material():
-    m = bpy.data.materials.new("painted")
+def material(name, sw=None, dims=None):
+    m = bpy.data.materials.new("painted_" + name)
     m.use_nodes = True
     nt = m.node_tree
     nodes, links = nt.nodes, nt.links
@@ -220,6 +271,20 @@ def material():
                 links.new(x, n.inputs[i])
         return n.outputs[2]
 
+    # EEVEE allows a material only so many attributes: the four views'
+    # weights ride in one colour (r g b a = the views in order), their
+    # seen-masks in another, the two arms in one vector.
+    packed = {}
+
+    def chan(name, j):
+        if name not in packed:
+            at = nodes.new("ShaderNodeAttribute"); at.attribute_name = name
+            sp = nodes.new("ShaderNodeSeparateColor")
+            links.new(at.outputs["Color"], sp.inputs[0])
+            packed[name] = (at, sp)
+        at, sp = packed[name]
+        return at.outputs["Alpha"] if j == 3 else sp.outputs[j]
+
     acc = cam_acc = cam_sum = None
     for i, view in enumerate(VIEWS):
         uvn = nodes.new("ShaderNodeUVMap"); uvn.uv_map = "uv_" + view
@@ -227,10 +292,9 @@ def material():
         tex.image = bpy.data.images.load(images[view], check_existing=True)
         tex.interpolation = 'Closest'
         links.new(uvn.outputs[0], tex.inputs[0])
-        at = nodes.new("ShaderNodeAttribute"); at.attribute_name = "w_" + view
         mul = nodes.new("ShaderNodeMix"); mul.data_type = 'RGBA'; mul.blend_type = 'MULTIPLY'
         mul.inputs[0].default_value = 1.0
-        links.new(tex.outputs[0], mul.inputs[6]); links.new(at.outputs["Fac"], mul.inputs[7])
+        links.new(tex.outputs[0], mul.inputs[6]); links.new(chan("w", i), mul.inputs[7])
         if acc is None:
             acc = mul.outputs[2]
         else:
@@ -242,45 +306,117 @@ def material():
         # (look.painted_view sets cam_<view> for each render).
         cv = nodes.new("ShaderNodeValue"); cv.name = cv.label = "cam_" + view
         cv.outputs[0].default_value = 0.0
-        sa = nodes.new("ShaderNodeAttribute"); sa.attribute_name = "s_" + view
-        k = mix('MULTIPLY', cv.outputs[0], sa.outputs["Fac"])
+        k = mix('MULTIPLY', cv.outputs[0], chan("s", i))
         part = mix('MULTIPLY', tex.outputs[0], k)
         cam_acc = part if cam_acc is None else mix('ADD', cam_acc, part)
         cam_sum = k if cam_sum is None else mix('ADD', cam_sum, k)
     rest = mix('SUBTRACT', 1.0, cam_sum)
     acc = mix('ADD', cam_acc, mix('MULTIPLY', acc, rest))
+    if sw:
+        path, tw, th = sw
+        tc = nodes.new("ShaderNodeTexCoord")
+        mp = nodes.new("ShaderNodeMapping")
+        # Generated runs 0..1 over the piece; as many tiles as keep the
+        # painting's own pixels per metre.
+        mp.inputs["Scale"].default_value = (dims[0] * PX_PER_M / tw, dims[1] * PX_PER_M / tw, dims[2] * PX_PER_M / th)
+        links.new(tc.outputs["Generated"], mp.inputs[0])
+        st = nodes.new("ShaderNodeTexImage")
+        st.image = bpy.data.images.load(path, check_existing=True)
+        st.interpolation = 'Closest'
+        st.projection = 'BOX'
+        st.projection_blend = 0.2
+        links.new(mp.outputs[0], st.inputs[0])
+        # Lit in three tones about the painting's own average.
+        dif = nodes.new("ShaderNodeBsdfDiffuse")
+        s2r = nodes.new("ShaderNodeShaderToRGB")
+        links.new(dif.outputs[0], s2r.inputs[0])
+        ramp = nodes.new("ShaderNodeValToRGB")
+        ramp.color_ramp.interpolation = 'CONSTANT'
+        e = ramp.color_ramp.elements
+        e[0].position, e[0].color = 0.0, (0.62, 0.62, 0.62, 1)
+        e[1].position, e[1].color = 0.25, (0.85, 0.85, 0.85, 1)
+        e.new(0.6).color = (1.08, 1.08, 1.08, 1)
+        links.new(s2r.outputs[0], ramp.inputs[0])
+        cloth = mix('MULTIPLY', st.outputs[0], ramp.outputs[0])
+        # How far each arm has swung from where it was painted (render.py).
+        fac = None
+        aw = nodes.new("ShaderNodeAttribute"); aw.attribute_name = "arm"
+        sp = nodes.new("ShaderNodeSeparateXYZ")
+        links.new(aw.outputs["Vector"], sp.inputs[0])
+        for j, sd in enumerate("lr"):
+            dv = nodes.new("ShaderNodeValue"); dv.name = dv.label = "dev_" + sd
+            dv.outputs[0].default_value = 0.0
+            k = nodes.new("ShaderNodeMath"); k.operation = 'MULTIPLY'
+            links.new(dv.outputs[0], k.inputs[0]); links.new(sp.outputs[j], k.inputs[1])
+            if fac is None:
+                fac = k.outputs[0]
+            else:
+                a = nodes.new("ShaderNodeMath"); a.operation = 'ADD'; a.use_clamp = True
+                links.new(fac, a.inputs[0]); links.new(k.outputs[0], a.inputs[1])
+                fac = a.outputs[0]
+        blend = nodes.new("ShaderNodeMix"); blend.data_type = 'RGBA'
+        links.new(fac, blend.inputs[0]); links.new(acc, blend.inputs[6]); links.new(cloth, blend.inputs[7])
+        acc = blend.outputs[2]
     em = nodes.new("ShaderNodeEmission")
     links.new(acc, em.inputs[0])
     links.new(em.outputs[0], out.inputs[0])
     return m
 
 
-mat = material()
+def nearest_seen(me, seen_any):
+    """For each vertex, the nearest vertex (along the mesh) that some
+    painting saw: itself if one did."""
+    from collections import deque
+    nb = [[] for _ in me.vertices]
+    for e in me.edges:
+        a, b = e.vertices
+        nb[a].append(b); nb[b].append(a)
+    src = np.where(seen_any, np.arange(len(me.vertices)), -1)
+    q = deque(np.nonzero(seen_any)[0])
+    while q:
+        i = q.popleft()
+        for j in nb[i]:
+            if src[j] < 0:
+                src[j] = src[i]
+                q.append(j)
+    return src
+
+
 for o in meshes:
     me = o.data
     n = len(me.vertices)
-    W4 = np.stack([wts[o.name][v] for v in VIEWS], 1)
-    tot = W4.sum(1)
-    # Nowhere seen (an armpit, the inside of a sleeve): the nearest view's paint.
-    for i in np.nonzero(tot < 1e-4)[0]:
-        W4[i, :] = 0
-        W4[i, int(np.argmax([uvs[o.name][v][i][0] * 0 + 1 for v in VIEWS]))] = 1
-    W4 = W4 / np.maximum(W4.sum(1, keepdims=True), 1e-6)
-    # Sharpen the blend: the painted views don't agree on detail, and a
-    # crossfade between them smears it.
-    W4 = W4 ** 3
-    W4 = W4 / W4.sum(1, keepdims=True)
+    al, ar = arm_weights(o)
+    at = me.attributes.get("arm") or me.attributes.new("arm", 'FLOAT_VECTOR', 'POINT')
+    at.data.foreach_set("vector", np.stack([al, ar, np.zeros(n)], 1).astype(np.float32).ravel())
+    sw = swatch(o, al, uvs[o.name]["front"][:n], seen[o.name]["front"][:n]) if al.max() > 0 else None
+    mat = material(o.name, sw, tuple(o.dimensions) if sw else None)
+    # A modifier (the breechcloth's thickness) can add vertices after the
+    # mesh's own, which come first; only those carry the paint.
+    W4 = np.stack([wts[o.name][v][:n] for v in VIEWS], 1)
+    for v in VIEWS:
+        uvs[o.name][v] = uvs[o.name][v][:n]
+    # Where the camera's own painting didn't see a spot, the one painting
+    # that saw it most squarely - one, not a blend: the views disagree on
+    # detail and a crossfade smears it. Seen by none (inside an armpit), the
+    # nearest spot that was seen lends its paint.
+    best = W4.argmax(1)
+    src = nearest_seen(me, W4.max(1) > 0)
+    for i in np.nonzero(src != np.arange(n))[0]:
+        if src[i] < 0:
+            continue
+        best[i] = best[src[i]]
+        uvs[o.name][list(VIEWS)[best[i]]][i] = uvs[o.name][list(VIEWS)[best[i]]][src[i]]
+    W4 = np.zeros((n, len(VIEWS)))
+    W4[np.arange(n), best] = 1.0
     for j, view in enumerate(VIEWS):
         uvl = me.uv_layers.get("uv_" + view) or me.uv_layers.new(name="uv_" + view)
         data = uvs[o.name][view]
         for loop in me.loops:
             uvl.data[loop.index].uv = data[loop.vertex_index]
-        at = me.attributes.get("w_" + view) or me.attributes.new("w_" + view, 'FLOAT', 'POINT')
-        for i in range(n):
-            at.data[i].value = float(W4[i, j])
-        sa = me.attributes.get("s_" + view) or me.attributes.new("s_" + view, 'FLOAT', 'POINT')
-        for i in range(n):
-            sa.data[i].value = float(seen[o.name][view][i])
+    S4 = np.stack([seen[o.name][v][:n] for v in VIEWS], 1)
+    for name, arr in (("w", W4), ("s", S4)):
+        at = me.attributes.get(name) or me.attributes.new(name, 'FLOAT_COLOR', 'POINT')
+        at.data.foreach_set("color", arr.astype(np.float32).ravel())
     me.materials.clear()
     me.materials.append(mat)
     for poly in me.polygons:
