@@ -10,10 +10,9 @@ cam = look.setup_scene()
 ZOOM = float(os.environ.get("ZOOM", "1"))
 if ZOOM != 1:
     cam.data.ortho_scale /= ZOOM
-    cam.location.z += 0.2
+    cam.location.z += float(os.environ.get("ZUP", "0.2"))
     cam.location.y -= 0.0
 rig = bpy.data.objects["rig"]
-pose.chibi(rig)
 for o in bpy.data.objects:
     if o.type == 'MESH' and "outline" not in o.modifiers:
         look.outline(o)

@@ -64,11 +64,14 @@ def apply(rig, pose, lift=0.0, shift=Vector()):
     pel.location = pel.bone.matrix_local.to_3x3().inverted() @ off
 
 
-def arms_down(rig, elbow=12, hang=8):
-    """Arms hanging at the sides from the A-pose rest."""
+def arms_down(rig, elbow=None, hang=None):
+    """Arms hanging at the sides from the A-pose rest; a doll fitted to a
+    painted man (fit.py) keeps how his arms hang on the rig."""
+    elbow = rig.get("elbow", 12) if elbow is None else elbow
+    hang = rig.get("hang", 8) if hang is None else hang
     p = {}
     for s in "lr":
-        p[f"upperarm_{s}"] = out(s, hang - rest_spread(rig, s))
+        p[f"upperarm_{s}"] = fwd(rig.get("swing", 0)) @ out(s, hang - rest_spread(rig, s))
         p[f"lowerarm_{s}"] = fwd(elbow)
     return p
 

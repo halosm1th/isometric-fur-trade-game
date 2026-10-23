@@ -31,6 +31,8 @@ FACING_SUFFIX = {"front": "", "side": "_side", "back": "_back", "three": ""}
 rig = bpy.data.objects["rig"]
 sc = bpy.context.scene
 look.setup_scene()
+# A doll fitted to painted sheets (fit.py) turns as far as their side frame.
+look.FACINGS["side"] = rig.get("side_turn", look.FACINGS["side"])
 
 
 # ------------------------------------------------------------- the hands
@@ -279,6 +281,7 @@ def main():
         pose.apply(rig, p, lift)
         rig.rotation_euler = (0, 0, math.radians(look.FACINGS[facing]))
         bpy.context.view_layer.update()
+        look.painted_view(facing)
         ground()
         if hands:
             hands(t, i)
