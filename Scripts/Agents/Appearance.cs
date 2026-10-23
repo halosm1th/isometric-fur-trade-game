@@ -17,8 +17,7 @@ public static class Appearance
         if (child && n.Faction is Faction.HBC or Faction.Crown or Faction.American) return Dir + (n.IsFemale ? "ChildGirlFrames.tres" : "ChildBoyFrames.tres");
         return n.Role switch
         {
-            // The voyageur is the first paper doll: his clothes are layers.
-            Role.Voyageur => Doll.For(n),
+            Role.Voyageur => Dir + "VoyageurFrames.tres",
             Role.NwcPartner => Dir + "NwcPartnerFrames.tres",
             Role.Woman or Role.Wife when n.Faction is Faction.HBC or Faction.American or Faction.Crown => Dir + "CountryWifeFrames.tres",
             // The towns' people keep the look they were placed with: the
