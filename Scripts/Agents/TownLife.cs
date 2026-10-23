@@ -364,7 +364,7 @@ public static class TownLife
             // in store pay when the till is short (Pay). A town without a
             // merchant of its own still has its market, and without it the
             // labourers' money went over the counter for good.
-            if (h == home.Town.Market) { if (h.Stores.Count(ItemId.Coin) >= Float(home.Town) + DayWage || Money.StorePayRoom(home.Town) >= DayWage) who.Add(h); continue; }
+            if (h == home.Town.Market) { if (h.Stores.Count(ItemId.Coin) >= Float(home.Town) + DayWage || Money.PaysInKind(home.Town)) who.Add(h); continue; }
             if (h.Stores.Count(ItemId.Coin) < Reserve(h) + DayWage) continue;
             if (harvest && Fields.IsFarm(h)) who.Add(h);
             // A merchant's porter, a tradesman's labourer, an officer's or
@@ -376,8 +376,10 @@ public static class TownLife
     public const int DayWage = 18;
     // The day's wage, paid at the end of it into the labourer's pocket - or,
     // from a store whose till is short, written to his house as store pay.
+    public static readonly Dictionary<TownHousehold, int> Earned = new();   // dev (--lawtrace)
     private static void Pay(TownHousehold employer, Npc n, TownHousehold home, int wage = DayWage)
     {
+        Earned[home] = Earned.GetValueOrDefault(home) + wage;
         if (employer == employer.Town?.Market && employer.Stores.Count(ItemId.Coin) < Float(employer.Town) + wage) { Money.CreditTo(home, wage); return; }
         n.Inventory.Add(ItemId.Coin, employer.Stores.TakeUpTo(ItemId.Coin, wage));
     }

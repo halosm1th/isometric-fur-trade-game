@@ -869,7 +869,7 @@ public static class Laws
                 }
                 if (st == 0) continue;
                 var hs = h.Stores;
-                GD.Print($"[lawwho]   {h.Key} ({h.Building.Name}): {st} starving of [{string.Join(", ", roles)}] | box {hs.Count(ItemId.Coin)} owed {Money.Owed(h)}/{Money.CreditLimit(h)} | bread {hs.Count(ItemId.Bread)} flour {hs.Count(ItemId.Flour)} grain {hs.Count(ItemId.Grain)} wheat {hs.Count(ItemId.Wheat)} corn {hs.Count(ItemId.Corn)} roots {hs.Count(ItemId.Roots)} meat {hs.Count(ItemId.DriedMeat)} | days {h.FoodDays(Mathf.Max(1, h.Alive())):0.0}");
+                GD.Print($"[lawwho]   {h.Key} ({h.Building.Name}, {h.Building.Kind}{(Fields.IsFarm(h) ? ", farm" : "")}): {st} starving of [{string.Join(", ", roles)}] | box {hs.Count(ItemId.Coin)} owed {Money.Owed(h)}/{Money.CreditLimit(h)} | bread {hs.Count(ItemId.Bread)} flour {hs.Count(ItemId.Flour)} grain {hs.Count(ItemId.Grain)} wheat {hs.Count(ItemId.Wheat)} corn {hs.Count(ItemId.Corn)} roots {hs.Count(ItemId.Roots)} meat {hs.Count(ItemId.DriedMeat)} | days {h.FoodDays(Mathf.Max(1, h.Alive())):0.0} | earned {TownLife.Earned.GetValueOrDefault(h)}");
             }
         }
     }

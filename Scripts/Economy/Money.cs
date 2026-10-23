@@ -113,18 +113,17 @@ public static class Money
     // Store pay: what the merchants owe a seller they could not pay in coin.
     public static void CreditTo(TownHousehold h, int pence) { if (h != null && pence > 0) SetOwed(h, Owed(h) - pence); }
 
-    // How much more store pay the merchants can write in a town: what its
-    // market's food would fetch at their buying price, less the store pay
-    // already owed against it. A store with a full granary and an empty till
-    // pays its porters in goods, as the Lakes merchants did; one with nothing
-    // in it has nothing to pay with.
-    public static int StorePayRoom(Town t)
+    // Whether the merchants can pay a day's work in store pay: while the
+    // market holds more than a month's food for the town. A store with a
+    // full granary and an empty till pays its porters in goods, as the Lakes
+    // merchants did; one that has shipped its grain away has nothing to pay
+    // with. (Not what is already owed in store pay: the farms are paid in it
+    // for every harvest and, growing their own bread, seldom draw it.)
+    public static bool PaysInKind(Town t)
     {
-        if (t?.Market is not { } m) return 0;
-        int worth = 0;
-        foreach (var id in Exports) worth += m.Stores.Count(id) * BuyPrice(m, id);
-        foreach (var h in t.Houses.Values) worth -= StoreCredit(h);
-        return worth;
+        if (t?.Market is not { } m) return false;
+        int food = m.Stores.Count(ItemId.Bread) + m.Stores.Count(ItemId.Flour) * Fields.LoavesPerMeal + m.Stores.Count(ItemId.Grain) + m.Stores.Count(ItemId.Corn) + m.Stores.Count(ItemId.Roots);
+        return food > TownMouths(t) * 30;
     }
 
     // A house pays down its account out of what the buyer carries.
