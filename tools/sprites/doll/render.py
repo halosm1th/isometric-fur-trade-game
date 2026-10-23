@@ -40,11 +40,25 @@ if "side_turn" in rig:
 # DOLL_SS=4 renders four times over, for outline.py to bring down to size.
 sc.render.resolution_percentage = 100 * int(os.environ.get("DOLL_SS", "1"))
 DEPTH = None
-if bpy.data.materials.get("painted_shirt"):
+if any(m.name.startswith(("painted_", "clean_")) for m in bpy.data.materials):
     # The painted sheets draw a dark line where an arm crosses the body.
     # Each frame of a projected man also saves its depth, for outline.py to
     # find where the surface steps back - an arm before his chest - and ink it.
     bpy.context.view_layer.use_pass_z = True
+    # Which piece of him each pixel is: EEVEE has no object-index pass, so
+    # every material writes its object's index to an AOV.
+    vl = bpy.context.view_layer
+    if "piece" not in [v.name for v in vl.aovs]:
+        aov = vl.aovs.add(); aov.name = "piece"; aov.type = 'VALUE'
+    for m in bpy.data.materials:
+        if not m.use_nodes or any(n.bl_idname == "ShaderNodeOutputAOV" for n in m.node_tree.nodes):
+            continue
+        oi = m.node_tree.nodes.new("ShaderNodeObjectInfo")
+        dv = m.node_tree.nodes.new("ShaderNodeMath"); dv.operation = 'DIVIDE'
+        dv.inputs[1].default_value = 255.0
+        m.node_tree.links.new(oi.outputs["Object Index"], dv.inputs[0])
+        ao = m.node_tree.nodes.new("ShaderNodeOutputAOV"); ao.aov_name = "piece"
+        m.node_tree.links.new(dv.outputs[0], ao.inputs["Value"])
     sc.use_nodes = True
     nt = sc.node_tree
     for n in list(nt.nodes):
@@ -62,6 +76,9 @@ if bpy.data.materials.get("painted_shirt"):
     DEPTH.format.color_mode = 'BW'
     DEPTH.format.color_depth = '16'
     nt.links.new(mr.outputs[0], DEPTH.inputs[0])
+    # And which piece of him each pixel is, for the lines where two meet.
+    DEPTH.file_slots.new("index")
+    nt.links.new(rl.outputs["piece"], DEPTH.inputs[1])
 
 
 # ------------------------------------------------------------- the hands
@@ -289,6 +306,7 @@ def render(path):
         # Written as <frame>_depth<frame number>.png beside it.
         DEPTH.base_path = os.path.dirname(path)
         DEPTH.file_slots[0].path = os.path.splitext(os.path.basename(path))[0] + "_depth"
+        DEPTH.file_slots[1].path = os.path.splitext(os.path.basename(path))[0] + "_index"
     bpy.ops.render.render(write_still=True)
 
 

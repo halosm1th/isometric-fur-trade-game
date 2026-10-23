@@ -382,6 +382,124 @@ def nearest_seen(me, seen_any):
     return src
 
 
+# ---------------------------------------------------------------- clean mode
+#
+# DOLL_CLEAN=1: the clothes are not painted with the painting's pixels -
+# resampled onto a moving body those go wavy - but drawn clean, in flat
+# tones taken from it: each piece's shadow, middle and light colours (and
+# a check woven in the shirt's own two blues, where the painting shows
+# one), lit in hard steps. The head and the hat move rigidly and keep
+# their projected paint, which holds up there.
+
+CLEAN = os.environ.get("DOLL_CLEAN") == "1"
+KEEP_PAINT = {"head", "tuque", "eyes"}
+
+
+def lin(c):
+    c = np.asarray(c, float) / 255
+    return tuple(np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4))
+
+
+def tones(o, n):
+    """The painting's colours under this piece, as (dark, middle, light) and
+    whether it is patterned (a check shows as a wide spread of lightness)."""
+    cols = []
+    for j, view in enumerate(VIEWS):
+        sn = seen[o.name][view][:n] > 0.5
+        uv = uvs[o.name][view][:n][sn]
+        px = np.clip((uv[:, 0] * W).astype(int), 0, W - 1)
+        py = np.clip(((1 - uv[:, 1]) * H).astype(int), 0, H - 1)
+        cols.append(paints[view][py, px, :3])
+    c = np.concatenate(cols).astype(float)
+    lum = c @ (0.3, 0.59, 0.11)
+    c, lum = c[lum > 35], lum[lum > 35]           # not the ink
+    if len(c) < 10:
+        return None
+    # The piece's own colour is the commonest under it: much of a piece
+    # lands on its neighbours' paint (the trousers on the boots), never the
+    # most of it. Its shades are the colours near that one.
+    q = (c // 24).astype(int)
+    keys, counts = np.unique(q[:, 0] * 10000 + q[:, 1] * 100 + q[:, 2], return_counts=True)
+    k = keys[counts.argmax()]
+    seed = (np.array([k // 10000, k // 100 % 100, k % 100]) + 0.5) * 24
+    near = np.linalg.norm(c - seed, axis=1) < 50
+    # A check (the gingham) spreads its lightness wide: all of it is the
+    # cloth, in its light, middle and dark.
+    check = lum.std() > 38
+    if check:
+        near[:] = True
+    c, lum = c[near], lum[near]
+    lo, hi = np.percentile(lum, 30), np.percentile(lum, 70)
+    band = lambda m: np.median(c[m], 0) if m.any() else np.median(c, 0)
+    return band(lum <= lo), band((lum > lo) & (lum < hi)), band(lum >= hi), check
+
+
+def cel(name, dims, dark, mid, light, check):
+    m = bpy.data.materials.new("clean_" + name)
+    m.use_nodes = True
+    nt = m.node_tree
+    nodes, links = nt.nodes, nt.links
+    nodes.clear()
+    out = nodes.new("ShaderNodeOutputMaterial")
+    dif = nodes.new("ShaderNodeBsdfDiffuse")
+    s2r = nodes.new("ShaderNodeShaderToRGB")
+    links.new(dif.outputs[0], s2r.inputs[0])
+    ramp = nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.interpolation = 'CONSTANT'
+    e = ramp.color_ramp.elements
+    links.new(s2r.outputs[0], ramp.inputs[0])
+    em = nodes.new("ShaderNodeEmission")
+    if not check:
+        # Three flat tones, as the painting has them.
+        e[0].position, e[0].color = 0.0, (*lin(dark), 1)
+        e[1].position, e[1].color = 0.22, (*lin(mid), 1)
+        e.new(0.62).color = (*lin(light), 1)
+        links.new(ramp.outputs[0], em.inputs[0])
+    else:
+        # A gingham: stripes across and down, light where neither falls,
+        # middle where one does, dark where they cross; lit in two steps.
+        tc = nodes.new("ShaderNodeTexCoord")
+        sep = nodes.new("ShaderNodeSeparateXYZ")
+        links.new(tc.outputs["Generated"], sep.inputs[0])
+        period = 3.0 * look.PX            # metres: three pixels a check
+
+        def stripe(*axes):
+            acc = None
+            for ax, size in axes:
+                mul = nodes.new("ShaderNodeMath"); mul.operation = 'MULTIPLY'
+                links.new(sep.outputs[ax], mul.inputs[0]); mul.inputs[1].default_value = size / period
+                acc = mul.outputs[0] if acc is None else _add(acc, mul.outputs[0])
+            fr = nodes.new("ShaderNodeMath"); fr.operation = 'FRACT'
+            links.new(acc, fr.inputs[0])
+            lt = nodes.new("ShaderNodeMath"); lt.operation = 'LESS_THAN'
+            links.new(fr.outputs[0], lt.inputs[0]); lt.inputs[1].default_value = 0.5
+            return lt.outputs[0]
+
+        def _add(a, b):
+            ad = nodes.new("ShaderNodeMath"); ad.operation = 'ADD'
+            links.new(a, ad.inputs[0]); links.new(b, ad.inputs[1])
+            return ad.outputs[0]
+
+        g = _add(stripe((0, dims[0]), (1, dims[1])), stripe((2, dims[2])))
+        sc_ = nodes.new("ShaderNodeMath"); sc_.operation = 'MULTIPLY'
+        links.new(g, sc_.inputs[0]); sc_.inputs[1].default_value = 0.5
+        weave = nodes.new("ShaderNodeValToRGB")
+        weave.color_ramp.interpolation = 'CONSTANT'
+        w = weave.color_ramp.elements
+        w[0].position, w[0].color = 0.0, (*lin(light), 1)
+        w[1].position, w[1].color = 0.4, (*lin(mid), 1)
+        w.new(0.9).color = (*lin(dark), 1)
+        links.new(sc_.outputs[0], weave.inputs[0])
+        e[0].position, e[0].color = 0.0, (0.72, 0.72, 0.72, 1)
+        e[1].position, e[1].color = 0.3, (1.0, 1.0, 1.0, 1)
+        mul = nodes.new("ShaderNodeMix"); mul.data_type = 'RGBA'; mul.blend_type = 'MULTIPLY'
+        mul.inputs[0].default_value = 1.0
+        links.new(weave.outputs[0], mul.inputs[6]); links.new(ramp.outputs[0], mul.inputs[7])
+        links.new(mul.outputs[2], em.inputs[0])
+    links.new(em.outputs[0], out.inputs[0])
+    return m
+
+
 for o in meshes:
     me = o.data
     n = len(me.vertices)
@@ -417,6 +535,11 @@ for o in meshes:
     for name, arr in (("w", W4), ("s", S4)):
         at = me.attributes.get(name) or me.attributes.new(name, 'FLOAT_COLOR', 'POINT')
         at.data.foreach_set("color", arr.astype(np.float32).ravel())
+    if CLEAN and o.name not in KEEP_PAINT and (t := tones(o, n)):
+        mat = cel(o.name, tuple(o.dimensions), *t)
+        print(f"[clean] {o.name}: dark {t[0].astype(int)} mid {t[1].astype(int)} light {t[2].astype(int)}{' check' if t[3] else ''}")
+    # Each piece its own number, so outline.py can ink where two meet.
+    o.pass_index = 1 + meshes.index(o)
     me.materials.clear()
     me.materials.append(mat)
     for poly in me.polygons:

@@ -18,7 +18,7 @@ STEP = 0.08            # metres the surface must step back to earn a line
 DEPTH_RANGE = 2.0      # render.py maps 19..21 m from the camera onto 0..65535
 
 
-def inside_lines(a, depth, k):
+def inside_lines(a, depth, k, index=None):
     """Ink, at the big size, on the far side of every step back in depth."""
     al = a[..., 3] > 127
     d = np.where(al, depth.astype(float) / 65535 * DEPTH_RANGE, 1e9)
@@ -30,6 +30,24 @@ def inside_lines(a, depth, k):
             if dx * dx + dy * dy <= r * r:
                 near = np.minimum(near, p[r + dy:r + dy + d.shape[0], r + dx:r + dx + d.shape[1]])
     line = al & (d - near > STEP)
+    if index is not None:
+        # Where one piece meets another (the sash on the shirt), the ink
+        # goes on the one behind.
+        ix = np.where(al, index.astype(int), -1)
+        pi = np.pad(ix, 1, constant_values=-1)
+        pd = np.pad(d, 1, constant_values=1e9)
+        for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+            ni = pi[1 + dy:1 + dy + d.shape[0], 1 + dx:1 + dx + d.shape[1]]
+            nd = pd[1 + dy:1 + dy + d.shape[0], 1 + dx:1 + dx + d.shape[1]]
+            line |= al & (ni >= 0) & (ni != ix) & (nd < d)
+        if r > 1:
+            # As thick as the other lines once shrunk.
+            pl = np.pad(line, r)
+            grown = np.zeros_like(line)
+            for dy in range(-r // 2, r // 2 + 1):
+                for dx in range(-r // 2, r // 2 + 1):
+                    grown |= pl[r + dy:r + dy + line.shape[0], r + dx:r + dx + line.shape[1]]
+            line = grown & al
     a = a.copy()
     a[line, :3] = INK
     return a
@@ -65,8 +83,10 @@ def ink(a):
 def frame(path):
     a = np.array(Image.open(path).convert("RGBA"))
     dp = os.path.splitext(path)[0] + "_depth0001.png"
+    ip = os.path.splitext(path)[0] + "_index0001.png"
     if os.path.exists(dp):
-        a = inside_lines(a, np.array(Image.open(dp)), a.shape[1] // W)
+        index = np.round(np.array(Image.open(ip)).astype(float) / (65535 if np.array(Image.open(ip)).dtype == np.uint16 else 255) * 255) if os.path.exists(ip) else None
+        a = inside_lines(a, np.array(Image.open(dp)), a.shape[1] // W, index)
     return ink(shrink(a))
 
 
@@ -74,5 +94,5 @@ if __name__ == "__main__":
     src, dst = sys.argv[1], sys.argv[2]
     os.makedirs(dst, exist_ok=True)
     for f in sorted(os.listdir(src)):
-        if f.endswith(".png") and "_depth" not in f:
+        if f.endswith(".png") and "_depth" not in f and "_index" not in f:
             Image.fromarray(frame(os.path.join(src, f))).save(os.path.join(dst, f))
