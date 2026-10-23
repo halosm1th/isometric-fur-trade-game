@@ -29,7 +29,11 @@ public static class Money
     // A made beaver at a Lakes merchant's counter: ten shillings.
     public const int PencePerMb = 120;
     // How far the store will trust a house: a pound, and ten shillings more for every mouth.
-    public static int CreditLimit(TownHousehold h) => 240 + (h?.Alive() ?? 0) * 120;
+    // A merchant's own house is not trusted by the store, it is the store: it
+    // eats out of the stock it owns a share of, written against its drawings,
+    // however low the till - which its own box has been emptied into (TownLife.Stake).
+    public static int CreditLimit(TownHousehold h) =>
+        h != null && h.Building.Kind == BuildingKind.Store && h != h.Town?.Market ? int.MaxValue / 4 : 240 + (h?.Alive() ?? 0) * 120;
 
     // What a thing costs at a town market in ordinary times, in pence.
     public static int BasePrice(ItemId id) => id switch
@@ -108,6 +112,20 @@ public static class Money
 
     // Store pay: what the merchants owe a seller they could not pay in coin.
     public static void CreditTo(TownHousehold h, int pence) { if (h != null && pence > 0) SetOwed(h, Owed(h) - pence); }
+
+    // How much more store pay the merchants can write in a town: what its
+    // market's food would fetch at their buying price, less the store pay
+    // already owed against it. A store with a full granary and an empty till
+    // pays its porters in goods, as the Lakes merchants did; one with nothing
+    // in it has nothing to pay with.
+    public static int StorePayRoom(Town t)
+    {
+        if (t?.Market is not { } m) return 0;
+        int worth = 0;
+        foreach (var id in Exports) worth += m.Stores.Count(id) * BuyPrice(m, id);
+        foreach (var h in t.Houses.Values) worth -= StoreCredit(h);
+        return worth;
+    }
 
     // A house pays down its account out of what the buyer carries.
     public static int PayDown(TownHousehold house, Npc payer, TownHousehold market)

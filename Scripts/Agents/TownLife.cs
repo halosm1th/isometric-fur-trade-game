@@ -125,6 +125,7 @@ public static class TownLife
         if (Sunday(npc, home.Town) is { } church) return church;
         if (Weekday == DayOfWeek.Sunday) return Rest(npc, home);
         if (!WorkHours) return null;
+        if (Bachelors(home) && Shopping(npc, home, Mathf.Max(1, home.Alive())) is { } basket) return basket;
         var farm = Fields.Of(home);
         // The farmer starts at the top of his field; a son of the house further along it.
         var (step, plot) = Fields.Next(farm, npc.Role == Role.Farmer ? 0 : 1 + Hash(npc, 3) % Math.Max(1, farm?.Plots.Count ?? 1));
@@ -335,22 +336,38 @@ public static class TownLife
             Do(m => { home.Stores.Add(ItemId.TradeGoods, m.Inventory.TakeUpTo(ItemId.TradeGoods, 9999)); SetDown(m, home); })).SetDownAt(home);
     }
 
-    // Day labour: a town labourer hires out to whoever will pay - a merchant
-    // for portering at his store, any day; a farm at the harvest, August to
-    // October - eighteen pence for the day, paid at the end of it.
+    // Day labour: a town labourer hires out to whoever will pay - the store
+    // or a merchant for portering, a tradesman, an officer's or the priest's
+    // house, any day; a farm at the harvest, August to October - eighteen
+    // pence for the day, paid at the end of it.
     private static TownHousehold Hiring(Npc npc, TownHousehold home)
     {
         var who = new List<TownHousehold>();
         bool harvest = Cal.Month >= 8 && Cal.Month <= 10;
         foreach (var h in home.Town.Houses.Values)
         {
-            if (h == home || h.Stores.Count(ItemId.Coin) < Reserve(h) + DayWage) continue;
+            if (h == home) continue;
+            // The store itself: porters paid out of the till over its float, or
+            // in store pay when the till is short (Pay). A town without a
+            // merchant of its own still has its market, and without it the
+            // labourers' money went over the counter for good.
+            if (h == home.Town.Market) { if (h.Stores.Count(ItemId.Coin) >= Float(home.Town) + DayWage || Money.StorePayRoom(home.Town) >= DayWage) who.Add(h); continue; }
+            if (h.Stores.Count(ItemId.Coin) < Reserve(h) + DayWage) continue;
             if (harvest && Fields.IsFarm(h)) who.Add(h);
-            else foreach (var m in h.Members) if (m.Role == Role.Merchant && !m.IsDead) { who.Add(h); break; }
+            // A merchant's porter, a tradesman's labourer, an officer's or
+            // the priest's man about the house and yard.
+            else foreach (var m in h.Members) if ((m.Role is Role.Merchant or Role.Artisan or Role.Officer or Role.Priest) && !m.IsDead) { who.Add(h); break; }
         }
         return who.Count == 0 ? null : who[Hash(npc, Today) % who.Count];
     }
     public const int DayWage = 18;
+    // The day's wage, paid at the end of it into the labourer's pocket - or,
+    // from a store whose till is short, written to his house as store pay.
+    private static void Pay(TownHousehold employer, Npc n, TownHousehold home)
+    {
+        if (employer == employer.Town?.Market && employer.Stores.Count(ItemId.Coin) < Float(employer.Town) + DayWage) { Money.CreditTo(home, DayWage); return; }
+        n.Inventory.Add(ItemId.Coin, employer.Stores.TakeUpTo(ItemId.Coin, DayWage));
+    }
     private static TownHousehold Tradesman(TownHousehold home, Npc npc)
     {
         var shops = new List<TownHousehold>();
@@ -600,7 +617,7 @@ public static class TownLife
         if (Fields.IsFarm(home) || home.Building.Kind is BuildingKind.Store or BuildingKind.Workshop || Weekday == DayOfWeek.Sunday) return;
         if (Hiring(npc, home) is not { } farm || _hired.GetValueOrDefault(npc) == Today) return;
         _hired[npc] = Today;
-        npc.Inventory.Add(ItemId.Coin, farm.Stores.TakeUpTo(ItemId.Coin, DayWage));
+        Pay(farm, npc, home);
         SetDown(npc, home);
     }
 
@@ -628,6 +645,14 @@ public static class TownLife
         return "at work in the shop";
     }
 
+    // A house of men with no woman in it: one of them takes the basket to
+    // market himself, or nobody does.
+    private static bool Bachelors(TownHousehold home)
+    {
+        foreach (var m in home.Members) if (GodotObject.IsInstanceValid(m) && !m.IsDead && m.Role is Role.Woman or Role.Wife) return false;
+        return true;
+    }
+
     // A town's labourer: a farmer's son in the fields with his father, a
     // merchant's or tradesman's in the family store or shop, and anyone
     // else carting and fetching about the town.
@@ -637,6 +662,7 @@ public static class TownLife
         if (Sunday(npc, home.Town) is { } church) return church;
         if (Weekday == DayOfWeek.Sunday) return Rest(npc, home);
         if (!WorkHours) return null;
+        if (Bachelors(home) && Shopping(npc, home, Mathf.Max(1, home.Alive())) is { } basket) return basket;
         var kind = home.Building.Kind;
         if (kind == BuildingKind.Store) return new ChoreGoal("clerking in the store", Walk("go to the store", npc.WorkCell, 60f), Work("clerking in the store", 2f));
         if (kind == BuildingKind.Workshop) return new ChoreGoal("an apprentice at the trade", Walk("go to the shop", npc.WorkCell, 60f), Work($"{Trade(npc)}, learning the trade", 2f));
@@ -649,7 +675,7 @@ public static class TownLife
             return new ChoreGoal(field ? $"hired for the harvest at {farm.Building.Name}" : $"portering at {farm.Building.Name}",
                 Walk($"go to {farm.Building.Name} for a day's work", plot?.Cell ?? Spot(npc, farm.AccessCell), 80f),
                 Work(field ? "a hired hand at the harvest" : $"carrying goods at {farm.Building.Name}", 6f),
-                Do(n => { n.Inventory.Add(ItemId.Coin, farm.Stores.TakeUpTo(ItemId.Coin, DayWage)); }),
+                Do(n => Pay(farm, n, home)),
                 Walk("walk home with the day's wage", home.AccessCell, 100f),
                 Do(n => SetDown(n, home))).SetDownAt(home);
         }
