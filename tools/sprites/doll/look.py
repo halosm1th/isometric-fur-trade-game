@@ -184,4 +184,4 @@ def setup_scene():
 
 # Facing name -> rotation of the figure about z (the camera looks along +y,
 # so a man facing -y faces the camera).
-FACINGS = {"front": 0.0, "side": 90.0, "back": 180.0}
+FACINGS = {"front": 0.0, "side": 90.0, "back": 180.0, "three": 35.0}

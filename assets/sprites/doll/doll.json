@@ -10,6 +10,7 @@
   "sash",
   "capote",
   "tuque",
+  "tools",
   "gun"
  ],
  "anims": {
@@ -46,6 +47,36 @@
   "shoot": {
    "frames": 4,
    "fps": 9,
+   "loop": false
+  },
+  "paddle": {
+   "frames": 4,
+   "fps": 6,
+   "loop": true
+  },
+  "portage": {
+   "frames": 4,
+   "fps": 6,
+   "loop": true
+  },
+  "eat": {
+   "frames": 4,
+   "fps": 5,
+   "loop": false
+  },
+  "drink": {
+   "frames": 4,
+   "fps": 5,
+   "loop": false
+  },
+  "attack": {
+   "frames": 4,
+   "fps": 9,
+   "loop": false
+  },
+  "death": {
+   "frames": 4,
+   "fps": 5,
    "loop": false
   }
  }

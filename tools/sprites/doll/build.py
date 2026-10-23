@@ -54,16 +54,16 @@ def select_only(obj):
 # The painted sprites' proportions, baked into the rig's rest pose: a big
 # head, short thick legs and arms. Bones keep scale 1 afterwards, so the
 # animations never inherit a squash.
-SHAPE = {"head": (1.85, 1.85, 1.85), "neck_01": (1.5, 1.1, 1.5),
+SHAPE = {"spine_01": (1.15, 1.0, 1.1), "spine_02": (1.1, 1.0, 1.05), "neck_01": (1.3, 1.0, 1.3),
          "thigh_l": (1.25, 0.72, 1.25), "thigh_r": (1.25, 0.72, 1.25),
          "upperarm_l": (1.2, 0.85, 1.2), "upperarm_r": (1.2, 0.85, 1.2)}
 
 
 def make_body():
-    macro = {"gender": 1.0, "age": 0.5, "muscle": 0.8, "weight": 0.9, "proportions": 0.3,
-             "height": 0.3, "cupsize": 0.5, "firmness": 0.5,
-             "race": {"asian": 0.2, "caucasian": 0.6, "african": 0.2}}
-    body = HumanService.create_human(macro_detail_dict=macro)
+    body = HumanService.create_human(macro_detail_dict={
+        "gender": 1.0, "age": 0.5, "muscle": 0.8, "weight": 1.0, "proportions": 0.5,
+        "height": 0.3, "cupsize": 0.5, "firmness": 0.5,
+        "race": {"asian": 0.33, "caucasian": 0.34, "african": 0.33}})
     rig = HumanService.add_builtin_rig(body, "game_engine")
     body.name, rig.name = "body", "rig"
     # Bake the shape keys (the macro targets) into the mesh.
@@ -76,27 +76,29 @@ def make_body():
     for m in list(body.modifiers):
         if m.type == 'MASK':
             body.modifiers.remove(m)
-    # The eyes are where the skin round each eye marker is: noted now, read
-    # again once the head has grown (the markers themselves are not skinned).
-    real = members(body, "body")
-    rings = {}
-    for side in "lr":
-        e = centroid(body, f"joint-{side}-eye")
-        rings[side] = [v.index for v in body.data.vertices
-                       if v.index in real and ((body.matrix_world @ v.co) - e).length < 0.02]
     proportion(body, rig)
-    # The helper geometry (the skirt MakeHuman fits clothes to, the joint
-    # markers) comes out before it is dropped.
+    # The skirt MakeHuman fits clothes to comes out before the helper
+    # geometry is dropped.
     helpers = {g: split(body, g) for g in ("helper-skirt",)}
-    joints = {g.name: centroid(body, g.name) for g in body.vertex_groups if g.name.startswith("joint-")}
-    for side, ring in rings.items():
-        joints[f"joint-{side}-eye"] = sum((body.matrix_world @ body.data.vertices[i].co for i in ring), Vector()) / len(ring)
-    joints["joint-mouth"] = centroid(body, "lips")
     only(body, "body")
-    return body, rig, helpers, joints
+    # The realistic head and hands come off: scaled up to the sprites'
+    # size a real face turns into a caricature, and fingers into claws.
+    # The head and fists are drawn the painted sheets' way instead (head()).
+    dom = dominant_bone(body)
+    gone = {"head"} | {b.name for b in rig.data.bones if b.name.startswith(("hand_", "thumb", "index", "middle", "ring", "pinky"))}
+    bm = bmesh.new()
+    bm.from_mesh(body.data)
+    bmesh.ops.delete(bm, geom=[f for f in bm.faces if any(dom.get(v.index) in gone for v in f.verts)], context='FACES')
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context='VERTS')
+    bm.to_mesh(body.data)
+    bm.free()
+    return body, rig, helpers
 
 
 def proportion(body, rig):
+    # The chest is broadened without the arms growing with it.
+    for b in ("clavicle_l", "clavicle_r", "neck_01"):
+        rig.data.bones[b].inherit_scale = 'NONE'
     for name, sc in SHAPE.items():
         rig.pose.bones[name].scale = sc
     bpy.context.view_layer.update()
@@ -111,6 +113,8 @@ def proportion(body, rig):
     bpy.ops.pose.select_all(action='SELECT')
     bpy.ops.pose.armature_apply(selected=False)
     bpy.ops.object.mode_set(mode='OBJECT')
+    for b in ("clavicle_l", "clavicle_r", "neck_01"):
+        rig.data.bones[b].inherit_scale = 'FULL'
     # Stand him back on the ground.
     real = members(body, "body")
     low = min((body.matrix_world @ v.co).z for v in body.data.vertices if v.index in real)
@@ -294,44 +298,88 @@ def blob(name, centre, size, rig, bone, n=8):
     return weighted_mesh(name, verts, faces, bone, rig)
 
 
-def dress(body, rig, helpers, joints):
+SKIN = "#cf9670"
+
+# The head, as the painted sprites draw it: big and round, a plain face.
+HEAD_R = Vector((0.235, 0.215, 0.24))
+K = HEAD_R.x / 0.175     # the face below was laid out on a 0.175 m head
+
+
+def ellipsoid(name, c, r, rig, bone, n=24):
+    """An egg of radii r about c, a little narrower toward the chin."""
+    bm = bmesh.new()
+    bmesh.ops.create_uvsphere(bm, u_segments=n, v_segments=n * 2 // 3, radius=1.0)
+    verts = []
+    for v in bm.verts:
+        x, y, z = v.co
+        if z < 0:
+            x *= 1 - 0.12 * -z
+            y *= 1 - 0.06 * -z
+        verts.append(c + Vector((x * r.x, y * r.y, z * r.z)))
+    faces = [tuple(v.index for v in f.verts) for f in bm.faces]
+    bm.free()
+    return weighted_mesh(name, verts, faces, bone, rig)
+
+
+def on_face(c, dx, dz, r=HEAD_R):
+    """The point on the front of the head dx across and dz up from its centre."""
+    k = max(0.0, 1 - (dx / r.x) ** 2 - (dz / r.z) ** 2)
+    return Vector((c.x + dx, c.y - r.y * math.sqrt(k), c.z + dz))
+
+
+def dress(body, rig, helpers):
     waist = bone_z(rig, "spine_01") + 0.02
     knee = bone_z(rig, "calf_l")
     ankle = bone_z(rig, "foot_l")
-    eye = joints["joint-l-eye"]
-    mouth = joints["joint-mouth"]
-    head_top = max((body.matrix_world @ v.co).z for v in body.data.vertices)
-    print(f"waist {waist:.3f} knee {knee:.3f} ankle {ankle:.3f} eye {eye.z:.3f} top {head_top:.3f}")
+    neck = rig.matrix_world @ rig.data.bones["head"].head_local
+    c = neck + Vector((0, 0.012, HEAD_R.z * 0.82))
+    head_top = c.z + HEAD_R.z
+    print(f"waist {waist:.3f} knee {knee:.3f} ankle {ankle:.3f} head {c.z:.3f}")
     layers = {}
 
-    # The face: dark eyes, brows and a moustache laid on the face, big
-    # enough to read at 2 px.
+    skin = look.toon("skin", SKIN)
+    hd = ellipsoid("head", c, HEAD_R, rig, "head")
+    nose = blob("nose", on_face(c, 0, -0.03 * K) + Vector((0, 0.008, 0)), (0.026 * K, 0.028 * K, 0.032 * K), rig, "head")
+    ears = [blob(f"ear_{s}", c + Vector((sg * HEAD_R.x * 0.97, 0.01, -0.015)), (0.022 * K, 0.03 * K, 0.042 * K), rig, "head")
+            for s, sg in (("l", 1), ("r", -1))]
+    fists = []
+    for s in "lr":
+        b = rig.data.bones[f"hand_{s}"]
+        h = rig.matrix_world @ (b.head_local + (b.tail_local - b.head_local) * 0.55)
+        fists.append(blob(f"fist_{s}", h, (0.042, 0.046, 0.05), rig, f"hand_{s}"))
+    hd = join([hd, nose] + ears + fists, "head")
+    hd.data.materials.append(skin)
+    move_to(hd, collection("body"))
+
+    # The face: small dark eyes and brows, laid on the front of the head.
     face = []
-    for side in "lr":
-        e = joints[f"joint-{side}-eye"]
-        y = surface_y(body, e.x, e.z)
-        face.append(blob(f"eye_{side}", Vector((e.x, y + 0.006, e.z)), (0.024, 0.008, 0.028), rig, "head"))
-        face.append(blob(f"brow_{side}", Vector((e.x, surface_y(body, e.x, e.z + 0.05) + 0.002, e.z + 0.05)),
-                         (0.036, 0.008, 0.011), rig, "head"))
+    for s, sg in (("l", 1), ("r", -1)):
+        face.append(blob(f"eye_{s}", on_face(c, sg * 0.058 * K, 0.012 * K) + Vector((0, 0.004, 0)), (0.016 * K, 0.008 * K, 0.022 * K), rig, "head"))
+        face.append(blob(f"brow_{s}", on_face(c, sg * 0.062 * K, 0.058 * K) + Vector((0, 0.002, 0)), (0.032 * K, 0.009 * K, 0.011 * K), rig, "head"))
     face = join(face, "eyes")
     face.data.materials.append(look.toon("eye", "#1c1410"))
     layers["face"] = [face]
 
-    hair = cut(body, "hair", 0.006, group="scalp", keep=lambda co: co.z > eye.z + 0.03)
-    hair.data.materials.append(look.toon("hair", "#2a1d16"))
-    mz = mouth.z + 0.02
-    tache = blob("moustache", Vector((0, surface_y(body, 0, mz) + 0.004, mz)), (0.075, 0.016, 0.022), rig, "head")
-    tache.data.materials.append(look.toon("hair", "#2a1d16"))
-    layers["hair"] = [hair, tache]
+    # Hair: back and sides under the cap, and the moustache.
+    shell = ellipsoid("hair_shell", c, HEAD_R + Vector((0.008, 0.008, 0.008)), rig, "head")
+    hair = cut(shell, "hair", 0.0, bones={"head"},
+               keep=lambda co: co.z > c.z - 0.13 and (co.y > c.y + 0.05 or co.z > c.z + 0.12))
+    bpy.data.objects.remove(shell)
+    tache = [blob("moustache", on_face(c, 0, -0.068 * K) + Vector((0, 0.002, 0)), (0.07 * K, 0.022 * K, 0.022 * K), rig, "head")]
+    for sg in (1, -1):
+        tache.append(blob("tache_end", on_face(c, sg * 0.06 * K, -0.085 * K) + Vector((0, 0.006, 0)), (0.022 * K, 0.018 * K, 0.03 * K), rig, "head"))
+    hair = join([hair] + tache, "hair")
+    hair.data.materials.append(look.toon("hair", "#1e1612"))
+    layers["hair"] = [hair]
 
     # Shirt: blue gingham, from the waist up and down the arms.
-    shirt = cut(body, "shirt", 0.009, bones=SPINE | ARMS | {"pelvis", "neck_01"},
-                keep=lambda co: co.z > waist - 0.06 and co.z < eye.z - 0.11)
-    shirt.data.materials.append(look.toon("gingham", None, check=("#e8eef8", "#7d9ad6", "#2e4fa8", 160)))
+    shirt = cut(body, "shirt", 0.02, bones=SPINE | ARMS | {"pelvis", "neck_01"},
+                keep=lambda co: co.z > waist - 0.06 and co.z < neck.z - 0.02)
+    shirt.data.materials.append(look.toon("gingham", None, check=("#e8eef8", "#7d9ad6", "#2e4fa8", 55)))
     layers["shirt"] = [shirt]
 
     # Trousers: red wool, waist to mid-calf.
-    trousers = cut(body, "trousers", 0.012, bones={"pelvis"} | THIGHS | CALVES,
+    trousers = cut(body, "trousers", 0.03, bones={"pelvis"} | THIGHS | CALVES,
                    keep=lambda co: waist + 0.02 > co.z > ankle + 0.1)
     trousers.data.materials.append(look.toon("red_wool", "#a8282c"))
     layers["trousers"] = [trousers]
@@ -357,16 +405,31 @@ def dress(body, rig, helpers, joints):
     layers["breechcloth"] = [flaps]
 
     # Sash: the arrow sash, red with orange and yellow bands, round the waist.
-    sash = cut(body, "sash", 0.03, bones=SPINE | {"pelvis"}, keep=lambda co: waist - 0.08 < co.z < waist + 0.04)
+    sash = cut(body, "sash", 0.04, bones=SPINE | {"pelvis"}, keep=lambda co: waist - 0.11 < co.z < waist + 0.05)
+    # Its ends hang at his left hip.
+    hip_x = max((body.matrix_world @ v.co).x for v in body.data.vertices
+                if abs((body.matrix_world @ v.co).z - (waist - 0.05)) < 0.02)
+    fy, _ = front_back(body, waist - 0.05, 0.25)
+    ends = []
+    for dx in (0.0, 0.05):
+        x0 = hip_x - 0.1 + dx
+        verts = [(x0, fy - 0.045, waist - 0.04), (x0 + 0.045, fy - 0.045, waist - 0.04),
+                 (x0 + 0.05, fy - 0.03, waist - 0.3 + dx), (x0 + 0.005, fy - 0.03, waist - 0.3 + dx)]
+        o = weighted_mesh("sash_end", verts, [(0, 1, 2, 3)], "pelvis", rig)
+        o.modifiers.new("thick", 'SOLIDIFY').thickness = 0.008
+        ends.append(o)
+    sash = join([sash] + ends, "sash")
     heights(sash)
-    sash.data.materials.append(look.toon("sash", None, bands=[(0.0, "#b3261e"), (0.2, "#e08a1e"),
-                                                              (0.38, "#b3261e"), (0.62, "#e8c040"), (0.8, "#b3261e")]))
+    sash.data.materials.append(look.toon("sash", None, bands=[(0.0, "#b3261e"), (0.62, "#e08a1e"),
+                                                              (0.7, "#b3261e"), (0.8, "#e8c040"), (0.87, "#b3261e")]))
     layers["sash"] = [sash]
 
     # Tuque: the skull above the brow, and a drooping red tail with a pompom.
-    cap = cut(body, "tuque", 0.02, bones={"head"}, keep=lambda co: co.z > eye.z + 0.05)
-    hb = Vector((0.0, 0.02, head_top - 0.03))
-    tip, droop = hb + Vector((0.0, 0.03, 0.17)), Vector((-0.32, 0.05, -0.25))
+    shell = ellipsoid("cap_shell", c, HEAD_R + Vector((0.02, 0.02, 0.02)), rig, "head")
+    cap = cut(shell, "tuque", 0.0, bones={"head"}, keep=lambda co: co.z > c.z + 0.075)
+    bpy.data.objects.remove(shell)
+    hb = Vector((c.x, c.y + 0.02, head_top - 0.03))
+    tip, droop = hb + Vector((0.0, 0.03, 0.12)), Vector((-0.26, 0.06, -0.36))
     tail = cone("tuque_tail", hb, tip, 0.13, 0.05, rig, "head", droop=droop)
     pom = blob("pompom", tip + droop + Vector((-0.02, 0, -0.03)), (0.055, 0.055, 0.055), rig, "head")
     cap = join([cap, tail, pom], "tuque")
@@ -375,7 +438,7 @@ def dress(body, rig, helpers, joints):
 
     # Capote: a white blanket coat with blue hem stripes, shoulders to knee.
     coat = cut(body, "capote", 0.03, bones=SPINE | ARMS | {"pelvis", "neck_01"},
-               keep=lambda co: co.z > waist - 0.12 and co.z < eye.z - 0.12)
+               keep=lambda co: co.z > waist - 0.12 and co.z < neck.z - 0.02)
     skirt = helpers.pop("helper-skirt")
     for v in skirt.data.vertices:
         v.co += v.normal * 0.03
@@ -433,18 +496,63 @@ def gun():
     return g
 
 
+def cyl(bm, p0, p1, r, n=8):
+    """A rod from p0 to p1."""
+    p0, p1 = Vector(p0), Vector(p1)
+    d = p1 - p0
+    m = Matrix.Translation((p0 + p1) / 2) @ d.to_track_quat('Z', 'Y').to_matrix().to_4x4()
+    bmesh.ops.create_cone(bm, cap_ends=True, segments=n, radius1=r, radius2=r, depth=d.length, matrix=m)
+
+
+def prop(name, parts):
+    """An object from [(material, colour, build(bm))]."""
+    objs = []
+    for i, (mat, col, build) in enumerate(parts):
+        bm = bmesh.new()
+        build(bm)
+        me = bpy.data.meshes.new(f"{name}_{i}")
+        bm.to_mesh(me)
+        bm.free()
+        o = bpy.data.objects.new(f"{name}_{i}", me)
+        bpy.context.scene.collection.objects.link(o)
+        me.materials.append(look.toon(mat, col))
+        objs.append(o)
+    return join(objs, name)
+
+
+def tools():
+    """What the work animations hold, each by its handle at the origin.
+    render.py shows each only in its own animation."""
+    return [
+        # The voyageur's paddle, red-bladed: grip at the top, shaft down -z.
+        prop("paddle", [("paddle_wood", "#c79a5a", lambda bm: cyl(bm, (0, 0, 0.02), (0, 0, -0.62), 0.016)),
+                        ("paddle_red", "#b02a24", lambda bm: box(bm, (-0.012, -0.055, -0.98), (0.012, 0.055, -0.6)))]),
+        # Two pieces on the back, each 90 lb, and the tumpline: origin at
+        # the small of the back, the load up and behind (+y, +z).
+        prop("packs", [("canvas", "#cbb88f", lambda bm: (box(bm, (-0.2, 0.0, 0.0), (0.2, 0.26, 0.3)),
+                                                         box(bm, (-0.18, 0.02, 0.3), (0.18, 0.24, 0.56)))),
+                       ("rope", "#6b4a2a", lambda bm: (box(bm, (-0.21, -0.01, 0.13), (0.21, 0.27, 0.16)),
+                                                       box(bm, (-0.19, 0.01, 0.42), (0.19, 0.25, 0.45))))]),
+        # Pemmican, a dark cake.
+        prop("food", [("pemmican", "#5a3a24", lambda bm: box(bm, (-0.04, -0.03, -0.03), (0.04, 0.03, 0.03)))]),
+        # A tin cup, its mouth up +z.
+        prop("cup", [("tin", "#a8acb4", lambda bm: cyl(bm, (0, 0, -0.045), (0, 0, 0.045), 0.035))]),
+    ]
+
+
 # Drawing order, back to front; what render.py composites in.
-ORDER = ["body", "face", "hair", "moccasins", "trousers", "shirt", "breechcloth", "sash", "capote", "tuque", "gun"]
+ORDER = ["body", "face", "hair", "moccasins", "trousers", "shirt", "breechcloth", "sash", "capote", "tuque", "tools", "gun"]
 
 
 def main():
     clear()
-    body, rig, helpers, joints = make_body()
-    body.data.materials.append(look.toon("skin", "#d39c74"))
+    body, rig, helpers = make_body()
+    body.data.materials.append(look.toon("skin", SKIN))
     move_to(rig, collection("rig"))
     move_to(body, collection("body"))
-    layers = dress(body, rig, helpers, joints)
+    layers = dress(body, rig, helpers)
     layers["gun"] = [gun()]
+    layers["tools"] = tools()
     for name, objs in layers.items():
         c = collection(name)
         for o in objs:
@@ -452,6 +560,8 @@ def main():
     for o in bpy.data.objects:
         if o.type == 'MESH':
             look.outline(o)
+    # The painted men are broad: everything a fifth wider than it is tall.
+    rig.scale = (1.2, 1.2, 1.0)
     bpy.ops.wm.save_as_mainfile(filepath=OUT)
     print("built", OUT)
 

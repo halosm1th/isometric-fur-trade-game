@@ -85,7 +85,7 @@ def walk(rig, t):
     for side, sg in (("l", 1), ("r", -1)):
         th = 28 * s * sg
         # The knee folds as the leg comes through, most when it passes.
-        kn = 8 + 42 * max(0.0, c * sg)
+        kn = 8 + 28 * max(0.0, c * sg)
         p[f"thigh_{side}"] = fwd(th)
         p[f"calf_{side}"] = fwd(-kn)
         p[f"foot_{side}"] = fwd(kn - th - 4 * max(0.0, -c * sg))

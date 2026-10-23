@@ -38,6 +38,8 @@ public static class Doll
         foreach (var (item, layer) in Worn)
             if (n.Inventory.IsWorn(item)) layers.Add(layer);
         if (n.Weapon == ItemId.Musket) layers.Add("gun");
+        // The paddle, the load, the cup: each shows only in its own work.
+        layers.Add("tools");
         return Prefix + string.Join(",", layers);
     }
 
