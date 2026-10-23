@@ -10,6 +10,12 @@ public static class Appearance
 {
     private const string Dir = "res://Scenes/Npc/";
 
+    // Dev: `--pixellab` dresses the voyageurs in the frames PixelLab drew
+    // from the painted ones, posed by the 3D doll (tools/sprites/pixellab),
+    // to compare the two in the game.
+    public static readonly string VoyageurFile = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--pixellab") >= 0 ? "VoyageurPLFrames.tres" : "VoyageurFrames.tres";
+    public static readonly string VoyageurSheet = Dir + VoyageurFile;
+
     // The sheet for this NPC, or null to keep what it has.
     public static string For(Npc n)
     {
@@ -17,14 +23,14 @@ public static class Appearance
         if (child && n.Faction is Faction.HBC or Faction.Crown or Faction.American) return Dir + (n.IsFemale ? "ChildGirlFrames.tres" : "ChildBoyFrames.tres");
         return n.Role switch
         {
-            Role.Voyageur => Dir + "VoyageurFrames.tres",
+            Role.Voyageur => VoyageurSheet,
             Role.NwcPartner => Dir + "NwcPartnerFrames.tres",
             Role.Woman or Role.Wife when n.Faction is Faction.HBC or Faction.American or Faction.Crown => Dir + "CountryWifeFrames.tres",
             // The towns' people keep the look they were placed with: the
             // soldier's coat, the merchant's broadcloth, the habitant's capote.
             Role.Farmer or Role.Merchant or Role.Artisan or Role.Soldier or Role.Officer or Role.Priest => null,
             // The Missouri's engages were St. Louis Creoles: a voyageur's dress.
-            Role.Labourer when n.Faction == Faction.American => Dir + "VoyageurFrames.tres",
+            Role.Labourer when n.Faction == Faction.American => VoyageurSheet,
             Role.Sailor => Dir + "SailorFrames.tres",
             Role.Clerk or Role.Postmaster => Dir + "ClerkFrames.tres",
             Role.Factor => Dir + "FactorFrames.tres",
@@ -45,7 +51,7 @@ public static class Appearance
         if (female) return Dir + (f == Faction.Metis ? "CountryWifeFrames.tres" : "CreeWomanFrames.tres");
         return Dir + f switch
         {
-            Faction.Metis => "VoyageurFrames.tres",
+            Faction.Metis => VoyageurFile,
             Faction.Blackfoot => "BlackfootFrames.tres",
             Faction.Dene => "DeneFrames.tres",
             Faction.Coast => "CoastFrames.tres",

@@ -8,6 +8,9 @@ skeletons, and an outfit carried across the frames that come back.
         REF_FRAME the pose REF.png is in. Frames land in out/NAME_<i>.png.
         --holding="a long canoe paddle in both hands": what he has in his
         hands in this action - PixelLab draws only the props it is told of.
+        --direction=south (front), north (back); south-east, the painted
+        side frames' three-quarter turn, by default. --action= the motion's
+        label, if not NAME. --nopipe=1: the pipe out of his mouth (eating).
   python pixellab.py outfit NAME OUTFIT.png FRAME.png [FRAME.png ...]
         OUTFIT.png: a sprite wearing the outfit; the FRAMEs are redrawn
         wearing it, to out/NAME_<i>.png.
@@ -41,11 +44,19 @@ def call(method, path, body=None):
     req = urllib.request.Request(API + path, method=method,
                                  data=json.dumps(body).encode() if body is not None else None,
                                  headers={"Authorization": "Bearer " + key(), "Content-Type": "application/json"})
-    try:
-        with urllib.request.urlopen(req, timeout=120) as r:
-            return json.load(r)
-    except urllib.error.HTTPError as e:
-        sys.exit(f"{method} {path}: HTTP {e.code} {e.read().decode(errors='replace')[:800]}")
+    for _ in range(60):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                return json.load(r)
+        except urllib.error.HTTPError as e:
+            msg = e.read().decode(errors='replace')[:800]
+            # Too many jobs at once for the plan: wait for a slot.
+            if e.code == 429:
+                print(f"[pixellab] busy, waiting: {msg[:120]}")
+                time.sleep(30)
+                continue
+            sys.exit(f"{method} {path}: HTTP {e.code} {msg}")
+    sys.exit(f"{method} {path}: still busy after half an hour")
 
 
 def b64(im):
@@ -114,8 +125,9 @@ def save(name, ims):
     print(f"[pixellab] {name}: {len(ims)} frames in {OUT}")
 
 
-def skeleton(name, ref, ref_frame, frames, holding=None):
-    body = {"description": DESCRIPTION + (", holding " + holding if holding else ""), "action": name, "direction": "south-east", "view": "low top-down",
+def skeleton(name, ref, ref_frame, frames, holding=None, direction="south-east", action=None, nopipe=False):
+    desc = DESCRIPTION.replace("clay pipe, ", "") if nopipe else DESCRIPTION
+    body = {"description": desc + (", holding " + holding if holding else ""), "action": action or name, "direction": direction, "view": "low top-down",
             "first_frame": b64(pad(ref)), "first_frame_keypoints": joints(ref_frame),
             "keypoints": [joints(f) for f in frames], "no_background": True, "seed": 0}
     save(name, images(wait(name, call("POST", "/animate-with-skeleton-v3", body))))
@@ -139,6 +151,6 @@ if __name__ == "__main__":
     if cmd == "balance":
         print(call("GET", "/balance"))
     elif cmd == "skeleton":
-        skeleton(a[0], a[1], a[2], a[3:], opts.get("holding"))
+        skeleton(a[0], a[1], a[2], a[3:], opts.get("holding"), opts.get("direction", "south-east"), opts.get("action"), "nopipe" in opts)
     elif cmd == "outfit":
         outfit(a[0], a[1], a[2:])

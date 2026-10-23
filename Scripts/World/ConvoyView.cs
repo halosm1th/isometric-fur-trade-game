@@ -191,7 +191,7 @@ public partial class ConvoyView : Node2D
 			if (n.IsDead) { c.Men.RemoveAt(i); c.Crew = Mathf.Max(1, c.Crew - 1); }
 		}
 		int want = 1 + Mathf.Min(Mathf.Max(0, c.Crew - 1), c.Moving ? Mathf.Min(c.Boats * 2, 8) : 6);
-		var frames = GD.Load<SpriteFrames>("res://Scenes/Npc/VoyageurFrames.tres");
+		var frames = GD.Load<SpriteFrames>(Agents.Appearance.VoyageurSheet);
 		var at = c.Moving || !c.HasCamp ? c.Where : c.CampAt;
 		while (c.Men.Count < want)
 		{

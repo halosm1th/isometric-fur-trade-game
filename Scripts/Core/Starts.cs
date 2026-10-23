@@ -270,7 +270,7 @@ public static class Starts
         var mates = new List<Npc>();
         if (pop != null && post?.Ledger != null)
         {
-            var frames = GD.Load<SpriteFrames>("res://Scenes/Npc/VoyageurFrames.tres");
+            var frames = GD.Load<SpriteFrames>(Agents.Appearance.VoyageurSheet);
             string[] names = { "Ovide de Montigny", "Naukane" };
             for (int i = 0; i < names.Length; i++)
             {

@@ -158,7 +158,7 @@ public static class CharacterSheet
         if (path == StartPath.American)
         {
             // On the books of Fort Okanogan from the first day: its stores, its master.
-            pc.FramesPath = "res://Scenes/Npc/VoyageurFrames.tres";
+            pc.FramesPath = Agents.Appearance.VoyageurSheet;
             pc.PostedTo = "Fort Okanogan";
             pc.CreeFluency = 0.05f;
         }

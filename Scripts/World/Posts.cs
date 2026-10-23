@@ -287,7 +287,7 @@ public static class Posts
         var known = Masters.GetValueOrDefault(p.Name);
         string master = known?[0] ?? "Mr. " + Pick(HunterNames, taken);
         var tint = american ? AmericanTint : Colors.White;
-        var frames = GD.Load<SpriteFrames>("res://Scenes/Npc/" + (american ? "VoyageurFrames.tres" : "LabourerFrames.tres"));
+        var frames = GD.Load<SpriteFrames>("res://Scenes/Npc/" + (american ? Agents.Appearance.VoyageurFile : "LabourerFrames.tres"));
         var clerkFrames = GD.Load<SpriteFrames>("res://Scenes/Npc/ClerkFrames.tres");
         Vector2I In(int i, int j) => IsoGrid.Cell(p.House.Top, i, j);
         var lead = pop.Spawn(master, Role.Postmaster, p.Faction, In(1, 1), p.AccessCell, p.Ledger, clerkFrames, tint);
