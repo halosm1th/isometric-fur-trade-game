@@ -6,6 +6,8 @@ skeletons, and an outfit carried across the frames that come back.
         REF.png is a painted 180x170 frame; REF_FRAME and FRAMEs name
         skeletons in ../doll/out/skeletons.json (render.py skeleton mode),
         REF_FRAME the pose REF.png is in. Frames land in out/NAME_<i>.png.
+        --holding="a long canoe paddle in both hands": what he has in his
+        hands in this action - PixelLab draws only the props it is told of.
   python pixellab.py outfit NAME OUTFIT.png FRAME.png [FRAME.png ...]
         OUTFIT.png: a sprite wearing the outfit; the FRAMEs are redrawn
         wearing it, to out/NAME_<i>.png.
@@ -112,8 +114,8 @@ def save(name, ims):
     print(f"[pixellab] {name}: {len(ims)} frames in {OUT}")
 
 
-def skeleton(name, ref, ref_frame, frames):
-    body = {"description": DESCRIPTION, "action": name, "direction": "south-east", "view": "low top-down",
+def skeleton(name, ref, ref_frame, frames, holding=None):
+    body = {"description": DESCRIPTION + (", holding " + holding if holding else ""), "action": name, "direction": "south-east", "view": "low top-down",
             "first_frame": b64(pad(ref)), "first_frame_keypoints": joints(ref_frame),
             "keypoints": [joints(f) for f in frames], "no_background": True, "seed": 0}
     save(name, images(wait(name, call("POST", "/animate-with-skeleton-v3", body))))
@@ -132,9 +134,11 @@ def outfit(name, outfit_png, frames):
 
 if __name__ == "__main__":
     cmd, *a = sys.argv[1:]
+    opts = {x[2:].split("=", 1)[0]: x.split("=", 1)[1] for x in a if x.startswith("--")}
+    a = [x for x in a if not x.startswith("--")]
     if cmd == "balance":
         print(call("GET", "/balance"))
     elif cmd == "skeleton":
-        skeleton(a[0], a[1], a[2], a[3:])
+        skeleton(a[0], a[1], a[2], a[3:], opts.get("holding"))
     elif cmd == "outfit":
         outfit(a[0], a[1], a[2:])
