@@ -10,3 +10,6 @@ assets/external/soundFX/
 
 # Obsidian's per-session window layout
 WIKI/.obsidian/workspace.json
+
+# Gemini browser profile used by the doll experiments (cache, logs; never commit)
+tools/sprites/doll/gemini_test/
