@@ -170,6 +170,7 @@ public partial class Agent : CharacterBody2D
             HeatEnclosed = enclosed;
             _exposure = Climate.ExposureAt(GlobalPosition, cal.DaylightFactor, cal.DayOfYear);
             _weatherExposure = cal.Weather.ExposureMultiplierAt(GlobalPosition);
+            if (this is Npc) DressForWeather();
             _clothing = Inventory.ClothingWarmth + InnateWarmth;
         }
 
@@ -202,6 +203,25 @@ public partial class Agent : CharacterBody2D
 
         if (IsDead) OnDeath();
     }
+
+    // A man puts his coat or robe on when the cold bites and takes it off
+    // when it is warm again (the player dresses himself). The gap between
+    // the two keeps him from fussing with it at every change of the wind;
+    // a warm rain is still warm.
+    private void DressForWeather()
+    {
+        if (_exposure < 0f) return;
+        float cold = _exposure * _weatherExposure;
+        if (cold > 0.2f && cold < 0.6f) return;
+        foreach (var id in Wraps)
+        {
+            if (!Inventory.Has(id)) continue;
+            if (cold >= 0.6f) Inventory.Unworn.Remove(id);
+            else Inventory.Unworn.Add(id);
+        }
+    }
+
+    private static readonly ItemId[] Wraps = { ItemId.Capote, ItemId.PointBlanket, ItemId.HideCoat, ItemId.BuffaloRobe };
 
     protected virtual void OnDeath()
     {
