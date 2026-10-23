@@ -22,8 +22,9 @@ import look, pose
 from build import ORDER
 
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-MODE = args[0] if args and args[0] in ("layers", "preview") else "layers"
-ONLY = [a for a in args if a not in ("layers", "preview")]
+MODES = ("layers", "preview", "skeleton")
+MODE = args[0] if args and args[0] in MODES else "layers"
+ONLY = [a for a in args if a not in MODES]
 OUT = os.path.join(ROOT, "assets", "sprites", "doll") if MODE == "layers" else os.path.join(HERE, "out", "preview")
 
 FACING_SUFFIX = {"front": "", "side": "_side", "back": "_back", "three": ""}
@@ -320,6 +321,43 @@ def frames():
                 yield name, name + (FACING_SUFFIX[facing] if len(facings) > 1 else ""), facing, i, n
 
 
+# ------------------------------------------------------------- skeletons
+#
+# skeleton mode: no pictures, but where his joints fall in each frame - the
+# 18-joint (OpenPose) skeleton PixelLab poses a sprite by - to
+# out/skeletons.json: {frame: [{label, x, y, depth}]}, x and y as fractions
+# of the 180x170 frame, depth 0-255 with about 128 at his middle and more
+# nearer the camera.
+
+SKELETONS = {}
+# label: (bone, offset from the bone's head at rest, metres in his own
+# axes: +x his left, -y forward, +z up) or a bone's tail.
+JOINTS = {
+    "NOSE": ("head", (0, -0.13, 0.13)), "NECK": ("neck_01", (0, 0, 0)),
+    "RIGHT SHOULDER": ("upperarm_r", (0, 0, 0)), "RIGHT ELBOW": ("lowerarm_r", (0, 0, 0)), "RIGHT ARM": ("hand_r", (0, 0, 0)),
+    "LEFT SHOULDER": ("upperarm_l", (0, 0, 0)), "LEFT ELBOW": ("lowerarm_l", (0, 0, 0)), "LEFT ARM": ("hand_l", (0, 0, 0)),
+    "RIGHT HIP": ("thigh_r", (0, 0, 0)), "RIGHT KNEE": ("calf_r", (0, 0, 0)), "RIGHT LEG": ("foot_r", (0, 0, 0)),
+    "LEFT HIP": ("thigh_l", (0, 0, 0)), "LEFT KNEE": ("calf_l", (0, 0, 0)), "LEFT LEG": ("foot_l", (0, 0, 0)),
+    "RIGHT EYE": ("head", (-0.045, -0.11, 0.165)), "LEFT EYE": ("head", (0.045, -0.11, 0.165)),
+    "RIGHT EAR": ("head", (-0.1, -0.01, 0.14)), "LEFT EAR": ("head", (0.1, -0.01, 0.14)),
+}
+
+
+def skeleton():
+    from bpy_extras.object_utils import world_to_camera_view
+    cam = sc.camera
+    mid = world_to_camera_view(sc, cam, rig.matrix_world @ rig.pose.bones["pelvis"].head).z
+    out = []
+    for label, (bone, off) in JOINTS.items():
+        # Offsets about the head scale with it (fit.py may have grown it).
+        hs = rig.data.bones["head"].length / 0.2 if bone == "head" else 1.0
+        at = rig.matrix_world @ follow(bone, tuple(o * hs for o in off)).translation
+        c = world_to_camera_view(sc, cam, at)
+        out.append({"label": label, "x": round(c.x, 4), "y": round(1 - c.y, 4),
+                    "depth": int(max(0, min(255, 128 + (mid - c.z) * 160)))})
+    return out
+
+
 def main():
     present = [l for l in ORDER if l in bpy.data.collections]
     manifest = {"order": present, "anims": {}}
@@ -342,6 +380,9 @@ def main():
             if th in bpy.data.objects:
                 bpy.data.objects[th].hide_render = th not in things
         bpy.context.view_layer.update()
+        if MODE == "skeleton":
+            SKELETONS[f"{anim}_{i}"] = skeleton()
+            continue
         if MODE == "preview":
             set_layers(present)
             render(os.path.join(OUT, f"{anim}_{i}.png"))
@@ -349,6 +390,10 @@ def main():
         for layer in present:
             set_layers([layer], holdout=() if layer == "body" else ("body",))
             render(os.path.join(OUT, layer, f"{anim}_{i}.png"))
+    if MODE == "skeleton":
+        with open(os.path.join(HERE, "out", "skeletons.json"), "w") as f:
+            json.dump(SKELETONS, f, indent=1)
+        return
     if MODE == "layers":
         # Every animation is listed, rendered this time or not.
         for name, (n, facings, fps, loop, *_) in ANIMS.items():
