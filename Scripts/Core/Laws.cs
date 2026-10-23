@@ -853,6 +853,24 @@ public static class Laws
                     if (n.Needs.Hunger < 10f) starving++;
                 }
             GD.Print($"[lawfood] {Cal?.DateString} {b.Town.Name}: {(b.Get(LawKind.KeepBread) is { } kb ? Bread(kb.Value) : "no bread law")} | market food {food} for {people} | hungry {hungry}, starving {starving} | till {Money.Format(m.Stores.Count(ItemId.Coin))}");
+            if (starving == 0) continue;
+            var s = m.Stores;
+            int merchants = 0; foreach (var h in b.Town.Houses.Values) foreach (var n in h.Members) if (n.Role == Role.Merchant && !n.IsDead) merchants++;
+            GD.Print($"[lawwho]   {merchants} merchants | {Money.Report(b.Town)}");
+            GD.Print($"[lawwho]   market bread {s.Count(ItemId.Bread)}@{Money.Price(m, ItemId.Bread)} flour {s.Count(ItemId.Flour)}@{Money.Price(m, ItemId.Flour)} grain {s.Count(ItemId.Grain)} corn {s.Count(ItemId.Corn)}@{Money.Price(m, ItemId.Corn)} roots {s.Count(ItemId.Roots)}@{Money.Price(m, ItemId.Roots)}");
+            foreach (var h in b.Town.Houses.Values)
+            {
+                int st = 0; var roles = new List<string>();
+                foreach (var n in h.Members)
+                {
+                    if (!GodotObject.IsInstanceValid(n) || n.IsDead) continue;
+                    roles.Add($"{n.Role}{(n.Away ? "(away)" : "")}/{n.Tier}/h{n.Needs.Hunger:0}");
+                    if (n.Needs.Hunger < 10f) st++;
+                }
+                if (st == 0) continue;
+                var hs = h.Stores;
+                GD.Print($"[lawwho]   {h.Key} ({h.Building.Name}): {st} starving of [{string.Join(", ", roles)}] | box {hs.Count(ItemId.Coin)} owed {Money.Owed(h)}/{Money.CreditLimit(h)} | bread {hs.Count(ItemId.Bread)} flour {hs.Count(ItemId.Flour)} grain {hs.Count(ItemId.Grain)} wheat {hs.Count(ItemId.Wheat)} corn {hs.Count(ItemId.Corn)} roots {hs.Count(ItemId.Roots)} meat {hs.Count(ItemId.DriedMeat)} | days {h.FoodDays(Mathf.Max(1, h.Alive())):0.0}");
+            }
         }
     }
 

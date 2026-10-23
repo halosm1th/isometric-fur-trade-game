@@ -468,7 +468,7 @@ public static class TownLife
     public static void Provision(TownHousehold home, Npc shopper)
     {
         var market = home.Town?.Market;
-        if (market == null || home == market || shopper.Role == Role.Officer || shopper.Role == Role.Child && shopper.Age < 10) return;
+        if (market == null || home == market || shopper.Role == Role.Officer && !OnHisOwn(shopper, home) || shopper.Role == Role.Child && shopper.Age < 10) return;
         int mouths = Mathf.Max(1, home.Alive());
         if (home.FoodDays(mouths) >= 7f || !MayGoToMarket(home, mouths)) return;
         var got = new List<(ItemId, int)>();
@@ -510,11 +510,22 @@ public static class TownLife
 
     // ---- the men of the town -------------------------------------------------------------
 
+    // Nobody else in the house who goes to market: the merchants, tradesmen,
+    // clergy and officers leave it to the women and the servants.
+    private static bool OnHisOwn(Npc npc, TownHousehold home)
+    {
+        foreach (var m in home.Members)
+            if (m != npc && GodotObject.IsInstanceValid(m) && !m.IsDead && !(m.Role is Role.Merchant or Role.Artisan or Role.Priest or Role.Officer) && !(m.Role == Role.Child && m.Age < 10)) return false;
+        return true;
+    }
+
     public static Goal Townsman(Npc npc, TownHousehold home)
     {
         if (Sunday(npc, home.Town) is { } church) return church;
         if (Weekday == DayOfWeek.Sunday) return Rest(npc, home);
         if (!WorkHours) return null;
+        // A man with nobody at home to send buys his own bread.
+        if (OnHisOwn(npc, home) && Shopping(npc, home, Mathf.Max(1, home.Alive())) is { } basket) return basket;
         switch (npc.Role)
         {
             case Role.Merchant:
