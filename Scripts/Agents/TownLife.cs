@@ -300,6 +300,19 @@ public static class TownLife
         // Once a week, if there is money in the box, work for a tradesman: the
         // kettle mended, a barrel made, shoes soled - paid at his door.
         if (Errand(npc, home) is { } errand) return errand;
+        // Washing or sewing taken in for a better house, paid at its door.
+        if (Hour < 12f && TakesInWork(npc, home) is { } employer)
+        {
+            _hired[npc] = Today;
+            return new ChoreGoal($"take in washing for {employer.Building.Name}",
+                Walk($"fetch the washing from {employer.Building.Name}", Spot(npc, employer.AccessCell), 60f),
+                Walk("carry the washing home", home.AccessCell, 100f),
+                Work($"wash and mend for {employer.Building.Name}", 4f),
+                Walk($"take the washing back to {employer.Building.Name}", Spot(npc, employer.AccessCell), 60f),
+                Do(n => Pay(employer, n, home, WomansWage)),
+                Walk("go home", home.AccessCell, 100f),
+                Do(n => SetDown(n, home))).SetDownAt(home);
+        }
         // And the endless rest of it: mending, spinning, the children.
         return new ChoreGoal("mend and spin", Walk("go in", home.AccessCell, 100f), Work("mend and spin by the fire", 1.5f));
     }
@@ -363,10 +376,10 @@ public static class TownLife
     public const int DayWage = 18;
     // The day's wage, paid at the end of it into the labourer's pocket - or,
     // from a store whose till is short, written to his house as store pay.
-    private static void Pay(TownHousehold employer, Npc n, TownHousehold home)
+    private static void Pay(TownHousehold employer, Npc n, TownHousehold home, int wage = DayWage)
     {
-        if (employer == employer.Town?.Market && employer.Stores.Count(ItemId.Coin) < Float(employer.Town) + DayWage) { Money.CreditTo(home, DayWage); return; }
-        n.Inventory.Add(ItemId.Coin, employer.Stores.TakeUpTo(ItemId.Coin, DayWage));
+        if (employer == employer.Town?.Market && employer.Stores.Count(ItemId.Coin) < Float(employer.Town) + wage) { Money.CreditTo(home, wage); return; }
+        n.Inventory.Add(ItemId.Coin, employer.Stores.TakeUpTo(ItemId.Coin, wage));
     }
     private static TownHousehold Tradesman(TownHousehold home, Npc npc)
     {
@@ -484,6 +497,8 @@ public static class TownLife
     // what the market had and they could carry - through their own hands.
     public static void Provision(TownHousehold home, Npc shopper)
     {
+        // A house of men grinds and bakes for itself, or its meal is no use to it.
+        if (Bachelors(home)) Bake(home);
         var market = home.Town?.Market;
         if (market == null || home == market || shopper.Role == Role.Officer && !OnHisOwn(shopper, home) || shopper.Role == Role.Child && shopper.Age < 10) return;
         int mouths = Mathf.Max(1, home.Alive());
@@ -499,9 +514,7 @@ public static class TownLife
     // wheat ground and the bread baked from what the house has.
     public static void HouseDay(Npc npc, TownHousehold home)
     {
-        int mouths = Mathf.Max(1, home.Alive());
-        if (home.Stores.Count(ItemId.Bread) < mouths * 4) home.Stores.Add(ItemId.Bread, home.Stores.TakeUpTo(ItemId.Flour, 6) * Fields.LoavesPerMeal);
-        if (home.Stores.Count(ItemId.Flour) < 6) home.Stores.Add(ItemId.Flour, home.Stores.TakeUpTo(ItemId.Grain, Mathf.Min(6, Grindable(home))));
+        Bake(home);
         int week = Today / 7;
         // Store goods, if there is money to spare, through her own pocket.
         if (_goodsWeek.GetValueOrDefault(home) != week && SpendOnGoods(home) is var g and > 0 && home.Town.Market is { } mk)
@@ -520,6 +533,34 @@ public static class TownLife
             npc.Inventory.Add(ItemId.Coin, home.Stores.TakeUpTo(ItemId.Coin, 12));
             shop.Stores.Add(ItemId.Coin, npc.Inventory.TakeUpTo(ItemId.Coin, 12));
         }
+        // Washing and sewing taken in, in a house that lives by its wages.
+        if (TakesInWork(npc, home) is { } employer)
+        {
+            _hired[npc] = Today;
+            Pay(employer, npc, home, WomansWage);
+            SetDown(npc, home);
+        }
+    }
+
+    // A woman of a labourer's house - his wife, a grown daughter - took in
+    // washing and sewing, or went out by the day to a better house: about
+    // half a man's wage. Without it a family of seven lived on one man's
+    // eighteenpence and went into debt every winter.
+    public const int WomansWage = 8;
+    private static TownHousehold TakesInWork(Npc npc, TownHousehold home)
+    {
+        if (Weekday == DayOfWeek.Sunday || _hired.GetValueOrDefault(npc) == Today || npc.Role is not (Role.Woman or Role.Wife)) return null;
+        if (home == home.Town?.Market || Fields.IsFarm(home) || home.Building.Kind is BuildingKind.Store or BuildingKind.Workshop) return null;
+        foreach (var m in home.Members) if (m.Role is Role.Soldier or Role.Officer) return null;
+        return Hiring(npc, home);
+    }
+
+    // The wheat ground and the bread baked, in the day's sum.
+    private static void Bake(TownHousehold home)
+    {
+        int mouths = Mathf.Max(1, home.Alive());
+        if (home.Stores.Count(ItemId.Bread) < mouths * 4) home.Stores.Add(ItemId.Bread, home.Stores.TakeUpTo(ItemId.Flour, 6) * Fields.LoavesPerMeal);
+        if (home.Stores.Count(ItemId.Flour) < 6) home.Stores.Add(ItemId.Flour, home.Stores.TakeUpTo(ItemId.Grain, Mathf.Min(6, Grindable(home))));
     }
 
     // The wheat the house may grind: all of it, less a farm's seed.
