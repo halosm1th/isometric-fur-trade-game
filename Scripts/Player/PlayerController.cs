@@ -151,8 +151,14 @@ public partial class PlayerController : Agent
 	public string FramesPath = "";
 	public void ApplyLook()
 	{
-		if (_sprite == null || string.IsNullOrEmpty(FramesPath) || !ResourceLoader.Exists(FramesPath)) return;
-		_sprite.SpriteFrames = GD.Load<SpriteFrames>(FramesPath);
+		// Dev: --pixellab dresses the player as the PixelLab voyageur (Agents/Appearance).
+		string path = Appearance.PixelLab ? Appearance.VoyageurSheet : FramesPath;
+		if (_sprite == null || string.IsNullOrEmpty(path) || !ResourceLoader.Exists(path)) return;
+		_sprite.SpriteFrames = GD.Load<SpriteFrames>(path);
+		// Frames stand on the bottom edge of their canvas, centred, as an Npc's
+		// do: the scene's offset is for the player sheet's smaller canvas.
+		var first = _sprite.SpriteFrames.GetFrameTexture("idle", 0);
+		if (first != null) _sprite.Offset = new Vector2(-first.GetWidth() / 2f, -first.GetHeight() + 2f);
 		_sprite.Play(_sprite.SpriteFrames.HasAnimation("idle") ? "idle" : _sprite.Animation);
 	}   // born to one of the country's band camps (World/Camps), if any
 	public string LastYearStory = "";   // Core/YearStory: the last year as it will be told
@@ -267,6 +273,11 @@ public partial class PlayerController : Agent
 
 		if (IsServerCopy) GiveStartingKit();
 		if (IsLocal) { BecomeLocal(); if (Observer.On) BecomeGhost(); }
+		if (IsLocal && Appearance.PixelLab)
+		{
+			GD.Print("[dev] --pixellab: the voyageurs and the player wear the PixelLab frames");
+			GetTree().CreateTimer(3.0).Timeout += () => Sim.NoticeLocal("Dev: PixelLab voyageur frames (--pixellab) - you and the voyageurs wear them.");
+		}
 	}
 
 	private void GiveStartingKit()

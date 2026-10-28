@@ -13,7 +13,9 @@ public static class Appearance
     // Dev: `--pixellab` dresses the voyageurs in the frames PixelLab drew
     // from the painted ones, posed by the 3D doll (tools/sprites/pixellab),
     // to compare the two in the game.
-    public static readonly string VoyageurFile = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--pixellab") >= 0 ? "VoyageurPLFrames.tres" : "VoyageurFrames.tres";
+    // The player wears it too, so the new frames can be tried by hand.
+    public static readonly bool PixelLab = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--pixellab") >= 0;
+    public static readonly string VoyageurFile = PixelLab ? "VoyageurPLFrames.tres" : "VoyageurFrames.tres";
     public static readonly string VoyageurSheet = Dir + VoyageurFile;
 
     // The sheet for this NPC, or null to keep what it has.
