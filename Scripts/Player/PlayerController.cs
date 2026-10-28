@@ -151,9 +151,10 @@ public partial class PlayerController : Agent
 	public string FramesPath = "";
 	public void ApplyLook()
 	{
-		// Dev: --pixellab dresses the player as the PixelLab voyageur (Agents/Appearance).
-		string path = Appearance.PixelLab ? Appearance.VoyageurSheet : FramesPath;
-		if (_sprite == null || string.IsNullOrEmpty(path) || !ResourceLoader.Exists(path)) return;
+		// The scene's own sheet until a start or a save names another; the
+		// PixelLab redrawing of it if there is one (Agents/Appearance).
+		string path = Appearance.Resolve(string.IsNullOrEmpty(FramesPath) ? "res://Scenes/Player/PlayerFrames.tres" : FramesPath);
+		if (_sprite == null || !ResourceLoader.Exists(path)) return;
 		_sprite.SpriteFrames = GD.Load<SpriteFrames>(path);
 		// Frames stand on the bottom edge of their canvas, centred, as an Npc's
 		// do: the scene's offset is for the player sheet's smaller canvas.
@@ -273,10 +274,10 @@ public partial class PlayerController : Agent
 
 		if (IsServerCopy) GiveStartingKit();
 		if (IsLocal) { BecomeLocal(); if (Observer.On) BecomeGhost(); }
-		if (IsLocal && Appearance.PixelLab)
+		if (IsLocal && Appearance.Painted)
 		{
-			GD.Print("[dev] --pixellab: the voyageurs and the player wear the PixelLab frames");
-			GetTree().CreateTimer(3.0).Timeout += () => Sim.NoticeLocal("Dev: PixelLab voyageur frames (--pixellab) - you and the voyageurs wear them.");
+			GD.Print("[dev] --painted: everyone wears the painted sheets, not PixelLab's");
+			GetTree().CreateTimer(3.0).Timeout += () => Sim.NoticeLocal("Dev: the painted sheets (--painted), not PixelLab's.");
 		}
 	}
 

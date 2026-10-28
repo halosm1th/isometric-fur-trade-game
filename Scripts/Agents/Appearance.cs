@@ -10,13 +10,28 @@ public static class Appearance
 {
     private const string Dir = "res://Scenes/Npc/";
 
-    // Dev: `--pixellab` dresses the voyageurs in the frames PixelLab drew
-    // from the painted ones, posed by the 3D doll (tools/sprites/pixellab),
-    // to compare the two in the game.
-    // The player wears it too, so the new frames can be tried by hand.
-    public static readonly bool PixelLab = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--pixellab") >= 0;
-    public static readonly string VoyageurFile = PixelLab ? "VoyageurPLFrames.tres" : "VoyageurFrames.tres";
-    public static readonly string VoyageurSheet = Dir + VoyageurFile;
+    public const string VoyageurFile = "VoyageurFrames.tres";
+    public const string VoyageurSheet = Dir + VoyageurFile;
+
+    // A sheet PixelLab has redrawn from the painted one, posed by the 3D doll
+    // (tools/sprites/pixellab), sits beside it as <Name>PLFrames.tres and is
+    // worn in its place. Dev: `--painted` keeps the painted sheets, to compare.
+    // Paths are kept, saved and sent by the painted name; only loading
+    // turns them into the redrawn one.
+    public static readonly bool Painted = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--painted") >= 0;
+    private static readonly System.Collections.Generic.Dictionary<string, string> _resolved = new();
+
+    public static string Resolve(string path)
+    {
+        if (Painted || string.IsNullOrEmpty(path) || !path.EndsWith("Frames.tres") || path.EndsWith("PLFrames.tres")) return path;
+        if (_resolved.TryGetValue(path, out var r)) return r;
+        string pl = path[..^"Frames.tres".Length] + "PLFrames.tres";
+        return _resolved[path] = ResourceLoader.Exists(pl) ? pl : path;
+    }
+
+    // The painted name of a sheet, whichever of the two was loaded.
+    public static string Canonical(string path) =>
+        path != null && path.EndsWith("PLFrames.tres") ? path[..^"PLFrames.tres".Length] + "Frames.tres" : path;
 
     // The sheet for this NPC, or null to keep what it has.
     public static string For(Npc n)

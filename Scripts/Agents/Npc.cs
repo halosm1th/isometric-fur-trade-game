@@ -238,7 +238,7 @@ public partial class Npc : Agent
 
     public void SetAppearance(SpriteFrames frames, Color tint, float scale)
     {
-        FramesPath = frames.ResourcePath; Tint = tint; SpriteScale = scale;
+        FramesPath = Appearance.Canonical(frames.ResourcePath); Tint = tint; SpriteScale = scale;
         ApplyAppearance();
     }
 
