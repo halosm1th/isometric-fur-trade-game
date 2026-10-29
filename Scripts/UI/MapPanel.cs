@@ -43,6 +43,7 @@ public partial class MapPanel : Control
         foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--map") GetTree().CreateTimer(2.5).Timeout += () => { _panel.Visible = true; if (_player != null) _canvas.CentreOn(_player.GlobalPosition); };
         GetParent()?.CallDeferred(Node.MethodName.AddChild, new WayfindingHud { Name = "Wayfinding" });
         GetParent()?.CallDeferred(Node.MethodName.AddChild, new TravelMode { Name = "TravelMode" });
+        GetParent()?.CallDeferred(Node.MethodName.AddChild, new RewardPopups { Name = "RewardPopups" });
     }
 
     public override void _UnhandledInput(InputEvent @event)

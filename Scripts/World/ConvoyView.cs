@@ -299,7 +299,8 @@ public partial class ConvoyView : Node2D
 			if (stepping) { _riding.Remove(p); Convoys.Leave(p, "You step ashore."); continue; }
 			p.RideId = c.Id;
 			p.SetStartPosition(c.Where + new Vector2(0f, -24f));
-			if (local) { if (cal.SkipRemaining < 0.5f) cal.SkipHours(0.5f - cal.SkipRemaining); }
+			// The road goes by fast, except while a choice is put to him (World/JourneyIncidents).
+			if (local) { if (p.Conversation.IsOpen) cal.CancelSkip(); else if (cal.SkipRemaining < 0.5f) cal.SkipHours(0.5f - cal.SkipRemaining); }
 			else p.TravellingServer = true;   // a joined player cannot skip the shared day; it marches instead
 			if (p.Needs.Hunger < 45f) Convoys.FeedRider(p, c);
 		}

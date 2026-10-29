@@ -114,6 +114,7 @@ public static class Starts
             Shared(m, p, $"{m.DisplayName} and {p.DisplayName} crossed from Stromness together on the Company's ship.");
             mates.Add(m);
         }
+        if (mates.Count == names.Length) Campaign.Flag("ship_mates");   // the broached cask (company-servant.camp) is theirs
         p.AssignTask(Player.TaskKind.Report, 1, "you are the Company's new hand");
         string factor = Clean(Sim.Fort?.Leader?.DisplayName) ?? "the Factor";
         string rival = RivalClerk(Sim.Fort);

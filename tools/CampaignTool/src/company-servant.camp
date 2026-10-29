@@ -118,6 +118,73 @@ questline Servant(
         }
     }
 
+    // The first days ashore (2026-10-29): somebody broached a rum cask on the
+    // way up from the boats. The player's own shipmate did it, and the Factor
+    // wants a name. Only for the ship's start, where the two mates came ashore.
+    quest BroachedCask(
+        title: "A broached cask",
+        summary: "A cask of the Company's rum came up from the boats with the bung drawn and two gallons gone, and the Factor wants a name."
+    ) [Landfall] {
+        StartWhen() => flags.has("ship_mates") && !world.isDead("Andrew Flett");
+        talk Asked(who: Person.Factor, text: "The Factor wants a word about the rum") {
+            Says() => "{npc} has a tally stick in one hand and a face like thunder. \"One of the rum casks you lot carried up came in with the bung drawn " +
+                      "and two gallons short. You were at the landing. I want a name, and I'll know if I'm lied to.\"";
+            choice Yes(label: "\"I'll find out, sir.\"", reply: "\"See that you do.\"");
+            choice No(label: "\"I'm no informer, sir.\"", reply: "\"Then you're no use to me. Find out anyway.\"") {
+                player.addStanding(-1);
+            }
+        }
+        talk AskHugh(who: "Hugh Rendall", text: "Ask Hugh Rendall what he saw at the landing") {
+            Says() => "{npc} won't meet your eye. \"I never touched it. Ask Andrew. And for God's sake don't tell the Factor I sent you.\"";
+            choice Fine(label: "\"I'll ask him.\"");
+        }
+        talk AskAndrew(who: "Andrew Flett", text: "Ask Andrew Flett about the rum") {
+            Says() => "{npc} goes red, then laughs. \"Aye, it was me. Two drams for the cold and one for Hugh, and then the bung wouldn't go back. " +
+                      "First night ashore, man, after six weeks of ship's biscuit. You'll not tell him?\"";
+            choice Promise(label: "\"Your secret's safe with me.\"", reply: "\"You're a good one. I'll not forget it.\"") {
+                player.addRapport("Andrew Flett", 15);
+                flags.set("promised_flett");
+            }
+            choice NoPromise(label: "\"I'll not lie for you, Andrew.\"", reply: "His face falls. \"No. No, I suppose not.\"") {
+                player.addRapport("Andrew Flett", -5);
+            }
+        }
+        talk Answer(who: Person.Factor, text: "Give the Factor his answer about the rum") {
+            Says() => "{npc} looks up from his ledger. \"Well? Who drew the bung?\"";
+            choice NameHim(
+                label: "\"It was Andrew Flett, sir.\"",
+                reply: "\"Was it.\" He writes the name in the book. \"A month's wages and no rum till Christmas. You did right.\" " +
+                       "Andrew will hear who told by supper."
+            ) {
+                player.addStanding(3);
+                player.addRapport("Andrew Flett", -30);
+                player.addRapport("Hugh Rendall", -10);
+                flags.set("named_flett");
+                if (flags.has("promised_flett")) player.addRapport("Hugh Rendall", -10);
+                player.note("You told the Factor that Andrew Flett broached the rum. The Factor thinks well of you; the men's house less so.");
+            }
+            choice Nobody(
+                label: "\"I couldn't find out, sir.\"",
+                reply: "\"Couldn't, or wouldn't?\" A long look. \"Then the whole men's house goes without rum on Saturday, and they can thank you for it.\""
+            ) {
+                player.addStanding(-1);
+                player.addRapport("Andrew Flett", 10);
+                player.addRapport("Hugh Rendall", 5);
+                flags.set("covered_flett");
+                player.note("You kept Andrew Flett's secret from the Factor.");
+            }
+            choice Sailors(
+                label: "\"It was the sailors, sir, before it ever left the boats.\"",
+                reply: "\"Was it now. Convenient, with the ship sailing within the week.\" He makes a note, and you can't tell if he believes you."
+            ) {
+                player.addStanding(1);
+                player.addRapport("Andrew Flett", 8);
+                flags.set("blamed_sailors");
+                player.note("You told the Factor the sailors broached the rum. Andrew Flett owes you.");
+            }
+        }
+    }
+
     quest UpTheRivers(
         title: "Up the rivers",
         summary: "A thousand miles of river between York and Edmonton House."

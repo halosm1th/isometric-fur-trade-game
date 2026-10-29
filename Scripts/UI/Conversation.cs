@@ -369,6 +369,10 @@ public partial class Conversation
             var qq = q;
             AddOption($"[New] {q.Title}", () => ShowOffer(npc, qq));
         }
+        // A man posted up-country, at a post with the boats that will take him still to come.
+        if (ownLeader && _player.HomePost != null && _player.HomePost != npc.HomeStores && World.Convoys.BoardedBy(_player) == null
+            && npc.HomeStores is Economy.FortLedger here && World.Convoys.NextFrom(here, _player.Faction, _player.HomePost) is { } next && next.Days <= 60)
+            AddOption($"When do the boats leave for {next.Leg.To}?", () => ShowBoats(npc, next.Run, next.Leg, next.Days));
         // What's pressing comes first: a letter to hand over, a debt to settle.
         if (npc.Role == Role.Chief && (_player.Task.Kind == TaskKind.DeliverLetter && !_player.Task.IsComplete && _player.Task.Done == 0 || HasMailFor(npc)))
             AddOption("Hand him the Factor's letter", () => ShowTopics(DeliverLetter(npc)));
@@ -413,6 +417,8 @@ public partial class Conversation
         // A town merchant's counter, for coin (UI/ConversationStore).
         if (npc.Role == Role.Merchant && MarketOf(npc) != null) AddOption("The store...", () => ShowStore(npc));
         if (LawsBody(npc) != null) AddOption(LawsLabel(npc), () => ShowLaws(npc));
+        if (npc.IsBandPerson && npc.Role is Role.Hunter or Role.Chief && _player.Faction is Faction.HBC or Faction.NWC && Barter(_player).Count > 0)
+            AddOption("Trade on your own account, quietly...", () => ShowPrivateTrade(npc));
         AddOption("Give a gift", () => ShowGive(npc));
         if (npc.Needs.Hunger < 45f && _player.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
             AddOption($"Offer them something to eat ({Items.Items.Of(food).Name})", () => ShowTopics(OfferFood(npc, food)));
@@ -437,6 +443,80 @@ public partial class Conversation
         System.Enum.TryParse<ItemId>(item, true, out var id) ? Items.Items.Of(id).Name.ToLower() : item;
 
     private string Spoken(string text, Npc npc) => (text ?? "").Replace("{player}", _player.DisplayName).Replace("{npc}", npc.DisplayName);
+
+    // What a servant has of his own to trade (the Company forbids it: World/YorkHappenings hears who saw).
+    private static readonly ItemId[] BarterGoods = { ItemId.Tobacco, ItemId.Beads, ItemId.TradeGoods, ItemId.Awl, ItemId.Knife, ItemId.Flint };
+    private static List<ItemId> Barter(PlayerController p)
+    {
+        var list = new List<ItemId>();
+        foreach (var id in BarterGoods) if (p.Inventory.Has(id) && !(id == ItemId.Knife && p.Inventory.Count(id) < 2)) list.Add(id);
+        return list;
+    }
+
+    private void ShowPrivateTrade(Npc npc, string said = null)
+    {
+        ClearOptions();
+        var furs = new List<ItemId>();
+        foreach (var (id, _) in npc.Inventory.All()) if (Items.Items.Of(id).Kind == ItemKind.Fur) furs.Add(id);
+        string them = npc.DisplayName;
+        if (furs.Count == 0)
+        {
+            _text = said ?? $"{them} spreads his empty hands. No skins to spare now; the Company's shop had them. \"After the winter hunt, maybe.\"";
+            AddOption("Back", () => ShowTopics(Greeting(npc)));
+            return;
+        }
+        _text = said ?? $"You keep your voice low. {them} understands at once; the Company men have been doing this since before you were born. He has {ListFurs(npc, furs)}. The Company will not like it if anyone sees.";
+        var fur = furs[0];
+        foreach (var good in Barter(_player))
+        {
+            var (g, f) = (good, fur);
+            // A good the man wants goes further with a friend.
+            int skins = npc.RapportWith(_player) > 30f && npc.Inventory.Count(f) >= 2 && g == ItemId.Tobacco ? 2 : 1;
+            AddOption($"{Items.Items.Of(g).Name} for {(skins == 2 ? "two" : "a")} {Items.Items.Of(f).Name.ToLowerInvariant()}", () =>
+            {
+                _player.Inventory.Remove(g); npc.Inventory.Add(g);
+                npc.Inventory.Remove(f, skins); _player.Inventory.Add(f, skins);
+                npc.ChangeRapport(_player, 2f);
+                _player.Skills.Learn(ref _player.Skills.Trade, 0.01f, "trading on your own account");
+                string saw = Core.YorkHappenings.Witnessed(_player, npc, "traded with the homeguard on the side");
+                string after = saw != null ? $" Over his shoulder you see {saw} watching." : " Nobody is watching. You hope.";
+                ShowPrivateTrade(npc, $"{them} takes the {Items.Items.Of(g).Name.ToLowerInvariant()} and the skin{(skins == 2 ? "s go" : " goes")} into your pack. A sailor on the ship would pay well for it.{after}");
+            });
+        }
+        AddOption("Enough", () => ShowTopics(Greeting(npc)));
+    }
+
+    private static string ListFurs(Npc npc, List<ItemId> furs)
+    {
+        var bits = new List<string>();
+        foreach (var f in furs) bits.Add($"{npc.Inventory.Count(f)} {Items.Items.Of(f).Name.ToLowerInvariant()}");
+        return string.Join(", ", bits);
+    }
+
+    private static readonly string[] MonthNames = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+
+    // When the boats go, and leave to work out the days till then.
+    private void ShowBoats(Npc npc, World.ConvoyRun run, World.ConvoyLeg leg, int days)
+    {
+        ClearOptions();
+        string when = days == 0 ? "today" : days == 1 ? "tomorrow" : $"in {days} days, on {leg.Day} {MonthNames[Mathf.Clamp(leg.Month - 1, 0, 11)]}";
+        string boats = char.ToUpperInvariant(run.Name[0]) + run.Name[1..];
+        _text = $"\"{boats} leave for {leg.To} {when}. Until then you are mine: the woodpile, the boats, whatever wants doing. When they go, be at the landing.\"";
+        int alive = 0; foreach (var p in Sim.Players()) if (!p.IsDead) alive++;
+        if (alive == 1 && days >= 1)
+            AddOption($"Work out the days until the boats go ({days} days)", () =>
+            {
+                var cal = GameCalendar.Instance;
+                World.Convoys.WaitFor(_player, run, leg);
+                cal?.SkipHours(Mathf.Max(0.5f, days * 24f + 6.5f - (cal?.Hour ?? 6f)));
+                _player.Standing += Mathf.Min(3f, days * 0.15f);
+                _player.Journal.Add($"{cal?.DateString}: You worked out the days at {npc.HomeStores?.Title} waiting for {run.Name}.");
+                Close();
+            });
+        else if (days == 0)
+            AddOption("Go down to the landing", () => { World.Convoys.WaitFor(_player, run, leg); Close(); });
+        AddOption("Back", () => ShowTopics(Greeting(npc)));
+    }
 
     private void ShowOffer(Npc npc, Core.QuestDef q)
     {

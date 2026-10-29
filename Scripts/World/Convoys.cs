@@ -117,6 +117,7 @@ public sealed class Convoy
 	public ConvoyState Now = ConvoyState.Paddling;
 	public int DayLeft, NextEvent, DaysOut, DueDay, ShortDays;
 	public string At = "";                  // the carrying place or post she lies at
+	public string RunsRapid = "";           // a carrying place she will run instead of carrying (World/JourneyIncidents)
 	public bool Late;
 	public int ArrivedDay;                  // boats lie at the landing for the rest of the day they come in
 	public int Crew, Boats;
@@ -242,7 +243,7 @@ public static class Convoys
 	public static void Reset()
 	{
 		foreach (var c in All) DropMen(c);
-		All.Clear(); Riders.Clear(); _paths.Clear(); _launched.Clear();
+		All.Clear(); Riders.Clear(); _paths.Clear(); _launched.Clear(); _waiting.Clear(); JourneyIncidents.Reset();
 		_lastDay = -1; _nextId = 1; _seeded = false; _loaded = false;
 		_devLaunched = false;
 	}
@@ -568,6 +569,7 @@ public static class Convoys
 		if (Economy.Plains.Log) GD.Print($"[convoys] {cal.DateString} {line} ({Economy.StandardOfTrade.Worth(c.Cargo):0} MB)");
 		Chronicle.Event(line, Landing(leg.From), null, c.Name, 1.2f);
 		Hear(c, line, "", 1f);
+		BoardWaiting(c);
 		return c;
 	}
 
@@ -595,8 +597,9 @@ public static class Convoys
 		{
 			var ev = c.Path.Events[c.NextEvent];
 			c.NextEvent++;   // before Reach: turning back re-lays the road and the count with it
-			if (Reach(c, ev)) return;
+			if (Reach(c, ev)) { JourneyIncidents.Day(c, ev.Call ? null : ev); return; }
 		}
+		JourneyIncidents.Day(c, null);
 
 		Feed(c, cal);
 		if (!c.Late && today > c.DueDay)
@@ -676,6 +679,8 @@ public static class Convoys
 			return true;
 		}
 
+		// Run instead of carried (the player's word in the boats): through and on, no stop.
+		if (c.RunsRapid == e.Name) { c.RunsRapid = ""; Hear(c, $"{c.Name} ran {e.Name} with the pieces still in the boats.", "", 0.6f); return false; }
 		c.Now = ConvoyState.Portaging; c.At = e.Name; c.DayLeft = e.Days;
 		c.CampAt = LandNear(at); c.HasCamp = true;
 		Chronicle.Event($"{c.Name} were at {e.Name} with the pieces on the bank.", at, null, c.Name, 0.8f);
@@ -982,6 +987,55 @@ public static class Convoys
 		return list;
 	}
 
+	// ---- waiting on the boats ------------------------------------------------------------
+
+	// The next boats of a company to leave a post, and the days till they go:
+	// the run bound for `prefer` (a man's posting) if there is one, else the soonest.
+	public static (ConvoyRun Run, ConvoyLeg Leg, int Days)? NextFrom(FortLedger post, Faction company, FortLedger prefer)
+	{
+		LoadRuns();
+		var cal = GameCalendar.Instance;
+		if (cal == null) return null;
+		int today = Today(cal);
+		// The boats that land a man nearest his posting, within two months; the sooner of two as near.
+		var goal = prefer != null && prefer.AccessCell != default ? IsoGrid.ToWorld(prefer.AccessCell) : (Vector2?)null;
+		(ConvoyRun, ConvoyLeg, int)? best = null;
+		float bestScore = float.MaxValue;
+		foreach (var run in Runs)
+		{
+			if (run.Company != company) continue;
+			for (int i = 0; i < run.Legs.Count; i++)
+			{
+				var leg = run.Legs[i];
+				if (post == null || Ledger(leg.From) != post || _launched.GetValueOrDefault($"{run.Name}|{i}") == cal.Year) continue;
+				int days = Campaign.DayOf(cal.Year, leg.Month, leg.Day) - today;
+				if (days < 0 || days > 60) continue;
+				float score = days + (goal is { } g ? PostPos(leg.To).DistanceTo(g) / WorldMap.PxPerKm / 10f : 0f);
+				if (score < bestScore) { best = (run, leg, days); bestScore = score; }
+			}
+		}
+		return best;
+	}
+
+	// A man who sat down to wait for the boats: put in them when they go.
+	private static readonly Dictionary<PlayerController, string> _waiting = new();
+	public static void WaitFor(PlayerController p, ConvoyRun run, ConvoyLeg leg) => _waiting[p] = $"{run.Name}|{leg.From}";
+	public static bool IsWaiting(PlayerController p) => _waiting.ContainsKey(p);
+
+	private static void BoardWaiting(Convoy c)
+	{
+		foreach (var p in new List<PlayerController>(_waiting.Keys))
+		{
+			if (_waiting[p] != $"{c.Run.Name}|{c.FromName}") continue;
+			_waiting.Remove(p);
+			if (!GodotObject.IsInstanceValid(p) || p.IsDead || p.GlobalPosition.DistanceTo(Landing(c.FromName)) > 6000f) continue;
+			Riders[p] = c;
+			p.SetStartPosition(LandNear(Landing(c.FromName)));
+			p.Journal.Add($"{GameCalendar.Instance?.DateString}: You took your place in {c.Name}, bound for {c.ToName} under {c.Guide}.");
+			p.Say($"Down to the landing at first light. {c.Guide} points you to a thwart in {c.Name}.");
+		}
+	}
+
 	public static string Assign(PlayerController p, Npc leader, Convoy c)
 	{
 		if (p.Standing < 8f) return "\"A man I have known a fortnight, with the Company's goods? Prove yourself here first.\" (standing 8)";
@@ -1097,7 +1151,7 @@ public static class Convoys
 	public static void Load(Godot.Collections.Dictionary d)
 	{
 		foreach (var c in All) DropMen(c);
-		All.Clear(); Riders.Clear(); _paths.Clear(); _launched.Clear();
+		All.Clear(); Riders.Clear(); _paths.Clear(); _launched.Clear(); _waiting.Clear(); JourneyIncidents.Reset();
 		_loaded = false; _seeded = true; _devLaunched = true;
 		LoadRuns();
 		if (d == null || d.Count == 0) { _lastDay = -1; return; }

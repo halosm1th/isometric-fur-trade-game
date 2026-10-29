@@ -87,6 +87,7 @@ public static class Objective
     public static (Vector2 At, string Label)? Of(PlayerController p)
     {
         if (p == null) return null;
+        if (YorkHappenings.RaidMark(p) is { } raid) return raid;
         var t = p.Task;
         if (t == null || t.Kind == TaskKind.None || t.IsComplete && t.Kind != TaskKind.Report) return Report(p);
         var home = p.HomePost ?? Sim.Fort;

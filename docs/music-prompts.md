@@ -12,7 +12,7 @@ recorded close and warm. It should sit under gameplay and not pull focus.
 
 ## Open water (summer at the post) - currently only 1 track of its own
 
-1. `river_brigade_morning.mp3` - A bright, steady paddling rhythm. A fiddle
+1. `river_brigade_morning.mp3` (done) - A bright, steady paddling rhythm. A fiddle
    and wooden flute play a French-Canadian voyageur melody over a soft hand
    drum keeping a paddle-stroke beat. Hopeful, the boats are setting out.
 2. `the_ship_in_the_roads.mp3` - Slow and expectant. Low strings and a solo

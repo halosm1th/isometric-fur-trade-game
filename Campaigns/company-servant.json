@@ -398,6 +398,199 @@
           ]
         },
         {
+          "id": "BroachedCask",
+          "title": "A broached cask",
+          "summary": "A cask of the Company's rum came up from the boats with the bung drawn and two gallons gone, and the Factor wants a name.",
+          "requires": [
+            "Landfall"
+          ],
+          "start_when": [
+            "flag:ship_mates",
+            {
+              "not": "dead:Andrew Flett"
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Asked",
+              "kind": "talk",
+              "text": "The Factor wants a word about the rum",
+              "who": "Factor",
+              "dialogue": {
+                "text": "{npc} has a tally stick in one hand and a face like thunder. \"One of the rum casks you lot carried up came in with the bung drawn and two gallons short. You were at the landing. I want a name, and I'll know if I'm lied to.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll find out, sir.\"",
+                    "reply": "\"See that you do.\""
+                  },
+                  {
+                    "label": "\"I'm no informer, sir.\"",
+                    "reply": "\"Then you're no use to me. Find out anyway.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -1
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "AskHugh",
+              "kind": "talk",
+              "text": "Ask Hugh Rendall what he saw at the landing",
+              "who": "Hugh Rendall",
+              "dialogue": {
+                "text": "{npc} won't meet your eye. \"I never touched it. Ask Andrew. And for God's sake don't tell the Factor I sent you.\"",
+                "choices": [
+                  {
+                    "label": "\"I'll ask him.\""
+                  }
+                ]
+              }
+            },
+            {
+              "id": "AskAndrew",
+              "kind": "talk",
+              "text": "Ask Andrew Flett about the rum",
+              "who": "Andrew Flett",
+              "dialogue": {
+                "text": "{npc} goes red, then laughs. \"Aye, it was me. Two drams for the cold and one for Hugh, and then the bung wouldn't go back. First night ashore, man, after six weeks of ship's biscuit. You'll not tell him?\"",
+                "choices": [
+                  {
+                    "label": "\"Your secret's safe with me.\"",
+                    "reply": "\"You're a good one. I'll not forget it.\"",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "Andrew Flett",
+                        "add": 15
+                      },
+                      {
+                        "do": "flag",
+                        "name": "promised_flett"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"I'll not lie for you, Andrew.\"",
+                    "reply": "His face falls. \"No. No, I suppose not.\"",
+                    "do": [
+                      {
+                        "do": "rapport",
+                        "who": "Andrew Flett",
+                        "add": -5
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "Answer",
+              "kind": "talk",
+              "text": "Give the Factor his answer about the rum",
+              "who": "Factor",
+              "dialogue": {
+                "text": "{npc} looks up from his ledger. \"Well? Who drew the bung?\"",
+                "choices": [
+                  {
+                    "label": "\"It was Andrew Flett, sir.\"",
+                    "reply": "\"Was it.\" He writes the name in the book. \"A month's wages and no rum till Christmas. You did right.\" Andrew will hear who told by supper.",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": 3
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "Andrew Flett",
+                        "add": -30
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "Hugh Rendall",
+                        "add": -10
+                      },
+                      {
+                        "do": "flag",
+                        "name": "named_flett"
+                      },
+                      {
+                        "do": "if",
+                        "cond": "flag:promised_flett",
+                        "then": [
+                          {
+                            "do": "rapport",
+                            "who": "Hugh Rendall",
+                            "add": -10
+                          }
+                        ]
+                      },
+                      {
+                        "do": "note",
+                        "text": "You told the Factor that Andrew Flett broached the rum. The Factor thinks well of you; the men's house less so."
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"I couldn't find out, sir.\"",
+                    "reply": "\"Couldn't, or wouldn't?\" A long look. \"Then the whole men's house goes without rum on Saturday, and they can thank you for it.\"",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": -1
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "Andrew Flett",
+                        "add": 10
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "Hugh Rendall",
+                        "add": 5
+                      },
+                      {
+                        "do": "flag",
+                        "name": "covered_flett"
+                      },
+                      {
+                        "do": "note",
+                        "text": "You kept Andrew Flett's secret from the Factor."
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"It was the sailors, sir, before it ever left the boats.\"",
+                    "reply": "\"Was it now. Convenient, with the ship sailing within the week.\" He makes a note, and you can't tell if he believes you.",
+                    "do": [
+                      {
+                        "do": "standing",
+                        "add": 1
+                      },
+                      {
+                        "do": "rapport",
+                        "who": "Andrew Flett",
+                        "add": 8
+                      },
+                      {
+                        "do": "flag",
+                        "name": "blamed_sailors"
+                      },
+                      {
+                        "do": "note",
+                        "text": "You told the Factor the sailors broached the rum. Andrew Flett owes you."
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
           "id": "UpTheRivers",
           "title": "Up the rivers",
           "summary": "A thousand miles of river between York and Edmonton House.",

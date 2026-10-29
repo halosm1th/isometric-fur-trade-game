@@ -31,12 +31,12 @@ public partial class Audio : Node
         // Each season leans on its own pieces but borrows the others', so the
         // same tune doesn't come round every time.
         { Season.Winter, new[] { "the_long_winter_at_the_bay", "planks_beneath_the_frost", "the_long_winter_at_the_bay", "planks_beneath_the_frost", "waiting_on_the_ice", "claim_the_north" } },
-        { Season.Breakup, new[] { "waiting_on_the_ice", "waiting_on_the_ice", "claim_the_north", "boots_on_the_pine_floor", "planks_beneath_the_frost" } },
-        { Season.OpenWater, new[] { "boots_on_the_pine_floor", "boots_on_the_pine_floor", "claim_the_north", "claim_the_north", "waiting_on_the_ice", "mens_house_reel" } },
-        { Season.FreezeUp, new[] { "waiting_on_the_ice", "the_long_winter_at_the_bay", "planks_beneath_the_frost", "claim_the_north" } },
+        { Season.Breakup, new[] { "ice_goes_out", "ice_goes_out", "waiting_on_the_ice", "goose_marsh_at_dawn", "claim_the_north", "planks_beneath_the_frost" } },
+        { Season.OpenWater, new[] { "river_brigade_morning", "the_ship_in_the_roads", "goose_marsh_at_dawn", "trading_at_the_gates", "boots_on_the_pine_floor", "claim_the_north", "mens_house_reel" } },
+        { Season.FreezeUp, new[] { "waiting_on_the_ice", "the_long_winter_at_the_bay", "ice_goes_out", "planks_beneath_the_frost", "claim_the_north" } },
     };
     // Evenings near the men's house: the fiddle is going.
-    private static readonly string[] ReelTracks = { "mens_house_reel", "boots_on_the_pine_floor" };
+    private static readonly string[] ReelTracks = { "mens_house_reel", "boots_on_the_pine_floor", "trading_at_the_gates" };
 
     private readonly Dictionary<string, List<AudioStream>> _cache = new();
     // --audiotrace prints every sound as it starts, for checking without ears.
