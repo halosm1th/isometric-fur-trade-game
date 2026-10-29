@@ -44,7 +44,7 @@ public static class Doll
     }
 
     // A frames path, doll or painted sheet.
-    public static SpriteFrames Load(string path) => Is(path) ? Look(path) : GD.Load<SpriteFrames>(Appearance.Resolve(path));
+    public static SpriteFrames Load(string path) => Is(path) ? Look(path) : GD.Load<SpriteFrames>(Appearance.Resolve(Garb.Base(path)));
 
     private static void Manifest()
     {

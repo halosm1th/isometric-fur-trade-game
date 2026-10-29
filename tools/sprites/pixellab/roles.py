@@ -4,6 +4,12 @@ posed by the 3D doll, so that everyone can do everything:
   python roles.py make ROLE [ACTION ...]    (all of ROLES' actions if none)
   python roles.py install ROLE              -> assets/sprites/<dir>_pl, Scenes/.../<Role>PLFrames.tres
   python roles.py check ROLE                -> out/<role>/check.png, painted beside new
+  python roles.py seed ROLE FRONT SIDE BACK -> a new role's painted sheet from three idle frames
+
+A new role (NEW_ROLES) has no painted sheet to start from: seed makes one
+from three reference idles (front, three-quarter side, back), drawn by
+PixelLab's outfit transfer onto another role's idles, or painted. Then make,
+check and install as for any role; Appearance wears the sheet once it is there.
 
 For each painted idle frame (front, three-quarter side, back) PixelLab
 estimates the skeleton the figure stands in; the doll's motion for an
@@ -53,6 +59,18 @@ ROLES = {
     "plateau": ("Scenes/Npc/PlateauFrames.tres", "a Plateau man: woven brimmed basket hat, fringed buckskin shirt, dentalium shell necklace, bow and quiver on his back, moccasins"),
 }
 
+# Roles not yet drawn: (sheet, description, the folder seed puts its idles in).
+# Each needs reference idles first (see the module comment).
+NEW_ROLES = {
+    "metis": ("Scenes/Npc/MetisFrames.tres", "a Metis man: black hair, black moustache, a white wool capote with blue stripes at the hem tied with a red sash, blue leggings, moccasins", "metis"),
+    "cree_boy": ("Scenes/Npc/CreeBoyFrames.tres", "a Cree boy of ten: long black hair, a small fringed buckskin shirt and leggings, red breechcloth, moccasins", "cree_boy"),
+    "cree_girl": ("Scenes/Npc/CreeGirlFrames.tres", "a Cree girl of ten: two black braids, a blue stroud cloth dress with red trim, leggings, moccasins", "cree_girl"),
+    "orkneyman": ("Scenes/Npc/OrkneymanFrames.tres", "a young Orkney labourer, bare-headed: short fair hair and a short fair beard, brown wool jacket, white shirt, grey breeches, brown boots", "orkneyman"),
+    "cree_woman_cloth": ("Scenes/Npc/CreeWomanClothFrames.tres", "a Cree woman: long black braids, a blue stroud cloth dress with red and white beadwork at the shoulders, red leggings, moccasins", "cree_woman_cloth"),
+    "ship_captain": ("Scenes/Npc/ShipCaptainFrames.tres", "a ship's captain: black bicorne hat, grey side whiskers, long dark blue coat with brass buttons, white waistcoat and breeches, black boots", "ship_captain"),
+}
+ROLES.update({k: v[:2] for k, v in NEW_ROLES.items()})
+
 # action: (painted idle it starts from, doll frames, direction, motion label, in the hands, speed, loop)
 ACTIONS = {
     "walk": ("idle", "walk", "south", "walk", "", 8, True),
@@ -74,7 +92,7 @@ ACTIONS = {
 DOLL_IDLE = {"idle": "idle_0", "idle_side": "idle_side_0", "idle_back": "idle_back_0"}
 # Whose painted side frame is turned three-quarters toward us, like the
 # voyageur's; the rest are drawn in profile, facing east.
-THREE_QUARTER = {"voyageur", "player", "factor", "rival", "cree_woman", "cree_captain", "assiniboine", "blackfoot", "coast"}
+THREE_QUARTER = {"voyageur", "player", "factor", "rival", "cree_woman", "cree_captain", "assiniboine", "blackfoot", "coast", "metis"}
 
 
 def sheet(role):
@@ -223,6 +241,26 @@ def install(role):
             speed, loop = anims[a][0], anims[a][1] == "true"
         anims[a] = (float(speed), "true" if loop else "false",
                     [f"res://assets/sprites/{folder}_pl/{a}_{i}.png" for i in range(4)])
+    write_tres(path.replace("Frames.tres", "PLFrames.tres"), anims)
+    print(f"[roles] {role}: installed {done}")
+
+
+def seed(role, front, side, back):
+    """A new role's painted sheet: its three idles, as the frames PixelLab starts from."""
+    path = os.path.join(ROOT, NEW_ROLES[role][0])
+    folder = NEW_ROLES[role][2]
+    dst = os.path.join(ROOT, "assets", "sprites", folder)
+    os.makedirs(dst, exist_ok=True)
+    anims = {}
+    for anim, src in (("idle", front), ("idle_side", side), ("idle_back", back)):
+        name = {"idle": "idle_front"}.get(anim, anim)
+        Image.open(src).convert("RGBA").save(os.path.join(dst, name + ".png"))
+        anims[anim] = (5.0, "true", [f"res://assets/sprites/{folder}/{name}.png"])
+    write_tres(path, anims)
+    print(f"[roles] {role}: seeded {path}")
+
+
+def write_tres(path, anims):
     res, blocks = [], []
     for name, (speed, loop, tex) in anims.items():
         for p in tex:
@@ -232,9 +270,8 @@ def install(role):
         blocks.append('{\n"name": &"%s",\n"speed": %s,\n"loop": %s,\n"frames": [%s]\n}' % (name, speed, loop, frames))
     head = f'[gd_resource type="SpriteFrames" load_steps={len(res) + 1} format=3]\n\n'
     head += "".join(f'[ext_resource type="Texture2D" path="{p}" id="t{i + 1}"]\n' for i, p in enumerate(res))
-    with open(path.replace("Frames.tres", "PLFrames.tres"), "w", encoding="utf-8") as f:
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write(head + "\n[resource]\nanimations = [" + ", ".join(blocks) + "]\n")
-    print(f"[roles] {role}: installed {done}")
 
 
 def check(role):
@@ -251,6 +288,10 @@ def check(role):
 
 if __name__ == "__main__":
     cmd, role, *rest = sys.argv[1:]
-    roles = list(ROLES) if role == "all" else [role]
+    if cmd == "seed":
+        seed(role, *rest)
+        sys.exit()
+    # "all" is every role drawn so far: a new role joins once it is seeded.
+    roles = [r for r in ROLES if os.path.exists(os.path.join(ROOT, ROLES[r][0]))] if role == "all" else [role]
     for r in roles:
         {"make": lambda: make(r, rest or list(ACTIONS)), "install": lambda: install(r), "check": lambda: check(r)}[cmd]()
