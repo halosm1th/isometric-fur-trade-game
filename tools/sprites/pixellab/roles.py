@@ -80,6 +80,21 @@ def sheet(role):
 # first frame, or else from the front.
 FALLBACK = {"idle_side": ("walk_side", "idle"), "idle_back": ("walk_back", "idle")}
 
+# Side actions other than the walk that start from another painted frame:
+# the NWC partner's painted side is seen from behind, while his painted
+# actions face the front three-quarter, as his talk does; the Cree captain's
+# side idle holds his calumet, which PixelLab then holds in every action,
+# and his side walk does not; the Cree woman's side idle has her arms folded
+# into her robe, so she shot and ate empty-handed.
+SIDE_REF = {"nwc_partner": "talk", "cree_captain": "walk_side", "cree_woman": "walk_side"}
+
+
+def ref_anim(role, action):
+    idle = ACTIONS[action][0]
+    if idle == "idle_side" and action != "walk_side" and role in SIDE_REF:
+        return SIDE_REF[role]
+    return idle
+
 
 def painted(role, anim):
     anims = sheet(role)[1]
@@ -126,7 +141,8 @@ def motion(role, action):
     """The reference skeleton and one per frame, in CANVAS fractions: the
     doll's joints' movement from its standing pose laid onto the figure."""
     idle, doll_anim, *_ = ACTIONS[action]
-    im, ref = reference(role, idle)
+    idle_ref = ref_anim(role, action)
+    im, ref = reference(role, idle_ref)
     doll = json.load(open(os.path.join(HERE, "..", "doll", "out", "skeletons.json")))
     stand = {j["label"]: j for j in doll[DOLL_IDLE[idle]]}
     s = height(im) / DOLL_TALL
@@ -155,13 +171,13 @@ def make(role, actions):
             print(f"[roles] {role} {action}: already done")
             continue
         idle, _, direction, label, holding, *_ = ACTIONS[action]
-        if direction == "south-east" and role not in THREE_QUARTER:
+        if direction == "south-east" and role not in THREE_QUARTER and role not in SIDE_REF:
             direction = "east"
         im, start, frames = motion(role, action)
         sq, ox, oy = on_square(im, CANVAS)
         body = {"description": desc + (", holding " + holding if holding else ""), "action": label,
                 "direction": direction, "view": "low top-down", "first_frame": pl.b64(sq),
-                "first_frame_keypoints": start, "keypoints": frames, "no_background": True, "seed": 0}
+                "first_frame_keypoints": start, "keypoints": frames, "no_background": True, "seed": int(os.environ.get("PL_SEED", 0))}
         name = f"{role}/{action}"
         r = pl.wait(name.replace("/", "_"), pl.call("POST", "/animate-with-skeleton-v3", body))
         os.replace(os.path.join(pl.OUT, name.replace("/", "_") + ".json"), out(role, action + ".json"))
