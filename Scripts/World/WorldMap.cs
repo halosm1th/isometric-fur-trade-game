@@ -27,6 +27,17 @@ public static class WorldMap
     public static int Columns { get; private set; } = 1;
     public static int Rows { get; private set; } = 1;
     public static float PxPerKm { get; private set; } = 20f;
+
+    // How far, for a label. Buildings and people are life-size (a tile is
+    // about three yards), so anything within a post or a camp is told in
+    // yards; past that the map's own scale holds and it is kilometres.
+    public const float LocalTiles = 40f;
+    public static string Distance(float px)
+    {
+        float tiles = px / IsoGrid.TileW;
+        if (tiles < LocalTiles) return $"{Mathf.Max(5, Mathf.RoundToInt(tiles * 3f / 5f) * 5)} yards";
+        return $"{px / PxPerKm:0} km";
+    }
     public static Image GroundImage { get; private set; }
     public static readonly List<WorldPlace> Places = new();
 

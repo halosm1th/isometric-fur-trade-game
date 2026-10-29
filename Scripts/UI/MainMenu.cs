@@ -453,5 +453,5 @@ public partial class MainMenu : Control
         return Core.CharacterSheet.Encode();
     }
 
-    private void Go() => GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, WorldScene);
+    private void Go() => LoadingScreen.Go(GetTree(), WorldScene);
 }

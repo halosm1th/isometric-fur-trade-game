@@ -98,7 +98,10 @@ public static class Objective
                 var tree = Sim.Structures?.NearestTree(p.GlobalPosition, 4000f);
                 return tree.HasValue ? (IsoGrid.ToWorld(tree.Value), "a tree to fell") : null;
             case TaskKind.CarryCargo:
-                return Sim.Ship != null && Sim.Ship.IsDocked ? (WorldLayout.ShipBerth, "the ship") : (IsoGrid.ToWorld(WorldLayout.Warehouse.DoorCell), "the Depot");
+                // Loaded: to the Depot's chest. Empty-handed: to the end of the wharf, where the cargo comes off.
+                if (p.ShipCargoCarried > 0 || Sim.Ship == null || !Sim.Ship.IsDocked) return (IsoGrid.ToWorld(WorldLayout.Warehouse.DoorCell), "the Depot - set the cargo down at the chest");
+                if (Sim.Ship.Cargo.SlotCount == 0) return LeaderOf(home);
+                return (IsoGrid.ToWorld(WorldLayout.WharfEnd), "the end of the wharf - shoulder cargo");
             case TaskKind.DeliverLetter:
                 return t.Done == 0 && Sim.Band?.Leader is { } chief && IsInstanceValid(chief) ? (chief.GlobalPosition, chief.DisplayName) : LeaderOf(home);
             case TaskKind.Raid:
@@ -184,8 +187,7 @@ public partial class WayfindingHud : Control
         var screen = xf * world;
         var me = xf * _player.GlobalPosition;
         var size = GetViewportRect().Size;
-        float km = _player.GlobalPosition.DistanceTo(world) / WorldMap.PxPerKm;
-        string dist = km >= 1f ? $"{km:0} km" : $"{km * 1000f:0} m";
+        string dist = WorldMap.Distance(_player.GlobalPosition.DistanceTo(world));
         var font = ThemeDB.FallbackFont;
         var shadow = new Color(0, 0, 0, 0.7f);
         var inset = new Rect2(new Vector2(48, 48), size - new Vector2(96, 140));

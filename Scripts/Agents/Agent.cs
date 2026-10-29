@@ -468,8 +468,13 @@ public partial class Agent : CharacterBody2D
     public bool InAttackRange(Agent target)
     {
         var (_, range, _) = AttackProfile();
-        return GlobalPosition.DistanceTo(target.GlobalPosition) <= range + 20f;
+        if (GlobalPosition.DistanceTo(target.GlobalPosition) > range + 20f) return false;
+        // A man behind a wall isn't in range of a gun: close in round it.
+        return range <= 100f || Sim.Structures?.ShotBlockedAt(GlobalPosition, target.GlobalPosition) == null;
     }
+
+    // The last shot went into a wall rather than at the mark.
+    public bool LastShotWalled { get; private set; }
 
     // Swing/shoot at the target if in range and ready. Returns true on a hit.
     public bool Attack(Agent target)
@@ -478,6 +483,19 @@ public partial class Agent : CharacterBody2D
         var (damage, range, cooldown) = AttackProfile();
         if (GlobalPosition.DistanceTo(target.GlobalPosition) > range + 20f) return false;
         _attackCooldown = cooldown; _lastCooldown = cooldown;
+        LastShotWalled = false;
+        // Walls, palisades and shut doors stop a ball (or an arrow): it
+        // goes into the timber, and the mark behind it is untouched.
+        if (range > 100f && Sim.Structures?.ShotBlockedAt(GlobalPosition, target.GlobalPosition) is Vector2 wall)
+        {
+            bool shot = Weapon == ItemId.Musket && UseCharge();
+            CombatFx.Shot(this, wall + new Vector2(0, -40), shot);
+            if (shot) { CombatFx.Musket(this, wall); Sim.Noise(GlobalPosition, 1500f, this, "shot"); }
+            CombatFx.Missed(this, wall);
+            LastShotWalled = true;
+            OnAttackMissed(target);
+            return false;
+        }
         // Weak agents hit softer; ranged shots can miss. A sneak attack on
         // something that hasn't noticed you lands like a butcher's stroke.
         float mult = Needs.CapabilityFactor;

@@ -29,7 +29,7 @@ public partial class Conversation
     public Godot.Collections.Dictionary StartStores(Economy.FortLedger fort)
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
-        _npc = null; _stores = fort; _closed = false;
+        _npc = null; _stores = fort; _closed = false; _drawing = false; _said = "";
         ShowStores();
         return State();
     }
@@ -119,31 +119,105 @@ public partial class Conversation
         AddOption("Leave her", Close);
     }
 
+    // The storeroom chest has two faces: the front (stow, ration) and the
+    // kit you may draw. _said is the last thing that happened, shown above.
+    private bool _drawing;
+    private string _said = "";
+
     private void ShowStores()
     {
         var fort = _stores;
-        _text = $"The storeroom. {fort.Stores.Summary()}";
         ClearOptions();
-        AddOption("Stow your goods and furs", () => { int n = _player.StowInto(fort, false); _text = n > 0 ? $"You stow {n} lots." : "Nothing to stow: goods and furs go in here."; ShowStores(); });
-        AddOption("Stow provisions for the mess (meat, fish, geese; you keep two meals)", () => { int n = _player.StowInto(fort, true); _text = n > 0 ? $"You hand in {n} of meat. The Factor will hear of it." : "Nothing to hand in."; ShowStores(); });
-        bool trusted = _player.Rank == "clerk" || _player.Rank == "postmaster" || _player.Standing >= 15f;
-        void Draw(ItemId id, int n, string why = null, bool ok = true)
-        {
-            if (!fort.Stores.Has(id)) return;
-            string label = $"Draw {(n > 1 ? n + " " : "a ")}{Items.Items.Of(id).Name.ToLower()}{(n > 1 ? "" : "")} ({fort.Stores.Count(id)} in store)";
-            if (!ok) { AddOption(label + $" - {why}", () => { _text = $"\"{why}\" You leave it."; ShowStores(); }); return; }
-            AddOption(label, () => { int got = fort.Stores.TakeUpTo(id, n); _player.Inventory.Add(id, got); Chronicle.Event($"{_player.DisplayName} drew {Items.Items.Of(id).Name.ToLower()} from the stores.", _player.GlobalPosition, _player, weight: 0.3f); _text = $"You take {Items.Items.Of(id).Name.ToLower()} from the chest."; ShowStores(); });
-        }
-        Draw(ItemId.Musket, 1, "muskets are for men the Factor trusts (standing 15)", trusted && !_player.Inventory.Has(ItemId.Musket));
-        Draw(ItemId.SteelTrap, 2);
-        Draw(ItemId.Axe, 1, ok: !_player.Inventory.Has(ItemId.Axe));
-        Draw(ItemId.Snowshoes, 1, ok: !_player.Inventory.Has(ItemId.Snowshoes));
-        Draw(ItemId.PointBlanket, 1, "blankets are trade stock (standing 10)", _player.Standing >= 10f);
-        Draw(ItemId.Kettle, 1, ok: !_player.Inventory.Has(ItemId.Kettle));
-        Draw(ItemId.Tumpline, 1, ok: !_player.Inventory.Has(ItemId.Tumpline));
-        Draw(ItemId.TradeGoods, 4, "trade goods are the clerk's to count out (rank clerk)", _player.Rank == "clerk" || _player.Rank == "postmaster");
-        AddOption("Take a ration", () => { _text = fort.TakeRation(_player, 2) ? "You draw two days' ration." : "The shelves are bare."; ShowStores(); });
+        if (_drawing) { ShowDrawKit(fort); return; }
+        _text = (_said != "" ? _said + "\n\n" : "") + "The storeroom.\n" + StoreSummary(fort.Stores);
+        _said = "";
+        // Only what you have to put in is offered, and named.
+        int cargo = _player.ShipCargoCarried;
+        if (cargo > 0) AddOption($"Set down the ship's cargo ({cargo} pieces)", () => { int n = _player.StowInto(fort, false); _said = $"You set down {n} pieces from the ship."; ShowStores(); });
+        var goods = _player.Stowable(false);
+        if (goods.Count > 0 && cargo == 0) AddOption($"Stow your goods and furs: {ListOf(goods)}", () => { int n = _player.StowInto(fort, false); _said = $"You stow {n} lots."; ShowStores(); });
+        var food = _player.Stowable(true);
+        if (food.Count > 0) AddOption($"Hand in meat for the mess: {ListOf(food)} (you keep two meals)", () => { int n = _player.StowInto(fort, true); _said = $"You hand in {n} of meat. The Factor will hear of it."; ShowStores(); });
+        AddOption("Draw kit from the chest...", () => { _drawing = true; ShowStores(); });
+        if (_player.Inventory.CountOfKind(ItemKind.Food) < 4)
+            AddOption("Take two days' ration", () => { _said = fort.TakeRation(_player, 2) ? "You draw two days' ration." : "The shelves are bare."; ShowStores(); });
         AddOption("Close the chest", Close);
+    }
+
+    // The kit a man may draw: what he is let have, and what he isn't, said once.
+    private void ShowDrawKit(Economy.FortLedger fort)
+    {
+        bool clerk = _player.Rank == "clerk" || _player.Rank == "postmaster";
+        bool trusted = clerk || _player.Standing >= 15f;
+        var kit = new List<(ItemId id, int n, bool once, string locked)>
+        {
+            (ItemId.Musket, 1, true, trusted ? null : "muskets need the Factor's trust (standing 15)"),
+            (ItemId.SteelTrap, 2, false, null),
+            (ItemId.Axe, 1, true, null),
+            (ItemId.Snowshoes, 1, true, null),
+            (ItemId.Kettle, 1, true, null),
+            (ItemId.Tumpline, 1, true, null),
+            (ItemId.PointBlanket, 1, false, _player.Standing >= 10f ? null : "blankets are trade stock (standing 10)"),
+            (ItemId.TradeGoods, 4, false, clerk ? null : "trade goods are the clerk's to count out"),
+        };
+        var have = new List<string>(); var shut = new List<string>();
+        foreach (var (id, n, once, locked) in kit)
+        {
+            if (!fort.Stores.Has(id)) continue;
+            string name = Items.Items.Of(id).Name.ToLower();
+            if (once && _player.Inventory.Has(id)) { have.Add(name); continue; }
+            if (locked != null) { shut.Add(locked); continue; }
+            var item = id; int count = n;
+            AddOption($"Draw {Counted(name, n)}   ({fort.Stores.Count(id)} in store)", () =>
+            {
+                int got = fort.Stores.TakeUpTo(item, count); _player.Inventory.Add(item, got);
+                Chronicle.Event($"{_player.DisplayName} drew {name} from the stores.", _player.GlobalPosition, _player, weight: 0.3f);
+                _said = $"You take {Counted(name, got)} from the chest.";
+                ShowStores();
+            });
+        }
+        _text = (_said != "" ? _said + "\n\n" : "") + "What the chest will give you."
+            + (have.Count > 0 ? $"\nYou carry your own {string.Join(", ", have)} already." : "")
+            + (shut.Count > 0 ? $"\nNot for you yet: {string.Join("; ", shut)}." : "");
+        _said = "";
+        AddOption("Back", () => { _drawing = false; ShowStores(); });
+    }
+
+    // "an axe", "2 steel traps", "snowshoes".
+    private static string Counted(string name, int n)
+    {
+        bool plural = name.EndsWith("s") && !name.EndsWith("ss");
+        if (n > 1) return $"{n} {(plural ? name : name + "s")}";
+        if (plural) return name;
+        return ("aeiou".IndexOf(name[0]) >= 0 ? "an " : "a ") + name;
+    }
+
+    private static string ListOf(List<(ItemId id, int n)> items)
+    {
+        var bits = new List<string>();
+        foreach (var (id, n) in items) bits.Add($"{Items.Items.Of(id).Name.ToLower()} {n}");
+        if (bits.Count > 4) return string.Join(", ", bits.GetRange(0, 4)) + $" and {bits.Count - 4} more";
+        return string.Join(", ", bits);
+    }
+
+    // The chest's contents sorted onto shelves, not one long run of text.
+    private static string StoreSummary(Inventory inv)
+    {
+        var shelves = new (string title, ItemKind[] kinds)[]
+        {
+            ("Provisions", new[] { ItemKind.Food, ItemKind.Drink }),
+            ("Furs", new[] { ItemKind.Fur }),
+            ("Trade stock", new[] { ItemKind.Goods, ItemKind.Clothing }),
+            ("Tools and arms", new[] { ItemKind.Tool, ItemKind.Weapon, ItemKind.Fuel }),
+        };
+        var lines = new List<string>();
+        foreach (var (title, kinds) in shelves)
+        {
+            var bits = new List<string>();
+            foreach (var (id, n) in inv.All()) if (System.Array.IndexOf(kinds, Items.Items.Of(id).Kind) >= 0) bits.Add($"{Items.Items.Of(id).Name.ToLower()} {n}");
+            if (bits.Count > 0) lines.Add($"{title}: {string.Join(", ", bits)}");
+        }
+        return lines.Count > 0 ? string.Join("\n", lines) : "The shelves are bare.";
     }
 
     public Godot.Collections.Dictionary Start(Npc npc)

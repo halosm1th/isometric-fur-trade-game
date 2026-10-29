@@ -498,7 +498,8 @@ public partial class Population : Node2D
 		var end = WorldLayout.WharfEnd;
 		for (int i = 0; i < n; i++)
 		{
-			var cell = IsoGrid.Cell(end, 0, i / 2 + 1);
+			// Along the wharf's last planks, never off its side in the river.
+			var cell = Sim.Paths?.NearestWalkable(IsoGrid.Cell(end, -(i / 2), 0), 3) ?? IsoGrid.Cell(end, -(i / 2), 0);
 			var s = Spawn(Sailors[i % Sailors.Length], Role.Sailor, Faction.ShipsCrew, cell, cell, Sim.Fort, _hbcFrames, new Color(0.75f, 0.8f, 0.9f), 0.78f);
 			s.Inventory.Add(ItemId.Knife); s.Inventory.Add(ItemId.Bread, 3); s.Inventory.Add(ItemId.Capote);
 			if (i < 2) s.Inventory.Add(ItemId.Musket);

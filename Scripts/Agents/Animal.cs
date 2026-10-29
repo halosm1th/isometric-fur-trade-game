@@ -144,6 +144,7 @@ public partial class Animal : Agent
             {
                 var fort = IsoGrid.ToWorld(IsoGrid.Cell(WorldLayout.FortTop, WorldLayout.FortWidth / 2, WorldLayout.FortDepth / 2));
                 _target = GlobalPosition.Lerp(fort, 0.25f) + new Vector2((float)GD.RandRange(-200, 200), (float)GD.RandRange(-120, 120));
+                if (StructurePainter.InsidePalisade(_target, out var prowl)) _target = prowl + new Vector2((float)GD.RandRange(-160, 160), (float)GD.RandRange(-80, 80));
                 _mode = Mode.Graze; _modeTimer = 5f;
             }
             return;
@@ -156,6 +157,11 @@ public partial class Animal : Agent
             var home = Site?.WorldPos ?? GlobalPosition;
             float r = Site?.RadiusPx ?? 300f;
             _target = home + new Vector2((float)GD.RandRange(-r, r), (float)GD.RandRange(-r * 0.5f, r * 0.5f));
+            // Found in a yard (the gate stood open once): out the way it came.
+            if (StructurePainter.InsidePalisade(GlobalPosition, out var gate)) _target = gate + (gate - GlobalPosition).Normalized() * 200f;
+            else for (int tries = 0; tries < 4 && StructurePainter.InsidePalisade(_target, out _); tries++)
+                _target = home + new Vector2((float)GD.RandRange(-r, r), (float)GD.RandRange(-r * 0.5f, r * 0.5f));
+            if (StructurePainter.InsidePalisade(_target, out _)) _target = GlobalPosition;
             _mode = Mode.Graze;
         }
     }
@@ -206,6 +212,17 @@ public partial class Animal : Agent
         return best;
     }
 
+    // The gates are kept: a beast outside a palisade doesn't step in through
+    // the gap. (Caribou used to graze their way into the yard at York.)
+    private bool KeptOut(float dt)
+    {
+        if (Velocity == Vector2.Zero) return false;
+        var ahead = GlobalPosition + Velocity.Normalized() * 24f + Velocity * dt;
+        if (!StructurePainter.InsidePalisade(ahead, out _) || StructurePainter.InsidePalisade(GlobalPosition, out _)) return false;
+        Velocity = Vector2.Zero;
+        return true;
+    }
+
     private void Act(float dt, float motion)
     {
         switch (_mode)
@@ -216,6 +233,7 @@ public partial class Animal : Agent
                 var away = _quarry != null && IsInstanceValid(_quarry) ? _quarry.GlobalPosition : _fleeFrom.Value;
                 if (_modeTimer <= 0f) _fleeFrom = null;
                 Velocity = (GlobalPosition - away).Normalized() * EffectiveSpeed * motion;
+                if (KeptOut(dt)) { var side = (GlobalPosition - away).Normalized().Orthogonal(); Velocity = side * EffectiveSpeed * motion; if (KeptOut(dt)) Velocity = -side * EffectiveSpeed * motion; }
                 MoveAndSlide();
                 if (_modeTimer <= 0f) { _mode = Mode.Graze; _modeTimer = 0f; }
                 return;
@@ -234,6 +252,7 @@ public partial class Animal : Agent
                 }
                 IsSprinting = true;
                 Velocity = to.Normalized() * EffectiveSpeed * motion;
+                if (KeptOut(dt)) { _quarry = null; _mode = Mode.Graze; _modeTimer = 0f; return; }
                 MoveAndSlide();
                 return;
         }
@@ -242,6 +261,7 @@ public partial class Animal : Agent
         var d = _target - GlobalPosition;
         if (d.Length() < 20f) { Velocity = Vector2.Zero; return; }
         Velocity = d.Normalized() * Mathf.Min(EffectiveSpeed * 0.45f * motion, d.Length() / Mathf.Max(dt, 1e-4f));
+        if (KeptOut(dt)) { _modeTimer = 0f; return; }
         MoveAndSlide();
         if (GetSlideCollisionCount() > 0) _modeTimer = 0f;
     }

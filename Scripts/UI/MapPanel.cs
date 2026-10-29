@@ -284,7 +284,7 @@ public partial class MapCanvas : Control
         {
             var p = M(wp);
             DrawColoredPolygon(new[] { p + new Vector2(0, -7), p + new Vector2(6, 0), p + new Vector2(0, 7), p + new Vector2(-6, 0) }, new Color(0.95f, 0.75f, 0.2f));
-            if (Player != null) DrawString(font, p + new Vector2(9, 4), $"waypoint, {Player.GlobalPosition.DistanceTo(wp) / WorldMap.PxPerKm:0} km", HorizontalAlignment.Left, -1, 11, ink);
+            if (Player != null) DrawString(font, p + new Vector2(9, 4), $"waypoint, {WorldMap.Distance(Player.GlobalPosition.DistanceTo(wp))}", HorizontalAlignment.Left, -1, 11, ink);
         }
         if (Objective.Of(Player) is { } goal)
         {

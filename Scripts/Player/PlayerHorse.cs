@@ -173,11 +173,7 @@ public partial class PlayerController
         if (Economy.Plains.Log) GD.Print($"[plains] {DisplayName}'s horse back from the save: {HorseName}, coat {HorseCoat}, condition {HorseCondition:0}, mounted {Mounted}");
     }
 
-    private static string Distance(float px)
-    {
-        float km = px / WorldMap.PxPerKm;
-        return km < 1f ? $"{Mathf.RoundToInt(km * 10f) * 100} paces" : $"{km:0.#} km";
-    }
+    private static string Distance(float px) => WorldMap.Distance(px);
 
     private string Bearing(Vector2 to)
     {

@@ -109,7 +109,7 @@ public static class Starts
             var m = pop.Spawn(names[i], Role.Labourer, Faction.HBC, IsoGrid.Cell(mens.Top, 1 + i, 4), IsoGrid.Cell(WorldLayout.FortTop, 10 + i, 9), Sim.Fort, GD.Load<SpriteFrames>("res://Scenes/Npc/LabourerFrames.tres"), Colors.White);
             m.Inventory.Add(ItemId.Capote); m.Inventory.Add(ItemId.Knife); m.Inventory.Add(ItemId.Bread, 2);
             m.Age = GD.RandRange(17, 23);
-            m.GlobalPosition = land + new Vector2(10 + i * 30, 60);
+            m.GlobalPosition = Dry(land + new Vector2(10 + i * 30, 60));
             m.Brain.Push(m, new Agents.Goals.ReportForDutyGoal());
             Shared(m, p, $"{m.DisplayName} and {p.DisplayName} crossed from Stromness together on the Company's ship.");
             mates.Add(m);

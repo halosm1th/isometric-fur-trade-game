@@ -586,6 +586,15 @@ public partial class Npc : Agent
         {
             // Already there, or unreachable.
             if (start == cell || (paths?.NearestWalkable(cell) is Vector2I nw && nw == start)) { Arrived = true; _path.Clear(); return true; }
+            // Standing where no one can stand (set down off the side of the
+            // wharf, or left in the river): step onto the nearest dry ground
+            // and try again, instead of failing there for ever.
+            if (paths != null && !paths.IsWalkable(start) && Brain.Top is not ConvoyGoal && paths.NearestWalkable(start, 3) is Vector2I dry && dry != start)
+            {
+                GlobalPosition = IsoGrid.ToWorld(dry);
+                var again = paths.FindPath(dry, cell);
+                if (again.Count > 0) { _path = again; _pathIndex = 0; _destination = cell; Arrived = false; _stuckTime = 0f; return true; }
+            }
             MoveFailed = true; Arrived = false; _path.Clear();
             return false;
         }

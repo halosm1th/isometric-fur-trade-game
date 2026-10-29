@@ -449,10 +449,21 @@ public partial class PlayerController : Agent
 
 	private void FindDialogue() => _dialogue = UI.DialogueMenu.Instance;
 
+	// The crew and the other men empty the hold too: when nothing is left
+	// to carry, an order to carry it can't go undone through any fault of yours.
+	public void EndCargoTaskIfHoldEmpty()
+	{
+		if (Task.Kind != TaskKind.CarryCargo || Task.IsComplete || ShipCargoCarried > 0) return;
+		if (Sim.Ship != null && Sim.Ship.IsDocked && Sim.Ship.Cargo.SlotCount > 0) return;
+		Task.Done = Task.Need;
+		Sim.Notice("The ship's cargo is all ashore. Task done.");
+	}
+
 	// The Factor's morning orders for the new hand (server side).
 	public void AssignTask(TaskKind kind, int need, string intent = "")
 	{
 		var cal = GameCalendar.Instance;
+		EndCargoTaskIfHoldEmpty();
 		if (Task.Kind != TaskKind.None && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say($"Yesterday's task went undone. {(Task.Boss != "" ? Task.Boss : "The master")} noticed."); }
 		if (Task.Kind != TaskKind.None && Task.IsComplete) { Standing += 5f; TasksDone++; }
 		Task.Kind = kind; Task.Need = need; Task.Done = 0; Task.DayAssigned = cal.Day; Task.Intent = intent ?? ""; Task.Deadline = cal.Day + 1; Task.Accepted = false; Task.OwnWay = false;
@@ -1049,6 +1060,7 @@ public partial class PlayerController : Agent
 		bool hit = Attack(target);
 		if (before == ItemId.Musket && !empty) _oneShotAnim = "shoot";
 		if (empty && !hit) return "Your horn is empty: no powder for the gun. You can only club with it, close in.";
+		if (!hit && LastShotWalled) return "The shot goes into the wall. You can't hit what's behind it.";
 		if (hit && target.IsDead && target is Animal dead && dead.IsDangerous) Task.Progress(TaskKind.DriveOffAnimals, 1);
 		string what = Weapon != null ? Items.Items.Of(Weapon.Value).Name : "fists";
 		if (hit && empty) return target.IsDead ? $"{target.Describe()} is dead." : $"No powder: you club {target.Describe()} with the butt of the gun.";
@@ -1380,11 +1392,20 @@ public partial class PlayerController : Agent
 				if (fort.TakeRation(this, 2)) return "You draw a ration from the stores.";
 			}
 			var ship = Sim.Ship;
-			if (Faction == Faction.HBC && ship != null && ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 160f && ship.Cargo.SlotCount > 0)
+			if (Faction == Faction.HBC && ship != null && ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 260f && ship.Cargo.SlotCount > 0)
 			{
 				// What you can carry, a piece at least (design doc 12.4).
+				var before = new Dictionary<ItemId, int>();
+				foreach (var (id, n) in Inventory.All()) before[id] = n;
 				int carried = ship.Cargo.MoveByWeight(Inventory, Mathf.Max(90f, CarryCapacityLbs - Inventory.TotalWeightLbs));
-				return $"You shoulder {carried} pieces of cargo from the ship. Take them to the warehouse.";
+				foreach (var (id, n) in Inventory.All()) { int got = n - before.GetValueOrDefault(id); if (got > 0) _shipCargo[id] = _shipCargo.GetValueOrDefault(id) + got; }
+				return $"You shoulder {carried} pieces of cargo from the ship. Carry them to the Depot and set them down at the storeroom chest.";
+			}
+			// The hold is empty: the cargo is ashore, and an order to carry it is done with.
+			if (Faction == Faction.HBC && ship != null && ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 260f && ship.Cargo.SlotCount == 0)
+			{
+				EndCargoTaskIfHoldEmpty();
+				return "The hold is empty: the last of the cargo is ashore.";
 			}
 		}
 
@@ -1425,7 +1446,7 @@ public partial class PlayerController : Agent
 			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.WoodpileCell)) < 120f) return $"{Core.Keybinds.KeyFor("interact")}  The woodpile";
 			if (fort == Sim.Nwc ? WorldLayout.NwcHouse.Contains(Cell) : fort == Sim.Outpost ? WorldLayout.OutpostHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell)) return $"{Core.Keybinds.KeyFor("interact")}  The storeroom chest";
 			if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(fort.AccessCell)) < 110f && Inventory.CountOfKind(ItemKind.Food) < 3) return $"{Core.Keybinds.KeyFor("interact")}  Draw a ration";
-			if (Faction == Faction.HBC && Sim.Ship != null && Sim.Ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 160f && Sim.Ship.Cargo.SlotCount > 0) return $"{Core.Keybinds.KeyFor("interact")}  Shoulder cargo from the ship";
+			if (Faction == Faction.HBC && Sim.Ship != null && Sim.Ship.IsDocked && GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.WharfEnd)) < 260f && Sim.Ship.Cargo.SlotCount > 0) return $"{Core.Keybinds.KeyFor("interact")}  Shoulder cargo from the ship";
 		}
 		var rival = Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(Faction));
 		if (rival != null && (rival.Company == Faction.NWC ? WorldLayout.NwcHouse.Contains(Cell) : WorldLayout.Warehouse.Contains(Cell))) return $"{Core.Keybinds.KeyFor("interact")}  Plunder their stores";
@@ -1467,17 +1488,39 @@ public partial class PlayerController : Agent
 
 	// Stow what the warehouse takes (design doc 12.5): goods, furs, and -
 	// if asked - provisions for the mess. Kit and personal food stay with you.
-	public int StowInto(Economy.FortLedger fort, bool provisions)
+	// What the ship's hold put on your back and you haven't set down yet:
+	// bread and kettles as much as bales, all of it the warehouse's.
+	private readonly Dictionary<ItemId, int> _shipCargo = new();
+	public int ShipCargoCarried
 	{
-		int moved = 0;
-		foreach (var (id, n) in new List<(ItemId, int)>(Inventory.All()))
+		get { int n = 0; foreach (var (id, c) in _shipCargo) n += Mathf.Min(c, Inventory.Count(id)); return n; }
+	}
+
+	// What StowInto would put in: goods and furs, or meat for the mess
+	// (keeping a couple of meals), plus anything off the ship.
+	public List<(ItemId id, int n)> Stowable(bool provisions)
+	{
+		var list = new List<(ItemId, int)>();
+		foreach (var (id, n) in Inventory.All())
 		{
 			var kind = Items.Items.Of(id).Kind;
 			bool goods = kind == ItemKind.Goods || kind == ItemKind.Fur;
 			bool food = kind == ItemKind.Food && (id == ItemId.Goose || id == ItemId.Venison || id == ItemId.Fish || id == ItemId.Hare || id == ItemId.DriedMeat || id == ItemId.DriedGoose || id == ItemId.Pemmican);
-			if (!(provisions ? food : goods)) continue;
-			int take = provisions && n <= 2 ? 0 : provisions ? n - 2 : n;   // keep a couple of meals
-			if (take <= 0) continue;
+			int cargo = provisions ? 0 : Mathf.Min(n, _shipCargo.GetValueOrDefault(id));
+			int take = provisions ? (food && n > 2 ? n - 2 : 0) : goods ? n : cargo;   // keep a couple of meals
+			if (take > 0) list.Add((id, take));
+		}
+		return list;
+	}
+
+	public int StowInto(Economy.FortLedger fort, bool provisions)
+	{
+		int moved = 0;
+		foreach (var (id, take) in Stowable(provisions))
+		{
+			var kind = Items.Items.Of(id).Kind;
+			int fromShip = Mathf.Min(take, _shipCargo.GetValueOrDefault(id));
+			if (fromShip > 0) { _shipCargo[id] -= fromShip; if (_shipCargo[id] <= 0) _shipCargo.Remove(id); if (kind != ItemKind.Goods) Task.Progress(TaskKind.CarryCargo, fromShip); }
 			Inventory.Remove(id, take); fort.Stores.Add(id, take); moved += take;
 			if (kind == ItemKind.Goods) { Task.Progress(TaskKind.CarryCargo, take); if (fort == Sim.Outpost) Task.Progress(TaskKind.Courier, take); }
 			if (id == ItemId.Goose) Task.Progress(TaskKind.Geese, take);
@@ -1485,6 +1528,7 @@ public partial class PlayerController : Agent
 			if (Task.OwnWay && !Task.IsComplete && (kind == ItemKind.Fur || kind == ItemKind.Goods)) Task.Progress(Task.Kind, Mathf.Max(1, Mathf.RoundToInt(Items.Items.Of(id).ValueMb * take)));
 		}
 		if (provisions && moved > 0) { Standing += Mathf.Min(4f, moved * 0.5f); Chronicle.Event($"{DisplayName} brought {moved} of meat to the stores.", GlobalPosition, this, weight: 0.5f); }
+		EndCargoTaskIfHoldEmpty();
 		return moved;
 	}
 

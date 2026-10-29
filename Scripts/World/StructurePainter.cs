@@ -283,6 +283,7 @@ public partial class StructurePainter : TileMapLayer
         _front?.Clear();
         var floor = _floor ?? this;
         floor.Clear();
+        Palisades.Clear();
 
         PaintPalisade();
         PaintNwcPalisade();
@@ -453,6 +454,7 @@ public partial class StructurePainter : TileMapLayer
         var top = WorldLayout.FortTop;
         int w = WorldLayout.FortWidth, d = WorldLayout.FortDepth;
         var gate = WorldLayout.GateCell;
+        AddPalisade(top, w, d, WorldLayout.GateOutside);
         var gateNext = IsoGrid.Cell(top, w - 1, WorldLayout.GateOffset + 1);
 
         for (int i = 0; i < w; i++)
@@ -476,6 +478,7 @@ public partial class StructurePainter : TileMapLayer
     private void PaintPalisadeAt(Vector2I top, int w, int d, int gateOffset)
     {
         var gate = IsoGrid.Cell(top, gateOffset, d - 1);
+        AddPalisade(top, w, d, IsoGrid.DownLeft(IsoGrid.DownLeft(gate)));
         var gateNext = IsoGrid.Cell(top, gateOffset + 1, d - 1);
         for (int i = 0; i < w; i++)
         {
@@ -497,6 +500,7 @@ public partial class StructurePainter : TileMapLayer
         var top = WorldLayout.NwcTop;
         int w = WorldLayout.NwcWidth, d = WorldLayout.NwcDepth;
         var gate = WorldLayout.NwcGateCell;
+        AddPalisade(top, w, d, IsoGrid.DownLeft(IsoGrid.DownLeft(gate)));
         var gateNext = IsoGrid.Cell(top, WorldLayout.NwcGateOffset + 1, d - 1);
         for (int i = 0; i < w; i++)
         {
@@ -1196,6 +1200,58 @@ public partial class StructurePainter : TileMapLayer
         }
         _felled.Add(cell);
         RebuildCollisionAt(cell);
+    }
+
+    // ---- palisades ----------------------------------------------------------
+
+    // Every palisade painted, so the beasts can be kept out of the yards:
+    // nobody left the gate standing open to the caribou.
+    public record struct Palisade(Vector2I Top, int Width, int Depth, Vector2 GateOutside, Rect2 Box);
+    public static readonly List<Palisade> Palisades = new();
+
+    private static void AddPalisade(Vector2I top, int w, int d, Vector2I gateOutside)
+    {
+        foreach (var p in Palisades) if (p.Top == top) return;
+        var a = IsoGrid.ToWorld(top);
+        var box = new Rect2(a, Vector2.Zero).Expand(IsoGrid.ToWorld(IsoGrid.Cell(top, w - 1, 0))).Expand(IsoGrid.ToWorld(IsoGrid.Cell(top, 0, d - 1))).Expand(IsoGrid.ToWorld(IsoGrid.Cell(top, w - 1, d - 1))).Grow(IsoGrid.TileW);
+        Palisades.Add(new Palisade(top, w, d, IsoGrid.ToWorld(gateOutside), box));
+    }
+
+    // Inside some palisade's walls? A world point is turned back into steps
+    // along the two isometric axes from the palisade's top corner.
+    public static bool InsidePalisade(Vector2 world, out Vector2 gateOutside)
+    {
+        foreach (var p in Palisades)
+        {
+            if (!p.Box.HasPoint(world)) continue;
+            var rel = world - IsoGrid.ToWorld(p.Top);
+            float x = rel.X / (IsoGrid.TileW / 2f), y = rel.Y / (IsoGrid.TileH / 2f);
+            float right = (x + y) / 2f, down = (y - x) / 2f;
+            if (right > -0.5f && right < p.Width - 0.5f && down > -0.5f && down < p.Depth - 0.5f) { gateOutside = p.GateOutside; return true; }
+        }
+        gateOutside = default;
+        return false;
+    }
+
+    // ---- line of sight ------------------------------------------------------
+
+    // Where a ball flying from one point to another strikes a wall, a
+    // palisade, a shut door or anything solid on the way; null if clear.
+    public Vector2? ShotBlockedAt(Vector2 from, Vector2 to)
+    {
+        var prev = IsoGrid.FromWorld(from); var end = IsoGrid.FromWorld(to);
+        if (prev == end) return null;
+        int steps = Mathf.CeilToInt(from.DistanceTo(to) / 8f);
+        for (int i = 1; i <= steps; i++)
+        {
+            var p = from.Lerp(to, i / (float)steps);
+            var c = IsoGrid.FromWorld(p);
+            if (c == prev) continue;
+            if (EdgeBlocked(prev, c, out bool shut) || shut) return p;
+            if (c != end && IsCellSolid(c)) return p;
+            prev = c;
+        }
+        return null;
     }
 
     // ---- walkability (for pathfinding) --------------------------------------

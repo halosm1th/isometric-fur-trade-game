@@ -373,7 +373,7 @@ public static class SaveGame
         if (d == null) { LastMessage = "No save to load."; return false; }
         Pending = d;
         Net.Net.I?.AnnounceReload();
-        tree.CallDeferred(SceneTree.MethodName.ChangeSceneToFile, "res://Scenes/World/YorkFactoryExterior.tscn");
+        UI.LoadingScreen.Go(tree, "res://Scenes/World/YorkFactoryExterior.tscn", "Loading the saved world");
         return true;
     }
 

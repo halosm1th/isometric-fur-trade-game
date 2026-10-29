@@ -32,8 +32,8 @@ public partial class GameCalendar : Node
     // A year should take four to six hours of play, not a day (design doc
     // P.3), and the compression is uneven: the trading season and the
     // reckoning run close to live, deep winter nights go by in a breath.
-    // A day in twelve minutes of play (the user's pick, Oct 2026).
-    public const float NormalSecondsPerGameHour = 30f;
+    // A day in eight minutes of play (twelve was too slow, Oct 28 2026).
+    public const float NormalSecondsPerGameHour = 20f;
     [Export] public float SecondsPerGameHour = NormalSecondsPerGameHour;
     [Export] public bool UnevenPacing = true;
     public float PacingFactor { get; private set; } = 1f;
@@ -50,10 +50,12 @@ public partial class GameCalendar : Node
     {
         if (!UnevenPacing) return 1f;
         float f = 1f;
-        // The reckoning and the trade run slow and close.
-        if (Sim.Ship != null && Sim.Ship.IsDocked) f *= 2.2f;
-        if (CurrentSeason == Season.Breakup) f *= 1.5f;
-        if (Month is 7 or 8) f *= 1.3f;
+        // The reckoning and the trade run a little slower and closer. Gently:
+        // stacked up (ship in, August, a crowd at York) they used to make a
+        // day take over half an hour.
+        if (Sim.Ship != null && Sim.Ship.IsDocked) f *= 1.25f;
+        if (CurrentSeason == Season.Breakup) f *= 1.2f;
+        if (Month is 7 or 8) f *= 1.1f;
         // Deep winter, and the small hours, go by fast - unless something is happening.
         bool night = Hour < 5f || Hour >= 21f;
         if (night) f *= CurrentSeason == Season.Winter ? 0.3f : 0.45f;
@@ -65,10 +67,10 @@ public partial class GameCalendar : Node
         {
             int near = 0;
             foreach (var a in Sim.AgentsWithin(pc.GlobalPosition, 420f)) if (a != pc) near++;
-            if (near >= 2) f *= 1.5f; else if (near == 1) f *= 1.2f;
-            if (pc.LastAttackedAgo < 8f) f *= 2.5f;
+            if (near >= 2) f *= 1.1f;
+            if (pc.LastAttackedAgo < 8f) f *= 1.5f;
         }
-        return Mathf.Clamp(f, 0.25f, 3f);
+        return Mathf.Clamp(f, 0.25f, 1.5f);
     }
     [Export] public float FastForwardMultiplier = 40f;
     [Export] public bool Paused = false;
@@ -97,9 +99,9 @@ public partial class GameCalendar : Node
     private const float BaselineSecondsPerHour = NormalSecondsPerGameHour;
     // Past this, a day goes by too fast for anyone to have walked it: live
     // bodies stop thinking and walks are resolved at once (Npc), and the
-    // tiers hurry. 24 against the 30 s hour is the 8 the old 10 s baseline
+    // tiers hurry. 16 against the 20 s hour is the 8 the old 10 s baseline
     // used - about a second and a quarter to the game hour.
-    public const float LazyMotion = 24f;
+    public const float LazyMotion = 16f;
 
     // The pace someone chose: the host's clock against the usual (the HUD's
     // x2), and the fast-forward while it is held. Not the uneven pacing of

@@ -28,10 +28,12 @@ public partial class Audio : Node
     private static readonly string[] MenuTracks = { "claim_the_north" };
     private static readonly Dictionary<Season, string[]> SeasonTracks = new()
     {
-        { Season.Winter, new[] { "the_long_winter_at_the_bay", "planks_beneath_the_frost" } },
-        { Season.Breakup, new[] { "waiting_on_the_ice" } },
-        { Season.OpenWater, new[] { "boots_on_the_pine_floor" } },
-        { Season.FreezeUp, new[] { "waiting_on_the_ice", "the_long_winter_at_the_bay" } },
+        // Each season leans on its own pieces but borrows the others', so the
+        // same tune doesn't come round every time.
+        { Season.Winter, new[] { "the_long_winter_at_the_bay", "planks_beneath_the_frost", "the_long_winter_at_the_bay", "planks_beneath_the_frost", "waiting_on_the_ice", "claim_the_north" } },
+        { Season.Breakup, new[] { "waiting_on_the_ice", "waiting_on_the_ice", "claim_the_north", "boots_on_the_pine_floor", "planks_beneath_the_frost" } },
+        { Season.OpenWater, new[] { "boots_on_the_pine_floor", "boots_on_the_pine_floor", "claim_the_north", "claim_the_north", "waiting_on_the_ice", "mens_house_reel" } },
+        { Season.FreezeUp, new[] { "waiting_on_the_ice", "the_long_winter_at_the_bay", "planks_beneath_the_frost", "claim_the_north" } },
     };
     // Evenings near the men's house: the fiddle is going.
     private static readonly string[] ReelTracks = { "mens_house_reel", "boots_on_the_pine_floor" };
@@ -636,7 +638,7 @@ public partial class Audio : Node
             {
                 _music.Stop(); _fadingOut = false; _musicFade = 1f;
                 _musicKind = want;
-                _musicGap = want == "world" ? _rng.RandfRange(20f, 45f) : 0.5f;
+                _musicGap = want == "world" ? _rng.RandfRange(4f, 12f) : 0.5f;
             }
         }
         if (_fadingOut) _musicFade = Mathf.MoveToward(_musicFade, 0f, dt / 3f);
@@ -651,7 +653,10 @@ public partial class Audio : Node
             "reel" => ReelTracks,
             _ => SeasonTracks.TryGetValue(GameCalendar.Instance?.CurrentSeason ?? Season.Winter, out var l) ? l : MenuTracks,
         };
-        var s = Pick(list[_rng.RandiRange(0, list.Length - 1)]);
+        // Not the piece that just ended, if there's any other.
+        string name = list[_rng.RandiRange(0, list.Length - 1)];
+        for (int tries = 0; tries < 6 && list.Length > 1 && _music.Stream?.ResourcePath?.Contains(name) == true; tries++) name = list[_rng.RandiRange(0, list.Length - 1)];
+        var s = Pick(name);
         if (s == null) { _musicGap = 60f; return; }
         _musicFade = 1f; _fadingOut = false;
         _music.Stream = s;
@@ -680,7 +685,7 @@ public partial class Audio : Node
     private void OnMusicFinished()
     {
         // The menu theme goes round; in the world, quiet comes between pieces.
-        _musicGap = _musicKind switch { "menu" => 2f, "reel" => 4f, _ => _rng.RandfRange(120f, 240f) };
+        _musicGap = _musicKind switch { "menu" => 2f, "reel" => 4f, _ => _rng.RandfRange(25f, 60f) };
     }
 
     // ---- frame ---------------------------------------------------------------

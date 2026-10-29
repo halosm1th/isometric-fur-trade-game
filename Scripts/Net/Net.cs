@@ -178,7 +178,7 @@ public partial class Net : Node
     {
         _rehello = true;
         Sim.Notice("The host is loading a saved world.");
-        GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, "res://Scenes/World/YorkFactoryExterior.tscn");
+        UI.LoadingScreen.Go(GetTree(), "res://Scenes/World/YorkFactoryExterior.tscn", "The host is loading a saved world");
     }
 
     // A client's world is up again after the host reloaded: ask to be re-seated.
