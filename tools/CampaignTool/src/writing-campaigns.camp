@@ -1,0 +1,722 @@
+// ============================================================================
+//  WRITING YOUR OWN CAMPAIGN - a tutorial you read, not one you play
+// ============================================================================
+//
+// This file is a campaign, and it is also a lesson. Read it from the top down:
+// each LESSON below explains one idea in comments and then uses it, in code
+// that really compiles and really runs in the game. By the end you will have
+// read every part of the language that most campaigns need.
+//
+// You can play it, too: choose "Writing your own campaign" under New game.
+// The history of 1811-1821 runs as usual (see Lesson 1), and each lesson's
+// beat speaks up in your journal as it happens - "[Lesson 4] ..." - so you can
+// watch the world do what the code says. Sleep or wait to move the days on.
+//
+// How to work with a .camp file (run these from the project's folder):
+//
+//     dotnet run --project tools/CampaignTool -- check   tools/CampaignTool/src/writing-campaigns.camp
+//     dotnet run --project tools/CampaignTool -- compile tools/CampaignTool/src/writing-campaigns.camp
+//     dotnet run --project tools/CampaignTool -- install tools/CampaignTool/src/writing-campaigns.camp
+//     dotnet run --project tools/CampaignTool -- build      (every src/*.camp -> Campaigns/*.json)
+//     dotnet run --project tools/CampaignTool -- serve      (the web editor, http://localhost:8765/)
+//
+// `check` finds mistakes. `compile` writes the JSON the game reads. `install`
+// writes it into Campaigns/, where the main menu finds it. The web editor does
+// all of these with live errors, and its JSON tab shows exactly what the game
+// receives - open it beside this file; it makes Lesson 9 obvious.
+//
+// When you are done, start your own: copy tools/CampaignTool/src/my-campaign.camp
+// (or this file), change the header, and write beats. The full documentation
+// is in docs/wiki (Language-Guide, Library-Reference, World-Reference,
+// Cookbook and Pitfalls).
+//
+// Comments, by the way, are written // like this, or /* like this */. They are
+// for people: the compiler throws them away.
+
+
+// ============================================================================
+//  LESSON 1 - The header
+// ============================================================================
+//
+// Every campaign begins with exactly one header: the word `campaign`, a name
+// for the script, and its details as `name: value` pairs, ending with `;`.
+//
+//   title        the name in the main menu (the only one that is required)
+//   description  the sentences under it in the menu
+//   note         free text kept in the JSON and shown nowhere
+//   seed         the campaign's dice: the same seed gives the same history
+//   extends      play another campaign's beats as well as this one's.
+//                "historical" is Campaigns/historical.json - the war of 1812,
+//                the ships, Seven Oaks, the union of 1821. Extending it means
+//                this file need only add what is new.
+//
+// Two more you may want later: `start: date(1815, 5, 1)` begins the world on
+// that day, and `postsByFoundingYear: true` makes posts appear on the map in
+// the year they were founded. (The historical campaign already has it, and
+// extends passes it on.)
+//
+// The name after `campaign` (WritingCampaigns) is only for the script. The game
+// knows a campaign by its file name: this one is "writing-campaigns".
+
+campaign WritingCampaigns(
+    title: "Writing your own campaign (a tutorial in code)",
+    description: "Not a story but a lesson: open tools/CampaignTool/src/" +
+                 "writing-campaigns.camp and read it while you play. Each " +
+                 "lesson in the file speaks up in your journal as it happens, " +
+                 "over the history of 1811-1821.",
+    note: "The tutorial for campaign writers. Read the .camp, not this JSON.",
+    seed: 1811,
+    extends: "historical"
+);
+
+// Notice how the description is written: a string may not run over a line,
+// so long text is pieces joined with +.
+
+
+// ============================================================================
+//  LESSON 2 - Your first beat
+// ============================================================================
+//
+// Everything after the header is declarations, and the most important kind is
+// the BEAT. A beat is something that may happen to the world. It has:
+//
+//   - a name (FirstBeat), which the rest of the script uses to refer to it;
+//   - a header in ( ), with named values, just like the campaign's;
+//   - a body in { }, holding its HOOKS.
+//
+// A hook is a moment in the beat's life. OnActivate is the most important
+// one: it is what the beat DOES when it happens. Inside it are EFFECTS,
+// statements that change the world, each ending with `;`.
+//
+// `say(text)` is the simplest effect: a line in every player's journal. (Give
+// it a company - say("...", Company.HBC) - and only that company hears it.)
+//
+// This beat has no date and nothing to wait for, so it happens as soon as it
+// may. `delay: days(1)` holds it back one day, so you are off the boat first.
+//
+// `id` is the beat's name in the JSON and the save. Without one it would be
+// "FirstBeat"; ids with hyphens are the custom in the shipped campaigns, and
+// you need `id` whenever you want a name the script itself cannot spell.
+
+beat FirstBeat(
+    id: "lesson-first-beat",
+    title: "Lesson 2: the first beat",
+    delay: days(1)
+) {
+    OnActivate() {
+        say("[Lesson 2] This line was written by the beat FirstBeat in " +
+            "writing-campaigns.camp. Read Lesson 3 next.");
+    }
+}
+
+
+// ============================================================================
+//  LESSON 3 - One beat after another: [requires]
+// ============================================================================
+//
+// After a beat's header you may write a list in square brackets: what must
+// already have happened before this beat may. Name a beat (it may be further
+// down the file, order does not matter here) or write a string to name a FLAG
+// (Lesson 5).
+//
+// So `[FirstBeat]` means "not before FirstBeat has happened". With the delay,
+// this beat comes one day after the first. This is how stories are chained.
+//
+// A beat with no hooks at all is allowed too - `beat Name(...) [Other];` -
+// and is sometimes useful as a milestone other beats wait for.
+
+beat Chained(
+    id: "lesson-chained",
+    title: "Lesson 3: chained beats",
+    delay: days(1)
+) [FirstBeat] {
+    OnActivate() {
+        say("[Lesson 3] Chained waited for FirstBeat, then one day more. " +
+            "Lesson 4 is about dates.");
+    }
+}
+
+
+// ============================================================================
+//  LESSON 4 - Dates
+// ============================================================================
+//
+// Give a beat a `date: date(year, month, day)` and it is due on that day. A
+// dated beat with nothing else in its header is FIXED: it happens on its day,
+// whatever anyone does.
+//
+// One thing to know about dates: a beat dated before the game's first day is
+// HISTORY. It does not happen in play; only its flags are raised and its posts
+// founded. And the first day depends on how the player started:
+//
+//     the Cree or Assiniboine camp  10 June 1811
+//     the NWC brigade               12 July 1811
+//     the HBC ship                  20 August 1811
+//
+// So a beat meant to happen in play for everyone is dated after 20 August
+// 1811. This one is in mid-September, after the first lessons.
+
+beat OnItsDay(
+    id: "lesson-on-its-day",
+    title: "Lesson 4: a beat on its day",
+    date: date(1811, 9, 15)
+) [Chained] {
+    OnActivate() {
+        say("[Lesson 4] It is the 15th of September 1811, the date OnItsDay " +
+            "was given. Lesson 5 raises a flag.");
+        flags.set("tutorial_flag_raised");
+    }
+}
+
+
+// ============================================================================
+//  LESSON 5 - Flags
+// ============================================================================
+//
+// A FLAG is a named fact about the world that is true once raised:
+//
+//     flags.set("name")      raise it           (an effect)
+//     flags.clear("name")    lower it again     (an effect)
+//     flags.has("name")      is it raised?      (a condition, Lesson 6)
+//
+// OnItsDay, above, raised "tutorial_flag_raised". The beat below requires it
+// by writing the flag's name as a string in its [ ].
+//
+// Why flags and not just [OnItsDay]? Because anything can raise a flag: a
+// beat, a quest, a choice the player makes in a conversation, the history of
+// a campaign this one extends. The historical campaign raises flags like
+// "war-of-1812", "seven-oaks" and "merger" - and a beat that happens raises
+// its own id as a flag, which is how [FirstBeat] works underneath.
+//
+// Flags are also what survives as HISTORY (Lesson 4): carry facts in flags.
+
+beat FlagReader(
+    id: "lesson-flag-reader",
+    title: "Lesson 5: waiting on a flag",
+    delay: days(1)
+) ["tutorial_flag_raised"] {
+    OnActivate() {
+        say("[Lesson 5] FlagReader waited for the flag tutorial_flag_raised. " +
+            "Lesson 6 waits for the cold.");
+        flags.clear("tutorial_flag_raised");   // tidy: nothing needs it now
+    }
+}
+
+
+// ============================================================================
+//  LESSON 6 - Conditions: asking the world
+// ============================================================================
+//
+// A CONDITION is a question the game asks the world every day. It is built
+// from what the world knows and the operators && (and), || (or), ! (not), and
+// comparisons < <= > >= == !=. Some of what can be asked:
+//
+//     world.date >= date(1812, 1, 1)     world.season == Season.Winter
+//     world.inMonths(11, 3)              world.tension >= 50   (0-100)
+//     world.stock("York Factory", Item.Rum) < 20
+//     world.hasPost("Norway House")      flags.has("war-of-1812")
+//     SomeBeat.done                      brigade("the York boats").isLate
+//
+// Conditions go in the hooks whose names end in When, written with => and
+// one expression instead of a { } block. AwakenWhen is the first of them: the
+// beat stays asleep until it holds. It is how a beat waits for a situation
+// rather than a date.
+//
+// This beat wakes when the year turns cold. world.season is the calendar's
+// season at York Factory: Winter, Breakup, OpenWater, FreezeUp.
+
+beat FirstFrost(
+    id: "lesson-first-frost",
+    title: "Lesson 6: a beat that waits for the cold"
+) [FlagReader] {
+    AwakenWhen() => world.season == Season.Winter || world.month == 10;
+    OnActivate() {
+        say("[Lesson 6] The cold has come, so FirstFrost's AwakenWhen held. " +
+            "Lesson 7 is the whole life of a beat.");
+    }
+}
+
+
+// ============================================================================
+//  LESSON 7 - The life of a beat
+// ============================================================================
+//
+// A beat lives through moments, and each has an optional hook. Hooks ending in
+// When are conditions (=>); the others are blocks of effects ({ }):
+//
+//   AwakenWhen    the beat wakes up the first time this holds
+//   OnAwaken      ... and this happens at that moment
+//   OnApproach    pressure on the world as its date draws near (once)
+//   ActivateWhen  once due, a last condition it waits for
+//   OnActivate    what it does when it happens
+//   ResolveWhen   the world got there by itself: it is over, no need to happen
+//   OnResolve     ... and this happens then
+//   CancelWhen    it can no longer happen
+//   OnCancel      ... and this happens then
+//
+// `rumour:` in the header is a line shown in the player's journal while the
+// beat is awake and has not happened: "something is stirring". A rumour is a
+// promise, so give every rumoured beat a way to end (happen, resolve, cancel).
+//
+// One thing the table above hides: AwakenWhen is asked EVERY day, not once. On
+// a day it does not hold, nothing else in the beat is asked - no ActivateWhen,
+// no ResolveWhen. So write it as "while this holds", and make it hold for as
+// long as the beat should stay awake.
+//
+// The beat below wakes in November (and stays awake until spring), then waits
+// for midwinter (December to February) to happen. Its ResolveWhen lets the world finish it early: if the
+// tension (how near the companies are to open violence, 0-100) is already
+// past 60, there is no need for a lesson. And if the companies are made one
+// (the historical campaign's "merger" flag) before any of that, it is
+// cancelled. What you can see in the game: the OnAwaken line in November, the
+// rumour in your journal all through it, then one of OnActivate, OnResolve or
+// OnCancel.
+//
+// The KIND of a beat is worked out from what it has, so you rarely write it:
+// no OnActivate = pressure; no date = conditional; a date plus window, lead,
+// OnApproach or ResolveWhen = event (the world may do it first); a date alone
+// = fixed. (An event with no ResolveWhen never happens at the default
+// adherence - see docs/wiki/Pitfalls.md - which is why this one has no date.)
+
+beat TheWholeLife(
+    id: "lesson-whole-life",
+    title: "Lesson 7: the life of a beat",
+    rumour: "[Lesson 7] TheWholeLife is awake: it is waiting for a midwinter month."
+) [FirstFrost] {
+    AwakenWhen() => world.inMonths(11, 2);   // November to February, round the new year
+    OnAwaken() {
+        say("[Lesson 7] TheWholeLife woke: it is November. Look in your " +
+            "journal for its rumour while it waits.");
+    }
+    ActivateWhen() => world.inMonths(12, 2);
+    OnActivate() {
+        say("[Lesson 7] It is midwinter, so ActivateWhen held and OnActivate ran.");
+    }
+    ResolveWhen() => world.tension > 60;
+    OnResolve() {
+        say("[Lesson 7] The tension passed 60 first, so ResolveWhen ended the beat " +
+            "without OnActivate.");
+    }
+    CancelWhen() => flags.has("merger");
+    OnCancel() {
+        say("[Lesson 7] The companies were made one first, so the beat was cancelled.");
+    }
+}
+
+
+// ============================================================================
+//  LESSON 8 - Variables: numbers the campaign keeps
+// ============================================================================
+//
+// A VARIABLE is a number the game keeps and saves, declared at the top level
+// (never inside a beat):
+//
+//     int winters;            starts at 0
+//     int grudge = 2;         or somewhere else
+//
+// Change one in an effect - winters++; winters--; winters += 2; winters = 0;
+// - and compare it in a condition: winters >= 3. Put its value into text with
+// {var:winters}, which the game fills in when the line is said.
+//
+// A variable can only be set from a number you write in the script, never from
+// the world (`winters = world.tension;` is an error). To remember that the
+// world crossed a line, raise a flag (Lesson 5).
+//
+// `repeat: days(n)` makes a beat come round again n days after it happened.
+// The beat below counts the winters, once a year, each January.
+
+int winters;
+
+beat CountTheWinters(
+    id: "lesson-count-winters",
+    title: "Lesson 8: counting the winters",
+    repeat: days(330)
+) [FirstFrost] {
+    AwakenWhen() => world.month == 1;
+    OnActivate() {
+        winters++;
+        say("[Lesson 8] CountTheWinters has counted {var:winters} winter(s) " +
+            "in the variable winters.");
+    }
+}
+
+// A repeating beat is never .done (it is taken off the done list each time so
+// that it can come again). Ask CountTheWinters.count >= 1 instead - or, as
+// here, the variable it counts.
+
+
+// ============================================================================
+//  LESSON 9 - The two times: constants and functions
+// ============================================================================
+//
+// This is the one idea to hold on to. A script runs at TWO times:
+//
+//   1. When it is COMPILED, by the tool. Constants, arithmetic on them,
+//      functions, loops and `if` on a constant are all worked out then.
+//   2. When the GAME plays it. What is left is a list of beats with
+//      conditions to ask and effects to do. The game never sees your
+//      constants or your functions - only what they turned into.
+//
+// A CONSTANT is a name for a value known when compiling:
+//
+//     const int hot = 50;
+//     const string london = "the Governor and Committee, London";
+//
+// A FUNCTION names a few lines you would otherwise repeat. It is INLINED:
+// written out in full wherever it is called. A `void` function does things
+// (effects); a function with a type works out a value and is written with =>.
+// A `bool` function is how you name a condition you ask often.
+//
+// Look at the JSON of the beat below (compile it, or the editor's JSON tab):
+// you will find no "lesson" or "deepWinter" anywhere, only the say and the
+// month comparisons they stand for.
+
+const string lessonTag = "[Lesson 9] ";
+const int coldMonth = 1;
+
+void lesson(string text) {
+    say(lessonTag + text);
+}
+
+bool deepWinter() => world.month == coldMonth || world.month == coldMonth + 1;
+
+beat TwoTimes(
+    id: "lesson-two-times",
+    title: "Lesson 9: constants and functions",
+    delay: days(3)
+) [CountTheWinters] {
+    AwakenWhen() => deepWinter();
+    OnActivate() {
+        lesson("This line came from the function lesson(), written out in " +
+               "TwoTimes when the script was compiled.");
+    }
+}
+
+
+// ============================================================================
+//  LESSON 10 - Loops write beats
+// ============================================================================
+//
+// Because of the two times, a loop at the top level does not loop while the
+// game plays: it WRITES a declaration for each value when compiling.
+//
+//     foreach (int year in 1812..1814) { beat ... }      three beats
+//     foreach (string p in ["York Factory", "Oxford House"]) { ... }
+//     for (int i = 1; i <= 3; i++) { ... }               the C form
+//
+// Every beat a loop writes needs its own `id`, built from the loop's value.
+// They all share one script name, so you cannot write [Spring] to mean one
+// of them: refer to them by id string instead, as "lesson-spring-1813".
+//
+// This loop writes a spring beat for each of three years.
+
+foreach (int year in 1812..1814) {
+    beat Spring(
+        id: "lesson-spring-" + year,
+        title: "Lesson 10: spring, " + year,
+        date: date(year, 5, 10)
+    ) {
+        OnActivate() {
+            say("[Lesson 10] Spring of " + year + ". This beat is one of three " +
+                "written by a foreach loop; its id is lesson-spring-" + year + ".");
+        }
+    }
+}
+
+
+// ============================================================================
+//  LESSON 11 - Dice, choices and delays
+// ============================================================================
+//
+// Four tools for things that should not be certain or immediate:
+//
+//   chance(30)       a condition true 30% of the times it is asked
+//   if (...) { } else { }
+//                    in an effect, asks the world on the day it runs
+//   random(option(w, () => ...), ...)
+//                    does exactly one of the options, chosen by weight
+//   after(days(n), () => ...)
+//                    does something n days from now (saved with the game)
+//
+// The trap: a condition is asked EVERY DAY, so `chance(10)` in AwakenWhen is
+// one-in-ten per day - nearly certain within a month. For a single throw, roll
+// inside an effect, where it is asked once. That is what this beat does.
+//
+// () => ... is a little block of effects to do later: () => one; or
+// () => { several; things; }.
+
+beat Dice(
+    id: "lesson-dice",
+    title: "Lesson 11: dice and delays"
+) ["lesson-spring-1812"] {
+    OnActivate() {
+        if (chance(50)) {
+            say("[Lesson 11] chance(50) came up heads.");
+        } else {
+            say("[Lesson 11] chance(50) came up tails.");
+        }
+        random(
+            option(1, () => say("[Lesson 11] random() picked the first of three options.")),
+            option(1, () => say("[Lesson 11] random() picked the second of three options.")),
+            option(2, () => say("[Lesson 11] random() picked the third option (it had twice the weight)."))
+        );
+        after(days(2), () => {
+            say("[Lesson 11] And this line was set with after(days(2), ...) two days ago.");
+            flags.set("tutorial_dice_done");
+        });
+    }
+}
+
+
+// ============================================================================
+//  LESSON 12 - Speaking to the players, and doing things to the world
+// ============================================================================
+//
+// What a beat can say:
+//
+//   say(text, company?)     a line in the journal
+//   shout(text, company?)   a headline, shown to everyone
+//   news(from:, to:, subject:, text:, days:, company:)
+//                           a sealed letter that travels for `days` and is
+//                           delivered to a person (Person.Factor, Person.
+//                           Partner, a name, "the master at <post>"). Reading
+//                           it raises the flag heard:<beat id>.
+//   player.note(text)       a line in each player's journal, over their head
+//
+// What a beat can do (a few of many - see docs/wiki/Library-Reference.md):
+//
+//   world.raiseTension(n, why)        world.addStock(post, Item.X, n)
+//   world.setLondon(price, quota)     world.foundPost(place)
+//   player.give(Item.X, n)            player.addStanding(n)
+//   trigger(OtherBeat)                make another beat happen today
+//
+// In a BEAT, the player.* effects happen to every player. Different starting
+// paths are different companies, so choose words by world.playerFaction when
+// they matter: a world `if` is decided on the day the effect runs.
+
+beat SpeakAndDo(
+    id: "lesson-speak-and-do",
+    title: "Lesson 12: speaking and doing",
+    delay: days(1)
+) ["tutorial_dice_done"] {
+    OnActivate() {
+        shout("[Lesson 12] A headline, made by shout().");
+        player.note("[Lesson 12] player.give() has put two twists of tobacco in your pack.");
+        player.give(Item.Tobacco, 2);
+        if (world.playerFaction == Company.HBC) {
+            say("[Lesson 12] You are a Company man, so this branch of the if ran.");
+        } else if (world.playerFaction == Company.NWC) {
+            say("[Lesson 12] You are a Nor'Wester, so this branch of the if ran.");
+        } else {
+            say("[Lesson 12] You belong to neither company, so the else ran.");
+        }
+        news(from: "the author of writing-campaigns.camp", to: Person.Factor,
+             subject: "a letter from Lesson 12",
+             text: "This letter was sent by news() in the beat SpeakAndDo and took " +
+                   "ten days to reach the Factor at York Factory.",
+             days: 10);
+    }
+}
+
+
+// ============================================================================
+//  LESSON 13 - Brigades
+// ============================================================================
+//
+// brigade("name") is one of the runs on the rivers: "the York boats", "the
+// Saskatchewan brigade", "the Montreal canoes", "the Saskatchewan canoes",
+// "the Athabasca brigade" (docs/wiki/World-Reference.md has their roads and
+// days). A beat can ask about the crossing now on the river:
+//
+//     .isOut .isIn .isLate .isLost .isRobbed .isWintering .daysLate .daysOut
+//
+// and tell it what to do: .delay(days) .turnBack() .lose() .cancel() .launch().
+//
+// The York boats leave York Factory for the interior on 12 June. This beat
+// waits until they are out in the summer of 1812, says so, and slows them two
+// days for a lesson's sake. If they are not out by the autumn, it is cancelled
+// (and says so) rather than waiting for ever.
+
+beat Brigades(
+    id: "lesson-brigades",
+    title: "Lesson 13: the York boats"
+) [SpeakAndDo] {
+    AwakenWhen() => world.date >= date(1812, 6, 12);
+    ActivateWhen() => brigade("the York boats").isOut && !brigade("the York boats").isIn;
+    OnActivate() {
+        brigade("the York boats").delay(2);
+        say("[Lesson 13] The York boats are on the river, and the beat Brigades " +
+            "has held them up two days with delay(2).");
+        flags.set("tutorial_brigades_over");
+    }
+    CancelWhen() => world.date >= date(1812, 10, 1);
+    OnCancel() {
+        say("[Lesson 13] The York boats never got out in 1812, so Brigades was " +
+            "cancelled by its CancelWhen.");
+        flags.set("tutorial_brigades_over");   // a cancelled beat raises no flag of its own
+    }
+}
+
+
+// ============================================================================
+//  LESSON 14 - Quests: what the campaign asks of a player
+// ============================================================================
+//
+// Beats happen to the WORLD. Quests are what a campaign asks of a PLAYER, and
+// they show in the journal and on the HUD. They live in a QUESTLINE (a story,
+// under one title in the journal), each QUEST is a chain of STEPS done one
+// after the other, and when the last step is done the quest is done.
+//
+// The kinds of step:
+//
+//   talk   speak to someone (who:), maybe with choices
+//   bring  hand someone things (who:, item:, count:)
+//   reach  get to a place (place:)
+//   have   hold things in your pack (item:, count:)
+//   task   do one of the Factor's jobs (task: Task.CarryCargo, count:)
+//   hunt   kill beasts (species:, count:)
+//   when   a condition holds:   when Name(text: "...") => condition;
+//   wait   some days pass (days:)
+//
+// A quest with no `giver` starts by itself once its [ ] are done and its
+// StartWhen holds. Quest hooks: StartWhen, FailWhen, OnStart, OnComplete,
+// OnFail. Step hooks: Says (what the person says), OnDone.
+//
+// Quests are per player: in multiplayer, each has their own. Beats and quests
+// talk to each other through flags and .done: below, a quest waits on a beat
+// (FirstBeat.done), and a beat at the end waits on a quest (Homework.done).
+// `text:` is what the player is told to do; leave it out and the game writes
+// one ("Go to York Factory", "Kill 1 Goose").
+
+questline Lessons(
+    title: "Learning to write a campaign",
+    summary: "A quest line from writing-campaigns.camp, Lesson 14."
+) {
+    // Starts at once, for everyone: no [ ], no StartWhen, no giver.
+    quest ReadAlong(
+        title: "Read along",
+        summary: "Open tools/CampaignTool/src/writing-campaigns.camp. This " +
+                 "quest is written in Lesson 14."
+    ) {
+        when FirstLesson(text: "Wait for the beat FirstBeat (Lesson 2) to happen") => FirstBeat.done;
+        wait AFewDays(days: 2, text: "Let two days pass while you read Lessons 3 to 6");
+        OnComplete() {
+            player.note("[Lesson 14] ReadAlong is done: both its steps were.");
+        }
+    }
+
+    // [ReadAlong] - starts for a player once THAT player has done ReadAlong.
+    quest Hunting(
+        title: "A step the game counts",
+        summary: "A hunt step counts what you kill."
+    ) [ReadAlong] {
+        hunt AnyBeast(count: 1, text: "Kill one beast of any kind (a hunt step with no species)");
+        OnComplete() {
+            player.give(Item.Powder, 1);
+            player.note("[Lesson 14] OnComplete gave you powder and ball for the hunt.");
+        }
+    }
+
+    // A talk step with choices. A person must be there to talk to, and the
+    // starting paths begin in different places - so this quest is given only
+    // to HBC players (forCompany), who start at York with the Factor.
+    quest AChoice(
+        title: "A conversation with choices",
+        summary: "A talk step with two choices, each setting a flag.",
+        forCompany: Company.HBC
+    ) [ReadAlong] {
+        talk AskTheFactor(who: Person.Factor, text: "Ask the Factor what he makes of all this writing") {
+            Says() => "\"Writing, {player}? Every clerk here writes. What sort of writing?\"";
+            choice History(label: "\"The history of the country, sir.\"",
+                           reply: "\"Then mind you write it as it was.\"") {
+                flags.set("tutorial_chose_history");
+            }
+            choice Stories(label: "\"Stories, sir.\"",
+                           reply: "\"Stories. Well. Not in the Company's ink.\"") {
+                flags.set("tutorial_chose_stories");
+            }
+        }
+    }
+
+    // The same for NWC players, with their own man at York.
+    quest AChoiceNwc(
+        title: "A conversation with choices",
+        summary: "A talk step with two choices, each setting a flag.",
+        forCompany: Company.NWC
+    ) [ReadAlong] {
+        talk AskThePartner(who: Person.Partner, text: "Ask the partner what he makes of all this writing") {
+            Says() => "\"Writing, {player}? The partners at Fort William read nothing but returns.\"";
+            choice History(label: "\"The history of the country.\"",
+                           reply: "\"Write that we were here first.\"") {
+                flags.set("tutorial_chose_history");
+            }
+            choice Stories(label: "\"Stories.\"",
+                           reply: "\"Then put a good canoe song in them.\"") {
+                flags.set("tutorial_chose_stories");
+            }
+        }
+    }
+
+    // StartWhen reads the world. It starts once the spring beats of Lesson 10
+    // have begun, and the `have` step is done as soon as the pack holds enough
+    // (Lesson 12 gave you two twists of tobacco; a have step takes nothing).
+    quest Homework(
+        title: "Homework",
+        summary: "Write a campaign of your own."
+    ) [Hunting] {
+        StartWhen() => flags.has("lesson-spring-1812");
+        have Tobacco(item: Item.Tobacco, count: 2, text: "Keep two twists of tobacco in your pack (from Lesson 12)");
+        when ReadToTheEnd(text: "Read on to Lesson 15") => flags.has("tutorial_brigades_over");
+        OnComplete() {
+            player.note("[Lesson 14] Homework is done. The last beat, in Lesson 15, waits for it.");
+        }
+    }
+}
+
+
+// ============================================================================
+//  LESSON 15 - Checking, testing, and the end
+// ============================================================================
+//
+// Before you play a campaign, check it:
+//
+//     dotnet run --project tools/CampaignTool -- check my-story.camp --strict
+//
+// It catches misspelt posts, items and brigades, flags that are read but never
+// set (or set but never read), beats that wait on each other in a circle,
+// quests that name a person nobody is, and more. Then:
+//
+//   - `sim my-story.camp --scenario s.json --runs 200` plays your beats against
+//     an invented world many times and says what fired, and when. (It plays
+//     beats only: no quests, and not the campaign you extend.)
+//   - Start the game with `-- --campaign=my-story` to play it straight away,
+//     and `-- --quest=Homework` to jump to a quest.
+//   - `raw("...")` and `action("verb", ...)` are escape hatches for anything
+//     the game can do that the language has no word for yet
+//     (docs/wiki/JSON-Format.md lists them).
+//
+// Read docs/wiki/Pitfalls.md before your first long campaign. And look at the
+// shipped campaigns in this folder: the-rivers-run.camp is short and all about
+// brigades; the-long-peace.camp branches on what the player does;
+// company-servant.camp is a long quest-line story.
+//
+// The last beat waits for a quest - a beat reading a quest's .done is true
+// once ANY player has done it.
+
+beat TheEnd(
+    id: "lesson-the-end",
+    title: "Lesson 15: the end of the lessons"
+) {
+    AwakenWhen() => Homework.done;
+    OnActivate() {
+        shout("[Lesson 15] The lessons are over. Now copy my-campaign.camp, " +
+              "change the header, and write your own.");
+        if (flags.has("tutorial_chose_history")) {
+            say("[Lesson 15] You told your master you write history: the " +
+                "historical campaign is a good one to read next.");
+        } else if (flags.has("tutorial_chose_stories")) {
+            say("[Lesson 15] You told your master you write stories: " +
+                "company-servant.camp is a good one to read next.");
+        }
+    }
+}

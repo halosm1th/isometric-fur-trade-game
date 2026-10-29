@@ -1,0 +1,619 @@
+{
+  "title": "Writing your own campaign (a tutorial in code)",
+  "description": "Not a story but a lesson: open tools/CampaignTool/src/writing-campaigns.camp and read it while you play. Each lesson in the file speaks up in your journal as it happens, over the history of 1811-1821.",
+  "note": "The tutorial for campaign writers. Read the .camp, not this JSON.",
+  "seed": 1811,
+  "extends": "historical",
+  "beats": [
+    {
+      "id": "lesson-first-beat",
+      "title": "Lesson 2: the first beat",
+      "kind": "conditional",
+      "delay_days": 1,
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 2] This line was written by the beat FirstBeat in writing-campaigns.camp. Read Lesson 3 next."
+        }
+      ]
+    },
+    {
+      "id": "lesson-chained",
+      "title": "Lesson 3: chained beats",
+      "kind": "conditional",
+      "delay_days": 1,
+      "requires": [
+        "lesson-first-beat"
+      ],
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 3] Chained waited for FirstBeat, then one day more. Lesson 4 is about dates."
+        }
+      ]
+    },
+    {
+      "id": "lesson-on-its-day",
+      "title": "Lesson 4: a beat on its day",
+      "kind": "fixed",
+      "date": "1811-09-15",
+      "requires": [
+        "lesson-chained"
+      ],
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 4] It is the 15th of September 1811, the date OnItsDay was given. Lesson 5 raises a flag."
+        },
+        {
+          "do": "flag",
+          "name": "tutorial_flag_raised"
+        }
+      ]
+    },
+    {
+      "id": "lesson-flag-reader",
+      "title": "Lesson 5: waiting on a flag",
+      "kind": "conditional",
+      "delay_days": 1,
+      "requires": [
+        "tutorial_flag_raised"
+      ],
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 5] FlagReader waited for the flag tutorial_flag_raised. Lesson 6 waits for the cold."
+        },
+        {
+          "do": "unflag",
+          "name": "tutorial_flag_raised"
+        }
+      ]
+    },
+    {
+      "id": "lesson-first-frost",
+      "title": "Lesson 6: a beat that waits for the cold",
+      "kind": "conditional",
+      "requires": [
+        "lesson-flag-reader"
+      ],
+      "when": [
+        {
+          "any": [
+            "season:Winter",
+            "month==10"
+          ]
+        }
+      ],
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 6] The cold has come, so FirstFrost's AwakenWhen held. Lesson 7 is the whole life of a beat."
+        }
+      ]
+    },
+    {
+      "id": "lesson-whole-life",
+      "title": "Lesson 7: the life of a beat",
+      "kind": "conditional",
+      "requires": [
+        "lesson-first-frost"
+      ],
+      "rumour": "[Lesson 7] TheWholeLife is awake: it is waiting for a midwinter month.",
+      "when": [
+        "month:11-2"
+      ],
+      "on_awaken": [
+        {
+          "do": "say",
+          "text": "[Lesson 7] TheWholeLife woke: it is November. Look in your journal for its rumour while it waits."
+        }
+      ],
+      "activate_when": [
+        "month:12-2"
+      ],
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 7] It is midwinter, so ActivateWhen held and OnActivate ran."
+        }
+      ],
+      "done_when": [
+        "tension>60"
+      ],
+      "on_resolve": [
+        {
+          "do": "say",
+          "text": "[Lesson 7] The tension passed 60 first, so ResolveWhen ended the beat without OnActivate."
+        }
+      ],
+      "cancel_when": [
+        "flag:merger"
+      ],
+      "on_cancel": [
+        {
+          "do": "say",
+          "text": "[Lesson 7] The companies were made one first, so the beat was cancelled."
+        }
+      ]
+    },
+    {
+      "id": "lesson-count-winters",
+      "title": "Lesson 8: counting the winters",
+      "kind": "conditional",
+      "repeat_days": 330,
+      "requires": [
+        "lesson-first-frost"
+      ],
+      "when": [
+        "month==1"
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "winters"
+        },
+        {
+          "do": "say",
+          "text": "[Lesson 8] CountTheWinters has counted {var:winters} winter(s) in the variable winters."
+        }
+      ]
+    },
+    {
+      "id": "lesson-two-times",
+      "title": "Lesson 9: constants and functions",
+      "kind": "conditional",
+      "delay_days": 3,
+      "requires": [
+        "lesson-count-winters"
+      ],
+      "when": [
+        {
+          "any": [
+            "month==1",
+            "month==2"
+          ]
+        }
+      ],
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 9] This line came from the function lesson(), written out in TwoTimes when the script was compiled."
+        }
+      ]
+    },
+    {
+      "id": "lesson-spring-1812",
+      "title": "Lesson 10: spring, 1812",
+      "kind": "fixed",
+      "date": "1812-05-10",
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 10] Spring of 1812. This beat is one of three written by a foreach loop; its id is lesson-spring-1812."
+        }
+      ]
+    },
+    {
+      "id": "lesson-spring-1813",
+      "title": "Lesson 10: spring, 1813",
+      "kind": "fixed",
+      "date": "1813-05-10",
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 10] Spring of 1813. This beat is one of three written by a foreach loop; its id is lesson-spring-1813."
+        }
+      ]
+    },
+    {
+      "id": "lesson-spring-1814",
+      "title": "Lesson 10: spring, 1814",
+      "kind": "fixed",
+      "date": "1814-05-10",
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 10] Spring of 1814. This beat is one of three written by a foreach loop; its id is lesson-spring-1814."
+        }
+      ]
+    },
+    {
+      "id": "lesson-dice",
+      "title": "Lesson 11: dice and delays",
+      "kind": "conditional",
+      "requires": [
+        "lesson-spring-1812"
+      ],
+      "happens": [
+        {
+          "do": "if",
+          "cond": "chance:50",
+          "then": [
+            {
+              "do": "say",
+              "text": "[Lesson 11] chance(50) came up heads."
+            }
+          ],
+          "else": [
+            {
+              "do": "say",
+              "text": "[Lesson 11] chance(50) came up tails."
+            }
+          ]
+        },
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 1,
+              "do": [
+                {
+                  "do": "say",
+                  "text": "[Lesson 11] random() picked the first of three options."
+                }
+              ]
+            },
+            {
+              "weight": 1,
+              "do": [
+                {
+                  "do": "say",
+                  "text": "[Lesson 11] random() picked the second of three options."
+                }
+              ]
+            },
+            {
+              "weight": 2,
+              "do": [
+                {
+                  "do": "say",
+                  "text": "[Lesson 11] random() picked the third option (it had twice the weight)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "do": "after",
+          "days": 2,
+          "then": [
+            {
+              "do": "say",
+              "text": "[Lesson 11] And this line was set with after(days(2), ...) two days ago."
+            },
+            {
+              "do": "flag",
+              "name": "tutorial_dice_done"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesson-speak-and-do",
+      "title": "Lesson 12: speaking and doing",
+      "kind": "conditional",
+      "delay_days": 1,
+      "requires": [
+        "tutorial_dice_done"
+      ],
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 12] A headline, made by shout().",
+          "headline": true
+        },
+        {
+          "do": "note",
+          "text": "[Lesson 12] player.give() has put two twists of tobacco in your pack."
+        },
+        {
+          "do": "give",
+          "item": "Tobacco",
+          "count": 2
+        },
+        {
+          "do": "if",
+          "cond": "player_faction:HBC",
+          "then": [
+            {
+              "do": "say",
+              "text": "[Lesson 12] You are a Company man, so this branch of the if ran."
+            }
+          ],
+          "else": [
+            {
+              "do": "if",
+              "cond": "player_faction:NWC",
+              "then": [
+                {
+                  "do": "say",
+                  "text": "[Lesson 12] You are a Nor'Wester, so this branch of the if ran."
+                }
+              ],
+              "else": [
+                {
+                  "do": "say",
+                  "text": "[Lesson 12] You belong to neither company, so the else ran."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "do": "news",
+          "from": "the author of writing-campaigns.camp",
+          "to": "the Factor at York Factory",
+          "subject": "a letter from Lesson 12",
+          "text": "This letter was sent by news() in the beat SpeakAndDo and took ten days to reach the Factor at York Factory.",
+          "days": 10
+        }
+      ]
+    },
+    {
+      "id": "lesson-brigades",
+      "title": "Lesson 13: the York boats",
+      "kind": "conditional",
+      "requires": [
+        "lesson-speak-and-do"
+      ],
+      "when": [
+        "after:1812-06-12"
+      ],
+      "activate_when": [
+        "convoy_out:the York boats",
+        {
+          "not": "convoy_in:the York boats"
+        }
+      ],
+      "happens": [
+        {
+          "do": "brigade",
+          "run": "the York boats",
+          "effect": "delay",
+          "days": 2
+        },
+        {
+          "do": "say",
+          "text": "[Lesson 13] The York boats are on the river, and the beat Brigades has held them up two days with delay(2)."
+        },
+        {
+          "do": "flag",
+          "name": "tutorial_brigades_over"
+        }
+      ],
+      "cancel_when": [
+        "after:1812-10-01"
+      ],
+      "on_cancel": [
+        {
+          "do": "say",
+          "text": "[Lesson 13] The York boats never got out in 1812, so Brigades was cancelled by its CancelWhen."
+        },
+        {
+          "do": "flag",
+          "name": "tutorial_brigades_over"
+        }
+      ]
+    },
+    {
+      "id": "lesson-the-end",
+      "title": "Lesson 15: the end of the lessons",
+      "kind": "conditional",
+      "when": [
+        "quest:Homework"
+      ],
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 15] The lessons are over. Now copy my-campaign.camp, change the header, and write your own.",
+          "headline": true
+        },
+        {
+          "do": "if",
+          "cond": "flag:tutorial_chose_history",
+          "then": [
+            {
+              "do": "say",
+              "text": "[Lesson 15] You told your master you write history: the historical campaign is a good one to read next."
+            }
+          ],
+          "else": [
+            {
+              "do": "if",
+              "cond": "flag:tutorial_chose_stories",
+              "then": [
+                {
+                  "do": "say",
+                  "text": "[Lesson 15] You told your master you write stories: company-servant.camp is a good one to read next."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "questlines": [
+    {
+      "id": "Lessons",
+      "title": "Learning to write a campaign",
+      "summary": "A quest line from writing-campaigns.camp, Lesson 14.",
+      "quests": [
+        {
+          "id": "ReadAlong",
+          "title": "Read along",
+          "summary": "Open tools/CampaignTool/src/writing-campaigns.camp. This quest is written in Lesson 14.",
+          "on_complete": [
+            {
+              "do": "note",
+              "text": "[Lesson 14] ReadAlong is done: both its steps were."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "FirstLesson",
+              "kind": "when",
+              "text": "Wait for the beat FirstBeat (Lesson 2) to happen",
+              "cond": [
+                "beat:lesson-first-beat"
+              ]
+            },
+            {
+              "id": "AFewDays",
+              "kind": "wait",
+              "text": "Let two days pass while you read Lessons 3 to 6",
+              "days": 2
+            }
+          ]
+        },
+        {
+          "id": "Hunting",
+          "title": "A step the game counts",
+          "summary": "A hunt step counts what you kill.",
+          "requires": [
+            "ReadAlong"
+          ],
+          "on_complete": [
+            {
+              "do": "give",
+              "item": "Powder",
+              "count": 1
+            },
+            {
+              "do": "note",
+              "text": "[Lesson 14] OnComplete gave you powder and ball for the hunt."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "AnyBeast",
+              "kind": "hunt",
+              "text": "Kill one beast of any kind (a hunt step with no species)",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "id": "AChoice",
+          "title": "A conversation with choices",
+          "summary": "A talk step with two choices, each setting a flag.",
+          "for": "HBC",
+          "requires": [
+            "ReadAlong"
+          ],
+          "objectives": [
+            {
+              "id": "AskTheFactor",
+              "kind": "talk",
+              "text": "Ask the Factor what he makes of all this writing",
+              "who": "Factor",
+              "dialogue": {
+                "text": "\"Writing, {player}? Every clerk here writes. What sort of writing?\"",
+                "choices": [
+                  {
+                    "label": "\"The history of the country, sir.\"",
+                    "reply": "\"Then mind you write it as it was.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "tutorial_chose_history"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"Stories, sir.\"",
+                    "reply": "\"Stories. Well. Not in the Company's ink.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "tutorial_chose_stories"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "AChoiceNwc",
+          "title": "A conversation with choices",
+          "summary": "A talk step with two choices, each setting a flag.",
+          "for": "NWC",
+          "requires": [
+            "ReadAlong"
+          ],
+          "objectives": [
+            {
+              "id": "AskThePartner",
+              "kind": "talk",
+              "text": "Ask the partner what he makes of all this writing",
+              "who": "Partner",
+              "dialogue": {
+                "text": "\"Writing, {player}? The partners at Fort William read nothing but returns.\"",
+                "choices": [
+                  {
+                    "label": "\"The history of the country.\"",
+                    "reply": "\"Write that we were here first.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "tutorial_chose_history"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"Stories.\"",
+                    "reply": "\"Then put a good canoe song in them.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "tutorial_chose_stories"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "Homework",
+          "title": "Homework",
+          "summary": "Write a campaign of your own.",
+          "requires": [
+            "Hunting"
+          ],
+          "start_when": [
+            "flag:lesson-spring-1812"
+          ],
+          "on_complete": [
+            {
+              "do": "note",
+              "text": "[Lesson 14] Homework is done. The last beat, in Lesson 15, waits for it."
+            }
+          ],
+          "objectives": [
+            {
+              "id": "Tobacco",
+              "kind": "have",
+              "text": "Keep two twists of tobacco in your pack (from Lesson 12)",
+              "item": "Tobacco",
+              "count": 2
+            },
+            {
+              "id": "ReadToTheEnd",
+              "kind": "when",
+              "text": "Read on to Lesson 15",
+              "cond": [
+                "flag:tutorial_brigades_over"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
