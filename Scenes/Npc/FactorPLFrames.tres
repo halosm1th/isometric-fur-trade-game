@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=51 format=3]
+[gd_resource type="SpriteFrames" load_steps=68 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/factor/idle_front.png" id="t1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/factor/idle_back.png" id="t2"]
@@ -27,29 +27,46 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/drink_1.png" id="t25"]
 [ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/drink_2.png" id="t26"]
 [ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/drink_3.png" id="t27"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor/talk_0.png" id="t28"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor/talk_1.png" id="t29"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor/talk_2.png" id="t30"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor/write_0.png" id="t31"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor/write_1.png" id="t32"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor/write_2.png" id="t33"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor/write_3.png" id="t34"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/shoot_0.png" id="t35"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/shoot_1.png" id="t36"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/shoot_2.png" id="t37"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/shoot_3.png" id="t38"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/attack_0.png" id="t39"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/attack_1.png" id="t40"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/attack_2.png" id="t41"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/attack_3.png" id="t42"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/paddle_0.png" id="t43"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/paddle_1.png" id="t44"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/paddle_2.png" id="t45"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/paddle_3.png" id="t46"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/portage_0.png" id="t47"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/portage_1.png" id="t48"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/portage_2.png" id="t49"]
-[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/portage_3.png" id="t50"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/talk_0.png" id="t28"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/talk_1.png" id="t29"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/talk_2.png" id="t30"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/talk_3.png" id="t31"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor/write_0.png" id="t32"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor/write_1.png" id="t33"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor/write_2.png" id="t34"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor/write_3.png" id="t35"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/shoot_0.png" id="t36"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/shoot_1.png" id="t37"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/shoot_2.png" id="t38"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/shoot_3.png" id="t39"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/attack_0.png" id="t40"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/attack_1.png" id="t41"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/attack_2.png" id="t42"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/attack_3.png" id="t43"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/paddle_0.png" id="t44"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/paddle_1.png" id="t45"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/paddle_2.png" id="t46"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/paddle_3.png" id="t47"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/portage_0.png" id="t48"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/portage_1.png" id="t49"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/portage_2.png" id="t50"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/portage_3.png" id="t51"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/sleep_0.png" id="t52"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/sleep_1.png" id="t53"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/sleep_2.png" id="t54"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/sleep_3.png" id="t55"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/sit_0.png" id="t56"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/sit_1.png" id="t57"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/sit_2.png" id="t58"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/sit_3.png" id="t59"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/chop_0.png" id="t60"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/chop_1.png" id="t61"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/chop_2.png" id="t62"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/chop_3.png" id="t63"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/work_0.png" id="t64"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/work_1.png" id="t65"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/work_2.png" id="t66"]
+[ext_resource type="Texture2D" path="res://assets/sprites/factor_pl/work_3.png" id="t67"]
 
 [resource]
 animations = [{
@@ -211,16 +228,16 @@ animations = [{
 {
 "duration": 1.0,
 "texture": ExtResource("t30")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t31")
 }]
 }, {
 "name": &"write",
 "speed": 6.0,
 "loop": false,
 "frames": [{
-"duration": 1.0,
-"texture": ExtResource("t31")
-},
-{
 "duration": 1.0,
 "texture": ExtResource("t32")
 },
@@ -231,16 +248,16 @@ animations = [{
 {
 "duration": 1.0,
 "texture": ExtResource("t34")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t35")
 }]
 }, {
 "name": &"shoot",
 "speed": 9.0,
 "loop": false,
 "frames": [{
-"duration": 1.0,
-"texture": ExtResource("t35")
-},
-{
 "duration": 1.0,
 "texture": ExtResource("t36")
 },
@@ -251,16 +268,16 @@ animations = [{
 {
 "duration": 1.0,
 "texture": ExtResource("t38")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t39")
 }]
 }, {
 "name": &"attack",
 "speed": 9.0,
 "loop": false,
 "frames": [{
-"duration": 1.0,
-"texture": ExtResource("t39")
-},
-{
 "duration": 1.0,
 "texture": ExtResource("t40")
 },
@@ -271,16 +288,16 @@ animations = [{
 {
 "duration": 1.0,
 "texture": ExtResource("t42")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t43")
 }]
 }, {
 "name": &"paddle",
 "speed": 6.0,
 "loop": true,
 "frames": [{
-"duration": 1.0,
-"texture": ExtResource("t43")
-},
-{
 "duration": 1.0,
 "texture": ExtResource("t44")
 },
@@ -291,16 +308,16 @@ animations = [{
 {
 "duration": 1.0,
 "texture": ExtResource("t46")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t47")
 }]
 }, {
 "name": &"portage",
 "speed": 6.0,
 "loop": true,
 "frames": [{
-"duration": 1.0,
-"texture": ExtResource("t47")
-},
-{
 "duration": 1.0,
 "texture": ExtResource("t48")
 },
@@ -311,5 +328,89 @@ animations = [{
 {
 "duration": 1.0,
 "texture": ExtResource("t50")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t51")
+}]
+}, {
+"name": &"sleep",
+"speed": 2.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t52")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t53")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t54")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t55")
+}]
+}, {
+"name": &"sit",
+"speed": 2.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t56")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t57")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t58")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t59")
+}]
+}, {
+"name": &"chop",
+"speed": 6.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t60")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t61")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t62")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t63")
+}]
+}, {
+"name": &"work",
+"speed": 5.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t64")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t65")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t66")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t67")
 }]
 }]

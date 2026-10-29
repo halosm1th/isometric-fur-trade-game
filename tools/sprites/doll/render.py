@@ -212,6 +212,43 @@ def punch(t, i):
     grab("l", Matrix.Translation(chest + Vector((0.1, -0.25, 0.22))), pl)
 
 
+def chop_hands(t, i):
+    # Both hands on the helve: up over his head, swung down through the
+    # stroke to the block before him, and up again.
+    sh = rig.pose.bones["upperarm_r"].head
+    hip = rig.pose.bones["thigh_r"].head
+    at = (Vector((-0.04, -0.12, sh.z + 0.42)), Vector((-0.04, -0.32, sh.z + 0.22)),
+          Vector((-0.04, -0.5, hip.z + 0.05)), Vector((-0.04, -0.45, sh.z - 0.1)))[i]
+    pr, pl = poles()
+    grab("r", Matrix.Translation(at), pr)
+    grab("l", Matrix.Translation(at + Vector((0.03, 0.04, -0.12))), pl)
+
+
+def work_hands(t, i):
+    # Both hands busy at the ground before his knees: scraping a hide,
+    # pounding meat, gutting fish - working to and fro.
+    hip = rig.pose.bones["thigh_r"].head
+    dy = (0.0, -0.08, -0.14, -0.06)[i]
+    pr, pl = poles()
+    for s, x in (("r", -0.1), ("l", 0.1)):
+        grab(s, Matrix.Translation(Vector((x, -0.42 + dy, hip.z - 0.3))), (pr if s == "r" else pl) + Vector((0, 0, 0.3)))
+
+
+def knees_hands(t, i):
+    # Sat with his knees up, hands resting on them.
+    pr, pl = poles()
+    for s in "lr":
+        grab(s, follow(f"calf_{s}", (0, -0.06, 0.04)), (pr if s == "r" else pl) + Vector((0, -0.2, 0)))
+
+
+def talk_hands(t, i):
+    # The right hand talks; the left hangs.
+    chest = rig.pose.bones["spine_03"].head
+    at = ((-0.16, -0.3, 0.0), (-0.22, -0.36, 0.12), (-0.12, -0.33, 0.06), (-0.24, -0.3, 0.16))[i]
+    pr, pl = poles()
+    grab("r", Matrix.Translation(chest + Vector(at)), pr)
+
+
 def stand(rig, t, i):
     return pose.idle(rig, t)
 
@@ -232,6 +269,45 @@ def stoop(rig, t, i):
     p["spine_03"] = pose.fwd(0)
     p["head"] = pose.fwd(12)
     return p, lift
+
+
+def chop_pose(rig, t, i):
+    p = pose.arms_down(rig)
+    p.update({"thigh_l": pose.fwd(14), "thigh_r": pose.fwd(-10), "calf_l": pose.fwd(-8),
+              "spine_01": pose.fwd((4, 0, -28, -14)[i]), "head": pose.fwd((10, 5, -10, 0)[i])})
+    return p, 0.0
+
+
+def kneel_work(rig, t, i):
+    p = pose.arms_down(rig)
+    p.update({"thigh_l": pose.fwd(85), "calf_l": pose.fwd(-150), "foot_l": pose.fwd(60),
+              "thigh_r": pose.fwd(85), "calf_r": pose.fwd(-150), "foot_r": pose.fwd(60),
+              "spine_01": pose.fwd((-30, -34, -38, -33)[i]), "head": pose.fwd(15)})
+    return p, 0.0
+
+
+def sit(rig, t, i):
+    w = math.sin(2 * math.pi * t)
+    p = pose.arms_down(rig)
+    p.update({"thigh_l": pose.fwd(80), "calf_l": pose.fwd(-110), "thigh_r": pose.fwd(80), "calf_r": pose.fwd(-110),
+              "spine_01": pose.fwd(-6 - 2 * w), "head": pose.fwd(-4 + 3 * w)})
+    return p, 0.0
+
+
+def lie(rig, t, i):
+    # Asleep on his back, breathing.
+    w = math.sin(2 * math.pi * t)
+    p = pose.arms_down(rig, elbow=20, hang=12)
+    p.update({"pelvis": pose.fwd(90), "thigh_l": pose.fwd(6), "thigh_r": pose.fwd(3),
+              "calf_l": pose.fwd(-10), "calf_r": pose.fwd(-5),
+              "spine_03": pose.fwd(1.5 * w), "head": pose.fwd(-14)})
+    return p, 0.0
+
+
+def talk(rig, t, i):
+    p = pose.arms_down(rig)
+    p["head"] = pose.fwd((0, -4, 2, -3)[i]) @ pose.twist((0, 4, -2, 2)[i])
+    return p, 0.0
 
 
 def fight(rig, t, i):
@@ -274,6 +350,11 @@ ANIMS = {
     "drink": (4, THREE, 5, False, stand, drink, ["cup"]),
     "attack": (4, THREE, 9, False, fight, punch, []),
     "death": (4, ("side",), 5, False, fall, None, []),
+    "sleep": (4, ("side",), 2, True, lie, None, []),
+    "sit": (4, THREE, 2, True, sit, knees_hands, []),
+    "chop": (4, THREE, 6, True, chop_pose, chop_hands, []),
+    "work": (4, THREE, 5, True, kneel_work, work_hands, []),
+    "talk": (4, THREE, 4, True, talk, talk_hands, []),
 }
 THINGS = ["gun", "paddle", "packs", "food", "cup"]
 
@@ -391,8 +472,12 @@ def main():
             set_layers([layer], holdout=() if layer == "body" else ("body",))
             render(os.path.join(OUT, layer, f"{anim}_{i}.png"))
     if MODE == "skeleton":
-        with open(os.path.join(HERE, "out", "skeletons.json"), "w") as f:
-            json.dump(SKELETONS, f, indent=1)
+        # Laid over what is there, so one animation can be done alone.
+        path = os.path.join(HERE, "out", "skeletons.json")
+        old = json.load(open(path)) if os.path.exists(path) else {}
+        old.update(SKELETONS)
+        with open(path, "w") as f:
+            json.dump(old, f, indent=1)
         return
     if MODE == "layers":
         # Every animation is listed, rendered this time or not.

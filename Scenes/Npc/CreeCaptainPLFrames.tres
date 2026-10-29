@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=52 format=3]
+[gd_resource type="SpriteFrames" load_steps=68 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/cree_captain/idle_front.png" id="t1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/cree_captain/idle_back.png" id="t2"]
@@ -23,10 +23,10 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/eat_1.png" id="t21"]
 [ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/eat_2.png" id="t22"]
 [ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/eat_3.png" id="t23"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain/talk_0.png" id="t24"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain/talk_1.png" id="t25"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain/talk_2.png" id="t26"]
-[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain/talk_3.png" id="t27"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/talk_0.png" id="t24"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/talk_1.png" id="t25"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/talk_2.png" id="t26"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/talk_3.png" id="t27"]
 [ext_resource type="Texture2D" path="res://assets/sprites/cree_captain/smoke_0.png" id="t28"]
 [ext_resource type="Texture2D" path="res://assets/sprites/cree_captain/smoke_1.png" id="t29"]
 [ext_resource type="Texture2D" path="res://assets/sprites/cree_captain/smoke_2.png" id="t30"]
@@ -51,6 +51,22 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/portage_1.png" id="t49"]
 [ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/portage_2.png" id="t50"]
 [ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/portage_3.png" id="t51"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/sleep_0.png" id="t52"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/sleep_1.png" id="t53"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/sleep_2.png" id="t54"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/sleep_3.png" id="t55"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/sit_0.png" id="t56"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/sit_1.png" id="t57"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/sit_2.png" id="t58"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/sit_3.png" id="t59"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/chop_0.png" id="t60"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/chop_1.png" id="t61"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/chop_2.png" id="t62"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/chop_3.png" id="t63"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/work_0.png" id="t64"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/work_1.png" id="t65"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/work_2.png" id="t66"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cree_captain_pl/work_3.png" id="t67"]
 
 [resource]
 animations = [{
@@ -316,5 +332,85 @@ animations = [{
 {
 "duration": 1.0,
 "texture": ExtResource("t51")
+}]
+}, {
+"name": &"sleep",
+"speed": 2.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t52")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t53")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t54")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t55")
+}]
+}, {
+"name": &"sit",
+"speed": 2.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t56")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t57")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t58")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t59")
+}]
+}, {
+"name": &"chop",
+"speed": 6.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t60")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t61")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t62")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t63")
+}]
+}, {
+"name": &"work",
+"speed": 5.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t64")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t65")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t66")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t67")
 }]
 }]

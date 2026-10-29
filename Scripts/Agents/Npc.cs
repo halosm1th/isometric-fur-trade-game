@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using Godot;
 using IsometricFurTradeGame.Scripts.Agents.Goals;
@@ -763,8 +764,12 @@ public partial class Npc : Agent
         }
         if (v.LengthSquared() < 4f)
         {
-            // Stood still, he stays facing the way he was going.
-            target = _facing == "walk_side" ? "idle_side" : _facing == "walk_back" ? "idle_back" : "idle";
+            // Stood still, he does what he is there for - asleep, at the
+            // woodpile, scraping a hide - or else stays facing the way he
+            // was going.
+            string work = Posture();
+            target = work != null && _anims.Has(work) ? work
+                : _facing == "walk_side" ? "idle_side" : _facing == "walk_back" ? "idle_back" : "idle";
         }
         else
         {
@@ -779,6 +784,43 @@ public partial class Npc : Agent
     }
 
     private string _facing = "walk";
+
+    // A pose held from outside for a frame or two: a man in a moving canoe
+    // paddles (World/ConvoyView).
+    public void HoldPose(string anim) { _held = anim; _heldFrame = Engine.GetProcessFrames(); }
+    private string _held; private ulong _heldFrame;
+
+    // What his goals have him doing where he stands, by what they are
+    // called; looked up a few times a second, not every frame.
+    private static readonly (string[] words, string anim)[] Postures = new (string words, string anim)[]
+    {
+        ("sleep", "sleep"),
+        ("firewood|fetch wood|thresh|fences|odd jobs", "chop"),
+        ("pemmican|dry meat|salt the geese|fishing|washing|bake bread|grind meal|tend the fires|cleaning his musket|his trade|the trade|set traps|check the traps", "work"),
+        ("sitting|warm up|resting|mend and spin|church|read the post|parish registers|orderly room|count the till|drinking", "sit"),
+        ("haggle|selling|behind the counter|clerking|keep the store|choosing cloth|trade|report|visit the sick", "talk"),
+    }.Select(p => (p.words.Split('|'), p.anim)).ToArray();
+    private string _posture; private int _postureTick;
+
+    private string Posture()
+    {
+        if (_held != null && Engine.GetProcessFrames() - _heldFrame <= 2) return _held;
+        if (Sleeping) return "sleep";
+        if (Conversing) return "talk";
+        if (++_postureTick % 20 != 1) return _posture;
+        var stack = Brain.Stack;
+        for (int i = stack.Count - 1; i >= 0; i--)
+            if (PostureFor(stack[i].Label) is { } anim) return _posture = anim;
+        return _posture = null;
+    }
+
+    private static string PostureFor(string label)
+    {
+        foreach (var (words, anim) in Postures)
+            foreach (var w in words)
+                if (label.Contains(w)) return anim;
+        return null;
+    }
 
     public void PlayAnimation(string anim)
     {

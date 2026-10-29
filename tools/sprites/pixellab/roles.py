@@ -30,6 +30,7 @@ DOLL_W, DOLL_H, DOLL_TALL = 180, 170, 122   # the doll's frames, and the voyageu
 # role: (sheet, what they look like). The props come with each action.
 ROLES = {
     "player": ("Scenes/Player/PlayerFrames.tres", "a Hudson's Bay Company man: black tricorn hat, dark beard, long navy blue coat with brass buttons, a yellow sash with a pouch, brown boots"),
+    "voyageur": ("Scenes/Npc/VoyageurFrames.tres", "a French-Canadian voyageur: red wool tuque with a tassel, black moustache, blue and white gingham shirt, red sash with an orange pattern, red trousers, blue breechcloth, tan leather boots"),
     "labourer": ("Scenes/Npc/LabourerFrames.tres", "a stout Orkney labourer: black tricorn hat, thick black beard, dark green wool coat, leather belt, blue breeches, brown boots"),
     "clerk": ("Scenes/Npc/ClerkFrames.tres", "a young clerk: fair hair tied back, navy blue tailcoat, grey waistcoat, white cravat, black breeches, grey stockings, black shoes"),
     "factor": ("Scenes/Npc/FactorFrames.tres", "an elderly chief factor: black tricorn hat, grey hair, long grey greatcoat, dark waistcoat, white cravat, dark green breeches, grey stockings, buckled shoes"),
@@ -64,11 +65,16 @@ ACTIONS = {
     "drink": ("idle_side", "drink", "south-east", "drink from a cup", "a large shiny tin cup in the right hand, tipped up to the lips", 5, False),
     "paddle": ("idle_side", "paddle", "south-east", "paddle", "a long wooden canoe paddle with a red blade, gripped in both hands, the blade down in the water at the side", 6, True),
     "portage": ("idle_side", "portage", "south-east", "carry a heavy load", "two bales of fur packs on the back, held by a leather tumpline across the forehead", 6, True),
+    "sleep": ("idle_side", "sleep", "south-east", "sleep lying on the back on the ground", "nothing, a grey wool blanket over the legs", 2, True),
+    "sit": ("idle_side", "sit", "south-east", "sit on the ground", "nothing, hands resting on the knees", 2, True),
+    "chop": ("idle_side", "chop", "south-east", "chop wood with an axe", "a wood axe with a long wooden helve gripped in both hands, swung down onto a log", 6, True),
+    "work": ("idle_side", "work", "south-east", "kneel and scrape a hide", "a hide scraper in both hands, working an animal hide laid on the ground", 5, True),
+    "talk": ("idle_side", "talk", "south-east", "talk and gesture with one hand", "nothing", 4, True),
 }
 DOLL_IDLE = {"idle": "idle_0", "idle_side": "idle_side_0", "idle_back": "idle_back_0"}
 # Whose painted side frame is turned three-quarters toward us, like the
 # voyageur's; the rest are drawn in profile, facing east.
-THREE_QUARTER = {"player", "factor", "rival", "cree_woman", "cree_captain", "assiniboine", "blackfoot", "coast"}
+THREE_QUARTER = {"voyageur", "player", "factor", "rival", "cree_woman", "cree_captain", "assiniboine", "blackfoot", "coast"}
 
 
 def sheet(role):
@@ -89,7 +95,14 @@ FALLBACK = {"idle_side": ("walk_side", "idle"), "idle_back": ("walk_back", "idle
 SIDE_REF = {"nwc_partner": "talk", "cree_captain": "walk_side", "cree_woman": "walk_side"}
 
 
+# One action from another painted frame, and the way it then faces: the
+# clerk's side idle is mid-stride, so he sat standing up.
+ACTION_REF = {("clerk", "sit"): ("idle", "south")}
+
+
 def ref_anim(role, action):
+    if (role, action) in ACTION_REF:
+        return ACTION_REF[role, action][0]
     idle = ACTIONS[action][0]
     if idle == "idle_side" and action != "walk_side" and role in SIDE_REF:
         return SIDE_REF[role]
@@ -144,7 +157,7 @@ def motion(role, action):
     idle_ref = ref_anim(role, action)
     im, ref = reference(role, idle_ref)
     doll = json.load(open(os.path.join(HERE, "..", "doll", "out", "skeletons.json")))
-    stand = {j["label"]: j for j in doll[DOLL_IDLE[idle]]}
+    stand = {j["label"]: j for j in doll[DOLL_IDLE.get(idle_ref, DOLL_IDLE[idle])]}
     s = height(im) / DOLL_TALL
     ox, oy = (CANVAS - im.width) // 2, CANVAS - im.height - 6
     # Joints the estimator missed stand where the doll's do, scaled about the feet.
@@ -173,6 +186,8 @@ def make(role, actions):
         idle, _, direction, label, holding, *_ = ACTIONS[action]
         if direction == "south-east" and role not in THREE_QUARTER and role not in SIDE_REF:
             direction = "east"
+        if (role, action) in ACTION_REF:
+            direction = ACTION_REF[role, action][1]
         im, start, frames = motion(role, action)
         sq, ox, oy = on_square(im, CANVAS)
         body = {"description": desc + (", holding " + holding if holding else ""), "action": label,
@@ -192,6 +207,11 @@ def make(role, actions):
 def install(role):
     path, anims = sheet(role)
     folder = os.path.basename(os.path.dirname(anims["idle"][2][0].replace("res://", "")))
+    # Added to the redrawn sheet if there is one, so actions done before
+    # (the voyageur's, by voyageur_set.sh) are kept.
+    pl = path.replace("Frames.tres", "PLFrames.tres")
+    if os.path.exists(pl):
+        anims = parse_tres(pl)
     dst = os.path.join(ROOT, "assets", "sprites", folder + "_pl")
     os.makedirs(dst, exist_ok=True)
     done = [a for a in ACTIONS if all(os.path.exists(out(role, f"{a}_{i}.png")) for i in range(4))]

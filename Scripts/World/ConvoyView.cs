@@ -229,6 +229,7 @@ public partial class ConvoyView : Node2D
 					var boat = craft.Boats[i % craft.Boats.Count].Position;
 					// Just in front of the boat's own line, so the y-sort draws him over her.
 					n.GlobalPosition = boat + new Vector2(-22f + (i / craft.Boats.Count) * 44f, 4f);
+					n.HoldPose("paddle");
 					_wander.Remove(n);
 					continue;
 				}
