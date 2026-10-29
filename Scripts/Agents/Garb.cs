@@ -28,12 +28,19 @@ public static class Garb
     // Greys a nation's black hair (the part of the frame above the shoulders).
     private static Slot GreyHair(float hue, float width, float vmax = 0.4f) => new(B(hue, width, 0, 0.45f, 0.06f, vmax, 0, 0.5f), new[] { D(0, 0.3f, 0, 1.15f, 0.17f) }, true);
 
+    // Greys a hatted man's beard: the hat shares its colours, so only the
+    // part of the frame below the brim (standing frames; lying, it stays dark).
+    // The voyageur's moustache is as dark as his outline and cannot be told apart.
+    private static Slot GreyBeard(float ymin, float ymax, float vmin = 0.06f, float smax = 0.35f, float vmax = 0.32f) =>
+        new(B(10, 60, 0, smax, vmin, vmax, ymin, ymax), new[] { D(0, 0.3f, 0, 1.2f, 0.2f) }, true);
+
     private static readonly Dictionary<string, Slot[]> Sheets = new()
     {
         // The Orkneyman's green coat; his breeches.
         ["LabourerFrames.tres"] = new Slot[] {
             new(B(175, 35, 0.08f), new[] { D(-150, 1.3f, 0, 1.1f), D(0, 0.1f, 0, 1.25f), D(40, 1.4f), D(180, 1.6f, 0, 1.05f) }),
-            new(B(225, 25, 0.08f, ymin: 0.6f), new[] { D(160), D(0, 0.2f, 0, 1.1f) }) },
+            new(B(225, 25, 0.08f, ymin: 0.6f), new[] { D(160), D(0, 0.2f, 0, 1.1f) }),
+            GreyBeard(0.36f, 0.52f, 0.06f, 0.45f, 0.34f) },
         // The tuque, sash and trousers; the gingham shirt.
         ["VoyageurFrames.tres"] = new Slot[] {
             new(B(356, 14, 0.5f), new[] { D(220, 1, 0, 0.85f), D(130, 0.8f, 0, 0.85f), D(30, 0.6f, 0, 0.75f), D(0, 0.25f, 0, 0.55f) }),
@@ -54,7 +61,8 @@ public static class Garb
             new(B(25, 40, 0, 0.25f, 0.15f, 0.7f, 0.3f), new[] { D(195, 1, 0.25f, 0.75f), D(100, 1, 0.2f, 0.75f) }) },
         // A Nor'Wester's red coat.
         ["RivalFrames.tres"] = new Slot[] {
-            new(B(345, 22, 0.45f), new[] { D(-120, 0.8f, 0, 0.9f), D(140, 0.7f, 0, 0.9f), D(40, 0.6f, 0, 0.8f), D(0, 0.15f, 0, 0.6f) }) },
+            new(B(345, 22, 0.45f), new[] { D(-120, 0.8f, 0, 0.9f), D(140, 0.7f, 0, 0.9f), D(40, 0.6f, 0, 0.8f), D(0, 0.15f, 0, 0.6f) }),
+            GreyBeard(0.27f, 0.42f, 0.04f, 0.4f) },
         ["NwcPartnerFrames.tres"] = new Slot[] {
             new(B(120, 30, 0.2f), new[] { D(100), D(-90, 0.7f, 0, 0.9f), D(-130) }) },
         // The boy's white capote, dyed; the girl's red dress.
@@ -67,11 +75,18 @@ public static class Garb
             new(B(356, 10, 0.6f), new[] { D(220, 1, 0, 0.8f), D(120, 0.8f, 0, 0.8f), D(0, 0.2f, 0, 0.5f) }),
             GreyHair(260, 60) },
         ["CreeWomanFrames.tres"] = new Slot[] { GreyHair(300, 60) },
-        ["CreeCaptainFrames.tres"] = new Slot[] { GreyHair(260, 60) },
+        // The captain's coat, a present from the Company: scarlet, blue or green.
+        // His hair is grey already.
+        ["CreeCaptainFrames.tres"] = new Slot[] {
+            new(B(356, 12, 0.65f), new[] { D(220, 1, 0, 0.8f), D(120, 0.8f, 0, 0.8f) }) },
+        ["BlackfootFrames.tres"] = new Slot[] { GreyHair(300, 60) },
+        ["DakotaFrames.tres"] = new Slot[] { GreyHair(300, 60) },
+        ["DeneFrames.tres"] = new Slot[] { GreyHair(240, 60) },
+        ["MandanFrames.tres"] = new Slot[] { GreyHair(320, 50) },
         ["AssiniboineFrames.tres"] = new Slot[] { GreyHair(0, 180, 0.3f) },
     };
 
-    // From this age a nation's black hair shows grey.
+    // From this age black hair, or a beard below a hat, shows grey.
     public const int Grey = 50;
 
     public static string Base(string path)
