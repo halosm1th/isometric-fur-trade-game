@@ -253,10 +253,12 @@ public partial class Npc : Agent
             if (sheet == null && Appearance.IsChildSheet(FramesPath))
                 sheet = IsFemale ? "res://Scenes/Npc/CountryWifeFrames.tres" : "res://Scenes/Npc/LabourerFrames.tres";
             // Real art needs no tint to tell it apart.
-            if (sheet != null && sheet != FramesPath) { FramesPath = sheet; Tint = Colors.White; }
+            if (sheet != null && sheet != Garb.Base(FramesPath)) { FramesPath = sheet; Tint = Colors.White; }
+            if (!Doll.Is(FramesPath)) FramesPath = Garb.Dress(this, FramesPath);
         }
         _tint = Tint;
         _sprite.SpriteFrames = Doll.Load(FramesPath);
+        _sprite.Material = Garb.Material(FramesPath);
         _sprite.Modulate = Tint;
         _sprite.Scale = Vector2.One * SpriteScale;
         // Frames stand on the bottom edge of their canvas, centred; canvases differ by sheet.

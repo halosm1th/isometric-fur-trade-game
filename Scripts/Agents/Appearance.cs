@@ -37,17 +37,29 @@ public static class Appearance
     public static string For(Npc n)
     {
         bool child = (n.FatherName != "" || n.Role == Role.Child) && n.Age < 14;
-        if (child && n.Faction is Faction.HBC or Faction.Crown or Faction.American) return Dir + (n.IsFemale ? "ChildGirlFrames.tres" : "ChildBoyFrames.tres");
+        if (child && n.Faction is Faction.HBC or Faction.Crown or Faction.American or Faction.Metis) return Dir + (n.IsFemale ? "ChildGirlFrames.tres" : "ChildBoyFrames.tres");
+        // A camp's children wear their own nation's dress, small (the scene
+        // gave the Blackfoot's and the Dene's boys the Assiniboine's).
+        if (child && n.Role == Role.Child) return ForNation(n.Faction, n.IsFemale);
         return n.Role switch
         {
             Role.Voyageur => VoyageurSheet,
+            // The North West Company's men: its engages were Canadiens, in
+            // the voyageur's dress; its clerks wore the Nor'Westers' coat; a
+            // post of theirs was kept by a wintering partner.
+            Role.Labourer when n.Faction == Faction.NWC => VoyageurSheet,
+            Role.Clerk or Role.Postmaster when n.Faction == Faction.NWC => Dir + "RivalFrames.tres",
+            Role.Factor when n.Faction == Faction.NWC => Dir + "NwcPartnerFrames.tres",
             Role.NwcPartner => Dir + "NwcPartnerFrames.tres",
-            Role.Woman or Role.Wife when n.Faction is Faction.HBC or Faction.American or Faction.Crown => Dir + "CountryWifeFrames.tres",
+            Role.Woman or Role.Wife when n.Faction is Faction.HBC or Faction.NWC or Faction.American or Faction.Crown => Dir + "CountryWifeFrames.tres",
             // The towns' people keep the look they were placed with: the
             // soldier's coat, the merchant's broadcloth, the habitant's capote.
             Role.Farmer or Role.Merchant or Role.Artisan or Role.Soldier or Role.Officer or Role.Priest => null,
             // The Missouri's engages were St. Louis Creoles: a voyageur's dress.
             Role.Labourer when n.Faction == Faction.American => VoyageurSheet,
+            // The Company's servants were placed in the player's coat (the
+            // scene's default sheet), so every man at York was his double.
+            Role.Labourer => Dir + "LabourerFrames.tres",
             Role.Sailor => Dir + "SailorFrames.tres",
             Role.Clerk or Role.Postmaster => Dir + "ClerkFrames.tres",
             Role.Factor => Dir + "FactorFrames.tres",

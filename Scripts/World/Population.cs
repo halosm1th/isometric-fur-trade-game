@@ -38,6 +38,9 @@ public partial class Population : Node2D
 		foreach (string arg in OS.GetCmdlineUserArgs())
 			if (arg.StartsWith("--shot=") && float.TryParse(arg.Substring(7), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float every))
 				for (int i = 1; i <= 6; i++) { int n = i; GetTree().CreateTimer(every * i).Timeout += () => { var path = ProjectSettings.GlobalizePath($"user://shot_{n}.png"); GetViewport().GetTexture().GetImage().SavePng(path); GD.Print($"[shot] {path}"); }; }
+		// Dev aid: `-- --lineup` - every sheet's dyes stood in rows beside you (Agents/Garb).
+		if (System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--lineup") >= 0)
+			GetTree().CreateTimer(4.0).Timeout += () => { if (Sim.Player is Node2D p) Agents.Garb.Lineup(this, p.GlobalPosition + new Vector2(-600, -330)); };
 		// Dev aid: `-- --kill=Name` - that person dies five seconds in (to watch
 		// a household take a loss: mourning, the empty bunk, the sale of effects).
 		foreach (string arg in OS.GetCmdlineUserArgs())
