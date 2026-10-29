@@ -7,6 +7,12 @@
 // that really compiles and really runs in the game. By the end you will have
 // read every part of the language that most campaigns need.
 //
+// Lessons 1-14 are the language, one idea at a time. Lessons 15-20 put it all
+// to work in one story - a quarrel between the two houses at York that brews,
+// brings their men out under arms, marches them, and ends in a fight at York
+// Factory - and teach the words for moving men about. Lesson 21 is checking
+// and testing your own.
+//
 // You can play it, too: choose "Writing your own campaign" under New game.
 // The history of 1811-1821 runs as usual (see Lesson 1), and each lesson's
 // beat speaks up in your journal as it happens - "[Lesson 4] ..." - so you can
@@ -63,7 +69,8 @@ campaign WritingCampaigns(
     description: "Not a story but a lesson: open tools/CampaignTool/src/" +
                  "writing-campaigns.camp and read it while you play. Each " +
                  "lesson in the file speaks up in your journal as it happens, " +
-                 "over the history of 1811-1821.",
+                 "and in the summer of 1812 the lessons end in a fight at " +
+                 "York Factory, its men moved by the script.",
     note: "The tutorial for campaign writers. Read the .camp, not this JSON.",
     seed: 1811,
     extends: "historical"
@@ -668,14 +675,294 @@ questline Lessons(
         have Tobacco(item: Item.Tobacco, count: 2, text: "Keep two twists of tobacco in your pack (from Lesson 12)");
         when ReadToTheEnd(text: "Read on to Lesson 15") => flags.has("tutorial_brigades_over");
         OnComplete() {
-            player.note("[Lesson 14] Homework is done. The last beat, in Lesson 15, waits for it.");
+            player.note("[Lesson 14] Homework is done. The last beat, in Lesson 21, waits for it and for the fight at York.");
         }
     }
 }
 
 
 // ============================================================================
-//  LESSON 15 - Checking, testing, and the end
+//  LESSON 15 - A fight at York, part 1: a quarrel brews
+// ============================================================================
+//
+// The last lessons tell one story, a fight between the two houses at York:
+// York Factory, the Company's, and the Nor'Westers' house a few miles up the
+// Hayes. They use everything above, and four new words for moving men about
+// (Lessons 16, 17, 19 and 20). None of it is history - no such fight happened
+// at York - it is only a lesson. It begins on its own date, 1 July 1812, so
+// you can start a game on 25 June 1812 (Lesson 21 says how) and go straight
+// to it.
+//
+// First, names for the places. Constants (Lesson 9) save typing these exactly
+// right every time, and a typo in a constant is fixed in one place.
+//
+//   "York Factory"                   the Company's post (its door)
+//   "Nor'Westers' house (York)"      the North West Company's house at York
+//   "the landing at York Factory"    the Factory's wharf on the river
+//
+// A quarrel brews the way Lessons 6 to 11 taught: a repeating beat that adds
+// to a variable and to the tension, with a rumour while it is awake. When the
+// variable reaches 3, AwakenWhen no longer holds (Lesson 7), so the beat
+// stops coming round and its rumour leaves the journal.
+
+const string factory = "York Factory";
+const string nwcHouse = "Nor'Westers' house (York)";
+const string landing = "the landing at York Factory";
+
+int grievances;
+
+beat TheQuarrel(
+    id: "lesson-the-quarrel",
+    title: "Lesson 15: the quarrel at York",
+    repeat: days(5),
+    rumour: "[Lesson 15] There is bad blood between the Factory and the Nor'Westers' house, and it is getting worse."
+) {
+    AwakenWhen() => world.date >= date(1812, 7, 1) && grievances < 3;
+    OnActivate() {
+        grievances++;
+        world.raiseTension(8, "the quarrel at York");
+        random(
+            option(1, () => say("[Lesson 15] A Nor'Westers' canoe has gone from the Factory's landing, and they say the Company's men took it. (Grievance {var:grievances} of 3.)")),
+            option(1, () => say("[Lesson 15] The Factory's hunters were met on the river with Nor'Wester rum and brought their furs to the other house. (Grievance {var:grievances} of 3.)")),
+            option(1, () => say("[Lesson 15] Words, then fists, between the two houses' men at the landing. (Grievance {var:grievances} of 3.)"))
+        );
+    }
+}
+
+
+// ============================================================================
+//  LESSON 16 - Moving men, part 1: calling them out with muster
+// ============================================================================
+//
+// A post's men are busy all day with their work. To use them in a story, CALL
+// THEM OUT:
+//
+//     world.muster(post, at, count)
+//
+//   post    whose men: "York Factory", "Nor'Westers' house (York)", any post
+//           with books, or a camp of the country
+//   at      where they gather (optional; the post's own door if left out): a
+//           post, "the landing at <post>", a camp, a place on the map, or a
+//           person such as "leader@York Factory"
+//   count   how many (optional; every man the post can spare if left out)
+//
+// The men drop what they are doing, take a musket (or an axe, or a knife)
+// from their post's stores if they have no weapon, and go to the place. If a
+// player is near they WALK there and you can watch them; out of everyone's
+// sight they are simply there. Their master stays at his desk.
+//
+// While they are under arms the flag muster:<post> is raised, and
+// world.underArms(post) says how many of them are alive. Before calling them,
+// world.fighters(post) says how many men a post could call - a post with no
+// men to spare can't fight. Here it is a condition: the Nor'Westers do not
+// muster until they have at least three. If they never do, the beat is
+// cancelled at the end of the year, and says so.
+
+beat CallingOut(
+    id: "lesson-calling-out",
+    title: "Lesson 16: both houses call out their men"
+) [TheQuarrel] {
+    AwakenWhen() => grievances >= 3 && world.fighters(nwcHouse) >= 3;
+    OnActivate() {
+        world.muster(nwcHouse, count: 8);             // at their own door
+        world.muster(factory, at: factory);           // every man the Factory can spare, at its gate
+        shout("[Lesson 16] Both houses have called their men from their work: " +
+              "world.muster() in the beat CallingOut.");
+    }
+    CancelWhen() => world.date >= date(1813, 1, 1);
+    OnCancel() {
+        say("[Lesson 16] The Nor'Westers never had three men to spare, so " +
+            "CallingOut was cancelled and there will be no fight.");
+        flags.set("tutorial_battle_over");
+    }
+}
+
+
+// ============================================================================
+//  LESSON 17 - Moving men, part 2: march
+// ============================================================================
+//
+// Men under arms can be sent somewhere else, as often as you like:
+//
+//     world.march(post, to)
+//
+// They walk there a leg at a time by the roads, and stand in ranks at the
+// place. When most of them have come up, the flag march:<post>:<place> is
+// raised; world.arrived(post, place) asks for it. That is how a script WAITS
+// for men to get somewhere - here, a second beat whose AwakenWhen is
+// world.arrived(...).
+//
+// (muster raises the same flag when its men come up at their gathering
+// place: world.arrived(factory, factory) is true once the Factory's men are
+// at its gate.)
+
+beat ToTheLanding(
+    id: "lesson-to-the-landing",
+    title: "Lesson 17: the Nor'Westers march on the Factory",
+    delay: days(1)
+) [CallingOut] {
+    OnActivate() {
+        world.march(nwcHouse, landing);
+        say("[Lesson 17] world.march() has sent the Nor'Westers' men down to " +
+            "the Factory's landing. Watch the river.");
+    }
+}
+
+beat AtTheLanding(
+    id: "lesson-at-the-landing",
+    title: "Lesson 17: the Nor'Westers are at the landing"
+) [ToTheLanding] {
+    AwakenWhen() => world.arrived(nwcHouse, landing);
+    OnActivate() {
+        shout("[Lesson 17] The Nor'Westers are drawn up in ranks at the Factory's " +
+              "landing: world.arrived() is true, so AtTheLanding happened.");
+    }
+}
+
+
+// ============================================================================
+//  LESSON 18 - The player's part: a quest that can stop the fight
+// ============================================================================
+//
+// A battle the player can only watch is a cutscene. This quest gives them a
+// say. It starts when the Nor'Westers reach the landing (StartWhen reads a
+// beat's .done, Lesson 14), and it is a single talk step with the
+// Nor'Westers' partner (Person.Partner) and two choices.
+//
+// The peaceful choice raises a flag. The beat in Lesson 19 reads that flag
+// in its ResolveWhen: if it is raised before the beat is due, the world got
+// there by itself - no fight - and OnResolve stands both sides down. This is
+// the usual way for a quest to change a beat: through a flag.
+//
+// FailWhen ends the quest if the fight begins first: TheStandoff.done is true
+// once it has happened (or been resolved). A FailWhen is asked before every
+// step, so the quest fails the moment that is so.
+
+questline TheFightAtYork(
+    title: "A fight at York (Lessons 15 to 20)",
+    summary: "From writing-campaigns.camp: men called out, marched, and sent into a fight."
+) {
+    quest Parley(
+        title: "Before it comes to blows",
+        summary: "The Nor'Westers are drawn up at the Factory's landing. Their " +
+                 "partner might still be talked round. (Lesson 18.)"
+    ) {
+        StartWhen() => AtTheLanding.done;
+        FailWhen() => TheStandoff.done;
+        talk Partner(who: Person.Partner, text: "Speak to the Nor'Westers' partner before his men come on") {
+            Says() => "\"Your people have had a canoe of ours, and our hunters' trade, {player}. Somebody will answer for it.\"";
+            choice Peace(label: "\"Let me carry your complaint to the Factor myself. Nobody needs to bleed for a canoe.\"",
+                         reply: "He looks at his men, and at the Factory's gate. \"Very well. But only this once.\"") {
+                flags.set("tutorial_peace_made");
+            }
+            choice Defy(label: "\"Then come on. The Factory is ready for you.\"",
+                        reply: "\"We shall see whether it is.\"") {
+                world.raiseTension(5, "words at the landing");
+            }
+        }
+    }
+}
+
+
+// ============================================================================
+//  LESSON 19 - Moving men, part 3: attack
+// ============================================================================
+//
+//     world.attack(post, against, why)
+//
+// sends a post's men under arms (muster them first) against another post or
+// a camp. They go to it and fight its men, who turn out to meet them, armed
+// from their own stores. If a player is near, the fight is fought for real:
+// you can watch it, or join in. Out of everyone's sight it is settled in
+// numbers - men, and arms, with the defender's walls on his side - and a man
+// or two is killed.
+//
+// It ends when one side breaks (losses and a fallen leader break the
+// attackers, as they do a war party; a man knocked down at the other side's
+// door is usually taken prisoner, and that is a loss too), or when the
+// attackers give up after three days of not getting there. Then the attackers go back to their work
+// by themselves, and these flags are raised for the story:
+//
+//     attack:<post>:won   attack:<post>:lost   attack:<post>:turned_back
+//     attack:<post>:<against>:won ... (and the rest, for one target)
+//
+// world.attackWon(post) and world.attackLost(post) ask for the first two.
+//
+// The beat itself is a stand-off: it is due two days after the Nor'Westers
+// reach the landing (delay), the time the player has to talk. Its rumour
+// shows in the journal while it waits.
+
+beat TheStandoff(
+    id: "lesson-the-standoff",
+    title: "Lesson 19: the Nor'Westers come on",
+    delay: days(2),
+    rumour: "[Lesson 19] The Nor'Westers stand at the Factory's landing. Unless someone talks them round, they will come on."
+) [AtTheLanding] {
+    OnActivate() {
+        world.attack(nwcHouse, factory, why: "for the canoe, the hunters and the insults");
+        shout("[Lesson 19] The Nor'Westers are coming on: world.attack() in the beat TheStandoff.");
+    }
+    ResolveWhen() => flags.has("tutorial_peace_made");
+    OnResolve() {
+        world.standDown(nwcHouse);
+        world.standDown(factory);
+        world.raiseTension(-15, "the stand-off at York ended without a shot");
+        shout("[Lesson 19] You talked the partner round. TheStandoff's ResolveWhen " +
+              "held, so OnResolve ran instead of OnActivate, and world.standDown() " +
+              "sent both houses' men back to their work.");
+        flags.set("tutorial_battle_over");
+    }
+}
+
+
+// ============================================================================
+//  LESSON 20 - After the fight: standDown
+// ============================================================================
+//
+// One beat waits for any of the endings and then works out what happened.
+// It uses the last word for moving men:
+//
+//     world.standDown(post)      the men go back to their work, wherever they
+//                                are; the flag muster:<post> is lowered
+//
+// The attackers stand down by themselves when their attack ends. The
+// Factory's men were mustered with nothing to end it, so the script stands
+// them down. Then `if` (Lesson 11) chooses the ending, and a letter (Lesson
+// 12) carries the news inland. A flag ends the story for Lesson 21.
+
+beat Aftermath(
+    id: "lesson-aftermath",
+    title: "Lesson 20: after the fight"
+) [TheStandoff] {
+    AwakenWhen() => world.attackWon(nwcHouse) || world.attackLost(nwcHouse)
+                    || flags.has("attack:" + nwcHouse + ":turned_back");
+    OnActivate() {
+        world.standDown(factory);
+        if (world.attackWon(nwcHouse)) {
+            world.raiseTension(15, "the Factory beaten by the Nor'Westers");
+            world.addStock(factory, Item.TradeGoods, -10);
+            shout("[Lesson 20] The Nor'Westers carried the day and took ten bales " +
+                  "from the Factory's store: world.attackWon() was true.");
+        } else if (world.attackLost(nwcHouse)) {
+            world.raiseTension(5, "the Nor'Westers beaten off at York");
+            shout("[Lesson 20] The Factory's men beat the Nor'Westers off: " +
+                  "world.attackLost() was true.");
+        } else {
+            say("[Lesson 20] The Nor'Westers never came up with the Factory, and " +
+                "turned back to their house.");
+        }
+        news(from: "the Factor at York Factory", to: Person.Postmaster,
+             subject: "the fight at York",
+             text: "There has been fighting between our men and the Canadians at the " +
+                   "Factory's landing. Keep your people close to the house.",
+             days: 12);
+        flags.set("tutorial_battle_over");
+    }
+}
+
+
+// ============================================================================
+//  LESSON 21 - Checking, testing, and the end
 // ============================================================================
 //
 // Before you play a campaign, check it:
@@ -690,7 +977,9 @@ questline Lessons(
 //     an invented world many times and says what fired, and when. (It plays
 //     beats only: no quests, and not the campaign you extend.)
 //   - Start the game with `-- --campaign=my-story` to play it straight away,
-//     and `-- --quest=Homework` to jump to a quest.
+//     `-- --quest=Homework` to jump to a quest, and `-- --date=1812-06-25`
+//     to begin the world on a day of your choosing (with this file, that
+//     goes straight to the fight at York).
 //   - `raw("...")` and `action("verb", ...)` are escape hatches for anything
 //     the game can do that the language has no word for yet
 //     (docs/wiki/JSON-Format.md lists them).
@@ -700,22 +989,22 @@ questline Lessons(
 // brigades; the-long-peace.camp branches on what the player does;
 // company-servant.camp is a long quest-line story.
 //
-// The last beat waits for a quest - a beat reading a quest's .done is true
-// once ANY player has done it.
+// The last beat waits for a quest and for the fight at York - a beat reading
+// a quest's .done is true once ANY player has done it.
 
 beat TheEnd(
     id: "lesson-the-end",
-    title: "Lesson 15: the end of the lessons"
+    title: "Lesson 21: the end of the lessons"
 ) {
-    AwakenWhen() => Homework.done;
+    AwakenWhen() => Homework.done && flags.has("tutorial_battle_over");
     OnActivate() {
-        shout("[Lesson 15] The lessons are over. Now copy my-campaign.camp, " +
+        shout("[Lesson 21] The lessons are over. Now copy my-campaign.camp, " +
               "change the header, and write your own.");
         if (flags.has("tutorial_chose_history")) {
-            say("[Lesson 15] You told your master you write history: the " +
+            say("[Lesson 21] You told your master you write history: the " +
                 "historical campaign is a good one to read next.");
         } else if (flags.has("tutorial_chose_stories")) {
-            say("[Lesson 15] You told your master you write stories: " +
+            say("[Lesson 21] You told your master you write stories: " +
                 "company-servant.camp is a good one to read next.");
         }
     }

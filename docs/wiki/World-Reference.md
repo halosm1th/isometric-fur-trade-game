@@ -176,7 +176,7 @@ Every post on the world map, by founding year. **Founded** is what `world.hasPos
 | `Touchwood Hills` | 1852 | HBC |  |  | Mr. Thomas Heron | `the master at Touchwood Hills` |
 | `Fort Qu'Appelle` | 1864 | HBC |  |  | Mr. Hugh Heron | `the master at Fort Qu'Appelle` |
 
-Two names that look like posts but are not: **Grand Rapids** and **Methye Portage (Portage La Loche)** are stops on brigade roads (landmarks), so `world.hasPost` is false for them and they keep no books. **Nor'Westers' house (York)**, the rival post a few miles up from York Factory, is the NWC's house in the starting scene; it is not in the post list, so scripts cannot name it.
+Two names that look like posts but are not: **Grand Rapids** and **Methye Portage (Portage La Loche)** are stops on brigade roads (landmarks), so `world.hasPost` is false for them and they keep no books. **Nor'Westers' house (York)**, the rival post a few miles up from York Factory, is the NWC's house in the starting scene; it is not in the post list, so the post words (`world.stock`, `world.hasPost` ...) cannot name it, but the words for men under arms can: `world.muster("Nor'Westers' house (York)")` (see [Effects in the game](Effects-in-the-Game#men-under-arms)).
 
 ### Ledgers: which posts keep books
 

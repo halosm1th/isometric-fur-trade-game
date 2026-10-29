@@ -46,6 +46,7 @@ public static class Plains
         BuffaloRun.Active.Clear(); BuffaloRun.LastRun.Clear();
         Outfits.Reset(); TradeTrips.Reset(); StandardOfTrade.ResetBeliefs(); Wants.Reset(); PostWants.Reset();
         War.Reset();
+        Musters.Reset();
     }
 
     public static void Tick()
@@ -55,6 +56,7 @@ public static class Plains
         float h = cal.DeltaGameHours;
         BuffaloRun.TickAll(h);
         War.Tick(h);
+        Musters.Tick(h);
         if (_raids.Count > 0) WatchRaids(h);
         _hourAcc += h;
         if (_hourAcc >= 1f) { _hourAcc = 0f; Hourly(cal); }

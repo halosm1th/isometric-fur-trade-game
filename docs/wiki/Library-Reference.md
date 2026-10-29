@@ -726,6 +726,120 @@ True once a war party of that camp has been beaten.
 world.lostWar("Blackfoot")
 ```
 
+### `world.muster(post, at?, count?)`
+
+`world.muster(string post, string at?, int count?) : effect`
+
+So many of a post's working men (all of them if no count) leave their work, take arms from the post's stores, and gather at a place (the post's own door if none). Near a player they walk there; out of sight they are simply there. The flag muster:<post> is raised while they are under arms, and march:<post>:<place> when most of them have come up.
+
+- `post` (string): York Factory, "Nor'Westers' house (York)", any post with books, or a camp, by its exact name.
+- `at` (string, optional): Where they gather: a post (its door), "the landing at <post>", a camp, a place on the map, or a person ("leader@York Factory"). The post's own door if not given.
+- `count` (int, optional): How many men; all the post can put under arms if not given.
+
+```c
+world.muster("Nor'Westers' house (York)", "the landing at York Factory", 6)
+```
+
+### `world.march(post, to)`
+
+`world.march(string post, string to) : effect`
+
+A post's men under arms (muster them first) go to another place and stand there. The flag march:<post>:<place> is raised when most of them have come up.
+
+- `post` (string): The post whose men under arms go.
+- `to` (string): Where they go: a post, "the landing at <post>", a camp, a place on the map, or a person.
+
+```c
+world.march("York Factory", "the landing at York Factory")
+```
+
+### `world.attack(post, against, why?)`
+
+`world.attack(string post, string against, string why?) : effect`
+
+A post's men under arms (muster them first) go against another post or a camp and fight its men. Near a player it is fought for real; out of sight it is settled in numbers (men, arms, and the defender's walls). When it is over the men go back to their work, and the flags attack:<post>:won (or lost, or turned_back) and attack:<post>:<against>:<outcome> are raised.
+
+- `post` (string): The post whose men under arms go.
+- `against` (string): The post or camp they go against, by its exact name.
+- `why` (string, optional): What they go for, for the log and the news.
+
+```c
+world.attack("Nor'Westers' house (York)", "York Factory", why: "for the furs in the Company's store")
+```
+
+### `world.standDown(post)`
+
+`world.standDown(string post) : effect`
+
+A post's men under arms are stood down and go back to their work, wherever they are. The flag muster:<post> is lowered.
+
+- `post` (string): The post whose men go back to their work.
+
+```c
+world.standDown("York Factory")
+```
+
+### `world.underArms(post)`
+
+`world.underArms(string post) : int`
+
+How many of a post's men are under arms and alive now (0 if none were mustered).
+
+- `post` (string): The post, as it was named to muster.
+
+```c
+world.underArms("York Factory") < 3
+```
+
+### `world.fighters(post)`
+
+`world.fighters(string post) : int`
+
+How many working men a post could put under arms now (its labourers, voyageurs, hunters, sailors, soldiers and farmers at home, not its master).
+
+- `post` (string): The post (or camp), by its exact name.
+
+```c
+world.fighters("Nor'Westers' house (York)") >= 6
+```
+
+### `world.arrived(post, place)`
+
+`world.arrived(string post, string place) : bool`
+
+True once a post's men under arms have come up at a place they were mustered or marched to.
+
+- `post` (string): The post whose men were sent, as it was named to muster.
+- `place` (string): The place exactly as it was given to muster or march.
+
+```c
+world.arrived("York Factory", "the landing at York Factory")
+```
+
+### `world.attackWon(post)`
+
+`world.attackWon(string post) : bool`
+
+True once a post's men have carried an attack.
+
+- `post` (string): The post whose men attacked, as it was named to muster.
+
+```c
+world.attackWon("Nor'Westers' house (York)")
+```
+
+### `world.attackLost(post)`
+
+`world.attackLost(string post) : bool`
+
+True once a post's men have been beaten off in an attack.
+
+- `post` (string): The post whose men attacked, as it was named to muster.
+
+```c
+world.attackLost("Nor'Westers' house (York)")
+```
+
 
 ## flags
 
@@ -1161,4 +1275,4 @@ TheHunt.fail()
 - **`Task`**: The work a quest step can hand the player, as the Factor would: Task.CarryCargo, Task.Firewood, Task.Brigade ... (Player/PlayerTask.cs).
   Values: `Task.Firewood`, `Task.CarryCargo`, `Task.DriveOffAnimals`, `Task.DeliverLetter`, `Task.Raid`, `Task.Report`, `Task.Courier`, `Task.Geese`, `Task.Brigade`
 
-Items: `Ale`, `Awl`, `Axe`, `Beads`, `BeaverPelt`, `Berries`, `Bow`, `Bread`, `BuffaloRobe`, `Capote`, `CaribouHide`, `Corn`, `DriedGoose`, `DriedMeat`, `Firewood`, `Fish`, `FishingLine`, `FishingNet`, `Flint`, `Flour`, `Goose`, `Grain`, `Hare`, `HideCoat`, `IceChisel`, `Kettle`, `Knife`, `MbToken`, `Musket`, `PackBasket`, `Pemmican`, `PointBlanket`, `Powder`, `Ptarmigan`, `Roots`, `Rum`, `SaltGeese`, `ShotHide`, `ShotPelt`, `Snowshoes`, `SpruceBeer`, `SteelTrap`, `Stroud`, `ThinPelt`, `Tobacco`, `Tomahawk`, `TradeGoods`, `Tumpline`, `Venison`, `Water`, `Wheat`, `WolfPelt`.
+Items: `Ale`, `Awl`, `Axe`, `Beads`, `BeaverPelt`, `Berries`, `Bow`, `Bread`, `BuffaloRobe`, `Capote`, `CaribouHide`, `Coin`, `Corn`, `DriedGoose`, `DriedMeat`, `Firewood`, `Fish`, `FishingLine`, `FishingNet`, `Flint`, `Flour`, `Goose`, `Grain`, `Hare`, `HideCoat`, `IceChisel`, `Kettle`, `Knife`, `MbToken`, `Musket`, `PackBasket`, `Pemmican`, `PointBlanket`, `Powder`, `Ptarmigan`, `Roots`, `Rum`, `SaltGeese`, `ShotHide`, `ShotPelt`, `Snowshoes`, `SpruceBeer`, `SteelTrap`, `Stroud`, `ThinPelt`, `Tobacco`, `Tomahawk`, `TradeGoods`, `Tumpline`, `Venison`, `Water`, `Wheat`, `WolfPelt`.

@@ -28,6 +28,8 @@ public sealed class SimHost : ICampaignHost
 	private readonly Dictionary<string, double> _stocks = new();
 	private readonly Dictionary<string, double> _convoyLate = new();
 	private double _tensionDelta;
+	// Men under arms (the game's Economy/Musters.cs): how many, by post.
+	private readonly Dictionary<string, double> _underArms = new();
 
 	public SimHost(Dictionary<string, object> scenario, CampaignRunner runner)
 	{
@@ -74,6 +76,8 @@ public sealed class SimHost : ICampaignHost
 			case "convoys_active": return Runner.State.Flags.Count(f => f.StartsWith("out:") && !Runner.State.Flags.Contains("in:" + f[4..]));
 			case "convoy_days_late": return _convoyLate.GetValueOrDefault(a[0]);
 			case "convoy_days_out": return 0;
+			case "under_arms": return _underArms.GetValueOrDefault(a[0]);
+			case "fighters": return Fighters(a[0]);
 		}
 		return double.NaN;
 	}
@@ -134,8 +138,34 @@ public sealed class SimHost : ICampaignHost
 					}
 					break;
 				}
+			// Men under arms: there at once, and an attack settled by the scenario's
+			// "attacks" table (post -> won, lost or turned_back) or by the dice.
+			case "muster":
+				{
+					string post = Tree.S(a.GetValueOrDefault("post"));
+					_underArms[post] = a.ContainsKey("count") ? Math.Min(Tree.N(a["count"]), Fighters(post)) : Fighters(post);
+					flags.Add($"muster:{post}");
+					flags.Add($"march:{post}:{(a.ContainsKey("at") ? Tree.S(a["at"]) : post)}");
+					break;
+				}
+			case "march": flags.Add($"march:{Tree.S(a.GetValueOrDefault("post"))}:{Tree.S(a.GetValueOrDefault("to"))}"); break;
+			case "attack":
+				{
+					string post = Tree.S(a.GetValueOrDefault("post")), against = Tree.S(a.GetValueOrDefault("against"));
+					string outcome = _sc.GetValueOrDefault("attacks") is Dictionary<string, object> t && t.TryGetValue(post, out var o) ? Tree.S(o)
+						: CampaignLogic.Roll(Runner.State) < 0.5 ? "won" : "lost";
+					flags.Add($"attack:{post}:{outcome}"); flags.Add($"attack:{post}:{against}:{outcome}");
+					flags.Remove($"muster:{post}"); _underArms.Remove(post);
+					break;
+				}
+			case "stand_down":
+				flags.Remove($"muster:{Tree.S(a.GetValueOrDefault("post"))}"); _underArms.Remove(Tree.S(a.GetValueOrDefault("post")));
+				break;
 		}
 	}
+
+	// A post's men: the scenario's "fighters" table, or six.
+	private double Fighters(string post) => _sc.GetValueOrDefault("fighters") is Dictionary<string, object> t && t.TryGetValue(post, out var n) ? Tree.N(n) : 6;
 
 	private static string Describe(string name, Dictionary<string, object> a)
 	{

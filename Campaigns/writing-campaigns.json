@@ -1,6 +1,6 @@
 {
   "title": "Writing your own campaign (a tutorial in code)",
-  "description": "Not a story but a lesson: open tools/CampaignTool/src/writing-campaigns.camp and read it while you play. Each lesson in the file speaks up in your journal as it happens, over the history of 1811-1821.",
+  "description": "Not a story but a lesson: open tools/CampaignTool/src/writing-campaigns.camp and read it while you play. Each lesson in the file speaks up in your journal as it happens, and in the summer of 1812 the lessons end in a fight at York Factory, its men moved by the script.",
   "note": "The tutorial for campaign writers. Read the .camp, not this JSON.",
   "seed": 1811,
   "extends": "historical",
@@ -398,16 +398,289 @@
       ]
     },
     {
-      "id": "lesson-the-end",
-      "title": "Lesson 15: the end of the lessons",
+      "id": "lesson-the-quarrel",
+      "title": "Lesson 15: the quarrel at York",
       "kind": "conditional",
+      "repeat_days": 5,
+      "rumour": "[Lesson 15] There is bad blood between the Factory and the Nor'Westers' house, and it is getting worse.",
       "when": [
-        "quest:Homework"
+        "after:1812-07-01",
+        "var(grievances) < 3"
+      ],
+      "happens": [
+        {
+          "do": "add",
+          "var": "grievances"
+        },
+        {
+          "do": "tension",
+          "add": 8,
+          "why": "the quarrel at York"
+        },
+        {
+          "do": "random",
+          "options": [
+            {
+              "weight": 1,
+              "do": [
+                {
+                  "do": "say",
+                  "text": "[Lesson 15] A Nor'Westers' canoe has gone from the Factory's landing, and they say the Company's men took it. (Grievance {var:grievances} of 3.)"
+                }
+              ]
+            },
+            {
+              "weight": 1,
+              "do": [
+                {
+                  "do": "say",
+                  "text": "[Lesson 15] The Factory's hunters were met on the river with Nor'Wester rum and brought their furs to the other house. (Grievance {var:grievances} of 3.)"
+                }
+              ]
+            },
+            {
+              "weight": 1,
+              "do": [
+                {
+                  "do": "say",
+                  "text": "[Lesson 15] Words, then fists, between the two houses' men at the landing. (Grievance {var:grievances} of 3.)"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesson-calling-out",
+      "title": "Lesson 16: both houses call out their men",
+      "kind": "conditional",
+      "requires": [
+        "lesson-the-quarrel"
+      ],
+      "when": [
+        "var(grievances) >= 3",
+        {
+          "m": "fighters",
+          "a": [
+            "Nor'Westers' house (York)"
+          ],
+          "op": ">=",
+          "v": 3
+        }
+      ],
+      "happens": [
+        {
+          "do": "muster",
+          "post": "Nor'Westers' house (York)",
+          "count": 8
+        },
+        {
+          "do": "muster",
+          "post": "York Factory",
+          "at": "York Factory"
+        },
+        {
+          "do": "say",
+          "text": "[Lesson 16] Both houses have called their men from their work: world.muster() in the beat CallingOut.",
+          "headline": true
+        }
+      ],
+      "cancel_when": [
+        "after:1813-01-01"
+      ],
+      "on_cancel": [
+        {
+          "do": "say",
+          "text": "[Lesson 16] The Nor'Westers never had three men to spare, so CallingOut was cancelled and there will be no fight."
+        },
+        {
+          "do": "flag",
+          "name": "tutorial_battle_over"
+        }
+      ]
+    },
+    {
+      "id": "lesson-to-the-landing",
+      "title": "Lesson 17: the Nor'Westers march on the Factory",
+      "kind": "conditional",
+      "delay_days": 1,
+      "requires": [
+        "lesson-calling-out"
+      ],
+      "happens": [
+        {
+          "do": "march",
+          "post": "Nor'Westers' house (York)",
+          "to": "the landing at York Factory"
+        },
+        {
+          "do": "say",
+          "text": "[Lesson 17] world.march() has sent the Nor'Westers' men down to the Factory's landing. Watch the river."
+        }
+      ]
+    },
+    {
+      "id": "lesson-at-the-landing",
+      "title": "Lesson 17: the Nor'Westers are at the landing",
+      "kind": "conditional",
+      "requires": [
+        "lesson-to-the-landing"
+      ],
+      "when": [
+        "flag:march:Nor'Westers' house (York):the landing at York Factory"
       ],
       "happens": [
         {
           "do": "say",
-          "text": "[Lesson 15] The lessons are over. Now copy my-campaign.camp, change the header, and write your own.",
+          "text": "[Lesson 17] The Nor'Westers are drawn up in ranks at the Factory's landing: world.arrived() is true, so AtTheLanding happened.",
+          "headline": true
+        }
+      ]
+    },
+    {
+      "id": "lesson-the-standoff",
+      "title": "Lesson 19: the Nor'Westers come on",
+      "kind": "conditional",
+      "delay_days": 2,
+      "requires": [
+        "lesson-at-the-landing"
+      ],
+      "rumour": "[Lesson 19] The Nor'Westers stand at the Factory's landing. Unless someone talks them round, they will come on.",
+      "happens": [
+        {
+          "do": "attack",
+          "post": "Nor'Westers' house (York)",
+          "against": "York Factory",
+          "why": "for the canoe, the hunters and the insults"
+        },
+        {
+          "do": "say",
+          "text": "[Lesson 19] The Nor'Westers are coming on: world.attack() in the beat TheStandoff.",
+          "headline": true
+        }
+      ],
+      "done_when": [
+        "flag:tutorial_peace_made"
+      ],
+      "on_resolve": [
+        {
+          "do": "stand_down",
+          "post": "Nor'Westers' house (York)"
+        },
+        {
+          "do": "stand_down",
+          "post": "York Factory"
+        },
+        {
+          "do": "tension",
+          "add": -15,
+          "why": "the stand-off at York ended without a shot"
+        },
+        {
+          "do": "say",
+          "text": "[Lesson 19] You talked the partner round. TheStandoff's ResolveWhen held, so OnResolve ran instead of OnActivate, and world.standDown() sent both houses' men back to their work.",
+          "headline": true
+        },
+        {
+          "do": "flag",
+          "name": "tutorial_battle_over"
+        }
+      ]
+    },
+    {
+      "id": "lesson-aftermath",
+      "title": "Lesson 20: after the fight",
+      "kind": "conditional",
+      "requires": [
+        "lesson-the-standoff"
+      ],
+      "when": [
+        {
+          "any": [
+            "flag:attack:Nor'Westers' house (York):won",
+            "flag:attack:Nor'Westers' house (York):lost",
+            "flag:attack:Nor'Westers' house (York):turned_back"
+          ]
+        }
+      ],
+      "happens": [
+        {
+          "do": "stand_down",
+          "post": "York Factory"
+        },
+        {
+          "do": "if",
+          "cond": "flag:attack:Nor'Westers' house (York):won",
+          "then": [
+            {
+              "do": "tension",
+              "add": 15,
+              "why": "the Factory beaten by the Nor'Westers"
+            },
+            {
+              "do": "stock",
+              "post": "York Factory",
+              "item": "TradeGoods",
+              "add": -10
+            },
+            {
+              "do": "say",
+              "text": "[Lesson 20] The Nor'Westers carried the day and took ten bales from the Factory's store: world.attackWon() was true.",
+              "headline": true
+            }
+          ],
+          "else": [
+            {
+              "do": "if",
+              "cond": "flag:attack:Nor'Westers' house (York):lost",
+              "then": [
+                {
+                  "do": "tension",
+                  "add": 5,
+                  "why": "the Nor'Westers beaten off at York"
+                },
+                {
+                  "do": "say",
+                  "text": "[Lesson 20] The Factory's men beat the Nor'Westers off: world.attackLost() was true.",
+                  "headline": true
+                }
+              ],
+              "else": [
+                {
+                  "do": "say",
+                  "text": "[Lesson 20] The Nor'Westers never came up with the Factory, and turned back to their house."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "do": "news",
+          "from": "the Factor at York Factory",
+          "to": "the postmaster at Oxford House",
+          "subject": "the fight at York",
+          "text": "There has been fighting between our men and the Canadians at the Factory's landing. Keep your people close to the house.",
+          "days": 12
+        },
+        {
+          "do": "flag",
+          "name": "tutorial_battle_over"
+        }
+      ]
+    },
+    {
+      "id": "lesson-the-end",
+      "title": "Lesson 21: the end of the lessons",
+      "kind": "conditional",
+      "when": [
+        "quest:Homework",
+        "flag:tutorial_battle_over"
+      ],
+      "happens": [
+        {
+          "do": "say",
+          "text": "[Lesson 21] The lessons are over. Now copy my-campaign.camp, change the header, and write your own.",
           "headline": true
         },
         {
@@ -416,7 +689,7 @@
           "then": [
             {
               "do": "say",
-              "text": "[Lesson 15] You told your master you write history: the historical campaign is a good one to read next."
+              "text": "[Lesson 21] You told your master you write history: the historical campaign is a good one to read next."
             }
           ],
           "else": [
@@ -426,7 +699,7 @@
               "then": [
                 {
                   "do": "say",
-                  "text": "[Lesson 15] You told your master you write stories: company-servant.camp is a good one to read next."
+                  "text": "[Lesson 21] You told your master you write stories: company-servant.camp is a good one to read next."
                 }
               ]
             }
@@ -592,7 +865,7 @@
           "on_complete": [
             {
               "do": "note",
-              "text": "[Lesson 14] Homework is done. The last beat, in Lesson 15, waits for it."
+              "text": "[Lesson 14] Homework is done. The last beat, in Lesson 21, waits for it and for the fight at York."
             }
           ],
           "objectives": [
@@ -610,6 +883,58 @@
               "cond": [
                 "flag:tutorial_brigades_over"
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TheFightAtYork",
+      "title": "A fight at York (Lessons 15 to 20)",
+      "summary": "From writing-campaigns.camp: men called out, marched, and sent into a fight.",
+      "quests": [
+        {
+          "id": "Parley",
+          "title": "Before it comes to blows",
+          "summary": "The Nor'Westers are drawn up at the Factory's landing. Their partner might still be talked round. (Lesson 18.)",
+          "start_when": [
+            "beat:lesson-at-the-landing"
+          ],
+          "fail_when": [
+            "beat:lesson-the-standoff"
+          ],
+          "objectives": [
+            {
+              "id": "Partner",
+              "kind": "talk",
+              "text": "Speak to the Nor'Westers' partner before his men come on",
+              "who": "Partner",
+              "dialogue": {
+                "text": "\"Your people have had a canoe of ours, and our hunters' trade, {player}. Somebody will answer for it.\"",
+                "choices": [
+                  {
+                    "label": "\"Let me carry your complaint to the Factor myself. Nobody needs to bleed for a canoe.\"",
+                    "reply": "He looks at his men, and at the Factory's gate. \"Very well. But only this once.\"",
+                    "do": [
+                      {
+                        "do": "flag",
+                        "name": "tutorial_peace_made"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "\"Then come on. The Factory is ready for you.\"",
+                    "reply": "\"We shall see whether it is.\"",
+                    "do": [
+                      {
+                        "do": "tension",
+                        "add": 5,
+                        "why": "words at the landing"
+                      }
+                    ]
+                  }
+                ]
+              }
             }
           ]
         }

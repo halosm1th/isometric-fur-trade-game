@@ -349,6 +349,8 @@ public static class Campaign
                 case "convoys_active": { int n = 0; foreach (var c in Convoys.All) if (c.Now != ConvoyState.Arrived) n++; return n; }
                 case "convoy_days_late": return Convoys.Find(arg) is { } cv ? Math.Max(0, _st.Today - cv.DueDay) : 0;
                 case "convoy_days_out": return Convoys.Find(arg)?.DaysOut ?? 0;
+                case "under_arms": return Economy.Musters.UnderArms(arg);
+                case "fighters": return Economy.Musters.Fighters(arg) is int f and >= 0 ? f : double.NaN;
             }
             GD.PushWarning($"[campaign] unknown number '{name}'");
             return double.NaN;
@@ -462,6 +464,11 @@ public static class Campaign
                 case "casualties": Warn(beat, World.Towns.Casualties(S(a, "town"), (int)N(a, "count", 1), S(a, "cause", "in the fighting"), S(a, "role"))); break;
                 case "kill": Warn(beat, World.Towns.Kill(S(a, "who"), S(a, "cause", "in the fighting"))); break;
                 case "burn": Warn(beat, World.Towns.Burn(S(a, "town"), S(a, "building", "*"))); break;
+                // A post's men under arms (Economy/Musters.cs): called out, marched, sent against a post or a camp, stood down.
+                case "muster": Warn(beat, Economy.Musters.Call(S(a, "post"), S(a, "at"), (int)N(a, "count", 0))); break;
+                case "march": Warn(beat, Economy.Musters.March(S(a, "post"), S(a, "to"))); break;
+                case "attack": Warn(beat, Economy.Musters.Attack(S(a, "post"), S(a, "against"), S(a, "why"))); break;
+                case "stand_down": Warn(beat, Economy.Musters.StandDown(S(a, "post"))); break;
                 default: GD.PushWarning($"[campaign] {beat}: unknown action '{name}'"); break;
             }
         }

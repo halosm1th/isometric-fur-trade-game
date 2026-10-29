@@ -228,6 +228,26 @@ public static class Library
 		Fn("world", "atPeace", P1("a:string", "b:string"), "bool", "True while two peoples have a truce.", "world.atPeace(\"Beaver Hills Cree (Amiskwac\u00eewiyiniwak)\", \"Blackfoot\")", (c, s, a) => new CondV(CJson.Predicate("at_peace", new() { a.S("a"), a.S("b") })));
 		Fn("world", "wonWar", P1("band:string"), "bool", "True once a war party of that camp has won a fight.", "world.wonWar(\"Blackfoot\")", (c, s, a) => Pred("flag", "war:" + a.S("band") + ":won"));
 		Fn("world", "lostWar", P1("band:string"), "bool", "True once a war party of that camp has been beaten.", "world.lostWar(\"Blackfoot\")", (c, s, a) => Pred("flag", "war:" + a.S("band") + ":lost"));
+		// ---- a post's men under arms (Economy/Musters.cs)
+		Fn("world", "muster", P1("post:string", "at:string?", "count:int?"), "effect",
+			"So many of a post's working men (all of them if no count) leave their work, take arms from the post's stores, and gather at a place (the post's own door if none). Near a player they walk there; out of sight they are simply there. The flag muster:<post> is raised while they are under arms, and march:<post>:<place> when most of them have come up.",
+			"world.muster(\"Nor'Westers' house (York)\", \"the landing at York Factory\", 6)",
+			(c, s, a) => Fx(c, "muster", ("post", a.S("post")), ("at", a.Has("at") ? a.S("at") : null), ("count", a.Has("count") ? a.N("count") : null)));
+		Fn("world", "march", P1("post:string", "to:string"), "effect",
+			"A post's men under arms (muster them first) go to another place and stand there. The flag march:<post>:<place> is raised when most of them have come up.",
+			"world.march(\"York Factory\", \"the landing at York Factory\")",
+			(c, s, a) => Fx(c, "march", ("post", a.S("post")), ("to", a.S("to"))));
+		Fn("world", "attack", P1("post:string", "against:string", "why:string?"), "effect",
+			"A post's men under arms (muster them first) go against another post or a camp and fight its men. Near a player it is fought for real; out of sight it is settled in numbers (men, arms, and the defender's walls). When it is over the men go back to their work, and the flags attack:<post>:won (or lost, or turned_back) and attack:<post>:<against>:<outcome> are raised.",
+			"world.attack(\"Nor'Westers' house (York)\", \"York Factory\", why: \"for the furs in the Company's store\")",
+			(c, s, a) => Fx(c, "attack", ("post", a.S("post")), ("against", a.S("against")), ("why", a.Has("why") ? a.S("why") : null)));
+		Fn("world", "standDown", P1("post:string"), "effect", "A post's men under arms are stood down and go back to their work, wherever they are. The flag muster:<post> is lowered.", "world.standDown(\"York Factory\")",
+			(c, s, a) => Fx(c, "stand_down", ("post", a.S("post"))));
+		Fn("world", "underArms", P1("post:string"), "int", "How many of a post's men are under arms and alive now (0 if none were mustered).", "world.underArms(\"York Factory\") < 3", (c, s, a) => Metric("under_arms", a.S("post")));
+		Fn("world", "fighters", P1("post:string"), "int", "How many working men a post could put under arms now (its labourers, voyageurs, hunters, sailors, soldiers and farmers at home, not its master).", "world.fighters(\"Nor'Westers' house (York)\") >= 6", (c, s, a) => Metric("fighters", a.S("post")));
+		Fn("world", "arrived", P1("post:string", "place:string"), "bool", "True once a post's men under arms have come up at a place they were mustered or marched to.", "world.arrived(\"York Factory\", \"the landing at York Factory\")", (c, s, a) => Pred("flag", "march:" + a.S("post") + ":" + a.S("place")));
+		Fn("world", "attackWon", P1("post:string"), "bool", "True once a post's men have carried an attack.", "world.attackWon(\"Nor'Westers' house (York)\")", (c, s, a) => Pred("flag", "attack:" + a.S("post") + ":won"));
+		Fn("world", "attackLost", P1("post:string"), "bool", "True once a post's men have been beaten off in an attack.", "world.attackLost(\"Nor'Westers' house (York)\")", (c, s, a) => Pred("flag", "attack:" + a.S("post") + ":lost"));
 
 		// ---- quests
 		Prop("Quest", "done", "bool", "True once the quest is done (for the player it runs for; from a beat, any player).", "Landfall.done", (c, s, a) => Pred("quest", ((QuestV)s).Id));
@@ -361,6 +381,21 @@ public static class Library
 		["world.truce.days"] = "How long the peace holds, in days (365 if not given).",
 		["world.heatFeud.holder"] = "Who holds the grievance: a camp (or a post) by name.",
 		["world.heatFeud.against"] = "Who it is held against: a camp, or a post by its exact name.",
+		["world.muster.post"] = "York Factory, \"Nor'Westers' house (York)\", any post with books, or a camp, by its exact name.",
+		["world.muster.at"] = "Where they gather: a post (its door), \"the landing at <post>\", a camp, a place on the map, or a person (\"leader@York Factory\"). The post's own door if not given.",
+		["world.muster.count"] = "How many men; all the post can put under arms if not given.",
+		["world.march.post"] = "The post whose men under arms go.",
+		["world.march.to"] = "Where they go: a post, \"the landing at <post>\", a camp, a place on the map, or a person.",
+		["world.attack.post"] = "The post whose men under arms go.",
+		["world.attack.against"] = "The post or camp they go against, by its exact name.",
+		["world.attack.why"] = "What they go for, for the log and the news.",
+		["world.standDown.post"] = "The post whose men go back to their work.",
+		["world.underArms.post"] = "The post, as it was named to muster.",
+		["world.fighters.post"] = "The post (or camp), by its exact name.",
+		["world.arrived.post"] = "The post whose men were sent, as it was named to muster.",
+		["world.arrived.place"] = "The place exactly as it was given to muster or march.",
+		["world.attackWon.post"] = "The post whose men attacked, as it was named to muster.",
+		["world.attackLost.post"] = "The post whose men attacked, as it was named to muster.",
 		["world.heatFeud.amount"] = "How much hotter it grows, out of 10 (1 if not given). At 4 and more the holder rides against them in the season.",
 		["world.feud.holder"] = "Who holds the grievance: a camp (or a post) by name.",
 		["world.feud.against"] = "Who it is held against: a camp, or a post by its exact name.",

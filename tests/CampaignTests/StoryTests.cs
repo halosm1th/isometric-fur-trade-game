@@ -117,7 +117,7 @@ public class StoryTests
 		var missing = new List<string>();
 		foreach (var (_, q) in Quests(doc))
 			foreach (var s in Strings(q))
-				if (s.StartsWith("flag:") && s[5..] is var f && !raised.Contains(f) && !f.StartsWith("war:") && f != "open_hostility")
+				if (s.StartsWith("flag:") && s[5..] is var f && !raised.Contains(f) && !Known.EngineFlagPrefixes.Any(f.StartsWith) && !Known.EngineFlags.Contains(f))
 					missing.Add($"{Tree.S(q["id"])} waits on {f}");
 		Assert.True(missing.Count == 0, "flags nothing raises: " + string.Join("; ", missing.Distinct()));
 	}

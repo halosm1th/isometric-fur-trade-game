@@ -51,15 +51,20 @@ public static class Known
 		["casualties"] = (new[] { "town", "count" }, new[] { "cause", "role" }),
 		["kill"] = (new[] { "who" }, new[] { "cause" }),
 		["burn"] = (new[] { "town" }, new[] { "building" }),
+		// A post's men under arms (Economy/Musters.cs).
+		["muster"] = (new[] { "post" }, new[] { "at", "count" }),
+		["march"] = (new[] { "post", "to" }, new string[0]),
+		["attack"] = (new[] { "post", "against" }, new[] { "why" }),
+		["stand_down"] = (new[] { "post" }, new string[0]),
 	};
 	public static readonly string[] Holders = { "Crown", "American" };
 	public static readonly string[] BrigadeEffects = { "delay", "turn_back", "lose", "cancel", "launch" };
 	public static readonly HashSet<string> Predicates = new() { "flag", "beat", "after", "before", "chance", "month", "post", "dead", "player_faction", "season", "convoy_late", "convoy_lost", "convoy_robbed", "convoy_turned_back", "convoy_out", "convoy_in", "convoy_wintering", "quest", "quest_active", "quest_failed", "posted", "at_peace" };
-	public static readonly HashSet<string> Metrics = new() { "var", "month", "year", "day", "day_of_year", "count", "beat_age", "tension", "standing", "stock", "furs", "convoys_active", "convoy_days_late", "convoy_days_out", "rapport", "regard", "feud" };
+	public static readonly HashSet<string> Metrics = new() { "var", "month", "year", "day", "day_of_year", "count", "beat_age", "tension", "standing", "stock", "furs", "convoys_active", "convoy_days_late", "convoy_days_out", "rapport", "regard", "feud", "under_arms", "fighters" };
 	public static readonly string[] Addressees = { "the Factor at York Factory", "the postmaster at Oxford House", "the wintering partner", "the chief of the band" };
 	public static readonly string[] Companies = { "HBC", "NWC", "American" };
-	public static readonly string[] EngineFlagPrefixes = { "heard:", "late:", "lost:", "robbed:", "turned:", "out:", "in:", "deed:", "war:" };
-	public static readonly HashSet<string> EngineFlags = new() { "brigade_late", "brigade_lost", "brigade_robbed", "brigade_turned_back", "brigade_in", "open_hostility", "nwc_exhausted", "hbc_exhausted" };
+	public static readonly string[] EngineFlagPrefixes = { "heard:", "late:", "lost:", "robbed:", "turned:", "out:", "in:", "deed:", "war:", "muster:", "march:", "attack:" };
+	public static readonly HashSet<string> EngineFlags = new() { "brigade_late", "brigade_lost", "brigade_robbed", "brigade_turned_back", "brigade_in", "open_hostility", "nwc_exhausted", "hbc_exhausted", "ship_mates", "york_raid" };
 
 	public static string Root { get; } = FindRoot();
 

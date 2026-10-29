@@ -190,10 +190,17 @@ public static partial class Checker
 				if (!Known.Metrics.Contains(a.Name)) { rep.Error(where, $"unknown number '{a.Name}' (known: {string.Join(", ", Known.Metrics.OrderBy(x => x, StringComparer.Ordinal))})"); continue; }
 				if (a.Name == "var" && a.Args.Count > 0) Facts.Add(facts.VarsRead, a.Args[0], where);
 				if (a.Name == "stock" && (a.Args.Count != 2 || !world.Ledgers.Contains(a.Args[0]) || !world.Items.Contains(a.Args[1]))) rep.Error(where, $"stock(POST, ITEM): got ({string.Join(", ", a.Args)})");
+				if ((a.Name == "under_arms" || a.Name == "fighters") && (a.Args.Count == 0 || !IsMusterPost(a.Args[0], world))) rep.Error(where, $"{a.Name}: '{(a.Args.Count > 0 ? a.Args[0] : "")}' is not a post or a camp");
 				if ((a.Name == "convoy_days_late" || a.Name == "convoy_days_out") && (a.Args.Count == 0 || !world.Runs.ContainsKey(a.Args[0]))) rep.Error(where, $"{a.Name} needs a brigade run");
 			}
 		}
 	}
+
+	// What can be put under arms (Economy/Musters.cs), and where they can be sent.
+	private static bool IsMusterPost(string name, Known.WorldData world) => name == "Nor'Westers' house (York)" || world.Ledgers.Contains(name) || world.Camps.Contains(name);
+	private static bool IsMusterPlace(string place, Known.WorldData world) =>
+		IsMusterPost(place, world) || world.Places.ContainsKey(place) || place.Contains('@')
+		|| place.StartsWith("the landing at ") && IsMusterPost(place["the landing at ".Length..], world);
 
 	private static void CheckActions(object acts, string where, Report rep, Facts facts, Known.WorldData world)
 	{
@@ -294,6 +301,12 @@ public static partial class Checker
 					break;
 				case "start_quest": case "end_quest":
 					Facts.Add(facts.QuestsRead, Tree.S(a.GetValueOrDefault("quest")), w);
+					break;
+				case "muster": case "march": case "attack": case "stand_down":
+					if (!IsMusterPost(Tree.S(a.GetValueOrDefault("post")), world)) rep.Error(w, $"{verb}: '{Tree.S(a.GetValueOrDefault("post"))}' is not a post or a camp whose men can be put under arms");
+					if (verb == "attack" && !IsMusterPost(Tree.S(a.GetValueOrDefault("against")), world)) rep.Error(w, $"attack: '{Tree.S(a.GetValueOrDefault("against"))}' is not a post or a camp");
+					foreach (var k in new[] { "at", "to" })
+						if (a.ContainsKey(k) && !IsMusterPlace(Tree.S(a[k]), world)) rep.Warn(w, $"{verb}: '{Tree.S(a[k])}' is not a place the checker knows (a post, \"the landing at <post>\", a camp, a place on the map, or role@place)");
 					break;
 			}
 		}

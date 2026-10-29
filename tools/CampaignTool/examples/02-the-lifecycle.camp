@@ -1,6 +1,6 @@
 // The life of a beat: every hook once.
 //
-//   AwakenWhen     the beat wakes the first time this holds
+//   AwakenWhen     the beat is awake on the days this holds (it wakes the first)
 //   OnAwaken       what happens at that moment
 //   OnApproach     pressure on the world as the beat's day draws near
 //   ActivateWhen   a last condition the beat waits for, once it is due
