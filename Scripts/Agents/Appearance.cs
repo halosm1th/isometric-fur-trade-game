@@ -99,8 +99,10 @@ public static class Appearance
     // Sheets for roles not drawn yet (tools/sprites/pixellab/roles.py
     // NEW_ROLES): worn as soon as they are there, until then the old one.
     private static readonly System.Collections.Generic.Dictionary<string, bool> _drawn = new();
+    // With --painted they are left out: their painted sheet is only the
+    // three idles PixelLab started from.
     private static bool Drawn(string file) =>
-        _drawn.TryGetValue(file, out var d) ? d : _drawn[file] = ResourceLoader.Exists(Dir + file);
+        !Painted && (_drawn.TryGetValue(file, out var d) ? d : _drawn[file] = ResourceLoader.Exists(Dir + file));
 
     // Half of a people in one sheet, half in the other once it is drawn,
     // by name, so a person keeps theirs.

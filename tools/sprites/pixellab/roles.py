@@ -62,7 +62,7 @@ ROLES = {
 # Roles not yet drawn: (sheet, description, the folder seed puts its idles in).
 # Each needs reference idles first (see the module comment).
 NEW_ROLES = {
-    "metis": ("Scenes/Npc/MetisFrames.tres", "a Metis man: black hair, black moustache, a white wool capote with blue stripes at the hem tied with a red sash, blue leggings, moccasins", "metis"),
+    "metis": ("Scenes/Npc/MetisFrames.tres", "a Metis man: red wool tuque with a tassel, black moustache, clay pipe, a hooded white wool capote with blue stripes at the hem, tied with a white cord, red trousers, tan leather boots", "metis"),
     "cree_boy": ("Scenes/Npc/CreeBoyFrames.tres", "a Cree boy of ten: long black hair, a small fringed buckskin shirt and leggings, red breechcloth, moccasins", "cree_boy"),
     "cree_girl": ("Scenes/Npc/CreeGirlFrames.tres", "a Cree girl of ten: two black braids, a blue stroud cloth dress with red trim, leggings, moccasins", "cree_girl"),
     "orkneyman": ("Scenes/Npc/OrkneymanFrames.tres", "a young Orkney labourer, bare-headed: short fair hair and a short fair beard, brown wool jacket, white shirt, grey breeches, brown boots", "orkneyman"),

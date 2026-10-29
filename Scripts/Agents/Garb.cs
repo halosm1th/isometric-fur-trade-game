@@ -45,6 +45,10 @@ public static class Garb
         ["VoyageurFrames.tres"] = new Slot[] {
             new(B(356, 14, 0.5f), new[] { D(220, 1, 0, 0.85f), D(130, 0.8f, 0, 0.85f), D(30, 0.6f, 0, 0.75f), D(0, 0.25f, 0, 0.55f) }),
             new(B(205, 25, 0.12f), new[] { D(160), D(-80), D(180, 0.5f, 0, 0.9f) }) },
+        // The Metis man's tuque and trousers; his white capote, dyed blue, scarlet or grey.
+        ["MetisFrames.tres"] = new Slot[] {
+            new(B(356, 14, 0.5f), new[] { D(220, 1, 0, 0.85f), D(130, 0.8f, 0, 0.85f), D(30, 0.6f, 0, 0.75f) }),
+            new(B(40, 40, 0, 0.3f, 0.6f), new[] { D(170, 1, 0.4f, 0.7f), D(-40, 1, 0.6f, 0.65f), D(0, 0, 0, 0.72f) }) },
         // The jacket; the canvas trousers, tarred or slops-blue. (His red
         // waistcoat shares his ruddy face's hues, so it stays red.)
         ["SailorFrames.tres"] = new Slot[] {
@@ -65,9 +69,9 @@ public static class Garb
             GreyBeard(0.27f, 0.42f, 0.04f, 0.4f) },
         ["NwcPartnerFrames.tres"] = new Slot[] {
             new(B(120, 30, 0.2f), new[] { D(100), D(-90, 0.7f, 0, 0.9f), D(-130) }) },
-        // The boy's white capote, dyed; the girl's red dress.
+        // The boy's white capote, dyed blue, scarlet or grey; the girl's red dress.
         ["ChildBoyFrames.tres"] = new Slot[] {
-            new(B(40, 40, 0, 0.3f, 0.6f), new[] { D(170, 1, 0.35f, 0.85f), D(-40, 1, 0.4f, 0.8f), D(80, 1, 0.3f, 0.8f) }) },
+            new(B(40, 40, 0, 0.3f, 0.6f), new[] { D(170, 1, 0.4f, 0.7f), D(-40, 1, 0.6f, 0.65f), D(0, 0, 0, 0.72f) }) },
         ["ChildGirlFrames.tres"] = new Slot[] {
             new(B(358, 12, 0.5f), new[] { D(220, 1, 0, 0.9f), D(120, 0.8f, 0, 0.9f), D(45, 1, 0, 1.1f) }) },
         // The breechcloth's trade stroud: scarlet, blue, green or black.
