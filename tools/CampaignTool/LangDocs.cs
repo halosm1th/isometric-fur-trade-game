@@ -134,7 +134,21 @@ public static class LangDocs
 			("questHooks", QuestHooks.Concat(StepHooks).Select(h => (object)Tree.Dict(("name", h.Name), ("key", h.Key), ("condition", h.Condition), ("summary", h.Summary))).ToList()),
 			("questArgs", LineArgs.Concat(QuestArgs).Concat(StepArgs).Concat(ChoiceArgs).GroupBy(a => a.Name).Select(g => (object)Tree.Dict(("name", g.Key), ("type", g.First().Type), ("summary", g.First().Summary))).ToList()),
 			("keywords", Keywords.Cast<object>().ToList()), ("types", Types.Cast<object>().ToList()),
-			("objects", Tree.List("world", "flags", "player")));
+			("objects", Tree.List("world", "flags", "player")),
+			("stepKinds", StepKinds.Cast<object>().ToList()),
+			("names", WorldNames()));
+	}
+
+	// The names a script may write in quotes, for the editor to suggest inside a string.
+	private static Dictionary<string, object> WorldNames()
+	{
+		var w = Known.World;
+		List<object> L(IEnumerable<string> xs) => xs.Distinct().OrderBy(x => x, StringComparer.OrdinalIgnoreCase).Cast<object>().ToList();
+		return Tree.Dict(
+			("places", L(w.Places.Keys.Concat(w.Ledgers))), ("posts", L(w.Ledgers)), ("runs", L(w.Runs.Keys)),
+			("towns", L(w.Towns.Keys)), ("buildings", L(w.Towns.Values.SelectMany(b => b))), ("camps", L(w.Camps)),
+			("holders", L(Known.Holders)), ("deeds", L(new[] { "truce", "raid", "escort", "courier" })),
+			("flags", L(Known.EngineFlags)));
 	}
 
 	// The wiki's Library-Reference page, written from the table.

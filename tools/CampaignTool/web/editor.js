@@ -311,7 +311,9 @@ function completionsAt(src, pos, force) {
   const L = state.lib, { start, word } = wordBefore(src, pos);
   const before = src.slice(0, start);
   const out = [];
-  const add = (name, kind, detail, doc, insert) => out.push({ name, kind, detail, doc, insert: insert || name });
+  const add = (name, kind, detail, doc, insert, rank) => out.push({ name, kind, detail, doc, insert: insert || name, rank: rank || 0 });
+  const quote = openQuoteAt(src.slice(0, pos));
+  if (quote >= 0) return stringCompletions(src, pos, quote);
   const dot = /([A-Za-z_]\w*|\))\s*\.\s*$/.exec(before);
   if (dot) {
     let owner = null, target = dot[1];
@@ -329,12 +331,30 @@ function completionsAt(src, pos, force) {
   }
   if (!word && !force) return null;
   if (word && /^\d/.test(word)) return null;
-  if (lineHasOpenQuote(before)) return null;
-  // inside a beat's braces the hooks are offered; at the top level the declarations
+  // At the start of an argument: the names the call (or the declaration's header) takes, those not yet given.
+  const call = enclosingCall(src, start);
+  if (call && /[(,]\s*$/.test(before)) {
+    const used = argAt(src, call.open, start).used;
+    const head = headerKind(src, call);
+    const args = head === 'campaign' ? L.headerArgs : head === 'beat' ? L.beatArgs : head ? (L.questArgs || []) : ((findMember(call) || {}).params || []);
+    for (const a of args) if (!used.has(a.name)) add(a.name + ':', 'argument', a.type + (a.optional ? '?' : ''), a.summary || a.doc, a.name + ': ', -1);
+    if (head) return { start, word, items: filt(out, word) };
+  }
+  // Directly inside a beat, quest or step: its hooks, those it has not got yet.
+  const block = enclosingBlock(before);
+  if (block) {
+    const steps = ['Says', 'Done', 'OnDone'], body = before.slice(block.open);
+    const hooks = block.kind === 'beat' ? L.hooks : block.kind === 'quest' ? (L.questHooks || []).filter(h => !steps.includes(h.name))
+      : (L.stepKinds || []).includes(block.kind) ? (L.questHooks || []).filter(h => steps.includes(h.name)) : [];
+    const ind = /^[ \t]*/.exec(before.slice(before.lastIndexOf('\n') + 1))[0];
+    for (const h of hooks) if (!new RegExp('\\b' + h.name + '\\s*\\(').test(body))
+      add(h.name, 'hook', h.condition ? 'condition' : 'effects', h.summary, h.name + (h.condition ? '() => ' : '() {\n' + ind + '    \n' + ind + '}'), -1);
+  }
   const depth = braceDepth(before);
-  if (depth === 1 && insideBeat(before)) for (const h of L.hooks) add(h.name, 'hook', h.condition ? 'condition' : 'effects', h.summary, h.name + (h.condition ? '() => ' : '() {\n        \n    }'));
   if (depth === 0) { add('beat', 'keyword', 'declaration', 'A thing that may happen to the world.', 'beat '); add('questline', 'keyword', 'declaration', 'A line of quests for the player: questline Name(title: "...") { quest ... }', 'questline '); add('const', 'keyword', 'declaration', 'A name for a value known when the script is compiled.', 'const '); add('foreach', 'keyword', 'loop', 'Write a declaration for each value.', 'foreach (int i in 1..3) '); }
   if (depth >= 1) for (const k of ['if', 'else', 'for', 'foreach']) add(k, 'keyword', 'statement', '');
+  if (block && block.kind === 'questline') add('quest', 'keyword', 'declaration', 'A quest of this line: quest Name(title: "...") { ... }', 'quest ', -1);
+  if (block && block.kind === 'quest') for (const k of L.stepKinds || []) add(k, 'keyword', 'step', 'A step of the quest: ' + k + ' Name(...) { ... }', k + ' ', -1);
   for (const m of L.members.filter(m => m.owner === '' && m.kind === 'function')) add(m.name, 'function', m.signature, m.doc, m.name + '(');
   for (const o of L.objects) add(o, 'object', 'object', o === 'world' ? 'The state of the world.' : 'Named switches.', o);
   for (const e of Object.keys(L.enums)) add(e, 'type', 'values', L.enumDocs[e] || '', e + '.');
@@ -343,17 +363,99 @@ function completionsAt(src, pos, force) {
   for (const b of d.beats) add(b, 'beat', 'beat', '');
   for (const f of d.fns) add(f, 'function', 'your function', '', f + '(');
   for (const n of d.names) add(n, 'name', 'yours', '');
-  for (const a of L.beatArgs.concat(L.headerArgs)) if (depth === 0 && insideParens(before)) add(a.name + ':', 'argument', a.type, a.summary, a.name + ': ');
   for (const k of ['true', 'false']) add(k, 'keyword', '', '');
   return { start, word, items: filt(out, word) };
 }
 
-function lineHasOpenQuote(before) {
-  const line = before.slice(before.lastIndexOf('\n') + 1);
-  let open = false;
-  for (let i = 0; i < line.length; i++) { if (line[i] === '\\') { i++; continue; } if (line[i] === '"') open = !open; }
+// Inside quotes: the names of the world that argument wants, brigade("|") a run, flags.set("|") a flag.
+function stringCompletions(src, pos, quote) {
+  const call = enclosingCall(src, quote);
+  const fn = call && findMember(call);
+  if (!fn) return null;
+  const p = paramAt(fn, argAt(src, call.open, quote));
+  const names = p && namesFor(fn, p.name, src);
+  if (!names || !names.length) return null;
+  const word = src.slice(quote + 1, pos), close = src[pos] === '"' ? '' : '"';
+  const items = names.map(n => ({ name: n, kind: 'name', detail: p.name, doc: '', insert: n + close, rank: 0 }));
+  return { start: quote + 1, word, items: filt(items, word) };
+}
+function namesFor(fn, param, src) {
+  const N = state.lib.names || {}, both = (...ks) => [...new Set(ks.flatMap(k => N[k] || []))];
+  if (fn.owner === 'flags') return [...new Set([...src.matchAll(/flags\.(?:set|has|clear)\(\s*"([^"\n]+)"/g)].map(m => m[1]).concat(N.flags || []))];
+  if (fn.name === 'townFalls' && param === 'to') return N.holders;
+  if (fn.name === 'moveGarrison' || (fn.name === 'garrisonLeaves' && param === 'where')) return N.towns;
+  if (['warParty', 'truce', 'atPeace', 'attack'].includes(fn.name) && param !== 'post' && param !== 'why') return both('camps', 'posts');
+  if (fn.name === 'heatFeud' || fn.name === 'feud') return both('holders', 'camps', 'posts');
+  if (fn.name === 'march' && param === 'to') return N.places;
+  return { run: N.runs, town: N.towns, building: N.buildings, deed: N.deeds, band: N.camps, post: N.posts, place: N.places, at: N.places, where: N.places }[param] || null;
+}
+
+// The argument at pos of the call whose '(' is at open: its index, its name if it is named, and the names already given.
+function argAt(src, open, pos) {
+  let depth = 0, index = 0, from = open + 1;
+  const used = new Set(), named = (s) => (/^\s*([A-Za-z_]\w*)\s*:(?!:)/.exec(s) || [])[1];
+  for (let i = open + 1; i < pos; i++) {
+    const c = src[i];
+    if (c === '"') { i++; while (i < pos && src[i] !== '"' && src[i] !== '\n') { if (src[i] === '\\') i++; i++; } continue; }
+    if ('([{'.includes(c)) depth++; else if (')]}'.includes(c)) depth--;
+    else if (c === ',' && depth === 0) { const n = named(src.slice(from, i)); if (n) used.add(n); index++; from = i + 1; }
+  }
+  return { index, name: named(src.slice(from, pos)), used };
+}
+function paramAt(fn, at) {
+  const ps = fn.params || [];
+  if (at.name) return ps.find(p => p.name === at.name) || null;
+  return ps[at.index] || (ps.length && ps[ps.length - 1].rest ? ps[ps.length - 1] : null);
+}
+// What a call's name is the header of (beat Name(...), quest Name(...)), or null for an ordinary call.
+function headerKind(src, call) {
+  const m = /\b([a-z]+)\s+[A-Za-z_]\w*\s*$/.exec(src.slice(0, call.open));
+  const k = m && m[1];
+  return k && (['campaign', 'beat', 'questline', 'quest', 'choice'].includes(k) || (state.lib.stepKinds || []).includes(k)) ? k : null;
+}
+// The innermost open brace before the caret and the declaration it belongs to: {kind: "beat", open}.
+function enclosingBlock(before) {
+  const stack = [];
+  for (let i = 0; i < before.length; i++) {
+    const c = before[i];
+    if (c === '/' && before[i + 1] === '/') { while (i < before.length && before[i] !== '\n') i++; continue; }
+    if (c === '/' && before[i + 1] === '*') { const e = before.indexOf('*/', i + 2); i = e < 0 ? before.length : e + 1; continue; }
+    if (c === '"') { i++; while (i < before.length && before[i] !== '"' && before[i] !== '\n') { if (before[i] === '\\') i++; i++; } continue; }
+    if (c === '{') stack.push(i); else if (c === '}') stack.pop();
+  }
+  if (!stack.length) return null;
+  const open = stack[stack.length - 1];
+  let j = open - 1;
+  const ws = () => { while (j >= 0 && /\s/.test(before[j])) j--; };
+  const back = (o, c) => { let d = 0; for (; j >= 0; j--) { if (before[j] === c) d++; else if (before[j] === o && --d === 0) { j--; return; } } };
+  ws();
+  if (before[j] === ']') { back('[', ']'); ws(); }
+  if (before[j] === ')') back('(', ')');
+  const m = /\b([a-z]+)\s+[A-Za-z_]\w*\s*$/.exec(before.slice(0, j + 1));
+  return m ? { kind: m[1], open } : null;
+}
+
+// While the caret is in a call's arguments: its signature, the argument being written in bold.
+function showSignature() {
+  const src = el.input.value, pos = el.input.selectionStart, call = enclosingCall(src, pos), fn = call && findMember(call);
+  if (!fn || headerKind(src, call)) return;
+  const p = paramAt(fn, argAt(src, call.open, pos));
+  const args = (fn.params || []).map(x => { const s = esc(x.name + (x.optional ? '?' : '') + ': ' + x.type); return x === p ? `<b>${s}</b>` : s; }).join(', ');
+  el.hover.innerHTML = `<div class="sig">${esc((fn.owner ? fn.owner + '.' : '') + fn.name)}(${args})</div>` + (p && p.doc ? `<div><code>${esc(p.name)}</code>: ${esc(p.doc)}</div>` : `<div>${esc(fn.doc || '')}</div>`);
+  el.hover.hidden = false;
+  delete el.hover.dataset.mouse;
+  const { x, y } = caretXY(), h = el.hover.offsetHeight;
+  el.hover.style.left = Math.max(4, Math.min(x - 20, el.hover.parentElement.clientWidth - 470)) + 'px';
+  el.hover.style.top = (y - lineH - h - 4 >= 4 ? y - lineH - h - 4 : y + 4) + 'px';
+}
+
+// Where the string the caret is in opens, or -1 outside quotes.
+function openQuoteAt(before) {
+  let open = -1;
+  for (let i = before.lastIndexOf('\n') + 1; i < before.length; i++) { if (before[i] === '\\') { i++; continue; } if (before[i] === '"') open = open < 0 ? i : -1; }
   return open;
 }
+
 function braceDepth(before) {
   let d = 0, i = 0;
   while (i < before.length) {
@@ -366,19 +468,18 @@ function braceDepth(before) {
   }
   return d;
 }
-function insideBeat(before) { const k = before.lastIndexOf('beat '); return k >= 0 && before.indexOf('{', k) >= 0; }
-function insideParens(before) {
-  let d = 0;
-  const lastBeat = Math.max(before.lastIndexOf('\nbeat '), before.lastIndexOf('campaign '));
-  for (let i = Math.max(lastBeat, 0); i < before.length; i++) { if (before[i] === '(') d++; else if (before[i] === ')') d--; }
-  return d > 0;
-}
-
 function filt(items, word) {
   const w = word.toLowerCase();
   const seen = new Set();
-  return items.filter(i => { const k = i.kind + i.name; if (seen.has(k)) return false; seen.add(k); return !w || i.name.toLowerCase().startsWith(w); })
-    .sort((a, b) => (a.name.toLowerCase().startsWith(w) ? 0 : 1) - (b.name.toLowerCase().startsWith(w) ? 0 : 1) || a.name.localeCompare(b.name)).slice(0, 40);
+  // a word matches at its start, then at the start of a part (isLate for "late", York Factory for "fac"), then anywhere
+  const score = (n) => {
+    const l = n.toLowerCase();
+    if (l.startsWith(w)) return 0;
+    const parts = n.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase().split(/[^a-z0-9]+/);
+    return parts.some(p => p.startsWith(w)) ? 1 : l.includes(w) ? 2 : 9;
+  };
+  return items.filter(i => { const k = i.kind + i.name; if (seen.has(k)) return false; seen.add(k); return (i.s = w ? score(i.name) : 0) < 9; })
+    .sort((a, b) => a.s - b.s || (a.rank || 0) - (b.rank || 0) || a.name.localeCompare(b.name)).slice(0, 40);
 }
 
 function caretXY() {
@@ -389,7 +490,7 @@ function caretXY() {
 
 function showComplete(force) {
   const r = completionsAt(el.input.value, el.input.selectionStart, force);
-  if (!r || !r.items.length || (r.items.length === 1 && r.items[0].name === r.word)) { hideComplete(); return; }
+  if (!r || !r.items.length || (r.items.length === 1 && r.items[0].name === r.word)) { hideComplete(); showSignature(); return; }
   state.completing = { ...r, sel: 0 };
   drawComplete();
   const { x, y } = caretXY();
@@ -404,7 +505,7 @@ function drawComplete() {
   el.complete.querySelectorAll('li').forEach(li => { li.onmousedown = (ev) => { ev.preventDefault(); c.sel = +li.dataset.n; acceptComplete(); }; });
   const sel = el.complete.querySelector('.sel'); if (sel) sel.scrollIntoView({ block: 'nearest' });
   const it = c.items[c.sel];
-  showHover(it && (it.doc || it.detail) ? { sig: it.detail, doc: it.doc } : null, true);
+  showHover(it && it.kind !== 'name' && (it.doc || it.detail) ? { sig: it.detail, doc: it.doc } : null, true);
 }
 function hideComplete() { state.completing = null; el.complete.hidden = true; if (!el.hover.dataset.mouse) el.hover.hidden = true; }
 function acceptComplete() {
@@ -413,7 +514,7 @@ function acceptComplete() {
   el.input.value = src.slice(0, c.start) + it.insert + src.slice(pos);
   const np = c.start + it.insert.length;
   el.input.setSelectionRange(np, np);
-  hideComplete(); onEdit();
+  hideComplete(); onEdit(); showSignature();
 }
 
 function showHover(info, nearCaret, x, y) {
@@ -443,7 +544,7 @@ function enclosingCall(src, pos) {
       if (!m) return null;
       const before = src.slice(0, i - m[0].length);
       const own = /([A-Za-z_]\w*|\))\s*\.\s*$/.exec(before);
-      return { name: m[1], owner: own ? own[1] : null };
+      return { name: m[1], owner: own ? own[1] : null, open: i };
     }
     else if (depth === 0 && (ch === ';' || ch === '{' || ch === '}')) return null;
   }
@@ -507,6 +608,7 @@ el.input.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape') { hideComplete(); ev.preventDefault(); return; }
   }
   if (ev.key === ' ' && ev.ctrlKey) { showComplete(true); ev.preventDefault(); return; }
+  if (ev.key === 'Escape' && !el.hover.hidden) { showHover(null); ev.preventDefault(); return; }
   if ((ev.key === 's' || ev.key === 'S') && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); save(); return; }
   if (ev.key === 'Enter' && ev.ctrlKey) { ev.preventDefault(); runCheck(); return; }
   if (ev.key === 'Tab') {
@@ -774,5 +876,5 @@ window.addEventListener('beforeunload', (ev) => { if (el.input.value !== state.c
     const first = state.files.find(f => f.path === last) || state.files.find(f => f.kind === 'source') || state.files[0];
     if (first) await openFile(first.path, true); else newFile();
   } catch (e) { setStatus(e.message, 'bad'); }
-  window.__editor = { state, el, openFile, runCheck, showTab, jump };   // for the browser tests
+  window.__editor = { state, el, openFile, runCheck, showTab, jump, completionsAt };   // for the browser tests
 })();
