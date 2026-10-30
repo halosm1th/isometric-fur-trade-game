@@ -168,8 +168,8 @@ public static class WorldLayout
     }
     // Where the ship's hull sits when tied up: alongside the last planks.
     public static Vector2 ShipBerth => IsoGrid.ToWorld(WharfEnd) + new Vector2(120, -40);
-    // Out in the Bay beyond sight of the post, the way she came in.
-    // Down the Hayes and out into the Bay, the way she came in.
+    // Only a fallback now: this point lies on the marsh, not the Bay. The ship
+    // sails a route found along the water (World/Ship.Route).
     public static Vector2 ShipOffscreen => ShipBerth + new Vector2(5600, -2200);
 
     // ---- the Cree camp ----------------------------------------------------

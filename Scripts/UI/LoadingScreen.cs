@@ -8,16 +8,22 @@ namespace IsometricFurTradeGame.Scripts.UI;
 // hang. It hangs on the root, so it outlasts the scene it covers: drawn
 // first, then the scene is changed under it, and it lifts once the new
 // world has a player in it (or a page of the prologue up) and has drawn
-// a few frames.
+// a few frames. The scene is read on a thread (ResourceLoader's threaded
+// load) so the bar and the ship move while it comes in; only building it
+// still holds the frame.
 public partial class LoadingScreen : CanvasLayer
 {
     private static LoadingScreen _on;
     private string _path, _caption;
     private Control _root;
     private Label _line, _tip;
+    private LoadingArt _art;
+    private ProgressBar _bar;
     private int _frames, _settled;
     private ulong _startMs;
-    private bool _changed, _lifting;
+    private bool _requested, _announced, _changed, _lifting;
+    private float _target, _shown;
+    private PackedScene _scene;
 
     private static readonly string[] Tips =
     {
@@ -49,14 +55,9 @@ public partial class LoadingScreen : CanvasLayer
         var bg = new ColorRect { Color = new Color(0.04f, 0.035f, 0.03f) };
         bg.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         _root.AddChild(bg);
-        var art = new TextureRect
-        {
-            Texture = GD.Load<Texture2D>("res://assets/ui/menu_background.jpg"),
-            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
-            Modulate = new Color(0.45f, 0.42f, 0.4f), MouseFilter = Control.MouseFilterEnum.Ignore,
-        };
-        art.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-        _root.AddChild(art);
+        _art = new LoadingArt { Modulate = new Color(0.62f, 0.59f, 0.56f) };
+        _art.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        _root.AddChild(_art);
 
         var box = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.End };
         box.SetAnchorsPreset(Control.LayoutPreset.FullRect);
@@ -72,7 +73,10 @@ public partial class LoadingScreen : CanvasLayer
         _line.AddThemeFontSizeOverride("font_size", 16);
         _line.AddThemeColorOverride("font_color", MenuTheme.Brass);
         box.AddChild(_line);
-        box.AddChild(new HSeparator());
+        _bar = new ProgressBar { MinValue = 0, MaxValue = 1, Step = 0, ShowPercentage = false, CustomMinimumSize = new Vector2(0, 8) };
+        _bar.AddThemeStyleboxOverride("background", new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0.55f), BorderColor = new Color(MenuTheme.Brass, 0.5f), BorderWidthTop = 1, BorderWidthBottom = 1, BorderWidthLeft = 1, BorderWidthRight = 1 });
+        _bar.AddThemeStyleboxOverride("fill", new StyleBoxFlat { BgColor = MenuTheme.Brass });
+        box.AddChild(_bar);
         _tip = new Label { Text = Tips[GD.RandRange(0, Tips.Length - 1)], AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(600, 0) };
         _tip.AddThemeFontSizeOverride("font_size", 15);
         _tip.AddThemeColorOverride("font_color", MenuTheme.Dim);
@@ -83,20 +87,48 @@ public partial class LoadingScreen : CanvasLayer
     {
         _frames++;
         float secs = (Time.GetTicksMsec() - _startMs) / 1000f;
-        if (_line != null && !_lifting) _line.Text = (_changed ? "Building the world" : "Loading") + new string('.', 1 + (int)(secs * 2f) % 3);
+        // Eased toward how far along it is; a frame held while the world is
+        // built doesn't jump it.
+        _shown = Mathf.MoveToward(_shown, _target, Mathf.Min((float)delta, 0.05f) * 0.45f);
+        _bar.Value = _shown;
+        _art.Progress = _shown;
+        if (_line != null && !_lifting && (!_announced || _changed)) _line.Text = (_changed ? "Building the world" : "Loading") + new string('.', 1 + (int)(secs * 2f) % 3);
         // Two frames on screen first, so the curtain is what freezes, not the menu.
         if (!_changed)
         {
             if (_frames < 3) return;
+            if (!_requested)
+            {
+                _requested = true;
+                if (ResourceLoader.LoadThreadedRequest(_path) != Error.Ok) { _changed = true; GetTree().ChangeSceneToFile(_path); }
+                return;
+            }
+            var progress = new Godot.Collections.Array();
+            var status = ResourceLoader.LoadThreadedGetStatus(_path, progress);
+            // Godot reports a single scene's progress in a few coarse steps,
+            // so she also makes way by the clock.
+            if (status == ResourceLoader.ThreadLoadStatus.InProgress)
+            {
+                _target = Mathf.Max(0.05f + 0.55f * (progress.Count > 0 ? (float)progress[0] : 0f), 0.55f * (1f - Mathf.Exp(-secs / 1.6f)));
+                return;
+            }
+            // Building the world holds the frame for many seconds: say so
+            // and draw it once before it starts.
+            if (_scene == null && status == ResourceLoader.ThreadLoadStatus.Loaded) _scene = ResourceLoader.LoadThreadedGet(_path) as PackedScene;
+            if (!_announced) { _announced = true; _line.Text = "Building the world..."; return; }
             _changed = true;
-            GetTree().ChangeSceneToFile(_path);
+            _target = 0.6f;
+            if (_scene != null) GetTree().ChangeSceneToPacked(_scene);
+            else GetTree().ChangeSceneToFile(_path);
             return;
         }
         if (_lifting) return;
         bool ready = GodotObject.IsInstanceValid(Sim.Player) || (DialogueMenu.Instance != null && GodotObject.IsInstanceValid(DialogueMenu.Instance) && DialogueMenu.Instance.IsOpen)
             || GetTree().CurrentScene?.SceneFilePath?.Contains("MainMenu") == true;
         if (ready) _settled++;
-        if (_settled < 20 && secs < 90f) return;
+        _target = 0.6f + 0.4f * Mathf.Min(1f, _settled / 20f);
+        // Up when the world is settled and she is at her anchorage.
+        if ((_settled < 20 || _shown < 0.99f) && secs < 90f) return;
         _lifting = true;
         var tw = CreateTween();
         tw.SetPauseMode(Tween.TweenPauseMode.Process);
