@@ -54,7 +54,19 @@ Rum (35) and ale (12) add **intoxication**, which wears off at 8 an hour. Above 
 
 ## Captivity (alternative to death)
 
-If a rival company's man lands a blow that would kill you, you are **taken prisoner** instead: your Health is set to 8, they keep all your goods except clothing, your knife and a couple of meals, and you are held **three days** in their post. Options: wait and be turned loose with two days' pemmican, **pay a ransom** of 12 trade goods, **give your parole** (no arms against them for 120 days; breaking it costs 10 standing and is witnessed), or walk out of their yard and become an escaped man (+2 standing, +4 tension, they will remember). See [[Rivalry]].
+If a rival company's man lands a blow that would kill you, you are **taken prisoner** instead (`Core/Captivity.cs`): your Health is set to 8, you wake in the post the man who took you belongs to (or his company's nearest), and they keep all your goods except clothing, your knife and a couple of meals. You are to be held **three days**, and a page of choices opens:
+
+1. **Questioned.** Their master asks about your post's stores, men and boats.
+   - **Tell the truth**: he warms to you and you are held a day less, but what you said is remembered and travels.
+   - **Lie**: you may get away with it (his suspicion against your Trade skill). Caught, you are knocked about and held a day longer.
+   - **Say nothing**: a hard man has you knocked about; your silence is remembered too.
+2. **Held**, with four ways out:
+   - **Wait it out**: the days pass (agreed by everyone, like sleep), and you are turned loose with two days' pemmican.
+   - **Be bought back on your post's account**: 12 pieces of goods out of your own post's stores, if it has them, and standing -3.
+   - **Give your parole**: no arms against them for 120 days. A suspicious master who doesn't like you refuses. Breaking parole costs 10 standing and is witnessed.
+   - **Go over the pickets after dark**: a Woodcraft check. Clear, you are put down well away toward home (+2 standing, +4 tension, they will remember). Caught, you are knocked about and held two days longer.
+
+Walking out of their yard while you are held also counts as an escape. Ransom with goods in hand and parole are still offered when you talk to their master. Each outcome goes in your journal and is told round like any other event. Dev: `--taken`. See [[Rivalry]].
 
 ## Death and the heir
 

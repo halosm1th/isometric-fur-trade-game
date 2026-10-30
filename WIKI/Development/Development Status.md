@@ -44,7 +44,7 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | Friends and bonds; ambitions | Implemented | [[Friends and Bonds]], [[Ambitions]] |
 | Heirs and succession | Implemented | §9.3. [[Heirs and Succession]] |
 | Marriage and country wives | Implemented | §8. By the player's side (`Agents/Marriage.cs`): the Company way (one wife, into his post), the Nor'West way (she stays with her people; he is kin), born to a band (she comes to his lodge). More than one wife off the Company's books; going over to the Company means choosing, and wives left behind remember. Children are born and grow up. [[Marriage and Country Wives]] |
-| Captivity, parole, ransom | Partial | Light captivity (§9.1) is in; slavery (§9.2) is not |
+| Captivity, parole, ransom | Partial | Light captivity (§9.1) is a page of choices (`Core/Captivity.cs`): questioned (truth, lie, silence), then wait, be bought back, give parole or escape over the pickets. Slavery (§9.2) is not built |
 | Aging and natural decline | Partial | §9.4. A year older each New Year; NPCs past 45 slow; children grow up (`World/Population.cs`). No decline for the player, no death of age |
 | Languages | Implemented | Ten languages with kinship between them. [[Languages]] |
 | Councils and accords | Implemented (first cut) | Fort William council with shares and temper (§3.8.1). [[Councils and Accords]] |

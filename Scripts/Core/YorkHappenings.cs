@@ -633,7 +633,7 @@ public static class YorkHappenings
 
         foreach (var p in Sim.Players())
         {
-            if (p.IsDead || !AtYork(p)) continue;
+            if (p.IsDead || !AtYork(p) || p.CaptiveOf != null) continue;   // a prisoner in their store hears it through the door
             if (p == Sim.Player) GameCalendar.Instance?.CancelSkip();
             NetHub.I?.PushDialogue(p, p.Conversation.StartScene(Alarm(p)));
         }

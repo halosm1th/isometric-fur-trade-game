@@ -1413,29 +1413,9 @@ public partial class Conversation
     }
 
     // Ransom and parole (design doc 9.1): a prisoner is worth more loose.
-    private string Ransom(Npc captor)
-    {
-        int price = 12;
-        if (_player.Inventory.Count(ItemId.TradeGoods) < price) return $"\"Twelve pieces of goods and you may walk out. You have {_player.Inventory.Count(ItemId.TradeGoods)}.\"";
-        _player.Inventory.Remove(ItemId.TradeGoods, price);
-        captor.HomeStores?.Stores.Add(ItemId.TradeGoods, price);
-        var post = _player.CaptiveOf; _player.CaptiveOf = null; _player.CaptiveUntilDay = -1;
-        captor.ChangeRapport(_player, 4f);
-        Chronicle.Event($"{_player.DisplayName} bought his freedom from {captor.DisplayName} for {price} pieces.", captor.GlobalPosition, _player, weight: 1.2f);
-        return $"\"A man who pays is a man of sense.\" {captor.DisplayName} counts the goods and waves you at the gate. ({post.Title} keeps your kit.)";
-    }
+    private string Ransom(Npc captor) => Core.Captivity.RansomFromPack(_player, captor);
 
-    private string Parole(Npc captor)
-    {
-        float r = captor.RapportWith(_player);
-        if (captor.Personality.Suspicion > 0.65f && r < 10f) return "\"Your word? I have seen what your word is worth.\"";
-        _player.CaptiveOf = null; _player.CaptiveUntilDay = -1;
-        _player.ParoleUntilDay = GameCalendar.Instance.Day + 120;
-        _player.ParoleTo = captor.Faction;
-        captor.ChangeRapport(_player, 8f);
-        Chronicle.Event($"{_player.DisplayName} gave his parole to {captor.DisplayName}.", captor.GlobalPosition, _player, weight: 1.5f);
-        return "\"Then go. No arms against us till the ice goes out - and I will hear of it if you break it.\" You are free, and bound by your word for four months.";
-    }
+    private string Parole(Npc captor) => Core.Captivity.Parole(_player, captor);
 
     private string Confess(Npc leader)
     {

@@ -598,6 +598,14 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
 			// Dev: `--canoe` gets into the nearest canoe a few seconds in (after any --spawn).
 			if (arg == "--canoe") GetTree().CreateTimer(4.0).Timeout += () => GD.Print("[dev] canoe: " + ServerAction("canoe", new Godot.Collections.Array()));
+			// Dev: `--taken` has the nearest man of the other company lay you out a few seconds in (with --pick to walk the pages).
+			if (arg == "--taken" && NetHub.IsServer) GetTree().CreateTimer(4.0).Timeout += () =>
+			{
+				Npc by = null; float best = float.MaxValue;
+				foreach (var n in Sim.Npcs) if (!n.IsDead && !n.IsFemale && Economy.Rivalry.AreRivals(n.Faction, Faction) && n.GlobalPosition.DistanceTo(GlobalPosition) is var d && d < best) { best = d; by = n; }
+				GD.Print($"[dev] taken by {by?.DisplayName ?? "nobody"}");
+				if (by != null) TakeDamage(9999f, by);
+			};
 			// Dev: `--portage` shoulders the nearest canoe, walks her a few steps inland, and sets her down.
 			if (arg == "--portage" && NetHub.IsServer)
 			{
@@ -714,7 +722,7 @@ public partial class PlayerController : Agent
 		if (!IsDead && !Invulnerable && from is Npc captor && Economy.Rivalry.AreRivals(captor.Faction, Faction) && Needs.Health - amount <= 0f && CaptiveOf == null)
 		{
 			Needs.Health = 8f;
-			Capture(Economy.Rivalry.PostOf(captor.Faction), captor);
+			Capture(Core.Captivity.PostFor(captor, GlobalPosition), captor);
 			return;
 		}
 		base.TakeDamage(amount, from);
@@ -735,12 +743,33 @@ public partial class PlayerController : Agent
 		}
 		foreach (var m in new List<Message>(Mail)) { Mail.Remove(m); if (post.Leader != null && !post.Leader.IsDead) { post.Leader.Mail.Add(m); Core.Mail.Open(m, post.Leader); } }
 		StopTravel(""); Raiding = false; RaidTimer = 0f;
-		GlobalPosition = IsoGrid.ToWorld(post.AccessCell) + new Vector2(0, 60);
+		GetDown();
+		SetStartPosition(IsoGrid.ToWorld(post.AccessCell) + new Vector2(0, 60));   // snapped on the owner's machine too
 		ForgetAttacker();
 		Economy.Rivalry.Raise(5f, $"{DisplayName} taken prisoner");
-		Say($"You come to on the floor of {post.Title}, {captor.DisplayName} standing over you. They have taken {taken} lots off you. You are held three days - walk out of their yard and you're an escaped man; wait, and they'll turn you loose.");
 		Chronicle.Event($"{captor.DisplayName} took {DisplayName} prisoner.", GlobalPosition, captor, DisplayName, 2f);
 		Sim.Notice($"{DisplayName} has been taken by the {(post.Company == Faction.NWC ? "Nor'Westers" : "Company")}.");
+		Core.Captivity.Begin(this, post, captor, taken);
+	}
+
+	// The prisoner's "wait it out": the days go by (agreed, like sleep) and CaptiveTick lets him go.
+	public void WaitOutCaptivity()
+	{
+		var cal = GameCalendar.Instance;
+		if (CaptiveOf == null || cal == null) return;
+		float hours = Mathf.Max(1f, (CaptiveUntilDay - cal.Day) * 24f - cal.Hour + 7f);
+		Say(RequestSkip(hours, "You settle down on the store-house floor to wait."));
+	}
+
+	// Over the pickets and away (design doc 9.1): the story travels, and they remember.
+	public void EscapeCaptivity(Vector2 to)
+	{
+		if (CaptiveOf == null) return;
+		CaptiveOf = null; CaptiveUntilDay = -1;
+		SetStartPosition(to);
+		Standing += 2f;
+		Economy.Rivalry.Raise(4f, $"{DisplayName} escaped");
+		Chronicle.Event($"{DisplayName} escaped from the other company's post.", GlobalPosition, this, weight: 1.5f);
 	}
 
 	private int _captiveDay = -1;
@@ -751,10 +780,10 @@ public partial class PlayerController : Agent
 		bool inYard = CaptiveOf.Company == Faction.NWC ? WorldLayout.NwcYardCells().Contains(Cell) : WorldLayout.YardCells().Contains(Cell);
 		if (!inYard && GlobalPosition.DistanceTo(IsoGrid.ToWorld(CaptiveOf.AccessCell)) > 700f)
 		{
-			// Escaped (design doc 9.1): the story travels, and they remember.
-			CaptiveOf = null; Standing += 2f;
-			Economy.Rivalry.Raise(4f, $"{DisplayName} escaped");
-			Chronicle.Event($"{DisplayName} escaped from the other company's post.", GlobalPosition, this, weight: 1.5f);
+			// Walked off while their backs were turned.
+			string from = Core.Captivity.Name(CaptiveOf);
+			EscapeCaptivity(GlobalPosition);
+			Journal.Add($"{cal.DateString}: Walked out of {from} while nobody was looking.");
 			Say("You are out of their yard and away. An escaped prisoner; they will not forget it.");
 			return;
 		}
@@ -766,6 +795,7 @@ public partial class PlayerController : Agent
 				var post = CaptiveOf; CaptiveOf = null;
 				Inventory.Add(ItemId.Pemmican, 2);
 				Say($"They turn you loose with two days' pemmican and a warning. \"Go home. Tell your Factor what it costs to cross us.\"");
+				Journal.Add($"{cal.DateString}: Turned loose by {(post.Company == Faction.NWC ? "the Nor'Westers" : "the Company")} at {Core.Captivity.Name(post)}, with two days' pemmican and nothing else.");
 				Chronicle.Event($"{DisplayName} was let go by the {(post.Company == Faction.NWC ? "Nor'Westers" : "Company")}.", GlobalPosition, this, weight: 1f);
 			}
 		}
