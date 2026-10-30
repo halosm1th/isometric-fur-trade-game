@@ -364,7 +364,7 @@ public partial class Population : Node2D
 	private float _traceTimer;
 	public override void _Process(double delta)
 	{
-		if (Net.Net.IsServer) { SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f); Tiers.Tick((float)delta); HungrySpells(); Losses.Tick(); Births(); RunConversations(); Core.YorkHappenings.Tick(GameCalendar.Instance?.DeltaGameHours ?? 0f); Npc.DecayBodies(GameCalendar.Instance?.DeltaGameHours ?? 0f); }
+		if (Net.Net.IsServer) { SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f); Tiers.Tick((float)delta); HungrySpells(); Losses.Tick(); Births(); RunConversations(); Core.YorkHappenings.Tick(GameCalendar.Instance?.DeltaGameHours ?? 0f); Ruins.Tick((float)delta);Npc.DecayBodies(GameCalendar.Instance?.DeltaGameHours ?? 0f); }
 		if (!_trace) return;
 		_traceTimer -= GameCalendar.Instance?.DeltaGameHours ?? 0f;
 		if (_traceTimer > 0f) return;

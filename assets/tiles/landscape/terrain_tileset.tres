@@ -77,6 +77,17 @@
 [ext_resource type="Texture2D" uid="uid://doo0rq5pwlpng" path="res://assets/tiles/props/village_palisade.png" id="tex_p113"]
 [ext_resource type="Texture2D" uid="uid://cvlgnd2316mlc" path="res://assets/tiles/props/bullboat.png" id="tex_p114"]
 [ext_resource type="Texture2D" uid="uid://duvb75qes842k" path="res://assets/tiles/props/corn_mortar.png" id="tex_p115"]
+[ext_resource type="Texture2D" path="res://assets/tiles/buildings/stone_N.png" id="tex_s116"]
+[ext_resource type="Texture2D" path="res://assets/tiles/buildings/stone_E.png" id="tex_s117"]
+[ext_resource type="Texture2D" path="res://assets/tiles/buildings/stone_S.png" id="tex_s118"]
+[ext_resource type="Texture2D" path="res://assets/tiles/buildings/stone_W.png" id="tex_s119"]
+[ext_resource type="Texture2D" path="res://assets/tiles/buildings/stone_broken_N.png" id="tex_s120"]
+[ext_resource type="Texture2D" path="res://assets/tiles/buildings/stone_broken_E.png" id="tex_s121"]
+[ext_resource type="Texture2D" path="res://assets/tiles/buildings/stone_broken_S.png" id="tex_s122"]
+[ext_resource type="Texture2D" path="res://assets/tiles/buildings/stone_broken_W.png" id="tex_s123"]
+[ext_resource type="Texture2D" path="res://assets/tiles/buildings/stone_corner_back.png" id="tex_s124"]
+[ext_resource type="Texture2D" path="res://assets/tiles/buildings/stone_corner_front.png" id="tex_s125"]
+[ext_resource type="Texture2D" path="res://assets/tiles/props/cannon.png" id="tex_s126"]
 [ext_resource type="Texture2D" uid="uid://dnvs75uw6u32x" path="res://assets/tiles/landscape/prairie.png" id="tex_r70"]
 [ext_resource type="Texture2D" uid="uid://brojudmninnqf" path="res://assets/tiles/landscape/tallgrass.png" id="tex_r71"]
 [ext_resource type="Texture2D" uid="uid://wapi8ce05n5" path="res://assets/tiles/landscape/parkland.png" id="tex_r72"]
@@ -107,6 +118,72 @@
 [ext_resource type="Texture2D" uid="uid://dmpwdjg8x5led" path="res://assets/tiles/props/aspen.png" id="tex_r97"]
 [ext_resource type="Texture2D" uid="uid://d3yvsywxqysjh" path="res://assets/tiles/props/jackpine.png" id="tex_r98"]
 [ext_resource type="Texture2D" uid="uid://hdspbdutg87d" path="res://assets/tiles/landscape/road.png" id="tex_road"]
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_s116"]
+texture = ExtResource("tex_s116")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_s117"]
+texture = ExtResource("tex_s117")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_s118"]
+texture = ExtResource("tex_s118")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_s119"]
+texture = ExtResource("tex_s119")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_s120"]
+texture = ExtResource("tex_s120")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_s121"]
+texture = ExtResource("tex_s121")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_s122"]
+texture = ExtResource("tex_s122")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_s123"]
+texture = ExtResource("tex_s123")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_s124"]
+texture = ExtResource("tex_s124")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_s125"]
+texture = ExtResource("tex_s125")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_s126"]
+texture = ExtResource("tex_s126")
+texture_region_size = Vector2i(128, 256)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 86)
 
 [sub_resource type="TileSetAtlasSource" id="Atlas_grass"]
 texture = ExtResource("tex_1")
@@ -868,3 +945,14 @@ sources/112 = SubResource("Atlas_p112")
 sources/113 = SubResource("Atlas_p113")
 sources/114 = SubResource("Atlas_p114")
 sources/115 = SubResource("Atlas_p115")
+sources/116 = SubResource("Atlas_s116")
+sources/117 = SubResource("Atlas_s117")
+sources/118 = SubResource("Atlas_s118")
+sources/119 = SubResource("Atlas_s119")
+sources/120 = SubResource("Atlas_s120")
+sources/121 = SubResource("Atlas_s121")
+sources/122 = SubResource("Atlas_s122")
+sources/123 = SubResource("Atlas_s123")
+sources/124 = SubResource("Atlas_s124")
+sources/125 = SubResource("Atlas_s125")
+sources/126 = SubResource("Atlas_s126")

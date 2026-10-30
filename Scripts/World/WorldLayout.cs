@@ -270,7 +270,7 @@ public static class WorldLayout
     {
         if (WorldMap.IsWater(c) || IsBeach(c)) return true;
         var p = IsoGrid.ToWorld(c);
-        if (Posts.NearAny(p, 900f) || Towns.NearAny(p, 500f) || Camps.NearAny(p)) return true;
+        if (Posts.NearAny(p, 900f) || Towns.NearAny(p, 500f) || Camps.NearAny(p) || Ruins.NearAny(p, 300f)) return true;
         // A carrying place is trodden bare at the landing.
         foreach (var lm in WorldMap.Landmarks()) if (lm.Kind == "portage" && lm.At.DistanceTo(p) < 700f) return true;
         float fortDist = p.DistanceTo(FortCentre);

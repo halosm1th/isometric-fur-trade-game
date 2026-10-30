@@ -36,12 +36,15 @@ public partial class StructurePainter : TileMapLayer
     public const int SourceSpruce0 = 52, SourceTipi = 55, SourceCampfire = 56, SourceWoodpile = 57, SourceFurBale = 58;
     public const int SourceRoof = 59;
     public const int SourceBed = 60;
+    // Stone walls (whole, and knocked down to half height) and a gun, for the ruins.
+    public const int SourceStoneN = 116, SourceStoneBrokenN = 120, SourceStoneCornerBack = 124, SourceStoneCornerFront = 125, SourceCannon = 126;
+    public const int SourceGrave = 94;
     private const float RoofLift = 118f;
 
     // Source id ranges whose tiles sit on a cell edge, laid out N,E,S,W.
-    private static readonly int[] EdgeFamilyBases = { 6, 10, 14, 18, 22, 39 };
+    private static readonly int[] EdgeFamilyBases = { 6, 10, 14, 18, 22, 39, 116, 120 };
     private static readonly HashSet<int> OpenDoors = new() { 39, 40, 41, 42 };
-    private static readonly HashSet<int> SolidProps = new() { 27, 28, 29, 30, 32, 35, 36, 49, 50, 52, 53, 54, 56, 57, 58 };
+    private static readonly HashSet<int> SolidProps = new() { 27, 28, 29, 30, 32, 35, 36, 49, 50, 52, 53, 54, 56, 57, 58, 126 };
     private static readonly HashSet<int> Hearths = new() { 49, 50, 56 };
 
     [Export] public bool AutoGenerate = true;
@@ -331,6 +334,7 @@ public partial class StructurePainter : TileMapLayer
             SetBack(c.Centre, SourceCampfire);
             foreach (var t in c.Tipis()) SetBack(t, SourceTipi);
         }
+        foreach (var r in Ruins.All) PaintRuin(r);
         // In the editor the posts standing at the usual start are shown; in a
         // game Posts paints each one as it comes to stand.
         if (Engine.IsEditorHint()) foreach (var p in Posts.All) if (p.Year <= 1811 && (p.Closed == 0 || p.Closed > 1811)) PaintPost(p, false);
@@ -406,6 +410,34 @@ public partial class StructurePainter : TileMapLayer
             AddRoof(b.Def, roof);
             host.AddChild(roof);
         }
+    }
+
+    // A stone fort in ruins (World/Ruins): its walls whole, broken or
+    // breached edge by edge, guns on the bastions, rubble, its dead outside.
+    // No roofs and no fires: nobody lives here.
+    private void PaintRuin(Ruin r)
+    {
+        var back = new Dictionary<Vector2I, List<(int Edge, int State)>>();
+        var front = new Dictionary<Vector2I, List<(int Edge, int State)>>();
+        foreach (var (c, edge, state) in Ruins.Walls(r))
+        {
+            if (state == 2) continue;
+            var side = edge is 1 or 2 ? back : front;
+            var cell = r.Cell(c.X, c.Y);
+            if (!side.TryGetValue(cell, out var list)) side[cell] = list = new List<(int, int)>(2);
+            list.Add((edge, state));
+        }
+        foreach (var (cell, list) in back)
+            SetBack(cell, list.Count > 1 ? SourceStoneCornerBack : (list[0].State == 1 ? SourceStoneBrokenN : SourceStoneN) + list[0].Edge);
+        foreach (var (cell, list) in front)
+            SetFront(cell, list.Count > 1 ? SourceStoneCornerFront : (list[0].State == 1 ? SourceStoneBrokenN : SourceStoneN) + list[0].Edge);
+        foreach (var g in Ruins.Guns(r)) if (GetCellSourceId(g) == -1) SetBack(g, SourceCannon);
+        foreach (var c in Ruins.Rubble(r)) if (GetCellSourceId(c) == -1) SetBack(c, WorldLayout.Rocks);
+        foreach (var c in Ruins.Graves(r)) if (GetCellSourceId(c) == -1) SetBack(c, SourceGrave);
+        PlaceSign(r.GateOutside, r.Name, r.Sub);
+        if (r.RockName == null) return;
+        SetBack(r.RockCell, WorldLayout.Boulder);
+        PlaceSign(IsoGrid.DownLeft(r.RockCell), r.RockName, "Names cut in the rock");
     }
 
     public void RebuildCollisionNow() => RebuildCollision();
@@ -1187,6 +1219,7 @@ public partial class StructurePainter : TileMapLayer
             int s = layer.GetCellSourceId(cell);
             if (s < 0) continue;
             if (Hearths.Contains(s) || s == SourceHearthLeft || s == SourceHearthRight) continue;
+            if (s is >= SourceStoneN and <= SourceCannon) continue;   // the stone fort and its guns
             return true;   // walls, doors, fences, beds, tables, trees, tipis
         }
         return false;
@@ -1306,8 +1339,8 @@ public partial class StructurePainter : TileMapLayer
         {
             int s = layer.GetCellSourceId(cell);
             if (s < 0) continue;
-            if (s == SourceWallCornerBack || s == SourceFenceCornerBack) { if (edge == 1 || edge == 2) return true; continue; }
-            if (s == SourceWallCornerFront || s == SourceFenceCornerFront) { if (edge == 0 || edge == 3) return true; continue; }
+            if (s == SourceWallCornerBack || s == SourceFenceCornerBack || s == SourceStoneCornerBack) { if (edge == 1 || edge == 2) return true; continue; }
+            if (s == SourceWallCornerFront || s == SourceFenceCornerFront || s == SourceStoneCornerFront) { if (edge == 0 || edge == 3) return true; continue; }
             if (OpenDoors.Contains(s)) continue;
             foreach (int b in EdgeFamilyBases)
             {
@@ -1401,9 +1434,9 @@ public partial class StructurePainter : TileMapLayer
 
         switch (source)
         {
-            case SourceWallCornerBack or SourceFenceCornerBack:
+            case SourceWallCornerBack or SourceFenceCornerBack or SourceStoneCornerBack:
                 yield return EdgeE; yield return EdgeS; yield break;
-            case SourceWallCornerFront or SourceFenceCornerFront:
+            case SourceWallCornerFront or SourceFenceCornerFront or SourceStoneCornerFront:
                 yield return EdgeN; yield return EdgeW; yield break;
         }
 
