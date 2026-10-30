@@ -179,6 +179,8 @@ public static class StandardOfTrade
             if (b == null || Gardens.IsTown(b)) continue;
             Wants.Week(b);
             if (TradeTrips.Away(b)) continue;
+            // A far camp's furs go in with its middleman (Economy/Middlemen).
+            if (Middlemen.TradesThrough(b) || Middlemen.Away(b)) continue;
             // A camp goes in a few times a season - in the fall for its
             // winter's debt, at midwinter, and with the spring hunt - not every week.
             if (_lastTrip.TryGetValue(b, out int last) && Plains.Today - last < 35) continue;
@@ -213,6 +215,8 @@ public static class StandardOfTrade
         return best;   // null: no house it can safely reach
     }
 
+    public static bool Safe(BandLedger b, FortLedger post) => Safety(b, post) > 0f;
+
     // Nobody carries their furs into their enemies' country (design doc 7.2):
     // a house whose own country - the camps nearest it - is a people this
     // camp is at war with is a house it does not go to; with nowhere else,
@@ -244,6 +248,8 @@ public static class StandardOfTrade
         float owed = 0f;
         foreach (var (id, n) in load.All()) if (!PostWants.IsProvision(id)) owed += n * Items.Items.Of(id).ValueMb;
         float paid = owed >= 1f ? Pay(post, b, owed, into, counts, shortOf, true) : 0f;
+        // A middleman's trader spends some of what is left on goods to sell on (Economy/Middlemen).
+        if (owed >= 1f) paid += Middlemen.Buy(post, b, owed - paid, into, counts);
         float taken = Hand(load, post, owed > 0f ? paid / owed : 0f, id => !PostWants.IsProvision(id));
         // Then the provisions, as far as the post is short of food: the
         // season's keep and the brigades' rations (Economy/PostWants).

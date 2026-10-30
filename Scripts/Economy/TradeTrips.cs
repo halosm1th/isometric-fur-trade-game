@@ -147,10 +147,13 @@ public static class TradeTrips
         if (Plains.Log) GD.Print($"[trade] {cal.DateString} {t.Camp.Name}'s men are home from {t.Post.Post.Name}");
     }
 
-    private static void TakeAway(Npc n, TradeTrip t)
+    private static void TakeAway(Npc n, TradeTrip t) => TakeAway(n, $"trading at {t.Post.Post.Name}");
+
+    // Off the map on an errand (a trading party, a meeting with another camp's men).
+    public static void TakeAway(Npc n, string with)
     {
         n.Away = true;
-        n.AwayWith = $"trading at {t.Post.Post.Name}";
+        n.AwayWith = with;
         n.Tier = Tier.Background;
         n.Brain.Clear(n);
         n.StopMoving();
@@ -160,7 +163,7 @@ public static class TradeTrips
         Net.Net.I?.AnnounceTier(n, true);
     }
 
-    private static void PutBack(Npc n, Vector2 at)
+    public static void PutBack(Npc n, Vector2 at)
     {
         n.Away = false;
         n.AwayWith = "";
