@@ -279,17 +279,30 @@ public partial class PlayerController : Agent
 	public bool IsAfloat => Aboard != null || _afloatMirror;
 	private bool _afloatMirror;
 	public void SetAfloatMirror(bool v) => _afloatMirror = v;
-	private Sprite2D _canoeSprite;
+	private Sprite2D _canoeSprite, _canoeNear;
 
+	// Afloat he sits in her: the canoe drawn man-sized under him, and her
+	// near side again over him so his legs are inside the hull, not walking
+	// on the water below it.
+	private const float CanoeScale = 1.7f;
 	private void UpdateCanoeVisual()
 	{
 		bool afloat = IsAfloat;
 		if (_canoeSprite == null)
 		{
-			_canoeSprite = new Sprite2D { Texture = GD.Load<Texture2D>("res://assets/sprites/canoe.png"), Offset = new Vector2(0, -8), ZIndex = -1, Visible = false };
+			var tex = GD.Load<Texture2D>("res://assets/sprites/canoe.png");
+			var size = tex.GetSize();
+			_canoeSprite = new Sprite2D { Texture = tex, Scale = Vector2.One * CanoeScale, Offset = new Vector2(0, -20), ZIndex = -1, Visible = false };
+			// The near gunwale and hull: the lower part of the same picture.
+			float cut = size.Y * 0.5f;
+			_canoeNear = new Sprite2D { Texture = tex, Scale = Vector2.One * CanoeScale, RegionEnabled = true, RegionRect = new Rect2(0, cut, size.X, size.Y - cut),
+				Offset = new Vector2(0, -20 + cut / 2f), ZIndex = 1, Visible = false };
 			AddChild(_canoeSprite);
+			AddChild(_canoeNear);
 		}
-		_canoeSprite.Visible = afloat && !IsDead;
+		bool show = afloat && !IsDead;
+		_canoeSprite.Visible = show; _canoeNear.Visible = show;
+		if (show && _sprite != null) { _canoeSprite.FlipH = _sprite.FlipH; _canoeNear.FlipH = _sprite.FlipH; }
 		CollisionMask = Marching ? 0u : afloat ? 1u : 5u;
 	}
 	// On the march (UI/TravelMode): carried along the route, through nothing.
@@ -518,6 +531,8 @@ public partial class PlayerController : Agent
 			// the choices only an earlier choice of the player's would open.
 			if (arg.StartsWith("--flags=") && NetHub.IsServer) GetTree().CreateTimer(2.5).Timeout += () => { foreach (var f in arg.Substring(8).Split(',', System.StringSplitOptions.RemoveEmptyEntries)) { Core.Campaign.Flag(f.Trim()); GD.Print($"[dev] flag {f.Trim()}"); } };
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
+			// Dev: `--canoe` gets into the nearest canoe a few seconds in (after any --spawn).
+			if (arg == "--canoe") GetTree().CreateTimer(4.0).Timeout += () => GD.Print("[dev] canoe: " + ServerAction("canoe", new Godot.Collections.Array()));
 			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			// Dev: `-- --fx` plays each of the combat effects beside you in
 			// turn, so they can be looked at without staging a fight.
@@ -1014,9 +1029,12 @@ public partial class PlayerController : Agent
 			_facing = target;
 			if (side && IsSprinting) target = "run_side";
 		}
+		// In a canoe he paddles; sitting still, the paddle rests.
+		bool paddling = IsAfloat && _sprite.SpriteFrames.HasAnimation("paddle");
+		if (paddling) target = "paddle";
 		if (!_sprite.SpriteFrames.HasAnimation(target)) target = target.StartsWith("idle") ? "idle" : target == "run_side" ? "walk_side" : "walk";
 		if (_sprite.Animation != target) _sprite.Play(target);
-		_sprite.SpeedScale = IsSprinting && input != Vector2.Zero && target != "run_side" ? 1.6f : 1f;
+		_sprite.SpeedScale = paddling ? (input != Vector2.Zero ? 1f : 0f) : IsSprinting && input != Vector2.Zero && target != "run_side" ? 1.6f : 1f;
 		MoveAndSlide();
 	}
 
