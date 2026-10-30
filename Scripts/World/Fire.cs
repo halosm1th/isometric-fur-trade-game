@@ -6,7 +6,8 @@ using IsometricFurTradeGame.Scripts.Core;
 namespace IsometricFurTradeGame.Scripts.World;
 
 // Fire as a simulated object (design doc 18.4): it sits on a wooden cell,
-// spreads to wooden neighbours according to the weather, burns what it's
+// spreads to wooden neighbours according to the weather - faster before the
+// wind than against it, and a gale drives it hardest - burns what it's
 // on to nothing, and hurts anyone standing in it. Started by an untended
 // hearth, or by a man with flint and a grudge. Put out with water.
 public partial class Fire : Node2D
@@ -104,10 +105,15 @@ public partial class Fire : Node2D
             _spreadTimer = 1f;
             foreach (var c in new List<Vector2I>(_burning.Keys))
             {
+                var at = IsoGrid.ToWorld(c);
+                var wind = cal.Weather.WindAt(at);
                 foreach (var n in IsoGrid.EdgeNeighbours(c))
                 {
                     if (_burning.ContainsKey(n) || _burnt.Contains(n) || !s.IsFlammable(n)) continue;
-                    if (GD.Randf() < 0.09f * weather) { _burning[n] = 0f; ShowBlaze(n, true); }
+                    // Downwind it leaps; upwind it creeps.
+                    float along = (IsoGrid.ToWorld(n) - at).Normalized().Dot(wind);
+                    float drive = Mathf.Clamp(1f + 1.6f * along, 0.25f, 2.6f);
+                    if (GD.Randf() < 0.09f * weather * drive) { _burning[n] = 0f; ShowBlaze(n, true); }
                 }
             }
             // People in the flames.

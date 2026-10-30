@@ -39,6 +39,7 @@ public static class Settings
     // Game
     public static bool PauseOnFocusLoss = true;
     public static int Autosave = 10;   // real minutes, 0 = off
+    public static bool QuietDays = true;   // hands off the controls: the quiet days pass (Core/QuietDays)
     // Sound, 0..1 on each bus (Core/Audio.cs)
     public static float MasterVolume = 0.8f;
     public static float MusicVolume = 0.6f;
@@ -68,6 +69,7 @@ public static class Settings
             ShowFps = (bool)cfg.GetValue("interface", "show_fps", false);
             PauseOnFocusLoss = (bool)cfg.GetValue("game", "pause_on_focus_loss", true);
             Autosave = (int)cfg.GetValue("game", "autosave_minutes", 10);
+            QuietDays = (bool)cfg.GetValue("game", "quiet_days", true);
             MasterVolume = Mathf.Clamp((float)cfg.GetValue("sound", "master", 0.8f), 0f, 1f);
             MusicVolume = Mathf.Clamp((float)cfg.GetValue("sound", "music", 0.6f), 0f, 1f);
             AmbienceVolume = Mathf.Clamp((float)cfg.GetValue("sound", "ambience", 0.8f), 0f, 1f);
@@ -94,6 +96,7 @@ public static class Settings
         cfg.SetValue("interface", "bubble_time", BubbleTime);
         cfg.SetValue("interface", "show_fps", ShowFps);
         cfg.SetValue("game", "pause_on_focus_loss", PauseOnFocusLoss);
+        cfg.SetValue("game", "quiet_days", QuietDays);
         cfg.SetValue("game", "autosave_minutes", Autosave);
         cfg.SetValue("sound", "master", MasterVolume);
         cfg.SetValue("sound", "music", MusicVolume);
@@ -107,7 +110,7 @@ public static class Settings
     {
         WindowMode = Mode.Windowed; WindowSizeIndex = 0; VSync = true; MaxFps = 0;
         UiScale = 1f; WorldZoom = 1f; CameraSmoothing = true; BubbleTime = 1f; ShowFps = false;
-        PauseOnFocusLoss = true; Autosave = 10;
+        PauseOnFocusLoss = true; Autosave = 10; QuietDays = true;
         MasterVolume = 0.8f; MusicVolume = 0.6f; AmbienceVolume = 0.8f; EffectsVolume = 0.9f;
         ApplyWindow(); ApplyRendering(); ApplyScale(); Audio.ApplyVolumes(); Save();
     }

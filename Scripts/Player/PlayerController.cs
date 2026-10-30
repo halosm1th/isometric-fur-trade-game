@@ -38,6 +38,8 @@ public partial class PlayerController : Agent
 	private Vector2 _netTarget; private bool _netHasTarget;
 
 	public Npc Spouse;
+	// Wives after the first, where his side allows more than one (Agents/Marriage).
+	public readonly List<Npc> OtherWives = new();
 
 	// Standing with the Company (design doc 3.6): slow, bureaucratic, reviewed by results.
 	public float Standing = 10f;
@@ -109,6 +111,14 @@ public partial class PlayerController : Agent
 	public float EffectiveFluency => HasInterpreter ? 1f : CreeFluency;
 	// Time-skip agreement: how many hours this player wants to skip (0 = none).
 	public float WantsSkipHours;
+	// Leaving the controls alone, so the quiet days may pass (Core/QuietDays): on the server.
+	public bool WantsQuiet;
+	// On the owner's machine: how long the hands have been off, and whether we asked.
+	private float _idleSeconds;
+	private bool _quietAsked;
+	private bool? _lastBusy;
+	private float _leaveTimer;
+	private static readonly bool _quietInHeadless = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--quiet") >= 0;
 	// Server-side conversation state with whoever you're talking to.
 	public UI.Conversation Conversation;
 
@@ -204,6 +214,7 @@ public partial class PlayerController : Agent
 		PostedTo = "";
 		Garrison = to is Faction.Crown or Faction.American ? Core.Starts.GarrisonFor("", to.Value, GlobalPosition)?.Name ?? "" : "";
 		Standing = to != null ? 10f : 0f;
+		if (to is Faction.HBC or Faction.Crown) Marriage.IntoTheCompany(this);
 		foreach (var n in Sim.Npcs)
 		{
 			if (n.Faction == from) n.ChangeRapport(this, -30f);
@@ -753,30 +764,38 @@ public partial class PlayerController : Agent
 	private void MarriageTick()
 	{
 		var cal = GameCalendar.Instance;
-		if (cal == null || cal.Day == _marriageDay || Spouse is not Npc wife) return;
+		if (cal == null || cal.Day == _marriageDay) return;
 		_marriageDay = cal.Day;
-		if (!IsInstanceValid(wife) || wife.IsDead) { Spouse = null; return; }
-		if (GlobalPosition.DistanceTo(wife.GlobalPosition) < 900f) LastSawWifeDay = cal.Day;
-		int apart = LastSawWifeDay < 0 ? 0 : cal.Day - LastSawWifeDay;
-		if (apart == 25) Say($"{wife.DisplayName} has not seen you in {apart} days. Her people are asking where her husband is.");
-		if (apart >= 45)
+		OtherWives.RemoveAll(w => !IsInstanceValid(w) || w.IsDead);
+		if (Spouse != null && (!IsInstanceValid(Spouse) || Spouse.IsDead)) { Spouse = OtherWives.Count > 0 ? OtherWives[0] : null; if (Spouse != null) OtherWives.RemoveAt(0); }
+		var wives = Marriage.Wives(this);
+		if (wives.Count == 0) return;
+		foreach (var w in wives) if (GlobalPosition.DistanceTo(w.GlobalPosition) < 900f) { LastSawWifeDay = cal.Day; w.SetMeta("lastSeen", cal.Day); }
+		foreach (var wife in wives)
 		{
-			// Left behind (design doc 8.4): she goes back to her people, and they remember it.
-			var band = wife.Father?.HomeStores as Economy.BandLedger ?? Sim.Band;
-			wife.Spouse = null; Spouse = null;
-			wife.Role = Role.BandDaughter; wife.HomeStores = band; wife.ResetBehaviour(); wife.Brain.Clear(wife);
-			if (band != null) { wife.BedCell = new List<Vector2I>(band.Tipis())[0]; wife.WorkCell = IsoGrid.Cell(band.Camp, 1, 2); band.StandingWithCompany = Mathf.Max(0f, band.StandingWithCompany - 15f); }
-			foreach (var n in Sim.Npcs) if (n.HomeStores == band) n.ChangeRapport(this, -20f);
-			Core.Reveal.Lands(this, $"{wife.DisplayName} has gone back to her people.", "", 1.6f);
-			Say($"A husband who is never there is no husband; her family will not forget it. ({apart} days since you last saw her.)");
-			Chronicle.Event($"{wife.DisplayName} left {DisplayName} and went home to her people.", wife.GlobalPosition, wife, DisplayName, 2f);
+			int seen = wife.HasMeta("lastSeen") ? wife.GetMeta("lastSeen").AsInt32() : LastSawWifeDay;
+			int apart = seen < 0 ? 0 : cal.Day - seen;
+			// Married the Nor'West way she is among her own people, and they are patient longer with a man who winters away.
+			int limit = Marriage.WayOf(this) == Marriage.Way.NorWest ? 90 : 45;
+			if (apart == limit / 2 + 3) Say($"{wife.DisplayName} has not seen you in {apart} days. Her people are asking where her husband is.");
+			if (apart >= limit)
+			{
+				// Left behind (design doc 8.4): she goes back to her people, and they remember it.
+				Marriage.LeaveBehind(this, wife);
+				Core.Reveal.Lands(this, $"{wife.DisplayName} has gone back to her people.", "", 1.6f);
+				Say($"A husband who is never there is no husband; her family will not forget it. ({apart} days since you last saw her.)");
+			}
 		}
-		// Spring: her father looks for his due.
-		if (cal.Month == 6 && cal.Day == 6 && LastGiftToKinYear < cal.Year && wife.Father != null && !wife.Father.IsDead)
+		// Spring: each wife's father looks for his due.
+		if (cal.Month == 6 && cal.Day == 6 && LastGiftToKinYear < cal.Year)
 		{
 			LastGiftToKinYear = cal.Year;
-			if (wife.Father.GiftsFromPlayerMb >= 3f * (cal.Year - 1810)) { wife.Father.ChangeRapport(this, 5f); Say($"{wife.Father.DisplayName} speaks well of his son-in-law this spring."); }
-			else { wife.Father.ChangeRapport(this, -12f); (wife.Father.HomeStores as Economy.BandLedger)?.OnInsult(); Say($"{wife.Father.DisplayName} says his son-in-law forgets what is owed a wife's family. A gift of a few pieces each spring is expected."); }
+			foreach (var wife in Marriage.Wives(this))
+			{
+				if (wife.Father == null || wife.Father.IsDead) continue;
+				if (wife.Father.GiftsFromPlayerMb >= 3f * (cal.Year - 1810)) { wife.Father.ChangeRapport(this, 5f); Say($"{wife.Father.DisplayName} speaks well of his son-in-law this spring."); }
+				else { wife.Father.ChangeRapport(this, -12f); (wife.Father.HomeStores as Economy.BandLedger)?.OnInsult(); Say($"{wife.Father.DisplayName} says his son-in-law forgets what is owed a wife's family. A gift of a few pieces each spring is expected."); }
+			}
 		}
 	}
 
@@ -807,6 +826,7 @@ public partial class PlayerController : Agent
 		if (IsLocal)
 		{
 			CursorOverWhat();
+			QuietWatch(dt);
 			LocalMove(dt);
 			return;
 		}
@@ -814,6 +834,27 @@ public partial class PlayerController : Agent
 		if (_netHasTarget) GlobalPosition = GlobalPosition.Lerp(_netTarget, Mathf.Clamp(dt * 14f, 0f, 1f));
 		if (IsServerCopy) { IsSneaking = _remoteSneak; IsSprinting = _remoteSprint; Velocity = _netHasTarget && GlobalPosition.DistanceTo(_netTarget) > 2f ? Vector2.One : Vector2.Zero; }
 		UpdateReadyBar();
+	}
+
+	// Hands off the controls for a while, and nothing open: ask for the quiet
+	// days. Any key, button or open panel takes them up again.
+	private void QuietWatch(float dt)
+	{
+		bool headless = DisplayServer.GetName() == "headless";
+		// Dev (`--quiet` headless): nobody is there to end a conversation, so walk away from it.
+		if (headless && _quietInHeadless && _dialogue != null && _dialogue.IsOpen && (_leaveTimer += dt) > 3f) { _leaveTimer = 0f; NetHub.I?.DialogueRequest(_dialogue.CurrentNpc, _dialogue.OptionCount - 1); }
+		bool busy = Input.IsAnythingPressed() || IsDead || Ghost
+			|| (_dialogue != null && _dialogue.IsOpen) || (UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping)
+			|| UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen || UI.TravelMode.Active;
+		if (_quietInHeadless && busy != _lastBusy) { _lastBusy = busy; QuietDays.Dev(busy ? "hands on the controls" : "hands off"); }
+		if (busy || !Settings.QuietDays || headless && !_quietInHeadless)
+		{
+			_idleSeconds = 0f;
+			if (_quietAsked) { _quietAsked = false; NetHub.I?.Act("quiet_off"); }
+			return;
+		}
+		_idleSeconds += dt;
+		if (!_quietAsked && _idleSeconds >= QuietDays.IdleSeconds) { _quietAsked = true; NetHub.I?.Act("quiet_on"); }
 	}
 
 	private void LocalMove(float dt)
@@ -1041,6 +1082,8 @@ public partial class PlayerController : Agent
 				return RequestSkip(hours, night ? "You settle down for the night." : "You wait.");
 			}
 			case "cancel_wait": WantsSkipHours = 0f; return "";
+			case "quiet_on": WantsQuiet = true; return "";
+			case "quiet_off": WantsQuiet = false; return "";
 			case "canoe_load": return CanoeLoad(Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 150f), (bool)args[0]);
 			case "canoe":
 			{

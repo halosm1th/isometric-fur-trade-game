@@ -701,7 +701,8 @@ public partial class Net : Node
     {
         int want = 0, alive = 0;
         foreach (var p in Players.Values) { if (!IsInstanceValid(p) || p.IsDead) continue; alive++; if (p.WantsSkipHours > 0f) want++; }
-        return want == 0 ? "" : $"Turning in: {want}/{alive}";
+        if (want == 0) return QuietDays.Status;
+        return $"Turning in: {want}/{alive}";
     }
 
     public void ServerCheckSkip()

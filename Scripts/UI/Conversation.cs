@@ -1424,8 +1424,9 @@ public partial class Conversation
     {
         var daughters = new List<Npc>();
         foreach (var c in npc.Children) if (c.Role == Role.BandDaughter && c.Spouse == null && !c.IsDead) daughters.Add(c);
-        string s = "\"A man who wants a wife from us shows two things: that he is a friend, and that he can provide. He brings gifts to her father - blankets, a gun, cloth, kettles - and he comes back more than once. Then he asks. Your Company allows a man one wife; we do not hold you to that, but your Factor will.\"";
-        s += $" Your standing with {npc.DisplayName}: rapport {npc.RapportWith(_player):0} (needs 30), gifts {npc.GiftsFromPlayerMb:0.#} MB (needs 8).";
+        string s = "\"A man who wants a wife from us shows two things: that he is a friend, and that he can provide. He brings gifts to her father - blankets, a gun, cloth, kettles - and he comes back more than once. Then he asks. " + Marriage.Custom(_player) + "\"";
+        int wives = Marriage.Wives(_player).Count;
+        s += $" Your standing with {npc.DisplayName}: rapport {npc.RapportWith(_player):0} (needs {30 + 10 * wives}), gifts {npc.GiftsFromPlayerMb:0.#} MB (needs {8 * (1 + wives)}).";
         if (daughters.Count > 0) s += $" Unmarried daughters: {string.Join(", ", daughters.ConvertAll(d => d.DisplayName))}. Ask for her hand from this menu when you are ready.";
         else s += " They have no unmarried daughter.";
         return s;
@@ -1691,27 +1692,6 @@ public partial class Conversation
         AddOption("Back", () => ShowTopics(Greeting(npc)));
     }
 
-    // Marriage (design doc 8): standing with the father, a bride-price in
-    // goods already given, and the HBC rule of one wife.
-    private string Propose(Npc father, Npc daughter)
-    {
-        if (_player.Spouse != null) return "\"You have a wife already. The Company allows a man one.\"";
-        float rapport = father.RapportWith(_player);
-        float gifts = father.GiftsFromPlayerMb;
-        if (rapport < 30f) return $"{father.DisplayName} hears you out and says nothing. You are a stranger to him yet. (rapport {rapport:0}, needs 30)";
-        if (gifts < 8f) return $"\"A daughter is not given for nothing.\" He looks at what you have brought him. (gifts worth {gifts:0.#} MB, wants 8)";
-        daughter.Spouse = _player;
-        _player.Spouse = daughter;
-        _player.MarriedOnDay = GameCalendar.Instance.Day;
-        _player.Learn(daughter, 0.3f);
-        daughter.Role = Role.Wife;
-        daughter.HomeStores = Sim.Fort;
-        daughter.BedCell = World.IsoGrid.Cell(World.WorldLayout.Depot.Top, 4, 3);
-        daughter.WorkCell = World.WorldLayout.Depot.Centre;
-        daughter.Brain.Clear(daughter);
-        daughter.ResetBehaviour();
-        foreach (var n in Sim.Npcs) if (n.HomeStores == father.HomeStores) n.ChangeRapport(_player, 10f);
-        Sim.Notice($"{daughter.DisplayName} has married {_player.DisplayName} in the custom of the country and moves into the post.");
-        return $"\"So be it.\" {daughter.DisplayName} will come to live at the post. Her family is now your family.";
-    }
+    // Marriage (design doc 8): the custom is the player's side's (Agents/Marriage).
+    private string Propose(Npc father, Npc daughter) => Marriage.Propose(_player, father, daughter);
 }

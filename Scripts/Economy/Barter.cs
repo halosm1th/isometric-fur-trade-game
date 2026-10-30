@@ -134,6 +134,8 @@ public class Barter
 	// in the rounding, and a lot is how the trade was actually done.
 	public int SellPrice(ItemId id, int n = 1)
 	{
+		// A made-beaver token is the unit itself: one is one beaver, whatever the haggling.
+		if (id == ItemId.MbToken) return n;
 		var def = Items.Items.Of(id);
 		float price = Post != null ? Post.PeltPrice : 1f;
 		float want = def.Kind == ItemKind.Food && Need() > 0.2f ? 1f + Need() * 0.5f : 1f;
@@ -142,6 +144,7 @@ public class Barter
 
 	public int BuyPrice(ItemId id, int n = 1)
 	{
+		if (id == ItemId.MbToken) return Crude ? n + Mathf.Max(1, Mathf.RoundToInt(n * 0.2f)) : n;
 		var def = Items.Items.Of(id);
 		float mult = def.Kind == ItemKind.Food ? (Post?.FoodPriceMultiplier ?? 1.2f) : 1f;
 		// What he is short of, he parts with dearly.

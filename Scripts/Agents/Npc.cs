@@ -21,8 +21,10 @@ public enum Role
     CreeChief = Chief, CreeHunter = Hunter, CreeWoman = BandWoman, CreeDaughter = BandDaughter,
 }
 
-// Four traits that decide what an agent does with what it knows and wants
-// (design doc 11.4). 0..1.
+// Five traits that decide what an agent does with what it knows and wants
+// (design doc 11.4), 0..1. Not the doc's five: Talkative stands for both its
+// sociability and its discretion, and Courage (nerve under fire, Agents/Nerve)
+// is the code's own.
 public struct Personality
 {
     public float Loyalty, Talkative, Suspicion, Ambition, Courage;
@@ -193,6 +195,11 @@ public partial class Npc : Agent
     // chain to run when nothing more urgent is going on.
     public System.Func<Npc, Goal> AssignedTask;
     public string AssignedTaskName = "";
+    // An order given while he was out of earshot (design doc 3.9 step 4): it
+    // waits for him, and takes hold only when he comes within call of the man
+    // who gave it. Until then he goes on with yesterday's.
+    public PostTask OrderWaiting;
+    public Npc OrderWaitingFrom;
     public bool AssignedTaskIsHunt;
     // A company man's standing with his master (design doc 3.6): what the
     // year-end report says of him. Rises with work done, falls with refusals.

@@ -370,7 +370,7 @@ public partial class JournalPanel : Control
 
         // The people (design doc P.8): who you count on, and who counts against you.
         sb.AppendLine(Head("Your people"));
-        if (p.Spouse != null) sb.AppendLine($"   Married to {p.Spouse.DisplayName}{(p.Spouse.IsDead ? " (dead)" : "")}.");
+        if (p.Spouse != null) sb.AppendLine($"   Married to {p.Spouse.DisplayName}{(p.Spouse.IsDead ? " (dead)" : "")}{(p.OtherWives.Count > 0 ? ", and to " + string.Join(" and ", p.OtherWives.ConvertAll(w => w.DisplayName)) : "")}.");
         if (p.KinNames.Count > 0) sb.AppendLine($"   Kin: {string.Join(", ", p.KinNames)}.");
         var friends = new List<(Npc, float)>(); var enemies = new List<(Npc, float)>();
         foreach (var o in Sim.Npcs)

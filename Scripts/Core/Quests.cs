@@ -199,6 +199,7 @@ public static class Quests
 	{
 		var o = q.Objectives[st.At];
 		if (o.Text != "") p.Say($"{q.Title}: {Describe(o, st)}");
+		QuietDays.Interrupt(p, cause: "quest: " + q.Title);
 	}
 
 	// Called a few times a second for each player (server).

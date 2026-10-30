@@ -37,11 +37,11 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 | § | System | Verdict | Evidence / gap |
 |---|---|---|---|
 | 1, 11.1 | Player as an equal agent | Built | `Agents/Agent.cs`: player and NPCs share needs, inventory and verbs |
-| 1 | 1821 weighs the player | Missing | `Economy/Union.cs` keeps every player on. Nothing measures them against their ambitions |
+| 1 | 1821 weighs the player | Partial | **Oct 2026:** `Union.Weigh` measures each company player (standing, rank, the year's work, ambitions, desertion, a Nor'Wester's handicap): given charge, kept on, or cut loose as a freeman. No end screen or epilogue |
 | 2.2 | Director | Built | `Core/Director.cs`: memory choice, `Equal()` tie-break by player proximity (7 callers), `MayActNow`, `--nodirector` |
 | 2.3 | Campaign scripts and adherence | Built | `Core/CampaignRunner.cs`: Firm forces at 2× grace, Strict at 1×; logged `[forced]` |
 | P.2 | Ambitions | Partial | Five offered. (`FoundAPost` removed until it can be built) |
-| P.3 | A year in 4-6 hours | **Not met** | About 73 h flat. Uneven pacing gives about 57 h for a player alone in fair weather (my arithmetic from `GameCalendar.Pacing`; not measured in play) |
+| P.3 | A year in 4-6 hours | **Not measured** | Quiet days (Oct 2026, `Core/QuietDays.cs`) let idle days pass at x80 until something happens. Before: About 73 h flat. Uneven pacing gives about 57 h for a player alone in fair weather (my arithmetic from `GameCalendar.Pacing`; not measured in play) |
 | P.4 | Journal chains, focus panel, notices | Built | `Core/Reveal.cs`, `Core/Focus.cs`, `UI/NoticeLog.cs` |
 | P.6 | Succession | Built | `Agents/Heirs.cs` |
 | P.8 / P.8.1 / P.10 | Attachment, favours, leverage, lies, year told | Built | `Friends.cs`, `Favours.cs`, `Leverage.cs`, `Lies.cs`, `Losses.cs`, `Barks.cs`, `YearStory.cs` |
@@ -64,7 +64,7 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 | 7.2 | Intertribal war | Partial | Horse raids, war parties with morale and retreat, truces, guns through the Missouri trade |
 | 7.3 | Americans | Partial | `Faction.American`, posts, men, regard, a story road. No Astor or St. Louis nodes, and no poaching |
 | 7.4 | Vendetta | Built | `Agents/Grudge.cs`. No settlement Accord |
-| 8 | Marriage | **Diverges** | §4.1 |
+| 8 | Marriage | Partial | **Oct 2026:** the three ways, plural wives off the Company's books, wives left behind (§4.1). No Métis road in |
 | 9.1 | Captivity | Built | Captivity, parole, ransom |
 | 9.2 | Slavery | Missing | |
 | 9.3 | Death branches | Partial | Succession only |
@@ -109,7 +109,7 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 | 18.1 | Continuous world | Built | |
 | 18.2 | Tiers | **Diverges** | §4.5 |
 | 18.3 | Travel mode | Built | `UI/TravelMode.cs` |
-| 18.4 | Fire | Partial | Weather scales spread. **No wind direction, firebreaks or prairie fire** |
+| 18.4 | Fire | Partial | Weather scales spread; each region's wind (mostly westerly) drives it downwind (Oct 2026). **No firebreaks or prairie fire** |
 | 21.3 | Consensus skip | Partial | No auto-pilot fallback |
 | 21.4 | Disconnect hand-off | **Diverges** | §4.6 |
 
@@ -141,7 +141,7 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 
 Each of these now has an implementation note in the design doc. They still need a decision: change the code, or rewrite the section.
 
-1. **Marriage is HBC-only for everyone (§8).** `Propose()` (`UI/Conversation.cs:1632`) refuses a second wife to anyone and always moves the bride into York's depot. That is wrong for a Nor'Wester and for a band-born player. The Nor'West way, polygamy, transition costs and the wives left behind are all missing.
+1. **Fixed (Oct 2026): marriage now follows the player's side (`Agents/Marriage.cs`).** Before, marriage was HBC-only for everyone (§8). `Propose()` (`UI/Conversation.cs:1632`) refuses a second wife to anyone and always moves the bride into York's depot. That is wrong for a Nor'Wester and for a band-born player. The Nor'West way, polygamy, transition costs and the wives left behind are all missing.
 2. **Personality (§11.4).** The code has Loyalty, Talkative, Suspicion, Ambition and **Courage**. The doc lists sociability and discretion instead of Talkative and Courage. Talkative does the work of both missing traits.
 3. **Skills (§3.10).** The code has 4: Hunting (which also covers shooting), Trapping, Trade and Woodcraft. They are seeded from background and traits, not personality.
 4. **Combat (§15.3).** Damage is a single health pool. There are no hit locations, crippling blows or limb wounds.
@@ -160,15 +160,15 @@ Places where a code comment, a citation or a doc describes behaviour that isn't 
 | 1 | "A Factor ... shades the books (design doc 3.9 step 8)". Step 8 says "the lie resolves at that read event" | `World/Ship.cs:115` | **Fixed (Oct 2026):** London compares the furs landed with York's account (`LondonCommittee.Audit`); the chance of noticing grows with the gap. Once is a letter and lost standing; twice, or a gross theft, and the Factor is recalled on the next ship and the post passes to the next man (`Npc.Recall`) |
 | 2 | "Powder and ball" is stocked, traded and named as the musket's charge | `Items.cs`, the stores at every post | **Fixed (Oct 2026):** a horn is twenty charges and a shot spends one, refilled from the pack or the house's store; without powder a gun is a club (`Agent.UseCharge`); hunts in the day's sum need powder to use the gun |
 | 3 | "The ship lands enough new hands to bring the post back to strength (design doc 5.5)" | `World/Population.cs:390` | **Fixed (Oct 2026):** names are drawn from Orkney (and Canadian) given names and surnames, hundreds of them; how many are hired is the company's purse and the war (`Economy/Companies.Hires`) |
-| 4 | "A year should take four to six hours of play" | `Core/GameCalendar.cs:32` | The uneven pacing beneath the comment slows the busy seasons as much as it speeds winter nights. About 57 h |
-| 5 | "Four traits" | `Agents/Npc.cs:19` | Five fields, and not the doc's five |
-| 6 | Skills cite "design doc 3.10" | `Agents/Needs.cs:11` | 4 of the 12 or so skills |
+| 4 | "A year should take four to six hours of play" | `Core/GameCalendar.cs:32` | **Comment corrected (Oct 2026).** The 12-minute day is the owner's choice: about 45-55 h a year sleeping through the nights, and less with quiet days (`Core/QuietDays.cs`), not yet timed in play |
+| 5 | "Four traits" | `Agents/Npc.cs:19` | **Comment corrected (Oct 2026):** five, and which of the doc's they stand for |
+| 6 | Skills cite "design doc 3.10" | `Agents/Needs.cs:11` | **Comment corrected (Oct 2026):** says it is 4 of the dozen |
 | 7 | `AmbitionKind.FoundAPost` with title, pledge, rival target and Director keywords | `Ambition.cs`, `Rival.cs:173`, `Director.cs:170` | **Removed (Oct 2026)** until founding a post can be built properly |
 | 8 | Role names `CreeChief`, `CreeHunter`, `CreeWoman`, `CreeDaughter` | `Agents/Npc.cs:14` | **Fixed (Oct 2026):** `Chief`, `Hunter`, `BandWoman`, `BandDaughter`, with the old names kept as aliases of the same numbers for saves and code not yet moved over |
-| 9 | Orders are messages, inert until read (§3.9 step 4, §10.1.1) | Design doc | The Factor's morning orders take effect at once. Only London's directive and the council's minutes travel (the York test-world notes admit this) |
-| 10 | "The Reckoning of 1821": the new order weighs what the player has become (design doc §1) | `WIKI/Systems/The Reckoning of 1821.md`, `Union.cs` | Every player is kept on; nobody is weighed. (Page corrected in this pass) |
-| 11 | Fire "spreads ... according to the weather; a gale drives it" | `World/Fire.cs:9`, `:92` | Weather scales how often it spreads, never which way. There is no wind direction |
-| 12 | The made-beaver token "worth exactly 1 MB in barter" | `world-content-needed.md` §8 | `ItemId.MbToken` has no use anywhere outside the item table. (The wiki item page says so honestly) |
+| 9 | Orders are messages, inert until read (§3.9 step 4, §10.1.1) | Design doc | **Fixed in part (Oct 2026):** an order reaches a man only within earshot (`Delegation.Earshot`, 900 px); a man away hears his when he comes back (`Npc.OrderWaiting`, `Delegation.Hear`) and goes on with yesterday's till then |
+| 10 | "The Reckoning of 1821": the new order weighs what the player has become (design doc §1) | `WIKI/Systems/The Reckoning of 1821.md`, `Union.cs` | **Fixed (Oct 2026):** `Union.Weigh`. There is still no end screen |
+| 11 | Fire "spreads ... according to the weather; a gale drives it" | `World/Fire.cs:9`, `:92` | **Fixed (Oct 2026):** `Weather.WindAt` (rolled per region, mostly from the west); fire spreads up to 2.6x as readily downwind and a quarter as readily upwind |
+| 12 | The made-beaver token "worth exactly 1 MB in barter" | `world-content-needed.md` §8 | **Fixed in part (Oct 2026):** barter prices a token at exactly 1 MB, without the haggling swing. Nobody issues them yet (the Company's brass tokens date from the 1850s) |
 
 **Honest by contrast:** the wiki's Personality, Skills, Simulation Tiers, Powder and Ball, and Made-Beaver Token pages all describe the build as it is, divergences included. The drift was in the summary pages, not the system pages.
 

@@ -61,6 +61,8 @@ public partial class SettingsPanel : VBoxContainer
         var game = Page(tabs, "Game");
         Toggle(game, "Pause when the window loses focus", () => Settings.PauseOnFocusLoss, on => { Settings.PauseOnFocusLoss = on; Settings.Save(); },
             "Only when playing alone; a shared world can't stop for one player.");
+        Toggle(game, "Let quiet days pass", () => Settings.QuietDays, on => { Settings.QuietDays = on; Settings.Save(); },
+            "Leave the controls alone for twenty seconds and the days go by at speed, until something happens or you touch a key. Everyone in a shared world has to be leaving it alone.");
         Choice(game, "Autosave", Settings.AutosaveMinutes, m => m == 0 ? "Off" : $"Every {m} minutes", () => Settings.Autosave, m => { Settings.Autosave = m; Settings.Save(); },
             "Writes the quicksave (the same file as F5) when you are alone or hosting.");
 

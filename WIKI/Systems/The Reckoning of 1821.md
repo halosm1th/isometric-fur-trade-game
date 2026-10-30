@@ -7,7 +7,7 @@ status: partial
 
 # The Reckoning of 1821
 
-**Status:** Partial. The yearly **Reckoning** (the "year's account") is Implemented for every road in. The **1821 union of the companies** happens in the world when the campaign raises its `merger` flag (`Economy/Union.cs`, 2026-10-20): North West posts near a Company post are given up, their stores carried across, masters and clerks taken on and half the men let go; the rest are kept under the Company, and every Nor'Wester, players included, becomes the Company's. What design doc 1 asks for is not built: the new order does not weigh the player's year against their ambitions to keep them on, cut them loose or set them to cutting others; every player is kept. There is no end screen or epilogue (design doc 4.3), and the union comes from the script, not from the companies' exhaustion (13.7, **Planned**).
+**Status:** Partial. The yearly **Reckoning** (the "year's account") is Implemented for every road in. The **1821 union of the companies** happens in the world when the campaign raises its `merger` flag (`Economy/Union.cs`, 2026-10-20): North West posts near a Company post are given up, their stores carried across, masters and clerks taken on and half the men let go; the rest are kept under the Company, and every Nor'Wester, players included, becomes the Company's. At the union every company player is also **weighed** (`Union.Weigh`, October 2026): standing, plus 25 for a postmaster or 12 for a clerk (-15 on notice), +2 for each task done and -4 for each refused this year, +15 times each declared ambition's best progress, -30 for a deserter and -10 for a former Nor'Wester. At 60 or more you are **given charge** (postmaster, standing at least 60); from 15 you are **kept on** as you were; under 15 you are **cut loose**, a freeman off the books. Wives go with you into the Company as in [[Marriage and Country Wives]]. There is no end screen or epilogue (design doc 4.3), and the union comes from the script, not from the companies' exhaustion (13.7, **Planned**).
 
 > *"The year has a close, and the close is the ship."* (design doc P.3, 14.1)
 
@@ -62,7 +62,7 @@ The historical campaign ([[Campaigns and Adherence]]) has a final `merger` beat 
 - When it happens: it sets the `merger` flag, lowers [[Rivalry]] by **70**, and sends two letters. One to the Factor from the Governor and Committee ("joined under the Company's charter. Mr. George Simpson will govern the Northern Department. Expect economies") after 90 days; one to the wintering partner from Montreal ("the North West Company goes into the Hudson's Bay Company ... Many of the men will be let go") after 75.
 - The lead-in is a set of "lawless years" pressure beats: 1818, 1819 and 1820 each add rivalry tension (+15, +15, +10) and in 1820 London's orders tighten again.
 
-The Reckoning reads "1821 comes either way" for players with no declared ambition. What happens to the player after the union (the epilogue) is **not implemented**: see [[Roadmap]].
+The Reckoning reads "1821 comes either way" for players with no declared ambition. The weighing above decides what becomes of the player at the union; an epilogue or end screen is **not implemented**: see [[Roadmap]].
 
 ## Tips
 

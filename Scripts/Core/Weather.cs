@@ -22,7 +22,8 @@ public class Weather
 {
     public const float RegionPx = 8000f;
 
-    private class Region { public SkyState Sky; public float Hours; }
+    // Wind: the way it blows toward (radians on the map, 0 = east), rolled with the sky.
+    private class Region { public SkyState Sky; public float Hours; public float WindTo; }
     private readonly Dictionary<Vector2I, Region> _regions = new();
     private readonly List<Vector2I> _due = new();
 
@@ -35,6 +36,15 @@ public class Weather
 
     public SkyState At(Vector2 world) => Of(KeyOf(world)).Sky;
     public bool FoulAt(Vector2 world) => At(world) is SkyState.Blizzard or SkyState.Storm;
+
+    // Which way the wind blows here, as a map direction scaled by its strength:
+    // a gale is 1, a still overcast day under half. Fire runs before it (World/Fire).
+    public Vector2 WindAt(Vector2 world)
+    {
+        var r = Of(KeyOf(world));
+        float strength = r.Sky switch { SkyState.Storm or SkyState.Blizzard => 1f, SkyState.Clear => 0.6f, SkyState.Snow => 0.5f, SkyState.Rain => 0.45f, _ => 0.4f };
+        return Vector2.Right.Rotated(r.WindTo) * strength;
+    }
 
     public static Vector2I KeyOf(Vector2 world) => new(Mathf.FloorToInt(world.X / RegionPx), Mathf.FloorToInt(world.Y / RegionPx));
 
@@ -106,6 +116,10 @@ public class Weather
             r.Sky = Fallback(season);
         else
             r.Sky = Convert(RollFor(mean, lat, lon), mean);
+        // Mostly the west wind (it blows east); now and then a norther, or the east wind that brings rain.
+        float wr = GD.Randf();
+        float toward = wr < 0.65f ? 0f : wr < 0.85f ? Mathf.Pi / 2f : Mathf.Pi;
+        r.WindTo = toward + (float)GD.RandRange(-0.6, 0.6);
         r.Hours = r.Sky switch
         {
             SkyState.Blizzard => (float)GD.RandRange(6.0, 18.0),
@@ -161,7 +175,7 @@ public class Weather
     public Godot.Collections.Array Save()
     {
         var a = new Godot.Collections.Array();
-        foreach (var kv in _regions) a.Add(new Godot.Collections.Array { kv.Key.X, kv.Key.Y, (int)kv.Value.Sky, kv.Value.Hours });
+        foreach (var kv in _regions) a.Add(new Godot.Collections.Array { kv.Key.X, kv.Key.Y, (int)kv.Value.Sky, kv.Value.Hours, kv.Value.WindTo });
         return a;
     }
 
@@ -172,7 +186,7 @@ public class Weather
         foreach (var v in a)
         {
             var e = v.AsGodotArray();
-            _regions[new Vector2I(e[0].AsInt32(), e[1].AsInt32())] = new Region { Sky = (SkyState)e[2].AsInt32(), Hours = e[3].AsSingle() };
+            _regions[new Vector2I(e[0].AsInt32(), e[1].AsInt32())] = new Region { Sky = (SkyState)e[2].AsInt32(), Hours = e[3].AsSingle(), WindTo = e.Count > 4 ? e[4].AsSingle() : 0f };
         }
     }
 
