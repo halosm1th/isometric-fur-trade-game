@@ -41,6 +41,10 @@ public static class Garb
             new(B(175, 35, 0.08f), new[] { D(-150, 1.3f, 0, 1.1f), D(0, 0.1f, 0, 1.25f), D(40, 1.4f), D(180, 1.6f, 0, 1.05f) }),
             new(B(225, 25, 0.08f, ymin: 0.6f), new[] { D(160), D(0, 0.2f, 0, 1.1f) }),
             GreyBeard(0.36f, 0.52f, 0.06f, 0.45f, 0.34f) },
+        // The bare-headed Orkneyman: the same coat and breeches.
+        ["OrkneymanFrames.tres"] = new Slot[] {
+            new(B(175, 35, 0.08f), new[] { D(-150, 1.3f, 0, 1.1f), D(0, 0.1f, 0, 1.25f), D(40, 1.4f), D(180, 1.6f, 0, 1.05f) }),
+            new(B(225, 25, 0.08f, ymin: 0.6f), new[] { D(160), D(0, 0.2f, 0, 1.1f) }) },
         // The tuque, sash and trousers; the gingham shirt.
         ["VoyageurFrames.tres"] = new Slot[] {
             new(B(356, 14, 0.5f), new[] { D(220, 1, 0, 0.85f), D(130, 0.8f, 0, 0.85f), D(30, 0.6f, 0, 0.75f), D(0, 0.25f, 0, 0.55f) }),
@@ -79,6 +83,13 @@ public static class Garb
             new(B(356, 10, 0.6f), new[] { D(220, 1, 0, 0.8f), D(120, 0.8f, 0, 0.8f), D(0, 0.2f, 0, 0.5f) }),
             GreyHair(260, 60) },
         ["CreeWomanFrames.tres"] = new Slot[] { GreyHair(300, 60) },
+        // The stroud dresses (dark blue): scarlet, green or black.
+        ["CreeWomanClothFrames.tres"] = new Slot[] {
+            new(B(228, 25, 0.15f), new[] { D(130, 1.1f, 0, 1.25f), D(-90, 0.9f, 0, 1.1f), D(0, 0.2f, 0, 0.6f) }) },
+        ["CreeGirlFrames.tres"] = new Slot[] {
+            new(B(225, 25, 0.15f), new[] { D(130, 1.1f, 0, 1.25f), D(-90, 0.9f, 0, 1.1f), D(0, 0.2f, 0, 0.6f) }) },
+        ["CreeBoyFrames.tres"] = new Slot[] {
+            new(B(356, 10, 0.6f), new[] { D(220, 1, 0, 0.8f), D(120, 0.8f, 0, 0.8f), D(0, 0.2f, 0, 0.5f) }) },
         // The captain's coat, a present from the Company: scarlet, blue or green.
         // His hair is grey already.
         ["CreeCaptainFrames.tres"] = new Slot[] {

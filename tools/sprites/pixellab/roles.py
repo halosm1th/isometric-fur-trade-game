@@ -65,8 +65,8 @@ NEW_ROLES = {
     "metis": ("Scenes/Npc/MetisFrames.tres", "a Metis man: red wool tuque with a tassel, black moustache, clay pipe, a hooded white wool capote with blue stripes at the hem, tied with a white cord, red trousers, tan leather boots", "metis"),
     "cree_boy": ("Scenes/Npc/CreeBoyFrames.tres", "a Cree boy of ten: long black hair, a small fringed buckskin shirt and leggings, red breechcloth, moccasins", "cree_boy"),
     "cree_girl": ("Scenes/Npc/CreeGirlFrames.tres", "a Cree girl of ten: two black braids, a blue stroud cloth dress with red trim, leggings, moccasins", "cree_girl"),
-    "orkneyman": ("Scenes/Npc/OrkneymanFrames.tres", "a young Orkney labourer, bare-headed: short fair hair and a short fair beard, brown wool jacket, white shirt, grey breeches, brown boots", "orkneyman"),
-    "cree_woman_cloth": ("Scenes/Npc/CreeWomanClothFrames.tres", "a Cree woman: long black braids, a blue stroud cloth dress with red and white beadwork at the shoulders, red leggings, moccasins", "cree_woman_cloth"),
+    "orkneyman": ("Scenes/Npc/OrkneymanFrames.tres", "an Orkney labourer, bare-headed: fair blond hair and a fair beard, green wool coat, brown leather belt, blue breeches, brown boots", "orkneyman"),
+    "cree_woman_cloth": ("Scenes/Npc/CreeWomanClothFrames.tres", "a Cree woman: long black braids, a dark blue stroud cloth dress with red and white beadwork at the shoulders, a beaded belt, red leggings, moccasins", "cree_woman_cloth"),
     "ship_captain": ("Scenes/Npc/ShipCaptainFrames.tres", "a ship's captain: black bicorne hat, grey side whiskers, long dark blue coat with brass buttons, white waistcoat and breeches, black boots", "ship_captain"),
 }
 ROLES.update({k: v[:2] for k, v in NEW_ROLES.items()})
@@ -92,7 +92,7 @@ ACTIONS = {
 DOLL_IDLE = {"idle": "idle_0", "idle_side": "idle_side_0", "idle_back": "idle_back_0"}
 # Whose painted side frame is turned three-quarters toward us, like the
 # voyageur's; the rest are drawn in profile, facing east.
-THREE_QUARTER = {"voyageur", "player", "factor", "rival", "cree_woman", "cree_captain", "assiniboine", "blackfoot", "coast", "metis"}
+THREE_QUARTER = {"voyageur", "player", "factor", "rival", "cree_woman", "cree_captain", "assiniboine", "blackfoot", "coast", "metis", "cree_woman_cloth"}
 
 
 def sheet(role):

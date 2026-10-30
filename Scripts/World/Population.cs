@@ -16,7 +16,8 @@ public partial class Population : Node2D
 	// Placeholder Cree given names (Cree words in common romanisation), to be
 	// replaced with properly researched period names.
 	private static readonly string[] CreeMen = { "Maskwa", "Wapistan", "Mahihkan", "Pisiskiw", "Kihiw", "Mistatim" };
-	private static readonly string[] Sailors = { "Bos'n Hurst", "Ned Carrow", "Tom Ellery", "Will Pascoe", "Sam Rudd", "Jack Tremayne", "Davy Roskilly", "Harry Penrose" };
+	// The last is the ship's master: Henry Hanwell had the Company's Prince of Wales.
+	private static readonly string[] Sailors = { "Bos'n Hurst", "Ned Carrow", "Tom Ellery", "Will Pascoe", "Sam Rudd", "Jack Tremayne", "Davy Roskilly", "Captain Hanwell" };
 
 		private SpriteFrames _hbcFrames, _factorFrames, _creeFrames, _labourerFrames, _creeWomanFrames, _assiniboineFrames;
 

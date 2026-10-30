@@ -62,6 +62,8 @@ public static class Appearance
             // The Company's servants were placed in the player's coat (the
             // scene's default sheet), so every man at York was his double.
             Role.Labourer => Either(n, "LabourerFrames.tres", "OrkneymanFrames.tres"),
+            // The ship's master in his blue coat and bicorne.
+            Role.Sailor when n.DisplayName?.StartsWith("Captain ") == true && Drawn("ShipCaptainFrames.tres") => Dir + "ShipCaptainFrames.tres",
             Role.Sailor => Dir + "SailorFrames.tres",
             Role.Clerk or Role.Postmaster => Dir + "ClerkFrames.tres",
             Role.Factor => Dir + "FactorFrames.tres",

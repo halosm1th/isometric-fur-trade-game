@@ -13,7 +13,11 @@ skeletons, and an outfit carried across the frames that come back.
         label, if not NAME. --nopipe=1: the pipe out of his mouth (eating).
   python pixellab.py outfit NAME OUTFIT.png FRAME.png [FRAME.png ...]
         OUTFIT.png: a sprite wearing the outfit; the FRAMEs are redrawn
-        wearing it, to out/NAME_<i>.png.
+        wearing it, to out/NAME_<i>.png. --instructions= what to carry over
+        (the Metis capote by default).
+  python pixellab.py edit NAME FRAME.png "WHAT TO CHANGE"
+        one frame redrawn as told, to out/NAME_0.png: a new role's first
+        look, which outfit then carries onto its other idles.
 
 The key is read from the PIXELLAB_API_KEY environment variable. Every
 response is kept as out/NAME.json, so a run's cost and output can be read
@@ -133,15 +137,22 @@ def skeleton(name, ref, ref_frame, frames, holding=None, direction="south-east",
     save(name, images(wait(name, call("POST", "/animate-with-skeleton-v3", body))))
 
 
-def outfit(name, outfit_png, frames):
+def outfit(name, outfit_png, frames, instructions=None):
     ref = pad(outfit_png) if Image.open(outfit_png).size == (W, H) else Image.open(outfit_png).convert("RGBA")
     body = {"reference_image": {"image": b64(ref), "size": {"width": ref.width, "height": ref.height}},
             "frames": [{"image": b64(pad(f)), "size": {"width": CANVAS, "height": CANVAS}} for f in frames],
             "image_size": {"width": CANVAS, "height": CANVAS}, "no_background": True, "seed": 0,
-            "additional_instructions": ("put the white wool blanket coat (capote) with blue stripes at the hem "
+            "additional_instructions": instructions or ("put the white wool blanket coat (capote) with blue stripes at the hem "
                                         "on the character, over his shirt; keep his red tuque, face, moustache, "
                                         "pipe, trousers and boots exactly as they are")}
     save(name, images(wait(name, call("POST", "/transfer-outfit-v2", body))))
+
+
+def edit(name, frame, what):
+    body = {"method": "edit_with_text", "description": what, "no_background": True, "seed": 0,
+            "edit_images": [{"image": b64(pad(frame)), "width": CANVAS, "height": CANVAS}],
+            "image_size": {"width": CANVAS, "height": CANVAS}}
+    save(name, images(wait(name, call("POST", "/edit-images-v2", body))))
 
 
 if __name__ == "__main__":
@@ -153,4 +164,6 @@ if __name__ == "__main__":
     elif cmd == "skeleton":
         skeleton(a[0], a[1], a[2], a[3:], opts.get("holding"), opts.get("direction", "south-east"), opts.get("action"), "nopipe" in opts)
     elif cmd == "outfit":
-        outfit(a[0], a[1], a[2:])
+        outfit(a[0], a[1], a[2:], opts.get("instructions"))
+    elif cmd == "edit":
+        edit(a[0], a[1], a[2])
