@@ -297,12 +297,13 @@ public partial class PlayerController : Agent
 
 	// Paddling: you can be over water or ice; the moment you're on a land
 	// cell you've stepped out and the canoe stays at the water's edge.
-	private void ServerCanoeTick()
+	private void ServerCanoeTick(float dt)
 	{
-		if (Aboard == null) return;
+		if (Aboard == null) { _inRapids = false; return; }
 		var t = Sim.Terrain;
 		if (t == null) return;
 		var cell = Cell;
+		if (RunRapids(cell, dt)) return;
 		if (!t.IsWaterOrIce(cell) && Sim.Paths != null && Sim.Paths.IsWalkable(cell))
 		{
 			// Landed. Leave the canoe on the nearest water cell behind us.
@@ -314,6 +315,44 @@ public partial class PlayerController : Agent
 		}
 		else Aboard.Position = GlobalPosition;
 	}
+
+	// White water (WorldMap.Depth.Rapids): the river over rocks beside a
+	// carrying place. The men carried round it; run it and every moment in
+	// it is a chance of going over - less for a man who knows the woods,
+	// more with a canoe loaded down. Over, you are thrown on the bank with
+	// the canoe, soaked and bruised, and some of what was in her is gone
+	// down the river.
+	private bool _inRapids;
+	private bool RunRapids(Vector2I cell, float dt)
+	{
+		bool white = WorldMap.IsRapids(cell) && !GameCalendar.Instance.IsFrozen;
+		if (white && !_inRapids) Say("White water! The river runs over rocks here - this is why there is a portage. Make for the bank and carry round, or run it and hope.");
+		_inRapids = white;
+		if (!white || Velocity.LengthSquared() < 25f) return false;
+		float load = Mathf.Clamp(Aboard.LoadLbs / Canoe.CapacityLbs, 0f, 1.5f);
+		float perSecond = 0.07f * (1.3f - Skills.Woodcraft) * (0.6f + load);
+		if (GD.Randf() >= perSecond * dt) return false;
+		// Over she goes.
+		int lost = 0;
+		foreach (var (id, n) in new List<(ItemId, int)>(Aboard.Cargo.All()))
+		{
+			int take = Mathf.CeilToInt(n * 0.35f);
+			Aboard.Cargo.Remove(id, take); lost += take;
+		}
+		var land = Convoys.LandNear(GlobalPosition);
+		Vector2I water = IsoGrid.FromWorld(land);
+		foreach (var n in IsoGrid.EdgeNeighbours(water)) if (t_IsWater(n)) { water = n; break; }
+		Aboard.SetState(IsoGrid.ToWorld(water), 0);
+		Aboard = null; _inRapids = false;
+		SetStartPosition(land);
+		Needs.Wet = 1f;
+		TakeDamage(12f, null);
+		Skills.Learn(ref Skills.Woodcraft, 0.02f, "upset in a rapid");
+		Chronicle.Event($"{DisplayName} was upset running a rapid.", GlobalPosition, this, weight: 0.8f);
+		Say(lost > 0 ? $"The canoe broaches on a rock and rolls over. You come up gasping and drag yourself and her onto the bank. {lost} pieces of what she carried are gone down the river." : "The canoe broaches on a rock and rolls over. You come up gasping and drag yourself and her onto the bank, soaked to the skin.");
+		return true;
+	}
+	private static bool t_IsWater(Vector2I c) => Sim.Terrain != null && Sim.Terrain.IsWater(c);
 
 	// The nearest unfrozen water cell to a canoe on the bank, nearest first.
 	private static Vector2I? OpenWaterNear(Vector2I from, int reach)
@@ -862,7 +901,7 @@ public partial class PlayerController : Agent
 		if (NetHub.IsServer && (_questTick -= (float)delta) <= 0f) { _questTick = 0.4f; Task.Counted ??= (k, n) => Core.Quests.OnTask(this, k, n); Core.Quests.Tick(this); }
 		base._PhysicsProcess(delta);
 		float dt = (float)delta;
-		if (IsServerCopy) ServerCanoeTick();
+		if (IsServerCopy) ServerCanoeTick(dt);
 		UpdateCanoeVisual();
 
 		if (IsLocal)

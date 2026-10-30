@@ -30,7 +30,7 @@ public static class Routes
         if (!WorldMap.InBounds(c)) return false;
         var g = WorldMap.At(c);
         if (frozen) return true;   // the rivers and lakes are the winter road
-        return g is not (Ground.Ocean or Ground.Lake or Ground.River);
+        return g is not (Ground.Ocean or Ground.Lake or Ground.River) || WorldMap.IsShallow(c);
     }
 
     private static float Cost(Vector2I c)

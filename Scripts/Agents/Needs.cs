@@ -97,7 +97,7 @@ public class Needs
     // when you are trying to look at something else.
     public bool GodMode;
 
-    public void Tick(float gameHours, float activity, bool sheltered, float heat, float clothingWarmth, Season season, float daylight, bool fireEnclosed = false, float localExposure = -1f, float localWeather = -1f, bool rainedOn = false)
+    public void Tick(float gameHours, float activity, bool sheltered, float heat, float clothingWarmth, Season season, float daylight, bool fireEnclosed = false, float localExposure = -1f, float localWeather = -1f, bool rainedOn = false, bool wading = false)
     {
         if (gameHours <= 0f || IsDead) return;
         if (GodMode)
@@ -115,7 +115,8 @@ public class Needs
         // both together (design doc 17.3 / 18.4).
         float weather = localWeather >= 0f ? localWeather : GameCalendar.Instance?.Weather.ExposureMultiplier ?? 1f;
         float exposure = (localExposure >= 0f ? localExposure : Climate.ExposurePerHour(season, daylight)) * (sheltered ? ShelterWindFactor : weather);
-        if (rainedOn && !sheltered) Wet = Mathf.Min(1f, Wet + 0.7f * gameHours);
+        if (wading) Wet = Mathf.Min(1f, Wet + 4f * gameHours);   // in to the thighs: soaked in a quarter hour
+        else if (rainedOn && !sheltered) Wet = Mathf.Min(1f, Wet + 0.7f * gameHours);
         else Wet = Mathf.Max(0f, Wet - (heat > 0.05f ? 0.8f : sheltered ? 0.25f : 0.12f) * gameHours);
         float loss = Mathf.Max(0f, exposure - clothingWarmth * (1f - 0.65f * Wet)) + WetChill * Wet;
         float gain = heat * HearthRecovery * (sheltered || fireEnclosed ? 1f : OpenFireFactor);
