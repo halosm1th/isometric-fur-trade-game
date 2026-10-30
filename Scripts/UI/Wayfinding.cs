@@ -88,6 +88,7 @@ public static class Objective
     {
         if (p == null) return null;
         if (YorkHappenings.RaidMark(p) is { } raid) return raid;
+        if (YorkHappenings.DanceMark(p) is { } dance) return dance;
         var t = p.Task;
         if (t == null || t.Kind == TaskKind.None || t.IsComplete && t.Kind != TaskKind.Report) return Report(p);
         var home = p.HomePost ?? Sim.Fort;

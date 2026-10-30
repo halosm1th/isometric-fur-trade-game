@@ -622,6 +622,9 @@ public partial class Audio : Node
     // ---- music --------------------------------------------------------------
 
     private AudioStreamPlayer _music;
+    // The fiddle is going in the men's house (Core/YorkHappenings): the
+    // reel ("dance") takes over the music for everyone at York, full and at once.
+    public static bool DanceOn;
     private string _musicKind = "";     // "menu", "world", "reel"
     private float _musicGap;            // seconds of quiet before the next piece
     private float _musicFade = 1f;      // 1 = full, falls to 0 when we want it gone
@@ -650,7 +653,7 @@ public partial class Audio : Node
         string[] list = _musicKind switch
         {
             "menu" => MenuTracks,
-            "reel" => ReelTracks,
+            "reel" or "dance" => ReelTracks,
             _ => SeasonTracks.TryGetValue(GameCalendar.Instance?.CurrentSeason ?? Season.Winter, out var l) ? l : MenuTracks,
         };
         // Not the piece that just ended, if there's any other.
@@ -673,6 +676,7 @@ public partial class Audio : Node
         if (me == null || !IsInstanceValid(me))
             return GetTree().CurrentScene?.SceneFilePath?.Contains("MainMenu") == true ? "menu" : _musicKind;
         var cal = GameCalendar.Instance;
+        if (DanceOn && me.GlobalPosition.DistanceTo(IsoGrid.ToWorld(WorldLayout.MensHouse.Centre)) < 2600f) return "dance";
         if (cal != null && (cal.Hour >= 19f && cal.Hour < 23.5f) && me.IsSheltered)
         {
             var men = WorldLayout.MensHouse;

@@ -782,7 +782,7 @@ public partial class Npc : Agent
         }
         if ((_roomTimer -= dt) > 0f) return;
         _roomTimer = 0.35f + GD.Randf() * 0.2f;
-        if (Mounted || HeldBy != null || Convoy != null) return;
+        if (Mounted || HeldBy != null || Convoy != null || Brain.Top is Goals.DanceGoal) return;
         Vector2 away = Vector2.Zero; int crowd = 0;
         foreach (var a in Sim.AgentsWithin(GlobalPosition, Elbow))
         {
