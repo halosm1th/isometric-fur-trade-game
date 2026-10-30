@@ -151,3 +151,4 @@ body.ref-only .ref-page { display: block; }
 .map-info { flex: none; max-height: 34%; overflow: auto; font-size: 13px; padding-top: 4px; }
 .map-cast { columns: 2 220px; font-size: 12.5px; }
 .map-info button.play { flex: none; align-self: center; padding: 2px 9px; font-size: 12px; }
+.hover .sig b { color: var(--arg); font-weight: 600; }
