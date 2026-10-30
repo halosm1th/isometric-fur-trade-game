@@ -699,6 +699,7 @@ public partial class Npc : Agent
             Velocity = Vector2.Zero;
             Solid(false);
             if (_path.Count > 0) { Arrived = true; _path.Clear(); }
+            if (!skipping && motion <= GameCalendar.LazyMotion) MakeRoom(dt);
             return;
         }
 
@@ -755,6 +756,49 @@ public partial class Npc : Agent
     }
 
     private int _lookTick;
+
+    // Walkers go through one another (they are stepped along their paths with
+    // nothing solid, which is most of what keeps a crowd cheap), but nobody
+    // stands in another man's boots. Standing still, a few times a second he
+    // looks whether anyone shares his spot - another of the people or the
+    // player - and if so steps aside a pace, onto ground he can stand on.
+    // Both of a pair do it, so a crowd at the fire spreads into a ring.
+    private const float Elbow = 26f;   // closer than this is on top of him
+    private float _roomTimer = (float)GD.RandRange(0.0, 0.4);
+    private Vector2 _sidestep;
+    private float _sidestepLeft;
+    private void MakeRoom(float dt)
+    {
+        if (_sidestepLeft > 0f)
+        {
+            _sidestepLeft -= dt;
+            var to = GlobalPosition + _sidestep * dt;
+            // Onto ground he can stand on - or within the cell he is in, which
+            // is how the crew on the ship's deck (over water) move apart.
+            var into = IsoGrid.FromWorld(to);
+            if (Sim.Paths == null || into == Cell || Sim.Paths.IsWalkable(into)) { GlobalPosition = to; Velocity = _sidestep; }
+            else _sidestepLeft = 0f;
+            return;
+        }
+        if ((_roomTimer -= dt) > 0f) return;
+        _roomTimer = 0.35f + GD.Randf() * 0.2f;
+        if (Mounted || HeldBy != null || Convoy != null) return;
+        Vector2 away = Vector2.Zero; int crowd = 0;
+        foreach (var a in Sim.AgentsWithin(GlobalPosition, Elbow))
+        {
+            if (a == this || a is Animal || a.IsDead || a is Npc { Sleeping: true }) continue;
+            var d = GlobalPosition - a.GlobalPosition;
+            // Exactly on top: any way at all, the same for neither of them.
+            away += d.LengthSquared() < 1f ? Vector2.Right.Rotated(GD.Randf() * Mathf.Tau) : d.Normalized();
+            crowd++;
+        }
+        if (crowd == 0) return;
+        if (away.LengthSquared() < 0.01f) away = Vector2.Right.Rotated(GD.Randf() * Mathf.Tau);
+        // Iso ground: a pace sideways is twice a pace up the screen.
+        away = away.Normalized() * new Vector2(1f, 0.5f);
+        _sidestep = away.Normalized() * 70f;
+        _sidestepLeft = 0.35f;
+    }
 
     private void Animate()
     {
