@@ -7,7 +7,7 @@ status: partial
 
 # Development Status
 
-**Status:** Partial. The game is a playable, networked, first-pass simulation of the fur trade from York Factory out to the whole western country, with placeholder art in places and a long list of design-doc systems still to build. Everything on this page is grounded in the code at commit `acd6e17` (20 October 2026, re-checked 21 October; see `docs/audit.md`), the design doc (`docs/fur-trade-game-design.md`, 21 sections) and the asset inventory. The wiki's rule is: a thing is **Implemented** only if the code runs it.
+**Status:** Partial. The game is a playable, networked, first-pass simulation of the fur trade from York Factory out to the whole western country, with placeholder art in places and a long list of design-doc systems still to build. Everything on this page is grounded in the code at commit `acd6e17` (20 October 2026, re-checked 21 October; see `docs/audit.md`). The marriage, solvency and "what is missing" entries were re-checked at `cf835bd` on 30 October; the rest of the page was not, the design doc (`docs/fur-trade-game-design.md`, 21 sections) and the asset inventory. The wiki's rule is: a thing is **Implemented** only if the code runs it.
 
 The repo contains about 36,100 lines of C# in 130 scripts, 253 commits, one world scene and a 1002 x 2361 cell map.
 
@@ -43,7 +43,7 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | Lies, gossip, denial | Implemented | §P.10. [[Gossip, Lies and Leverage]] |
 | Friends and bonds; ambitions | Implemented | [[Friends and Bonds]], [[Ambitions]] |
 | Heirs and succession | Implemented | §9.3. [[Heirs and Succession]] |
-| Marriage and country wives | Partial | §8. The HBC way only, for every player: one wife, who moves into York. No Nor'West way or polygamy. Children are born and grow up. [[Marriage and Country Wives]] |
+| Marriage and country wives | Implemented | §8. By the player's side (`Agents/Marriage.cs`): the Company way (one wife, into his post), the Nor'West way (she stays with her people; he is kin), born to a band (she comes to his lodge). More than one wife off the Company's books; going over to the Company means choosing, and wives left behind remember. Children are born and grow up. [[Marriage and Country Wives]] |
 | Captivity, parole, ransom | Partial | Light captivity (§9.1) is in; slavery (§9.2) is not |
 | Aging and natural decline | Partial | §9.4. A year older each New Year; NPCs past 45 slow; children grow up (`World/Population.cs`). No decline for the player, no death of age |
 | Languages | Implemented | Ten languages with kinship between them. [[Languages]] |
@@ -67,7 +67,7 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | Fishing (open water, through the ice) | Implemented (as a background task) | [[Fishing]]. No fish animal yet |
 | Crafting and smithing; recipes; facility-gated | Planned | §12.6 |
 | Perks | Planned | §12.7 |
-| Company solvency, merger inevitability | Planned (solvency) / Implemented (the union itself) | §13.7, §4.4. No money or solvency ledger. The 1821 union happens in the world (`Economy/Union.cs`) when the campaign raises `merger` |
+| Company solvency, merger inevitability | Partial | §13.7, §4.4. A purse per company (`Economy/Companies.cs`): fur sales against goods, freight and wages; it orders the outfit and limits hiring. Two years deep in debt exhausts a company, and the union (`Economy/Union.cs`) follows in any year, as well as on the campaign's `merger` flag. No credit or crisis moves; not yet seen to happen in a long run |
 | Founding a new post | Planned | §13.8 |
 | Alcohol and addiction | Implemented (intoxication) / Planned (addiction, dilution, the Fire Test) | §13.4 |
 
@@ -138,7 +138,7 @@ See [[Asset Inventory]]: 21 character sheets, 6 animal sets, 51 item icons, 37+ 
 
 ## What is missing
 
-Crafting, slavery, decline with age, the Métis/freeman path as a full third road, the Nor'West way of marriage, hit-location combat, company money and solvency, Astor and St. Louis as background nodes, farming by the player, and the eight-year epilogue. See [[Roadmap]] and `docs/audit.md`.
+Crafting, slavery, decline with age, the Métis/freeman path as a full third road, hit-location combat, Accords, winter strain, wound treatment, the fur market's holding back and flooding, Astor and St. Louis as background nodes, farming by the player, and the eight-year epilogue. See [[Roadmap]] and `docs/audit.md`.
 
 ## See also
 

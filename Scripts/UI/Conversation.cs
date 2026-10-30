@@ -116,6 +116,13 @@ public partial class Conversation
         if (_player.Aboard == null) AddOption("Push off", () => { Close(); Net.Net.I?.Act("canoe"); });
         AddOption("Load your goods and furs into her", () => { _text = _player.CanoeLoad(c, true); ShowCanoe(); });
         if (c.Cargo.SlotCount > 0) AddOption("Take everything out", () => { _text = _player.CanoeLoad(c, false); ShowCanoe(); });
+        if (_player.Aboard == null && _player.Carrying == null)
+            AddOption("Shoulder her and carry her over the portage", () =>
+            {
+                string said = _player.ShoulderCanoe(c);
+                if (_player.Carrying == c) { Close(); _player.Say(said); }
+                else { _text = said; ShowCanoe(); }
+            });
         AddOption("Leave her", Close);
     }
 

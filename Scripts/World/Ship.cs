@@ -31,13 +31,13 @@ public partial class Ship : Node2D
     public Message Packet;
     public float DockedHours => _dockedHours;
     // The outfit comes ashore by lighter, a boatload at a time, by daylight:
-    // a ship's hold took the better part of two weeks to land at York. What
-    // the boats have put on the wharf is what men can shoulder from it.
-    private const float LighteringDays = 10f;
-    private float _onWharfLbs, _lighterLbsPerHour;
-    public float OnWharfLbs => _onWharfLbs;
+	// a ship's hold took the better part of two weeks to land at York. What
+	// the boats have put on the wharf is what men can shoulder from it.
+	private const float LighteringDays = 10f;
+	private float _onWharfLbs, _lighterLbsPerHour;
+	public float OnWharfLbs => _onWharfLbs;
 
-    // Take a man's load from what is on the wharf (the hold itself is out of
+	// Take a man's load from what is on the wharf (the hold itself is out of
     // reach). Nothing landed yet: nothing to carry.
     public int Land(Inventory to, float lbs)
     {

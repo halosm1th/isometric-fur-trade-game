@@ -457,7 +457,7 @@ public partial class Net : Node
         {
             if (!IsInstanceValid(a)) continue;
             if (a is Npc bg && bg.Tier == Core.Tier.Background) continue;   // nothing to send about a man who isn't moving
-            arr.Add(new Godot.Collections.Array { a.NetId, a.GlobalPosition.X, a.GlobalPosition.Y, a.NetAnim, a.FlipH, a is PlayerController pl && pl.Aboard != null });
+            arr.Add(new Godot.Collections.Array { a.NetId, a.GlobalPosition.X, a.GlobalPosition.Y, a.NetAnim, a.FlipH, a is PlayerController pl && pl.Aboard != null, a is PlayerController pc && pc.Carrying != null });
             if (arr.Count >= 12) { Rpc(nameof(Snapshot), arr); arr = new Godot.Collections.Array(); }
         }
         if (arr.Count > 0) Rpc(nameof(Snapshot), arr);
@@ -474,6 +474,7 @@ public partial class Net : Node
             if (a == LocalPlayer) continue;   // we own our own movement
             a.ApplyNetSnapshot(new Vector2((float)row[1], (float)row[2]), (string)row[3], (bool)row[4]);
             if (a is PlayerController pp && row.Count > 5) pp.SetAfloatMirror((bool)row[5]);
+            if (a is PlayerController pq && row.Count > 6) pq.SetCarryMirror((bool)row[6]);
         }
     }
 

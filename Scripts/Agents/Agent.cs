@@ -249,6 +249,7 @@ public partial class Agent : CharacterBody2D
         LastAttacker = null; LastAttackedAgo = 999f; Killer = null;
         CollisionLayer = 1; CollisionMask = 1;
         RemoveFromGroup("corpses");
+        CombatFx.ClearPool(this);
     }
 
     // A voyageur carried two 90-lb pieces on a portage; anyone else slows
