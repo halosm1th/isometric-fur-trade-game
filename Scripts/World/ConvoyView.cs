@@ -101,7 +101,7 @@ public partial class ConvoyView : Node2D
 			if (d < MenIn) EnsureMen(c);
 			else if (d > MenOut && c.Men.Count > 0) Convoys.DropMenOf(c);
 			if (d > ViewPx) continue;
-			var at = c.Moving || !c.HasCamp ? where : c.CampAt;
+			var at = c.Moving || !c.HasCamp ? c.Afloat : c.CampAt;
 			var heading = c.Heading;
 			rows.Add(new Godot.Collections.Array { c.Id, at.X, at.Y, heading.X, heading.Y, (int)c.Now, c.Boats, c.Run.Craft.Name, c.Name });
 		}
@@ -320,7 +320,7 @@ public partial class ConvoyView : Node2D
 			}
 			if (stepping) { _riding.Remove(p); Convoys.Leave(p, "You step ashore."); continue; }
 			p.RideId = c.Id;
-			p.SetStartPosition(c.Where + new Vector2(0f, -24f));
+			p.SetStartPosition(c.Afloat + new Vector2(0f, -24f));
 			// The road goes by fast, except while a choice is put to him (World/JourneyIncidents).
 			if (local) { if (p.Conversation.IsOpen) cal.CancelSkip(); else if (cal.SkipRemaining < 0.5f) cal.SkipHours(0.5f - cal.SkipRemaining); }
 			else p.TravellingServer = true;   // a joined player cannot skip the shared day; it marches instead

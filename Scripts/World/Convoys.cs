@@ -160,6 +160,25 @@ public sealed class Convoy
 		}
 	}
 
+	// Where the boats are seen to be: on the water. The road is the atlas's
+	// line and a straight run in to each landing, which crosses marsh and
+	// points of land; under way the boats are drawn on the nearest water to
+	// it (and a rider sits in them there). Remembered by cell, since the
+	// boats creep a cell at a time.
+	public Vector2 Afloat
+	{
+		get
+		{
+			var at = Where;
+			if (Now != ConvoyState.Paddling) return at;
+			var cell = IsoGrid.FromWorld(at);
+			if (cell != _afloatCell) { _afloatCell = cell; _afloatAt = Convoys.WaterNear(cell, 18) is { } w ? IsoGrid.ToWorld(w) : at; }
+			return _afloatAt;
+		}
+	}
+	private Vector2I _afloatCell = new(int.MinValue, 0);
+	private Vector2 _afloatAt;
+
 	public Vector2 Heading => Path.Dir(AlongNow);
 	public float KmToGo => Mathf.Max(0f, Path.Length - Along) / WorldMap.PxPerKm;
 
@@ -277,6 +296,28 @@ public static class Convoys
 		if (name == "Oxford House") return IsoGrid.ToWorld(WorldLayout.RoadHeadOutpost);
 		if (Posts.Named(name) is { } p) return IsoGrid.ToWorld(p.GateOutside);
 		return PostPos(name);
+	}
+
+	// The nearest open-water cell, ring by ring outward; null if none within reach.
+	public static Vector2I? WaterNear(Vector2I c0, int reach)
+	{
+		if (WorldMap.IsWater(c0)) return c0;
+		for (int r = 1; r <= reach; r++)
+		{
+			Vector2I? best = null; float bestD = float.MaxValue;
+			var at = IsoGrid.ToWorld(c0);
+			for (int dx = -r; dx <= r; dx++)
+				for (int dy = -2 * r; dy <= 2 * r; dy++)
+				{
+					if (System.Math.Abs(dx) != r && System.Math.Abs(dy) < 2 * r - 1) continue;   // the ring only
+					var n = new Vector2I(c0.X + dx, c0.Y + dy);
+					if (!WorldMap.InBounds(n) || !WorldMap.IsWater(n)) continue;
+					float d = IsoGrid.ToWorld(n).DistanceTo(at);
+					if (d < bestD) { bestD = d; best = n; }
+				}
+			if (best != null) return best;
+		}
+		return null;
 	}
 
 	// The nearest ground a man can stand on, for a camp or a landing.

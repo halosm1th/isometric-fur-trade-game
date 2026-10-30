@@ -29,7 +29,7 @@ public partial class Conversation
     public Godot.Collections.Dictionary StartStores(Economy.FortLedger fort)
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
-        _npc = null; _stores = fort; _closed = false; _drawing = false; _said = "";
+        _npc = null; _scene = null; _stores = fort; _closed = false; _drawing = false; _said = "";
         ShowStores();
         return State();
     }
@@ -40,7 +40,7 @@ public partial class Conversation
     public Godot.Collections.Dictionary StartWoodpile(Economy.Household pile)
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
-        _npc = null; _stores = null; _pile = pile; _closed = false;
+        _npc = null; _scene = null; _stores = null; _pile = pile; _closed = false;
         ShowWoodpile();
         return State();
     }
@@ -103,7 +103,7 @@ public partial class Conversation
     public Godot.Collections.Dictionary StartCanoe(World.Canoe canoe)
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
-        _npc = null; _stores = null; _pile = null; _canoe = canoe; _closed = false;
+        _npc = null; _scene = null; _stores = null; _pile = null; _canoe = canoe; _closed = false;
         ShowCanoe();
         return State();
     }
@@ -223,7 +223,7 @@ public partial class Conversation
     public Godot.Collections.Dictionary Start(Npc npc)
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc) && _npc != npc) _npc.Conversing = false;
-        _npc = npc; _stores = null; _pile = null; _canoe = null;
+        _npc = npc; _scene = null; _stores = null; _pile = null; _canoe = null;
         _closed = false;
         npc.Conversing = true;
         npc.StopMoving();
@@ -591,10 +591,8 @@ public partial class Conversation
         AddOption("Tell me about yourself", () => ShowTalk(npc, AskAboutThem(npc)));
         AddOption("What's the talk? (rumours)", () => ShowTalk(npc, AskGossip(npc)));
         AddOption("What are you about these days?", () => ShowTalk(npc, AskAbout(npc)));
-        if (canTalk) AddOption("Pass the time with them...", () => ShowPassTime(npc));
-        if (canTalk) AddOption("Try to talk them round...", () => ShowPersuade(npc));
-        if (canTalk) AddOption("Get to know them...", () => ShowAcquaint(npc));
-        if (canTalk) AddOption("Tell them something... (it needn't be true)", () => ShowLieWho(npc, false));
+        // Getting on with them, one door instead of four (the menu was a wall of choices).
+        if (canTalk) AddOption("Spend some time with them...", () => ShowSocial(npc));
         if (canTalk && StoriesAboutMe(npc).Count > 0) AddOption("What are they saying about me?", () => ShowDeny(npc));
         if ((npc.IsBandPerson && npc.Role is Role.Chief or Role.Hunter) || npc.Role is Role.Labourer or Role.Voyageur or Role.NwcPartner)
             AddOption("Where is the game?", () => ShowTalk(npc, AskHunting(npc)));
@@ -614,6 +612,17 @@ public partial class Conversation
             AddOption("What did the council decide?", () => ShowTalk(npc, $"\"{Sim.Nwc.DirectiveText}\""));
         if (npc.IsBandPerson && !canTalk) _text += " (You have only signs and a few words with them.)";
         AddOption("Back", () => ShowTopics(Greeting(npc)));
+    }
+
+    private void ShowSocial(Npc npc)
+    {
+        _text = $"{npc.DisplayName} has a little time.";
+        ClearOptions();
+        AddOption("Pass the time with them...", () => ShowPassTime(npc));
+        AddOption("Get to know them...", () => ShowAcquaint(npc));
+        AddOption("Try to talk them round...", () => ShowPersuade(npc));
+        AddOption("Tell them something... (it needn't be true)", () => ShowLieWho(npc, false));
+        AddOption("Back", () => ShowTalk(npc));
     }
 
     // What the house expects by water, and what it has heard of it (World/Convoys.cs).

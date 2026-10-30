@@ -315,6 +315,24 @@ public partial class PlayerController : Agent
 		else Aboard.Position = GlobalPosition;
 	}
 
+	// The nearest unfrozen water cell to a canoe on the bank, nearest first.
+	private static Vector2I? OpenWaterNear(Vector2I from, int reach)
+	{
+		var t = Sim.Terrain;
+		if (t == null) return null;
+		Vector2I? best = null; float bestD = float.MaxValue;
+		var at = IsoGrid.ToWorld(from);
+		for (int dx = -reach; dx <= reach; dx++)
+			for (int dy = -2 * reach; dy <= 2 * reach; dy++)
+			{
+				var c = new Vector2I(from.X + dx, from.Y + dy);
+				if (!t.IsWater(c)) continue;
+				float d = IsoGrid.ToWorld(c).DistanceTo(at);
+				if (d < bestD) { bestD = d; best = c; }
+			}
+		return best;
+	}
+
 	// Change companies (design doc 1). The people you leave remember it.
 	public void ChangeSides(Faction to, Npc witness)
 	{
@@ -1126,11 +1144,18 @@ public partial class PlayerController : Agent
 			{
 				if (Aboard != null) return "Paddle to a bank to step out.";
 				if (GameCalendar.Instance.IsFrozen) return "The canoes are frozen in till breakup. Walk on the ice.";
-				var canoe = Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 130f);
+				// The same reach as the prompt that offered her.
+				var canoe = Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f);
 				if (canoe == null) return "No canoe here.";
+				// Into her and off the bank onto open water: left standing on
+				// the bank, the next moment counted as landing again and the
+				// push-off came to nothing.
+				var water = OpenWaterNear(IsoGrid.FromWorld(canoe.GlobalPosition), 8);
+				if (water == null) return "She is drawn up too far from the water to push off here.";
+				SetStartPosition(IsoGrid.ToWorld(water.Value));
 				canoe.SetState(GlobalPosition, NetId);
 				Aboard = canoe;
-				return "You push off. Paddle onto the water; step onto any bank to land.";
+				return "You push off. Paddle with the movement keys; step onto any bank to land.";
 			}
 			case "dev_teleport":
 				if (!OS.IsDebugBuild()) return "";
