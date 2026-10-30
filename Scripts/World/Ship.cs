@@ -30,6 +30,9 @@ public partial class Ship : Node2D
 	// London's packet, aboard till the bos'n carries it up (design doc 10.1.2).
     public Message Packet;
     public float DockedHours => _dockedHours;
+    // Lying to off the coast (the prologue aboard her, Core/Starts): she
+    // stands in only when told to.
+    public bool HeldOffshore;
     public bool OrdersRead => _ordersRead;
 
     // Put her back where a save left her.
@@ -39,6 +42,7 @@ public partial class Ship : Node2D
         Cargo.Clear(); foreach (var (id, n) in cargo.All()) Cargo.Add(id, n);
         Hold.Clear(); foreach (var (id, n) in hold.All()) Hold.Add(id, n);
         _dockedHours = dockedHours; _ordersRead = ordersRead;
+        _leg = -1;   // found again from where she lies
         Crew.Clear();
     }
 
@@ -58,7 +62,7 @@ public partial class Ship : Node2D
     {
         _population = GetTree().GetFirstNodeInGroup("population") as Population;
         // Dev aid: `-- --ship` brings her in at once.
-        foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--ship") { Summon(); Position = WorldLayout.ShipBerth + new Vector2(400, -100); }
+        foreach (string arg in OS.GetCmdlineUserArgs()) if (arg == "--ship") { Summon(); Position = Route[^2]; _leg = Route.Count - 1; }
     }
 
     private void OnCalendarEvent(string name)
@@ -91,12 +95,99 @@ public partial class Ship : Node2D
 		float order = Economy.Companies.Order(Faction.HBC, Economy.Outfits.YearMb);
 		foreach (var (id, mb) in Sim.Fort != null ? Economy.PostWants.YearOrder(Sim.Fort) : new System.Collections.Generic.List<(ItemId, float)>(Economy.Outfits.Mix))
 			Cargo.Add(id, Mathf.RoundToInt(mb * order / 100f / Items.Items.Of(id).ValueMb));
-		Position = WorldLayout.ShipOffscreen;
+		Position = Route[0];
+		_leg = 1;
 		Visible = true;
 		Current = State.Arriving;
 		_ordersRead = false;
 		if (Sim.Fort != null) Packet = Letters.Directive(Sim.Fort.LondonIncentiveNext, Sim.Fort.QuotaNextMb, GameCalendar.Instance?.Year ?? 1811);
 		Sim.Notice("A sail on the bay: the ship from England is standing in.");
+	}
+
+	// The new hand's last day of the crossing: out in the Bay where her
+	// way in begins, waiting on the morning tide.
+	public void StandOffshore()
+	{
+		Summon();
+		HeldOffshore = true;
+	}
+
+	// In on the morning tide and fast at the wharf.
+	public void ComeIn()
+	{
+		HeldOffshore = false;
+		if (Current != State.Arriving) return;
+		Position = WorldLayout.ShipBerth;
+		_leg = Route.Count;
+		Dock();
+	}
+
+	// ---- her way in -------------------------------------------------------
+
+	// From the open Bay, in at the mouth of the Hayes and up to the wharf,
+	// by water all the way (she once sailed a straight line in over the
+	// marsh). Found once, the first time she sails: a search outward along
+	// the water from the berth to sea that is open all round and well out.
+	private static List<Vector2> _route;
+	private int _leg;   // the point of Route she is making for
+	public static List<Vector2> Route => _route ??= SeaRoute();
+	private const float OffingReach = 8000f;   // px out from the wharf, beyond sight of the post
+
+	private static List<Vector2> SeaRoute()
+	{
+		var berth = WorldLayout.ShipBerth;
+		var start = IsoGrid.FromWorld(berth);
+		var prev = new Dictionary<Vector2I, Vector2I> { [start] = start };
+		var open = new Queue<Vector2I>();
+		open.Enqueue(start);
+		Vector2I? offing = null;
+		while (open.Count > 0 && prev.Count < 2_000_000)
+		{
+			var c = open.Dequeue();
+			if (WorldMap.IsSea(c) && IsoGrid.ToWorld(c).DistanceTo(berth) > OffingReach && OpenSea(c)) { offing = c; break; }
+			foreach (var n in Water(c))
+			{
+				if (prev.ContainsKey(n) || !WorldMap.InBounds(n) || !WorldMap.IsWater(n)) continue;
+				prev[n] = c;
+				open.Enqueue(n);
+			}
+		}
+		if (offing == null)
+		{
+			GD.PushWarning("Ship: no way to the sea from the wharf; she comes in from the old offing.");
+			return new List<Vector2> { WorldLayout.ShipOffscreen, berth };
+		}
+		var cells = new List<Vector2I>();
+		for (var c = offing.Value; c != start; c = prev[c]) cells.Add(c);
+		// Every few cells is enough to steer by, and the berth last.
+		var pts = new List<Vector2>();
+		for (int i = 0; i < cells.Count; i += 4) pts.Add(IsoGrid.ToWorld(cells[i]));
+		pts.Add(berth);
+		return pts;
+	}
+
+	// Cells sharing an edge, and those touching at a corner: a river one
+	// cell wide runs corner to corner as often as edge to edge.
+	private static IEnumerable<Vector2I> Water(Vector2I c)
+	{
+		foreach (var n in IsoGrid.EdgeNeighbours(c)) yield return n;
+		foreach (var n in IsoGrid.CornerNeighbours(c)) yield return n;
+	}
+
+	private static bool OpenSea(Vector2I c)
+	{
+		for (int dx = -4; dx <= 4; dx++)
+			for (int dy = -8; dy <= 8; dy++)
+				if (!WorldMap.IsSea(new Vector2I(c.X + dx, c.Y + dy))) return false;
+		return true;
+	}
+
+	// The leg she is on, if a save put her somewhere along the way.
+	private int NearestLeg()
+	{
+		int best = 0; float bd = float.MaxValue;
+		for (int i = 0; i < Route.Count; i++) { float d = Route[i].DistanceSquaredTo(Position); if (d < bd) { bd = d; best = i; } }
+		return best;
 	}
 
 	public void Depart()
@@ -113,6 +204,7 @@ public partial class Ship : Node2D
 		foreach (var c in Crew) if (c != null && IsInstanceValid(c)) c.QueueFree();
 		Crew.Clear();
 		Current = State.Departing;
+		_leg = Route.Count - 2;
 		Npc factor = null; foreach (var n in Sim.Npcs) if (n.Role == Role.Factor && !n.IsDead) factor = n;
 		// A Factor with little loyalty and some ambition shades the books:
 		// a share of the furs never reaches the hold (design doc 3.9 step 8).
@@ -210,12 +302,27 @@ public partial class Ship : Node2D
 		switch (Current)
 		{
 			case State.Arriving:
-				Position = Position.MoveToward(WorldLayout.ShipBerth, step);
-				if (Position.DistanceTo(WorldLayout.ShipBerth) < 1f) Dock();
+				if (HeldOffshore) break;
+				if (_leg <= 0 || _leg > Route.Count) _leg = Mathf.Min(NearestLeg() + 1, Route.Count);
+				while (step > 0f && _leg < Route.Count)
+				{
+					float d = Position.DistanceTo(Route[_leg]);
+					Position = Position.MoveToward(Route[_leg], step);
+					step -= d;
+					if (step >= 0f) _leg++;
+				}
+				if (_leg >= Route.Count) Dock();
 				break;
 			case State.Departing:
-				Position = Position.MoveToward(WorldLayout.ShipOffscreen, step);
-				if (Position.DistanceTo(WorldLayout.ShipOffscreen) < 1f) { Current = State.Away; Visible = false; }
+				if (_leg < 0 || _leg >= Route.Count) _leg = Mathf.Max(NearestLeg() - 1, 0);
+				while (step > 0f && _leg >= 0)
+				{
+					float d = Position.DistanceTo(Route[_leg]);
+					Position = Position.MoveToward(Route[_leg], step);
+					step -= d;
+					if (step >= 0f) _leg--;
+				}
+				if (_leg < 0) { Current = State.Away; Visible = false; }
 				break;
 			case State.Docked:
 				_dockedHours += cal.DeltaGameHours;

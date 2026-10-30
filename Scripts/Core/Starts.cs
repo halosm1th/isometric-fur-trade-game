@@ -91,10 +91,11 @@ public static class Starts
 
     private static ScenePage Ship(Player.PlayerController p, Population pop, bool dating)
     {
-        // The ship comes in: she ties up this morning with you aboard. A man
+        // The ship lies off the coast with you aboard and comes in on the
+        // morning tide, when you turn in (Arrive). A man
         // joining a world already running comes when it is: if the ship isn't
         // in the roads, he came round from Churchill in the Company's sloop.
-        if (dating && Sim.Ship != null && Sim.Ship.Current == World.Ship.State.Away) { Sim.Ship.Summon(); Sim.Ship.Position = WorldLayout.ShipBerth + new Vector2(300, -80); }
+        if (dating && Sim.Ship != null && Sim.Ship.Current == World.Ship.State.Away) Sim.Ship.StandOffshore();
         bool bySloop = Sim.Ship == null || Sim.Ship.Current is not (World.Ship.State.Arriving or World.Ship.State.Docked);
         var land = IsoGrid.ToWorld(WorldLayout.WharfEnd);
         // Aboard her, out in the roads, for as long as the prologue lasts.
@@ -189,7 +190,12 @@ public static class Starts
             return new ScenePage { Title = clerk, Text = $"\"Good lad.\" {clerk} hands you an oilskin packet tied with tape. \"Into {factor}'s own hand, mind. Not the clerk's.\"" }.Add("Back", Churchill);
         }
 
-        ScenePage Arrive() => new ScenePage { Title = "York Factory", Text = $"Morning. The {(bySloop ? "sloop" : "ship")} comes up the Hayes on the tide and makes fast at the Factory's wharf. Palisade, flag, smoke from the chimneys, and every soul in the place come down to the shore. Your first order is in your pocket: report to {factor}." }
+        ScenePage Arrive()
+        {
+            if (!bySloop) Sim.Ship?.ComeIn();
+            return ArrivePage();
+        }
+        ScenePage ArrivePage() => new ScenePage { Title = "York Factory", Text = $"Morning. The {(bySloop ? "sloop" : "ship")} comes up the Hayes on the tide and makes fast at the Factory's wharf. Palisade, flag, smoke from the chimneys, and every soul in the place come down to the shore. Your first order is in your pocket: report to {factor}." }
             .Add("Step ashore", () =>
             {
                 // Now he is ashore: on the planks, by his own act.

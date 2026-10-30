@@ -192,6 +192,7 @@ public static class Posts
             if (spawnCast) SpawnCast(p);
             changed = true;
         }
+        if (changed) Sim.Structures?.RebuildCollisionNow();
         if (changed) Net.Net.I?.BroadcastPosts(StandingNames());
     }
 
@@ -205,7 +206,9 @@ public static class Posts
     // Client: the server's word on which posts stand.
     public static void ApplyStanding(string[] names)
     {
-        foreach (var n in names) if (Named(n) is { Standing: false } p) Raise(p);
+        bool changed = false;
+        foreach (var n in names) if (Named(n) is { Standing: false } p) { Raise(p); changed = true; }
+        if (changed) Sim.Structures?.RebuildCollisionNow();
     }
 
     private static void Raise(TradingPost p)
@@ -213,7 +216,7 @@ public static class Posts
         if (_host == null || p.Standing) return;
         p.Ledger = new TradingPostLedger { Name = $"Post_{p.Name.Replace(' ', '_').Replace('.', '_').Replace('\'', '_')}", Post = p };
         _host.AddChild(p.Ledger);
-        Sim.Structures?.PaintPost(p, true);
+        Sim.Structures?.PaintPost(p, true, collide: false);
     }
 
     // A post founded in play gets its people now (their markers name it).

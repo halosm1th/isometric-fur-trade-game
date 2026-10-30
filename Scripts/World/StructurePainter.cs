@@ -338,8 +338,11 @@ public partial class StructurePainter : TileMapLayer
     }
 
     // One of the wider country's posts: palisade, house, woodpile. In a game
-    // it gets its hearth and roof too; in the editor just the tiles.
-    public void PaintPost(TradingPost p, bool live)
+    // it gets its hearth and roof too; in the editor just the tiles. Raising
+    // many at once (Posts.Sync), the caller rebuilds collision once after:
+    // a rebuild per post redid every shape in the world each time, and with
+    // the dozens standing at the start it was most of the load.
+    public void PaintPost(TradingPost p, bool live, bool collide = true)
     {
         PaintPalisadeAt(p.Top, p.Width, p.Depth, p.GateOffset);
         PaintBuilding(p.House, _floor ?? this);
@@ -367,7 +370,7 @@ public partial class StructurePainter : TileMapLayer
                 host.AddChild(roof);
             }
         }
-        RebuildCollision();
+        if (collide) RebuildCollision();
     }
 
     // A town (World/Towns): its garrison's palisade, every building with its
@@ -808,15 +811,19 @@ public partial class StructurePainter : TileMapLayer
         if (!_camps.TryGetValue(band, out var from)) from = GeneratedCamps.GetValueOrDefault(band, WorldLayout.WinterCamp);
         if (from == to) return;
         var net = Net.Net.I;
+        // Collision is redone on these cells alone, not the whole world's.
+        var touched = new List<Vector2I>();
         foreach (var (cell, _) in CampCells(from))
         {
             EraseCell(cell);
+            touched.Add(cell);
             net?.BroadcastCell(0, cell, -1);
             if (_hearthByCell.TryGetValue(cell, out var old)) RemoveHearth(old, cell);
         }
         foreach (var (cell, source) in CampCells(to))
         {
             SetBack(cell, source);
+            touched.Add(cell);
             net?.BroadcastCell(0, cell, source);
             if (source == SourceCampfire)
             {
@@ -825,7 +832,7 @@ public partial class StructurePainter : TileMapLayer
             }
         }
         _camps[band] = to;
-        RebuildCollision();
+        foreach (var cell in touched) RebuildCollisionAt(cell);
         Sim.Paths?.Invalidate();
     }
 
@@ -870,7 +877,7 @@ public partial class StructurePainter : TileMapLayer
         if (IsSheltered(MapToLocal(cell))) return null;
         SetBack(cell, SourceCampfire);
         _campfires.Add(cell);
-        RebuildCollision();
+        RebuildCollisionAt(cell);
         Net.Net.I?.BroadcastCell(0, cell, SourceCampfire);
         return EnsureHearth(cell, 0f);
     }
