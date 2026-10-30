@@ -76,14 +76,14 @@ public static class LangDocs
 		new("id", "string", "The step's id, if it is not to be its name."),
 		new("text", "string", "What the player is told to do, on the screen and in the journal."),
 		new("who", "Person", "talk, bring: the person (a name, Person.Factor, or a role at a place: \"leader@Edmonton House\", \"chief@<camp>\", \"partner@Fort Augustus\"; at a garrisoned town or its fort, \"officer@Fort George\", \"sergeant@York\", \"soldier@York\")."),
-		new("place", "string", "reach: a post, a camp, a town or its fort, or a place on the map."),
+		new("place", "string", "reach: where to go (a post, a camp, a town or its fort, a place on the map). On a task, hunt, when or wait step: where the HUD points the player, without limiting anything."),
 		new("radius", "int", "reach: how near counts as there, in pixels (default 400)."),
 		new("item", "Item", "bring, have: what."),
-		new("count", "int", "bring, have: how many; task: how much of the work; hunt: how many beasts (default 1)."),
+		new("count", "int", "How many: things to bring or hold, units of the work for a task, kills for a hunt. Default 1."),
 		new("task", "Task", "task: the work handed out, as the Factor would (Task.CarryCargo ...)."),
 		new("convoy", "string", "task Task.Brigade: the brigade run to go with."),
 		new("dest", "string", "task Task.Brigade: where the boats are bound (default: the run's next landing)."),
-		new("species", "string", "hunt: what to kill (Buffalo, Caribou ...; empty for anything)."),
+		new("species", "string", "hunt: the animal to kill, in quotes (\"Buffalo\", \"Caribou\", \"Elk\" ...). Leave it out to count any animal."),
 		new("days", "int", "wait: how many days."),
 		new("next", "Step", "Where the quest goes after this step (another step, \"complete\" or \"fail\"); default the next one written."),
 	};
@@ -95,6 +95,54 @@ public static class LangDocs
 		new("goto", "Step", "Where the quest goes when this is chosen (a step, \"complete\" or \"fail\"); default the step after."),
 	};
 	public static readonly string[] StepKinds = { "talk", "reach", "task", "bring", "have", "hunt", "when", "wait" };
+
+	// Each kind of step on its own, for the reference: what finishes it, what it
+	// takes beyond id, text and next, what to know, and an example.
+	public sealed record StepDoc(string Kind, string DoneWhen, Arg[] Args, string Notes, string Example);
+	public static readonly StepDoc[] Steps =
+	{
+		new("talk", "The player speaks to the person and raises it (and picks a choice, if the step has any).",
+			new Arg[] { new("who", "Person", "Required. Who to speak to: a name, Person.Factor, or a role at a place (\"leader@Edmonton House\").") },
+			"Can hold `Says`, `choice`s and `OnDone`. With choices, the step is done when one is picked, and only choices whose `when` holds are offered; if none does, the step waits.",
+			"talk Report(who: Person.Factor, text: \"Report to Mr. Auld\") {\n    Says() => \"\\\"Can you carry?\\\"\";\n}"),
+		new("reach", "The player comes within `radius` of the place.",
+			new Arg[] { new("place", "string", "Required. A post, a camp, a town (its middle), a fort (its parade), or a place on the map."),
+				new("radius", "int", "How near counts, in pixels. Default 400.") },
+			"Measured from a post's door, the middle of a camp or town, or a fort's parade ground.",
+			"reach Inland(place: \"Edmonton House\", radius: 300);"),
+		new("task", "The player has done `count` units of the work.",
+			new Arg[] { new("task", "Task", "Required. The work, one of the Factor's own tasks (Task.CarryCargo ...)."),
+				new("count", "int", "How much of the work: lots carried, loads of wood, letters delivered. Default 1."),
+				new("convoy", "string", "Task.Brigade only, and required there: the brigade run to go with."),
+				new("dest", "string", "Task.Brigade only: the post to go to. Default where the boats are bound.") },
+			"When the step begins the player is given the task, as if the Factor had ordered it. The same work done for a Factor's own order that day counts too.",
+			"task Unload(task: Task.CarryCargo, count: 6);"),
+		new("bring", "The player hands the things to the person, from a conversation with them.",
+			new Arg[] { new("who", "Person", "Required. Who to give them to."),
+				new("item", "Item", "Required. What to give."),
+				new("count", "int", "How many. Default 1.") },
+			"The things leave the player's pack, and the person thinks better of the player (rapport +4). If the player has fewer than `count`, nothing is taken and the step waits.",
+			"bring Tobacco(who: \"chief@Beaver Hills Cree (Amiskwacîwiyiniwak)\", item: Item.Tobacco, count: 2);"),
+		new("have", "The player's pack holds `count` of the item.",
+			new Arg[] { new("item", "Item", "Required. What to hold."),
+				new("count", "int", "How many. Default 1.") },
+			"Done the moment the pack holds enough, even if it already did when the step began. Nothing is taken: follow it with a `bring` to have them handed over.",
+			"have Pelts(item: Item.BeaverPelt, count: 10);"),
+		new("hunt", "The player has killed `count` animals of the species since the step began.",
+			new Arg[] { new("species", "string", "The animal, in quotes: \"Caribou\", \"Goose\", \"Beaver\", \"Wolf\", \"Hare\", \"Ptarmigan\", \"Buffalo\" or \"Elk\" (any case). Leave it out to count any animal."),
+				new("count", "int", "How many kills. Default 1."),
+				new("place", "string", "Where the HUD points the player while the step is under way (a post, a camp, a place on the map). It does not limit where the kill is made.") },
+			"Only the player's own killing blow counts: an animal a companion or a hired hunter kills does not, nor one caught in a snare. Kills made before the quest reached this step do not count. One kill counts for every quest waiting on that species at once. The checker errors on a species the game does not have, since no kill would ever match it.",
+			"hunt Buffalo(species: \"Buffalo\", count: 2, place: \"Fort Souris\");"),
+		new("when", "The condition holds.",
+			new Arg[] { new("place", "string", "Where the HUD points the player while the step is under way. Optional.") },
+			"Written short, `when Name(text: \"...\") => condition;`, or long, with a `Done() => condition;` hook in a block. Asked every few moments.",
+			"when Ready(text: \"Wait for the brigade to come in\") => SevenOaks.done;"),
+		new("wait", "`days` days have passed since the step began.",
+			new Arg[] { new("days", "int", "Required. How many days.") },
+			"Counts game days from the day the quest reached this step.",
+			"wait Winter(days: 30, text: \"Winter at the post\");"),
+	};
 
 	public static readonly Arg[] BeatArgs =
 	{
@@ -176,7 +224,15 @@ public static class LangDocs
 		}
 		Table("Questline header", LineArgs);
 		Table("Quest header", QuestArgs);
-		Table($"Step header ({string.Join(", ", StepKinds)})", StepArgs);
+		sb.Append("\n## Steps\n\nA quest is a list of steps, worked one after another. Every step, whatever its kind, takes these:\n\n| Argument | Type | What it is |\n|---|---|---|\n");
+		foreach (var a in StepArgs.Where(a => a.Name is "id" or "text" or "next")) sb.Append($"| `{a.Name}` | `{a.Type}` | {a.Summary} |\n");
+		sb.Append("\nEach kind then takes its own:\n");
+		foreach (var s in Steps)
+		{
+			sb.Append($"\n### `{s.Kind}`\n\n**Done when:** {s.DoneWhen}\n\n| Argument | Type | What it is |\n|---|---|---|\n");
+			foreach (var a in s.Args) sb.Append($"| `{a.Name}` | `{a.Type}` | {a.Summary} |\n");
+			sb.Append($"\n{s.Notes}\n\n```c\n{s.Example}\n```\n");
+		}
 		Table("Choice header", ChoiceArgs);
 		sb.Append("\n## Quest and step hooks\n\n| Hook | Kind | What it does |\n|---|---|---|\n");
 		foreach (var h in QuestHooks.Concat(StepHooks)) sb.Append($"| `{h.Name}()` | {(h.Condition ? "condition (`=>`)" : "effects (`{ }`)")} | {h.Summary} |\n");

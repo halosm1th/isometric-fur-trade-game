@@ -108,7 +108,7 @@ public static class Lies
         }
     }
 
-    public static void Reset() { _housesTold.Clear(); _lastLieDay.Clear(); _lastAgainst.Clear(); _knownLiars.Clear(); }
+    public static void Reset() { _housesTold.Clear(); _lastLieDay.Clear(); _lastAgainst.Clear(); _knownLiars.Clear(); _fellRaiding.Clear(); }
 
     // ---- NPCs lie too ------------------------------------------------------------------
 
@@ -259,6 +259,41 @@ public static class Lies
             return $"\"{Barks.CallName(m.Liar)}, is it?\" {n.DisplayName} puts the story about how {about} out of his head - and thinks a good deal less of {Barks.CallName(m.Liar)}.";
         }
         return $"{n.DisplayName} hears you out and lets the story about how {about} go.";
+    }
+
+    // Men who were killed raiding a house, and whose house it was. Owning
+    // such a killing to a man of that house is owning that you stood to.
+    private static readonly Dictionary<string, Faction> _fellRaiding = new();
+    public static void FellRaiding(string name, Faction house) { if (!string.IsNullOrEmpty(name)) _fellRaiding[name] = house; }
+    public static bool WasDefence(Npc n, MemoryEntry m)
+    {
+        if (m.Liar != null || !(m.Text.Contains(" killed ") || m.Text.Contains(" struck "))) return false;
+        foreach (var (name, house) in _fellRaiding) if (house == n.Faction && m.Text.Contains(name)) return true;
+        return false;
+    }
+
+    // The player says yes, he did it. A blow struck or a man killed who was
+    // robbing this listener's own house is to his credit, and the story goes
+    // round now as a thing well done. A true misdeed owned is still a
+    // misdeed, but he thinks a little better of a man who doesn't lie to him.
+    public static string Own(Npc n, Player.PlayerController p, MemoryEntry m)
+    {
+        n.Recalled.Add("denied|" + m.Key);   // it is said and done with; not raised again
+        bool defended = (m.Text.Contains(" killed ") || m.Text.Contains(" struck ")) && m.Liar == null;
+        string victim = null;
+        if (defended)
+            foreach (var (name, house) in _fellRaiding)
+                if (house == n.Faction && m.Text.Contains(name)) { victim = name; break; }
+        if (victim != null)
+        {
+            n.Memories.Remove(m);
+            n.ChangeRapport(p, 6f * m.Weight);
+            if (n.HomeStores?.Leader == n) p.Standing += 3f;
+            return $"\"Aye. I did.\" {n.DisplayName} nods slowly. \"{Barks.CallName(victim)} came over our wall for our stores, with a gun in his hand. You did what a man of this house ought to have done - and what precious few of them did.\"";
+        }
+        if (m.Liar != null) { n.ChangeRapport(p, -4f); return $"\"Aye, I did,\" you say - though you didn't. {n.DisplayName} looks at you strangely and believes you."; }
+        n.ChangeRapport(p, 1f);
+        return $"\"Aye. I did.\" {n.DisplayName} looks at you a long moment. \"Well. At least you'll not lie to me about it.\"";
     }
 
     private static string Personal(string text, Agent p) => Barks.YouForm(text, p.DisplayName).TrimEnd('.') + ".";

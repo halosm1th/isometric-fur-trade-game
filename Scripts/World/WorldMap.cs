@@ -7,6 +7,11 @@ namespace IsometricFurTradeGame.Scripts.World;
 // What the ground is, by ecozone (design doc 6) or water.
 public enum Ground : byte { Ocean, Lake, River, Ford, Boreal, Tundra, Shield, Parkland, Grassland, TallGrass, LakesForest, Cordillera, Lowland }
 
+// How deep a water cell is: shallows a man can wade (bars in a river, the
+// edges of lakes, the Bay's tidal flats), water over his head, and the
+// white water the portages go round.
+public enum Depth : byte { Dry, Shallow, Deep, Rapids }
+
 public readonly record struct WorldPlace(string Name, string Kind, string Company, int Year, Vector2I Cell, double Lon, double Lat, string Note);
 
 // The whole play area (design doc 6.1) at 40 world px a km (px_per_km in
@@ -104,6 +109,9 @@ public static class WorldMap
         if (_layout.TryGetValue("crossings", out var cr))
             foreach (var v in cr.AsGodotArray()) { var a = v.AsGodotArray(); Set(new Vector2I(a[0].AsInt32(), a[1].AsInt32()), Ground.Ford); }
 
+        _landmarks = null; _routes = null;
+        MeasureDepth();
+
         Places.Clear();
         foreach (var v in meta["places"].AsGodotArray())
         {
@@ -126,6 +134,58 @@ public static class WorldMap
     public static Ground At(Vector2I c) => InBounds(c) ? (Ground)_ground[c.Y * Columns + c.X] : Ground.Ocean;
     public static bool IsWater(Vector2I c) => At(c) is Ground.Ocean or Ground.Lake or Ground.River;
     public static bool IsSea(Vector2I c) => At(c) == Ground.Ocean;
+
+    // ---- depth ------------------------------------------------------------------
+
+    private static byte[] _depth = new byte[1];
+    public static Depth DepthAt(Vector2I c) => InBounds(c) && _depth.Length == _ground.Length ? (Depth)_depth[c.Y * Columns + c.X] : IsWater(c) ? Depth.Deep : Depth.Dry;
+    // Water a man on foot can cross: slow, and he comes out wet.
+    public static bool IsShallow(Vector2I c) => DepthAt(c) == Depth.Shallow;
+    public static bool IsRapids(Vector2I c) => DepthAt(c) == Depth.Rapids;
+
+    // The atlas has no soundings, so depth is read off the shape of the
+    // water. Water at the edge is shallow in places - a gravel bar here, a
+    // sandy point there, the same cells every game - more often in a river
+    // than a lake, and along most of the Bay shore, where the tide goes out
+    // for miles. Everything further out is over your head. A river beside a
+    // carrying place runs white: that is why the portage is there.
+    private static void MeasureDepth()
+    {
+        _depth = new byte[Columns * Rows];
+        for (int y = 0; y < Rows; y++)
+            for (int x = 0; x < Columns; x++)
+            {
+                var c = new Vector2I(x, y);
+                var g = At(c);
+                if (g is not (Ground.Ocean or Ground.Lake or Ground.River)) continue;
+                bool edge = false;
+                foreach (var n in IsoGrid.EdgeNeighbours(c)) if (InBounds(n) && !IsWater(n)) { edge = true; break; }
+                float chance = g == Ground.River ? 0.45f : g == Ground.Lake ? 0.25f : 0.55f;
+                _depth[y * Columns + x] = (byte)(edge && Scatter(x, y) < chance ? Depth.Shallow : Depth.Deep);
+            }
+        foreach (var l in Landmarks())
+        {
+            if (l.Kind != "portage") continue;
+            var at = IsoGrid.FromWorld(l.At);
+            for (int dy = -4; dy <= 4; dy++)
+                for (int dx = -2; dx <= 2; dx++)
+                {
+                    var c = new Vector2I(at.X + dx, at.Y + dy);
+                    if (At(c) == Ground.River) _depth[c.Y * Columns + c.X] = (byte)Depth.Rapids;
+                }
+        }
+        int shallow = 0, white = 0;
+        foreach (var d in _depth) { if (d == (byte)Depth.Shallow) shallow++; else if (d == (byte)Depth.Rapids) white++; }
+        GD.Print($"[world] depth: {shallow} shallow cells, {white} of white water");
+    }
+
+    // A fixed 0..1 per cell, so the shallows lie where they lay last game.
+    private static float Scatter(int x, int y)
+    {
+        uint h = (uint)(x * 73856093) ^ (uint)(y * 19349663);
+        h ^= h >> 13; h *= 0x5bd1e995; h ^= h >> 15;
+        return (h & 0xFFFFFF) / 16777216f;
+    }
 
     // Within `rings` cells of open water of the given kind (beaches, banks).
     public static bool Near(Vector2I c, Func<Ground, bool> kind, int rings = 1)

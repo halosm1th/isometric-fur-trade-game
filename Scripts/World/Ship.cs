@@ -30,6 +30,22 @@ public partial class Ship : Node2D
 	// London's packet, aboard till the bos'n carries it up (design doc 10.1.2).
     public Message Packet;
     public float DockedHours => _dockedHours;
+    // The outfit comes ashore by lighter, a boatload at a time, by daylight:
+	// a ship's hold took the better part of two weeks to land at York. What
+	// the boats have put on the wharf is what men can shoulder from it.
+	private const float LighteringDays = 10f;
+	private float _onWharfLbs, _lighterLbsPerHour;
+	public float OnWharfLbs => _onWharfLbs;
+
+	// Take a man's load from what is on the wharf (the hold itself is out of
+    // reach). Nothing landed yet: nothing to carry.
+    public int Land(Inventory to, float lbs)
+    {
+        float before = Cargo.TotalWeightLbs;
+        int moved = Cargo.MoveByWeight(to, Mathf.Min(lbs, _onWharfLbs));
+        _onWharfLbs = Mathf.Max(0f, _onWharfLbs - (before - Cargo.TotalWeightLbs));
+        return moved;
+    }
     // Lying to off the coast (the prologue aboard her, Core/Starts): she
     // stands in only when told to.
     public bool HeldOffshore;
@@ -327,6 +343,9 @@ public partial class Ship : Node2D
 			case State.Docked:
 				_dockedHours += cal.DeltaGameHours;
 				_ordersRead = true;
+				if (_lighterLbsPerHour <= 0f) _lighterLbsPerHour = Mathf.Max(60f, Cargo.TotalWeightLbs / (LighteringDays * 14f));
+				if (cal.Hour is >= 5f and < 19f && Cargo.SlotCount > 0)
+					_onWharfLbs = Mathf.Min(Cargo.TotalWeightLbs, _onWharfLbs + _lighterLbsPerHour * cal.DeltaGameHours);
 				break;
 		}
 	}
@@ -336,6 +355,8 @@ public partial class Ship : Node2D
 		_population?.LandRecruits(6, Economy.Companies.Hires(Faction.HBC, 6));
 		Current = State.Docked;
 		_dockedHours = 0f;
+		_lighterLbsPerHour = Mathf.Max(60f, Cargo.TotalWeightLbs / (LighteringDays * 14f));
+		_onWharfLbs = Mathf.Min(Cargo.TotalWeightLbs, _lighterLbsPerHour * 2f);   // the first boatload is waiting
 		Sim.Notice("The ship is alongside the wharf. All hands to the landing.");
 		Agents.Chronicle.Shared(Sim.Fort, "the ship came in to the wharf, and everyone ran to the shore", 1.3f);
 		if (_population != null)

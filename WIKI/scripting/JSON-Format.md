@@ -86,6 +86,8 @@ Notice how `&&` at the top of a condition hook becomes a list (every item must h
 | `extends` | string | header `extends:` | another campaign's id whose beats are played too |
 | `start` | `YYYY-MM-DD` | header `start:` | the world's first day, on every starting path |
 | `start_year` | number | header `startYear:` | the year the world begins (each path keeps its day) |
+| `start_path` | `HBC` `NWC` `Cree` `Assiniboine` `Nation` `American` `Crown` | header `startPath:` | every player's road in |
+| `start_at` | string | header `startAt:` | where every new character is set down: a post, town, fort, camp or place |
 | `questlines` | list | `questline ...` | what the campaign asks of players: [[JSON-Format#Quest lines|below]] |
 | `vars` | object | `int x = 3;` | variables that start at something other than 0 |
 | `beats` | list | `beat ...` | the beats, in order (the order matters: see [[Beats-and-the-Lifecycle#One day, in order|one day, in order]]) |
@@ -159,7 +161,8 @@ Arguments in the compact form are split on commas and cannot contain `(`, `)` or
 | `month` | `6` or `6-8` or `11-3` | the month is in the range (wrapping the year's end) | `world.inMonths(...)` |
 | `post` | a post | it stands | `world.hasPost(...)` |
 | `dead` | a person's exact name | they are dead | `world.isDead(...)` |
-| `player_faction` | `HBC` or `NWC` | a player works for it | `world.playerFaction == ...` |
+| `player_faction` | `HBC`, `NWC`, `American`, `Crown` or `Free` | a player is on that side | `world.playerFaction == ...` |
+| `deserted` | (none: `{ "p": "deserted", "a": [] }`) | the player is a wanted deserter (from a beat: any player) | `player.deserted` |
 | `season` | `Winter` `Breakup` `OpenWater` `FreezeUp` | it is that season | `world.season == ...` |
 | `convoy_late`, `convoy_lost`, `convoy_robbed`, `convoy_turned_back`, `convoy_out`, `convoy_in` | a run | the flag `late:<run>` (and so on) is raised | `brigade("...").isLate` ... |
 | `convoy_wintering` | a run | its crossing is frozen in on the way | `.isWintering` |
@@ -206,7 +209,7 @@ Every action is an object with `"do"`. A list of actions runs in order. The firs
 | `found_post` | `place` | `world.foundPost` |
 | `stock` | `post`, `item`, `add` | `world.addStock` |
 | `news` | `from` ("Montreal"), `to` (the Factor), `subject` (the beat's title), `text`, `days` (30), `company` ("HBC") | `news(...)` |
-| `say` | `text`, `to` (`all`, `HBC` or `NWC`; default `all`), `headline` (`true` for a shout) | `say`, `shout` |
+| `say` | `text`, `to` (`all`, `HBC`, `NWC`, `American`, `Crown` or `Free`; default `all`), `headline` (`true` for a shout) | `say`, `shout` |
 | `brigade` | `run`, `effect` (`delay` by default, `turn_back`, `lose`, `cancel`, `launch`), `days`, `leg` | `brigade("...").delay()` ... |
 | `posting` | `place` | `player.postTo` |
 | `standing` | `add` | `player.addStanding` |
@@ -215,6 +218,8 @@ Every action is an object with `"do"`. A list of actions runs in order. The firs
 | `give` | `item`, `count` (1) | `player.give` |
 | `take` | `item`, `count` (1) | `player.take` |
 | `note` | `text` | `player.note` |
+| `desert` | `to` (`HBC`, `NWC`, `American` or `Crown`; leave it out for nobody's) | `player.desert` |
+| `pardon` | | `player.pardon` |
 | `start_quest` | `quest` | `Q.start()` |
 | `end_quest` | `quest`, `failed` (`true` to fail it) | `Q.complete()`, `Q.fail()` |
 

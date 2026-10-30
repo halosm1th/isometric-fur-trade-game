@@ -90,7 +90,9 @@ public static partial class Checker
 				if (o.ContainsKey("place") && !KnownPlace(S("place"), world)) rep.Error(sw, $"'{S("place")}' is not a post, a camp or a place on the map");
 				if (o.ContainsKey("item") && !world.Items.Contains(S("item"))) rep.Error(sw, $"'{S("item")}' is not an item");
 				if (o.ContainsKey("task") && !world.Tasks.Contains(S("task"))) rep.Error(sw, $"'{S("task")}' is not a task ({string.Join(", ", world.Tasks)})");
-				if (o.ContainsKey("convoy") && !world.Runs.ContainsKey(S("convoy"))) rep.Error(sw, $"'{S("convoy")}' is not a brigade run");
+				// The game matches the species without regard to case; anything else never counts a kill.
+				if (S("species") is { Length: > 0 } sp && !world.Species.Contains(sp, StringComparer.OrdinalIgnoreCase)) rep.Error(sw, $"'{sp}' is not an animal ({string.Join(", ", world.Species)}), so no kill would ever count");
+				if (o.ContainsKey("convoy") &&!world.Runs.ContainsKey(S("convoy"))) rep.Error(sw, $"'{S("convoy")}' is not a brigade run");
 				if (o.ContainsKey("dest") && !world.Ledgers.Contains(S("dest"))) rep.Warn(sw, $"dest '{S("dest")}' is not a post with books");
 				switch (kind)
 				{

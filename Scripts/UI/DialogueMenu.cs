@@ -11,9 +11,23 @@ public partial class DialogueMenu : Control
     public static DialogueMenu Instance { get; private set; }
 
     private PanelContainer _panel;
-    private Label _title, _body;
+    private Label _title;
+    private RichTextLabel _body;
     private VBoxContainer _options;
-    private ScrollContainer _scroll;
+    private ScrollContainer _scroll, _logScroll;
+
+    // The talk as a log (the old Fallout way): what they said, what you
+    // answered, and their answer, scrolling up the window. Kept here on the
+    // screen side: the server sends only the current screen, and this
+    // remembers the option you pressed and lays its answer under it. Going
+    // from menu to menu ("Talk...", "Back") writes nothing; a menu's own
+    // prompt is shown until something is said, then gives way.
+    private readonly List<string> _history = new();
+    private string _current = "";
+    private bool _currentIsReply;
+    private string _picked;
+    private readonly List<string> _labels = new();
+    private const float LogMaxHeight = 300f;
     private readonly List<Button> _buttons = new();
     private int _npcId = -1;
 
@@ -37,10 +51,13 @@ public partial class DialogueMenu : Control
         box.AddThemeConstantOverride("separation", 6);
         _panel.AddChild(box);
         _title = new Label(); _title.AddThemeFontSizeOverride("font_size", 20); _title.AddThemeColorOverride("font_color", new Color(0.95f, 0.85f, 0.6f)); box.AddChild(_title);
-        _body = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(680, 0) };
-        _body.AddThemeFontSizeOverride("font_size", 15);
-        _body.Modulate = new Color(0.9f, 0.88f, 0.8f);
-        box.AddChild(_body);
+        _logScroll = new ScrollContainer { CustomMinimumSize = new Vector2(680, 0), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        box.AddChild(_logScroll);
+        _body = new RichTextLabel { BbcodeEnabled = true, FitContent = true, ScrollActive = false, SizeFlagsHorizontal = SizeFlags.ExpandFill, CustomMinimumSize = new Vector2(668, 0) };
+        _body.AddThemeFontSizeOverride("normal_font_size", 15);
+        _body.AddThemeFontSizeOverride("italics_font_size", 15);
+        _body.AddThemeColorOverride("default_color", new Color(0.9f, 0.88f, 0.8f));
+        _logScroll.AddChild(_body);
         box.AddChild(new HSeparator());
         var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(680, 0), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         scroll.SizeFlagsVertical = SizeFlags.ShrinkBegin;
@@ -54,13 +71,18 @@ public partial class DialogueMenu : Control
     public void ShowState(Godot.Collections.Dictionary state)
     {
         if ((bool)state["closed"]) { CloseLocal(); return; }
-        _npcId = (int)state["npc"];
+        int npc = (int)state["npc"];
+        string title = (string)state["title"];
+        // A new conversation starts a fresh log.
+        if (!_panel.Visible || npc != _npcId || (npc < 0 && title != _title.Text && _picked == null)) { _history.Clear(); _current = ""; _currentIsReply = false; _picked = null; }
+        _npcId = npc;
         _panel.Visible = true;
-        _title.Text = (string)state["title"];
-        _body.Text = (string)state["text"];
+        _title.Text = title;
+        Log((string)state["text"]);
         foreach (var b in _buttons) b.QueueFree();
         foreach (var c in _options.GetChildren()) if (c is HSeparator) c.QueueFree();
         _buttons.Clear();
+        _labels.Clear();
         var opts = (Godot.Collections.Array)state["options"];
         int i = 0;
         foreach (var o in opts)
@@ -77,6 +99,7 @@ public partial class DialogueMenu : Control
             b.Pressed += () => Pick(idx);
             _options.AddChild(b);
             _buttons.Add(b);
+            _labels.Add(label);
         }
         if (_trace) { GD.Print($"[talk] {_title.Text}: {_body.Text}"); for (int k = 0; k < _buttons.Count; k++) GD.Print($"[talk]   {k}. {opts[k]}"); }
         // Long menus scroll instead of climbing off the screen.
@@ -125,7 +148,61 @@ public partial class DialogueMenu : Control
         }
     }
 
-    private void Pick(int idx) => NetHub.I?.DialogueRequest(_npcId, idx);
+    private void Pick(int idx)
+    {
+        _picked = idx >= 0 && idx < _labels.Count ? _labels[idx] : null;
+        NetHub.I?.DialogueRequest(_npcId, idx);
+    }
+
+    // Moving between menus is not talk; anything else you pressed is.
+    private static bool Navigates(string label) =>
+        label.EndsWith("...") || label is "Back" or "Leave" or "Not now" or "Enough" or "Step back" or "Close the chest" || label.StartsWith("Back ");
+
+    private void Log(string text)
+    {
+        string picked = _picked; _picked = null;
+        if (picked != null && !Navigates(picked))
+        {
+            if (_currentIsReply || _history.Count == 0 && _current != "") _history.Add(Them(_current));
+            _history.Add(You(picked));
+            _current = text; _currentIsReply = true;
+        }
+        else
+        {
+            if (_currentIsReply && _current != text) _history.Add(Them(_current));
+            _current = text; _currentIsReply = _currentIsReply && _current == text;
+        }
+        while (_history.Count > 40) _history.RemoveAt(0);
+        var sb = new System.Text.StringBuilder();
+        foreach (var h in _history) sb.Append(h).Append("\n\n");
+        sb.Append(Escape(_current));
+        _body.Text = sb.ToString();
+        CallDeferred(nameof(ScrollLogToEnd));
+    }
+
+    // What they said, dimmed once it is behind you; what you said, set off.
+    private static string Them(string t) => $"[color=#a8a294]{Escape(t)}[/color]";
+    private static string You(string label)
+    {
+        string said = label.Trim();
+        bool spoken = said.StartsWith("\"") || said.StartsWith("'");
+        return spoken ? $"[color=#e8c77a]You:[/color] [color=#e6dcc4]{Escape(said)}[/color]" : $"[color=#e8c77a]>[/color] [i][color=#cfc5ad]{Escape(said)}[/color][/i]";
+    }
+    private static string Escape(string t) => (t ?? "").Replace("[", "[lb]");
+
+    private async void ScrollLogToEnd()
+    {
+        // The label measures itself a frame later; size the box to it (up to a
+        // point) and show the newest lines.
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (!IsInstanceValid(_body)) return;
+        float h = Mathf.Min(_body.GetContentHeight() + 4f, LogMaxHeight);
+        _logScroll.CustomMinimumSize = new Vector2(680, h);
+        _panel.ResetSize();
+        Place();
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (IsInstanceValid(_logScroll)) _logScroll.ScrollVertical = (int)_logScroll.GetVScrollBar().MaxValue;
+    }
 
     // The player walked away / pressed Esc: tell the server, then hide.
     public void Close()

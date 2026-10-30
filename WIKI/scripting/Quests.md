@@ -38,22 +38,24 @@ questline Servant(title: "The Company's Servant", forCompany: Company.HBC) {
 }
 ```
 
-- A **questline** is a story: its quests in the journal under one title. `forCompany` gives its quests only to players of that company.
+- A **questline** is a story: its quests in the journal under one title. `forCompany` gives its quests only to players on that side: `Company.HBC`, `Company.NWC`, `Company.American`, `Company.Crown` (a soldier), or `Company.Free` (a deserter who went over to nobody). A player who [[Effects-in-the-Game#Deserters|deserts]] is offered the new side's quests from then on, and no more of the old side's.
 - A **quest** is a chain of **steps**, done one after another. It starts by itself once everything in its `[...]` is done and its `StartWhen` holds, or, if it has a `giver`, it is **offered** when the player speaks to that person (the player can take it on, put it off, or refuse).
 - Each **step** is one thing to do. When it is done the quest moves to the next step written, or to its `next:`; after the last step the quest is done.
 
 ## Kinds of step
 
-| Step | Done when | Needs |
-|---|---|---|
-| `talk` | the player speaks to the person (and picks a choice, if there are any) | `who` |
-| `bring` | the player hands the person the things (they leave the player's pack) | `who`, `item`, `count` |
-| `reach` | the player is within `radius` (default 400 px) of the place | `place` |
-| `have` | the player's pack holds the things | `item`, `count` |
-| `task` | the player has done that much of the work, as for a Factor's task (counted whatever the Factor said that day) | `task`, `count`; `convoy` for `Task.Brigade` |
-| `hunt` | the player has killed that many of the species | `species`, `count` |
-| `when` | the condition holds: `when Name(text: "...") => condition;` | a condition |
-| `wait` | that many days have passed since the step began | `days` |
+| Step | Done when | Required | Optional |
+|---|---|---|---|
+| `talk` | the player speaks to the person (and picks a choice, if there are any) | `who` | |
+| `bring` | the player hands the person the things, which leave the player's pack | `who`, `item` | `count` |
+| `reach` | the player comes within `radius` of the place | `place` | `radius` (default 400 px) |
+| `have` | the player's pack holds the things (nothing is taken) | `item` | `count` |
+| `task` | the player has done that much of a Factor's task | `task` (and `convoy` for `Task.Brigade`) | `count`, `dest` |
+| `hunt` | the player has killed that many animals since the step began | | `species` (default any), `count` |
+| `when` | the condition holds: `when Name(text: "...") => condition;` | a condition | |
+| `wait` | that many days have passed since the step began | `days` | |
+
+Every step also takes `id`, `text` (what the player is told; without it the game writes one, "Kill 2 Buffalo") and `next`. `count` defaults to 1. The [[Library-Reference#Steps|Library reference]] has each kind on its own, with an example.
 
 **Who** is a person's exact name, one of `Person.Factor`, `Person.Partner`, `Person.Chief`, `Person.Postmaster` (the start's own people), or a **role at a place**: `"leader@Edmonton House"`, `"partner@Fort Augustus"`, `"chief@Beaver Hills Cree (Amiskwacîwiyiniwak)"`, `"clerk@York Factory"`, `"hunter@<camp>"`, `"man@<post>"`, `"woman@<post>"`. A role at a place keeps working when the person in it dies and someone else takes their place.
 
@@ -65,10 +67,10 @@ questline Servant(title: "The Company's Servant", forCompany: Company.HBC) {
 | `Person.Partner` | the leader of the Nor'Westers' house at York (Mr. Duncan Cameron) | |
 | `Person.Chief` | the leader of the York Cree band (Maskwa) | |
 | `Person.Postmaster` | the postmaster at Oxford House | |
-| `"role@<place>"` | whoever holds that role at a post (by its exact name) or a camp (by its band's name) | `"leader@Edmonton House"` |
+| `"role@<place>"` | whoever holds that role at a post (by its exact name), a camp (by its band's name), or a garrison (by its town's name or its fort's) | `"leader@Edmonton House"`, `"officer@Fort George"` |
 | any other text | the living person with exactly that name | `"Mr. George Leith"` |
 
-The roles: `leader`, `master` and `factor` (all the head of the household), `chief` (the head, or any chief there), `partner` (the head, or an NWC partner there), `clerk`, `hunter`, `man` (a labourer, voyageur or hunter), `woman`, and `anyone`. The places are the posts that keep books (see the [[World-Reference#Posts|World reference]]) and the band camps ([[World-Reference#Camps (bands)|World reference]]). The checker errors on a place that is neither, warns on a role it does not know, and notes every plain name (it works only while someone of that name is alive). A role at a place is the safer choice: it keeps working when the person dies and someone else takes the place.
+The roles: `leader`, `master` and `factor` (all the head of the household), `chief` (the head, or any chief there), `partner` (the head, or an NWC partner there), `clerk`, `hunter`, `man` (a labourer, voyageur or hunter), `woman`, `officer` (the commanding officer, or any officer of the garrison), `soldier`, `sergeant`, and `anyone`. The places are the posts that keep books (see the [[World-Reference#Posts|World reference]]), the band camps ([[World-Reference#Camps (bands)|World reference]]), and the towns with a garrison, by the town's name or its fort's (`"York"` or `"Fort York"`: both mean the garrison). A `reach` step can go to a town (its middle) or a fort (its parade) as well. The checker errors on a place that is neither, warns on a role it does not know, and notes every plain name (it works only while someone of that name is alive). A role at a place is the safer choice: it keeps working when the person dies and someone else takes the place.
 
 ### Tasks
 
@@ -88,7 +90,21 @@ A `task` step hands the player one of the Factor's own tasks and counts the work
 
 ### Hunting
 
-A `hunt` step counts the beasts the player kills of one `species:`, written as text: `"Caribou"`, `"Goose"`, `"Beaver"`, `"Wolf"`, `"Hare"`, `"Ptarmigan"` or `"Buffalo"` (any species if left out).
+```c
+hunt Buffalo(species: "Buffalo", count: 2, text: "Run buffalo with the Cree", place: "Fort Souris");
+```
+
+A `hunt` step is done when the player has killed `count` animals of the `species`. The species is written in quotes, in any case: `"Caribou"`, `"Goose"`, `"Beaver"`, `"Wolf"`, `"Hare"`, `"Ptarmigan"`, `"Buffalo"` or `"Elk"`. Leave it out and any animal counts. A species the game does not have is an error in `check`, since no kill would ever match it.
+
+What counts:
+
+- **Only the player's own killing blow.** An animal a companion, a hired hunter or a snare kills does not count, nor one the player wounded and someone else finished.
+- **Only kills after the quest reaches this step.** Buffalo shot the day before do not count, and a `hunt` step after another `hunt` starts again from nothing.
+- **One kill counts for every quest at once** whose current step is a hunt for that species.
+
+`place:` does not limit where the kill is made: it is where the HUD points the player (the herd's country, the camp the hunt goes out from). The step's count shows as "(1/2)" on the HUD and in the journal.
+
+To ask for the meat or pelts rather than the killing, use a `have` or `bring` step for the item (`Item.BeaverPelt`). To ask for a Factor's goose hunt, counted by the geese brought in, use `task` with `Task.Geese`.
 
 ## Talk, choices and branches
 
@@ -134,7 +150,7 @@ Done to that player (from a beat, to every player): `player.postTo(place)`, `pla
 
 What is taken from the campaign extended: its **beats** (put before this file's own), its variables' starting values (this file's win), `postsByFoundingYear` if either has it, and its `start` or `startYear` if this file gives neither. Its quest lines are **not** taken, nor its seed. Only one level is followed (a campaign that extends one that extends another gets only the middle one's beats). The checker and the simulator look at this file alone, so a beat here cannot require a beat of the base by name: require its flag (`["seven-oaks"]`), which the checker accepts only if this file sets it; otherwise wake the beat with `AwakenWhen() => flags.has("seven-oaks");`.
 
-The shipped examples: `company-servant.camp` (*The Company's Servant*, the HBC story's first chapter: the ship, the Factor, up the rivers to Edmonton House, the Nor'Westers and the Beaver Hills Cree) and `open-country.camp` (*The Open Country*, free roam: the history and no quest lines).
+The shipped examples: `company-servant.camp` (*The Company's Servant*, the story campaign from 1811 to the union: an HBC road to Edmonton House and an NWC road to Fort Souris, three chapters each) and `open-country.camp` (*The Open Country*, free roam: the history and no quest lines).
 
 ## How quests run
 

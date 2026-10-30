@@ -44,7 +44,7 @@ public static class Plains
         foreach (var v in _views.Values) if (GodotObject.IsInstanceValid(v)) v.QueueFree();
         _views.Clear();
         BuffaloRun.Active.Clear(); BuffaloRun.LastRun.Clear();
-        Outfits.Reset(); TradeTrips.Reset(); StandardOfTrade.ResetBeliefs(); Wants.Reset(); PostWants.Reset();
+        Outfits.Reset(); TradeTrips.Reset(); StandardOfTrade.ResetBeliefs(); Wants.Reset(); PostWants.Reset(); Middlemen.Reset();
         War.Reset();
         Musters.Reset();
     }
@@ -67,6 +67,7 @@ public static class Plains
             _lastDay = cal.Day;
             foreach (var hh in Horses.All()) hh.Herd.Day(hh);
             TradeTrips.Day(cal);
+            Middlemen.Day(cal);
             Lacrosse.Day(cal);
             Companies.Daily(cal);
             Shipping.CrewDay();
@@ -284,6 +285,7 @@ public static class Plains
         Raids(cal);
         War.Weekly(cal);
         MissouriTrade.Week(cal);
+        Middlemen.Week(cal);
         Outfits.Week(cal);
         StandardOfTrade.Week(cal);
         Lacrosse.Week(cal);
@@ -676,7 +678,7 @@ public static class Plains
     {
         var f = new Godot.Collections.Dictionary(); foreach (var kv in Feuds) f[kv.Key] = kv.Value;
         var l = new Godot.Collections.Dictionary(); foreach (var kv in BuffaloRun.LastRun) l[kv.Key] = kv.Value;
-        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save(), ["war"] = War.Save(), ["outfits"] = Outfits.Save(), ["trips"] = TradeTrips.Save(), ["wants"] = Wants.Save(), ["indent"] = PostWants.Save(), ["companies"] = Companies.Save() };
+        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save(), ["war"] = War.Save(), ["outfits"] = Outfits.Save(), ["trips"] = TradeTrips.Save(), ["wants"] = Wants.Save(), ["indent"] = PostWants.Save(), ["companies"] = Companies.Save(), ["middlemen"] = Middlemen.Save() };
     }
 
     public static void Load(Godot.Collections.Dictionary d)
@@ -690,6 +692,7 @@ public static class Plains
         PostWants.Load(d != null && d.ContainsKey("indent") ? d["indent"].AsGodotDictionary() : null);
         Companies.Load(d != null && d.ContainsKey("companies") ? d["companies"].AsGodotDictionary() : null);
         TradeTrips.Load(d != null && d.ContainsKey("trips") ? d["trips"].AsGodotArray() : null);
+        Middlemen.Load(d != null && d.ContainsKey("middlemen") ? d["middlemen"].AsGodotDictionary() : null);
         if (d == null) return;
         if (d.ContainsKey("feuds")) foreach (var kv in d["feuds"].AsGodotDictionary()) Feuds[kv.Key.AsString()] = kv.Value.AsSingle();
         if (d.ContainsKey("lastRun")) foreach (var kv in d["lastRun"].AsGodotDictionary()) BuffaloRun.LastRun[kv.Key.AsString()] = kv.Value.AsInt32();

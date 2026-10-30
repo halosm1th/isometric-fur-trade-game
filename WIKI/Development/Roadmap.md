@@ -25,6 +25,7 @@ status: planned
 
 - [[The Plains Years]]: a story arc from York to the plains and the intertribal war (`docs/specs/story-plains-years.md`).
 - [[Global Trade]]: a world market, money and the distance gradient (`docs/specs/global-trade.md`).
+- History from the reading notes (2026-10-30): proposals from the owner's reading notes in `docs/NOtes/` (the overplus, the servants' moral economy, the captain's private trade, the 1810 New System, provisioners' leverage and more) (`docs/specs/reading-notes-history.md`).
 - Tool proposals T0-T8 (`docs/specs/tools.md`); T0, the wiki checker, is built (`tools/docs/check_wiki.py`).
 
 ## Systems from the design doc not yet built
@@ -50,12 +51,12 @@ Design-doc ideas with no code yet, beyond the table above (the full list is in `
 
 | Area | Item | Source |
 |---|---|---|
-| Marriage | The Nor'West way (living with her people), polygamy for the NWC and Métis, transition costs, wives left behind | §8 |
+| Marriage | Whether a man can change tracks more than once (the three ways, plural wives and wives left behind are built, `Agents/Marriage.cs`) | §8, §20 |
 | People | Sociability as a trait; skills beyond the four (stealth, riding, medicine, strength, smithing) | §3.10, §11.4 |
-| Combat | Hit location and severity; muskets using powder; surrender and bluff | §15.3, §15.5 |
-| Company | Money, the solvency ledger, the merger from exhaustion, a finite recruit pool, audits and London detecting shaded books | §13.2, §13.7, §3.9 |
+| Combat | Hit location and severity; surrender and bluff (muskets use powder) | §15.3, §15.5 |
+| Company | Credit and crisis moves in the purse; proving the merger from exhaustion in a long run; a finite recruit pool; surprise audits by a superior (the purse, exhaustion and London's audit of the books are built) | §13.2, §13.7, §3.9 |
 | Council | Proxies, splinters, arrival windows at Fort William; Accords as one object | §3.8.1, §3.8.2 |
-| Survival | Wet clothing, winter strain, wound treatment (herbal and European) | §17.3, §17.5, §17.6 |
+| Survival | Winter strain, wound treatment (herbal and European); wet clothing is built | §17.5, §17.6 |
 | World | Day length by latitude; a local simulation tier; grass fires and wind direction | §14.3, §18.2, §18.4 |
 | Multiplayer | Disconnected players handed to the goal planner; auto-pilot when not everyone wants to skip | §21.3, §21.4 |
 

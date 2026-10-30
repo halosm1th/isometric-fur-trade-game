@@ -25,6 +25,7 @@ The birchbark canoe is "the design doc's 'enter vehicle' verb in its simplest fo
 
 - Walk to an empty canoe (within about 130 px) and press the interact key (E): "You push off. Paddle onto the water; step onto any bank to land."
 - While aboard you move at paddling speed over water or ice. The moment you step onto a walkable land cell you are ashore: "You step ashore and draw the canoe up." The canoe is left at the nearest water cell.
+- **Carrying her over a portage.** From the canoe's menu on the bank, "Shoulder her and carry her over the portage" puts her keel-up over your head. She must be empty: her load is a second trip, as it was for the men. You walk at six-tenths of your pace under her; E sets her down where you stand, and from within a few steps of open water you can push off again. Dying, being taken prisoner or getting on a horse puts her down where you are (`PlayerController.ShoulderCanoe`, `SetDownCanoe`). Dev: `--portage`.
 - Cargo: interact with the canoe from within about 150 px for the stow and unstow dialogue (`CanoeLoad`): "You stow N lots in her (X/300 lb)." Stowing stops when the canoe is full (300 lb); a canoe over that weight counts as overloaded and paddles at 0.6 of the normal rate.
 - A canoe with a rider is hidden while it is in use (the player sprite takes over); an empty one sits drawn up on the shore.
 - In winter: "The canoes are frozen in till breakup. Walk on the ice."

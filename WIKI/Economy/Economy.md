@@ -45,7 +45,7 @@ All of them are a `Household`: an `Inventory` called Stores (items by count), a 
 
 ## Planned (design doc 13)
 
-The world market, money and distance prices are specced on [[Global Trade]].
+The world market, money and distance prices are specced on [[Global Trade]]. Far camps get their goods second-hand through [[Middlemen]].
 
 | Feature | Design doc | Status |
 |---|---|---|

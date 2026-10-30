@@ -79,6 +79,8 @@ public static class Rivalry
         {
             if (a.Raiding && a.RaidTarget == house && a.Weapon != null) raiders++;
             else if (a is Npc n && n.Faction == house && n.IsFighter) defenders++;
+            // A player of the house with a gun in his hands counts: he is standing to.
+            else if (a is Player.PlayerController p && !p.IsDead && p.Faction == house && p.Weapon != null) defenders++;
         }
         return defenders >= System.Math.Max(raiders, 1);
     }

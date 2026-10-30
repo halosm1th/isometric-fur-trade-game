@@ -482,12 +482,17 @@ public class CarryCargoGoal : Goal
                 int carried = 0;
                 // A load is what a man can carry, a piece at least (design doc 12.4).
                 float load = Mathf.Max(90f, npc.CarryCapacityLbs - npc.Inventory.TotalWeightLbs);
-                if (_unload) carried = ship.Cargo.MoveByWeight(npc.Inventory, load);
+                if (_unload) carried = ship.Land(npc.Inventory, load);
                 else carried = fort.Stores.MoveByWeight(npc.Inventory, load, Economy.Shipping.IsReturn);
+                // Nothing on the wharf yet: wait for the next lighter rather than
+                // walking back and forth to an empty landing.
+                if (carried == 0 && _unload && ship.Cargo.SlotCount > 0) { _phase = 3; return Delegate(new WaitGoal(1f)); }
                 if (carried == 0) return GoalStatus.Done; // nothing left to move
                 _phase = 2;
                 return Delegate(new GoToGoal(to, 90f));
             }
+            case 3:
+                return ChildFinished(out _) ? GoalStatus.Done : GoalStatus.Running;
             default:
             {
                 if (!ChildFinished(out var r)) return GoalStatus.Running;

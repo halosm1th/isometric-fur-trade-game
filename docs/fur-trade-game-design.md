@@ -2,7 +2,7 @@
 
 *Working design document. Compiled from planning discussion — intended as a shared reference for continued design and implementation work.*
 
-Last verified against the code: 2026-10-21 (see `docs/audit.md`). Most of this document is design intent. Where the build clearly differs, a `> **Implementation note (date):**` callout follows the section heading; the aspirational text is left as written. For what is built, see `WIKI/Development/Development Status.md`; for a section-by-section comparison, `docs/audit.md`.
+Last verified against the code: 2026-10-30 (see `docs/audit.md`). Most of this document is design intent. Where the build clearly differs, a `> **Implementation note (date):**` callout follows the section heading; the aspirational text is left as written. For what is built, see `WIKI/Development/Development Status.md`; for a section-by-section comparison, `docs/audit.md`.
 
 *Revision note: this version folds in the follow-up planning discussion — population scale and simulation tiers (Sections 11.1, 18.2), the spawn-site ecology system (Section 16.4), the map boundary and the Southern Department / James Bay region (Section 6), pre-1821 HBC and NWC structure (Section 5), the message system rebuilt around read events (Section 10.1), delegation and task assignment (Section 3.9), and the Fort William council (Section 3.8.1). A later pass added the player-experience layer — a second design test and the director (Sections 2.1, 2.2) and a new lettered Section P. A change list is at the end.*
 
@@ -211,6 +211,9 @@ Every plan, at any tier, bottoms out in the same handful of actions the player h
 Nothing here resolves in one tick. A factor's profit goal plays out across a trading season, a courtship across months — matching the annual/seasonal pacing already built into messages and hunts. A goal is an ongoing process competing for the agent's attention against Tier 0 interruptions, not a queue that resolves immediately.
 
 ### 3.5 Goal Visibility
+
+> **Implementation note (2026-10-30):** built as described, in `UI/ConversationDepth.cs`: every exchange with a person adds to your insight into them, and as it grows the greeting shows a vague sense of what presses on him, then what he means to do, then his steps, and you can tell when he lies about it. It is earned per person by talking, not by range.
+
 Goals are not shown to the player as UI — they're inferred the same way everything else in this world has to be learned (Section 2, Section 10): from dialogue responses, visible behavior shaped by personality (Section 11.4), and context (a young unmarried man at a rendezvous is probably goal-seeking a wife; a factor whose post just took losses is probably chasing returns). This keeps the social/political layer genuinely hard-won rather than a readable menu.
 
 A dedicated skill unlocks direct goal-reading later in the game — the first of the small set of player-specific abilities noted in Section 1. It should be earned and limited, not an omniscience toggle: gated behind sustained observation of or interaction with a specific person rather than passive range-reading, and tiered in what it reveals — a vague sense of priority at low skill, the specific active goal at higher skill, visibility into its actual steps only at mastery. This preserves the stakes of not knowing for most of the game, and makes the eventual payoff feel like earned insight rather than a stat unlock.
@@ -865,7 +868,7 @@ Furs aren't sold at a fixed price. Every pack carries a **quality rating** — t
 
 ### 13.7 Company Solvency & the Path to 1821
 
-> **Implementation note (2026-10-21):** not built. There is no solvency ledger and no money. The union of 1821 is carried out in the world (`Economy/Union.cs`: North West posts near Company posts are given up, their people taken on or let go, the rivalry ends), but it is triggered by the campaign's `merger` flag (or `--union`), not by exhaustion. Under the "no script" campaign it never happens. `docs/specs/global-trade.md` is the plan for the missing ledger.
+> **Implementation note (2026-10-30):** partly built. Each company keeps a purse in made beaver (`Economy/Companies.cs`): furs sold at London, Montreal, New York and St. Louis at a price moved by the blockade, the war, a glutted sale and the year's luck, against the goods, the freight and every man's wages. The purse orders next year's outfit and limits hiring. A company owing more than a year's costs two years running is exhausted, and the union (`Economy/Union.cs`) then happens in any year, as well as on the campaign's `merger` flag. Not yet in it: credit, legal fees, violence losses and the crisis moves. Nobody has yet seen a company exhaust in a long run, and under "no script" the price shocks never fire.
 
 Each company runs a **shared solvency ledger**: capital and available credit, unsold fur stock, outstanding debt (Section 13.3), and running costs including legal fees and violence losses. Trade-war attrition (Section 13.2) feeds directly into it, and it in turn caps how large an outfit can be ordered and how many replacements can actually be hired (Section 13.2, Section 10.7) — a company running low doesn't just feel poorer, it becomes literally unable to fully supply or restaff its own posts next season.
 

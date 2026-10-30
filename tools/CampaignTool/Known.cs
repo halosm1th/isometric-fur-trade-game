@@ -90,6 +90,7 @@ public static class Known
 		public readonly Dictionary<string, Dictionary<string, object>> Runs = new();
 		public readonly HashSet<string> Items = new();
 		public readonly List<string> Tasks = new();
+		public readonly List<string> Species = new();
 		public readonly HashSet<string> Camps = new();
 		// The towns (layout.towns): their buildings, and whether each has a garrison.
 		public readonly Dictionary<string, HashSet<string>> Towns = new();
@@ -125,6 +126,11 @@ public static class Known
 			string tbody = tsrc[tsrc.IndexOf("enum TaskKind", StringComparison.Ordinal)..];
 			tbody = tbody[(tbody.IndexOf('{') + 1)..tbody.IndexOf('}')];
 			foreach (var t in tbody.Split(',')) { var n = t.Trim(); if (n.Length > 0 && n != "None") Tasks.Add(n); }
+			// The animals (Ecology/Species.cs), for hunt steps.
+			string ssrc = File.ReadAllText(Path.Combine(Root, "Scripts/Ecology/Species.cs"));
+			string sbody = ssrc[ssrc.IndexOf("enum Species", StringComparison.Ordinal)..];
+			sbody = Regex.Replace(sbody[(sbody.IndexOf('{') + 1)..sbody.IndexOf('}')], @"//[^\n]*", "");
+			foreach (var t in sbody.Split(',')) { var n = t.Trim(); if (n.Length > 0) Species.Add(n); }
 			// The country's camps by name: a quest can send you to one, or to its people.
 			using (var doc = JsonDocument.Parse(File.ReadAllText(Path.Combine(Root, "Data/World/world.json"))))
 				if (doc.RootElement.TryGetProperty("layout", out var lay))

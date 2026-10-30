@@ -35,6 +35,7 @@ public partial class ConvoyView : Node2D
 		public Vector2 Pos, Dir = Vector2.Right;
 		public double Seen;
 		public bool Placed;
+		public float Length = 120f, Beam = 60f, CrewTop;   // the drawn boat's size; how far down its sheet the painted crew ends
 		public readonly List<Sprite2D> Boats = new();
 	}
 
@@ -100,7 +101,7 @@ public partial class ConvoyView : Node2D
 			if (d < MenIn) EnsureMen(c);
 			else if (d > MenOut && c.Men.Count > 0) Convoys.DropMenOf(c);
 			if (d > ViewPx) continue;
-			var at = c.Moving || !c.HasCamp ? where : c.CampAt;
+			var at = c.Moving || !c.HasCamp ? c.Afloat : c.CampAt;
 			var heading = c.Heading;
 			rows.Add(new Godot.Collections.Array { c.Id, at.X, at.Y, heading.X, heading.Y, (int)c.Now, c.Boats, c.Run.Craft.Name, c.Name });
 		}
@@ -139,6 +140,11 @@ public partial class ConvoyView : Node2D
 		var spec = Convoys.KindNamed(kind);
 		var tex = spec != null && spec.Sprite != "" ? GD.Load<Texture2D>(spec.Sprite) : GD.Load<Texture2D>("res://assets/sprites/canoe.png");
 		float scale = spec?.Scale ?? 0.6f;
+		c.Length = tex.GetSize().X * scale;
+		c.Beam = tex.GetSize().Y * scale;
+		// The loaded sheets have their crew painted in, sitting above the
+		// gunwale (the top third of the sheet).
+		c.CrewTop = spec != null && spec.Sprite != "" ? 0.36f : 0f;
 		for (int i = 0; i < c.BoatCount; i++)
 		{
 			var s = new Sprite2D { Texture = tex, Scale = Vector2.One * scale, Offset = new Vector2(0, -tex.GetSize().Y * 0.15f) };
@@ -153,11 +159,23 @@ public partial class ConvoyView : Node2D
 	{
 		var perp = new Vector2(-c.Dir.Y, c.Dir.X);
 		bool afloat = c.State == (int)ConvoyState.Paddling;
+		// Astern of one another a boat's length and a bit apart, not piled
+		// into one; on the bank a beam apart.
+		float astern = Mathf.Max(BoatGap, c.Length * 1.1f), abreast = Mathf.Max(BoatGap * 0.6f, c.Beam * 0.9f);
 		for (int i = 0; i < c.Boats.Count; i++)
 		{
 			var b = c.Boats[i];
 			if (!IsInstanceValid(b)) continue;
-			var target = afloat ? c.Pos - c.Dir * BoatGap * i : c.Pos + perp * BoatGap * (i - (c.Boats.Count - 1) * 0.5f);
+			// Drawn up on the bank the crew are out of her: only the hull is drawn.
+			bool empty = !afloat && c.CrewTop > 0f && b.Texture != null;
+			if (empty != b.RegionEnabled)
+			{
+				var size = b.Texture.GetSize();
+				b.RegionEnabled = empty;
+				b.RegionRect = new Rect2(0f, size.Y * c.CrewTop, size.X, size.Y * (1f - c.CrewTop));
+				b.Offset = new Vector2(0, -size.Y * 0.15f + (empty ? size.Y * c.CrewTop * 0.5f : 0f));
+			}
+			var target = afloat ? c.Pos - c.Dir * astern * i : c.Pos + perp * abreast * (i - (c.Boats.Count - 1) * 0.5f);
 			b.Position = c.Placed ? b.Position.Lerp(target, Mathf.Clamp(dt * 6f, 0f, 1f)) : target;
 			b.FlipH = c.Dir.X < 0f;
 			b.Rotation = 0f;
@@ -223,7 +241,11 @@ public partial class ConvoyView : Node2D
 			for (int i = 0; i < c.Men.Count; i++)
 			{
 				var n = c.Men[i];
-				if (n == null || !IsInstanceValid(n) || n.IsDead || n.Conversing || n.Brain.Top is not ConvoyGoal) continue;
+				if (n == null || !IsInstanceValid(n)) continue;
+				if (n.IsDead || n.Conversing || n.Brain.Top is not ConvoyGoal) { n.Visible = true; continue; }
+				// Under way the painted crew are the men: the real ones ride
+				// unseen with them, so the boats aren't crewed twice over.
+				n.Visible = !c.Moving || craft.CrewTop <= 0f;
 				if (c.Moving)
 				{
 					var boat = craft.Boats[i % craft.Boats.Count].Position;
@@ -298,11 +320,12 @@ public partial class ConvoyView : Node2D
 			}
 			if (stepping) { _riding.Remove(p); Convoys.Leave(p, "You step ashore."); continue; }
 			p.RideId = c.Id;
-			p.SetStartPosition(c.Where + new Vector2(0f, -24f));
+			p.SetStartPosition(c.Afloat + new Vector2(0f, -24f));
 			// The road goes by fast, except while a choice is put to him (World/JourneyIncidents).
 			if (local) { if (p.Conversation.IsOpen) cal.CancelSkip(); else if (cal.SkipRemaining < 0.5f) cal.SkipHours(0.5f - cal.SkipRemaining); }
 			else p.TravellingServer = true;   // a joined player cannot skip the shared day; it marches instead
 			if (p.Needs.Hunger < 45f) Convoys.FeedRider(p, c);
+			p.Needs.Thirst = 100f;   // a cup over the side: there is no want of water on a river
 		}
 	}
 

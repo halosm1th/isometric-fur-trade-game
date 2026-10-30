@@ -80,8 +80,8 @@ public static class CombatFx
         Play(who, "blood_hit", 4, new Vector2(0, -44f), 16f, Mathf.Clamp(0.45f + amount / 70f, 0.5f, 1.1f), GD.Randf() < 0.5f);
     }
 
-    // And the ground where he fell. This one stays: it is drawn under
-    // everything and left there.
+    // And the ground where he fell. This one stays while he lies there: it
+    // is drawn under everything and left with the body.
     public static void Pool(Agent who)
     {
         if (who == null || !who.IsInsideTree()) return;
@@ -92,10 +92,20 @@ public static class CombatFx
             Texture = frames[0], Position = new Vector2(0, -2f), ZIndex = 0,
             Scale = new Vector2(0.34f, 0.34f), Modulate = new Color(1, 1, 1, 0.8f),
         };
+        s.SetMeta(PoolMeta, true);
         who.AddChild(s);
         var tree = who.GetTree();
         tree.CreateTimer(0.5).Timeout += () => { if (GodotObject.IsInstanceValid(s)) { s.Texture = frames[1]; s.Scale = new Vector2(0.38f, 0.38f); } };
         tree.CreateTimer(1.6).Timeout += () => { if (GodotObject.IsInstanceValid(s)) { s.Texture = frames[2]; s.Scale = new Vector2(0.44f, 0.44f); } };
+    }
+
+    // A man who gets up again (a player's heir) does not carry the pool off with him.
+    private const string PoolMeta = "blood_pool";
+    public static void ClearPool(Agent who)
+    {
+        if (who == null) return;
+        foreach (var c in who.GetChildren())
+            if (c is Sprite2D s && s.HasMeta(PoolMeta)) s.QueueFree();
     }
 
     public static void Shot(Agent from, Vector2 to, bool musket)

@@ -281,6 +281,7 @@ public partial class TerrainPainter : TileMapLayer
         foreach (var cell in CellsOf(ch)) EraseCell(cell);
         Structures?.ClearForest(CellsOf(ch));
         if (_chunkBodies.Remove(ch, out var body) && IsInstanceValid(body)) body.QueueFree();
+        DropWaterMarks(ch);
     }
 
     private void UnloadAll()
@@ -491,6 +492,7 @@ public partial class TerrainPainter : TileMapLayer
         if (src == SourceIce || src == SourceWaterIce) { slippery = true; return 1.25f; }
         if (src == SourceSnow) return snowshoes ? 1.0f : 0.7f;
         if (src == SourceDirt) return 1.05f;
+        if (IsWading(cell)) return 0.45f;   // wading: the water to your knees, the bottom soft
         if (src == SourceRoad) return 1.1f;
         if (src == SourceSand) return 0.9f;
         if (src == SourceHill || src == SourceMountain) return 0.8f;
@@ -540,6 +542,9 @@ public partial class TerrainPainter : TileMapLayer
 
     // Water or ice: what you can drink from (or melt).
     public bool IsWaterOrIce(Vector2I cell) => !Wharf.Contains(cell) && WorldMap.IsWater(cell);
+    // Open water a man on foot cannot cross: not the shallows, not ice.
+    public bool IsDeepWater(Vector2I cell) => IsWater(cell) && !WorldMap.IsShallow(cell);
+    public bool IsWading(Vector2I cell) => IsWater(cell) && WorldMap.IsShallow(cell);
 
     // Any water (or ice) within reach of the position - about a cell and a
     // half, so standing on the bank counts.
@@ -645,12 +650,45 @@ public partial class TerrainPainter : TileMapLayer
         var body = new StaticBody2D { CollisionLayer = host.CollisionLayer, CollisionMask = host.CollisionMask, Name = $"Water_{ch.X}_{ch.Y}" };
         foreach (var cell in CellsOf(ch))
         {
-            if (!IsWater(cell)) continue;
+            if (!IsDeepWater(cell)) continue;
             bool shore = false;
-            foreach (var n in IsoGrid.EdgeNeighbours(cell)) if (!IsWater(n)) { shore = true; break; }
+            foreach (var n in IsoGrid.EdgeNeighbours(cell)) if (!IsDeepWater(n)) { shore = true; break; }
             if (shore) body.AddChild(new CollisionShape2D { Shape = WaterDiamond, Position = MapToLocal(cell) });
         }
         host.AddChild(body);
         _chunkBodies[ch] = body;
+        BuildWaterMarks(ch);
     }
+
+    // The shallows and the white water, drawn over the water tiles of a chunk.
+    private readonly Dictionary<Vector2I, WaterMarks> _marks = new();
+    private void BuildWaterMarks(Vector2I ch)
+    {
+        if (_marks.Remove(ch, out var old) && IsInstanceValid(old)) old.QueueFree();
+        var m = new WaterMarks { Painter = this, Name = $"WaterMarks_{ch.X}_{ch.Y}" };
+        foreach (var cell in CellsOf(ch))
+        {
+            if (!IsWater(cell)) continue;
+            var d = WorldMap.DepthAt(cell);
+            if (d == Depth.Shallow) m.Shallow.Add(MapToLocal(cell));
+            else if (d == Depth.Rapids) m.Rapids.Add(MapToLocal(cell));
+        }
+        if (m.Shallow.Count == 0 && m.Rapids.Count == 0) { m.Free(); return; }
+        MarksHost().AddChild(m);
+        _marks[ch] = m;
+    }
+    // Drawn just after the ground, before the floors and everything standing:
+    // as a child of this y-sorted layer they sorted in among its tiles and
+    // were painted over.
+    private Node2D _marksHost;
+    private Node2D MarksHost()
+    {
+        if (_marksHost != null && IsInstanceValid(_marksHost)) return _marksHost;
+        _marksHost = new Node2D { Name = "WaterMarks", Position = Position };
+        var parent = GetParent();
+        parent.AddChild(_marksHost);
+        parent.MoveChild(_marksHost, GetIndex() + 1);
+        return _marksHost;
+    }
+    private void DropWaterMarks(Vector2I ch) { if (_marks.Remove(ch, out var m) && IsInstanceValid(m)) m.QueueFree(); }
 }

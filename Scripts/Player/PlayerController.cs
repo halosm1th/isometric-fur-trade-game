@@ -257,6 +257,7 @@ public partial class PlayerController : Agent
 	private void Retaken(Npc taker)
 	{
 		var side = DesertedFrom;
+		SetDownCanoe();
 		var town = (taker.HomeStores as World.TownHousehold)?.Town ?? Core.Starts.GarrisonFor("", side, GlobalPosition);
 		Deserter = false;
 		Faction = side;
@@ -279,17 +280,88 @@ public partial class PlayerController : Agent
 	public bool IsAfloat => Aboard != null || _afloatMirror;
 	private bool _afloatMirror;
 	public void SetAfloatMirror(bool v) => _afloatMirror = v;
-	private Sprite2D _canoeSprite;
 
+	// On the portage (design doc 12.2): the canoe turned over on your
+	// shoulders and carried round the white water to the next put-in. She
+	// goes empty - her load is a second trip, as it was for the men - and
+	// you go slower under her.
+	public Canoe Carrying;
+	public bool IsCarryingCanoe => Carrying != null || _carryMirror;
+	private bool _carryMirror;
+	public void SetCarryMirror(bool v) => _carryMirror = v;
+	private const float CarrySpeed = 0.6f;
+	private Sprite2D _carriedSprite;
+
+	public string ShoulderCanoe(Canoe c)
+	{
+		if (c == null || !c.IsFree) return "No canoe here.";
+		if (Aboard != null) return "Paddle to a bank and step out first.";
+		if (Carrying != null) return "You have one on your shoulders already.";
+		if (Mounted) return "Get down off the horse first.";
+		if (c.Cargo.SlotCount > 0) return "Take her load out first. A canoe is one carry and her pieces are another.";
+		c.SetState(GlobalPosition, NetId);
+		Carrying = c;
+		return "You turn her over and get her up on your shoulders. Walk her round to the next water and set her down there.";
+	}
+
+	public string SetDownCanoe()
+	{
+		if (Carrying == null) return "";
+		Carrying.SetState(GlobalPosition, 0);
+		Carrying = null;
+		return OpenWaterNear(Cell, 8) != null ? "You set the canoe down at the water's edge." : "You set the canoe down.";
+	}
+	private Sprite2D _canoeSprite, _canoeNear;
+
+	// Afloat he sits in her: the canoe drawn man-sized under him, and her
+	// near side again over him so his legs are inside the hull, not walking
+	// on the water below it.
+	private const float CanoeScale = 1.7f;
+	private static readonly float IsoTilt = Mathf.Atan(0.5f);   // a grid axis on screen: two across, one down
+	private Vector2 _canoeLastPos;
+	private float _canoeTilt;
 	private void UpdateCanoeVisual()
 	{
 		bool afloat = IsAfloat;
 		if (_canoeSprite == null)
 		{
-			_canoeSprite = new Sprite2D { Texture = GD.Load<Texture2D>("res://assets/sprites/canoe.png"), Offset = new Vector2(0, -8), ZIndex = -1, Visible = false };
+			var tex = GD.Load<Texture2D>("res://assets/sprites/canoe.png");
+			var size = tex.GetSize();
+			_canoeSprite = new Sprite2D { Texture = tex, Scale = Vector2.One * CanoeScale, Offset = new Vector2(0, -20), ZIndex = -1, Visible = false };
+			// The near gunwale and hull: the lower part of the same picture.
+			float cut = size.Y * 0.5f;
+			_canoeNear = new Sprite2D { Texture = tex, Scale = Vector2.One * CanoeScale, RegionEnabled = true, RegionRect = new Rect2(0, cut, size.X, size.Y - cut),
+				Offset = new Vector2(0, -20 + cut / 2f), ZIndex = 1, Visible = false };
 			AddChild(_canoeSprite);
+			AddChild(_canoeNear);
 		}
-		_canoeSprite.Visible = afloat && !IsDead;
+		bool show = afloat && !IsDead;
+		_canoeSprite.Visible = show; _canoeNear.Visible = show;
+		if (show && _sprite != null)
+		{
+			_canoeSprite.FlipH = _sprite.FlipH; _canoeNear.FlipH = _sprite.FlipH;
+			// The picture is side-on; going up or down the screen she lies
+			// along the iso diagonal instead, bow toward where you are going.
+			// Read off how he moved, so it is the same on every machine.
+			var moved = GlobalPosition - _canoeLastPos;
+			if (moved.LengthSquared() > 0.25f)
+			{
+				float rise = Mathf.Abs(moved.Y) < 0.25f * Mathf.Abs(moved.X) ? 0f : Mathf.Sign(moved.Y);
+				_canoeTilt = rise * (_sprite.FlipH ? -1f : 1f) * IsoTilt;
+			}
+			float r = Mathf.LerpAngle(_canoeSprite.Rotation, _canoeTilt, 0.2f);
+			_canoeSprite.Rotation = r; _canoeNear.Rotation = r;
+		}
+		_canoeLastPos = GlobalPosition;
+		// Carried, she is over his head, keel up, facing the way he faces.
+		if (_carriedSprite == null)
+		{
+			_carriedSprite = new Sprite2D { Texture = _canoeSprite.Texture, Scale = Vector2.One * CanoeScale * 0.9f, FlipV = true, Offset = new Vector2(0, -50), ZIndex = 2, Visible = false };
+			AddChild(_carriedSprite);
+		}
+		bool carried = IsCarryingCanoe && !IsDead && !afloat;
+		_carriedSprite.Visible = carried;
+		if (carried && _sprite != null) _carriedSprite.FlipH = _sprite.FlipH;
 		CollisionMask = Marching ? 0u : afloat ? 1u : 5u;
 	}
 	// On the march (UI/TravelMode): carried along the route, through nothing.
@@ -297,12 +369,19 @@ public partial class PlayerController : Agent
 
 	// Paddling: you can be over water or ice; the moment you're on a land
 	// cell you've stepped out and the canoe stays at the water's edge.
-	private void ServerCanoeTick()
+	private void ServerCanoeTick(float dt)
 	{
-		if (Aboard == null) return;
+		if (Carrying != null)
+		{
+			// Fallen or in the saddle, she comes down where you are.
+			if (IsDead || Mounted) SetDownCanoe();
+			else Carrying.Position = GlobalPosition;
+		}
+		if (Aboard == null) { _inRapids = false; return; }
 		var t = Sim.Terrain;
 		if (t == null) return;
 		var cell = Cell;
+		if (RunRapids(cell, dt)) return;
 		if (!t.IsWaterOrIce(cell) && Sim.Paths != null && Sim.Paths.IsWalkable(cell))
 		{
 			// Landed. Leave the canoe on the nearest water cell behind us.
@@ -313,6 +392,62 @@ public partial class PlayerController : Agent
 			Say("You step ashore and draw the canoe up.");
 		}
 		else Aboard.Position = GlobalPosition;
+	}
+
+	// White water (WorldMap.Depth.Rapids): the river over rocks beside a
+	// carrying place. The men carried round it; run it and every moment in
+	// it is a chance of going over - less for a man who knows the woods,
+	// more with a canoe loaded down. Over, you are thrown on the bank with
+	// the canoe, soaked and bruised, and some of what was in her is gone
+	// down the river.
+	private bool _inRapids;
+	private bool RunRapids(Vector2I cell, float dt)
+	{
+		bool white = WorldMap.IsRapids(cell) && !GameCalendar.Instance.IsFrozen;
+		if (white && !_inRapids) Say("White water! The river runs over rocks here - this is why there is a portage. Make for the bank and carry round, or run it and hope.");
+		_inRapids = white;
+		if (!white || Velocity.LengthSquared() < 25f) return false;
+		float load = Mathf.Clamp(Aboard.LoadLbs / Canoe.CapacityLbs, 0f, 1.5f);
+		float perSecond = 0.07f * (1.3f - Skills.Woodcraft) * (0.6f + load);
+		if (GD.Randf() >= perSecond * dt) return false;
+		// Over she goes.
+		int lost = 0;
+		foreach (var (id, n) in new List<(ItemId, int)>(Aboard.Cargo.All()))
+		{
+			int take = Mathf.CeilToInt(n * 0.35f);
+			Aboard.Cargo.Remove(id, take); lost += take;
+		}
+		var land = Convoys.LandNear(GlobalPosition);
+		Vector2I water = IsoGrid.FromWorld(land);
+		foreach (var n in IsoGrid.EdgeNeighbours(water)) if (t_IsWater(n)) { water = n; break; }
+		Aboard.SetState(IsoGrid.ToWorld(water), 0);
+		Aboard = null; _inRapids = false;
+		SetStartPosition(land);
+		Needs.Wet = 1f;
+		TakeDamage(12f, null);
+		Skills.Learn(ref Skills.Woodcraft, 0.02f, "upset in a rapid");
+		Chronicle.Event($"{DisplayName} was upset running a rapid.", GlobalPosition, this, weight: 0.8f);
+		Say(lost > 0 ? $"The canoe broaches on a rock and rolls over. You come up gasping and drag yourself and her onto the bank. {lost} pieces of what she carried are gone down the river." : "The canoe broaches on a rock and rolls over. You come up gasping and drag yourself and her onto the bank, soaked to the skin.");
+		return true;
+	}
+	private static bool t_IsWater(Vector2I c) => Sim.Terrain != null && Sim.Terrain.IsWater(c);
+
+	// The nearest unfrozen water cell to a canoe on the bank, nearest first.
+	private static Vector2I? OpenWaterNear(Vector2I from, int reach)
+	{
+		var t = Sim.Terrain;
+		if (t == null) return null;
+		Vector2I? best = null; float bestD = float.MaxValue;
+		var at = IsoGrid.ToWorld(from);
+		for (int dx = -reach; dx <= reach; dx++)
+			for (int dy = -2 * reach; dy <= 2 * reach; dy++)
+			{
+				var c = new Vector2I(from.X + dx, from.Y + dy);
+				if (!t.IsWater(c)) continue;
+				float d = IsoGrid.ToWorld(c).DistanceTo(at);
+				if (d < bestD) { bestD = d; best = c; }
+			}
+		return best;
 	}
 
 	// Change companies (design doc 1). The people you leave remember it.
@@ -461,6 +596,22 @@ public partial class PlayerController : Agent
 			// the choices only an earlier choice of the player's would open.
 			if (arg.StartsWith("--flags=") && NetHub.IsServer) GetTree().CreateTimer(2.5).Timeout += () => { foreach (var f in arg.Substring(8).Split(',', System.StringSplitOptions.RemoveEmptyEntries)) { Core.Campaign.Flag(f.Trim()); GD.Print($"[dev] flag {f.Trim()}"); } };
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
+			// Dev: `--canoe` gets into the nearest canoe a few seconds in (after any --spawn).
+			if (arg == "--canoe") GetTree().CreateTimer(4.0).Timeout += () => GD.Print("[dev] canoe: " + ServerAction("canoe", new Godot.Collections.Array()));
+			// Dev: `--taken` has the nearest man of the other company lay you out a few seconds in (with --pick to walk the pages).
+			if (arg == "--taken" && NetHub.IsServer) GetTree().CreateTimer(4.0).Timeout += () =>
+			{
+				Npc by = null; float best = float.MaxValue;
+				foreach (var n in Sim.Npcs) if (!n.IsDead && !n.IsFemale && Economy.Rivalry.AreRivals(n.Faction, Faction) && n.GlobalPosition.DistanceTo(GlobalPosition) is var d && d < best) { best = d; by = n; }
+				GD.Print($"[dev] taken by {by?.DisplayName ?? "nobody"}");
+				if (by != null) TakeDamage(9999f, by);
+			};
+			// Dev: `--portage` shoulders the nearest canoe, walks her a few steps inland, and sets her down.
+			if (arg == "--portage" && NetHub.IsServer)
+			{
+				GetTree().CreateTimer(4.0).Timeout += () => GD.Print("[dev] portage: " + ShoulderCanoe(Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 2000f)));
+				GetTree().CreateTimer(7.0).Timeout += () => { SetStartPosition(GlobalPosition + new Vector2(-160f, -40f)); GD.Print($"[dev] portage: walked to {Cell}"); };
+				GetTree().CreateTimer(10.0).Timeout += () => { var c = Carrying; GD.Print("[dev] portage: " + SetDownCanoe() + $" (canoe at {(c != null ? IsoGrid.FromWorld(c.GlobalPosition).ToString() : "?")}, free={c?.IsFree})"); };			}
 			if (arg == "--provoke") GetTree().CreateTimer(3.0).Timeout += () => { var n = NearestNpc(400f); if (n != null) NetHub.I?.Act("attack", new Godot.Collections.Array { n.NetId }); };
 			// Dev: `-- --fx` plays each of the combat effects beside you in
 			// turn, so they can be looked at without staging a fight.
@@ -550,7 +701,8 @@ public partial class PlayerController : Agent
 	{
 		var cal = GameCalendar.Instance;
 		EndCargoTaskIfHoldEmpty();
-		if (Task.Kind != TaskKind.None && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say($"Yesterday's task went undone. {(Task.Boss != "" ? Task.Boss : "The master")} noticed."); }
+		// Reporting in is not a chore left undone: the order to report is answered by reporting.
+		if (Task.Kind is not (TaskKind.None or TaskKind.Report) && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say($"Yesterday's task went undone. {(Task.Boss != "" ? Task.Boss : "The master")} noticed."); }
 		if (Task.Kind != TaskKind.None && Task.IsComplete) { Standing += 5f; TasksDone++; }
 		Task.Kind = kind; Task.Need = need; Task.Done = 0; Task.DayAssigned = cal.Day; Task.Intent = intent ?? ""; Task.Deadline = cal.Day + 1; Task.Accepted = false; Task.OwnWay = false;
 		Task.Boss = HomePost?.Leader is { } boss && !boss.IsDead ? Agents.Barks.CallName(boss) : "";
@@ -570,7 +722,7 @@ public partial class PlayerController : Agent
 		if (!IsDead && !Invulnerable && from is Npc captor && Economy.Rivalry.AreRivals(captor.Faction, Faction) && Needs.Health - amount <= 0f && CaptiveOf == null)
 		{
 			Needs.Health = 8f;
-			Capture(Economy.Rivalry.PostOf(captor.Faction), captor);
+			Capture(Core.Captivity.PostFor(captor, GlobalPosition), captor);
 			return;
 		}
 		base.TakeDamage(amount, from);
@@ -579,6 +731,7 @@ public partial class PlayerController : Agent
 	private void Capture(Economy.FortLedger post, Npc captor)
 	{
 		if (post == null) { Needs.Health = 0f; OnDeath(); return; }
+		SetDownCanoe();
 		CaptiveOf = post; CaptiveUntilDay = GameCalendar.Instance.Day + 3;
 		// Everything worth having goes into their stores; they leave you your coat and your knife.
 		int taken = 0;
@@ -590,12 +743,33 @@ public partial class PlayerController : Agent
 		}
 		foreach (var m in new List<Message>(Mail)) { Mail.Remove(m); if (post.Leader != null && !post.Leader.IsDead) { post.Leader.Mail.Add(m); Core.Mail.Open(m, post.Leader); } }
 		StopTravel(""); Raiding = false; RaidTimer = 0f;
-		GlobalPosition = IsoGrid.ToWorld(post.AccessCell) + new Vector2(0, 60);
+		GetDown();
+		SetStartPosition(IsoGrid.ToWorld(post.AccessCell) + new Vector2(0, 60));   // snapped on the owner's machine too
 		ForgetAttacker();
 		Economy.Rivalry.Raise(5f, $"{DisplayName} taken prisoner");
-		Say($"You come to on the floor of {post.Title}, {captor.DisplayName} standing over you. They have taken {taken} lots off you. You are held three days - walk out of their yard and you're an escaped man; wait, and they'll turn you loose.");
 		Chronicle.Event($"{captor.DisplayName} took {DisplayName} prisoner.", GlobalPosition, captor, DisplayName, 2f);
 		Sim.Notice($"{DisplayName} has been taken by the {(post.Company == Faction.NWC ? "Nor'Westers" : "Company")}.");
+		Core.Captivity.Begin(this, post, captor, taken);
+	}
+
+	// The prisoner's "wait it out": the days go by (agreed, like sleep) and CaptiveTick lets him go.
+	public void WaitOutCaptivity()
+	{
+		var cal = GameCalendar.Instance;
+		if (CaptiveOf == null || cal == null) return;
+		float hours = Mathf.Max(1f, (CaptiveUntilDay - cal.Day) * 24f - cal.Hour + 7f);
+		Say(RequestSkip(hours, "You settle down on the store-house floor to wait."));
+	}
+
+	// Over the pickets and away (design doc 9.1): the story travels, and they remember.
+	public void EscapeCaptivity(Vector2 to)
+	{
+		if (CaptiveOf == null) return;
+		CaptiveOf = null; CaptiveUntilDay = -1;
+		SetStartPosition(to);
+		Standing += 2f;
+		Economy.Rivalry.Raise(4f, $"{DisplayName} escaped");
+		Chronicle.Event($"{DisplayName} escaped from the other company's post.", GlobalPosition, this, weight: 1.5f);
 	}
 
 	private int _captiveDay = -1;
@@ -606,10 +780,10 @@ public partial class PlayerController : Agent
 		bool inYard = CaptiveOf.Company == Faction.NWC ? WorldLayout.NwcYardCells().Contains(Cell) : WorldLayout.YardCells().Contains(Cell);
 		if (!inYard && GlobalPosition.DistanceTo(IsoGrid.ToWorld(CaptiveOf.AccessCell)) > 700f)
 		{
-			// Escaped (design doc 9.1): the story travels, and they remember.
-			CaptiveOf = null; Standing += 2f;
-			Economy.Rivalry.Raise(4f, $"{DisplayName} escaped");
-			Chronicle.Event($"{DisplayName} escaped from the other company's post.", GlobalPosition, this, weight: 1.5f);
+			// Walked off while their backs were turned.
+			string from = Core.Captivity.Name(CaptiveOf);
+			EscapeCaptivity(GlobalPosition);
+			Journal.Add($"{cal.DateString}: Walked out of {from} while nobody was looking.");
 			Say("You are out of their yard and away. An escaped prisoner; they will not forget it.");
 			return;
 		}
@@ -621,6 +795,7 @@ public partial class PlayerController : Agent
 				var post = CaptiveOf; CaptiveOf = null;
 				Inventory.Add(ItemId.Pemmican, 2);
 				Say($"They turn you loose with two days' pemmican and a warning. \"Go home. Tell your Factor what it costs to cross us.\"");
+				Journal.Add($"{cal.DateString}: Turned loose by {(post.Company == Faction.NWC ? "the Nor'Westers" : "the Company")} at {Core.Captivity.Name(post)}, with two days' pemmican and nothing else.");
 				Chronicle.Event($"{DisplayName} was let go by the {(post.Company == Faction.NWC ? "Nor'Westers" : "Company")}.", GlobalPosition, this, weight: 1f);
 			}
 		}
@@ -653,7 +828,7 @@ public partial class PlayerController : Agent
 		// Watching, not playing: the camera's keys, then the clock's, and nothing else.
 		if (Ghost && ObserverInput(@event)) { GetViewport().SetInputAsHandled(); return; }
 		// The clock: Space stops it, [ and ] slow and quicken it (host).
-		if (@event.IsActionPressed("pause_clock")) { NetHub.I?.TogglePause(); GetViewport().SetInputAsHandled(); return; }
+		// (Space stops the clock in SettingsRuntime, ahead of the GUI.)
 		if (@event.IsActionPressed("clock_slower")) { NetHub.I?.ChangeSpeed(2f); return; }
 		if (@event.IsActionPressed("clock_faster")) { NetHub.I?.ChangeSpeed(0.5f); return; }
 		// Quick save / load: the host's privilege.
@@ -843,7 +1018,7 @@ public partial class PlayerController : Agent
 		if (NetHub.IsServer && (_questTick -= (float)delta) <= 0f) { _questTick = 0.4f; Task.Counted ??= (k, n) => Core.Quests.OnTask(this, k, n); Core.Quests.Tick(this); }
 		base._PhysicsProcess(delta);
 		float dt = (float)delta;
-		if (IsServerCopy) ServerCanoeTick();
+		if (IsServerCopy) ServerCanoeTick(dt);
 		UpdateCanoeVisual();
 
 		if (IsLocal)
@@ -928,9 +1103,11 @@ public partial class PlayerController : Agent
 		// world's walks are resolved, not walked). A slower clock leaves you
 		// your own pace: it is for longer days, not slow motion.
 		float clockBoost = Mathf.Clamp(GameCalendar.Instance.ClockPace, 1f, 8f);
+		if (IsCarryingCanoe) ground *= CarrySpeed;
 		var want = input * EffectiveSpeed * ground * Mathf.Max(travelBoost, clockBoost);
 		// Ice: no grip. You keep going the way you were going.
 		Velocity = slippery ? Velocity.Lerp(want, 0.06f) : want;
+		KeepToTheDeck();
 		if (input.X != 0) _sprite.FlipH = input.X < 0;
 		// Afloat you can't climb the bank except where it's low: any land cell
 		// counts as landing, so just don't let the canoe grind onto a wall.
@@ -955,13 +1132,28 @@ public partial class PlayerController : Agent
 			_facing = target;
 			if (side && IsSprinting) target = "run_side";
 		}
+		// In a canoe he paddles; sitting still, the paddle rests.
+		bool paddling = IsAfloat && _sprite.SpriteFrames.HasAnimation("paddle");
+		if (paddling) target = "paddle";
 		if (!_sprite.SpriteFrames.HasAnimation(target)) target = target.StartsWith("idle") ? "idle" : target == "run_side" ? "walk_side" : "walk";
 		if (_sprite.Animation != target) _sprite.Play(target);
-		_sprite.SpeedScale = IsSprinting && input != Vector2.Zero && target != "run_side" ? 1.6f : 1f;
+		_sprite.SpeedScale = paddling ? (input != Vector2.Zero ? 1f : 0f) : IsSprinting && input != Vector2.Zero && target != "run_side" ? 1.6f : 1f;
 		MoveAndSlide();
 	}
 
 	private string _facing = "walk";
+
+	// Aboard the ship (the crossing's last day out in the Bay, or at the
+	// wharf) you walk her deck and no further: a step off it onto open water
+	// is not taken. Stepping off onto the planks of the wharf is.
+	private void KeepToTheDeck()
+	{
+		if (IsAfloat || Mounted || Velocity == Vector2.Zero || Sim.Ship is not { Visible: true } ship || Sim.Terrain is not { } terrain) return;
+		var deck = ship.Position + new Vector2(0, 30);
+		if (GlobalPosition.DistanceTo(deck) > 160f) return;
+		var next = GlobalPosition + Velocity * 0.12f;
+		if (next.DistanceTo(deck) > 70f && terrain.IsWater(IsoGrid.FromWorld(next))) Velocity = Vector2.Zero;
+	}
 
 	public override void ApplySnapshot(Vector2 pos, string anim, bool flip)
 	{
@@ -1002,7 +1194,7 @@ public partial class PlayerController : Agent
 			["inv"] = inv, ["standing"] = Standing, ["task"] = Task.Kind == TaskKind.None ? "" : Task.Describe() + (Task.IsComplete ? " - done" : ""),
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "", ["focus"] = Core.Focus.For(this),
-			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["ride"] = RideId, ["faction"] = (int)Faction, ["afloat"] = Aboard != null,
+			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["ride"] = RideId, ["faction"] = (int)Faction, ["afloat"] = Aboard != null, ["carry"] = Carrying != null,
 			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["skills"] = new float[] { Skills.Hunting, Skills.Trapping, Skills.Trade, Skills.Woodcraft }, ["furs"] = BelievedFursMb, ["quota"] = BelievedQuotaMb, ["counted"] = LastCountedDay, ["unworn"] = UnwornList(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
 			["qmark"] = Core.Quests.FocusMark(this) is { } qm ? new Godot.Collections.Array { qm.At.X, qm.At.Y, qm.Label } : new Godot.Collections.Array(),
@@ -1032,6 +1224,7 @@ public partial class PlayerController : Agent
 		if ((bool)d["tele"]) GlobalPosition = new Vector2((float)d["px"], (float)d["py"]);
 		Faction = (Faction)(int)d["faction"];
 		_afloatMirror = (bool)d["afloat"];
+		if (d.ContainsKey("carry")) _carryMirror = (bool)d["carry"];
 		if (d.ContainsKey("ride") && !NetHub.IsServer) RideId = (int)d["ride"];
 		Intoxication = (float)d["drunk"]; SickDaysLeft = (float)d["sick"]; Rank = (string)d["rank"]; if (d.ContainsKey("fresh")) DaysSinceFresh = (float)d["fresh"];
 		if (d.ContainsKey("tongue")) CreeFluency = (float)d["tongue"];
@@ -1111,12 +1304,20 @@ public partial class PlayerController : Agent
 			case "canoe":
 			{
 				if (Aboard != null) return "Paddle to a bank to step out.";
+				if (Carrying != null) return "Set her down first.";
 				if (GameCalendar.Instance.IsFrozen) return "The canoes are frozen in till breakup. Walk on the ice.";
-				var canoe = Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 130f);
+				// The same reach as the prompt that offered her.
+				var canoe = Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f);
 				if (canoe == null) return "No canoe here.";
+				// Into her and off the bank onto open water: left standing on
+				// the bank, the next moment counted as landing again and the
+				// push-off came to nothing.
+				var water = OpenWaterNear(IsoGrid.FromWorld(canoe.GlobalPosition), 8);
+				if (water == null) return "She is drawn up too far from the water to push off here.";
+				SetStartPosition(IsoGrid.ToWorld(water.Value));
 				canoe.SetState(GlobalPosition, NetId);
 				Aboard = canoe;
-				return "You push off. Paddle onto the water; step onto any bank to land.";
+				return "You push off. Paddle with the movement keys; step onto any bank to land.";
 			}
 			case "dev_teleport":
 				if (!OS.IsDebugBuild()) return "";
@@ -1384,6 +1585,7 @@ public partial class PlayerController : Agent
 	// a bed, the woodpile or warehouse, work a door, look at a fire.
 	private string Interact()
 	{
+		if (Carrying != null) return SetDownCanoe();
 		var npc = NearestNpc(110f);
 		if (npc != null && !npc.IsDead)
 		{
@@ -1407,7 +1609,17 @@ public partial class PlayerController : Agent
 			foreach (var (id, n) in new List<(ItemId, int)>(body.Inventory.All())) { body.Inventory.Remove(id, n); Inventory.Add(id, n); moved += n; }
 			int papers = body.Mail.Count;
 			if (papers > 0) { Mail.AddRange(body.Mail); body.Mail.Clear(); Chronicle.Event($"{DisplayName} took the papers off {body.Describe()}'s body.", GlobalPosition, this, weight: 1.5f); }
-			return moved + papers > 0 ? $"You take what {body.Describe()} carried{(papers > 0 ? $", papers and all ({papers})" : "")}." : "Nothing left on the body.";
+			if (moved + papers > 0) return $"You take what {body.Describe()} carried{(papers > 0 ? $", papers and all ({papers})" : "")}. ({Core.Keybinds.KeyFor("interact")} again to bury {(body is Npc { IsFemale: true } ? "her" : "him")}.)";
+			// Nothing left on him: you put him in the ground. An hour's digging.
+			if (body is Npc dead)
+			{
+				bool frozen = GameCalendar.Instance.IsFrozen;
+				dead.Buried(this);
+				RequestSkip(1f, "");
+				if (frozen) return $"The ground is iron. You cover {dead.DisplayName} with stones and brush as well as you can, against the wolves.";
+				return $"You dig a grave and put {dead.DisplayName} in it. It takes the best part of an hour.";
+			}
+			return "Nothing left on the body.";
 		}
 
 		var pickup = NearestPickup();
@@ -1521,7 +1733,8 @@ public partial class PlayerController : Agent
 				// What you can carry, a piece at least (design doc 12.4).
 				var before = new Dictionary<ItemId, int>();
 				foreach (var (id, n) in Inventory.All()) before[id] = n;
-				int carried = ship.Cargo.MoveByWeight(Inventory, Mathf.Max(90f, CarryCapacityLbs - Inventory.TotalWeightLbs));
+				int carried = ship.Land(Inventory, Mathf.Max(90f, CarryCapacityLbs - Inventory.TotalWeightLbs));
+				if (carried == 0) return "Nothing on the wharf to carry yet: the next lighter is still coming off from the ship. The boats land the outfit by daylight, a load at a time.";
 				foreach (var (id, n) in Inventory.All()) { int got = n - before.GetValueOrDefault(id); if (got > 0) _shipCargo[id] = _shipCargo.GetValueOrDefault(id) + got; }
 				return $"You shoulder {carried} pieces of cargo from the ship. Carry them to the Depot and set them down at the storeroom chest.";
 			}
@@ -1548,6 +1761,7 @@ public partial class PlayerController : Agent
 	{
 		if (IsDead) return "";
 		if (_travel != null) return "On the river road - E or any step stops";
+		if (IsCarryingCanoe) return $"{Core.Keybinds.KeyFor("interact")}  Set the canoe down";
 		if (NearRoadHead(out bool atYork) && NearestNpc(110f) == null) return atYork ? $"{Core.Keybinds.KeyFor("interact")}  Take the river road inland to Oxford House (a day's march)" : $"{Core.Keybinds.KeyFor("interact")}  Take the river road down to York Factory";
 		var npc = NearestNpc(110f);
 		if (npc != null) return $"{Core.Keybinds.KeyFor("interact")}  Talk to {npc.DisplayName}";

@@ -181,9 +181,9 @@ public static class Wants
         else Used(b, ItemId.Rum, mouths * 0.02f * b.RumTaste / 20f);
         Used(b, ItemId.Beads, mouths * 0.01f);
         Used(b, ItemId.Stroud, mouths * 0.01f * w.A(ItemId.Stroud));
-        // Tools break.
+        // Tools break; the ones that came used from a middleman go twice as fast (Economy/Middlemen).
         foreach (var id in new[] { ItemId.Kettle, ItemId.Axe, ItemId.Musket, ItemId.Knife })
-            Used(b, id, b.Stores.Count(id) * 0.006f);
+            Used(b, id, (b.Stores.Count(id) + Middlemen.SecondHand(b, id)) * 0.006f);
 
         // What was used comes off the stores; what the camp did not have, it went without.
         int drunk = 0;

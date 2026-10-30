@@ -177,17 +177,27 @@ public partial class WeatherOverlay : Node
             }
 
             // Fog lies in bands rather than falling: three of them, drifting
-            // at different rates across the lower half of the view.
-            if (s._mist > 0.004f)
+            // slowly across the lower half of the view. Its frames melt into
+            // one another over seconds - cut from one to the next a few times
+            // a second, the whole lower screen strobed.
+            if (s._mist > 0.004f && s._fog.Frames[0] != null)
             {
-                var f = s._fog.At(t);
+                float phase = t * 0.12f;
+                int a = Mathf.PosMod((int)phase, 4), b = (a + 1) % 4;
+                float mix = phase - Mathf.Floor(phase);
+                mix = mix * mix * (3f - 2f * mix);
                 float h = Size.Y;
                 for (int i = 0; i < 3; i++)
                 {
                     float y = h * (0.42f + 0.17f * i);
-                    float speed = 18f + 11f * i;
-                    DrawTextureRect(f, new Rect2(-Mathf.PosMod(speed * t, f.GetWidth() * 2f), y, Size.X + f.GetWidth() * 2f, f.GetHeight() * (1.4f + 0.5f * i)),
-                        true, new Color(1, 1, 1, s._mist * (0.5f - 0.1f * i)));
+                    float speed = 6f + 4f * i;
+                    float alpha = s._mist * (0.32f - 0.07f * i);
+                    foreach (var (f, k) in new[] { (s._fog.Frames[a], 1f - mix), (s._fog.Frames[b], mix) })
+                    {
+                        if (f == null || k < 0.01f) continue;
+                        DrawTextureRect(f, new Rect2(-Mathf.PosMod(speed * t, f.GetWidth() * 2f), y, Size.X + f.GetWidth() * 2f, f.GetHeight() * (1.4f + 0.5f * i)),
+                            true, new Color(1, 1, 1, alpha * k));
+                    }
                 }
             }
 

@@ -97,6 +97,15 @@ public partial class SettingsRuntime : Node
         }
         // Not while something is being typed into.
         if (GetViewport().GuiGetFocusOwner() is LineEdit or TextEdit) return;
+        // The clock key works over everything in play - an open conversation,
+        // a scene page, a HUD button with focus (which Space would press).
+        if (@event.IsActionPressed("pause_clock") && GetTree().CurrentScene is not MainMenu && Sim.Player != null && !PauseMenu.IsOpen
+            && (ChatBox.Instance == null || !ChatBox.Instance.IsTyping))
+        {
+            NetHub.I?.TogglePause();
+            GetViewport().SetInputAsHandled();
+            return;
+        }
         if (@event is InputEventMouseButton { Pressed: true, CtrlPressed: true } mb && (mb.ButtonIndex == MouseButton.WheelUp || mb.ButtonIndex == MouseButton.WheelDown))
         {
             if (MapPanel.IsOpen) return;   // the map zooms itself

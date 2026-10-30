@@ -18034,6 +18034,41 @@
     "note": ""
    }
   ],
+  "ruins": [
+   {
+    "name": "Prince of Wales Fort",
+    "sub": "Ruin - taken by the French, 1782",
+    "note": "The Company's stone fort on the point at the Churchill mouth, built 1731-1771 and given up to La Perouse's squadron in August 1782. Hand-placed (not from the atlas): a rebuild of world.json must keep it.",
+    "top": [
+     752,
+     330
+    ],
+    "size": 12,
+    "bastion": 4,
+    "houses": [
+     [
+      3,
+      3,
+      6,
+      4
+     ],
+     [
+      2,
+      8,
+      3,
+      3
+     ]
+    ],
+    "rock": {
+     "name": "Sloop Cove",
+     "cell": [
+      764,
+      370
+     ],
+     "text": "Where the Company's sloops were laid up for the winter, the rock along the cove is smooth and grey, and men have cut their names in it: initials, dates, a ship. One is cut deeper and more carefully than the rest - \"Sl. Hearne, July ye 1 1767\" - Samuel Hearne, a mate on the sloops then, who walked to the Coppermine and back, and fifteen years later gave the fort to the French."
+    }
+   }
+  ],
   "towns": [
    {
     "name": "Fort Niagara",

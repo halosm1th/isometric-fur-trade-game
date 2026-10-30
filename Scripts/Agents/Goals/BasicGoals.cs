@@ -398,6 +398,7 @@ public class FollowGoal : Goal
     public readonly Agent Leader;
     private float _hoursLeft;
     private float _repath;
+    private bool _aboard;
     public FollowGoal(Agent leader, float hours = 10f) { Leader = leader; _hoursLeft = hours; }
     public override string Label => $"follow {Leader?.Describe()}";
 
@@ -405,8 +406,23 @@ public class FollowGoal : Goal
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {
+        if (Leader == null || !GodotObject.IsInstanceValid(Leader) || Leader.IsDead || npc.Following != Leader) { npc.Visible = true; npc.StopMoving(); return GoalStatus.Done; }
+        // His man goes where he goes, the boats included: a place on the next
+        // thwart, fed and watered with the crew, out on the bank with him at
+        // every landing. The day's end doesn't send him home from mid-river.
+        if (Leader is Player.PlayerController rider && World.Convoys.BoardedBy(rider) is { } boats)
+        {
+            npc.StopMoving();
+            npc.GlobalPosition = Leader.GlobalPosition + new Vector2(-36f, 10f);
+            npc.Visible = rider.RideId == 0;   // under way the boat's painted crew stands for him
+            npc.Needs.Thirst = 100f;
+            npc.Needs.Hunger = Mathf.Max(npc.Needs.Hunger, 60f);
+            if (!_aboard) { _aboard = true; Sim.Notice($"{npc.DisplayName} climbs into the boats after {Leader.Describe()}."); }
+            return GoalStatus.Running;
+        }
+        if (_aboard) { _aboard = false; npc.Visible = true; }
         _hoursLeft -= hours;
-        if (Leader == null || !GodotObject.IsInstanceValid(Leader) || Leader.IsDead || _hoursLeft <= 0f || npc.Following != Leader) { npc.StopMoving(); return GoalStatus.Done; }
+        if (_hoursLeft <= 0f) { npc.StopMoving(); return GoalStatus.Done; }
         float dist = npc.GlobalPosition.DistanceTo(Leader.GlobalPosition);
         if (dist > 3000f) { npc.StopMoving(); Sim.Notice($"{npc.DisplayName} has lost sight of {Leader.Describe()} and turns back."); return GoalStatus.Done; }
         if (dist < 150f) { npc.StopMoving(); return GoalStatus.Running; }
@@ -416,7 +432,7 @@ public class FollowGoal : Goal
         return GoalStatus.Running;
     }
 
-    public override void OnExit(Npc npc) { if (npc.Following == Leader) npc.Following = null; npc.StopMoving(); }
+    public override void OnExit(Npc npc) { if (npc.Following == Leader) npc.Following = null; npc.Visible = true; npc.StopMoving(); }
 }
 
 // Run from something for a while.

@@ -33,7 +33,7 @@ public class Pathfinder
     public bool IsWalkable(Vector2I c)
     {
         if (!InBounds(c)) return false;
-        if (_terrain.IsWater(c)) return false;
+        if (_terrain.IsDeepWater(c)) return false;
         if (_structures.IsCellSolid(c)) return false;
         return true;
     }

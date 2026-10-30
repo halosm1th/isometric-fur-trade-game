@@ -29,7 +29,7 @@ public partial class Conversation
     public Godot.Collections.Dictionary StartStores(Economy.FortLedger fort)
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
-        _npc = null; _stores = fort; _closed = false; _drawing = false; _said = "";
+        _npc = null; _scene = null; _stores = fort; _closed = false; _drawing = false; _said = "";
         ShowStores();
         return State();
     }
@@ -40,7 +40,7 @@ public partial class Conversation
     public Godot.Collections.Dictionary StartWoodpile(Economy.Household pile)
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
-        _npc = null; _stores = null; _pile = pile; _closed = false;
+        _npc = null; _scene = null; _stores = null; _pile = pile; _closed = false;
         ShowWoodpile();
         return State();
     }
@@ -103,7 +103,7 @@ public partial class Conversation
     public Godot.Collections.Dictionary StartCanoe(World.Canoe canoe)
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
-        _npc = null; _stores = null; _pile = null; _canoe = canoe; _closed = false;
+        _npc = null; _scene = null; _stores = null; _pile = null; _canoe = canoe; _closed = false;
         ShowCanoe();
         return State();
     }
@@ -116,6 +116,13 @@ public partial class Conversation
         if (_player.Aboard == null) AddOption("Push off", () => { Close(); Net.Net.I?.Act("canoe"); });
         AddOption("Load your goods and furs into her", () => { _text = _player.CanoeLoad(c, true); ShowCanoe(); });
         if (c.Cargo.SlotCount > 0) AddOption("Take everything out", () => { _text = _player.CanoeLoad(c, false); ShowCanoe(); });
+        if (_player.Aboard == null && _player.Carrying == null)
+            AddOption("Shoulder her and carry her over the portage", () =>
+            {
+                string said = _player.ShoulderCanoe(c);
+                if (_player.Carrying == c) { Close(); _player.Say(said); }
+                else { _text = said; ShowCanoe(); }
+            });
         AddOption("Leave her", Close);
     }
 
@@ -223,7 +230,7 @@ public partial class Conversation
     public Godot.Collections.Dictionary Start(Npc npc)
     {
         if (_npc != null && GodotObject.IsInstanceValid(_npc) && _npc != npc) _npc.Conversing = false;
-        _npc = npc; _stores = null; _pile = null; _canoe = null;
+        _npc = npc; _scene = null; _stores = null; _pile = null; _canoe = null;
         _closed = false;
         npc.Conversing = true;
         npc.StopMoving();
@@ -592,10 +599,8 @@ public partial class Conversation
         AddOption("Tell me about yourself", () => ShowTalk(npc, AskAboutThem(npc)));
         AddOption("What's the talk? (rumours)", () => ShowTalk(npc, AskGossip(npc)));
         AddOption("What are you about these days?", () => ShowTalk(npc, AskAbout(npc)));
-        if (canTalk) AddOption("Pass the time with them...", () => ShowPassTime(npc));
-        if (canTalk) AddOption("Try to talk them round...", () => ShowPersuade(npc));
-        if (canTalk) AddOption("Get to know them...", () => ShowAcquaint(npc));
-        if (canTalk) AddOption("Tell them something... (it needn't be true)", () => ShowLieWho(npc, false));
+        // Getting on with them, one door instead of four (the menu was a wall of choices).
+        if (canTalk) AddOption("Spend some time with them...", () => ShowSocial(npc));
         if (canTalk && StoriesAboutMe(npc).Count > 0) AddOption("What are they saying about me?", () => ShowDeny(npc));
         if ((npc.IsBandPerson && npc.Role is Role.Chief or Role.Hunter) || npc.Role is Role.Labourer or Role.Voyageur or Role.NwcPartner)
             AddOption("Where is the game?", () => ShowTalk(npc, AskHunting(npc)));
@@ -615,6 +620,17 @@ public partial class Conversation
             AddOption("What did the council decide?", () => ShowTalk(npc, $"\"{Sim.Nwc.DirectiveText}\""));
         if (npc.IsBandPerson && !canTalk) _text += " (You have only signs and a few words with them.)";
         AddOption("Back", () => ShowTopics(Greeting(npc)));
+    }
+
+    private void ShowSocial(Npc npc)
+    {
+        _text = $"{npc.DisplayName} has a little time.";
+        ClearOptions();
+        AddOption("Pass the time with them...", () => ShowPassTime(npc));
+        AddOption("Get to know them...", () => ShowAcquaint(npc));
+        AddOption("Try to talk them round...", () => ShowPersuade(npc));
+        AddOption("Tell them something... (it needn't be true)", () => ShowLieWho(npc, false));
+        AddOption("Back", () => ShowTalk(npc));
     }
 
     // What the house expects by water, and what it has heard of it (World/Convoys.cs).
@@ -741,6 +757,7 @@ public partial class Conversation
             var story = m;
             string told = Barks.YouForm(story.Text, _player.DisplayName);
             AddOption($"\"{(told.Length > 60 ? told.Substring(0, 57) + "..." : told)}\" - deny it", () => ShowDeny(npc, Lies.Deny(npc, _player, story, false)));
+            AddOption("   ...or own it: \"Aye, I did.\"", () => ShowDeny(npc, Lies.Own(npc, _player, story)));
             string liar = Lies.KnownLiar(_player, story.Key);
             if (liar != null) AddOption($"   ...and say {Barks.CallName(liar)} started it", () => ShowDeny(npc, Lies.Deny(npc, _player, story, true)));
         }
@@ -1398,29 +1415,9 @@ public partial class Conversation
     }
 
     // Ransom and parole (design doc 9.1): a prisoner is worth more loose.
-    private string Ransom(Npc captor)
-    {
-        int price = 12;
-        if (_player.Inventory.Count(ItemId.TradeGoods) < price) return $"\"Twelve pieces of goods and you may walk out. You have {_player.Inventory.Count(ItemId.TradeGoods)}.\"";
-        _player.Inventory.Remove(ItemId.TradeGoods, price);
-        captor.HomeStores?.Stores.Add(ItemId.TradeGoods, price);
-        var post = _player.CaptiveOf; _player.CaptiveOf = null; _player.CaptiveUntilDay = -1;
-        captor.ChangeRapport(_player, 4f);
-        Chronicle.Event($"{_player.DisplayName} bought his freedom from {captor.DisplayName} for {price} pieces.", captor.GlobalPosition, _player, weight: 1.2f);
-        return $"\"A man who pays is a man of sense.\" {captor.DisplayName} counts the goods and waves you at the gate. ({post.Title} keeps your kit.)";
-    }
+    private string Ransom(Npc captor) => Core.Captivity.RansomFromPack(_player, captor);
 
-    private string Parole(Npc captor)
-    {
-        float r = captor.RapportWith(_player);
-        if (captor.Personality.Suspicion > 0.65f && r < 10f) return "\"Your word? I have seen what your word is worth.\"";
-        _player.CaptiveOf = null; _player.CaptiveUntilDay = -1;
-        _player.ParoleUntilDay = GameCalendar.Instance.Day + 120;
-        _player.ParoleTo = captor.Faction;
-        captor.ChangeRapport(_player, 8f);
-        Chronicle.Event($"{_player.DisplayName} gave his parole to {captor.DisplayName}.", captor.GlobalPosition, _player, weight: 1.5f);
-        return "\"Then go. No arms against us till the ice goes out - and I will hear of it if you break it.\" You are free, and bound by your word for four months.";
-    }
+    private string Parole(Npc captor) => Core.Captivity.Parole(_player, captor);
 
     private string Confess(Npc leader)
     {
@@ -1656,14 +1653,20 @@ public partial class Conversation
         var ship = Sim.Ship;
         var threats = 0;
         foreach (var a in Sim.Animals) if (!a.IsDead && a.IsDangerous) threats++;
+        bool cargo = ship != null && ship.IsDocked && ship.Cargo.SlotCount > 0;
+        // Nobody is sent to the bush for wood in a downpour: the woodpile
+        // waits for the weather, and a man soaked through is no use to anyone.
+        bool wet = GameCalendar.Instance?.Weather.At(factor.GlobalPosition) is SkyState.Rain or SkyState.Storm;
         // Asking gets you today's order on the spot if you haven't one.
         if (_player.Task.Kind == TaskKind.None || _player.Task.IsComplete)
         {
             if (threats > 0) _player.AssignTask(TaskKind.DriveOffAnimals, 1);
-            else if (ship != null && ship.IsDocked && ship.Cargo.SlotCount > 0) _player.AssignTask(TaskKind.CarryCargo, 8);
+            else if (cargo) _player.AssignTask(TaskKind.CarryCargo, 8);
+            else if (wet) return "\"In this?\" He looks out at the rain. \"Get yourself dry at the fire. The woodpile will keep till it clears - come and see me then.\"";
             else _player.AssignTask(TaskKind.Firewood, 4);
         }
-        if (ship != null && ship.IsDocked) return "\"Work? The ship is in, man. Get down to the landing and carry.\"";
+        if (_player.Task.Kind == TaskKind.CarryCargo && cargo) return "\"Work? The ship is in, man. Get down to the landing and carry.\"";
+        if (_player.Task.Kind == TaskKind.Firewood && wet) return "\"The wood, when this rain lets up. Not before - I'll not have you down with a fever.\"";
         if (threats > 0)
         {
             if (!_player.Inventory.Has(ItemId.Musket) && Sim.Fort != null && Sim.Fort.Stores.Remove(ItemId.Musket)) { _player.Inventory.Add(ItemId.Musket); return "\"There are beasts about the post.\" He hands you a musket from the stores. \"See them off.\""; }
