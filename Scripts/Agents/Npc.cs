@@ -105,7 +105,7 @@ public partial class Npc : Agent
         }
         Memories.Add(e);
         // Personality filters (design doc 11.4): what you think of the actor.
-        if (e.Actor != null && e.Actor != this && (e.Text.Contains(" robbed ") || e.Text.Contains(" killed ") || e.Text.Contains(" struck ")))
+        if (e.Actor != null && e.Actor != this && (e.Text.Contains(" robbed ") || e.Text.Contains(" killed ") || e.Text.Contains(" struck ")) && !Lies.WasDefence(this, e))
             ChangeRapport(e.Actor, -6f * e.Weight / e.Directness);
         Lies.Consequences(this, e);
         Friends.Heard(this, e);
@@ -1063,8 +1063,54 @@ public partial class Npc : Agent
     }
     private bool _quietDeath;
 
+    // ---- the body -----------------------------------------------------------------------
+
+    // When he died, in hours of the whole game (-1 alive).
+    public float DiedAt = -1f;
+    private static float HoursNow() { var cal = GameCalendar.Instance; return cal == null ? 0f : cal.Year * 8784f + cal.DayOfYear * 24f + cal.Hour; }
+    private static float _decayTimer;
+
+    // A body left lying goes to the ravens and the weather (server, a few
+    // times a game hour): stripped, it is gone in three days; untouched, in
+    // ten, and what he carried with it. In the hard cold a body keeps, as it
+    // did, till the thaw.
+    public static void DecayBodies(float hours)
+    {
+        if ((_decayTimer -= hours) > 0f) return;
+        _decayTimer = 0.5f;
+        var cal = GameCalendar.Instance;
+        if (cal == null || (Engine.GetMainLoop() as SceneTree) is not { } tree) return;
+        if (cal.IsFrozen && cal.CurrentSeason == Season.Winter) return;
+        float now = HoursNow();
+        foreach (var node in tree.GetNodesInGroup("corpses"))
+        {
+            if (node is not Npc n || !IsInstanceValid(n) || n.IsQueuedForDeletion() || n.DiedAt < 0f) continue;
+            float age = now - n.DiedAt;
+            bool stripped = n.Inventory.SlotCount == 0 && n.Mail.Count == 0;
+            if (age < (stripped ? 72f : 240f)) continue;
+            n.RemoveFromGroup("corpses");
+            var fade = n.CreateTween();
+            fade.TweenProperty(n, "modulate:a", 0f, 2.5f);
+            fade.TweenCallback(Callable.From(n.QueueFree));
+        }
+    }
+
+    // Put in the ground by someone (the player, PlayerController): gone, and remembered for it.
+    public void Buried(Agent by)
+    {
+        RemoveFromGroup("corpses");
+        Chronicle.Event($"{by.DisplayName} buried {DisplayName}.", GlobalPosition, by, DisplayName, 0.9f);
+        foreach (var a in Sim.AgentsWithin(GlobalPosition, 600f))
+            if (a is Npc kin && !kin.IsDead && (kin.Faction == Faction || kin.HomeStores != null && kin.HomeStores == HomeStores)) kin.ChangeRapport(by, 4f);
+        var fade = CreateTween();
+        fade.TweenProperty(this, "modulate:a", 0f, 1.5f);
+        fade.TweenCallback(Callable.From(QueueFree));
+    }
+
     protected override void OnDeath()
     {
+        // Killed with his hands in another house's stores: to that house it was no crime.
+        if (Raiding) Lies.FellRaiding(DisplayName, RaidTarget);
         base.OnDeath();
         Brain.Clear(this);
         StopMoving();
@@ -1085,6 +1131,7 @@ public partial class Npc : Agent
         if (_label != null) _label.Text = $"{DisplayName} (dead)";
         CollisionLayer = 0; CollisionMask = 0;
         AddToGroup("corpses");
+        DiedAt = HoursNow();
         Sim.Unregister(this);
         if (!_quietDeath) Losses.Record(this);
         // Say what took him: a death nobody can account for is no use to

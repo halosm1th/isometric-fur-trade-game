@@ -187,7 +187,7 @@ public partial class Conversation
             list.Add(new("rivals", npc.Faction == Faction.HBC ? "\"The Nor'Westers would sell their own mothers for a pack of beaver, and buy them back cheaper.\"" : "\"The Bay men sit on their shore and wait for the furs to walk in. Old women.\"", Lean.Scorn));
         foreach (var l in Losses.All) if (l.Home == npc.HomeStores && l.Fresh) { list.Add(new("loss:" + l.Name, $"\"I keep thinking about {l.Name}. He was sitting just there a week ago.\"", Lean.Wistful)); break; }
         foreach (var m in npc.Memories)
-            if (m.Directness <= 2 && m.Weight >= 0.6f && m.Actor != _player as Agent) { list.Add(new("heard:" + m.Key, $"\"Did you hear? {m.Text} What do you make of that?\"", Lean.Question)); break; }
+            if (m.Directness <= 2 && m.Weight >= 0.6f && m.Actor != _player as Agent) { list.Add(new("heard:" + m.Key, $"\"Did you hear? {Capital(m.Text)} What do you make of that?\"", Lean.Question)); break; }
         // The old story of the straits (Economy/Lacrosse): the Ojibwe's game
         // outside Fort Michilimackinac on the King's birthday in 1763, told by
         // the old people of the Anishinaabe camps and the old traders of the
@@ -441,4 +441,7 @@ public partial class Conversation
         }
         ShowPersuade(npc, result);
     }
+
+    // A remembered line begins mid-sentence ("the ship came in..."); spoken after a question it starts afresh.
+    private static string Capital(string s) => string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0]) + s.Substring(1);
 }

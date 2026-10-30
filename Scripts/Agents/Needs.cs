@@ -65,6 +65,11 @@ public class Needs
     public float Thirst = 100f;
     public float Warmth = 100f;
     public float Health = 100f;
+    // How soaked his clothes are, 0..1 (design doc 17.3): rain wets him
+    // through in an hour or two out in it, and a roof and a fire dry him.
+    // Wet, his coat keeps out a third of what it did and the wet itself
+    // draws the warmth out of him, even in August.
+    public float Wet;
 
     // Points per game hour.
     private const float HungerBase = 1.1f;      // ~4 days to empty
@@ -76,6 +81,9 @@ public class Needs
     private const float ShelterWindFactor = 0.35f;
     // An open fire in the wind loses most of its heat to the air.
     private const float OpenFireFactor = 0.4f;
+    // Warmth an hour lost to clothes soaked through, on top of the cold:
+    // a day's rain with no fire and no roof brings a man to the shivers.
+    private const float WetChill = 9f;
 
     // Below this a need starts costing capability before it costs health -
     // the "visible spiral" rather than sudden death.
@@ -89,7 +97,7 @@ public class Needs
     // when you are trying to look at something else.
     public bool GodMode;
 
-    public void Tick(float gameHours, float activity, bool sheltered, float heat, float clothingWarmth, Season season, float daylight, bool fireEnclosed = false, float localExposure = -1f, float localWeather = -1f)
+    public void Tick(float gameHours, float activity, bool sheltered, float heat, float clothingWarmth, Season season, float daylight, bool fireEnclosed = false, float localExposure = -1f, float localWeather = -1f, bool rainedOn = false)
     {
         if (gameHours <= 0f || IsDead) return;
         if (GodMode)
@@ -107,7 +115,9 @@ public class Needs
         // both together (design doc 17.3 / 18.4).
         float weather = localWeather >= 0f ? localWeather : GameCalendar.Instance?.Weather.ExposureMultiplier ?? 1f;
         float exposure = (localExposure >= 0f ? localExposure : Climate.ExposurePerHour(season, daylight)) * (sheltered ? ShelterWindFactor : weather);
-        float loss = Mathf.Max(0f, exposure - clothingWarmth);
+        if (rainedOn && !sheltered) Wet = Mathf.Min(1f, Wet + 0.7f * gameHours);
+        else Wet = Mathf.Max(0f, Wet - (heat > 0.05f ? 0.8f : sheltered ? 0.25f : 0.12f) * gameHours);
+        float loss = Mathf.Max(0f, exposure - clothingWarmth * (1f - 0.65f * Wet)) + WetChill * Wet;
         float gain = heat * HearthRecovery * (sheltered || fireEnclosed ? 1f : OpenFireFactor);
         Warmth = Mathf.Clamp(Warmth + (gain - loss) * gameHours, 0f, 100f);
 

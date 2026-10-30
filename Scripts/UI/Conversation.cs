@@ -740,6 +740,7 @@ public partial class Conversation
             var story = m;
             string told = Barks.YouForm(story.Text, _player.DisplayName);
             AddOption($"\"{(told.Length > 60 ? told.Substring(0, 57) + "..." : told)}\" - deny it", () => ShowDeny(npc, Lies.Deny(npc, _player, story, false)));
+            AddOption("   ...or own it: \"Aye, I did.\"", () => ShowDeny(npc, Lies.Own(npc, _player, story)));
             string liar = Lies.KnownLiar(_player, story.Key);
             if (liar != null) AddOption($"   ...and say {Barks.CallName(liar)} started it", () => ShowDeny(npc, Lies.Deny(npc, _player, story, true)));
         }
@@ -1654,14 +1655,20 @@ public partial class Conversation
         var ship = Sim.Ship;
         var threats = 0;
         foreach (var a in Sim.Animals) if (!a.IsDead && a.IsDangerous) threats++;
+        bool cargo = ship != null && ship.IsDocked && ship.Cargo.SlotCount > 0;
+        // Nobody is sent to the bush for wood in a downpour: the woodpile
+        // waits for the weather, and a man soaked through is no use to anyone.
+        bool wet = GameCalendar.Instance?.Weather.At(factor.GlobalPosition) is SkyState.Rain or SkyState.Storm;
         // Asking gets you today's order on the spot if you haven't one.
         if (_player.Task.Kind == TaskKind.None || _player.Task.IsComplete)
         {
             if (threats > 0) _player.AssignTask(TaskKind.DriveOffAnimals, 1);
-            else if (ship != null && ship.IsDocked && ship.Cargo.SlotCount > 0) _player.AssignTask(TaskKind.CarryCargo, 8);
+            else if (cargo) _player.AssignTask(TaskKind.CarryCargo, 8);
+            else if (wet) return "\"In this?\" He looks out at the rain. \"Get yourself dry at the fire. The woodpile will keep till it clears - come and see me then.\"";
             else _player.AssignTask(TaskKind.Firewood, 4);
         }
-        if (ship != null && ship.IsDocked) return "\"Work? The ship is in, man. Get down to the landing and carry.\"";
+        if (_player.Task.Kind == TaskKind.CarryCargo && cargo) return "\"Work? The ship is in, man. Get down to the landing and carry.\"";
+        if (_player.Task.Kind == TaskKind.Firewood && wet) return "\"The wood, when this rain lets up. Not before - I'll not have you down with a fever.\"";
         if (threats > 0)
         {
             if (!_player.Inventory.Has(ItemId.Musket) && Sim.Fort != null && Sim.Fort.Stores.Remove(ItemId.Musket)) { _player.Inventory.Add(ItemId.Musket); return "\"There are beasts about the post.\" He hands you a musket from the stores. \"See them off.\""; }

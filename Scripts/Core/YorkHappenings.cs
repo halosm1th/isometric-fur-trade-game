@@ -440,11 +440,11 @@ public static class YorkHappenings
         int armed = 0;
         foreach (var n in new List<Npc>(Sim.Npcs))
         {
-            if (armed >= 6) break;
+            if (armed >= 8) break;
             if (n.IsDead || n.Faction != Faction.HBC || n.IsFemale || !AtYork(n) || n.Role is not (Role.Labourer or Role.Clerk) || n.Personality.Courage < 0.3f) continue;
             if (!n.Inventory.Has(ItemId.Musket) && Sim.Fort.Stores.Remove(ItemId.Musket)) n.Inventory.Add(ItemId.Musket);
             if (!n.Inventory.Has(ItemId.Musket)) continue;
-            n.Brain.Push(n, new Agents.Goals.GuardGoal(Sim.Fort.AccessCell, 5f));
+            n.Brain.Push(n, new Agents.Goals.DefendHouseGoal(Sim.Fort.AccessCell, 6f));
             armed++;
         }
 

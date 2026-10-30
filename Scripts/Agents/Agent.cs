@@ -114,6 +114,7 @@ public partial class Agent : CharacterBody2D
     }
 
     private float _envTimer = (float)GD.RandRange(0.0, 0.25), _exposure, _weatherExposure = 1f, _clothing;
+    private bool _rainedOn;
     // How many frames' worth of time this step covers (1 for anyone who steps every frame).
     protected float StepScale = 1f;
 
@@ -171,6 +172,7 @@ public partial class Agent : CharacterBody2D
             HeatEnclosed = enclosed;
             _exposure = Climate.ExposureAt(GlobalPosition, cal.DaylightFactor, cal.DayOfYear);
             _weatherExposure = cal.Weather.ExposureMultiplierAt(GlobalPosition);
+            _rainedOn = cal.Weather.At(GlobalPosition) is SkyState.Rain or SkyState.Storm;
             if (this is Npc) DressForWeather();
             _clothing = Inventory.ClothingWarmth + InnateWarmth;
         }
@@ -200,7 +202,8 @@ public partial class Agent : CharacterBody2D
             daylight: cal.DaylightFactor,
             fireEnclosed: HeatEnclosed,
             localExposure: _exposure,
-            localWeather: _weatherExposure);
+            localWeather: _weatherExposure,
+            rainedOn: _rainedOn);
 
         if (IsDead) OnDeath();
     }

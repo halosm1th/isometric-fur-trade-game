@@ -1,4 +1,5 @@
 using Godot;
+using IsometricFurTradeGame.Scripts.Core;
 using IsometricFurTradeGame.Scripts.World;
 
 namespace IsometricFurTradeGame.Scripts.Agents.Goals;
@@ -42,4 +43,38 @@ public class RaidPartyGoal : Goal
     }
 
     public override void OnExit(Npc npc) { npc.Raiding = false; npc.RaidTimer = 0f; }
+}
+
+// The house's men when the alarm rings (Core/YorkHappenings): stand to by
+// the stores and go for any raider in reach - the one at the door, or the
+// one shooting at one of their own out in the yard. Pacing by the door
+// while a raider fired on the new hand fifty yards off was no defence.
+public class DefendHouseGoal : Goal
+{
+    private readonly Vector2I _post;
+    private float _left, _shift;
+    public DefendHouseGoal(Vector2I post, float hours) { _post = post; _left = hours; }
+    public override string Label => "stand to";
+
+    public override GoalStatus Tick(Npc npc, float dt, float hours)
+    {
+        ChildFinished(out _);
+        _left -= hours; _shift -= hours;
+        if (_left <= 0f) return GoalStatus.Done;
+        Agent foe = null; float best = 1100f;
+        foreach (var a in Sim.AgentsWithin(npc.GlobalPosition, 1100f))
+        {
+            if (a.IsDead || !a.Raiding || a.RaidTarget != npc.Faction) continue;
+            float d = a.GlobalPosition.DistanceTo(npc.GlobalPosition);
+            if (d < best) { best = d; foe = a; }
+        }
+        if (foe != null) return Delegate(new AttackGoal(foe));
+        if (_shift <= 0f)
+        {
+            _shift = 0.5f;
+            npc.SetDestination(new Vector2I(_post.X + GD.RandRange(-1, 1), _post.Y + GD.RandRange(-2, 2)));
+        }
+        return GoalStatus.Running;
+    }
+    public override void OnExit(Npc npc) => npc.StopMoving();
 }

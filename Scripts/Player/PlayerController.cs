@@ -550,7 +550,8 @@ public partial class PlayerController : Agent
 	{
 		var cal = GameCalendar.Instance;
 		EndCargoTaskIfHoldEmpty();
-		if (Task.Kind != TaskKind.None && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say($"Yesterday's task went undone. {(Task.Boss != "" ? Task.Boss : "The master")} noticed."); }
+		// Reporting in is not a chore left undone: the order to report is answered by reporting.
+		if (Task.Kind is not (TaskKind.None or TaskKind.Report) && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say($"Yesterday's task went undone. {(Task.Boss != "" ? Task.Boss : "The master")} noticed."); }
 		if (Task.Kind != TaskKind.None && Task.IsComplete) { Standing += 5f; TasksDone++; }
 		Task.Kind = kind; Task.Need = need; Task.Done = 0; Task.DayAssigned = cal.Day; Task.Intent = intent ?? ""; Task.Deadline = cal.Day + 1; Task.Accepted = false; Task.OwnWay = false;
 		Task.Boss = HomePost?.Leader is { } boss && !boss.IsDead ? Agents.Barks.CallName(boss) : "";
@@ -653,7 +654,7 @@ public partial class PlayerController : Agent
 		// Watching, not playing: the camera's keys, then the clock's, and nothing else.
 		if (Ghost && ObserverInput(@event)) { GetViewport().SetInputAsHandled(); return; }
 		// The clock: Space stops it, [ and ] slow and quicken it (host).
-		if (@event.IsActionPressed("pause_clock")) { NetHub.I?.TogglePause(); GetViewport().SetInputAsHandled(); return; }
+		// (Space stops the clock in SettingsRuntime, ahead of the GUI.)
 		if (@event.IsActionPressed("clock_slower")) { NetHub.I?.ChangeSpeed(2f); return; }
 		if (@event.IsActionPressed("clock_faster")) { NetHub.I?.ChangeSpeed(0.5f); return; }
 		// Quick save / load: the host's privilege.
@@ -931,6 +932,7 @@ public partial class PlayerController : Agent
 		var want = input * EffectiveSpeed * ground * Mathf.Max(travelBoost, clockBoost);
 		// Ice: no grip. You keep going the way you were going.
 		Velocity = slippery ? Velocity.Lerp(want, 0.06f) : want;
+		KeepToTheDeck();
 		if (input.X != 0) _sprite.FlipH = input.X < 0;
 		// Afloat you can't climb the bank except where it's low: any land cell
 		// counts as landing, so just don't let the canoe grind onto a wall.
@@ -962,6 +964,18 @@ public partial class PlayerController : Agent
 	}
 
 	private string _facing = "walk";
+
+	// Aboard the ship (the crossing's last day out in the Bay, or at the
+	// wharf) you walk her deck and no further: a step off it onto open water
+	// is not taken. Stepping off onto the planks of the wharf is.
+	private void KeepToTheDeck()
+	{
+		if (IsAfloat || Mounted || Velocity == Vector2.Zero || Sim.Ship is not { Visible: true } ship || Sim.Terrain is not { } terrain) return;
+		var deck = ship.Position + new Vector2(0, 30);
+		if (GlobalPosition.DistanceTo(deck) > 160f) return;
+		var next = GlobalPosition + Velocity * 0.12f;
+		if (next.DistanceTo(deck) > 70f && terrain.IsWater(IsoGrid.FromWorld(next))) Velocity = Vector2.Zero;
+	}
 
 	public override void ApplySnapshot(Vector2 pos, string anim, bool flip)
 	{
@@ -1407,7 +1421,17 @@ public partial class PlayerController : Agent
 			foreach (var (id, n) in new List<(ItemId, int)>(body.Inventory.All())) { body.Inventory.Remove(id, n); Inventory.Add(id, n); moved += n; }
 			int papers = body.Mail.Count;
 			if (papers > 0) { Mail.AddRange(body.Mail); body.Mail.Clear(); Chronicle.Event($"{DisplayName} took the papers off {body.Describe()}'s body.", GlobalPosition, this, weight: 1.5f); }
-			return moved + papers > 0 ? $"You take what {body.Describe()} carried{(papers > 0 ? $", papers and all ({papers})" : "")}." : "Nothing left on the body.";
+			if (moved + papers > 0) return $"You take what {body.Describe()} carried{(papers > 0 ? $", papers and all ({papers})" : "")}. ({Core.Keybinds.KeyFor("interact")} again to bury {(body is Npc { IsFemale: true } ? "her" : "him")}.)";
+			// Nothing left on him: you put him in the ground. An hour's digging.
+			if (body is Npc dead)
+			{
+				bool frozen = GameCalendar.Instance.IsFrozen;
+				dead.Buried(this);
+				RequestSkip(1f, "");
+				if (frozen) return $"The ground is iron. You cover {dead.DisplayName} with stones and brush as well as you can, against the wolves.";
+				return $"You dig a grave and put {dead.DisplayName} in it. It takes the best part of an hour.";
+			}
+			return "Nothing left on the body.";
 		}
 
 		var pickup = NearestPickup();
@@ -1521,7 +1545,8 @@ public partial class PlayerController : Agent
 				// What you can carry, a piece at least (design doc 12.4).
 				var before = new Dictionary<ItemId, int>();
 				foreach (var (id, n) in Inventory.All()) before[id] = n;
-				int carried = ship.Cargo.MoveByWeight(Inventory, Mathf.Max(90f, CarryCapacityLbs - Inventory.TotalWeightLbs));
+				int carried = ship.Land(Inventory, Mathf.Max(90f, CarryCapacityLbs - Inventory.TotalWeightLbs));
+				if (carried == 0) return "Nothing on the wharf to carry yet: the next lighter is still coming off from the ship. The boats land the outfit by daylight, a load at a time.";
 				foreach (var (id, n) in Inventory.All()) { int got = n - before.GetValueOrDefault(id); if (got > 0) _shipCargo[id] = _shipCargo.GetValueOrDefault(id) + got; }
 				return $"You shoulder {carried} pieces of cargo from the ship. Carry them to the Depot and set them down at the storeroom chest.";
 			}
