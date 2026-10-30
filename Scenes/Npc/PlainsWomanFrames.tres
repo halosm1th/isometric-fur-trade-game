@@ -1,0 +1,32 @@
+[gd_resource type="SpriteFrames" load_steps=4 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/plains_woman/idle_front.png" id="t1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/plains_woman/idle_side.png" id="t2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/plains_woman/idle_back.png" id="t3"]
+
+[resource]
+animations = [{
+"name": &"idle",
+"speed": 5.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t1")
+}]
+}, {
+"name": &"idle_side",
+"speed": 5.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t2")
+}]
+}, {
+"name": &"idle_back",
+"speed": 5.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t3")
+}]
+}]

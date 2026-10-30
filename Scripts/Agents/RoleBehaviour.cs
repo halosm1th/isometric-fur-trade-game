@@ -347,11 +347,19 @@ public class SailorBehaviour : RoleBehaviour
         var ship = Sim.Ship;
         if (ship == null || !ship.IsDocked) return new WanderGoal(WorldLayout.WharfEnd, 1, 1f);
         if (IsNight) return new WanderGoal(WorldLayout.WharfEnd, 1, 2f);
+        if (npc.IsShipsMaster) return Master();
         if (ship.Cargo.SlotCount > 0) return new CarryCargoGoal(true);
         if (Sim.Fort != null && Sim.Fort.FursInStoreMb > 0f && ship.LoadingOpen) return new CarryCargoGoal(false);
         return new WanderGoal(WorldLayout.WharfEnd, 2, 1f);
     }
     protected override Goal Work(Npc npc) => null;
+
+    // The master carries nothing: his mornings are business at the Chief
+    // Factor's door (the invoices, the packet, the furs he is to take), the
+    // rest of the day on the wharf's end, watching his ship loaded.
+    private static Goal Master() => Cal.Hour < 12f
+        ? new WanderGoal(WorldLayout.FactorsHouse.DoorCell, 1, Mathf.Max(0.5f, 12f - Cal.Hour))
+        : new WanderGoal(WorldLayout.WharfEnd, 1, 3f);
 }
 
 // The towns (World/Towns). A farmer of the cote is in his fields from the

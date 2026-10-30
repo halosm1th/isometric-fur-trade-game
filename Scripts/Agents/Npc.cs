@@ -900,6 +900,8 @@ public partial class Npc : Agent
     }
 
     // The men who carry muskets for the house; leaders, clerks and women don't turn out.
+    // The ship's master (Population.Sailors' last name): his own coat, no cargo.
+    public bool IsShipsMaster => Role == Role.Sailor && DisplayName?.StartsWith("Captain ") == true;
     public bool IsFighter => !IsFemale && Weapon != null && (Role == Role.Labourer || Role == Role.Voyageur || Role == Role.Hunter || Role == Role.Sailor || Role == Role.Soldier || Role == Role.Farmer);
 
     // Someone robbing our house is an enemy while they're at it - to the

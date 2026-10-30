@@ -86,6 +86,14 @@ public static class Garb
         // The stroud dresses (dark blue): scarlet, green or black.
         ["CreeWomanClothFrames.tres"] = new Slot[] {
             new(B(228, 25, 0.15f), new[] { D(130, 1.1f, 0, 1.25f), D(-90, 0.9f, 0, 1.1f), D(0, 0.2f, 0, 0.6f) }) },
+        // The women of other countries: the beadwork yoke's colour (Plains,
+        // Plateau), the woodland woman's leggings.
+        ["PlainsWomanFrames.tres"] = new Slot[] {
+            new(B(220, 25, 0.3f, ymax: 0.5f), new[] { D(140, 1, 0, 0.9f), D(-90, 0.9f), D(-170, 1, 0, 1.1f) }) },
+        ["PlateauWomanFrames.tres"] = new Slot[] {
+            new(B(210, 25, 0.3f, ymax: 0.5f), new[] { D(150, 1, 0, 0.9f), D(-80, 0.9f), D(-160, 1, 0, 1.1f) }) },
+        ["WoodlandWomanFrames.tres"] = new Slot[] {
+            new(B(354, 12, 0.4f, ymin: 0.8f), new[] { D(226, 1, 0, 0.8f), D(130, 0.8f, 0, 0.8f) }) },
         ["CreeGirlFrames.tres"] = new Slot[] {
             new(B(225, 25, 0.15f), new[] { D(130, 1.1f, 0, 1.25f), D(-90, 0.9f, 0, 1.1f), D(0, 0.2f, 0, 0.6f) }) },
         ["CreeBoyFrames.tres"] = new Slot[] {

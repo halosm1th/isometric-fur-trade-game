@@ -68,6 +68,10 @@ NEW_ROLES = {
     "orkneyman": ("Scenes/Npc/OrkneymanFrames.tres", "an Orkney labourer, bare-headed: fair blond hair and a fair beard, green wool coat, brown leather belt, blue breeches, brown boots", "orkneyman"),
     "cree_woman_cloth": ("Scenes/Npc/CreeWomanClothFrames.tres", "a Cree woman: long black braids, a dark blue stroud cloth dress with red and white beadwork at the shoulders, a beaded belt, red leggings, moccasins", "cree_woman_cloth"),
     "ship_captain": ("Scenes/Npc/ShipCaptainFrames.tres", "a ship's captain: black bicorne hat, grey side whiskers, long dark blue coat with brass buttons, white waistcoat and breeches, black boots", "ship_captain"),
+    "plains_woman": ("Scenes/Npc/PlainsWomanFrames.tres", "a Plains woman: a long pale tan buckskin dress with a yoke of blue and white beadwork bands and white elk teeth across the shoulders, a wide leather belt, two long black braids, the hair part painted red, moccasins", "plains_woman"),
+    "woodland_woman": ("Scenes/Npc/WoodlandWomanFrames.tres", "an Ojibwe woman: a black wool broadcloth dress with floral beadwork at the hem and cuffs, red and blue ribbonwork, round silver brooches on the chest, red leggings, black braids wrapped in red cloth, moccasins", "woodland_woman"),
+    "dene_woman": ("Scenes/Npc/DeneWomanFrames.tres", "a Dene woman: a long smoked brown caribou-hide dress with long fringes and red and white quillwork bands, a fur-trimmed hood at her back, black braids, moccasins", "dene_woman"),
+    "plateau_woman": ("Scenes/Npc/PlateauWomanFrames.tres", "a Plateau woman: a round twined basketry hat with a zigzag pattern, a long fringed buckskin dress with a yoke of blue beads, a red and white beaded belt, long black braids, moccasins", "plateau_woman"),
 }
 ROLES.update({k: v[:2] for k, v in NEW_ROLES.items()})
 
@@ -92,7 +96,7 @@ ACTIONS = {
 DOLL_IDLE = {"idle": "idle_0", "idle_side": "idle_side_0", "idle_back": "idle_back_0"}
 # Whose painted side frame is turned three-quarters toward us, like the
 # voyageur's; the rest are drawn in profile, facing east.
-THREE_QUARTER = {"voyageur", "player", "factor", "rival", "cree_woman", "cree_captain", "assiniboine", "blackfoot", "coast", "metis", "cree_woman_cloth"}
+THREE_QUARTER = {"voyageur", "player", "factor", "rival", "cree_woman", "cree_captain", "assiniboine", "blackfoot", "coast", "metis", "cree_woman_cloth", "plains_woman", "woodland_woman", "dene_woman", "plateau_woman"}
 
 
 def sheet(role):

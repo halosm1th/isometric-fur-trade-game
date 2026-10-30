@@ -136,6 +136,7 @@ public partial class Conversation
             Role.Hunter => p.Courage > 0.6f ? "\"To be spoken of. A man who brings meat in a hard winter is spoken of for a long time.\"" : "\"Meat in the lodge and peace with our neighbours.\"",
             Role.Woman or Role.Wife or Role.BandWoman => "\"Children who live. Ask any woman.\"",
             Role.BandDaughter => "\"A good husband - one who will stay.\" A look; it is not quite a joke.",
+            Role.Sailor when npc.IsShipsMaster => "\"To see her clear of the Strait before it closes. A ship that winters in the Bay costs the Company a year, and her master his name.\"",
             Role.Sailor => "\"The Thames by November and my wages in my hand.\"",
             _ => "\"A quiet life.\"",
         };

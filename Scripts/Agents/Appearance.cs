@@ -63,7 +63,7 @@ public static class Appearance
             // scene's default sheet), so every man at York was his double.
             Role.Labourer => Either(n, "LabourerFrames.tres", "OrkneymanFrames.tres"),
             // The ship's master in his blue coat and bicorne.
-            Role.Sailor when n.DisplayName?.StartsWith("Captain ") == true && Drawn("ShipCaptainFrames.tres") => Dir + "ShipCaptainFrames.tres",
+            Role.Sailor when n.IsShipsMaster && Drawn("ShipCaptainFrames.tres") => Dir + "ShipCaptainFrames.tres",
             Role.Sailor => Dir + "SailorFrames.tres",
             Role.Clerk or Role.Postmaster => Dir + "ClerkFrames.tres",
             Role.Factor => Dir + "FactorFrames.tres",
@@ -82,7 +82,18 @@ public static class Appearance
     // the Assiniboine's face. The women still do - nobody has drawn them.
     public static string ForNation(Faction f, bool female = false)
     {
-        if (female) return Dir + (f == Faction.Metis ? "CountryWifeFrames.tres" : "CreeWomanFrames.tres");
+        // Women's dress by country: the plains' buckskin and elk teeth, the
+        // woodlands' broadcloth and silver, the Dene's caribou hide, the
+        // Plateau's basketry hat. The rest, and any not drawn, wear the Cree.
+        if (female) return Dir + f switch
+        {
+            Faction.Metis => "CountryWifeFrames.tres",
+            Faction.Assiniboine or Faction.Blackfoot or Faction.Sioux or Faction.Missouri => Woman("PlainsWomanFrames.tres"),
+            Faction.Ojibwe or Faction.SaukFox or Faction.Haudenosaunee => Woman("WoodlandWomanFrames.tres"),
+            Faction.Dene => Woman("DeneWomanFrames.tres"),
+            Faction.Plateau => Woman("PlateauWomanFrames.tres"),
+            _ => "CreeWomanFrames.tres",
+        };
         return Dir + f switch
         {
             Faction.Metis => Drawn("MetisFrames.tres") ? "MetisFrames.tres" : VoyageurFile,
@@ -105,6 +116,8 @@ public static class Appearance
     // three idles PixelLab started from.
     private static bool Drawn(string file) =>
         !Painted && (_drawn.TryGetValue(file, out var d) ? d : _drawn[file] = ResourceLoader.Exists(Dir + file));
+
+    private static string Woman(string file) => Drawn(file) ? file : "CreeWomanFrames.tres";
 
     // Half of a people in one sheet, half in the other once it is drawn,
     // by name, so a person keeps theirs.
