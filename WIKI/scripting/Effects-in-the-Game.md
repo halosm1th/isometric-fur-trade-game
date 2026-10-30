@@ -111,7 +111,34 @@ So `days` is how long news took to come that far: from London to the Bay by the 
 
 ## Lines and headlines
 
-`say(text, to)` adds a dated line to the journal of every player of that company (`Company.HBC`, `Company.NWC`, or everyone if left out) and shows it to them as a notice. `shout(text, to)` does the same and also makes it a **headline** for everyone, which the [Director](https://github.com/halosm1th/isometric-fur-trade-game/blob/master/WIKI/Systems/The%20Director.md) counts toward its pacing. Players of neither company (the Cree and Assiniboine paths) hear only lines sent to everyone.
+`say(text, to)` adds a dated line to the journal of every player of that company (`Company.HBC`, `Company.NWC`, `Company.American`, `Company.Crown`, `Company.Free`, or everyone if left out) and shows it to them as a notice. `shout(text, to)` does the same and also makes it a **headline** for everyone, which the [Director](https://github.com/halosm1th/isometric-fur-trade-game/blob/master/WIKI/Systems/The%20Director.md) counts toward its pacing. Players of neither company (the Cree and Assiniboine paths) hear only lines sent to everyone.
+
+## Men under arms
+
+`world.muster`, `world.march`, `world.attack` and `world.standDown` move a post's own men about (`Scripts/Economy/Musters.cs`). The tutorial campaign, `tools/CampaignTool/src/writing-campaigns.camp`, uses all four in its Lessons 15 to 20: a fight between the two houses at York.
+
+| Effect | What the game does |
+|---|---|
+| `world.muster(post, at, count)` | `count` of the post's working men (all of them if left out: its labourers, voyageurs, hunters, sailors, soldiers and farmers at home, not its master) drop their work. Each man with no weapon takes a musket and two charges of powder from the post's stores (or an axe, a knife, a tomahawk, whatever is there). They go to `at` (the post's door if left out) and stand there in ranks of four. The post is York Factory, `"Nor'Westers' house (York)"`, any post with books, or a camp. Mustering a post whose men are already under arms sends the same men to the new place. |
+| `world.march(post, to)` | the men under arms go to another place and stand there. |
+| `world.attack(post, against, why)` | the men under arms go against a post or a camp. When most of them have come close to its door, the place's own men turn out to meet them (taking arms from their stores too) and fight. |
+| `world.standDown(post)` | the men under arms go back to their work, wherever they are. |
+
+A place (`at`, `to`) is a post's door, `"the landing at <post>"` (its wharf or landing), a camp, a place on the map, or a person (`"leader@York Factory"`).
+
+**Near a player** the men walk, by the roads, a leg at a time, and the fight is fought for real: you can stand and watch, or join in. **Out of every player's sight**, or while the clock is racing (a player asleep, waiting or travelling, or a dev `--speed` under about 1.3 seconds an hour), they do not walk: they are at the place at once, and an attack is settled in numbers (each side's men, how many of them are armed, and the defender's walls), with a man or two killed. A man knocked down near the other side's door is usually taken prisoner rather than killed, and a prisoner counts as lost to his side. An attack ends when the attackers break (they break under losses of dead and taken, sooner if their leader falls, and at once if none of them is left near the place), when the defenders near the door are all down or fled for a quarter of an hour, or after three days of not getting there. The attackers then go back to their work by themselves. The men the attack was against are not stood down by it: stand them down yourself if you mustered them.
+
+What a script can ask:
+
+| | |
+|---|---|
+| `muster:<post>` | raised while the post's men are under arms; lowered when they are stood down or their attack ends |
+| `march:<post>:<place>` (`world.arrived(post, place)`) | raised when most of them have come up at a place they were mustered or marched to, with the place written exactly as it was given |
+| `attack:<post>:won`, `lost` or `turned_back` (`world.attackWon(post)`, `world.attackLost(post)`), and `attack:<post>:<against>:<outcome>` | how an attack ended |
+| `world.underArms(post)` | how many of the men under arms are alive now |
+| `world.fighters(post)` | how many men the post could put under arms now |
+
+A muster is not saved with the game: after a load the men are back at their work, though the flags stay as they were. In the simulator the men are wherever they are sent at once, `world.fighters` is the scenario's `"fighters"` table (post to number) or 6, and an attack ends as the scenario's `"attacks"` table says (post to `won`, `lost` or `turned_back`) or by an even throw of the campaign's dice.
 
 ## The player
 
@@ -128,8 +155,22 @@ These effects act on a player: the one a quest runs for, or, when a **beat** doe
 | `world.addRegard(camp, n)` | changes how a band regards the Company, kept within 0-100 (a band camp by its exact name: see [[World-Reference#Camps (bands)|Camps]]). |
 | `Q.start()` | starts the quest now, whatever it requires and whoever gives it (not again if the player already has it). |
 | `Q.complete()`, `Q.fail()` | ends the quest as done or failed, running its `OnComplete` or `OnFail`, if it is under way. |
+| `player.desert(to)` | the player leaves their side without leave, for another (`Company.American`, `Company.Crown`, `Company.HBC`, `Company.NWC`) or, with no `to`, for nobody's (`Company.Free`). See [[Effects-in-the-Game#Deserters|Deserters]]. |
+| `player.pardon()` | the side the player deserted forgives them: they are no longer wanted, and everyone of that side thinks a little better of them (+10). They stay on the side they are on now. |
 
 `world.standing` and `player.rapport(...)` read the same numbers these change.
+
+### Deserters
+
+`player.desert(to)` changes the player's side at once: `world.playerFaction`, `say(..., Company.X)` and the quest lines they are offered (`forCompany`) all follow the new side, and quests for the old side are no longer offered (one already under way goes on). Their standing starts again at 10 with the side they joined (0 with nobody), their post and task are given up, everyone of the side they left thinks 30 worse of them (and everyone of the side they joined 5 better), their journal says so, the news travels as a chronicle event, and the deed `desert` is recorded (`player.did("desert")`).
+
+They are **wanted** by the side they left, and `player.deserted` is true, until they are pardoned or taken:
+
+- the **soldiers and officers of that side's garrisons** (the towns' forts) go for them on sight, within a couple of hundred paces, as for any enemy. Company men and the bands only think the worse of them;
+- a blow from one of those soldiers that would kill them takes them alive instead: they are marched back to that soldier's garrison, tried and flogged (their health is left low), and put back on its strength and its side, with standing 0. The flag `deserter:taken` is raised, for the story to answer;
+- `player.pardon()` ends it without their going back.
+
+Deserting from nobody's (`Company.Free`) to nobody's does nothing. A pardoned player who deserts again is wanted again.
 
 ## The log
 

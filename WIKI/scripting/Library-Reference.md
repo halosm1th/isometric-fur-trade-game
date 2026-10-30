@@ -41,6 +41,9 @@ The names you pass in (posts, brigade runs, items, people, letter addressees) ar
 | `postsByFoundingYear` | `bool` | When true, posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only if a beat founds it. |
 | `start` | `Date` | The world's first day, for every starting path: date(1815, 5, 1). Without it the world begins in 1811, on the starting path's own day (10 June, 12 July or 20 August). What the script dates before the first day is history. A developer's --date wins. |
 | `startYear` | `int` | Only the year the world begins in: each starting path keeps its own day (the ship on 20 August and so on) in that year. Give start or startYear, not both. |
+| `startPath` | `Path` | The road every player comes in by, whatever they pick: Path.Crown makes everyone a private soldier of a garrison, Path.HBC a Company servant off the ship, and so on. The character page shows it fixed; each player still chooses a background on it. Leave it out and players choose their own road. |
+| `startAt` | `string` | Where every new character is set down, by name: a post, a town or its fort ("York", "Fort George"), a camp, or a place on the map. The road's own opening (the ship, the brigade) is not played; the player simply begins there, and a company man is put on the books of a post of his own company there. A soldier (Path.Crown) is put on the strength of the Crown garrison there, or the nearest one, and still stands his parade. A band road set down at a camp is born to that camp. |
+| `include` | `string` | Parts of this script kept in their own files, tools/CampaignTool/src/parts/<name>.camp (several: "a, b"). A part has no header: its consts, beats and quest lines are this campaign's own, compiled into one JSON. Opened in the editor, a part is checked, drawn and simulated inside the campaign that includes it. |
 | `extends` | `string` | Another campaign (by its id, the file's name) whose beats this one plays as well: a story with quest lines can be built on "historical" and share its war. Where both have a beat of the same id, this campaign's wins. |
 
 ## Hooks
@@ -64,7 +67,7 @@ The names you pass in (posts, brigade runs, items, people, letter addressees) ar
 | `id` | `string` | The line's id, if it is not to be its name. |
 | `title` | `string` | The line's name in the journal. Required. |
 | `summary` | `string` | A line about what the story is. |
-| `forCompany` | `Company` | Only players of this company (Company.HBC or Company.NWC) are given the line's quests. Each quest can say otherwise. |
+| `forCompany` | `Company` | Only players on this side (Company.HBC, Company.NWC, Company.American, Company.Crown, or Company.Free for a deserter on his own) are given the line's quests; a player who changes sides is offered the new side's. Each quest can say otherwise. |
 
 ## Quest header
 
@@ -76,23 +79,140 @@ The names you pass in (posts, brigade runs, items, people, letter addressees) ar
 | `giver` | `Person` | Someone who offers the quest when spoken to (Person.Factor, "leader@Edmonton House", a name). Without one, the quest starts by itself once it may. |
 | `forCompany` | `Company` | Only players of this company get the quest (default: the line's). |
 
-## Step header (talk, reach, task, bring, have, hunt, when, wait)
+## Steps
+
+A quest is a list of steps, worked one after another. Every step, whatever its kind, takes these:
 
 | Argument | Type | What it is |
 |---|---|---|
 | `id` | `string` | The step's id, if it is not to be its name. |
 | `text` | `string` | What the player is told to do, on the screen and in the journal. |
-| `who` | `Person` | talk, bring: the person (a name, Person.Factor, or a role at a place: "leader@Edmonton House", "chief@<camp>", "partner@Fort Augustus"). |
-| `place` | `string` | reach: a post, a camp or a place on the map. |
-| `radius` | `int` | reach: how near counts as there, in pixels (default 400). |
-| `item` | `Item` | bring, have: what. |
-| `count` | `int` | bring, have: how many; task: how much of the work; hunt: how many beasts (default 1). |
-| `task` | `Task` | task: the work handed out, as the Factor would (Task.CarryCargo ...). |
-| `convoy` | `string` | task Task.Brigade: the brigade run to go with. |
-| `dest` | `string` | task Task.Brigade: where the boats are bound (default: the run's next landing). |
-| `species` | `string` | hunt: what to kill (Buffalo, Caribou ...; empty for anything). |
-| `days` | `int` | wait: how many days. |
 | `next` | `Step` | Where the quest goes after this step (another step, "complete" or "fail"); default the next one written. |
+
+Each kind then takes its own:
+
+### `talk`
+
+**Done when:** The player speaks to the person and raises it (and picks a choice, if the step has any).
+
+| Argument | Type | What it is |
+|---|---|---|
+| `who` | `Person` | Required. Who to speak to: a name, Person.Factor, or a role at a place ("leader@Edmonton House"). |
+
+Can hold `Says`, `choice`s and `OnDone`. With choices, the step is done when one is picked, and only choices whose `when` holds are offered; if none does, the step waits.
+
+```c
+talk Report(who: Person.Factor, text: "Report to Mr. Auld") {
+    Says() => "\"Can you carry?\"";
+}
+```
+
+### `reach`
+
+**Done when:** The player comes within `radius` of the place.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `place` | `string` | Required. A post, a camp, a town (its middle), a fort (its parade), or a place on the map. |
+| `radius` | `int` | How near counts, in pixels. Default 400. |
+
+Measured from a post's door, the middle of a camp or town, or a fort's parade ground.
+
+```c
+reach Inland(place: "Edmonton House", radius: 300);
+```
+
+### `task`
+
+**Done when:** The player has done `count` units of the work.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `task` | `Task` | Required. The work, one of the Factor's own tasks (Task.CarryCargo ...). |
+| `count` | `int` | How much of the work: lots carried, loads of wood, letters delivered. Default 1. |
+| `convoy` | `string` | Task.Brigade only, and required there: the brigade run to go with. |
+| `dest` | `string` | Task.Brigade only: the post to go to. Default where the boats are bound. |
+
+When the step begins the player is given the task, as if the Factor had ordered it. The same work done for a Factor's own order that day counts too.
+
+```c
+task Unload(task: Task.CarryCargo, count: 6);
+```
+
+### `bring`
+
+**Done when:** The player hands the things to the person, from a conversation with them.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `who` | `Person` | Required. Who to give them to. |
+| `item` | `Item` | Required. What to give. |
+| `count` | `int` | How many. Default 1. |
+
+The things leave the player's pack, and the person thinks better of the player (rapport +4). If the player has fewer than `count`, nothing is taken and the step waits.
+
+```c
+bring Tobacco(who: "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)", item: Item.Tobacco, count: 2);
+```
+
+### `have`
+
+**Done when:** The player's pack holds `count` of the item.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `item` | `Item` | Required. What to hold. |
+| `count` | `int` | How many. Default 1. |
+
+Done the moment the pack holds enough, even if it already did when the step began. Nothing is taken: follow it with a `bring` to have them handed over.
+
+```c
+have Pelts(item: Item.BeaverPelt, count: 10);
+```
+
+### `hunt`
+
+**Done when:** The player has killed `count` animals of the species since the step began.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `species` | `string` | The animal, in quotes: "Caribou", "Goose", "Beaver", "Wolf", "Hare", "Ptarmigan", "Buffalo" or "Elk" (any case). Leave it out to count any animal. |
+| `count` | `int` | How many kills. Default 1. |
+| `place` | `string` | Where the HUD points the player while the step is under way (a post, a camp, a place on the map). It does not limit where the kill is made. |
+
+Only the player's own killing blow counts: an animal a companion or a hired hunter kills does not, nor one caught in a snare. Kills made before the quest reached this step do not count. One kill counts for every quest waiting on that species at once. The checker errors on a species the game does not have, since no kill would ever match it.
+
+```c
+hunt Buffalo(species: "Buffalo", count: 2, place: "Fort Souris");
+```
+
+### `when`
+
+**Done when:** The condition holds.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `place` | `string` | Where the HUD points the player while the step is under way. Optional. |
+
+Written short, `when Name(text: "...") => condition;`, or long, with a `Done() => condition;` hook in a block. Asked every few moments.
+
+```c
+when Ready(text: "Wait for the brigade to come in") => SevenOaks.done;
+```
+
+### `wait`
+
+**Done when:** `days` days have passed since the step began.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `days` | `int` | Required. How many days. |
+
+Counts game days from the day the quest reached this step.
+
+```c
+wait Winter(days: 30, text: "Winter at the post");
+```
 
 ## Choice header
 
@@ -386,7 +506,7 @@ world.season == Season.Winter
 
 `world.playerFaction : Company`
 
-Which company a player works for: in multiplayer, true if any player does.
+Which side a player is on (a company, the Crown, or nobody's after deserting): in multiplayer, true if any player is.
 
 ```c
 world.playerFaction == Company.HBC
@@ -510,7 +630,7 @@ world.addStock("York Factory", Item.Rum, -5)
 
 `world.regard(string place) : int`
 
-How a band (by its camp's name) regards the Company, 0-100.
+How a band (by its camp's name) regards the company of the player asked for (the Bay, the Nor'Westers or the Americans; the Bay from a beat with no player), 0-100.
 
 - `place` (string): A band, by its camp's name: "Beaver Hills Cree (Amiskwacîwiyiniwak)" ...
 
@@ -522,13 +642,328 @@ world.regard("Beaver Hills Cree") >= 60
 
 `world.addRegard(string place, int amount) : effect`
 
-Change how a band (by its camp's name) regards the Company; kept within 0-100.
+Change how a band (by its camp's name) regards the player's company (the Bay's from a beat with no player); kept within 0-100.
 
 - `place` (string): A band, by its camp's name.
-- `amount` (int): How much to change the band's regard for the Company (kept within 0-100); negative lowers it.
+- `amount` (int): How much to change the band's regard for that company (kept within 0-100); negative lowers it.
 
 ```c
 world.addRegard("Beaver Hills Cree", 5)
+```
+
+### `world.happened(beat)`
+
+`world.happened(string beat) : bool`
+
+True once a beat has happened, by its id: a beat of this campaign, or of the one it extends ("seven-oaks").
+
+- `beat` (string): A beat's id, of this campaign or the one it extends: "seven-oaks", "pemmican-proclamation" ...
+
+```c
+world.happened("seven-oaks")
+```
+
+### `world.warParty(from, against, why?, withPlayer?)`
+
+`world.warParty(string from, string against, string why?, bool withPlayer?) : effect`
+
+A camp's fighting men ride against a camp or a post. Far from every player the fight is settled at once in numbers (men, guns, the defender's ground); near one, or with the player riding along (withPlayer: true), its men ride and fight for real. When it is over the flags war:<from>:won (or lost, or turned_back) and war:<from>:<against>:<outcome> are raised.
+
+- `from` (string): The camp whose fighting men ride out, by its camp's name: "Beaver Hills Cree (Amiskwacîwiyiniwak)", "Métis of the Forks" ...
+- `against` (string): Who they ride against: another camp, or a post by its exact name ("Brandon House").
+- `why` (string, optional): What they ride for, for the log and the news: "for their dead and their horses".
+- `withPlayer` (bool, optional): true: the player (the one a quest runs for) rides with them, and the fight is fought for real.
+
+```c
+world.warParty("Beaver Hills Cree (Amiskwacîwiyiniwak)", "Blackfoot", why: "for the horses", withPlayer: true)
+```
+
+### `world.truce(a, b, days?)`
+
+`world.truce(string a, string b, int days?) : effect`
+
+Two peoples (camps or posts by name) make peace: no horse raids or war parties between them for that long (365 days if not given), and their old scores are laid down.
+
+- `a` (string): One side: a camp, or a post by its exact name.
+- `b` (string): The other side: a camp, or a post by its exact name.
+- `days` (int, optional): How long the peace holds, in days (365 if not given).
+
+```c
+world.truce("Beaver Hills Cree (Amiskwacîwiyiniwak)", "Blackfoot", 365)
+```
+
+### `world.heatFeud(holder, against, amount?)`
+
+`world.heatFeud(string holder, string against, int amount?) : effect`
+
+The holder's old score against the other grows (0-10): at 4 and more they ride against them, in the season, unless there is a truce.
+
+- `holder` (string): Who holds the grievance: a camp (or a post) by name.
+- `against` (string): Who it is held against: a camp, or a post by its exact name.
+- `amount` (int, optional): How much hotter it grows, out of 10 (1 if not given). At 4 and more the holder rides against them in the season.
+
+```c
+world.heatFeud("Blackfoot", "Beaver Hills Cree (Amiskwacîwiyiniwak)", 3)
+```
+
+### `world.feud(holder, against)`
+
+`world.feud(string holder, string against) : int`
+
+How hot the holder's score against the other is, 0-10.
+
+- `holder` (string): Who holds the grievance: a camp (or a post) by name.
+- `against` (string): Who it is held against: a camp, or a post by its exact name.
+
+```c
+world.feud("Blackfoot", "Beaver Hills Cree (Amiskwacîwiyiniwak)") >= 4
+```
+
+### `world.townFalls(town, to, prisoners?)`
+
+`world.townFalls(string town, string to, bool prisoners?) : effect`
+
+A town changes hands (to: "Crown" or "American"). Its garrison, if it was the loser's, is taken prisoner and goes out of the country with its families (prisoners: false lets them stay); the townspeople stay. Its boards say whose it is now.
+
+- `town` (string): The town, by its name on the map ("Detroit", "Mackinac Island").
+- `to` (string): Who holds it now: "Crown" or "American".
+- `prisoners` (bool, optional): false to let the loser's garrison stay where it is (when it has already gone, or the town is only occupied); prisoners are taken if not given.
+
+```c
+world.townFalls("Detroit", "Crown")
+```
+
+### `world.moveGarrison(from, to, count?)`
+
+`world.moveGarrison(string from, string to, int count?) : effect`
+
+So many soldiers of one town's garrison, and an officer, go to another town's fort (20 if not given): a fort taken and held, a post reinforced.
+
+- `from` (string): The town whose garrison sends the men.
+- `to` (string): The town whose fort they go to.
+- `count` (int, optional): How many soldiers go (an officer with them); 20 if not given.
+
+```c
+world.moveGarrison("Amherstburg", "Detroit", 60)
+```
+
+### `world.garrisonLeaves(town, where?, count?)`
+
+`world.garrisonLeaves(string town, string where?, int count?) : effect`
+
+A town's garrison marches out of the country ("to Kingston"): all of it, or so many. They are still people, only gone.
+
+- `town` (string): The town whose garrison marches away.
+- `where` (string, optional): Where they go, as it reads in the news ("to Kingston"); "out of the country" if not given.
+- `count` (int, optional): How many go; the whole garrison if not given.
+
+```c
+world.garrisonLeaves("York", "to Kingston")
+```
+
+### `world.garrisonReturns(town, count?)`
+
+`world.garrisonReturns(string town, int count?) : effect`
+
+Men who went out of the country from a town (prisoners, or a garrison that marched away) come back to its fort: those who serve whoever holds it now - the paroled and exchanged, a garrison back from where it went.
+
+- `town` (string): The town they went from and come back to.
+- `count` (int, optional): How many come back; all who can if not given.
+
+```c
+world.garrisonReturns("Niagara")
+```
+
+### `world.casualties(town, count, cause?, role?)`
+
+`world.casualties(string town, int count, string cause?, string role?) : effect`
+
+So many men of a town killed in a fight fought out of sight: of its garrison, or of its men of a role (role: "Farmer" for the militia). They are mourned and their places filled as any death.
+
+- `town` (string): The town whose men are killed.
+- `count` (int): How many.
+- `cause` (string, optional): How they died, as it reads ("at Queenston Heights"); "in the fighting" if not given.
+- `role` (string, optional): Whose men: a role of the town's people ("Farmer" for the militia); the garrison's soldiers if not given.
+
+```c
+world.casualties("Niagara", 14, "at Queenston Heights")
+```
+
+### `world.kill(who, cause?)`
+
+`world.kill(string who, string cause?) : effect`
+
+A named person dies, and the world says how.
+
+- `who` (string): The person's name, exactly as in the cast.
+- `cause` (string, optional): How they died, as it reads; "in the fighting" if not given.
+
+```c
+world.kill("Major-General Isaac Brock", "at Queenston Heights, leading the charge up the heights")
+```
+
+### `world.burn(town, building?)`
+
+`world.burn(string town, string building?) : effect`
+
+A building of a town is set alight (every one of them if none is named; "fort" for its garrison's buildings); the fire takes it from there.
+
+- `town` (string): The town.
+- `building` (string, optional): One of its buildings by name ("the Parliament buildings"), or "fort" for its garrison's; every building if not given.
+
+```c
+world.burn("York", "the Parliament buildings")
+```
+
+### `world.atPeace(a, b)`
+
+`world.atPeace(string a, string b) : bool`
+
+True while two peoples have a truce.
+
+- `a` (string): One side: a camp, or a post by its exact name.
+- `b` (string): The other side: a camp, or a post by its exact name.
+
+```c
+world.atPeace("Beaver Hills Cree (Amiskwacîwiyiniwak)", "Blackfoot")
+```
+
+### `world.wonWar(band)`
+
+`world.wonWar(string band) : bool`
+
+True once a war party of that camp has won a fight.
+
+- `band` (string): The camp whose war party it was, by its camp's name.
+
+```c
+world.wonWar("Blackfoot")
+```
+
+### `world.lostWar(band)`
+
+`world.lostWar(string band) : bool`
+
+True once a war party of that camp has been beaten.
+
+- `band` (string): The camp whose war party it was, by its camp's name.
+
+```c
+world.lostWar("Blackfoot")
+```
+
+### `world.muster(post, at?, count?)`
+
+`world.muster(string post, string at?, int count?) : effect`
+
+So many of a post's working men (all of them if no count) leave their work, take arms from the post's stores, and gather at a place (the post's own door if none). Near a player they walk there; out of sight they are simply there. The flag muster:<post> is raised while they are under arms, and march:<post>:<place> when most of them have come up.
+
+- `post` (string): York Factory, "Nor'Westers' house (York)", any post with books, or a camp, by its exact name.
+- `at` (string, optional): Where they gather: a post (its door), "the landing at <post>", a camp, a place on the map, or a person ("leader@York Factory"). The post's own door if not given.
+- `count` (int, optional): How many men; all the post can put under arms if not given.
+
+```c
+world.muster("Nor'Westers' house (York)", "the landing at York Factory", 6)
+```
+
+### `world.march(post, to)`
+
+`world.march(string post, string to) : effect`
+
+A post's men under arms (muster them first) go to another place and stand there. The flag march:<post>:<place> is raised when most of them have come up.
+
+- `post` (string): The post whose men under arms go.
+- `to` (string): Where they go: a post, "the landing at <post>", a camp, a place on the map, or a person.
+
+```c
+world.march("York Factory", "the landing at York Factory")
+```
+
+### `world.attack(post, against, why?)`
+
+`world.attack(string post, string against, string why?) : effect`
+
+A post's men under arms (muster them first) go against another post or a camp and fight its men. Near a player it is fought for real; out of sight it is settled in numbers (men, arms, and the defender's walls). When it is over the men go back to their work, and the flags attack:<post>:won (or lost, or turned_back) and attack:<post>:<against>:<outcome> are raised.
+
+- `post` (string): The post whose men under arms go.
+- `against` (string): The post or camp they go against, by its exact name.
+- `why` (string, optional): What they go for, for the log and the news.
+
+```c
+world.attack("Nor'Westers' house (York)", "York Factory", why: "for the furs in the Company's store")
+```
+
+### `world.standDown(post)`
+
+`world.standDown(string post) : effect`
+
+A post's men under arms are stood down and go back to their work, wherever they are. The flag muster:<post> is lowered.
+
+- `post` (string): The post whose men go back to their work.
+
+```c
+world.standDown("York Factory")
+```
+
+### `world.underArms(post)`
+
+`world.underArms(string post) : int`
+
+How many of a post's men are under arms and alive now (0 if none were mustered).
+
+- `post` (string): The post, as it was named to muster.
+
+```c
+world.underArms("York Factory") < 3
+```
+
+### `world.fighters(post)`
+
+`world.fighters(string post) : int`
+
+How many working men a post could put under arms now (its labourers, voyageurs, hunters, sailors, soldiers and farmers at home, not its master).
+
+- `post` (string): The post (or camp), by its exact name.
+
+```c
+world.fighters("Nor'Westers' house (York)") >= 6
+```
+
+### `world.arrived(post, place)`
+
+`world.arrived(string post, string place) : bool`
+
+True once a post's men under arms have come up at a place they were mustered or marched to.
+
+- `post` (string): The post whose men were sent, as it was named to muster.
+- `place` (string): The place exactly as it was given to muster or march.
+
+```c
+world.arrived("York Factory", "the landing at York Factory")
+```
+
+### `world.attackWon(post)`
+
+`world.attackWon(string post) : bool`
+
+True once a post's men have carried an attack.
+
+- `post` (string): The post whose men attacked, as it was named to muster.
+
+```c
+world.attackWon("Nor'Westers' house (York)")
+```
+
+### `world.attackLost(post)`
+
+`world.attackLost(string post) : bool`
+
+True once a post's men have been beaten off in an attack.
+
+- `post` (string): The post whose men attacked, as it was named to muster.
+
+```c
+world.attackLost("Nor'Westers' house (York)")
 ```
 
 
@@ -575,15 +1010,15 @@ flags.clear("calm")
 
 ## player
 
-What the player has done, as the campaign has been told of it: the game records a *deed* when the player brokers a truce (`truce`), leads or joins a raid (`raid`), rides a brigade to its landing (`escort`) or carries a packet through (`courier`).
+What the player has done, as the campaign has been told of it: the game records a *deed* when the player brokers a truce (`truce`), leads or joins a raid (`raid`), rides a brigade to its landing (`escort`), carries a packet through (`courier`) or deserts their side (`desert`, by `player.desert`).
 
 ### `player.did(deed)`
 
 `player.did(string deed) : bool`
 
-True once the player has done this at least once: truce, raid, escort or courier.
+True once the player has done this at least once: truce, raid, escort, courier or desert.
 
-- `deed` (string): Which deed: "truce", "raid", "escort" or "courier".
+- `deed` (string): Which deed: "truce", "raid", "escort", "courier" or "desert".
 
 ```c
 player.did("truce")
@@ -595,7 +1030,7 @@ player.did("truce")
 
 How many times the player has done it.
 
-- `deed` (string): Which deed: "truce", "raid", "escort" or "courier".
+- `deed` (string): Which deed: "truce", "raid", "escort", "courier" or "desert".
 
 ```c
 player.deeds("escort") >= 2
@@ -698,6 +1133,38 @@ A line in the player's journal, said over their head.
 
 ```c
 player.note("Mr. Bird wants you at the hunt.")
+```
+
+### `player.desert(to?)`
+
+`player.desert(Company to?) : effect`
+
+The player leaves their side without leave: for another (to: Company.American, Company.Crown, Company.HBC or Company.NWC), or for nobody's (Company.Free) if to is left out. Everyone of the side they left thinks the worse of them, and they are wanted: the soldiers of its garrisons go for them on sight, and one who would have killed them takes them back alive instead, to be flogged and put back on its strength (the flag deserter:taken is raised). It counts as the deed desert. Quests for their old side are not offered to them any more.
+
+- `to` (Company, optional): The side they go over to: Company.American, Company.Crown, Company.HBC or Company.NWC. Leave it out and they belong to nobody (Company.Free).
+
+```c
+player.desert(Company.American)
+```
+
+### `player.pardon()`
+
+`player.pardon() : effect`
+
+The side the player deserted forgives them: they are no longer wanted. They stay on whatever side they are on now.
+
+```c
+player.pardon()
+```
+
+### `player.deserted`
+
+`player.deserted : bool`
+
+True while the player (the one a quest runs for; from a beat, any player) is a wanted deserter: from player.desert() until they are pardoned or taken back.
+
+```c
+player.deserted
 ```
 
 
@@ -954,8 +1421,10 @@ TheHunt.fail()
 
 ## Named values
 
-- **`Company`**: The two companies (and everyone): Company.HBC, Company.NWC, Company.All.
-  Values: `Company.HBC`, `Company.NWC`, `Company.All`
+- **`Company`**: The sides a player can be on (and everyone): Company.HBC, Company.NWC, Company.American (the Missouri, Pacific and American Fur Companies, and the United States' garrisons), Company.Crown (His Majesty's garrisons), Company.Free (nobody's: a deserter on his own), Company.All.
+  Values: `Company.HBC`, `Company.NWC`, `Company.American`, `Company.Crown`, `Company.Free`, `Company.All`
+- **`Path`**: The roads into the game, for the header's startPath: Path.HBC (off the ship at York Factory), Path.NWC (up with the brigade), Path.Cree, Path.Assiniboine, Path.Nation (born to a band of the country), Path.American (up the Columbia to Fort Okanogan), Path.Crown (a private soldier of an Upper Canada garrison).
+  Values: `Path.HBC`, `Path.NWC`, `Path.Cree`, `Path.Assiniboine`, `Path.Nation`, `Path.American`, `Path.Crown`
 - **`Person`**: Who a letter is addressed to: Person.Factor, Person.Postmaster, Person.Partner, Person.Chief. A plain string names anyone else.
   Values: `Person.Factor`, `Person.Postmaster`, `Person.Partner`, `Person.Chief`
 - **`Season`**: The river's season, for world.season: Season.Breakup, OpenWater, FreezeUp, Winter.
@@ -966,4 +1435,4 @@ TheHunt.fail()
 - **`Task`**: The work a quest step can hand the player, as the Factor would: Task.CarryCargo, Task.Firewood, Task.Brigade ... (Player/PlayerTask.cs).
   Values: `Task.Firewood`, `Task.CarryCargo`, `Task.DriveOffAnimals`, `Task.DeliverLetter`, `Task.Raid`, `Task.Report`, `Task.Courier`, `Task.Geese`, `Task.Brigade`
 
-Items: `Ale`, `Awl`, `Axe`, `Beads`, `BeaverPelt`, `Berries`, `Bow`, `Bread`, `BuffaloRobe`, `Capote`, `CaribouHide`, `Corn`, `DriedGoose`, `DriedMeat`, `Firewood`, `Fish`, `FishingLine`, `FishingNet`, `Flint`, `Goose`, `Hare`, `HideCoat`, `IceChisel`, `Kettle`, `Knife`, `MbToken`, `Musket`, `PackBasket`, `Pemmican`, `PointBlanket`, `Powder`, `Ptarmigan`, `Rum`, `SaltGeese`, `ShotHide`, `ShotPelt`, `Snowshoes`, `SpruceBeer`, `SteelTrap`, `Stroud`, `ThinPelt`, `Tobacco`, `Tomahawk`, `TradeGoods`, `Tumpline`, `Venison`, `Water`, `WolfPelt`.
+Items: `Ale`, `Awl`, `Axe`, `Beads`, `BeaverPelt`, `Berries`, `Bow`, `Bread`, `BuffaloRobe`, `Capote`, `CaribouHide`, `Coin`, `Corn`, `DriedGoose`, `DriedMeat`, `Firewood`, `Fish`, `FishingLine`, `FishingNet`, `Flint`, `Flour`, `Goose`, `Grain`, `Hare`, `HideCoat`, `IceChisel`, `Kettle`, `Knife`, `MbToken`, `Musket`, `PackBasket`, `Pemmican`, `PointBlanket`, `Powder`, `Ptarmigan`, `Roots`, `Rum`, `SaltGeese`, `ShotHide`, `ShotPelt`, `Snowshoes`, `SpruceBeer`, `SteelTrap`, `Stroud`, `ThinPelt`, `Tobacco`, `Tomahawk`, `TradeGoods`, `Tumpline`, `Venison`, `Water`, `Wheat`, `WolfPelt`.

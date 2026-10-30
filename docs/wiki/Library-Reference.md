@@ -72,23 +72,140 @@ The names you pass in (posts, brigade runs, items, people, letter addressees) ar
 | `giver` | `Person` | Someone who offers the quest when spoken to (Person.Factor, "leader@Edmonton House", a name). Without one, the quest starts by itself once it may. |
 | `forCompany` | `Company` | Only players of this company get the quest (default: the line's). |
 
-## Step header (talk, reach, task, bring, have, hunt, when, wait)
+## Steps
+
+A quest is a list of steps, worked one after another. Every step, whatever its kind, takes these:
 
 | Argument | Type | What it is |
 |---|---|---|
 | `id` | `string` | The step's id, if it is not to be its name. |
 | `text` | `string` | What the player is told to do, on the screen and in the journal. |
-| `who` | `Person` | talk, bring: the person (a name, Person.Factor, or a role at a place: "leader@Edmonton House", "chief@<camp>", "partner@Fort Augustus"; at a garrisoned town or its fort, "officer@Fort George", "sergeant@York", "soldier@York"). |
-| `place` | `string` | reach: a post, a camp, a town or its fort, or a place on the map. |
-| `radius` | `int` | reach: how near counts as there, in pixels (default 400). |
-| `item` | `Item` | bring, have: what. |
-| `count` | `int` | bring, have: how many; task: how much of the work; hunt: how many beasts (default 1). |
-| `task` | `Task` | task: the work handed out, as the Factor would (Task.CarryCargo ...). |
-| `convoy` | `string` | task Task.Brigade: the brigade run to go with. |
-| `dest` | `string` | task Task.Brigade: where the boats are bound (default: the run's next landing). |
-| `species` | `string` | hunt: what to kill (Buffalo, Caribou ...; empty for anything). |
-| `days` | `int` | wait: how many days. |
 | `next` | `Step` | Where the quest goes after this step (another step, "complete" or "fail"); default the next one written. |
+
+Each kind then takes its own:
+
+### `talk`
+
+**Done when:** The player speaks to the person and raises it (and picks a choice, if the step has any).
+
+| Argument | Type | What it is |
+|---|---|---|
+| `who` | `Person` | Required. Who to speak to: a name, Person.Factor, or a role at a place ("leader@Edmonton House"). |
+
+Can hold `Says`, `choice`s and `OnDone`. With choices, the step is done when one is picked, and only choices whose `when` holds are offered; if none does, the step waits.
+
+```c
+talk Report(who: Person.Factor, text: "Report to Mr. Auld") {
+    Says() => "\"Can you carry?\"";
+}
+```
+
+### `reach`
+
+**Done when:** The player comes within `radius` of the place.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `place` | `string` | Required. A post, a camp, a town (its middle), a fort (its parade), or a place on the map. |
+| `radius` | `int` | How near counts, in pixels. Default 400. |
+
+Measured from a post's door, the middle of a camp or town, or a fort's parade ground.
+
+```c
+reach Inland(place: "Edmonton House", radius: 300);
+```
+
+### `task`
+
+**Done when:** The player has done `count` units of the work.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `task` | `Task` | Required. The work, one of the Factor's own tasks (Task.CarryCargo ...). |
+| `count` | `int` | How much of the work: lots carried, loads of wood, letters delivered. Default 1. |
+| `convoy` | `string` | Task.Brigade only, and required there: the brigade run to go with. |
+| `dest` | `string` | Task.Brigade only: the post to go to. Default where the boats are bound. |
+
+When the step begins the player is given the task, as if the Factor had ordered it. The same work done for a Factor's own order that day counts too.
+
+```c
+task Unload(task: Task.CarryCargo, count: 6);
+```
+
+### `bring`
+
+**Done when:** The player hands the things to the person, from a conversation with them.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `who` | `Person` | Required. Who to give them to. |
+| `item` | `Item` | Required. What to give. |
+| `count` | `int` | How many. Default 1. |
+
+The things leave the player's pack, and the person thinks better of the player (rapport +4). If the player has fewer than `count`, nothing is taken and the step waits.
+
+```c
+bring Tobacco(who: "chief@Beaver Hills Cree (Amiskwacîwiyiniwak)", item: Item.Tobacco, count: 2);
+```
+
+### `have`
+
+**Done when:** The player's pack holds `count` of the item.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `item` | `Item` | Required. What to hold. |
+| `count` | `int` | How many. Default 1. |
+
+Done the moment the pack holds enough, even if it already did when the step began. Nothing is taken: follow it with a `bring` to have them handed over.
+
+```c
+have Pelts(item: Item.BeaverPelt, count: 10);
+```
+
+### `hunt`
+
+**Done when:** The player has killed `count` animals of the species since the step began.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `species` | `string` | The animal, in quotes: "Caribou", "Goose", "Beaver", "Wolf", "Hare", "Ptarmigan", "Buffalo" or "Elk" (any case). Leave it out to count any animal. |
+| `count` | `int` | How many kills. Default 1. |
+| `place` | `string` | Where the HUD points the player while the step is under way (a post, a camp, a place on the map). It does not limit where the kill is made. |
+
+Only the player's own killing blow counts: an animal a companion or a hired hunter kills does not, nor one caught in a snare. Kills made before the quest reached this step do not count. One kill counts for every quest waiting on that species at once. The checker errors on a species the game does not have, since no kill would ever match it.
+
+```c
+hunt Buffalo(species: "Buffalo", count: 2, place: "Fort Souris");
+```
+
+### `when`
+
+**Done when:** The condition holds.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `place` | `string` | Where the HUD points the player while the step is under way. Optional. |
+
+Written short, `when Name(text: "...") => condition;`, or long, with a `Done() => condition;` hook in a block. Asked every few moments.
+
+```c
+when Ready(text: "Wait for the brigade to come in") => SevenOaks.done;
+```
+
+### `wait`
+
+**Done when:** `days` days have passed since the step began.
+
+| Argument | Type | What it is |
+|---|---|---|
+| `days` | `int` | Required. How many days. |
+
+Counts game days from the day the quest reached this step.
+
+```c
+wait Winter(days: 30, text: "Winter at the post");
+```
 
 ## Choice header
 

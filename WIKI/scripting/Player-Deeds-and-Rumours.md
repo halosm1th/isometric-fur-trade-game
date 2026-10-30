@@ -26,6 +26,7 @@ AwakenWhen() => player.deeds("escort") >= 2;
 | `"raid"` | agrees to go out on a raid against the other company's post |
 | `"escort"` | rides a brigade all the way to its landing (not if it was turned back) |
 | `"courier"` | carries a packet through, and the answer is read |
+| `"desert"` | deserts their side: only when a campaign says so, with [[Effects-in-the-Game#Deserters|`player.desert`]] |
 
 `player.did(kind)` is true once the player has done it at least once; `player.deeds(kind)` is how many times. Under the hood a deed raises the flag `deed:<kind>` and adds one to the variable of the same name, so both are saved with the game and `raw("...")` and `flags.has("deed:truce")` see them too.
 

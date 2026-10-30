@@ -433,7 +433,7 @@ public static class Quests
 			"reach" => $"Go to {o.Place}",
 			"bring" => $"Bring {o.Count} {o.Item} to {NameOf(o.Who)}",
 			"have" => $"Get {o.Count} {o.Item}",
-			"hunt" => $"Kill {o.Count} {o.Species}",
+			"hunt" => $"Kill {o.Count} {(o.Species != "" ? o.Species : o.Count == 1 ? "beast" : "beasts")}",
 			"task" => o.Task,
 			"wait" => $"Wait {o.Days} days",
 			_ => "",

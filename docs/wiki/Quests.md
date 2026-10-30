@@ -35,16 +35,18 @@ questline Servant(title: "The Company's Servant", forCompany: Company.HBC) {
 
 ## Kinds of step
 
-| Step | Done when | Needs |
-|---|---|---|
-| `talk` | the player speaks to the person (and picks a choice, if there are any) | `who` |
-| `bring` | the player hands the person the things (they leave the player's pack) | `who`, `item`, `count` |
-| `reach` | the player is within `radius` (default 400 px) of the place | `place` |
-| `have` | the player's pack holds the things | `item`, `count` |
-| `task` | the player has done that much of the work, as for a Factor's task (counted whatever the Factor said that day) | `task`, `count`; `convoy` for `Task.Brigade` |
-| `hunt` | the player has killed that many of the species | `species`, `count` |
-| `when` | the condition holds: `when Name(text: "...") => condition;` | a condition |
-| `wait` | that many days have passed since the step began | `days` |
+| Step | Done when | Required | Optional |
+|---|---|---|---|
+| `talk` | the player speaks to the person (and picks a choice, if there are any) | `who` | |
+| `bring` | the player hands the person the things, which leave the player's pack | `who`, `item` | `count` |
+| `reach` | the player comes within `radius` of the place | `place` | `radius` (default 400 px) |
+| `have` | the player's pack holds the things (nothing is taken) | `item` | `count` |
+| `task` | the player has done that much of a Factor's task | `task` (and `convoy` for `Task.Brigade`) | `count`, `dest` |
+| `hunt` | the player has killed that many animals since the step began | | `species` (default any), `count` |
+| `when` | the condition holds: `when Name(text: "...") => condition;` | a condition | |
+| `wait` | that many days have passed since the step began | `days` | |
+
+Every step also takes `id`, `text` (what the player is told; without it the game writes one, "Kill 2 Buffalo") and `next`. `count` defaults to 1. The [Library reference](Library-Reference#steps) has each kind on its own, with an example.
 
 **Who** is a person's exact name, one of `Person.Factor`, `Person.Partner`, `Person.Chief`, `Person.Postmaster` (the start's own people), or a **role at a place**: `"leader@Edmonton House"`, `"partner@Fort Augustus"`, `"chief@Beaver Hills Cree (Amiskwacîwiyiniwak)"`, `"clerk@York Factory"`, `"hunter@<camp>"`, `"man@<post>"`, `"woman@<post>"`. A role at a place keeps working when the person in it dies and someone else takes their place.
 
@@ -79,7 +81,21 @@ A `task` step hands the player one of the Factor's own tasks and counts the work
 
 ### Hunting
 
-A `hunt` step counts the beasts the player kills of one `species:`, written as text: `"Caribou"`, `"Goose"`, `"Beaver"`, `"Wolf"`, `"Hare"`, `"Ptarmigan"` or `"Buffalo"` (any species if left out).
+```c
+hunt Buffalo(species: "Buffalo", count: 2, text: "Run buffalo with the Cree", place: "Fort Souris");
+```
+
+A `hunt` step is done when the player has killed `count` animals of the `species`. The species is written in quotes, in any case: `"Caribou"`, `"Goose"`, `"Beaver"`, `"Wolf"`, `"Hare"`, `"Ptarmigan"`, `"Buffalo"` or `"Elk"`. Leave it out and any animal counts. A species the game does not have is an error in `check`, since no kill would ever match it.
+
+What counts:
+
+- **Only the player's own killing blow.** An animal a companion, a hired hunter or a snare kills does not count, nor one the player wounded and someone else finished.
+- **Only kills after the quest reaches this step.** Buffalo shot the day before do not count, and a `hunt` step after another `hunt` starts again from nothing.
+- **One kill counts for every quest at once** whose current step is a hunt for that species.
+
+`place:` does not limit where the kill is made: it is where the HUD points the player (the herd's country, the camp the hunt goes out from). The step's count shows as "(1/2)" on the HUD and in the journal.
+
+To ask for the meat or pelts rather than the killing, use a `have` or `bring` step for the item (`Item.BeaverPelt`). To ask for a Factor's goose hunt, counted by the geese brought in, use `task` with `Task.Geese`.
 
 ## Talk, choices and branches
 

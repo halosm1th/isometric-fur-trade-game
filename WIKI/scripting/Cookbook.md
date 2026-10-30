@@ -33,6 +33,8 @@ Patterns for the things campaigns most often need, each a few lines you can copy
 | the player to feel something coming | [[Cookbook#Rumours that sharpen|Rumours that sharpen]] |
 | the world to begin later than 1811 | [[Cookbook#A later start|A later start]] |
 | something asked of the player | [[Cookbook#A first quest|A first quest]] |
+| every player to be one kind of person, somewhere of my choosing | [[Cookbook#A soldier who goes over|A soldier who goes over]] |
+| the player to change sides, or desert | [[Cookbook#A soldier who goes over|A soldier who goes over]] |
 | an end | [[Cookbook#An ending|An ending]] |
 
 ## A fixed fact
@@ -437,6 +439,65 @@ questline Errands(title: "Errands at the Factory", forCompany: Company.HBC) {
 ```
 
 A beat can then wait on it with `AwakenWhen() => Wood.done;`.
+
+## A soldier who goes over
+
+`startPath` brings every player in by one road and `startAt` sets them down somewhere: here, a private of the garrison at Niagara on the King's birthday, 1812. `player.desert(...)` takes him over the river; a questline `forCompany` the side he is on now picks up the story, and the garrison he left will take him back if it can (the flag `deserter:taken`). See [[World-Reference#Who the players are, and where they begin|Who the players are]] and [[Effects-in-the-Game#Deserters|Deserters]].
+
+```c
+campaign OverTheRiver(
+    title: "Over the river",
+    description: "A private of the garrison at Niagara in the summer of 1812, and a boat across on a dark night.",
+    extends: "historical",
+    start: date(1812, 6, 4),
+    startPath: Path.Crown,
+    startAt: "Niagara"
+);
+
+questline Ranks(title: "In the ranks", forCompany: Company.Crown) {
+    quest Muster(title: "The war comes", summary: "The Americans have declared war. The garrison stands to.") {
+        StartWhen() => world.date >= date(1812, 6, 26);
+        talk Orders(who: "officer@Fort George", text: "Report to the officer at Fort George") {
+            Says() => "\"You will stand your watch on the bank at Queenston, and you will keep away from the boats.\"";
+            choice Obey(label: "\"Sir.\"", reply: "He nods you out.");
+            choice Look(label: "Say nothing, and look at the river.", reply: "He watches you a moment too long.") { flags.set("thinking_of_it"); }
+        }
+        reach Bank(place: "Queenston", text: "Stand your watch on the bank at Queenston");
+    }
+    quest TheBoat(title: "The boat", summary: "A boat goes over from below the town on dark nights.") [Muster] {
+        StartWhen() => flags.has("start:knows-the-boatman") || flags.has("thinking_of_it");
+        wait Dark(days: 3, text: "Wait for a night with no moon");
+        OnComplete() { player.desert(Company.American); }
+    }
+}
+
+questline Across(title: "Across the river", forCompany: Company.American) {
+    quest LieLow(title: "Lie low", summary: "You are a deserter, and the garrison across the water knows your face.") {
+        wait Low(days: 14, text: "Keep away from the river for a fortnight");
+        reach Fort(place: "Fort Niagara", text: "Go up to the Americans' fort");
+        talk Enlist(who: "officer@Fort Niagara", text: "Offer yourself to the officer at Fort Niagara") {
+            Says() => "\"A redcoat? We'll see what you're worth. There's land in it, if you live.\"";
+        }
+    }
+}
+
+// Taken back across the river: the garrison has put him in the ranks again.
+beat Retaken(title: "Brought back") ["deserter:taken"] {
+    OnActivate() { player.note("The whole garrison watched the flogging. Nobody in your mess will look at you."); }
+}
+
+// With the peace, the story forgives a deserter still at large.
+beat WithThePeace(title: "A pardon with the peace", date: date(1814, 12, 24)) {
+    ActivateWhen() => player.deserted;
+    OnActivate() { player.pardon(); say("Word comes with the peace: deserters who come in will not be punished."); }
+}
+```
+
+Things to know:
+
+- `startPath: Path.Crown` fixes the road on the character page; the player still picks a background on it. Without `startAt` the soldier is York's; with it, he belongs to the Crown garrison of that town or fort, or the nearest one that stands.
+- After `player.desert(Company.American)` the `Ranks` questline is no longer offered to him (it is `forCompany: Company.Crown`) and `Across` is. Leave `to` out (`player.desert()`) for a man who goes over to nobody, and write his story `forCompany: Company.Free`.
+- `WithThePeace` waits on its day until its `ActivateWhen` holds, so a man who deserts after it is pardoned the day he does. Give it a `CancelWhen` if the pardon should have a last day.
 
 ## An ending
 
