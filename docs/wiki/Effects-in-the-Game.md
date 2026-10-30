@@ -102,7 +102,7 @@ So `days` is how long news took to come that far: from London to the Bay by the 
 
 ## Lines and headlines
 
-`say(text, to)` adds a dated line to the journal of every player of that company (`Company.HBC`, `Company.NWC`, or everyone if left out) and shows it to them as a notice. `shout(text, to)` does the same and also makes it a **headline** for everyone, which the [Director](https://github.com/halosm1th/isometric-fur-trade-game/blob/master/WIKI/Systems/The%20Director.md) counts toward its pacing. Players of neither company (the Cree and Assiniboine paths) hear only lines sent to everyone.
+`say(text, to)` adds a dated line to the journal of every player of that company (`Company.HBC`, `Company.NWC`, `Company.American`, `Company.Crown`, `Company.Free`, or everyone if left out) and shows it to them as a notice. `shout(text, to)` does the same and also makes it a **headline** for everyone, which the [Director](https://github.com/halosm1th/isometric-fur-trade-game/blob/master/WIKI/Systems/The%20Director.md) counts toward its pacing. Players of neither company (the Cree and Assiniboine paths) hear only lines sent to everyone.
 
 ## Men under arms
 
@@ -146,8 +146,22 @@ These effects act on a player: the one a quest runs for, or, when a **beat** doe
 | `world.addRegard(camp, n)` | changes how a band regards the Company, kept within 0-100 (a band camp by its exact name: see [Camps](World-Reference#camps-bands)). |
 | `Q.start()` | starts the quest now, whatever it requires and whoever gives it (not again if the player already has it). |
 | `Q.complete()`, `Q.fail()` | ends the quest as done or failed, running its `OnComplete` or `OnFail`, if it is under way. |
+| `player.desert(to)` | the player leaves their side without leave, for another (`Company.American`, `Company.Crown`, `Company.HBC`, `Company.NWC`) or, with no `to`, for nobody's (`Company.Free`). See [Deserters](Effects-in-the-Game#deserters). |
+| `player.pardon()` | the side the player deserted forgives them: they are no longer wanted, and everyone of that side thinks a little better of them (+10). They stay on the side they are on now. |
 
 `world.standing` and `player.rapport(...)` read the same numbers these change.
+
+### Deserters
+
+`player.desert(to)` changes the player's side at once: `world.playerFaction`, `say(..., Company.X)` and the quest lines they are offered (`forCompany`) all follow the new side, and quests for the old side are no longer offered (one already under way goes on). Their standing starts again at 10 with the side they joined (0 with nobody), their post and task are given up, everyone of the side they left thinks 30 worse of them (and everyone of the side they joined 5 better), their journal says so, the news travels as a chronicle event, and the deed `desert` is recorded (`player.did("desert")`).
+
+They are **wanted** by the side they left, and `player.deserted` is true, until they are pardoned or taken:
+
+- the **soldiers and officers of that side's garrisons** (the towns' forts) go for them on sight, within a couple of hundred paces, as for any enemy. Company men and the bands only think the worse of them;
+- a blow from one of those soldiers that would kill them takes them alive instead: they are marched back to that soldier's garrison, tried and flogged (their health is left low), and put back on its strength and its side, with standing 0. The flag `deserter:taken` is raised, for the story to answer;
+- `player.pardon()` ends it without their going back.
+
+Deserting from nobody's (`Company.Free`) to nobody's does nothing. A pardoned player who deserts again is wanted again.
 
 ## The log
 

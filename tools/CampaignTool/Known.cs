@@ -40,6 +40,8 @@ public static class Known
 		["start_quest"] = (new[] { "quest" }, new string[0]),
 		["end_quest"] = (new[] { "quest" }, new[] { "failed" }),
 		["note"] = (new[] { "text" }, new string[0]),
+		["desert"] = (new string[0], new[] { "to" }),
+		["pardon"] = (new string[0], new string[0]),
 		["war_party"] = (new[] { "from", "against" }, new[] { "why", "with_player" }),
 		["truce"] = (new[] { "a", "b" }, new[] { "days" }),
 		["feud"] = (new[] { "holder", "against" }, new[] { "add" }),
@@ -59,11 +61,13 @@ public static class Known
 	};
 	public static readonly string[] Holders = { "Crown", "American" };
 	public static readonly string[] BrigadeEffects = { "delay", "turn_back", "lose", "cancel", "launch" };
-	public static readonly HashSet<string> Predicates = new() { "flag", "beat", "after", "before", "chance", "month", "post", "dead", "player_faction", "season", "convoy_late", "convoy_lost", "convoy_robbed", "convoy_turned_back", "convoy_out", "convoy_in", "convoy_wintering", "quest", "quest_active", "quest_failed", "posted", "at_peace" };
+	public static readonly HashSet<string> Predicates = new() { "flag", "beat", "after", "before", "chance", "month", "post", "dead", "player_faction", "season", "convoy_late", "convoy_lost", "convoy_robbed", "convoy_turned_back", "convoy_out", "convoy_in", "convoy_wintering", "quest", "quest_active", "quest_failed", "posted", "at_peace", "deserted" };
 	public static readonly HashSet<string> Metrics = new() { "var", "month", "year", "day", "day_of_year", "count", "beat_age", "tension", "standing", "stock", "furs", "convoys_active", "convoy_days_late", "convoy_days_out", "rapport", "regard", "feud", "under_arms", "fighters" };
 	public static readonly string[] Addressees = { "the Factor at York Factory", "the postmaster at Oxford House", "the wintering partner", "the chief of the band" };
-	public static readonly string[] Companies = { "HBC", "NWC", "American" };
-	public static readonly string[] EngineFlagPrefixes = { "heard:", "late:", "lost:", "robbed:", "turned:", "out:", "in:", "deed:", "war:", "muster:", "march:", "attack:" };
+	// The sides a player can be on (a quest's for, a say's to): Free is a deserter's, nobody's.
+	public static readonly string[] Companies = { "HBC", "NWC", "American", "Crown", "Free" };
+	public static readonly string[] Sides = { "HBC", "NWC", "American", "Crown" };   // what desert can go over to
+	public static readonly string[] EngineFlagPrefixes = { "heard:", "late:", "lost:", "robbed:", "turned:", "out:", "in:", "deed:", "war:", "deserter:", "start:", "muster:", "march:", "attack:" };
 	public static readonly HashSet<string> EngineFlags = new() { "brigade_late", "brigade_lost", "brigade_robbed", "brigade_turned_back", "brigade_in", "open_hostility", "nwc_exhausted", "hbc_exhausted", "ship_mates", "york_raid" };
 
 	public static string Root { get; } = FindRoot();
@@ -90,6 +94,8 @@ public static class Known
 		// The towns (layout.towns): their buildings, and whether each has a garrison.
 		public readonly Dictionary<string, HashSet<string>> Towns = new();
 		public readonly HashSet<string> Garrisoned = new();
+		public readonly Dictionary<string, string> Forts = new();       // a fort's name -> its town's
+		public readonly Dictionary<string, string> TownHolder = new();  // who holds a town when the game begins: CROWN or AMER
 
 		public WorldData()
 		{
@@ -132,7 +138,12 @@ public static class Known
 							var blds = new HashSet<string>();
 							foreach (var b in t.GetProperty("buildings").EnumerateArray()) blds.Add(b.GetProperty("name").GetString());
 							Towns[name] = blds;
-							if (t.TryGetProperty("fort", out var f) && f.ValueKind == JsonValueKind.Object) Garrisoned.Add(name);
+							if (t.TryGetProperty("fort", out var f) && f.ValueKind == JsonValueKind.Object)
+							{
+								Garrisoned.Add(name);
+								if (f.TryGetProperty("name", out var fn)) Forts[fn.GetString()] = name;
+							}
+							if (t.TryGetProperty("polity", out var pol)) TownHolder[name] = pol.GetString();
 						}
 				}
 		}

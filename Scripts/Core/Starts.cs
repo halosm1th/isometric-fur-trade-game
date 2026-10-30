@@ -35,8 +35,42 @@ public static class Starts
         StartPath.Cree => "The Cree summer camp by the Bay men's house. These are your people.",
         StartPath.Assiniboine => "The Assiniboine camp. These are your people.",
         StartPath.American => "Fort Okanogan, on the upper Columbia. You are Mr. Astor's man, a long way from New York.",
+        StartPath.Crown => $"{(p.GarrisonTown is { } t ? $"{t.FortName}, {t.Name}" : "Upper Canada")}. You are a private soldier of His Majesty's garrison.",
         _ => "York Factory, Hudson's Bay. You are the Company's new hand.",
     };
+
+    // A garrison of that side for a soldier: the town (or fort) named, if it
+    // stands and is held by that side; else the nearest that is (to the
+    // place named, or to a point); else York's, the first in Upper Canada.
+    public static Town GarrisonFor(string at, Faction side, Vector2? near = null)
+    {
+        bool Ours(Town t) => t != null && t.Standing && t.Garrison != null && t.Faction == side;
+        if (!string.IsNullOrEmpty(at))
+        {
+            var named = Towns.Named(at) ?? Towns.All.Find(t => t.FortName == at);
+            if (Ours(named)) return named;
+            if (SpotOf(at) is Vector2 spot) near ??= spot;
+        }
+        if (near == null && Ours(Towns.Named("York"))) return Towns.Named("York");
+        Town best = null; float bestD = float.MaxValue;
+        foreach (var t in Towns.All)
+        {
+            if (!Ours(t)) continue;
+            float d = near is Vector2 v ? t.Centre.DistanceTo(v) : 0f;
+            if (d < bestD) { bestD = d; best = t; }
+        }
+        return best;
+    }
+
+    // Where a campaign's start_at is on the map, or null if nothing has that name.
+    public static Vector2? SpotOf(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return null;
+        if (Towns.All.Find(t => t.FortName == name) is { HasFort: true } ft)
+            return IsoGrid.ToWorld(Sim.Paths?.NearestWalkable(IsoGrid.Cell(ft.FortTop, ft.FortWidth / 2, ft.FortDepth / 2), 12) ?? ft.FortTop);
+        bool known = Posts.Named(name) != null || WorldMap.Place(name) != null || Towns.Named(name) != null || Camps.Named(name) != null || WorldMap.Landmarks().Any(l => l.Name == name);
+        return known ? IsoGrid.ToWorld(TerrainPainter.NamedSpot(name)) : null;
+    }
 
     // On the host, for a player new to this world, after the sheet is applied.
     public static void Begin(Player.PlayerController p, bool chosen, bool firstInWorld)
@@ -57,14 +91,22 @@ public static class Starts
                 case StartPath.HBC: cal?.SetDate(year, 8, 20, 7f); break;           // the ship's day
                 case StartPath.NWC: cal?.SetDate(year, 7, 12, 7f); break;           // the brigade's day
                 case StartPath.American: cal?.SetDate(year, 9, 2, 7f); break;       // Mr. Stuart's party at the Okanogan
+                case StartPath.Crown: cal?.SetDate(year, 6, 4, 7f); break;          // the King's birthday parade
                 default: cal?.SetDate(year, 6, 10, 7f); break;   // the summer camp by the post
             }
             // The bands keep the season the date says: by the post from break-up to freeze-up.
             bool summer = (cal?.Month ?? 6) is >= 6 and <= 10;
             foreach (var b in new[] { Sim.Band, Sim.Assiniboine }) if (b != null) b.MoveCamp(summer ? b.SummerGround : b.WinterGround);
         }
+        // A campaign that sets everyone down somewhere of its own (start_at)
+        // has no use for the ship or the brigade: you are simply there. A
+        // soldier still stands his parade, at the garrison nearest it.
+        var at = SpotOf(Campaign.StartAt);
+        if (Campaign.StartAt != "" && at == null) GD.PushWarning($"[start] the campaign's start_at '{Campaign.StartAt}' is nowhere on the map");
         ScenePage first = p.StartPath switch
         {
+            StartPath.Crown => Parade(p, at),
+            _ when at is Vector2 there && p.HomeCamp != Campaign.StartAt => SetDown(p, there),
             StartPath.HBC => Ship(p, pop, dating),
             StartPath.NWC => Brigade(p, pop, dating),
             StartPath.American => Columbia(p, pop),
@@ -370,6 +412,102 @@ public static class Starts
             .Add("Go", () => null);
         return Hub();
     }
+
+    // ---- the parade -------------------------------------------------------------------
+
+    // A private soldier of a Crown garrison on the Lakes frontier (design doc
+    // 6.1's towns). The King's birthday, 4 June, was a holiday in every
+    // garrison: the troops paraded in their best and fired a feu de joie.
+    // Desertion across the water was the garrisons' standing trouble - the
+    // Americans offered a recruit land, a hundred and sixty acres - and a man
+    // brought back was flogged before his regiment.
+    private static ScenePage Parade(Player.PlayerController p, Vector2? at)
+    {
+        var town = p.GarrisonTown;
+        var g = town?.Garrison;
+        Vector2 parade = town != null && town.HasFort ? Dry(IsoGrid.ToWorld(IsoGrid.Cell(town.FortTop, town.FortWidth / 2, town.FortDepth / 2))) : at ?? p.GlobalPosition;
+        p.SetStartPosition(parade);
+        // The men of his mess, and the sergeant: the garrison's own people, placed in the editor.
+        var mates = new List<Npc>();
+        Npc sergeant = null;
+        if (g != null)
+            foreach (var n in g.Members)
+            {
+                if (!GodotObject.IsInstanceValid(n) || n.IsDead || n.Away || n.Role != Role.Soldier) continue;
+                if (sergeant == null && n.DisplayName.StartsWith("Sergeant")) sergeant = n;
+                else if (mates.Count < 2 && n.DisplayName.StartsWith("Private")) mates.Add(n);
+            }
+        foreach (var m in mates) Shared(m, p, $"{m.DisplayName} and {p.DisplayName} have shared a mess in the barracks since the winter.");
+        string officer = Clean(g?.Leader?.DisplayName) ?? "the commanding officer";
+        string sgt = Clean(sergeant?.DisplayName) ?? "the sergeant";
+        string a = mates.Count > 0 ? Agents.Barks.CallName(mates[0]) : "Doyle", b = mates.Count > 1 ? Agents.Barks.CallName(mates[1]) : "Kelly";
+        string fort = town?.FortName ?? "the fort", place = town?.Name ?? "Upper Canada";
+        string over = town?.Name switch
+        {
+            "Niagara" or "Queenston" => "Fort Niagara across the river",
+            "Amherstburg" => "the Michigan shore",
+            "St. Joseph Island" => "Michilimackinac",
+            _ => "the American shore across the lake",
+        };
+        var cal = GameCalendar.Instance;
+        bool birthday = cal != null && cal.Month == 6 && cal.Day == 4;
+        string occasion = birthday ? "the King's birthday" : "the general muster";
+        var seen = new HashSet<string>();
+        ScenePage Hub()
+        {
+            var hub = new ScenePage { Title = birthday ? "The King's birthday" : "On the parade", Text = seen.Count == 0
+                ? $"{Month}. {fort}, {place}. The garrison is drawn up on the parade in its best coats for {occasion}: pipeclay and polish, powder served out for the feu de joie, the colours uncased. {a} and {b} stand either side of you in the rear rank. {Cap(sgt)} walks the front of the company with his pike. Beyond the palisade the townspeople have come out to watch, and one of them is watching you."
+                : "The company stands easy. The sun is high and the pipeclay itches." };
+            if (!seen.Contains("mess")) hub.Add($"Stand easy with {a} and {b}", () => { seen.Add("mess"); return Mess(); });
+            if (!seen.Contains("sergeant")) hub.Add($"Listen to {sgt}", () => { seen.Add("sergeant"); return Sergeant(); });
+            if (!seen.Contains("stranger")) hub.Add("See who is watching you", () => { seen.Add("stranger"); return Stranger(); });
+            hub.Add("Fall in for the feu de joie", () => Dismissed());
+            return hub;
+        }
+        ScenePage Mess() => new ScenePage { Title = "The rear rank", Text = $"\"A shilling a day,\" {a} says out of the side of his mouth, \"and sixpence of it stopped for the rations before you see it, and the rest for the shoes and the washing.\" {b} nods at {over}. \"Over there they give a man land for enlisting. A hundred and sixty acres. A man could be a farmer.\"" }
+            .Add("\"Hold your tongues, the pair of you.\"", () => { foreach (var m in mates) m.ChangeRapport(p, 4f); return Hub(); })
+            .Add("\"And how would a man get over there?\"", () =>
+            {
+                Remembered(p, $"{p.DisplayName} asked how a man would get across to the Americans.", mates, 1.3f);
+                Note(p, $"{a} and {b} grumbled about the stoppages; the Americans at {over} give a recruit a hundred and sixty acres. You asked how a man would get over.");
+                return new ScenePage { Title = "The rear rank", Text = $"{b} looks at you sideways. \"Not out loud, you wouldn't.\"" }.Add("Back", Hub);
+            });
+        ScenePage Sergeant() => new ScenePage { Title = Cap(sgt), Text = $"\"{officer} will inspect after the firing, and God help the man with a dirty lock. Any man drunk tonight is for the triangle in the morning. And mark this, the lot of you: the last man who tried for {over} was brought back in irons and flogged till the drummers were tired. Desert, and we will fetch you.\"" }
+            .Add("\"Sergeant.\"", () => { Note(p, $"{Cap(sgt)}: {officer} inspects after the firing; a man who deserts is fetched back and flogged."); return Hub(); });
+        ScenePage Stranger() => new ScenePage { Title = "By the gate", Text = $"A man in a farmer's coat by the gate catches your eye and drifts over when the sergeant's back is turned. \"There's a boat goes over from below {place} on dark nights,\" he says, low. \"Two dollars, and a coat that isn't red. Ask at the landing for Abner.\" He is gone into the crowd before you can answer." }
+            .Add("Remember the name", () => { Campaign.Flag("start:knows-the-boatman"); Note(p, $"A stranger at the gate of {fort}: a boat goes over to {over} from below {place} on dark nights. Ask at the landing for Abner."); return Hub(); })
+            .Add($"Tell {sgt}", () => { p.Standing += 3f; Note(p, $"You told {sgt} of a man at the gate who offered a boat across to {over}."); return new ScenePage { Title = Cap(sgt), Text = "He looks at the crowd a long time. \"Good lad. I'll remember that.\"" }.Add("Back", Hub); })
+            .Add("Forget it", () => Hub());
+        ScenePage Dismissed() => new ScenePage { Title = fort, Text = $"The line fires by files, a ripple of smoke from one end of the company to the other and back, three times, and three cheers for the King. {officer} rides down the ranks. Then the parade is dismissed. You are on the strength of {fort}: a bed in the barracks, the garrison's rations, and {officer} over all of you." }
+            .Add("Fall out", () =>
+            {
+                bool elsewhere = at is Vector2 there && there.DistanceTo(parade) > 1500f;
+                Place(p, elsewhere ? at.Value : parade + new Vector2(40, 30));
+                Note(p, $"You paraded with the garrison of {fort} for {occasion}.{(elsewhere ? $" You are sent to {Campaign.StartAt}." : "")}");
+                return null;
+            });
+        return Hub();
+    }
+
+    // A campaign's start_at: set down there, on the first day, with no prologue.
+    private static ScenePage SetDown(Player.PlayerController p, Vector2 there)
+    {
+        string where = Campaign.StartAt;
+        p.SetStartPosition(Dry(there));
+        // On a company's road, a house of his own company that keeps books is his post from the first day.
+        if (!CharacterSheet.IsBand(p.StartPath) && Posts.Named(where) is { } post && post.Faction == p.Faction && Convoys.Ledger(where) != null) p.PostedTo = where;
+        string who = p.StartPath switch
+        {
+            StartPath.HBC => "a servant of the Hudson's Bay Company",
+            StartPath.NWC => "a man of the North West Company",
+            StartPath.American => "Mr. Astor's man",
+            _ => $"one of the {Camps.NationName(p.Faction)}",
+        };
+        return new ScenePage { Title = where, Text = $"{Month} {GameCalendar.Instance?.Year}. {where}. You are {who}, and this is where your story begins." }
+            .Add("Begin", () => { Place(p, there); Note(p, $"You began at {where}, {who}."); return null; });
+    }
+
+    private static string Cap(string s) => string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0]) + s[1..];
 
     // ---- helpers ------------------------------------------------------------------------
 

@@ -17,7 +17,7 @@ The new-game page ends with a page called *Who you are*. It does not build a sec
 
 | Step | Choices | What it does |
 |---|---|---|
-| 1. Road in | HBC, NWC, Cree, Assiniboine, or "another people" | Sets faction, home post (or none), sprite, first-day scene, start date |
+| 1. Road in | HBC, NWC, Cree, Assiniboine, "another people", American or Crown (fixed if the campaign gives a `startPath`) | Sets faction, home post (or none), sprite, first-day scene, start date |
 | 2. Background | 3 per road | Skills, rank, standing, starting kit, kin |
 | 3. Traits | pick up to 2 of 8 | Skill bumps and a few items |
 | 4. Ambition | one of five, or "decide later" | Puts a goal in your journal (see [[Ambitions]]) |
@@ -34,6 +34,9 @@ The sheet is encoded as `path|background|traits|ambition|camp` and travels to th
 | [[Cree Path]] | Of the band that hunts the lowlands and trades at the Bay. Family, hunting grounds, and two companies who want your furs. | 10 June | The Cree summer camp by the post |
 | [[Assiniboine Path]] | Of the band that winters upland and brings pemmican and furs to the posts. | 10 June | The Assiniboine camp |
 | Another people | Ojibwe, Dene, Blackfoot, Sioux, Plateau, Coast, Missouri (and Metis) band camps "far from York and the Pemmican War". | 10 June (if first in the world) | The camp you choose |
+| [[Crown Path]] | A private soldier of an Upper Canada garrison: "a shilling a day less stoppages, drill on the parade and the Americans across the water." | 4 June (the King's birthday) | The parade at Fort York, or the garrison the campaign names |
+
+A campaign can bring every player in by one road (`startPath`) and set them down at one place (`startAt`): the road picker is then fixed on the character page, and the road's own opening is replaced by simply beginning there (a soldier still stands his parade). See the scripting [[World-Reference|World reference]].
 
 Start dates only apply to the **first character of a new world**; the world calendar is set to the year's date (normally 1811) at 07:00. Anyone who joins a world already running arrives on whatever day it is (the HBC man then comes round from Churchill in the Company's sloop if the ship isn't in the roads).
 

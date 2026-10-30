@@ -16,6 +16,9 @@ namespace IsometricFurTradeGame.Scripts.Economy;
 //    let go (they walk off and are gone), the rest moved in.
 //  - A North West post with no Company post near is kept, under the Company.
 //  - Everyone of the North West Company, players included, is the Company's.
+//  - Every company player is weighed (design doc 1, "the Reckoning of 1821"):
+//    standing, the year's work, what he said he would do and what he did.
+//    The best are given charge of others, most are kept on, the worst cut loose.
 //  - The rivalry is over (Rivalry.United): no raids, no poaching, no tension.
 //  - With one buyer in the country, the posts pay less for furs.
 public static class Union
@@ -75,11 +78,14 @@ public static class Union
 
 		// Everyone else of the North West Company (men away, players).
 		foreach (var n in Sim.Npcs) if (n.Faction == Faction.NWC) ToCompany(n);
+		var wereNorWesters = new HashSet<Player.PlayerController>();
+		foreach (var pc in Sim.Players()) if (pc.Faction == Faction.NWC) wereNorWesters.Add(pc);
 		foreach (var pc in Sim.Players())
 		{
 			if (pc.Faction != Faction.NWC) continue;
 			pc.Faction = Faction.HBC;
 			if (pc.PostedTo != "" && Closed.Contains(pc.PostedTo) && NearestCompanyPost(Posts.Named(pc.PostedTo)) is { } to) pc.PostTo(to.Name);
+			Marriage.IntoTheCompany(pc);
 			pc.Journal.Add($"{GameCalendar.Instance?.DateString}: The North West Company is gone into the Hudson's Bay Company. You are the Company's servant now.");
 			pc.Say("You are on the Hudson's Bay Company's books now: the North West Company is no more.");
 		}
@@ -87,8 +93,60 @@ public static class Union
 		// One buyer in the country.
 		foreach (var f in AllPosts()) f.PeltPrice *= PriceAfter;
 
+		foreach (var pc in Sim.Players()) if (pc.Faction == Faction.HBC && !pc.IsDead) Weigh(pc, wereNorWesters.Contains(pc));
+
 		Chronicle.Event("The North West Company went into the Hudson's Bay Company.", Sim.Fort != null ? IsoGrid.ToWorld(Sim.Fort.AccessCell) : Vector2.Zero, subject: "the companies", weight: 3f);
 		Sim.Notice($"The union: {closed} North West posts given up, {kept} kept under the Company, {letGo} men let go. The Company pays less for furs now that it is the only buyer.");
+	}
+
+	public enum Verdict { GivenCharge, KeptOn, CutLoose }
+
+	// What the new order makes of a man (design doc 1). There are twice as
+	// many men as places, and a Nor'Wester starts behind: the Company is
+	// keeping its own first.
+	public static float Worth(Player.PlayerController pc, bool wasNorWester)
+	{
+		float w = pc.Standing;
+		w += pc.Rank switch { "postmaster" => 25f, "clerk" => 12f, "on notice" => -15f, _ => 0f };
+		w += 2f * pc.TasksDone - 4f * pc.TasksRefused;
+		foreach (var a in pc.Ambitions) if (!a.Abandoned) w += 15f * a.Best;
+		if (pc.Deserter) w -= 30f;
+		if (wasNorWester) w -= 10f;
+		return w;
+	}
+
+	public static Verdict Judge(float worth) => worth >= 60f ? Verdict.GivenCharge : worth >= 15f ? Verdict.KeptOn : Verdict.CutLoose;
+
+	private static void Weigh(Player.PlayerController pc, bool wasNorWester)
+	{
+		float worth = Worth(pc, wasNorWester);
+		string date = GameCalendar.Instance?.DateString ?? "";
+		switch (Judge(worth))
+		{
+			case Verdict.GivenCharge:
+				// Set over others: a chief trader's place, and the men he must let go.
+				pc.Rank = "postmaster";
+				pc.Standing = Mathf.Max(pc.Standing, 60f);
+				pc.Journal.Add($"{date}: The new Company has weighed its men, and you are kept on and given charge - a chief trader's place. The men you are set over are fewer than they were, and you will choose which go.");
+				pc.Say("Kept on, and given charge of others. Half the men under you are to go.");
+				Chronicle.Event($"{pc.DisplayName} was kept on at the union and given charge.", pc.GlobalPosition, pc, weight: 2f);
+				break;
+			case Verdict.KeptOn:
+				pc.Journal.Add($"{date}: The new Company has weighed its men, and you are kept on, as you were. Not every man was.");
+				pc.Say("Kept on at the union, as you were.");
+				break;
+			default:
+				// Cut loose: off the books, a freeman in a country with one buyer.
+				pc.Faction = Faction.Free;
+				pc.PostedTo = "";
+				pc.Rank = "freeman";
+				pc.Standing = 0f;
+				pc.Task.Kind = Player.TaskKind.None;
+				pc.Journal.Add($"{date}: The new Company has weighed its men, and you are not one it keeps. You are off the books - a freeman now, and the Company the only buyer for what you trap.");
+				pc.Say("Let go at the union. You are a freeman now.");
+				Chronicle.Event($"{pc.DisplayName} was let go at the union.", pc.GlobalPosition, pc, weight: 2f);
+				break;
+		}
 	}
 
 	// The people and stores of a North West house go into a Company one.

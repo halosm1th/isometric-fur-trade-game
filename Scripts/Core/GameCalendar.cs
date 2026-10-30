@@ -29,10 +29,11 @@ public partial class GameCalendar : Node
     [Export] public int Day = 1;
     [Export] public float Hour = 9f;
 
-    // A year should take four to six hours of play, not a day (design doc
-    // P.3), and the compression is uneven: the trading season and the
-    // reckoning run close to live, deep winter nights go by in a breath.
-    // A day in eight minutes of play (twelve was too slow, Oct 28 2026).
+    // Design doc P.3 wants a year in four to six hours of play; this clock
+    // does not give that. A day is eight minutes of play (twelve was too
+    // slow, Oct 28 2026), so a flat year is about 49 hours, and the uneven
+    // pacing below moves time between the seasons more than it shortens the
+    // year. Sleeping through the nights, a player alone comes to less.
     public const float NormalSecondsPerGameHour = 20f;
     [Export] public float SecondsPerGameHour = NormalSecondsPerGameHour;
     [Export] public bool UnevenPacing = true;
@@ -244,6 +245,8 @@ public partial class GameCalendar : Node
         bool travelling = false;
         foreach (var p in Sim.Players()) if (p.TravellingServer && !p.IsDead) travelling = true;
         if (travelling) speed = Mathf.Max(speed, TravelBoost);
+        // Nobody is touching anything and nothing is happening: the quiet days pass.
+        if (QuietDays.Tick()) speed = Mathf.Max(speed, QuietDays.Speed);
         if (SkipRemaining > 0f) speed = SkipSpeed;
         DeltaGameHours = Mathf.Min(MaxDeltaHours, (float)delta / SecondsPerGameHour * speed);
         if (SkipRemaining > 0f)
@@ -299,6 +302,7 @@ public partial class GameCalendar : Node
             if (m == Month && d == Day)
             {
                 EmitSignal(SignalName.CalendarEvent, name);
+                QuietDays.Interrupt(cause: "calendar: " + name);
             }
         }
     }

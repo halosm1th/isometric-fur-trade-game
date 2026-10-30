@@ -62,6 +62,23 @@ public static class Campaign
     // dates the world to it rather than to the path's own day), or null.
     public static (int Y, int M, int D)? StartDate => ParseDay(_scriptStart);
 
+    // The road in the script gives every new character (CharacterSheet.Apply
+    // puts them on it whatever the sheet chose), or null for the player's
+    // own; and where it sets them down (Starts.Begin), or "".
+    public static StartPath? ForcedPath { get; private set; }
+    public static string StartAt { get; private set; } = "";
+    private static StartPath? PathNamed(string name) => Enum.TryParse(name ?? "", true, out StartPath p) && Enum.IsDefined(typeof(StartPath), p) ? p : null;
+
+    // The road a campaign on the menu puts every player on, for the
+    // character page to show it fixed (its own, or the one it extends).
+    public static StartPath? StartPathOf(string id)
+    {
+        if (id == "none" || PathOf(id) is not string path || Read(path) is not { } d) return null;
+        if (PathNamed(Str(d, "start_path", "")) is StartPath own) return own;
+        string ext = Str(d, "extends", "");
+        return ext != "" && ext != id && PathOf(ext) is string bp && Read(bp) is { } bd ? PathNamed(Str(bd, "start_path", "")) : null;
+    }
+
     private static (int, int, int)? ParseDay(string iso)
     {
         var p = (iso ?? "").Split('-');
@@ -92,6 +109,7 @@ public static class Campaign
             var d = Read(path);
             if (d == null) continue;
             string begins = StartLine(d);
+            if (StartPathOf(id) is StartPath road) begins = $"{begins} Every player comes in by one road: {CharacterSheet.PathTitle(road)}.".Trim();
             string about = Str(d, "description", "");
             list.Add((id, Str(d, "title", id), begins == "" ? about : $"{about} {begins}".Trim()));
         }
@@ -180,6 +198,7 @@ public static class Campaign
     private static void LoadScript()
     {
         _runner.Load(new CampaignScript()); Title = "No script"; Description = "";
+        ForcedPath = null; StartAt = "";
         Quests.Load(null);
         if (Id == "none") return;
         var path = PathOf(Id);
@@ -198,9 +217,13 @@ public static class Campaign
             foreach (var kv in baseScript.InitialVars) script.InitialVars.TryAdd(kv.Key, kv.Value);
             script.PostsByFoundingYear |= baseScript.PostsByFoundingYear;
             if (script.Start == "" && script.StartYear == 0) { script.Start = baseScript.Start; script.StartYear = baseScript.StartYear; }
+            if (script.StartPath == "") script.StartPath = baseScript.StartPath;
+            if (script.StartAt == "") script.StartAt = baseScript.StartAt;
         }
         Title = script.Title; Description = script.Description;
         _scriptStart = script.Start; _scriptStartYear = script.StartYear;
+        ForcedPath = PathNamed(script.StartPath); StartAt = script.StartAt;
+        if (script.StartPath != "" && ForcedPath == null) GD.PushWarning($"[campaign] start_path '{script.StartPath}' is not a road in: the player chooses");
         _runner.Load(script);
         Quests.Load(script.QuestLines);
     }
@@ -371,6 +394,7 @@ public static class Campaign
                 case "quest_active": return Actor != null ? Actor.Quests.IsActive(arg) : Sim.Players().Any(p => p.Quests.IsActive(arg));
                 case "quest_failed": return (Actor != null ? new[] { Actor } : Sim.Players().ToArray()).Any(p => p.Quests.States.TryGetValue(arg, out var qs) && qs.Status == QuestStatus.Failed);
                 case "posted": return (Actor ?? Sim.Player as Player.PlayerController)?.PostedTo == arg;
+                case "deserted": return Actor != null ? Actor.Deserter : Sim.Players().Any(p => p.Deserter);
                 case "at_peace": return a.Length > 1 && Economy.War.AtPeace(Quests.HouseholdAt(a[0]), Quests.HouseholdAt(a[1]));
             }
             GD.PushWarning($"[campaign] unknown condition '{name}'");
@@ -447,6 +471,17 @@ public static class Campaign
                 case "start_quest": if (Quests.Def(S(a, "quest")) is { } sq) foreach (var p in Targets()) Quests.Start(p, sq); break;
                 case "end_quest": foreach (var p in Targets()) Quests.FinishById(p, S(a, "quest"), !(a.TryGetValue("failed", out var fl) && fl is true)); break;
                 case "note": foreach (var p in Targets()) { p.Journal.Add($"{GameCalendar.Instance?.DateString}: {S(a, "text")}"); p.Say(S(a, "text")); } break;
+                // The player leaves his side: to another (to: HBC, NWC, American, Crown), or to nobody's.
+                case "desert":
+                    Faction? side = null;
+                    if (S(a, "to") != "")
+                    {
+                        if (Enum.TryParse(S(a, "to"), true, out Faction tf) && tf is Faction.HBC or Faction.NWC or Faction.American or Faction.Crown) side = tf;
+                        else { GD.PushWarning($"[campaign] {beat}: desert to '{S(a, "to")}': not a side (HBC, NWC, American or Crown)"); break; }
+                    }
+                    foreach (var p in Targets()) p.Desert(side);
+                    break;
+                case "pardon": foreach (var p in Targets()) p.Pardon(); break;
                 // The war (Economy/War.cs): a camp's men ride against a camp or a post; peace between two; an old score heated.
                 case "war_party":
                     if (Quests.HouseholdAt(S(a, "from")) is Economy.BandLedger wf && Quests.HouseholdAt(S(a, "against")) is { } wa)
@@ -524,7 +559,7 @@ public static class Campaign
 
     private static readonly (string kind, string line)[] DeedWords =
     {
-        ("truce", "brokered a truce between the companies"), ("raid", "gone out on a raid"), ("escort", "ridden a brigade to its landing"), ("courier", "carried a packet through"),
+        ("truce", "brokered a truce between the companies"), ("raid", "gone out on a raid"), ("escort", "ridden a brigade to its landing"), ("courier", "carried a packet through"), ("desert", "deserted your colours"),
     };
 
     // The journal's top: the rumours of what is coming, then what you have done.
@@ -690,6 +725,9 @@ it, or start fresh. The game reads this folder when the menu opens.
   ""posts_by_founding_year"": true,     // posts in the atlas appear on 1 Jan of their year
   ""start"": ""1815-05-01"",            // optional: the world's first day, on every starting path
                                        //   (or ""start_year"": 1815 - each path keeps its own day)
+  ""start_path"": ""Crown"",             // optional: every player's road in (HBC, NWC, Cree,
+                                       //   Assiniboine, Nation, American, Crown)
+  ""start_at"": ""Niagara"",             // optional: where they are set down (a post, town, camp or place)
   ""extends"": ""historical"",           // optional: play that campaign's beats as well
   ""beats"": [ { ... }, ... ]
 }

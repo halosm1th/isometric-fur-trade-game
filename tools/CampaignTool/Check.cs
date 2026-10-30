@@ -88,6 +88,7 @@ public static partial class Checker
 			if (doc.ContainsKey("start_year")) rep.Error("campaign", "start and start_year are both given: the first day is one or the other");
 		}
 		if (doc.TryGetValue("start_year", out var syv) && !(syv is double syd && syd == Math.Floor(syd) && syd >= 1700 && syd <= 2100)) rep.Error("campaign", $"start_year '{Tree.S(syv)}' is not a year");
+		CheckStart(doc, rep, world);
 		if (doc.GetValueOrDefault("vars") is Dictionary<string, object> initial) foreach (var k in initial.Keys) Facts.Add(facts.VarsSet, k, "vars");
 		var beats = Tree.AsList(doc.GetValueOrDefault("beats")).Cast<Dictionary<string, object>>().ToList();
 		var ids = new Dictionary<string, Dictionary<string, object>>();
@@ -166,6 +167,21 @@ public static partial class Checker
 		Reachability(beats, ids, facts, rep, baseIds);
 		DateOrder(beats, ids, rep);
 		return rep;
+	}
+
+	// Who the players come in as and where (start_path, start_at): a road the
+	// game has, and a place it can find - a post, a town or its fort, a camp,
+	// or a place on the map. A soldier's place should have a Crown garrison.
+	private static void CheckStart(Dictionary<string, object> doc, Report rep, Known.WorldData world)
+	{
+		string path = doc.TryGetValue("start_path", out var pv) ? Tree.S(pv) : "";
+		string at = doc.TryGetValue("start_at", out var av) ? Tree.S(av) : "";
+		if (doc.ContainsKey("start_path") && !Library.Paths.Contains(path)) rep.Error("campaign", $"start_path '{path}' is not a road in (use {string.Join(", ", Library.Paths)})");
+		if (!doc.ContainsKey("start_at")) return;
+		string town = world.Towns.ContainsKey(at) ? at : world.Forts.GetValueOrDefault(at);
+		if (town == null && !world.Places.ContainsKey(at) && !world.Ledgers.Contains(at) && !world.Camps.Contains(at)) { rep.Error("campaign", $"start_at '{at}' is not a post, town, fort, camp or place on the map"); return; }
+		if (path == "Crown" && (town == null || !world.Garrisoned.Contains(town) || world.TownHolder.GetValueOrDefault(town) != "CROWN"))
+			rep.Warn("campaign", $"start_at '{at}' has no garrison of the Crown when the game begins: the soldier is put on the strength of the nearest one that is (York's, failing all else)");
 	}
 
 	private static void CheckCondition(object c, string where, Report rep, Facts facts, Known.WorldData world)
@@ -274,7 +290,10 @@ public static partial class Checker
 					if (a.TryGetValue("company", out var co) && Tree.S(co).Length > 0 && !Known.Companies.Contains(Tree.S(co))) rep.Error(w, $"news company must be HBC or NWC (got '{Tree.S(co)}')");
 					break;
 				case "say":
-					if (a.TryGetValue("to", out var sto) && !(Tree.S(sto) is "all" or "HBC" or "NWC" or "American")) rep.Error(w, "say: to must be all, HBC, NWC or American");
+					if (a.TryGetValue("to", out var sto) && !(Tree.S(sto) == "all" || Known.Companies.Contains(Tree.S(sto)))) rep.Error(w, $"say: to must be all, {string.Join(", ", Known.Companies)}");
+					break;
+				case "desert":
+					if (a.TryGetValue("to", out var dto) && !Known.Sides.Contains(Tree.S(dto))) rep.Error(w, $"desert: to must be one of {string.Join(", ", Known.Sides)} (leave it out to belong to nobody)");
 					break;
 				case "tension":
 					if (a.GetValueOrDefault("add") is double t && Math.Abs(t) > 100) rep.Warn(w, $"tension {t:+0.##;-0.##} is more than the whole 0-100 scale");

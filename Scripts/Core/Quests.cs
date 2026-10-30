@@ -92,6 +92,11 @@ public static class Quests
 		return null;
 	}
 
+	// A town's garrison, by the town's name or its fort's ("York", "Fort York"):
+	// for a quest's people only ("officer@Fort George"), not the war's actions.
+	public static Economy.Household GarrisonAt(string place) =>
+		Towns.Named(place)?.Garrison ?? Towns.All.Find(t => t.FortName == place)?.Garrison;
+
 	// Does this person answer to `who` (QuestScript's forms)?
 	public static bool Matches(string who, Npc npc)
 	{
@@ -106,11 +111,14 @@ public static class Quests
 		int at = who.IndexOf('@');
 		if (at < 0) return npc.DisplayName == who;
 		string role = who[..at].Trim().ToLowerInvariant(), place = who[(at + 1)..].Trim();
-		var house = HouseholdAt(place);
+		var house = HouseholdAt(place) ?? GarrisonAt(place);
 		if (house == null || npc.HomeStores != house) return false;
 		return role switch
 		{
 			"leader" or "master" or "factor" => npc == house.Leader,
+			"officer" => npc == house.Leader || npc.Role == Role.Officer,
+			"soldier" => npc.Role == Role.Soldier,
+			"sergeant" => npc.Role == Role.Soldier && npc.DisplayName.StartsWith("Sergeant"),
 			"chief" => npc == house.Leader || npc.Role == Role.Chief,
 			"partner" => npc == house.Leader || npc.Role == Role.NwcPartner,
 			"clerk" => npc.Role == Role.Clerk,
@@ -137,6 +145,9 @@ public static class Quests
 		if (Convoys.Ledger(place) is { } led) return IsoGrid.ToWorld(led.AccessCell);
 		foreach (var c in Camps.All) if (c.Name == place) return IsoGrid.ToWorld(c.Centre);
 		if (WorldMap.Place(place) is { } wp) return IsoGrid.ToWorld(wp.Cell);
+		// A town (its middle) or a town's fort (its parade).
+		if (Towns.Named(place) is { } town) return town.Centre;
+		if (Towns.All.Find(t => t.FortName == place) is { HasFort: true } ft) return IsoGrid.ToWorld(IsoGrid.Cell(ft.FortTop, ft.FortWidth / 2, ft.FortDepth / 2));
 		foreach (var n in Sim.Npcs) if (!n.IsDead && Matches(place, n)) return n.GlobalPosition;
 		return null;
 	}
@@ -188,6 +199,7 @@ public static class Quests
 	{
 		var o = q.Objectives[st.At];
 		if (o.Text != "") p.Say($"{q.Title}: {Describe(o, st)}");
+		QuietDays.Interrupt(p, cause: "quest: " + q.Title);
 	}
 
 	// Called a few times a second for each player (server).

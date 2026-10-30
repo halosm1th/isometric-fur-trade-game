@@ -35,6 +35,8 @@ public static class LangDocs
 		new("postsByFoundingYear", "bool", "When true, posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only if a beat founds it."),
 		new("start", "Date", "The world's first day, for every starting path: date(1815, 5, 1). Without it the world begins in 1811, on the starting path's own day (10 June, 12 July or 20 August). What the script dates before the first day is history. A developer's --date wins."),
 		new("startYear", "int", "Only the year the world begins in: each starting path keeps its own day (the ship on 20 August and so on) in that year. Give start or startYear, not both."),
+		new("startPath", "Path", "The road every player comes in by, whatever they pick: Path.Crown makes everyone a private soldier of a garrison, Path.HBC a Company servant off the ship, and so on. The character page shows it fixed; each player still chooses a background on it. Leave it out and players choose their own road."),
+		new("startAt", "string", "Where every new character is set down, by name: a post, a town or its fort (\"York\", \"Fort George\"), a camp, or a place on the map. The road's own opening (the ship, the brigade) is not played; the player simply begins there, and a company man is put on the books of a post of his own company there. A soldier (Path.Crown) is put on the strength of the Crown garrison there, or the nearest one, and still stands his parade. A band road set down at a camp is born to that camp."),
 		new("include", "string", "Parts of this script kept in their own files, tools/CampaignTool/src/parts/<name>.camp (several: \"a, b\"). A part has no header: its consts, beats and quest lines are this campaign's own, compiled into one JSON. Opened in the editor, a part is checked, drawn and simulated inside the campaign that includes it."),
 		new("extends", "string", "Another campaign (by its id, the file's name) whose beats this one plays as well: a story with quest lines can be built on \"historical\" and share its war. Where both have a beat of the same id, this campaign's wins."),
 	};
@@ -59,7 +61,7 @@ public static class LangDocs
 		new("id", "string", "The line's id, if it is not to be its name."),
 		new("title", "string", "The line's name in the journal. Required."),
 		new("summary", "string", "A line about what the story is."),
-		new("forCompany", "Company", "Only players of this company (Company.HBC or Company.NWC) are given the line's quests. Each quest can say otherwise."),
+		new("forCompany", "Company", "Only players on this side (Company.HBC, Company.NWC, Company.American, Company.Crown, or Company.Free for a deserter on his own) are given the line's quests; a player who changes sides is offered the new side's. Each quest can say otherwise."),
 	};
 	public static readonly Arg[] QuestArgs =
 	{
@@ -73,8 +75,8 @@ public static class LangDocs
 	{
 		new("id", "string", "The step's id, if it is not to be its name."),
 		new("text", "string", "What the player is told to do, on the screen and in the journal."),
-		new("who", "Person", "talk, bring: the person (a name, Person.Factor, or a role at a place: \"leader@Edmonton House\", \"chief@<camp>\", \"partner@Fort Augustus\")."),
-		new("place", "string", "reach: a post, a camp or a place on the map."),
+		new("who", "Person", "talk, bring: the person (a name, Person.Factor, or a role at a place: \"leader@Edmonton House\", \"chief@<camp>\", \"partner@Fort Augustus\"; at a garrisoned town or its fort, \"officer@Fort George\", \"sergeant@York\", \"soldier@York\")."),
+		new("place", "string", "reach: a post, a camp, a town or its fort, or a place on the map."),
 		new("radius", "int", "reach: how near counts as there, in pixels (default 400)."),
 		new("item", "Item", "bring, have: what."),
 		new("count", "int", "bring, have: how many; task: how much of the work; hunt: how many beasts (default 1)."),
@@ -109,7 +111,7 @@ public static class LangDocs
 	};
 
 	public static readonly string[] Keywords = { "campaign", "beat", "questline", "quest", "choice", "talk", "reach", "task", "bring", "have", "hunt", "when", "wait", "const", "void", "if", "else", "for", "foreach", "in", "true", "false" };
-	public static readonly string[] Types = { "int", "float", "string", "bool", "Date", "Days", "Company", "Person", "Item", "Season", "Kind", "Beat", "Brigade", "Quest", "Task" };
+	public static readonly string[] Types = { "int", "float", "string", "bool", "Date", "Days", "Company", "Path", "Person", "Item", "Season", "Kind", "Beat", "Brigade", "Quest", "Task" };
 
 	// The editor reads this once.
 	public static Dictionary<string, object> LibraryJson()
@@ -186,7 +188,7 @@ public static class LangDocs
 		Section("Functions", "Called by name, anywhere.", Library.Of("").Where(m => m.Kind == "function"));
 		Section("world", "The state of the world: asked in conditions, changed in effects.", Library.Of("world"));
 		Section("flags", "Named switches the campaign raises and lowers.", Library.Of("flags"));
-		Section("player", "What the player has done, as the campaign has been told of it: the game records a *deed* when the player brokers a truce (`truce`), leads or joins a raid (`raid`), rides a brigade to its landing (`escort`) or carries a packet through (`courier`).", Library.Of("player"));
+		Section("player", "What the player has done, as the campaign has been told of it: the game records a *deed* when the player brokers a truce (`truce`), leads or joins a raid (`raid`), rides a brigade to its landing (`escort`), carries a packet through (`courier`) or deserts their side (`desert`, by `player.desert`).", Library.Of("player"));
 		Section("A beat", "A beat's own name is a value: `SevenOaks.done`. Beats are written in `[...]` after the header to be required, and passed to `trigger(...)`.", Library.Of("Beat"));
 		Section("A brigade", "`brigade(\"name\")` is one of the runs in `Data/World/brigade_runs.json`.", Library.Of("Brigade"));
 		Section("A quest", "A quest's own name is a value: `Landfall.done`. Quests are written in `[...]` after a quest's header to be required.", Library.Of("Quest"));

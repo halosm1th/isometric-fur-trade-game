@@ -63,7 +63,8 @@ public static class Launch
 			.FirstOrDefault(l => Tree.AsList(l.GetValueOrDefault("quests")).OfType<Dictionary<string, object>>().Any(q => Tree.S(q["id"]) == quest))
 			?? throw new CampError($"there is no quest '{quest}' in this campaign");
 		var q = Tree.AsList(line["quests"]).OfType<Dictionary<string, object>>().First(x => Tree.S(x["id"]) == quest);
-		string road = Tree.S(line.GetValueOrDefault("for")) is { Length: > 0 } f ? f : "HBC";
+		// The campaign's own road in, if it has one (the game holds every player to it); else the line's company's.
+		string road = Tree.S(doc.GetValueOrDefault("start_path")) is { Length: > 0 } sp ? sp : Tree.S(line.GetValueOrDefault("for")) is { Length: > 0 } f && f != "Free" ? f : "HBC";
 		var steps = Tree.AsList(q.GetValueOrDefault("objectives")).OfType<Dictionary<string, object>>().ToList();
 		int at = step == null ? 0 : Math.Max(0, steps.FindIndex(s => Tree.S(s.GetValueOrDefault("id")) == step));
 		step ??= steps.Count > 0 ? Tree.S(steps[0].GetValueOrDefault("id")) : null;

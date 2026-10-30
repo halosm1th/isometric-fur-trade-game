@@ -19,6 +19,7 @@ Everything time-dependent (light, weather, the annual ship, the hunts, the freez
 | Seconds per game hour | **30** (a game day is 12 minutes of play; a 365-day year is about 73 hours at the base rate) |
 | Fast-forward (hold `T`) | x40 |
 | Waiting / sleeping skip speed | x400 |
+| Quiet days (hands off the controls) | at least x80: a day in about nine seconds |
 | River road or map travel | at least x6 clock rate |
 | Longest single frame | 0.25 game hours (keeps the simulation sane) |
 | Host clock keys | `Space` stops/starts; `[` doubles and `]` halves seconds per hour (0.5 - 120 s) |
@@ -41,7 +42,26 @@ The design aim is that the clock is not flat: the trading season and the reckoni
 | In a fight (attacked in the last 8 s) | x2.5 |
 
 > [!note]
-> The design document aims for a year in four to six hours of play. At the current 30 s/hour a year is far longer than that target, even allowing for the night and winter speed-ups. A comment in the code records "a day in twelve minutes of play (the user's pick, Oct 2026)".
+> The design document aims for a year in four to six hours of play. At the current 30 s/hour a year is far longer than that, even allowing for the night and winter speed-ups (about 45-55 hours sleeping through the nights). The twelve-minute day was the owner's pick (Oct 2026); quiet days, below, are how the year is shortened without changing it.
+
+### Quiet days
+
+The day is twelve minutes when you are playing it. **Leave the controls alone for 20 seconds** (no key or button held, no conversation, map, journal or pause menu open, not travelling) and the days start to go by at **x80** or more: about nine seconds a day. The HUD reads "The days go quietly by. Touch any key to take them up." (`Core/QuietDays.cs`).
+
+They stop by themselves when something needs you, with a line saying why:
+
+| Stops it | Line |
+|---|---|
+| Anyone or anything attacks you | "*Wolf* is at you." |
+| Health under 50, hunger or thirst under 30, warmth under 35 | "You are hurt / hungry / thirsty / cold." |
+| The ship is in at York | "The ship is in. These days are lived, not passed." |
+| A blizzard or gale comes on where you are | "The weather closes in." |
+| A headline, a calendar event (the ship sighted, the brigade), a journal reveal, a new quest step | (the news itself) |
+| You touch any key or button | |
+
+After a stop, touch the controls and leave them again to start the days passing once more. In a shared world everyone alive has to be leaving the controls alone, as with sleeping. **Settings > Game > Let quiet days pass** turns it off (`quiet_days` in `settings.cfg`).
+
+A year left entirely alone would pass in under an hour, but the stops come often; how long an ordinary year now takes has not been measured in play.
 
 ## Seasons
 
@@ -92,7 +112,7 @@ Sunrise and sunset come from latitude and the date, then are nudged so days are 
 
 ## Command-line aids
 
-`--hour=N`, `--date=YYYY-MM-DD` and `--speed=SECONDS` set the starting hour, date and seconds per game hour.
+`--hour=N`, `--date=YYYY-MM-DD` and `--speed=SECONDS` set the starting hour, date and seconds per game hour. `--quiet` lets a headless run go quiet (it walks away from any open conversation) and logs `[quiet]` lines: what holds the quiet days back, and what stopped them.
 
 ## See also
 

@@ -153,6 +153,7 @@ public static class Heirs
         p.ParoleUntilDay = -1; p.ParoleConfessed = false;
         p.CaptiveOf = null;
         p.Spouse = null;
+        p.OtherWives.Clear();
         p.PrivateWorthMb *= 0.25f;
         p.Ambitions.Clear();
         foreach (var a in inh.Unfinished) p.Ambitions.Add(a);

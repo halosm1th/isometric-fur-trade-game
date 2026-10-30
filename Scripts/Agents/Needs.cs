@@ -8,8 +8,10 @@ namespace IsometricFurTradeGame.Scripts.Agents;
 // Tier 0 subsistence (design doc 3.1 / 17): hunger, thirst, warmth, all
 // 0..100 where 100 is fully satisfied. These drain in game-hours, so the
 // same code runs an NPC ticked once a day as the player ticked every frame.
-// Four skills, 0..1 (design doc 3.10). Nobody trains; you get better by
-// doing the thing, a hair at a time.
+// Four skills, 0..1: a small part of design doc 3.10's dozen. Hunting
+// covers the gun as well as the stalk; there is no separate shooting,
+// paddling, tracking or tongue skill (languages are fluencies). Nobody
+// trains; you get better by doing the thing, a hair at a time.
 public class Skills
 {
     public float Hunting = 0.15f, Trapping = 0.15f, Trade = 0.15f, Woodcraft = 0.15f;

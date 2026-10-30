@@ -48,8 +48,10 @@ internal sealed class Args
 
 public static class Library
 {
-	public static readonly string[] Companies = { "HBC", "NWC", "American", "All" };
-	public static readonly Dictionary<string, string> CompanyJson = new() { ["HBC"] = "HBC", ["NWC"] = "NWC", ["American"] = "American", ["All"] = "all" };
+	public static readonly string[] Companies = { "HBC", "NWC", "American", "Crown", "Free", "All" };
+	public static readonly Dictionary<string, string> CompanyJson = new() { ["HBC"] = "HBC", ["NWC"] = "NWC", ["American"] = "American", ["Crown"] = "Crown", ["Free"] = "Free", ["All"] = "all" };
+	// The roads into the game (Core/CharacterSheet.cs StartPath), for the header's startPath.
+	public static readonly string[] Paths = { "HBC", "NWC", "Cree", "Assiniboine", "Nation", "American", "Crown" };
 	public static readonly Dictionary<string, string> Persons = new()
 	{
 		["Factor"] = "the Factor at York Factory", ["Postmaster"] = "the postmaster at Oxford House",
@@ -60,7 +62,8 @@ public static class Library
 
 	public static readonly Dictionary<string, string> EnumDocs = new()
 	{
-		["Company"] = "The companies (and everyone): Company.HBC, Company.NWC, Company.American (the Missouri, Pacific and American Fur Companies), Company.All.",
+		["Company"] = "The sides a player can be on (and everyone): Company.HBC, Company.NWC, Company.American (the Missouri, Pacific and American Fur Companies, and the United States' garrisons), Company.Crown (His Majesty's garrisons), Company.Free (nobody's: a deserter on his own), Company.All.",
+		["Path"] = "The roads into the game, for the header's startPath: Path.HBC (off the ship at York Factory), Path.NWC (up with the brigade), Path.Cree, Path.Assiniboine, Path.Nation (born to a band of the country), Path.American (up the Columbia to Fort Okanogan), Path.Crown (a private soldier of an Upper Canada garrison).",
 		["Person"] = "Who a letter is addressed to: Person.Factor, Person.Postmaster, Person.Partner, Person.Chief. A plain string names anyone else.",
 		["Season"] = "The river's season, for world.season: Season.Breakup, OpenWater, FreezeUp, Winter.",
 		["Kind"] = "The beat kinds, for the kind: argument when the derived one is not what you want: Kind.Fixed, Conditional, Event, Pressure.",
@@ -70,7 +73,7 @@ public static class Library
 
 	public static IEnumerable<string> EnumValues(string type) => type switch
 	{
-		"Company" => Companies, "Person" => Persons.Keys, "Season" => Seasons, "Kind" => Kinds,
+		"Company" => Companies, "Path" => Paths, "Person" => Persons.Keys, "Season" => Seasons, "Kind" => Kinds,
 		"Item" => Known.World.Items.OrderBy(x => x, StringComparer.Ordinal),
 		"Task" => Known.World.Tasks,
 		_ => Array.Empty<string>(),
@@ -121,6 +124,9 @@ public static class Library
 
 	private static object Json(object v) => v switch { double d => d, bool b => b, string s => s, DateV d => d.ToString(), EnumV e => e.Value, BeatV b => b.Id, ArrV a => a.Items.Select(Json).ToList(), _ => CJson.Join(v) };
 	private static string Co(object v) => v is EnumV e ? Library.CompanyJson[e.Value] : CJson.Join(v);
+	// A side a player can go over to: a company or a crown, not everyone, not nobody (that is leaving to out).
+	private static string Side(object v, Ctx c) => v is EnumV { Type: "Company", Value: not ("All" or "Free") } e ? e.Value
+		: throw new CampError($"desert goes over to Company.HBC, Company.NWC, Company.American or Company.Crown; leave to out to belong to nobody", c.At);
 
 	private static MetricV Metric(string name, params string[] args) => new(name, args.ToList());
 	// A person for a quest: Person.Factor and friends by their short names, else the text as written.
@@ -154,7 +160,7 @@ public static class Library
 		Prop("world", "convoysActive", "int", "How many brigade crossings are on the rivers now (not yet arrived).", "world.convoysActive == 0", (c, s, a) => Metric("convoys_active"));
 		Prop("world", "date", "Date", "Today. Compare it with a date: world.date >= date(1816, 6, 19).", "world.date < date(1812, 1, 1)", (c, s, a) => new DateQ());
 		Prop("world", "season", "Season", "The river's season. Compare it with Season.Winter and so on.", "world.season == Season.Winter", (c, s, a) => new QueryV("season"));
-		Prop("world", "playerFaction", "Company", "Which company a player works for: in multiplayer, true if any player does.", "world.playerFaction == Company.HBC", (c, s, a) => new QueryV("player_faction"));
+		Prop("world", "playerFaction", "Company", "Which side a player is on (a company, the Crown, or nobody's after deserting): in multiplayer, true if any player is.", "world.playerFaction == Company.HBC", (c, s, a) => new QueryV("player_faction"));
 		Fn("world", "stock", P1("post:string", "item:Item"), "int", "How many pieces of an item a post's ledger holds. A post that does not stand has no ledger and answers nothing, so every comparison with it is false.", "world.stock(\"York Factory\", Item.Rum) < 20", (c, s, a) => Metric("stock", a.S("post"), a.S("item")));
 		Fn("world", "furs", P1("post:string"), "int", "The furs in a post's ledger, in Made Beaver.", "world.furs(\"York Factory\") > 500", (c, s, a) => Metric("furs", a.S("post")));
 		Fn("world", "hasPost", P1("place:string"), "bool", "True while a post stands there: founded by the start year and not given up, or founded since (by the script, or on 1 January of its year with postsByFoundingYear).", "world.hasPost(\"Fort William\")", (c, s, a) => Pred("post", a.S("place")));
@@ -170,7 +176,7 @@ public static class Library
 			(c, s, a) => Fx(c, "stock", ("post", a.S("post")), ("item", a.S("item")), ("add", a.N("amount"))));
 
 		// ---- the player
-		Fn("player", "did", P1("deed:string"), "bool", "True once the player has done this at least once: truce, raid, escort or courier.", "player.did(\"truce\")", (c, s, a) => Pred("flag", "deed:" + a.S("deed")));
+		Fn("player", "did", P1("deed:string"), "bool", "True once the player has done this at least once: truce, raid, escort, courier or desert.", "player.did(\"truce\")", (c, s, a) => Pred("flag", "deed:" + a.S("deed")));
 		Fn("player", "deeds", P1("deed:string"), "int", "How many times the player has done it.", "player.deeds(\"escort\") >= 2", (c, s, a) => Metric("var", "deed:" + a.S("deed")));
 
 		Fn("player", "posted", P1("place:string"), "bool", "True when the player (the one a quest runs for; from a beat, any player) is on the books of that post.", "player.posted(\"Edmonton House\")", (c, s, a) => Pred("posted", a.S("place")));
@@ -181,6 +187,12 @@ public static class Library
 		Fn("player", "give", P1("item:Item", "count:int?"), "effect", "Put something in the player's pack (1 if no count).", "player.give(Item.Tobacco, 2)", (c, s, a) => Fx(c, "give", ("item", a.S("item")), ("count", a.Has("count") ? a.N("count") : null)));
 		Fn("player", "take", P1("item:Item", "count:int?"), "effect", "Take something from the player's pack, as much as they have up to the count.", "player.take(Item.Rum)", (c, s, a) => Fx(c, "take", ("item", a.S("item")), ("count", a.Has("count") ? a.N("count") : null)));
 		Fn("player", "note", P1("text:string"), "effect", "A line in the player's journal, said over their head.", "player.note(\"Mr. Bird wants you at the hunt.\")", (c, s, a) => Fx(c, "note", ("text", a.S("text"))));
+		Fn("player", "desert", P1("to:Company?"), "effect",
+			"The player leaves their side without leave: for another (to: Company.American, Company.Crown, Company.HBC or Company.NWC), or for nobody's (Company.Free) if to is left out. Everyone of the side they left thinks the worse of them, and they are wanted: the soldiers of its garrisons go for them on sight, and one who would have killed them takes them back alive instead, to be flogged and put back on its strength (the flag deserter:taken is raised). It counts as the deed desert. Quests for their old side are not offered to them any more.",
+			"player.desert(Company.American)",
+			(c, s, a) => Fx(c, "desert", ("to", a.Has("to") ? Side(a["to"], c) : null)));
+		Fn("player", "pardon", P1(), "effect", "The side the player deserted forgives them: they are no longer wanted. They stay on whatever side they are on now.", "player.pardon()", (c, s, a) => Fx(c, "pardon"));
+		Prop("player", "deserted", "bool", "True while the player (the one a quest runs for; from a beat, any player) is a wanted deserter: from player.desert() until they are pardoned or taken back.", "player.deserted", (c, s, a) => new CondV(CJson.Predicate("deserted", new())));
 		Fn("world", "regard", P1("place:string"), "int", "How a band (by its camp's name) regards the company of the player asked for (the Bay, the Nor'Westers or the Americans; the Bay from a beat with no player), 0-100.", "world.regard(\"Beaver Hills Cree\") >= 60", (c, s, a) => Metric("regard", a.S("place")));
 		Fn("world", "addRegard", P1("place:string", "amount:int"), "effect", "Change how a band (by its camp's name) regards the player's company (the Bay's from a beat with no player); kept within 0-100.", "world.addRegard(\"Beaver Hills Cree\", 5)", (c, s, a) => Fx(c, "regard", ("place", a.S("place")), ("add", a.N("amount"))));
 
@@ -405,8 +417,9 @@ public static class Library
 		["world.lostWar.band"] = "The camp whose war party it was, by its camp's name.",
 		["world.addRegard.place"] = "A band, by its camp's name.",
 		["world.addRegard.amount"] = "How much to change the band's regard for that company (kept within 0-100); negative lowers it.",
-		["player.did.deed"] = "Which deed: \"truce\", \"raid\", \"escort\" or \"courier\".",
-		["player.deeds.deed"] = "Which deed: \"truce\", \"raid\", \"escort\" or \"courier\".",
+		["player.did.deed"] = "Which deed: \"truce\", \"raid\", \"escort\", \"courier\" or \"desert\".",
+		["player.deeds.deed"] = "Which deed: \"truce\", \"raid\", \"escort\", \"courier\" or \"desert\".",
+		["player.desert.to"] = "The side they go over to: Company.American, Company.Crown, Company.HBC or Company.NWC. Leave it out and they belong to nobody (Company.Free).",
 		["player.posted.place"] = "A post that keeps books, by its exact name.",
 		["player.rapport.who"] = "The person: an exact name, Person.Factor, or a role at a place such as \"leader@Fort Augustus\" or \"chief@<camp>\".",
 		["player.postTo.place"] = "The post that becomes the player's home: one that keeps books, by its exact name.",

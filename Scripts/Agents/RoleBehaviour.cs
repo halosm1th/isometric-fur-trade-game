@@ -64,6 +64,7 @@ public abstract class RoleBehaviour
         if (npc.Intoxication > 35f && IsWorkHours) return new WanderGoal(npc.BedCell, 1, 0.8f);
         // A motion before the town or the council: canvassing for it, or the meeting (Core/Laws).
         if (Core.Laws.Errand(npc) is { } motion) return motion;
+        if (npc.OrderWaiting != null) Delegation.Hear(npc);
         if (npc.AssignedTask != null && IsWorkHours && !(npc.AssignedTaskIsHunt && Cal.Hour >= 12f))
         {
             var g = npc.AssignedTask(npc);

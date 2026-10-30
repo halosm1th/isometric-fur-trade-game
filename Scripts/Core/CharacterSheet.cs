@@ -12,7 +12,7 @@ namespace IsometricFurTradeGame.Scripts.Core;
 // mean to make of themselves. Not a second stat system: every choice sets
 // the same skills, tongues, kit, standing, kin and ambitions any agent has.
 // Chosen on the new-game page; travels to the host with the player's name.
-public enum StartPath { HBC, NWC, Cree, Assiniboine, Nation, American }   // new roads go on the end: saves keep the number
+public enum StartPath { HBC, NWC, Cree, Assiniboine, Nation, American, Crown }   // new roads go on the end: saves keep the number
 
 public record BackgroundDef(string Title, string Blurb, Action<Player.PlayerController> Apply);
 public record TraitDef(string Id, string Title, string Blurb, Action<Player.PlayerController> Apply);
@@ -35,6 +35,7 @@ public static class CharacterSheet
         StartPath.Assiniboine => "The Assiniboine (Nakoda) - born to the band upland",
         StartPath.Nation => "Another people of the country - born to a band of your choosing",
         StartPath.American => "Mr. Astor's Pacific Fur Company - up the Columbia to Fort Okanogan",
+        StartPath.Crown => "His Majesty's army - a private soldier of an Upper Canada garrison",
         _ => "",
     };
 
@@ -46,6 +47,7 @@ public static class CharacterSheet
         StartPath.Assiniboine => "You are of the band that winters upland and brings pemmican and furs down to the posts. Your kin, your horses' country far west, and traders who need what you have.",
         StartPath.Nation => "Ojibwe, Dene, Blackfoot, Sioux, the Plateau and Coast peoples, the Missouri nations: any band camp in the country, far from York and the Pemmican War, with the traders of your own country's posts.",
         StartPath.American => "You came round the Horn on the Tonquin, or overland with Mr. Hunt, to John Jacob Astor's new post at the Columbia's mouth, and now you go up the river with Mr. David Stuart to build the company's first house inland. The Nor'Westers are already in the country; the British and the Americans are a year from war.",
+        StartPath.Crown => "You are on the strength of a garrison of the Lakes frontier - Fort York, Fort George at Niagara, Fort Malden at Amherstburg - a shilling a day less stoppages, drill on the parade and the Americans across the water. The Crown feeds you, clothes you and flogs you; the King's birthday is a holiday and a feu de joie. A man who goes over the river is a deserter, and the garrison will want him back.",
         _ => "",
     };
 
@@ -91,6 +93,19 @@ public static class CharacterSheet
             new("Kentucky hunter", "You came overland with Mr. Hunt's party, a long rifle and no patience for counting houses. You feed the post, and you know which way is east.",
                 pc => { pc.Skills.Hunting = 0.45f; pc.Skills.Woodcraft = 0.3f; pc.Inventory.Add(ItemId.Musket); pc.Inventory.Add(ItemId.Powder); }),
         },
+        // The regulars in Upper Canada in 1812 were the 41st Foot and a few
+        // companies of the Royal Newfoundland Fencibles (who also manned the
+        // Provincial Marine's vessels); the townships' flank companies of
+        // militia drilled beside them.
+        StartPath.Crown => new BackgroundDef[]
+        {
+            new("Private of the 41st Foot", "Enlisted in Ireland for the bounty; the regiment has been in the Canadas since 1799 and has forgotten what home looks like. You can fire three rounds a minute and sleep standing up.",
+                pc => { pc.Skills.Hunting = 0.25f; pc.Skills.Woodcraft = 0.2f; pc.Inventory.Add(ItemId.Powder); }),
+            new("Royal Newfoundland Fencible", "A boatman's soldier: raised in St. John's for service in North America, lent to the Provincial Marine's schooners as often as the parade. The Lakes are your country.",
+                pc => { pc.Skills.Woodcraft = 0.35f; pc.Inventory.Add(ItemId.FishingLine); pc.Inventory.Add(ItemId.Tumpline); }),
+            new("Militia volunteer", "A farmer's son of the township, in the flank company: you drill on Saturdays and know every road and family for twenty miles. The regulars call you a farmer with a musket.",
+                pc => { pc.Skills.Hunting = 0.35f; pc.Skills.Trade = 0.2f; pc.Inventory.Add(ItemId.Axe); pc.Inventory.Add(ItemId.Bread, 2); }),
+        },
         _ => new BackgroundDef[]
         {
             new("Hunter", "Young, a good shot, and not yet married. Your father's family hunts for the whole camp.",
@@ -134,11 +149,15 @@ public static class CharacterSheet
             if (int.TryParse(parts[3], out int ai) && Enum.IsDefined(typeof(AmbitionKind), ai)) amb = (AmbitionKind)ai;
         }
         string campName = parts.Length >= 5 ? parts[4] : "";
+        // The campaign may say who everyone comes in as (its start_path), and
+        // a band road set down at one of the country's camps is born to it.
+        if (Campaign.ForcedPath is StartPath forced) path = forced;
+        if (IsBand(path) && World.Camps.Named(Campaign.StartAt) is { Kind: "band" } bornAt) { path = StartPath.Nation; campName = bornAt.Name; }
         var camp = path == StartPath.Nation ? World.Camps.Named(campName) : null;
         if (path == StartPath.Nation && camp == null) path = StartPath.Cree;   // no such camp: the band by the Bay
         pc.HomeCamp = camp?.Name ?? "";
         pc.StartPath = path;
-        pc.Faction = path switch { StartPath.NWC => Faction.NWC, StartPath.Cree => Faction.Cree, StartPath.Assiniboine => Faction.Assiniboine, StartPath.Nation => camp.Nation, StartPath.American => Faction.American, _ => Faction.HBC };
+        pc.Faction = path switch { StartPath.NWC => Faction.NWC, StartPath.Cree => Faction.Cree, StartPath.Assiniboine => Faction.Assiniboine, StartPath.Nation => camp.Nation, StartPath.American => Faction.American, StartPath.Crown => Faction.Crown, _ => Faction.HBC };
         if (path == StartPath.Cree) pc.CreeFluency = 1f;
         if (path == StartPath.Assiniboine) { pc.AssiniboineFluency = 1f; pc.CreeFluency = Mathf.Max(pc.CreeFluency, 0.3f); }
         if (path == StartPath.Nation) { pc.CreeFluency = camp.Nation is Faction.Ojibwe or Faction.Metis ? 0.6f : 0.15f; pc.AssiniboineFluency = camp.Nation is Faction.Sioux ? 0.6f : 0.1f; Family(pc, camp); }
@@ -161,6 +180,16 @@ public static class CharacterSheet
             pc.FramesPath = Agents.Appearance.VoyageurSheet;
             pc.PostedTo = "Fort Okanogan";
             pc.CreeFluency = 0.05f;
+        }
+        if (path == StartPath.Crown)
+        {
+            // On the strength of a garrison: the King's kit, nothing of a company's.
+            pc.Inventory.Clear();
+            pc.Inventory.Add(ItemId.Musket); pc.Inventory.Add(ItemId.Powder, 2); pc.Inventory.Add(ItemId.Capote); pc.Inventory.Add(ItemId.Knife);
+            pc.Inventory.Add(ItemId.Bread, 4); pc.Inventory.Add(ItemId.Water, 2); pc.Inventory.Add(ItemId.Flint); pc.Inventory.Add(ItemId.Coin, 24);
+            pc.FramesPath = "res://Scenes/Npc/LabourerFrames.tres";   // the garrisons' men wear the labourer's sheet
+            pc.Rank = "private"; pc.Standing = 20f; pc.CreeFluency = 0.02f;
+            pc.Garrison = Starts.GarrisonFor(Campaign.StartAt, Faction.Crown)?.Name ?? "";
         }
         pc.ApplyLook();
         var bgs = BackgroundsFor(path);

@@ -15,7 +15,8 @@ Every name a script can pass to the game, and where the game gets it from. A mis
 | `player.posted("...")`, `player.postTo("...")` | a post that keeps books | [Posts](World-Reference#posts) | |
 | `Task.X` (a quest's task step) | one of the Factor's tasks | [Quests: tasks](Quests#tasks) | `enum TaskKind` in `Scripts/Player/PlayerTask.cs` |
 | `world.season == Season.X` | one of four seasons | [Seasons](World-Reference#seasons-and-the-calendar) | `Scripts/Core/GameCalendar.cs` |
-| `Company.X`, `world.playerFaction` | HBC, NWC (or All) | [Companies](World-Reference#companies) | |
+| `Company.X`, `world.playerFaction` | HBC, NWC, American, Crown, Free (or All) | [Companies](World-Reference#companies) | |
+| `startPath: Path.X`, `startAt: "..."` | a road in; a post, town, fort, camp or place | [Who the players are](World-Reference#who-the-players-are-and-where-they-begin) | `enum StartPath` in `Scripts/Core/CharacterSheet.cs`; the map |
 
 Names are **exact and case-sensitive**: `"the York boats"`, not `"York boats"` or `"The York Boats"`; `"Ile-a-la-Crosse"` with no accents; `"Churchill (Pr. of Wales Fort)"` with its brackets. Copy them from the tables.
 
@@ -27,7 +28,32 @@ Unless the campaign says otherwise, a new world starts on the day the first play
 |---|---|
 | HBC (the ship) | 20 August 1811 |
 | NWC (the brigade) | 12 July 1811 |
-| Cree, Assiniboine (the summer camp) | 10 June 1811 |
+| Cree, Assiniboine, another people (the summer camp) | 10 June 1811 |
+| American (up the Columbia to Fort Okanogan) | 2 September 1811 |
+| Crown (the King's birthday parade at the garrison) | 4 June 1811 |
+
+### Who the players are, and where they begin
+
+A campaign can bring every player in by one road, and set them all down at one place, in its header:
+
+```c
+campaign TheRogue(title: "The rogue", start: date(1812, 6, 4), startPath: Path.Crown, startAt: "Niagara");
+```
+
+`startPath` is the road in, the same for every character made for this world (the character page shows it fixed; each player still picks a background, traits and an ambition on it). Without it, players choose their own. `startAt` is where they are set down, by name: a post, a town, a town's fort (`"Fort George"`), a camp of the country, or a place on the map. Either can be given alone, and a campaign that `extends` another takes that one's if it gives none.
+
+| Road (`Path.`) | Side (`Company.`) | Opens with | With `startAt` |
+|---|---|---|---|
+| `HBC` | `HBC` | the last day of the crossing, ashore at York Factory | no crossing: set down there, and on the books of the post there if it is the Company's |
+| `NWC` | `NWC` | above the last portage with the brigade | the same, for a Nor'Wester house |
+| `Cree`, `Assiniboine` | (the band) | a morning in the summer camp | set down there; a camp of the country there makes it `Nation`, born to that camp |
+| `Nation` | (the band) | a morning in the camp chosen | the same |
+| `American` | `American` | below the Okanogan with Mr. Stuart | set down there, and on the books of an American post there |
+| `Crown` | `Crown` | **the King's birthday parade** at his garrison: the men of his mess, the sergeant, a stranger at the gate | put on the strength of the Crown garrison there (the town or its fort), or the nearest one, and still stands his parade; sent on to the place after it if it is not his garrison's |
+
+The soldier's garrison is the town named, if it stands with a garrison of the Crown when the game begins, else the nearest that does, else York's: Fort York (York), Fort George (Niagara), Fort Malden (Amherstburg) and Fort St. Joseph (St. Joseph Island) are the Crown's in 1811; Detroit, Fort Niagara and Michilimackinac are the Americans', and Queenston has no fort. He carries a musket, powder, a capote, a knife, bread, water and two shillings, has no company post, and is fed by nobody's books but his own pack. He may go over to the other side, or to nobody's, with [`player.desert`](Effects-in-the-Game#the-player).
+
+On his parade, the stranger at the gate offers a boat across: remembering the name raises the flag `start:knows-the-boatman`, for a campaign to follow up.
 
 ### A campaign's own start
 
@@ -361,9 +387,12 @@ The real freeze and thaw in the game come from the weather and differ from place
 |---|---|
 | `Company.HBC` | the Hudson's Bay Company |
 | `Company.NWC` | the North West Company |
+| `Company.American` | the American companies (Pacific, Missouri, American Fur), and the United States' garrisons |
+| `Company.Crown` | His Majesty's garrisons: a player on the `Crown` road, or one who went over to them |
+| `Company.Free` | nobody's: a player who deserted and went over to no one (`player.desert()`) |
 | `Company.All` | everyone (for `say` and `shout` only; the default) |
 
-`world.playerFaction == Company.NWC` is true if **any** player works for the NWC (in multiplayer there may be both). The Cree and Assiniboine starting paths are neither company, so both comparisons are false for them. `world.standing` is the standing of the local player, or 0 on a dedicated server.
+`world.playerFaction == Company.NWC` is true if **any** player works for the NWC (in multiplayer there may be both). The Cree and Assiniboine starting paths are none of these, so every comparison is false for them. A player who deserts changes side at once: `world.playerFaction`, `say(..., Company.X)` and a questline's `forCompany` follow the side they are on now. `world.standing` is the standing of the local player, or 0 on a dedicated server.
 
 ## See also
 

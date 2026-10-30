@@ -367,7 +367,7 @@ public static class Delegation
         foreach (var pc in Sim.Players())
         {
             if (pc.IsDead || pc.HomePost != fort) continue;
-            if (pc.GlobalPosition.DistanceTo(leader.GlobalPosition) > 900f)
+            if (pc.GlobalPosition.DistanceTo(leader.GlobalPosition) > Earshot)
             {
                 pc.Standing -= 1f;
                 pc.Say($"You were not at the post when the morning's orders were given. {leader.DisplayName} noticed.");
@@ -378,8 +378,20 @@ public static class Delegation
         }
     }
 
+    // How far a man can be from the leader and still hear the morning's orders.
+    public const float Earshot = 900f;
+
     private static void Give(Npc leader, FortLedger fort, Npc m, PostTask t, System.Text.StringBuilder summary, List<string> refused)
     {
+        // Orders are words, and words have to reach him (design doc 3.9, 10.1):
+        // a man out at the traps hears his when he is back.
+        if (m.GlobalPosition.DistanceTo(leader.GlobalPosition) > Earshot)
+        {
+            m.OrderWaiting = t; m.OrderWaitingFrom = leader;
+            summary.Append($"{m.DisplayName}: {t.Name} (away; told when he is back); ");
+            return;
+        }
+        m.OrderWaiting = null; m.OrderWaitingFrom = null;
         var verdict = Decide(leader, m, t);
         if (verdict == Compliance.Refused)
         {
@@ -410,6 +422,20 @@ public static class Delegation
             summary.Append($"{m.DisplayName}: {t.Name}; ");
         }
         fort.Assignments.Add(new Assignment { Man = m, Task = t.Name, Day = Cal.Day, Site = siteFor });
+    }
+
+    // A man back within call of the leader hears what was decided for him.
+    // Returns true if an order reached him.
+    public static bool Hear(Npc man)
+    {
+        var t = man.OrderWaiting; var leader = man.OrderWaitingFrom;
+        if (t == null) return false;
+        if (leader == null || !GodotObject.IsInstanceValid(leader) || leader.IsDead || leader.HomeStores is not FortLedger fort) { man.OrderWaiting = null; man.OrderWaitingFrom = null; return false; }
+        if (man.GlobalPosition.DistanceTo(leader.GlobalPosition) > Earshot) return false;
+        var refused = new List<string>();
+        Give(leader, fort, man, t, new System.Text.StringBuilder(), refused);
+        foreach (var r in refused) Sim.Notice(r);
+        return true;
     }
 
     // One task for the player: intent and a count, with a deadline (design doc 3.9).

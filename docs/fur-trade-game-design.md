@@ -115,6 +115,8 @@ The game's strongest tension machine is already built: **the ship comes in Augus
 
 > **Implementation note (2026-10-21):** the pacing target is not met. The calendar runs at 30 seconds of play per game hour (`GameCalendar.NormalSecondsPerGameHour`; the HUD's clock buttons and `[` `]` change it), so a flat year is about 73 hours. Uneven pacing (`GameCalendar.Pacing`, factor 0.25-3×) makes winter nights quick but the ship, breakup, summer, company and fights slower; worked out for a player alone in fair weather it comes to about 57 hours a year, and more in company. It moves time between seasons rather than shortening the year. The four chapters, the quota line counting down to the ship and the reckoning are built as described.
 
+> **Implementation note (2026-10-29):** quiet days (`Core/QuietDays.cs`) are the owner's chosen way to close the gap while keeping the twelve-minute day. With the controls left alone for 20 seconds the clock runs at x80 (a day in about nine seconds) until something needs the player: an attacker, a low need, a blizzard coming on, the ship docked, a headline, a calendar event, a reveal or a quest step, or any key. All players must be idle. It has not been timed over a real year of play.
+
 **Four seasonal chapters, each with one clear stake:**
 - **Freeze-up** — the posting is decided: who winters where, with what outfit (Section 3.9 step 2). Stake: where you'll be and with whom.
 - **Winter** — survive, trap, hold the men together (Sections 16.1, 17.6). Stake: come out with packs and everyone alive.
@@ -500,7 +502,7 @@ Section 4.1 already notes that interior violence happens "far from any court's r
 
 ## 8. Marriage & Kinship System
 
-> **Implementation note (2026-10-21):** only the HBC way is built, and it is applied to every player. `Propose()` in `UI/Conversation.cs` needs rapport 30 with the father and 8 MB of gifts, refuses a second wife to anyone ("The Company allows a man one"), and always moves the bride into York Factory's depot, even for a Nor'Wester or a band-born character. The Nor'West way, polygamy, transition costs and the wives left behind (8.1-8.4) are not built. Children are born to the marriage and grow up (9.4's note).
+> **Implementation note (2026-10-29):** built in `Agents/Marriage.cs`. The Company way (HBC, Americans, the Crown: the bride moves into the player's own post); the Nor'West way (NWC, freemen: she stays in her father's camp, which counts him as kin: +20 regard, and the band's NWC standing rises); a band-born player's wife comes to his lodge. Only the HBC and the Crown hold a man to one wife; each further wife needs 10 more regard and 8 MB more in gifts. Going over to the Company (desertion, or the union) keeps the first wife, moving her into the post at a cost in standing (8.3), and puts the others away (8.4): her band's standing and regard fall, her father holds a grudge, and she remarries the nearest unmarried Nor'Wester or man of her people. Not built: a Métis/freeman road in, bringing a whole family into the post, and the player living the camp's round himself. Children are born to each marriage and grow up (9.4's note).
 
 
 Grounded in a real, documented cultural split (see Sylvia Van Kirk's *Many Tender Ties* for further reading) between how NWC and HBC culture handled "country marriage."

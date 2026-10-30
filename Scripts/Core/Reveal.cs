@@ -23,6 +23,7 @@ public static class Reveal
         p.Journal.Add($"{cal?.DateString}: {line}");
         if (p.Journal.Count > 120) p.Journal.RemoveAt(0);
         p.Say(line);
+        QuietDays.Interrupt(p, cause: "reveal: " + what);
         if (importance >= 1.5f) Sim.Headline(line);
     }
 

@@ -149,27 +149,38 @@ public partial class Population : Node2D
 		_birthDay = cal.Day;
 		foreach (var p in Sim.Players())
 		{
-			if (p.IsDead || p.Spouse is not Npc wife || wife.IsDead) continue;
-			if (p.MarriedOnDay < 0) { p.MarriedOnDay = cal.Day; continue; }
-			int together = cal.Day - p.MarriedOnDay;
-			if (together < 300 || GD.Randf() > 0.02f) continue;
-			p.MarriedOnDay = cal.Day;
-			bool boy = GD.Randf() < 0.52f;
-			string[] boys = { "William", "James", "Thomas", "John", "Robert" };
-			string[] girls = { "Nancy", "Isabella", "Margaret", "Christina" };
-			string name = (boy ? boys[(int)(GD.Randi() % 5u)] : girls[(int)(GD.Randi() % 4u)]) + " " + Heirs.Surname(p.DisplayName);
-			var home = p.HomePost ?? (Household)Sim.Fort;
-			var child = Spawn(name, boy ? Role.Labourer : Role.Woman, Faction.HBC, wife.BedCell, wife.WorkCell, home, boy ? _labourerFrames : _hbcFrames, new Color(1f, 0.95f, 0.9f), 0.6f, !boy);
-			child.Age = 0;
-			child.FatherName = p.DisplayName;
-			child.Father = null;
-			child.Spouse = null;
-			child.ApplyAppearance();   // now it knows it is a child
-			wife.Children.Add(child);
-			child.Skills.Seed(0.1f, 0.1f, 0.1f, 0.1f);
-			Sim.Headline($"{wife.DisplayName} has borne {p.DisplayName} a {(boy ? "son" : "daughter")}: {name}.");
-			Core.Reveal.Lands(p, $"You have a {(boy ? "son" : "daughter")}, {name}.", "", 1.6f);
-			foreach (var n in Sim.Npcs) if (n.HomeStores == wife.Father?.HomeStores) n.ChangeRapport(p, 8f);
+			if (p.IsDead) continue;
+			if (p.MarriedOnDay < 0 && p.Spouse != null) { p.MarriedOnDay = cal.Day; continue; }
+			foreach (var wife in Marriage.Wives(p))
+			{
+				// Each wife has her own children, at her own fire (design doc 8.1).
+				int since = wife.HasMeta("lastBirth") ? wife.GetMeta("lastBirth").AsInt32() : p.MarriedOnDay;
+				if (since < 0) { wife.SetMeta("lastBirth", cal.Day); continue; }
+				if (cal.Day - since < 300 || GD.Randf() > 0.02f) continue;
+				wife.SetMeta("lastBirth", cal.Day);
+				if (wife == p.Spouse) p.MarriedOnDay = cal.Day;
+				bool boy = GD.Randf() < 0.52f;
+				string[] boys = { "William", "James", "Thomas", "John", "Robert" };
+				string[] girls = { "Nancy", "Isabella", "Margaret", "Christina" };
+				string name = (boy ? boys[(int)(GD.Randi() % 5u)] : girls[(int)(GD.Randi() % 4u)]) + " " + Heirs.Surname(p.DisplayName);
+				var home = wife.HomeStores ?? p.HomePost ?? (Household)Sim.Fort;
+				// Raised among her people, a child is of them; raised at the post, of the post.
+				bool amongHerPeople = home is Economy.BandLedger;
+				var faction = amongHerPeople ? wife.Faction : p.IsBandPerson ? wife.Faction : p.Faction;
+				var role = amongHerPeople ? (boy ? Role.Hunter : Role.BandDaughter) : boy ? Role.Labourer : Role.Woman;
+				var frames = amongHerPeople ? GD.Load<SpriteFrames>(Appearance.ForNation(faction, !boy)) : boy ? _labourerFrames : _hbcFrames;
+				var child = Spawn(name, role, faction, wife.BedCell, wife.WorkCell, home, frames, new Color(1f, 0.95f, 0.9f), 0.6f, !boy);
+				child.Age = 0;
+				child.FatherName = p.DisplayName;
+				child.Father = null;
+				child.Spouse = null;
+				child.ApplyAppearance();   // now it knows it is a child
+				wife.Children.Add(child);
+				child.Skills.Seed(0.1f, 0.1f, 0.1f, 0.1f);
+				Sim.Headline($"{wife.DisplayName} has borne {p.DisplayName} a {(boy ? "son" : "daughter")}: {name}.");
+				Core.Reveal.Lands(p, $"You have a {(boy ? "son" : "daughter")}, {name}.", "", 1.6f);
+				foreach (var n in Sim.Npcs) if (n.HomeStores == wife.Father?.HomeStores) n.ChangeRapport(p, 8f);
+			}
 		}
 	}
 

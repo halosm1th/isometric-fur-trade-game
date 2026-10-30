@@ -38,6 +38,8 @@ public partial class PlayerController : Agent
 	private Vector2 _netTarget; private bool _netHasTarget;
 
 	public Npc Spouse;
+	// Wives after the first, where his side allows more than one (Agents/Marriage).
+	public readonly List<Npc> OtherWives = new();
 
 	// Standing with the Company (design doc 3.6): slow, bureaucratic, reviewed by results.
 	public float Standing = 10f;
@@ -109,6 +111,14 @@ public partial class PlayerController : Agent
 	public float EffectiveFluency => HasInterpreter ? 1f : CreeFluency;
 	// Time-skip agreement: how many hours this player wants to skip (0 = none).
 	public float WantsSkipHours;
+	// Leaving the controls alone, so the quiet days may pass (Core/QuietDays): on the server.
+	public bool WantsQuiet;
+	// On the owner's machine: how long the hands have been off, and whether we asked.
+	private float _idleSeconds;
+	private bool _quietAsked;
+	private bool? _lastBusy;
+	private float _leaveTimer;
+	private static readonly bool _quietInHeadless = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--quiet") >= 0;
 	// Server-side conversation state with whoever you're talking to.
 	public UI.Conversation Conversation;
 
@@ -174,7 +184,7 @@ public partial class PlayerController : Agent
 	public int LastGiftToKinYear = 0;
 	public bool TravellingServer;   // the owner is on the road: the clock marches
 	public int RideId;              // the brigade (World/Convoys.cs) whose boats he is sitting in, 0 for none; the owner's machine follows them
-	public Economy.FortLedger HomePost => IsBandPerson ? null : PostedTo != "" && World.Convoys.Ledger(PostedTo) is { } posted ? posted : Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;   // born to a band: no company post
+	public Economy.FortLedger HomePost => IsBandPerson || Faction is Faction.Crown or Faction.Free ? null : PostedTo != "" && World.Convoys.Ledger(PostedTo) is { } posted ? posted : Faction == Faction.NWC ? Sim.Nwc : PostedInland && Sim.Outpost != null ? Sim.Outpost : Sim.Fort;   // born to a band: no company post
 
 	// Posted to a post of the country by name (a quest's "posting"): its books
 	// are his home from then on, wherever his company first set him down.
@@ -187,6 +197,82 @@ public partial class PlayerController : Agent
 		Say($"You are on the books of {place} now.");
 	}
 	public bool WantsToDefect;
+
+	// A soldier's garrison (Core/Starts, the Crown road): the town whose fort
+	// he is on the strength of, by its name; "" for anyone else.
+	public string Garrison = "";
+	public World.Town GarrisonTown => World.Towns.Named(Garrison);
+
+	// Gone from his side without leave (a campaign's "desert"): the side he
+	// left wants him back, and its soldiers will take him if they can.
+	public bool Deserter;
+	public Faction DesertedFrom = Faction.HBC;
+
+	public void Desert(Faction? to)
+	{
+		var from = Faction;
+		if (to == from) return;
+		if (to == null && from == Faction.Free) return;   // nobody's man already
+		Faction = to ?? Faction.Free;
+		// Wanted by the side he ran from; a pardoned man who runs again is wanted again.
+		if (from != Faction.Free) { Deserter = true; DesertedFrom = from; }
+		WantsToDefect = false;
+		Task.Kind = TaskKind.None;
+		PostedTo = "";
+		Garrison = to is Faction.Crown or Faction.American ? Core.Starts.GarrisonFor("", to.Value, GlobalPosition)?.Name ?? "" : "";
+		Standing = to != null ? 10f : 0f;
+		if (to is Faction.HBC or Faction.Crown) Marriage.IntoTheCompany(this);
+		foreach (var n in Sim.Npcs)
+		{
+			if (n.Faction == from) n.ChangeRapport(this, -30f);
+			else if (to != null && n.Faction == to) n.ChangeRapport(this, 5f);
+		}
+		string left = SideName(from), went = to != null ? SideName(to.Value) : "";
+		Journal.Add($"{GameCalendar.Instance?.DateString}: You deserted {left}{(to != null ? $" and went over to {went}" : "")}. {(from is Faction.Crown or Faction.American ? "Its soldiers will take you back if they find you." : "They will not forget it.")}");
+		Say(to != null ? $"You have gone over to {went}." : $"You are nobody's man now: {left} will call you a deserter.");
+		Chronicle.Event($"{DisplayName} deserted {left}{(to != null ? $" for {went}" : "")}.", GlobalPosition, this, weight: 2f);
+		Sim.Notice($"{DisplayName} has deserted {left}.");
+		Core.Campaign.Deed("desert");
+	}
+
+	// Forgiven (a campaign's "pardon"): no longer wanted. He stays where he is.
+	public void Pardon()
+	{
+		if (!Deserter) return;
+		Deserter = false;
+		foreach (var n in Sim.Npcs) if (n.Faction == DesertedFrom) n.ChangeRapport(this, 10f);
+		Journal.Add($"{GameCalendar.Instance?.DateString}: {char.ToUpper(SideName(DesertedFrom)[0]) + SideName(DesertedFrom)[1..]} has pardoned you. You are not wanted now.");
+		Say("You are pardoned.");
+	}
+
+	public static string SideName(Faction f) => f switch
+	{
+		Faction.HBC => "the Hudson's Bay Company", Faction.NWC => "the North West Company", Faction.American => "the Americans",
+		Faction.Crown => "the King's service", Faction.Free => "nobody", _ => World.Camps.NationName(f),
+	};
+
+	// The side he deserted takes him alive (a blow of its soldiers' that
+	// would kill him): marched back to its garrison, tried and flogged, and
+	// put back on its strength. The campaign hears of it (flag deserter:taken).
+	private void Retaken(Npc taker)
+	{
+		var side = DesertedFrom;
+		var town = (taker.HomeStores as World.TownHousehold)?.Town ?? Core.Starts.GarrisonFor("", side, GlobalPosition);
+		Deserter = false;
+		Faction = side;
+		Garrison = side is Faction.Crown or Faction.American ? town?.Name ?? "" : "";
+		Standing = 0f;
+		Needs.Health = 15f;
+		StopTravel(""); Raiding = false; RaidTimer = 0f;
+		ForgetAttacker();
+		if (town != null && town.HasFort) GlobalPosition = IsoGrid.ToWorld(Sim.Paths?.NearestWalkable(IsoGrid.Cell(town.FortTop, town.FortWidth / 2, town.FortDepth / 2), 12) ?? town.FortTop);
+		_netTarget = GlobalPosition; _teleported = true;
+		Core.Campaign.Flag("deserter:taken");
+		Journal.Add($"{GameCalendar.Instance?.DateString}: Taken by {taker.DisplayName} and brought back{(town != null ? $" to {town.FortName}" : "")}. The court martial gave you three hundred lashes, and you are back in the ranks.");
+		Say($"{taker.DisplayName} has you. You are marched back{(town != null ? $" to {town.FortName}" : "")}, tried, and flogged before the garrison.");
+		Chronicle.Event($"{taker.DisplayName} took the deserter {DisplayName}.", GlobalPosition, taker, DisplayName, 2f);
+		Sim.Notice($"The deserter {DisplayName} has been taken.");
+	}
 
 	// Afloat: which canoe carries you (server), mirrored as a flag.
 	public Canoe Aboard;
@@ -474,6 +560,12 @@ public partial class PlayerController : Agent
 	// A line for this player's owner, wherever they are.
 	public override void TakeDamage(float amount, Agent from)
 	{
+		// The soldiers of the side he deserted take him alive, if they can.
+		if (!IsDead && !Invulnerable && Deserter && from is Npc taker && taker.Faction == DesertedFrom && Needs.Health - amount <= 0f)
+		{
+			Retaken(taker);
+			return;
+		}
 		// A company man's blow that would kill you takes you prisoner instead (design doc 9.1).
 		if (!IsDead && !Invulnerable && from is Npc captor && Economy.Rivalry.AreRivals(captor.Faction, Faction) && Needs.Health - amount <= 0f && CaptiveOf == null)
 		{
@@ -695,30 +787,38 @@ public partial class PlayerController : Agent
 	private void MarriageTick()
 	{
 		var cal = GameCalendar.Instance;
-		if (cal == null || cal.Day == _marriageDay || Spouse is not Npc wife) return;
+		if (cal == null || cal.Day == _marriageDay) return;
 		_marriageDay = cal.Day;
-		if (!IsInstanceValid(wife) || wife.IsDead) { Spouse = null; return; }
-		if (GlobalPosition.DistanceTo(wife.GlobalPosition) < 900f) LastSawWifeDay = cal.Day;
-		int apart = LastSawWifeDay < 0 ? 0 : cal.Day - LastSawWifeDay;
-		if (apart == 25) Say($"{wife.DisplayName} has not seen you in {apart} days. Her people are asking where her husband is.");
-		if (apart >= 45)
+		OtherWives.RemoveAll(w => !IsInstanceValid(w) || w.IsDead);
+		if (Spouse != null && (!IsInstanceValid(Spouse) || Spouse.IsDead)) { Spouse = OtherWives.Count > 0 ? OtherWives[0] : null; if (Spouse != null) OtherWives.RemoveAt(0); }
+		var wives = Marriage.Wives(this);
+		if (wives.Count == 0) return;
+		foreach (var w in wives) if (GlobalPosition.DistanceTo(w.GlobalPosition) < 900f) { LastSawWifeDay = cal.Day; w.SetMeta("lastSeen", cal.Day); }
+		foreach (var wife in wives)
 		{
-			// Left behind (design doc 8.4): she goes back to her people, and they remember it.
-			var band = wife.Father?.HomeStores as Economy.BandLedger ?? Sim.Band;
-			wife.Spouse = null; Spouse = null;
-			wife.Role = Role.BandDaughter; wife.HomeStores = band; wife.ResetBehaviour(); wife.Brain.Clear(wife);
-			if (band != null) { wife.BedCell = new List<Vector2I>(band.Tipis())[0]; wife.WorkCell = IsoGrid.Cell(band.Camp, 1, 2); band.StandingWithCompany = Mathf.Max(0f, band.StandingWithCompany - 15f); }
-			foreach (var n in Sim.Npcs) if (n.HomeStores == band) n.ChangeRapport(this, -20f);
-			Core.Reveal.Lands(this, $"{wife.DisplayName} has gone back to her people.", "", 1.6f);
-			Say($"A husband who is never there is no husband; her family will not forget it. ({apart} days since you last saw her.)");
-			Chronicle.Event($"{wife.DisplayName} left {DisplayName} and went home to her people.", wife.GlobalPosition, wife, DisplayName, 2f);
+			int seen = wife.HasMeta("lastSeen") ? wife.GetMeta("lastSeen").AsInt32() : LastSawWifeDay;
+			int apart = seen < 0 ? 0 : cal.Day - seen;
+			// Married the Nor'West way she is among her own people, and they are patient longer with a man who winters away.
+			int limit = Marriage.WayOf(this) == Marriage.Way.NorWest ? 90 : 45;
+			if (apart == limit / 2 + 3) Say($"{wife.DisplayName} has not seen you in {apart} days. Her people are asking where her husband is.");
+			if (apart >= limit)
+			{
+				// Left behind (design doc 8.4): she goes back to her people, and they remember it.
+				Marriage.LeaveBehind(this, wife);
+				Core.Reveal.Lands(this, $"{wife.DisplayName} has gone back to her people.", "", 1.6f);
+				Say($"A husband who is never there is no husband; her family will not forget it. ({apart} days since you last saw her.)");
+			}
 		}
-		// Spring: her father looks for his due.
-		if (cal.Month == 6 && cal.Day == 6 && LastGiftToKinYear < cal.Year && wife.Father != null && !wife.Father.IsDead)
+		// Spring: each wife's father looks for his due.
+		if (cal.Month == 6 && cal.Day == 6 && LastGiftToKinYear < cal.Year)
 		{
 			LastGiftToKinYear = cal.Year;
-			if (wife.Father.GiftsFromPlayerMb >= 3f * (cal.Year - 1810)) { wife.Father.ChangeRapport(this, 5f); Say($"{wife.Father.DisplayName} speaks well of his son-in-law this spring."); }
-			else { wife.Father.ChangeRapport(this, -12f); (wife.Father.HomeStores as Economy.BandLedger)?.OnInsult(); Say($"{wife.Father.DisplayName} says his son-in-law forgets what is owed a wife's family. A gift of a few pieces each spring is expected."); }
+			foreach (var wife in Marriage.Wives(this))
+			{
+				if (wife.Father == null || wife.Father.IsDead) continue;
+				if (wife.Father.GiftsFromPlayerMb >= 3f * (cal.Year - 1810)) { wife.Father.ChangeRapport(this, 5f); Say($"{wife.Father.DisplayName} speaks well of his son-in-law this spring."); }
+				else { wife.Father.ChangeRapport(this, -12f); (wife.Father.HomeStores as Economy.BandLedger)?.OnInsult(); Say($"{wife.Father.DisplayName} says his son-in-law forgets what is owed a wife's family. A gift of a few pieces each spring is expected."); }
+			}
 		}
 	}
 
@@ -749,6 +849,7 @@ public partial class PlayerController : Agent
 		if (IsLocal)
 		{
 			CursorOverWhat();
+			QuietWatch(dt);
 			LocalMove(dt);
 			return;
 		}
@@ -756,6 +857,27 @@ public partial class PlayerController : Agent
 		if (_netHasTarget) GlobalPosition = GlobalPosition.Lerp(_netTarget, Mathf.Clamp(dt * 14f, 0f, 1f));
 		if (IsServerCopy) { IsSneaking = _remoteSneak; IsSprinting = _remoteSprint; Velocity = _netHasTarget && GlobalPosition.DistanceTo(_netTarget) > 2f ? Vector2.One : Vector2.Zero; }
 		UpdateReadyBar();
+	}
+
+	// Hands off the controls for a while, and nothing open: ask for the quiet
+	// days. Any key, button or open panel takes them up again.
+	private void QuietWatch(float dt)
+	{
+		bool headless = DisplayServer.GetName() == "headless";
+		// Dev (`--quiet` headless): nobody is there to end a conversation, so walk away from it.
+		if (headless && _quietInHeadless && _dialogue != null && _dialogue.IsOpen && (_leaveTimer += dt) > 3f) { _leaveTimer = 0f; NetHub.I?.DialogueRequest(_dialogue.CurrentNpc, _dialogue.OptionCount - 1); }
+		bool busy = Input.IsAnythingPressed() || IsDead || Ghost
+			|| (_dialogue != null && _dialogue.IsOpen) || (UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping)
+			|| UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen || UI.TravelMode.Active;
+		if (_quietInHeadless && busy != _lastBusy) { _lastBusy = busy; QuietDays.Dev(busy ? "hands on the controls" : "hands off"); }
+		if (busy || !Settings.QuietDays || headless && !_quietInHeadless)
+		{
+			_idleSeconds = 0f;
+			if (_quietAsked) { _quietAsked = false; NetHub.I?.Act("quiet_off"); }
+			return;
+		}
+		_idleSeconds += dt;
+		if (!_quietAsked && _idleSeconds >= QuietDays.IdleSeconds) { _quietAsked = true; NetHub.I?.Act("quiet_on"); }
 	}
 
 	private void LocalMove(float dt)
@@ -983,6 +1105,8 @@ public partial class PlayerController : Agent
 				return RequestSkip(hours, night ? "You settle down for the night." : "You wait.");
 			}
 			case "cancel_wait": WantsSkipHours = 0f; return "";
+			case "quiet_on": WantsQuiet = true; return "";
+			case "quiet_off": WantsQuiet = false; return "";
 			case "canoe_load": return CanoeLoad(Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 150f), (bool)args[0]);
 			case "canoe":
 			{

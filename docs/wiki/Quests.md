@@ -29,7 +29,7 @@ questline Servant(title: "The Company's Servant", forCompany: Company.HBC) {
 }
 ```
 
-- A **questline** is a story: its quests in the journal under one title. `forCompany` gives its quests only to players of that company.
+- A **questline** is a story: its quests in the journal under one title. `forCompany` gives its quests only to players on that side: `Company.HBC`, `Company.NWC`, `Company.American`, `Company.Crown` (a soldier), or `Company.Free` (a deserter who went over to nobody). A player who [deserts](Effects-in-the-Game#deserters) is offered the new side's quests from then on, and no more of the old side's.
 - A **quest** is a chain of **steps**, done one after another. It starts by itself once everything in its `[...]` is done and its `StartWhen` holds, or, if it has a `giver`, it is **offered** when the player speaks to that person (the player can take it on, put it off, or refuse).
 - Each **step** is one thing to do. When it is done the quest moves to the next step written, or to its `next:`; after the last step the quest is done.
 
@@ -56,10 +56,10 @@ questline Servant(title: "The Company's Servant", forCompany: Company.HBC) {
 | `Person.Partner` | the leader of the Nor'Westers' house at York (Mr. Duncan Cameron) | |
 | `Person.Chief` | the leader of the York Cree band (Maskwa) | |
 | `Person.Postmaster` | the postmaster at Oxford House | |
-| `"role@<place>"` | whoever holds that role at a post (by its exact name) or a camp (by its band's name) | `"leader@Edmonton House"` |
+| `"role@<place>"` | whoever holds that role at a post (by its exact name), a camp (by its band's name), or a garrison (by its town's name or its fort's) | `"leader@Edmonton House"`, `"officer@Fort George"` |
 | any other text | the living person with exactly that name | `"Mr. George Leith"` |
 
-The roles: `leader`, `master` and `factor` (all the head of the household), `chief` (the head, or any chief there), `partner` (the head, or an NWC partner there), `clerk`, `hunter`, `man` (a labourer, voyageur or hunter), `woman`, and `anyone`. The places are the posts that keep books (see the [World reference](World-Reference#posts)) and the band camps ([World reference](World-Reference#camps-bands)). The checker errors on a place that is neither, warns on a role it does not know, and notes every plain name (it works only while someone of that name is alive). A role at a place is the safer choice: it keeps working when the person dies and someone else takes the place.
+The roles: `leader`, `master` and `factor` (all the head of the household), `chief` (the head, or any chief there), `partner` (the head, or an NWC partner there), `clerk`, `hunter`, `man` (a labourer, voyageur or hunter), `woman`, `officer` (the commanding officer, or any officer of the garrison), `soldier`, `sergeant`, and `anyone`. The places are the posts that keep books (see the [World reference](World-Reference#posts)), the band camps ([World reference](World-Reference#camps-bands)), and the towns with a garrison, by the town's name or its fort's (`"York"` or `"Fort York"`: both mean the garrison). A `reach` step can go to a town (its middle) or a fort (its parade) as well. The checker errors on a place that is neither, warns on a role it does not know, and notes every plain name (it works only while someone of that name is alive). A role at a place is the safer choice: it keeps working when the person dies and someone else takes the place.
 
 ### Tasks
 

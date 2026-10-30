@@ -6,7 +6,8 @@ using IsometricFurTradeGame.Scripts.World;
 namespace IsometricFurTradeGame.Scripts.Agents;
 
 // New nations go on the end: saves store the number.
-public enum Faction { HBC, Cree, ShipsCrew, Wild, NWC, Assiniboine, Ojibwe, Dene, Blackfoot, Sioux, Plateau, Coast, Missouri, Metis, American, Haudenosaunee, SaukFox, Crown }
+// Free: a man of no company and no garrison - a deserter on his own (PlayerController.Desert), or a freeman.
+public enum Faction { HBC, Cree, ShipsCrew, Wild, NWC, Assiniboine, Ojibwe, Dene, Blackfoot, Sioux, Plateau, Coast, Missouri, Metis, American, Haudenosaunee, SaukFox, Crown, Free }
 
 // Every person (and animal) in the world is one of these - the player
 // included (design doc 11.1). Needs, inventory, health and the shared action

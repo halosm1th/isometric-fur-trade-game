@@ -34,6 +34,8 @@ The names you pass in (posts, brigade runs, items, people, letter addressees) ar
 | `postsByFoundingYear` | `bool` | When true, posts on the world map appear on 1 January of the year they were founded. Without it, a post founded after the start appears only if a beat founds it. |
 | `start` | `Date` | The world's first day, for every starting path: date(1815, 5, 1). Without it the world begins in 1811, on the starting path's own day (10 June, 12 July or 20 August). What the script dates before the first day is history. A developer's --date wins. |
 | `startYear` | `int` | Only the year the world begins in: each starting path keeps its own day (the ship on 20 August and so on) in that year. Give start or startYear, not both. |
+| `startPath` | `Path` | The road every player comes in by, whatever they pick: Path.Crown makes everyone a private soldier of a garrison, Path.HBC a Company servant off the ship, and so on. The character page shows it fixed; each player still chooses a background on it. Leave it out and players choose their own road. |
+| `startAt` | `string` | Where every new character is set down, by name: a post, a town or its fort ("York", "Fort George"), a camp, or a place on the map. The road's own opening (the ship, the brigade) is not played; the player simply begins there, and a company man is put on the books of a post of his own company there. A soldier (Path.Crown) is put on the strength of the Crown garrison there, or the nearest one, and still stands his parade. A band road set down at a camp is born to that camp. |
 | `include` | `string` | Parts of this script kept in their own files, tools/CampaignTool/src/parts/<name>.camp (several: "a, b"). A part has no header: its consts, beats and quest lines are this campaign's own, compiled into one JSON. Opened in the editor, a part is checked, drawn and simulated inside the campaign that includes it. |
 | `extends` | `string` | Another campaign (by its id, the file's name) whose beats this one plays as well: a story with quest lines can be built on "historical" and share its war. Where both have a beat of the same id, this campaign's wins. |
 
@@ -58,7 +60,7 @@ The names you pass in (posts, brigade runs, items, people, letter addressees) ar
 | `id` | `string` | The line's id, if it is not to be its name. |
 | `title` | `string` | The line's name in the journal. Required. |
 | `summary` | `string` | A line about what the story is. |
-| `forCompany` | `Company` | Only players of this company (Company.HBC or Company.NWC) are given the line's quests. Each quest can say otherwise. |
+| `forCompany` | `Company` | Only players on this side (Company.HBC, Company.NWC, Company.American, Company.Crown, or Company.Free for a deserter on his own) are given the line's quests; a player who changes sides is offered the new side's. Each quest can say otherwise. |
 
 ## Quest header
 
@@ -76,8 +78,8 @@ The names you pass in (posts, brigade runs, items, people, letter addressees) ar
 |---|---|---|
 | `id` | `string` | The step's id, if it is not to be its name. |
 | `text` | `string` | What the player is told to do, on the screen and in the journal. |
-| `who` | `Person` | talk, bring: the person (a name, Person.Factor, or a role at a place: "leader@Edmonton House", "chief@<camp>", "partner@Fort Augustus"). |
-| `place` | `string` | reach: a post, a camp or a place on the map. |
+| `who` | `Person` | talk, bring: the person (a name, Person.Factor, or a role at a place: "leader@Edmonton House", "chief@<camp>", "partner@Fort Augustus"; at a garrisoned town or its fort, "officer@Fort George", "sergeant@York", "soldier@York"). |
+| `place` | `string` | reach: a post, a camp, a town or its fort, or a place on the map. |
 | `radius` | `int` | reach: how near counts as there, in pixels (default 400). |
 | `item` | `Item` | bring, have: what. |
 | `count` | `int` | bring, have: how many; task: how much of the work; hunt: how many beasts (default 1). |
@@ -380,7 +382,7 @@ world.season == Season.Winter
 
 `world.playerFaction : Company`
 
-Which company a player works for: in multiplayer, true if any player does.
+Which side a player is on (a company, the Crown, or nobody's after deserting): in multiplayer, true if any player is.
 
 ```c
 world.playerFaction == Company.HBC
@@ -884,15 +886,15 @@ flags.clear("calm")
 
 ## player
 
-What the player has done, as the campaign has been told of it: the game records a *deed* when the player brokers a truce (`truce`), leads or joins a raid (`raid`), rides a brigade to its landing (`escort`) or carries a packet through (`courier`).
+What the player has done, as the campaign has been told of it: the game records a *deed* when the player brokers a truce (`truce`), leads or joins a raid (`raid`), rides a brigade to its landing (`escort`), carries a packet through (`courier`) or deserts their side (`desert`, by `player.desert`).
 
 ### `player.did(deed)`
 
 `player.did(string deed) : bool`
 
-True once the player has done this at least once: truce, raid, escort or courier.
+True once the player has done this at least once: truce, raid, escort, courier or desert.
 
-- `deed` (string): Which deed: "truce", "raid", "escort" or "courier".
+- `deed` (string): Which deed: "truce", "raid", "escort", "courier" or "desert".
 
 ```c
 player.did("truce")
@@ -904,7 +906,7 @@ player.did("truce")
 
 How many times the player has done it.
 
-- `deed` (string): Which deed: "truce", "raid", "escort" or "courier".
+- `deed` (string): Which deed: "truce", "raid", "escort", "courier" or "desert".
 
 ```c
 player.deeds("escort") >= 2
@@ -1007,6 +1009,38 @@ A line in the player's journal, said over their head.
 
 ```c
 player.note("Mr. Bird wants you at the hunt.")
+```
+
+### `player.desert(to?)`
+
+`player.desert(Company to?) : effect`
+
+The player leaves their side without leave: for another (to: Company.American, Company.Crown, Company.HBC or Company.NWC), or for nobody's (Company.Free) if to is left out. Everyone of the side they left thinks the worse of them, and they are wanted: the soldiers of its garrisons go for them on sight, and one who would have killed them takes them back alive instead, to be flogged and put back on its strength (the flag deserter:taken is raised). It counts as the deed desert. Quests for their old side are not offered to them any more.
+
+- `to` (Company, optional): The side they go over to: Company.American, Company.Crown, Company.HBC or Company.NWC. Leave it out and they belong to nobody (Company.Free).
+
+```c
+player.desert(Company.American)
+```
+
+### `player.pardon()`
+
+`player.pardon() : effect`
+
+The side the player deserted forgives them: they are no longer wanted. They stay on whatever side they are on now.
+
+```c
+player.pardon()
+```
+
+### `player.deserted`
+
+`player.deserted : bool`
+
+True while the player (the one a quest runs for; from a beat, any player) is a wanted deserter: from player.desert() until they are pardoned or taken back.
+
+```c
+player.deserted
 ```
 
 
@@ -1263,8 +1297,10 @@ TheHunt.fail()
 
 ## Named values
 
-- **`Company`**: The companies (and everyone): Company.HBC, Company.NWC, Company.American (the Missouri, Pacific and American Fur Companies), Company.All.
-  Values: `Company.HBC`, `Company.NWC`, `Company.American`, `Company.All`
+- **`Company`**: The sides a player can be on (and everyone): Company.HBC, Company.NWC, Company.American (the Missouri, Pacific and American Fur Companies, and the United States' garrisons), Company.Crown (His Majesty's garrisons), Company.Free (nobody's: a deserter on his own), Company.All.
+  Values: `Company.HBC`, `Company.NWC`, `Company.American`, `Company.Crown`, `Company.Free`, `Company.All`
+- **`Path`**: The roads into the game, for the header's startPath: Path.HBC (off the ship at York Factory), Path.NWC (up with the brigade), Path.Cree, Path.Assiniboine, Path.Nation (born to a band of the country), Path.American (up the Columbia to Fort Okanogan), Path.Crown (a private soldier of an Upper Canada garrison).
+  Values: `Path.HBC`, `Path.NWC`, `Path.Cree`, `Path.Assiniboine`, `Path.Nation`, `Path.American`, `Path.Crown`
 - **`Person`**: Who a letter is addressed to: Person.Factor, Person.Postmaster, Person.Partner, Person.Chief. A plain string names anyone else.
   Values: `Person.Factor`, `Person.Postmaster`, `Person.Partner`, `Person.Chief`
 - **`Season`**: The river's season, for world.season: Season.Breakup, OpenWater, FreezeUp, Winter.

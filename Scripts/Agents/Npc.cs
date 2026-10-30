@@ -22,8 +22,10 @@ public enum Role
     CreeChief = Chief, CreeHunter = Hunter, CreeWoman = BandWoman, CreeDaughter = BandDaughter,
 }
 
-// Four traits that decide what an agent does with what it knows and wants
-// (design doc 11.4). 0..1.
+// Five traits that decide what an agent does with what it knows and wants
+// (design doc 11.4), 0..1. Not the doc's five: Talkative stands for both its
+// sociability and its discretion, and Courage (nerve under fire, Agents/Nerve)
+// is the code's own.
 public struct Personality
 {
     public float Loyalty, Talkative, Suspicion, Ambition, Courage;
@@ -194,6 +196,11 @@ public partial class Npc : Agent
     // chain to run when nothing more urgent is going on.
     public System.Func<Npc, Goal> AssignedTask;
     public string AssignedTaskName = "";
+    // An order given while he was out of earshot (design doc 3.9 step 4): it
+    // waits for him, and takes hold only when he comes within call of the man
+    // who gave it. Until then he goes on with yesterday's.
+    public PostTask OrderWaiting;
+    public Npc OrderWaitingFrom;
     public bool AssignedTaskIsHunt;
     // A company man's standing with his master (design doc 3.6): what the
     // year-end report says of him. Rises with work done, falls with refusals.
@@ -902,6 +909,8 @@ public partial class Npc : Agent
         if (other is Player.PlayerController cap && cap.CaptiveOf != null) return false;   // a prisoner is nobody's quarry
         if (other is Npc heldMan && heldMan.HeldBy != null) return false;
         if (base.IsHostileTo(other)) return true;
+        // A deserter from our colours, to the soldiers of a garrison: a man to be taken (PlayerController.Retaken).
+        if (other is Player.PlayerController run && run.Deserter && run.DesertedFrom == Faction && Role is Role.Soldier or Role.Officer && Weapon != null) return true;
         if (other.Raiding && other.RaidTarget == Faction && IsFighter) return Economy.Rivalry.HouseHasOdds(Faction, other.GlobalPosition);
         // Two nations at odds (design doc 7.2): the hunters of one see the other's as enemies in the bush.
         if (IsBandPerson && other.IsBandPerson && other.Faction != Faction && IsFighter && HomeStores is BandLedger mine && mine.AtOddsWithOtherBand && other is Npc on && on.IsFighter) return true;
