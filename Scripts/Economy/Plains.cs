@@ -101,7 +101,7 @@ public static class Plains
                     string row = "";
                     foreach (int doy in new[] { 15, 135, 196, 288 })
                         row += $"  d{doy}: night {Climate.ExposureAt(at, 0f, doy):0.0} day {Climate.ExposureAt(at, 1f, doy):0.0}";
-                    GD.Print($"[climate] {name} ({ll.Lat:0.0}N {-ll.Lon:0.0}W){row}  | today: {(Sim.Terrain?.FrozenAt(at) == true ? "frozen" : "open")}, sky {GameCalendar.Instance.Weather.At(at)}");
+                    GD.Print($"[climate] {name} ({ll.Lat:0.0}N {-ll.Lon:0.0}W){row}  | today: {(Sim.Terrain?.FrozenAt(at) == true ? "frozen" : "open")}, sky {GameCalendar.Instance.Weather.At(at)}, day {GameCalendar.Instance.DayLengthAt(Climate.LatitudeAt(at)):0.0} h (viewer at {GameCalendar.Instance.LatitudeDeg:0.0}N)");
                 }
             if (arg != "--horse") continue;
             foreach (var pc in Sim.Players())

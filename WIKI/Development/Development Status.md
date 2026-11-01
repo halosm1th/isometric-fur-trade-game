@@ -22,7 +22,7 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | Map of the whole western fur-trade country (Hudson Bay to the Pacific, Missouri to Athabasca), 40 px per km | Implemented | Imported from the Pemmican Empire atlas; fogged until explored (§6). See [[World Map]], [[Regions]] |
 | Posts across the map, by founding year; major posts hand-laid | Implemented / Partial | York Factory, Fort William, Moose Factory, Edmonton House, Cumberland House, Fort Chipewyan, Fort Gibraltar laid out; the rest are generated plans. See [[All Trading Posts]] |
 | Regional terrain and flora | Implemented (placeholder tiles) | Prairie, tallgrass, parkland, tundra, Shield, muskeg, mountain. See [[Terrain and Biomes]] |
-| Calendar, seasons, day/night | Implemented | 30 s a game hour with uneven pacing (quick winter nights, slow ship days); dated events. Day length is York's (57 N) everywhere. See [[Calendar and Seasons]] |
+| Calendar, seasons, day/night | Implemented | 30 s a game hour with uneven pacing (quick winter nights, slow ship days); dated events. Day length follows the latitude of the place. See [[Calendar and Seasons]] |
 | Weather | Implemented | Clear, overcast, snow, blizzard, rain, storm; rolled in regions about 200 km across from each region's climate and asked for by position (`Weather.At`), so the plains are drier and the Pacific slope wetter than York (commit `3c74eb6`); drawn on screen as snow, rain, whiteout, river fog and the aurora (`UI/WeatherOverlay.cs`). See [[Weather]] |
 | Fire (hearths, blazes, spread) | Implemented (partial) | Hearths, blazes, arson, fire bell. §18.4 flammability partly built |
 | Travel mode (G) | Implemented | §18.3. See [[Travel and Wayfinding]] |

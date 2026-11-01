@@ -57,7 +57,7 @@ Design-doc ideas with no code yet, beyond the table above (the full list is in `
 | Company | Credit and crisis moves in the purse; proving the merger from exhaustion in a long run; a finite recruit pool; surprise audits by a superior (the purse, exhaustion and London's audit of the books are built) | §13.2, §13.7, §3.9 |
 | Council | Proxies, splinters, arrival windows at Fort William; Accords as one object | §3.8.1, §3.8.2 |
 | Survival | Winter strain, wound treatment (herbal and European); wet clothing is built | §17.5, §17.6 |
-| World | Day length by latitude; a local simulation tier; grass fires and wind direction | §14.3, §18.2, §18.4 |
+| World | A local simulation tier; grass fires and wind direction | §14.3, §18.2, §18.4 |
 | Multiplayer | Disconnected players handed to the goal planner; auto-pilot when not everyone wants to skip | §21.3, §21.4 |
 
 ## Art still wanted

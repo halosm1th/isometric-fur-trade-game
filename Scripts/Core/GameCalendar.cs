@@ -13,8 +13,8 @@ public enum Season
 
 // Autoloaded game clock. Everything time-dependent (light, weather, the
 // annual ship, the hunts) hangs off this. Dates are on Hudson Bay terms:
-// York Factory is at 57 N, so daylight swings from ~6 hours in December to
-// ~18 in June, and the sea is only open for about two months a year.
+// the sea at York is only open for about two months a year. Day length
+// follows the latitude of wherever it is asked about (DaylightAt).
 public partial class GameCalendar : Node
 {
     public static GameCalendar Instance { get; private set; }
@@ -167,14 +167,6 @@ public partial class GameCalendar : Node
         "July", "August", "September", "October", "November", "December",
     };
 
-    // Approximate local sunrise / sunset by month at 57 N.
-    private static readonly (float rise, float set)[] Daylight =
-    {
-        (8.5f, 15.5f), (7.8f, 16.8f), (6.7f, 18.0f), (5.5f, 19.3f),
-        (4.3f, 20.5f), (3.7f, 21.3f), (4.0f, 21.0f), (5.0f, 19.8f),
-        (6.2f, 18.5f), (7.3f, 17.2f), (8.3f, 16.0f), (9.0f, 15.2f),
-    };
-
     private int _lastHour;
 
     public override void _Ready()
@@ -228,6 +220,7 @@ public partial class GameCalendar : Node
 
     public override void _Process(double delta)
     {
+        FollowViewerLatitude(delta);
         if (Paused) { DeltaGameHours = 0f; MotionScale = 1f; return; }
         if (_clientMode)
         {
@@ -317,40 +310,58 @@ public partial class GameCalendar : Node
 
     public bool IsFrozen => CurrentSeason == Season.Winter;
 
-    // 0 = full night, 1 = full day, with ~1.5h of twilight either side.
-    // Where on the earth we are (design doc 14.3): York Factory sits at 57 N.
-    // Day length comes from latitude and the date; then a gameplay thumb on
-    // the scale keeps the day a little longer than the night except in the
-    // dead of a northern winter.
+    // Where on the earth we are (design doc 14.3). Day length comes from the
+    // latitude and the date; then a gameplay thumb on the scale keeps the day
+    // a little longer than the night except in the dead of a northern winter.
+    // LatitudeDeg is "here" for the sky and the light: the place the camera
+    // looks at on this machine, York's 57 N until a camera is about. The
+    // people ask DaylightAt their own latitude, so a man on the Columbia
+    // and one at York see different days.
     [Export] public float LatitudeDeg = 57f;
-    public float DayLengthHours
-    {
-        get
-        {
-            float doy = DayOfYear;
-            float decl = 23.44f * Mathf.Sin(Mathf.Tau * (doy - 81f) / 365f);
-            float lat = Mathf.DegToRad(LatitudeDeg), d = Mathf.DegToRad(decl);
-            float x = Mathf.Clamp(-Mathf.Tan(lat) * Mathf.Tan(d), -1f, 1f);
-            float astro = 2f * Mathf.RadToDeg(Mathf.Acos(x)) / 15f;
-            float biased = Mathf.Lerp(astro, 13f, 0.4f);
-            bool deadOfWinter = LatitudeDeg > 55f && (Month == 12 || Month == 1);
-            return Mathf.Clamp(biased, deadOfWinter ? 9.5f : 12.6f, 20f);
-        }
-    }
+    public float DayLengthHours => DayLengthAt(LatitudeDeg);
     public float Sunrise => 12.3f - DayLengthHours / 2f;
     public float Sunset => 12.3f + DayLengthHours / 2f;
+    // 0 = full night, 1 = full day, with ~1.5h of twilight either side.
+    public float DaylightFactor => DaylightAt(LatitudeDeg);
 
-    public float DaylightFactor
+    public float DayLengthAt(float latDeg)
     {
-        get
-        {
-            float rise = Sunrise, set = Sunset;
-            const float twilight = 1.5f;
-            if (Hour < rise - twilight || Hour > set + twilight) return 0f;
-            if (Hour < rise) return (Hour - (rise - twilight)) / twilight;
-            if (Hour > set) return 1f - (Hour - set) / twilight;
-            return 1f;
-        }
+        float doy = DayOfYear;
+        float decl = 23.44f * Mathf.Sin(Mathf.Tau * (doy - 81f) / 365f);
+        float lat = Mathf.DegToRad(latDeg), d = Mathf.DegToRad(decl);
+        float x = Mathf.Clamp(-Mathf.Tan(lat) * Mathf.Tan(d), -1f, 1f);
+        float astro = 2f * Mathf.RadToDeg(Mathf.Acos(x)) / 15f;
+        float biased = Mathf.Lerp(astro, 13f, 0.4f);
+        // In December and January the floor drops from 12.6 h to 9.5 h going
+        // north from 52 to 58 N, so there is no line on the map where the
+        // winter day suddenly shortens.
+        float floor = Month == 12 || Month == 1
+            ? Mathf.Lerp(12.6f, 9.5f, Mathf.Clamp((latDeg - 52f) / 6f, 0f, 1f))
+            : 12.6f;
+        return Mathf.Clamp(biased, floor, 20f);
+    }
+
+    public float DaylightAt(float latDeg)
+    {
+        float len = DayLengthAt(latDeg);
+        float rise = 12.3f - len / 2f, set = 12.3f + len / 2f;
+        const float twilight = 1.5f;
+        if (Hour < rise - twilight || Hour > set + twilight) return 0f;
+        if (Hour < rise) return (Hour - (rise - twilight)) / twilight;
+        if (Hour > set) return 1f - (Hour - set) / twilight;
+        return 1f;
+    }
+
+    // Follow the camera: what this machine shows is lit for where it looks.
+    private float _latTimer;
+    private void FollowViewerLatitude(double delta)
+    {
+        _latTimer -= (float)delta;
+        if (_latTimer > 0f || !World.WorldMap.Loaded) return;
+        _latTimer = 0.5f;
+        var cam = GetViewport()?.GetCamera2D();
+        if (cam == null) return;
+        LatitudeDeg = Agents.Climate.LatitudeAt(cam.GlobalPosition);
     }
 
     public string DateString =>

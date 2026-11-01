@@ -186,6 +186,16 @@ public static class Climate
         return (jan + jul) / 2f - (jul - jan) / 2f * Mathf.Cos(2f * Mathf.Pi * (dayOfYear - 15f) / 365f);
     }
     private static readonly System.Collections.Generic.Dictionary<Vector2I, Vector2> _latCache = new();
+    // The latitude of a place, from the same coarse cache; York's 57 N when
+    // the map is not loaded.
+    public static float LatitudeAt(Vector2 world)
+    {
+        if (!World.WorldMap.Loaded) return 57f;
+        var cell = World.IsoGrid.FromWorld(world);
+        var key = new Vector2I(cell.X >> 5, cell.Y >> 5);
+        if (!_latCache.TryGetValue(key, out var ll)) { var g = World.WorldMap.LonLatOf(World.IsoGrid.ToWorld(new Vector2I(key.X << 5, key.Y << 5))); ll = new Vector2((float)g.Lon, (float)g.Lat); _latCache[key] = ll; }
+        return ll.Y;
+    }
     public static bool Probe;
 
     public static float ExposurePerHour(Season season, float daylight)
