@@ -76,6 +76,23 @@ Firm and Strict deliberately break 2.2's "never creates an event" rule, because 
 Beats can watch flags that the simulation sets itself. The rivalry crossing into open hostility is one. As the Red River colony, the Métis hunt and the interior war become simulated rather than scripted, their systems set the flags that the historical script's "done when" tests look for. The same script then reads as pressure, not as enforcement.
 
 
+### 2.4 Set Pieces — Quests, Musters and the York Raid
+> **As built (2026-10-31).** `Core/Quests.cs` and `Core/QuestScript.cs` (quest lines in campaign files), `Economy/Musters.cs` with `Goals/MusterGoal.cs` (the campaign actions `muster`, `march`, `attack`, `stand_down`), and the Nor'Westers' raid on York in `Core/YorkHappenings.cs` with `Goals/RaidPartyGoal.cs`.
+
+Section 2.3's beats act on the world. Three other things a campaign or the game can do are scripted outright. They are allowed, but each one is a deliberate exception to Section 2, and this section says how far each goes.
+
+**Quests.** These are what a campaign asks of a player, as opposed to what it does to the world. A quest line is a run of quests, and each quest is a chain of objectives: talk to someone, reach a place, bring an item, hunt a species, wait for a condition. A choice in a conversation can send the chain elsewhere or end it well or badly. Quests use the same conditions and actions as beats, so a quest can wait on anything a beat can, and a beat can ask whether a quest is done.
+- *Where it sits against Section 2:* a quest scripts the *player's* direction, not the world's behaviour. The givers are real people at real posts ("leader@Edmonton House"). The things a quest sends you to fetch, hunt or deliver must exist in the simulation, and the campaign checker refuses a species the game has no animal for. A quest that needs the world to bend for it is a beat, and it is labelled as one.
+- *The rule:* a quest may hand the player a reason and a destination. It may not make the world produce what it asks for. If the goods, the person or the herd aren't there, the quest waits or fails.
+
+**Musters.** A campaign can call a post's men to arms: pull them off their work to a place, march them somewhere, send them against a post or a camp, and stand them down again. This is a script moving people. It is the same kind of exception as Section 2.3's Firm and Strict adherence, and it is labelled the same way. A camp's own quarrel is not a muster: that is a war party (`Economy/War.cs`), which comes from grudges and standing.
+- *Where it sits against Section 2:* the decision to fight is scripted. Everything after that is not: the march is walked, the fight is resolved by the ordinary combat rules (Section 15), and the news travels at Section 10's pace. The War of 1812 on the Lakes frontier (`lakes-war.camp`) is the main user.
+- *The goal:* as the interior war becomes simulated, a muster should become a decision some agent makes (a partner, a Factor, a war chief) for reasons it holds, and the campaign beat should only watch for it, as Section 2.3 says of flags.
+
+**The York raid.** Once, a day or two after a Company man first comes ashore at York, the Nor'Westers come down the Hayes in the night and go for the stores. The house rings the alarm and its men stand to (`RaidPartyGoal`, the defenders' guard). Whatever the raiders carry off is gone. This is a scripted event, plainly. It exists for Section P.5 and P.9: it gives the first days at York a crisis the new hand can act in, at the place the first milestone is built around. A campaign flag (`york_raid`) records that it has happened, so it never repeats.
+- *Where it sits against Section 2:* this one fails the test, on purpose. Under it sits a real rivalry (`Economy/Rivalry.cs`) that can produce raids by itself (RaidGoal). The scripted raid makes sure the player sees one early.
+- *The rule:* an event like this is allowed only when it is (a) one that the simulation could also produce, (b) aimed at the player's first hours, where a missed beat costs the most, (c) once only, and (d) marked in the code and in this document as scripted. The smaller York happenings (a fight at the men's house, geese brought in, a dance, cards, an old hand's lesson) are scene pages of choices rather than simulated events. They are judged the same way, and they should move toward being real agents' doings over time, as the dance already has (`DanceGoal`).
+
 ---
 
 ## P. Player Experience — What It Feels Like to Play
@@ -293,6 +310,30 @@ A council (Section 3.8) or a smaller negotiation between kin or bands doesn't on
 - **Vendetta settlement** — a kin-to-kin negotiation, not necessarily a full council, that formally closes an unresolved blood debt (Section 7.4) with restitution terms, retiring the grudge (Section 10.4) instead of leaving it to decay or escalate on its own.
 - **The 1821 merger** (Section 13.7) is the largest instance of this same object — two councils negotiating one Accord whose terms happen to be a full corporate merger.
 
+### 3.8.3 Laws — Rules a Body Makes and Unmakes
+> **As built (2026-10-31).** `Core/Laws.cs` and `UI/ConversationLaws.cs`. Dev: `--motion=Town:Kind:repeal[:silver|:soon]`, `--lawoff=Town:Kind`, `--lawtrace`.
+
+Some rules of the world are not physics but decisions. A town keeps its bread back from the lakes trade because its meeting voted to. A camp turns away the traders' rum because its council agreed. The posts of the Bay give no spirits because London has written so. Section 2 says these must not be fixed settings. They are **laws**: made by a body of people, enforced by the systems they touch, and open to repeal by the same route that made them.
+
+**Bodies and who votes.**
+- **A town meeting**: one vote to a household, cast by its head. The garrison, the merchants' stores and boarders have none.
+- **A band council**: the chief and the heads of lodges. The chief's voice counts three times.
+- **The Governor and Committee** in London: they sit off the map and read their letters when the returns come in November.
+- **The partners at Fort William**: weighted by shares, as in Section 3.8.1, sitting at the July rendezvous.
+
+**The kinds of law built so far.** Keeping the bread back (the share of a year's food a town's market holds before it ships any surplus down the lakes), export and import duties, and a ban on spirits. Each one is a value that an existing system already reads, such as the market's surplus shipping (`Economy/Money.cs`) or the posts' trade. A new kind of law means a new number that some system honours, not a new mechanic.
+
+**How a motion runs.**
+1. **Opened.** A sponsor opens a motion to enact or repeal. This can be any agent with an interest, the player included (`UI/ConversationLaws.cs`). Agitators come from what the law does to their own house: a merchant who wants the bread shipped, a hungry family after a lean spring.
+2. **Canvassed.** The sponsor carries it from house to house, and a champion against it does the same. Each conversation shifts that voter's lean. Out of sight the canvass goes on as a sum, a few houses a day.
+3. **Called.** When the sponsor thinks the count is there, he calls a meeting some days ahead, at the church, the market or the camp's centre.
+4. **Debated.** Whoever comes, rises to speak, and the room hears it.
+5. **Voted.** Only those who came are counted. Each voter's lean is his own interest, his temper, and everything said to him since the motion was opened.
+
+**Why this fits Section 2.** No law is inevitable, and every outcome is plausible. The merchant who talks the farmers into shipping the town's winter down the lakes gets his trade and the town gets a hungry spring, and the hungry spring is a reason for the next motion. History's rules (the Committee's spirits ban, the magistrates' third of the food) are the starting laws, not constants. This is also how disputed history is meant to vary: by what a particular body decided, not by a global dial.
+
+**Relation to Accords (Section 3.8.2).** A law binds the body's own people. An Accord binds two or more parties to each other. Both come out of the same council machinery, and they should share it once Accords are built.
+
 ### 3.9 Delegation & Task Assignment
 The layer between a Tier 2 directive (Section 3.1) and the shared action vocabulary (Section 3.3): how a leader who has read his orders turns them into work other agents actually do. It is written generically — a leader handing goals to followers — with the HBC Factor as the primary case and NWC partners and hunt captains as other parameterizations (table below), per Section 19.
 
@@ -467,6 +508,32 @@ Distinct zones with distinct feel/mechanics — including distinct wildlife (Sec
 - **Mechanics (proposed)**: Moose Factory is the third Bay depot in the HBC message system (Section 10.1.2), so the department gets the ship-and-depot mechanism for free. Because it's a distinct department, it can also run its own faction-standing review through Moose Factory (Section 3.6).
 - **Population cost**: Moose Factory, Albany, Rupert House, Eastmain, plus the surrounding Cree / Ojibwe / Algonquin bands, is a real addition on top of the 15–20k agent budget (Section 11.1).
 - **Epilogue**: Williams' Southern Department is the piece of the map Simpson doesn't reach in 1821 (Section 4.3).
+
+### 6.3 The Towns of the Lakes Frontier
+> **As built (2026-10-31).** `World/Towns.cs`, `Agents/TownLife.cs`, `World/Fields.cs`, `Economy/Money.cs`; layout from `tools/world/place_towns.py`. About 3,267 people. Dev: `--notowns`, `--spawn=<town>`, `--townpaths`.
+
+Detroit, Amherstburg, York (Upper Canada), Niagara and the other towns of the Lakes frontier are not trading posts. They have streets of family houses, a church, the merchants' stores, and usually a garrison inside its own palisade. They are the edge of the settled world the fur trade sells into and the 1812–14 war is fought across.
+
+**Every townsperson is a full agent (Section 11.1).** Each one is placed in the editor and has a house of their own. Their day is a round of real work:
+- the farmer's year on his fields, one step at a time (ploughing, sowing, hoeing, reaping, carrying in, threshing);
+- the woman of the house at the market, the quern, the oven, the wash and the garden;
+- the merchant at his counter and the smith at his forge;
+- the priest among the sick, and the garrison on parade and sentry;
+- the whole town in church on Sunday morning.
+
+Every plot is a cell of ground with its own state. Out of sight, the same steps are done as a day's sum on the same plots, so nothing jumps when the player comes into view (Section 18.2).
+
+**Goods move by hand (Section 12.5).** Bread bought at the market comes home in the buyer's arms, and the harvest is carried in from the field.
+
+**Money.** The towns run on coin and the store's book, not on made beaver.
+- Coin is an item and moves only when someone carries it.
+- It comes in from outside: the garrison's pay and the priest's stipend (the metropole abstraction of Section 10.7), and the player selling furs.
+- Prices follow the market's stock: food is dearer when the market holds less than a fortnight's supply for the town, and cheaper when it holds more.
+- A house without coin buys on credit up to a limit, so a poor house goes into debt before it goes hungry.
+- What the merchants can't pay for in coin is "store pay", credit drawn on the seller's next purchase. That is how a farm's harvest reached the market in a town short of coin.
+- The surplus the market ships down the lakes is set by a town law (Section 3.8.3).
+
+**Against Section P.9.** The towns were built before the first milestone, one fun year on the York river, had been tested. They are a large, honest simulation that most players starting at York will never see. *Open decision:* whether the towns get any more work before P.9's milestone passes. The audit's lean is maintenance only (performance and bugs) until then, with new work going to the York year. The towns would earn their place again through the war and through a Lakes start, when one exists.
 
 ---
 
@@ -914,7 +981,7 @@ Should feed directly into systems already defined rather than being cosmetic:
 
 ### 14.3 Day/Night Cycle
 
-> **Implementation note (2026-10-21):** day length is computed from latitude and date, but the latitude is fixed at York's 57° N (`GameCalendar.LatitudeDeg`), so the plains and the Columbia get York's days.
+> **Implementation note (2026-10-31):** day length comes from the latitude and the date (`GameCalendar.DayLengthAt`). Each person gets the day at their own latitude, for the cold and their needs. The light and the sky on screen follow the camera. A gameplay floor keeps the day at least 12.6 hours long, except in December and January, when it drops to 9.5 hours going north from 52° to 58° N. So in midwinter Red River and Fort William get 12.6 hours, Edmonton about 11.8, York 10 and Fort Chipewyan 9.5. At midsummer the spread runs from about 14.8 to 16 hours.
 
 - Affects stealth and interception opportunity (raiding a courier or post at night vs. day).
 - Historically, canoe brigades often rose well before dawn and paddled for hours before breakfast — a realistic travel rhythm worth modeling rather than a flat day/night toggle.
@@ -1266,3 +1333,4 @@ This revision folds the follow-up planning discussion into the document. Where t
 - **Player experience** (Sections 1, 2.1, 2.2, P, 3.5, 3.6.1, 9.3, 10.8, 15.6, 17.7, 18.3, 19, 20): new lettered Section P — the fantasy and its success test, declared Ambitions with 1821 as their reckoning, the year as the heartbeat (a 4–6 hour year in four seasonal chapters with a quota countdown), consequences connected in the journal, tells and barks, needs that surface as decisions rather than chores, losing before dying with succession as the headline, knowledge as progression, and a build order whose first milestone is one fun year on the York Factory river, with the long-term scope unchanged. Section 2 gains a second test (does the player see, understand, and get a choice) and the director (simulate, then curate: it biases which real events reach the player, never what happens). New subsections for the barter (3.6.1), setup-driven combat (15.6), and needs at the post vs. away (17.7).
 - **Lies, friends who act, what matters now** (Sections P.10, P.8, P.4): made-up stories as memories with a liar attached, exposed by the accused, the named, the true witnesses, alibis and friends; close friends who share food, warn, keep quiet, disbelieve lies and stand in a fight; the three-line "what matters now" panel.
 - **Attachment** (Sections P.8, 11.2, P.4): shared firsthand memory (a witness list on every memory entry) as the bond between any two agents, shared household hardship recorded as memory so bonds don't only form around violence, seven levers (small circle, specificity, callbacks, reciprocity, change, need, loss), and barks — agents speaking aloud to whoever is beside them, NPC or player — as the channel that makes it visible. Build order renumbered to P.9.
+- **Laws, towns and set pieces** (Sections 3.8.3, 6.3, 2.4): built systems written into the document. Laws are rules a body makes and repeals through a canvass, a called meeting, a debate and a vote. The Lakes towns are full agents on real fields with coin and store credit, and an open question about their place against P.9. Quests, musters and the York raid are named exceptions to Section 2, with a rule for each. Day length now follows latitude (Section 14.3).

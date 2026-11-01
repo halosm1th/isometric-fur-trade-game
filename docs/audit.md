@@ -148,7 +148,7 @@ Each of these still needs a decision: change the code, or rewrite the section.
    - Nobody has seen it happen. The starting purses (HBC 3,000 MB, NWC 5,000) and the costs are tuned by hand, and no long run has checked whether either company actually reaches two years of debt, or when. Tools T1/T7's `--assert merger-between 1819..1823` is the test for this, and it isn't built.
    - Under "no script" the blockade and war flags are never raised, so the fur price lacks the shocks that ruined the companies historically. Either company may then never exhaust.
    - The costs leave out violence and legal fees, which the doc names as the main drain of the trade war.
-8. **New: day length (§14.3).** Latitude is computed but never set from where the player is, so the plains and the Columbia get York's days. This was listed before as Diverges. It is cheap to fix now that the map spans 42°N to the Arctic.
+8. **Fixed 2026-10-31: day length (§14.3).** Each person gets the day at their own latitude (`GameCalendar.DayLengthAt`), and the light on screen follows the camera.
 
 ---
 
@@ -178,7 +178,7 @@ New in this pass:
 | 13 | "No money or solvency ledger" | Design doc §13.7 note, `Development Status.md` | Stale: both exist now. **Corrected in this pass** |
 | 14 | "The HBC way only, for every player" | `Development Status.md` marriage row | Stale. **Corrected** |
 | 15 | Marriage and the Company rows list built work as planned | `Roadmap.md` | **Corrected** |
-| 16 | "Day length comes from latitude and the date" | `Core/GameCalendar.cs:322` | True of the formula, but the latitude is a constant 57°. The comment says "York Factory sits at 57 N", so it isn't false, but a reader would expect it to vary |
+| 16 | "Day length comes from latitude and the date" | `Core/GameCalendar.cs` | **Fixed 2026-10-31:** the latitude now varies by place |
 
 ---
 
@@ -186,11 +186,11 @@ New in this pass:
 
 | System | Where | Note |
 |---|---|---|
-| **Laws** | `Core/Laws.cs` (989 lines), `UI/ConversationLaws.cs` | Rules a town meeting, a band council or the Committee makes and repeals. Motions are canvassed house to house and voted by whoever comes. A strong instance of §2 and of §3.8's councils. The doc should have a section on it |
-| **Towns of the Lakes frontier** | `World/Towns.cs`, `Agents/TownLife.cs`, `World/Fields.cs`, `Economy/Money.cs` | Detroit, York, Niagara and the rest, 3,267 people; farms worked step by step; coin, wages, the store's book. Far outside §P.9's first milestone |
-| **Life at York; the journey** | `Core/YorkHappenings.cs`, `World/JourneyIncidents.cs` | Pages of choices every few hours. Good §P.5 work. The Nor'Westers' raid on York, once, a day or two after a Company man lands, is scripted: the doc should say so, as for quests |
-| **Musters** | `Economy/Musters.cs`, `Goals/MusterGoal.cs` | A campaign calls men to arms, marches them and attacks. This is a script moving people, in the same tension with §2 as quests |
-| **Quests** | `Core/Quests.cs` | Still not in the doc (recommended on 21 October) |
+| **Laws** | `Core/Laws.cs` (989 lines), `UI/ConversationLaws.cs` | Rules a town meeting, a band council or the Committee makes and repeals. Motions are canvassed house to house and voted by whoever comes. A strong instance of §2 and of §3.8's councils. **Now design doc §3.8.3** |
+| **Towns of the Lakes frontier** | `World/Towns.cs`, `Agents/TownLife.cs`, `World/Fields.cs`, `Economy/Money.cs` | Detroit, York, Niagara and the rest, 3,267 people; farms worked step by step; coin, wages, the store's book. Far outside §P.9's first milestone. **Now design doc §6.3** |
+| **Life at York; the journey** | `Core/YorkHappenings.cs`, `World/JourneyIncidents.cs` | Pages of choices every few hours. Good §P.5 work. The Nor'Westers' raid on York, once, a day or two after a Company man lands, is scripted. **Now design doc §2.4** |
+| **Musters** | `Economy/Musters.cs`, `Goals/MusterGoal.cs` | A campaign calls men to arms, marches them and attacks. This is a script moving people, in the same tension with §2 as quests. **Now design doc §2.4** |
+| **Quests** | `Core/Quests.cs` | **Now design doc §2.4** |
 | Observer mode | `Core/Observer.cs`, `UI/Observer*.cs` | "Watch the world": a camera with no body. A tool for checking §2 by eye |
 | Lacrosse | `Economy/Lacrosse.cs` | Wagers, injuries, and a feud cooled |
 | Dyed garments | `Agents/Garb.cs` | Part of `longer_goals` #3 |
@@ -242,7 +242,7 @@ The 21 October catalogue, less what has since landed. Sources: "Doc" = the desig
 
 1. **Prove the exhaustion merger.** Run a headless soak 1811-1821 under "historical" and "no script", log the purse (`--plainslog`), and tune the starting purses and costs until a company exhausts around 1819-1821 historically and plausibly without a script. This is the cheapest step from here to an emergent 1821, and global-trade P0's `--dump-economy` is the natural tool for it.
 2. **Run the §P.9 test on York.** Play one in-game year on the York river with quiet days on, time it against §P.3's target, and note whether it passes §P.1's story test. The recent York work (raid, happenings, journey incidents) is aimed at exactly this, and nothing has measured it.
-3. **Write design-doc sections for laws, towns and scripted set pieces** (quests, musters, the York raid), saying where each sits relative to §2.
+3. **Done 2026-10-31 (§2.4, §3.8.3, §6.3). Write design-doc sections for laws, towns and scripted set pieces** (quests, musters, the York raid), saying where each sits relative to §2.
 4. **Decide the five standing divergences** (§4: traits, skills, combat, tiers, disconnection) and rewrite the doc sections either way.
-5. **Set latitude from position** (§4.8). Small and visible.
+5. **Done 2026-10-31. Set latitude from position** (§4.8). Small and visible.
 6. **Add `check_wiki.py --code-claims`**, or re-run this audit after every large merge.
