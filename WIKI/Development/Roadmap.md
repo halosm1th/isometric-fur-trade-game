@@ -33,7 +33,7 @@ status: planned
 | Area | Planned item | Source |
 |---|---|---|
 | Transport | York boats, dog sleds, toboggans, Red River carts; vessel condition for the player | §12; [[York Boat]], [[Dog Sled]] |
-| Plains | (Horses, the communal buffalo run, horse raids, war parties and truces are built.) Battles larger than one party; truces as Accords; the player leading a party | §7.2, §15; `docs/specs/story-plains-years.md` Act 6 |
+| Plains | (Horses, the communal buffalo run, horse raids, war parties and truces are built.) Battles larger than one party; the player leading a party | §7.2, §15; `docs/specs/story-plains-years.md` Act 6 |
 | Ecology | The 10-year hare/lynx cycle; herd fragmentation; moose, black bear, marten, muskrat, foxes, lynx, otter, mink, fisher, wolverine, polar bear; elk, pronghorn, grizzly, mountain goat and sheep; salmon; seals and beluga | §16.2; `world-content-needed.md` section 6 |
 | People | Decline with age (ageing itself is in); slavery; tradesmen (blacksmith, cooper, carpenter, boatbuilder, tailor, cook, surgeon); interpreters; settlers; a colony governor and sheriff; De Meuron soldiers; Métis hunter and hunt captain | `world-content-needed.md` section 7 |
 | Economy | Crafting and smithing recipes; perks; founding a new post; warehouse quality-bucketing; the Continental Blockade's fur-market effects | §12.6-12.7, §13 |
@@ -55,7 +55,7 @@ Design-doc ideas with no code yet, beyond the table above (the full list is in `
 | People | Sociability as a trait; skills beyond the four (stealth, riding, medicine, strength, smithing) | §3.10, §11.4 |
 | Combat | Hit location and severity; surrender and bluff (muskets use powder) | §15.3, §15.5 |
 | Company | Credit and crisis moves in the purse; proving the merger from exhaustion in a long run; a finite recruit pool; surprise audits by a superior (the purse, exhaustion and London's audit of the books are built) | §13.2, §13.7, §3.9 |
-| Council | Proxies, splinters, arrival windows at Fort William; Accords as one object | §3.8.1, §3.8.2 |
+| Council | Proxies, splinters, arrival windows at Fort William; safe passage, vendetta settlement and council-voted terms for Accords | §3.8.1, §3.8.2 |
 | Survival | Winter strain, wound treatment (herbal and European); wet clothing is built | §17.5, §17.6 |
 | World | A local simulation tier; grass fires and wind direction | §14.3, §18.2, §18.4 |
 | Multiplayer | Disconnected players handed to the goal planner; auto-pilot when not everyone wants to skip | §21.3, §21.4 |

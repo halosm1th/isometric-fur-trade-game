@@ -327,7 +327,7 @@ public static class Delegation
         bool shipIn = fort == Sim.Fort && Sim.Ship != null && Sim.Ship.IsDocked;
         int raidersSent = 0;
         bool sanctioned = fort is NwcLedger nl && nl.RaidsSanctioned && Rivalry.Tension >= 45f;
-        if (rival != null && (Rivalry.OpenHostility || sanctioned) && men.Count >= 2 && today - fort.LastRaidDay > 4 && !shipIn)
+        if (rival != null && !Accords.AtPeace(fort, rival) && (Rivalry.OpenHostility || sanctioned) && men.Count >= 2 && today - fort.LastRaidDay > 4 && !shipIn)
         {
             int mouths = fort.Alive();
             bool worthIt = fort.FoodDays(mouths + 1) < 30f || fort.Stores.Count(ItemId.TradeGoods) < 15 || Rivalry.Tension >= 90f || fort.RaidedRecently(today);

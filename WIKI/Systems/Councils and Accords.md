@@ -7,7 +7,7 @@ status: partial
 
 # Councils and Accords
 
-**Status:** Partial. The **July council at Fort William** (design doc 3.8, 3.8.1, 10.1.3) is Implemented as an off-map, share-weighted vote with six councillors, five to four agenda items and a minutes message. A general-purpose **Accord** object (treaties, safe passage, trade exclusivity, vendetta settlement; design doc 3.8.2) is **Planned**: no Accord class exists in the code yet.
+**Status:** Partial. The **July council at Fort William** (design doc 3.8, 3.8.1, 10.1.3) is Implemented as an off-map, share-weighted vote with six councillors, five to four agenda items and a minutes message. A general-purpose **Accord** object (design doc 3.8.2) is Implemented with three terms (peace, exclusive trade, alliance); see below.
 
 ![[loc-fort-william.png|400]]
 
@@ -58,9 +58,27 @@ Subject "the minutes of the council of *year*". Read by the partner it sets the 
 
 As a Nor'Wester with standing 20+ before July: **The companies... > Write to the partners at Fort William...** adds a letter to the next council: Urge them to undercut the Company's price / hold the price / ask for a full outfit / urge peace with the Company's post / urge them to press the Company hard / speak for the partner's second share. Weight is `clamp(standing / 25, 0.3, 2)` of a share, and your standing rises +1.
 
-## Accords (planned)
+## Accords
 
-Design doc 3.8.2 sketches one generic **Accord** object: parties, terms, and a breach condition always a witnessed event. Named types are parameterizations of the same object: peace treaty, trade exclusivity, safe passage, alliance/mutual defence, debt restructuring, vendetta settlement, and the 1821 merger as "the largest instance". None of that exists as a system yet; the closest built behaviours are a truce proposal ([[Rivalry]]) and restitution ([[Grudges and Vendettas]]).
+`Economy/Accords.cs`, `UI/ConversationAccords.cs` (design doc 3.8.2). An accord is one agreement object between two households: two camps, a camp and a company's house, or the two houses at York. It has terms, a length, who made it, and whether it has been broken.
+
+| Term | What it does |
+|---|---|
+| Peace | No war party, raid or armed party against the other. War parties launched by the plains simulation skip a partner. The houses' daily raid decision skips a partner. A truce (`War.Truce`, the campaign's `truce` action) is now a peace accord. |
+| Exclusive | The camp carries its furs only to that company's houses, and is paid 15% over the standard there. A chief who cares little for his word may still go to the other company. |
+| Alliance | A war party or raid against one partner heats the ally's feud with the attacker, and an allied camp may ride out against the attacker. |
+
+**Breaking one** is a deed the world sees: riding against a partner in peace, a house sending armed men against a partner, or carrying furs to the other company. The wronged side's standing with the breaker drops 20 to 25, the feud heats, rivalry between the companies jumps 25, and the breach is told as a heavy story.
+
+**Who makes them:**
+- Camps worn down by a feud on both sides: the weaker sues for a year's peace, and the stronger may take it.
+- The houses at York agree a truce for the season when tension is high and the raiding has cost them both.
+- A house offers a camp that trades with its rival better pay for all its furs. Homeguard families are never bargained for.
+- The player, in **Agreements...** with a chief (peace, exclusive trade, an alliance) or with the rival company's master (a truce between the houses). He weighs it by his people's standing with your company, his regard for you, your standing and his temper. If he agrees, your standing rises.
+
+Dev: `--accord=A:B:Peace+Exclusive[:days]` (camp or post names; `nwc` for the Nor'Westers at York), `--accordtrace`.
+
+Not yet: safe passage, debt restructuring, vendetta settlement, terms voted in a camp council, and the 1821 merger as an accord.
 
 ## Tips
 

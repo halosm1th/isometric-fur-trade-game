@@ -195,6 +195,7 @@ public static class StandardOfTrade
             if (post != null && (forFurs || BelievesBuysFood(b, post)) && TradeTrips.Start(b, post, cal)) _lastTrip[b] = Plains.Today;
         }
         Gossip();
+        Accords.Week();
     }
 
     // A camp's choice of house: the one it believes answers its wants best
@@ -210,6 +211,8 @@ public static class StandardOfTrade
             if (d > ReachPx) continue;
             float score = (1f + Believed(b, p.Ledger)) * (1f - 0.5f * d / ReachPx) * Safety(b, p.Ledger);
             if (forFood) score *= BelievesBuysFood(b, p.Ledger) ? 3f : 0.1f;
+            // Promised to the other company (Economy/Accords): kept, unless the chief cares little for his word.
+            if (!Accords.MayTradeAt(b, p.Ledger)) score *= (b.Leader?.Personality.Loyalty ?? 0.5f) < 0.25f ? 0.5f : 0f;
             if (score > bestScore) { bestScore = score; best = p.Ledger; }
         }
         return best;   // null: no house it can safely reach
@@ -247,6 +250,8 @@ public static class StandardOfTrade
         // The furs first: what the post is there for.
         float owed = 0f;
         foreach (var (id, n) in load.All()) if (!PostWants.IsProvision(id)) owed += n * Items.Items.Of(id).ValueMb;
+        owed *= 1f + Accords.PriceBonus(post, b);   // a camp held by an exclusive accord is paid better
+        Accords.Traded(b, post);
         float paid = owed >= 1f ? Pay(post, b, owed, into, counts, shortOf, true) : 0f;
         // A middleman's trader spends some of what is left on goods to sell on (Economy/Middlemen).
         if (owed >= 1f) paid += Middlemen.Buy(post, b, owed - paid, into, counts);

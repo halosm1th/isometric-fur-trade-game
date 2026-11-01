@@ -424,6 +424,7 @@ public partial class Conversation
         // A town merchant's counter, for coin (UI/ConversationStore).
         if (npc.Role == Role.Merchant && MarketOf(npc) != null) AddOption("The store...", () => ShowStore(npc));
         if (LawsBody(npc) != null) AddOption(LawsLabel(npc), () => ShowLaws(npc));
+        if (CanTreat(npc)) AddOption("Agreements...", () => ShowAccords(npc));
         if (npc.IsBandPerson && npc.Role is Role.Hunter or Role.Chief && _player.Faction is Faction.HBC or Faction.NWC && Barter(_player).Count > 0)
             AddOption("Trade on your own account, quietly...", () => ShowPrivateTrade(npc));
         AddOption("Give a gift", () => ShowGive(npc));

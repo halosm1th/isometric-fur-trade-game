@@ -53,7 +53,7 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 | 3.7 | Career rival | Built | `Agents/Rival.cs` |
 | 3.8 | Councils | Partial (Changed) | `Core/Laws.cs`: motions canvassed, debated and voted in town meetings, band councils and the Committee |
 | 3.8.1 | Fort William council | Partial | Share votes, carried agenda, minutes that can be intercepted. **No proxies, splinters or arrival windows** |
-| 3.8.2 | Accords | Missing | Truces are still a pair table (`Economy/War.cs`) |
+| 3.8.2 | Accords | **Built (2026-11-01)** | `Economy/Accords.cs`: peace, exclusive trade, alliance; breaches; made by the world and by the player |
 | 3.9 | Delegation | Partial | Orders need earshot (`Delegation.Earshot`). London audits the Factor's books (`LondonCommittee.Audit`). At York the Factor hears of private dealings someone saw. **No surprise inspections by a superior** |
 | 3.10 | Skills | **Diverges** | Still 4 (`Agents/Needs.cs`) against about 12 |
 | 4.2 | 1801 prologue | Missing | |
@@ -206,7 +206,7 @@ The 21 October catalogue, less what has since landed. Sources: "Doc" = the desig
 
 **Companies and the metropole.** Fort William's proxies, splinters and arrival windows (Doc 3.8.1). The NWC's two-years-in-three rule and earned shares (Doc 5.2). Montreal agents; named London Committee members (Doc 10.7). The Southern Department (Doc 6.2). Astor and St. Louis as nodes (Doc 7.3). The XY Company and an 1801 start (Doc 4.2). The Red River Colony as people (Content §2-3).
 
-**Agreements and information.** Accords (Doc 3.8.2). Forged dispatches, express couriers and blowback (Doc 10.3). Literacy, and interpreters who lie (Doc 10.6). Maps as items (Doc 10.8). Faction trust rolling up from sightings (Doc 10.5). Authorised sightings (Doc 11.5). Memories passing to kin (Doc 10.9).
+**Agreements and information.** ~~Accords (Doc 3.8.2)~~ built 2026-11-01. Forged dispatches, express couriers and blowback (Doc 10.3). Literacy, and interpreters who lie (Doc 10.6). Maps as items (Doc 10.8). Faction trust rolling up from sightings (Doc 10.5). Authorised sightings (Doc 11.5). Memories passing to kin (Doc 10.9).
 
 **People.** The Métis/freeman road in (Doc 5.3). Personality sliders and skill points (Doc 5.4). Faces and bodies (`longer_goals` #3). Slavery (Doc 9.2). Death branches (Doc 9.3). Decline and death from age (Doc 9.4). Perks (Doc 12.7). The missing skills (Doc 3.10). Sociability as a trait (Doc 11.4). Tradesmen and boat ranks among the trade's roles (Content §7). Adoption into a band (Plains #2).
 

@@ -296,6 +296,8 @@ The largest instance of the council mechanic, and the generator behind NWC's yea
 **If the player isn't there**, the council resolves lazily with the same agents (Section 18.2), and the result reaches the player through the message system — later, and possibly garbled.
 
 ### 3.8.2 Council Outcomes — What an Accord Actually Is
+> **As built (2026-11-01):** `Economy/Accords.cs`, `UI/ConversationAccords.cs`. One `Accord` object between two households, with three terms so far. **Peace** (truces are now peace accords). **Exclusive** trade, at 15% over the standard. **Alliance**: an attack on one heats the ally's feud, and an allied camp may ride out. A breach is a witnessed deed (a war party, a raid, furs carried to the other company). It costs 20 to 25 standing, heats the feud, raises rivalry by 25, and is told as a heavy story. Accords come from the world itself: feuding camps sue for peace, the houses at York agree a truce, a house buys a camp's furs away from its rival. The player can propose them to chiefs and to the rival master. Not built: safe passage, debt restructuring, vendetta settlement, terms voted in council, and the merger as an accord.
+
 A council (Section 3.8) or a smaller negotiation between kin or bands doesn't only produce a Tier 2 directive (Section 3.8.1's NWC case) — when the parties belong to different factions or kin groups, its output can be a durable **Accord**: one generic agreement object, specialized by its terms, rather than a separate mechanic per treaty type.
 
 **Every Accord has:**

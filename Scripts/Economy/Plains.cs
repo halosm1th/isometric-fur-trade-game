@@ -81,6 +81,7 @@ public static class Plains
     public static readonly bool Log = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--plainslog") >= 0;
     private static void DevArgs()
     {
+        Accords.Dev();   // dev accords first, so a dev war party can break one
         foreach (string arg in OS.GetCmdlineUserArgs())
         {
             if (arg == "--horseraid") _devRaid = true;
@@ -678,7 +679,7 @@ public static class Plains
     {
         var f = new Godot.Collections.Dictionary(); foreach (var kv in Feuds) f[kv.Key] = kv.Value;
         var l = new Godot.Collections.Dictionary(); foreach (var kv in BuffaloRun.LastRun) l[kv.Key] = kv.Value;
-        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save(), ["war"] = War.Save(), ["outfits"] = Outfits.Save(), ["trips"] = TradeTrips.Save(), ["wants"] = Wants.Save(), ["indent"] = PostWants.Save(), ["companies"] = Companies.Save(), ["middlemen"] = Middlemen.Save() };
+        return new Godot.Collections.Dictionary { ["feuds"] = f, ["lastRun"] = l, ["gardens"] = Gardens.Save(), ["news"] = MarketNews.Save(), ["war"] = War.Save(), ["outfits"] = Outfits.Save(), ["trips"] = TradeTrips.Save(), ["wants"] = Wants.Save(), ["indent"] = PostWants.Save(), ["companies"] = Companies.Save(), ["middlemen"] = Middlemen.Save(), ["accords"] = Accords.Save() };
     }
 
     public static void Load(Godot.Collections.Dictionary d)
@@ -693,6 +694,7 @@ public static class Plains
         Companies.Load(d != null && d.ContainsKey("companies") ? d["companies"].AsGodotDictionary() : null);
         TradeTrips.Load(d != null && d.ContainsKey("trips") ? d["trips"].AsGodotArray() : null);
         Middlemen.Load(d != null && d.ContainsKey("middlemen") ? d["middlemen"].AsGodotDictionary() : null);
+        Accords.Load(d != null && d.ContainsKey("accords") ? d["accords"].AsGodotDictionary() : null);
         if (d == null) return;
         if (d.ContainsKey("feuds")) foreach (var kv in d["feuds"].AsGodotDictionary()) Feuds[kv.Key.AsString()] = kv.Value.AsSingle();
         if (d.ContainsKey("lastRun")) foreach (var kv in d["lastRun"].AsGodotDictionary()) BuffaloRun.LastRun[kv.Key.AsString()] = kv.Value.AsInt32();

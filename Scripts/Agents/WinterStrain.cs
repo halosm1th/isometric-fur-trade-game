@@ -140,7 +140,7 @@ public static class WinterStrain
         Administer(post, men, cal, today);
         Ladder(post, men, cal, today);
         PlayerPages(post, men, today);
-        if (Trace) GD.Print($"[strain] {Chronicle.PlaceOf(post)} ({post.Title}): {men.Count} men, avg {Average(post):0}, max {Max(men):0}, day {dayLen:0.0} h, {sinceFaces} days since a new face{(Mutinous(men[0]) ? ", IN MUTINY" : "")}");
+        if (Trace) GD.Print($"[strain] {Economy.Accords.Name(post)} ({post.Title}): {men.Count} men, avg {Average(post):0}, max {Max(men):0}, day {dayLen:0.0} h, {sinceFaces} days since a new face{(Mutinous(men[0]) ? ", IN MUTINY" : "")}");
     }
 
     private static float Max(List<Npc> men) { float m = 0f; foreach (var n in men) m = Mathf.Max(m, n.Strain); return m; }
@@ -151,7 +151,7 @@ public static class WinterStrain
     {
         var boss = post.Leader;
         if (boss == null || boss.IsDead) return;
-        string place = Chronicle.PlaceOf(post);
+        string place = Economy.Accords.Name(post);
 
         // New Year's Day: the regale, three drams a man and a holiday, as every post kept it.
         string key = $"regale:{post.Title}:{place}:{cal.Year}";
@@ -189,7 +189,7 @@ public static class WinterStrain
 
     private static void Ladder(FortLedger post, List<Npc> men, GameCalendar cal, int today)
     {
-        string place = Chronicle.PlaceOf(post);
+        string place = Economy.Accords.Name(post);
         int sour = 0;
         Npc worst = null;
         foreach (var n in men)
@@ -251,7 +251,7 @@ public static class WinterStrain
                 if (dd < best) { best = dd; to = b; }
             }
         if (to == null) return;
-        string place = Chronicle.PlaceOf(post), dest = Chronicle.PlaceOf(to);
+        string place = Economy.Accords.Name(post), dest = Economy.Accords.Name(to);
         var boss = post.Leader;
         n.HomeStores = to;
         if (to is FortLedger f && f.Leader != null) n.Faction = f.Leader.Faction;
@@ -267,7 +267,7 @@ public static class WinterStrain
 
     private static void Mutiny(FortLedger post, List<Npc> men, Npc boss, Npc ringleader)
     {
-        string place = Chronicle.PlaceOf(post), rn = ringleader.DisplayName;
+        string place = Economy.Accords.Name(post), rn = ringleader.DisplayName;
         ringleader.Bark("We'll not stir a foot till we're used like men!");
         Chronicle.Event($"The men of {place} refused their work, with {rn} speaking for them.", ringleader.GlobalPosition, ringleader, boss.DisplayName, 1.6f);
 
@@ -285,7 +285,7 @@ public static class WinterStrain
     // How it ends: the Factor gives in, faces them down, or loses men over it.
     private static string Settle(FortLedger post, List<Npc> men, Npc boss, Npc ringleader, string how)
     {
-        string place = Chronicle.PlaceOf(post), rn = ringleader.DisplayName, bn = boss.DisplayName;
+        string place = Economy.Accords.Name(post), rn = ringleader.DisplayName, bn = boss.DisplayName;
         switch (how)
         {
             case "give":
@@ -364,7 +364,7 @@ public static class WinterStrain
             post.Stores.TakeUpTo(ItemId.Rum, drams);
             foreach (var n in men) n.Strain = Mathf.Max(0f, n.Strain - 18f);
             _mutinyUntil[post] = Today(GameCalendar.Instance);
-            Chronicle.Event($"{p.DisplayName} talked {bn} and the men round at {Chronicle.PlaceOf(post)}.", p.GlobalPosition, p, weight: 1.2f);
+            Chronicle.Event($"{p.DisplayName} talked {bn} and the men round at {Economy.Accords.Name(post)}.", p.GlobalPosition, p, weight: 1.2f);
             return Done("The men refuse", $"You get {bn} to promise a hunting party out tomorrow for fresh meat and a dram tonight, and you get {rc} to take it as a win without making the Factor eat his words. By noon the axes are going again.");
         });
         page.Add("Keep out of it", () =>
@@ -386,7 +386,7 @@ public static class WinterStrain
             if (p.GlobalPosition.DistanceTo(IsoGrid.ToWorld(post.AccessCell)) > 1800f) continue;
             if (_lastPage.TryGetValue(p, out int last) && today - last < 10) continue;
             _lastPage[p] = today;
-            GD.Print($"[strain] long-winter page for {p.DisplayName} at {Chronicle.PlaceOf(post)}");
+            GD.Print($"[strain] long-winter page for {p.DisplayName} at {Economy.Accords.Name(post)}");
             NetHub.I?.PushDialogue(p, p.Conversation.StartScene(StovePage(p, post, men)));
             return;
         }
