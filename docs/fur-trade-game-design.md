@@ -191,7 +191,7 @@ Every agent is a full, real person (Section 11.1), but simulating people well do
 **The year, told.** When a year closes - the ship for the Company, the brigade for the Nor'Westers, break-up for the bands - the year's journal is told back as a short account, the things that touched the player most, in order. It is the payoff Section P.1's test asks for.
 
 ### P.9 Build Order — The First Milestone Is One River, One Year
-> **Superseded (2026-10-31):** the build has grown past the York river: the map runs to the Pacific and the St. Lawrence, with the Lakes towns and the War of 1812, and every region stays open for new work. What this section was for still stands: the game needs a playable test that proves it is fun. That test is now a campaign that sends the player out into conflict and action, not one quiet year at York. The text below is kept as the original plan.
+> **Superseded (2026-10-31):** the build has grown past the York river: the map runs to the Pacific and the St. Lawrence, with the Lakes towns and the War of 1812, and every region stays open for new work. What this section was for still stands: the game needs a playable test that proves it is fun. That test is now a campaign that sends the player out into conflict and action, not one quiet year at York: The Company's Servant (`company-servant.camp`), the HBC story told in chapters, which goes from York's raid and the boats into the war and the Pemmican War. The text below is kept as the original plan.
 
 The scope of this document stands: the full map, every region, all three paths, the metropole, multiplayer. It gets built out in stages, and each stage has to pass Section 2.1 before the next is layered on.
 
