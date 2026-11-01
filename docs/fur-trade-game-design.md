@@ -191,6 +191,8 @@ Every agent is a full, real person (Section 11.1), but simulating people well do
 **The year, told.** When a year closes - the ship for the Company, the brigade for the Nor'Westers, break-up for the bands - the year's journal is told back as a short account, the things that touched the player most, in order. It is the payoff Section P.1's test asks for.
 
 ### P.9 Build Order — The First Milestone Is One River, One Year
+> **Superseded (2026-10-31):** the build has grown past the York river: the map runs to the Pacific and the St. Lawrence, with the Lakes towns and the War of 1812, and every region stays open for new work. What this section was for still stands: the game needs a playable test that proves it is fun. That test is now a campaign that sends the player out into conflict and action, not one quiet year at York. The text below is kept as the original plan.
+
 The scope of this document stands: the full map, every region, all three paths, the metropole, multiplayer. It gets built out in stages, and each stage has to pass Section 2.1 before the next is layered on.
 
 The first milestone is the **York Factory river**: York Factory, Oxford House, the Nor'Westers' house, two bands, the ship, the brigade, the rivalry, marriage, and the river road — already a complete game in miniature. The milestone is reached when one in-game year on that river is fun on its own, by Section P.1's test. Until then, player-experience work on the river (ambitions, the barter, journal reveals, the director, the seasonal chapters and pacing) comes ahead of new regions, and existing systems such as multiplayer are kept working rather than extended. Each later region then arrives as a proven piece of the same machine rather than a new layer of unproven systems.
@@ -533,7 +535,7 @@ Every plot is a cell of ground with its own state. Out of sight, the same steps 
 - What the merchants can't pay for in coin is "store pay", credit drawn on the seller's next purchase. That is how a farm's harvest reached the market in a town short of coin.
 - The surplus the market ships down the lakes is set by a town law (Section 3.8.3).
 
-**Against Section P.9.** The towns were built before the first milestone, one fun year on the York river, had been tested. They are a large, honest simulation that most players starting at York will never see. *Open decision:* whether the towns get any more work before P.9's milestone passes. The audit's lean is maintenance only (performance and bugs) until then, with new work going to the York year. The towns would earn their place again through the war and through a Lakes start, when one exists.
+**Still being built (decided 2026-10-31).** The towns keep getting new features. The project has moved past Section P.9's one-river-first order (see the note there), so the towns are not held back behind a York milestone.
 
 ---
 

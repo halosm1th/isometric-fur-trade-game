@@ -24,7 +24,7 @@ This is a spot-check, not a line-by-line review. "Missing" means nothing was fou
 - **Closed or moved forward since 21 October:** marriage by each side's custom; the goal-reading skill (§3.5); company money, with a merger when a company is exhausted (§13.7, §4.4); London catching shaded books; powder; the recruit names; orders that need a man within earshot; wet clothing (§17.3); shallow, deep and white water; and the distance gradient (global-trade P1). Ten of the twelve false claims in the old §5 are fixed.
 - **The biggest change is to the endgame.** The 1821 union can now come from the companies running out of money, not only from the campaign's flag. That was the audit's top structural gap. It is wired in but not proven: no soak run has shown a company exhausting on its own (§4).
 - **Large new systems that the design doc doesn't describe** (§6): **laws** made and repealed by meetings and councils, **towns** with farms, fields, coin and store credit, **life at York** and **incidents on the journey**, **musters** run by campaigns, an **observer mode**, and **lacrosse**. Laws and the towns are good instances of §2. Musters and the scripted York raid sit in the same tension with §2 as quests do.
-- **The build order runs against §P.9.** That section says to make one river and one year fun before adding regions. Since 21 October the map has grown to the Pacific and the St. Lawrence, with 3,267 town people on the Lakes frontier and the War of 1812. York is getting attention now, but the milestone that one year on the river is fun on its own has not been tested.
+- **The build order runs against §P.9.** *(2026-10-31: the owner has set P.9 aside. The game has grown past one river on purpose, and the fun test is now a campaign of conflict and action. P.9 carries a note saying so.)* That section says to make one river and one year fun before adding regions. Since 21 October the map has grown to the Pacific and the St. Lawrence, with 3,267 town people on the Lakes frontier and the War of 1812. York is getting attention now, but the milestone that one year on the river is fun on its own has not been tested.
 - **The pacing target (§P.3) is still unmeasured.**
 
 ---
@@ -45,7 +45,7 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 | P.5 | Needs create decisions | Built (Changed) | `Core/YorkHappenings.cs` (waiting at York), `World/JourneyIncidents.cs` (the boats) |
 | P.6 | Succession | Built | `Agents/Heirs.cs` |
 | P.8 / P.8.1 / P.10 | Attachment, favours, leverage, lies, year told | Built | Unchanged |
-| P.9 | One river, one year first | **Not followed** | See §1 |
+| P.9 | One river, one year first | **Superseded** | Set aside 2026-10-31; the test is now an action campaign. See §1 |
 | 3.1-3.4 | Goal tiers, chains, shared verbs | Built | `Goals/Goal.cs` |
 | 3.5 | Goal-reading skill | **Built (Changed)** | `UI/ConversationDepth.cs`: insight per person, tiered from a vague sense of priority to the goal to its steps, and spotting lies. Earned by talking, as the doc asks |
 | 3.6 | Persuade | Built (Changed) | `ConversationDepth.cs`: five appeals, chosen by who the listener is |
@@ -241,7 +241,7 @@ The 21 October catalogue, less what has since landed. Sources: "Doc" = the desig
 ## 10. Recommendations, in order
 
 1. **Prove the exhaustion merger.** Run a headless soak 1811-1821 under "historical" and "no script", log the purse (`--plainslog`), and tune the starting purses and costs until a company exhausts around 1819-1821 historically and plausibly without a script. This is the cheapest step from here to an emergent 1821, and global-trade P0's `--dump-economy` is the natural tool for it.
-2. **Run the §P.9 test on York.** Play one in-game year on the York river with quiet days on, time it against §P.3's target, and note whether it passes §P.1's story test. The recent York work (raid, happenings, journey incidents) is aimed at exactly this, and nothing has measured it.
+2. **Run the fun test**, now on the action campaign rather than York (P.9 superseded 2026-10-31). *Original wording:* Play one in-game year on the York river with quiet days on, time it against §P.3's target, and note whether it passes §P.1's story test. The recent York work (raid, happenings, journey incidents) is aimed at exactly this, and nothing has measured it.
 3. **Done 2026-10-31 (§2.4, §3.8.3, §6.3). Write design-doc sections for laws, towns and scripted set pieces** (quests, musters, the York raid), saying where each sits relative to §2.
 4. **Decide the five standing divergences** (§4: traits, skills, combat, tiers, disconnection) and rewrite the doc sections either way.
 5. **Done 2026-10-31. Set latitude from position** (§4.8). Small and visible.
