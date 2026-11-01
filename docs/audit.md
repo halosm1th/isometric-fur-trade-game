@@ -36,7 +36,7 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 | § | System | Verdict | Evidence / gap |
 |---|---|---|---|
 | 1, 11.1 | Player as an equal agent | Built | `Agents/Agent.cs` |
-| 1 | 1821 weighs the player | Partial | `Union.Weigh`: given charge, kept on, or cut loose as a freeman. No end screen or epilogue |
+| 1 | 1821 weighs the player | **Built (2026-11-01)** | `Union.Weigh`: given charge, kept on, or cut loose as a freeman. Then the end screen (`Core/Epilogue.cs`, `UI/EndScreen.cs`): verdict, career and ambitions, the player's people, the last year told, and the Simpson-era epilogue; play on or leave |
 | 2.2 | Director | Built | `Core/Director.cs` |
 | 2.3 | Campaign scripts and adherence | Built | `Core/CampaignRunner.cs` |
 | P.2 | Ambitions | Partial | Five offered; `FoundAPost` removed until founding a post is built |
@@ -54,7 +54,7 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 | 3.8 | Councils | Partial (Changed) | `Core/Laws.cs`: motions canvassed, debated and voted in town meetings, band councils and the Committee |
 | 3.8.1 | Fort William council | Partial | Share votes, carried agenda, minutes that can be intercepted. **No proxies, splinters or arrival windows** |
 | 3.8.2 | Accords | **Built (2026-11-01)** | `Economy/Accords.cs`: peace, exclusive trade, alliance; breaches; made by the world and by the player |
-| 3.9 | Delegation | Partial | Orders need earshot (`Delegation.Earshot`). London audits the Factor's books (`LondonCommittee.Audit`). At York the Factor hears of private dealings someone saw. **No surprise inspections by a superior** |
+| 3.9 | Delegation | Partial (Changed) | Orders need earshot (`Delegation.Earshot`). London audits the Factor's books (`LondonCommittee.Audit`). Surprise inspections of subordinate posts and of the men's chests (`Agents/Inspections.cs`, 2026-11-01) |
 | 3.10 | Skills | **Diverges** | Still 4 (`Agents/Needs.cs`) against about 12 |
 | 4.2 | 1801 prologue | Missing | |
 | 4.4 | Merger from exhaustion | **Partial (Changed)** | `Economy/Companies.cs`: two years owing more than a year's costs exhausts a company, and `Union.Daily` then makes the union in any year. Not seen in a run |
@@ -167,7 +167,7 @@ The 21 October list:
 | 7 | `FoundAPost` | Removed |
 | 8 | Cree-named generic roles | Renamed, with aliases |
 | 9 | Orders are messages, inert until read | **In part:** earshot only; an order does not travel to an outpost as a letter |
-| 10 | The Reckoning weighs the player | Fixed (`Union.Weigh`); no end screen |
+| 10 | The Reckoning weighs the player | Fixed (`Union.Weigh`), with an end screen (2026-11-01) |
 | 11 | Wind drives fire | Fixed |
 | 12 | MB token worth exactly 1 MB | **In part:** priced right; nobody issues them |
 
@@ -202,7 +202,7 @@ New in this pass:
 
 The 21 October catalogue, less what has since landed. Sources: "Doc" = the design doc; "Content" = `world-content-needed.md`; "Trade" / "Plains" / "Tools" = the specs.
 
-**Economy and the endgame.** A market where furs can be held back or dumped as a weapon (Doc 13.6). Credit, crisis moves (austerity, calling in debts, a bailout) and violence and legal costs in the purse (Doc 13.7). A shock calendar that runs without a campaign (Trade §3.5). The Trade Ledger page and `--dump-economy` (Trade P0, Tools T2). A finite recruit pool (Doc 13.2). Debt as a weapon (Doc 13.3). Surprise audits by a superior (Doc 3.9). Founding a post (Doc 13.8). The end screen and the Simpson epilogue (Doc 1, 4.3).
+**Economy and the endgame.** ~~A market where furs can be held back or dumped as a weapon (Doc 13.6)~~ built 2026-11-01. Credit, crisis moves (austerity, calling in debts, a bailout) and violence and legal costs in the purse (Doc 13.7). A shock calendar that runs without a campaign (Trade §3.5). The Trade Ledger page and `--dump-economy` (Trade P0, Tools T2). A finite recruit pool (Doc 13.2). Debt as a weapon (Doc 13.3). ~~Surprise audits by a superior (Doc 3.9)~~ built 2026-11-01. Founding a post (Doc 13.8). ~~The end screen and the Simpson epilogue (Doc 1, 4.3)~~ built 2026-11-01.
 
 **Companies and the metropole.** Fort William's proxies, splinters and arrival windows (Doc 3.8.1). The NWC's two-years-in-three rule and earned shares (Doc 5.2). Montreal agents; named London Committee members (Doc 10.7). The Southern Department (Doc 6.2). Astor and St. Louis as nodes (Doc 7.3). The XY Company and an 1801 start (Doc 4.2). The Red River Colony as people (Content §2-3).
 

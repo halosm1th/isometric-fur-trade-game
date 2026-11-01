@@ -138,7 +138,7 @@ See [[Asset Inventory]]: 21 character sheets, 6 animal sets, 51 item icons, 37+ 
 
 ## What is missing
 
-Crafting, slavery, decline with age, the Métis/freeman path as a full third road, hit-location combat, wound treatment, the fur market's holding back and flooding, Astor and St. Louis as background nodes, farming by the player, and the eight-year epilogue. See [[Roadmap]] and `docs/audit.md`.
+Crafting, slavery, decline with age, the Métis/freeman path as a full third road, hit-location combat, wound treatment, Astor and St. Louis as background nodes, and farming by the player. See [[Roadmap]] and `docs/audit.md`.
 
 ## See also
 

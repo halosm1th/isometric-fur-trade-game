@@ -670,6 +670,16 @@ public partial class Net : Node
         HandleDialogue(Multiplayer.GetRemoteSenderId(), npcId, option);
     }
 
+    // The end of the story (Core/Epilogue), to the player's own screen.
+    public void ShowEnd(PlayerController p, Godot.Collections.Dictionary d)
+    {
+        if (p.OwnerPeer == LocalPeerId) UI.EndScreen.Open(d);
+        else RpcId(p.OwnerPeer, nameof(EndRpc), d);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void EndRpc(Godot.Collections.Dictionary d) => UI.EndScreen.Open(d);
+
     public void PushDialogue(PlayerController p, Godot.Collections.Dictionary state)
     {
         if (p.OwnerPeer == LocalPeerId) UI.DialogueMenu.Instance?.ShowState(state);
