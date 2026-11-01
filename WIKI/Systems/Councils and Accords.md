@@ -74,7 +74,7 @@ As a Nor'Wester with standing 20+ before July: **The companies... > Write to the
 - Camps worn down by a feud on both sides: the weaker sues for a year's peace, and the stronger may take it.
 - The houses at York agree a truce for the season when tension is high and the raiding has cost them both.
 - A house offers a camp that trades with its rival better pay for all its furs. Homeguard families are never bargained for.
-- The player, in **Agreements...** with a chief (peace, exclusive trade, an alliance) or with the rival company's master (a truce between the houses). He weighs it by his people's standing with your company, his regard for you, your standing and his temper. If he agrees, your standing rises.
+- The player, in **Agreements...** with a chief (peace, exclusive trade, an alliance) or, in **The companies...**, with the rival company's master (a truce between the houses, now a season's peace accord). He weighs it by his people's standing with your company, his regard for you, your standing and his temper. If he agrees, your standing rises.
 
 Dev: `--accord=A:B:Peace+Exclusive[:days]` (camp or post names; `nwc` for the Nor'Westers at York), `--accordtrace`.
 

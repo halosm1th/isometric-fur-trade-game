@@ -58,9 +58,25 @@ When a house pays in drink as well, part of the goods are handed out as rum: the
 - The **rival's price** matters: bands that find the other house paying better walk their packs across the river and the Factor hears of it (`LostToRivalMb`). See [[Rivalry]].
 - A **short return** makes London raise the price next year; a fat one lets it tighten. See [[London Committee Orders]].
 
+## The sale at home
+
+`Economy/Companies.cs` (design doc 13.6). The furs are sold where they leave the country: the Bay's at the London sale when the ship is home, the Nor'Westers' at Montreal, the Americans' at New York and St. Louis.
+
+What a beaver fetches there depends on four things:
+- **The blockade** (0.75 until it lifts, then 1.08).
+- **The war** (0.9 for the Nor'Westers).
+- **This year's volume:** above 6,000 MB sold across all the companies, the price falls. A sale counts against its own price.
+- **Last years' gluts:** each year's excess carries into the next, halving yearly.
+
+**Holding furs back.** A company with the law "hold furs off a poor sale" (`LawKind.HoldFurs`, a Committee or partners' rule) keeps that share in its warehouse whenever the sale won't pay par (0.95). It brings the lot to the first sale that pays 1.0 or more. Warehoused furs lose 6% a year. London starts with half held back, a rule made in 1808 during the blockade. A company in debt has to sell everything, warehouse and all.
+
+**Flooding the market.** A company with 300 MB or more in the warehouse may throw everything on the sale at once. It does so when its rival is short of money, its own purse can bear a bad year, and bad blood runs at 40 or more. It beats the price down for everyone that year and the next, its own sale included. It won't do it two years running.
+
+**Your part.** Ask your Factor or partner how the furs are selling ("The companies..."). Urge him to throw the warehoused furs on the sale while the other company is short. Or write to the Committee or the partners proposing to change the rule on holding furs back (design doc 3.8.3).
+
 ## Planned
 
-Design doc 13.6 describes a quality rating on every pack, a periodic abstracted market clearing, London holding furs back when prices are low, the Continental Blockade hitting HBC harder than NWC, and flooding the market. None of that exists in the code today; prices are per post and per fur item, with London's yearly nudge as the only macro-level move.
+A quality rating on every pack, and the blockade hitting the Bay harder than the Nor'Westers by route (it now hits both the same).
 
 ## See also
 

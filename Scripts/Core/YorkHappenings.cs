@@ -543,6 +543,7 @@ public static class YorkHappenings
         var p = r.P;
         if (p == null || !GodotObject.IsInstanceValid(p) || p.IsDead) return;
         p.Standing -= 2f;
+        Inspections.Suspect(p, 1f);   // he may have the chests turned out
         string factor = (p.HomePost ?? Sim.Fort)?.Leader?.DisplayName ?? "The Factor";
         Note(p, $"{r.Witness} told {factor} you {r.What}. Your standing with the Company suffers.");
         if (p.IsLocal) Sim.NoticeLocal($"{factor} has heard that you {r.What}: {r.Witness} told him. (standing -2)");

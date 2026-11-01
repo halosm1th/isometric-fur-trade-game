@@ -59,6 +59,8 @@ public partial class PlayerController : Agent
 	public readonly HashSet<string> Known = new();
 	public readonly List<string> Journal = new();
 	public string Rank = "labourer";
+	// Skins traded on his own account and not yet over the Company's counter: the evidence at an inspection (Agents/Inspections).
+	public int PrivateFurs;
 	// For the year's account when the ship sails (design doc P.3).
 	public float LastYearStanding = -1000f;
 	public string LastYearRank = "";
@@ -645,7 +647,7 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--quest=") && NetHub.IsServer) { var qa = arg.Substring(8).Split(':'); GetTree().CreateTimer(3.0).Timeout += () => Core.Quests.DevJump(this, qa[0], qa.Length > 1 ? qa[1] : null); }
 			// Dev: `--quitafter=S` closes the game cleanly after S seconds, so a
 			// test run ends without the runtime being killed mid-print.
-			if (arg.StartsWith("--quitafter=") && double.TryParse(arg.Substring(12), out double qsecs)) GetTree().CreateTimer(qsecs).Timeout += () => { GD.Print("[dev] quitting after " + qsecs + "s"); GetTree().Quit(); };
+			if (arg.StartsWith("--quitafter=") && double.TryParse(arg.Substring(12), out double qsecs)) GetTree().CreateTimer(qsecs, true, false, true).Timeout += () => { GD.Print("[dev] quitting after " + qsecs + "s"); GetTree().Quit(); };
 			// Dev: `--ambition=RiseAtThePost` declares one at the start, so the
 			// systems that hang off a declared ambition can be watched.
 			if (arg.StartsWith("--ambition=") && NetHub.IsServer) { if (System.Enum.TryParse<Agents.AmbitionKind>(arg.Substring(11), true, out var ak)) { var cal = GameCalendar.Instance; Ambitions.Add(new Agents.Ambition { Kind = ak, DeclaredDay = cal?.Day ?? 0, DeclaredYear = cal?.Year ?? 1811 }); AmbitionsDeclared = true; GD.Print($"[dev] you have set yourself {ak}"); } }

@@ -256,6 +256,7 @@ public static class StandardOfTrade
         // A middleman's trader spends some of what is left on goods to sell on (Economy/Middlemen).
         if (owed >= 1f) paid += Middlemen.Buy(post, b, owed - paid, into, counts);
         float taken = Hand(load, post, owed > 0f ? paid / owed : 0f, id => !PostWants.IsProvision(id));
+        Agents.Inspections.Skim(post, taken);   // a dishonest master's share
         // Then the provisions, as far as the post is short of food: the
         // season's keep and the brigades' rations (Economy/PostWants).
         float foodTaken = 0f;

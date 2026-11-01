@@ -25,7 +25,7 @@ namespace IsometricFurTradeGame.Scripts.Core;
 // sponsor calls, debated there by whoever rises to speak, and voted by
 // whoever came. How each voter leans is his own interest (what the law does
 // to his house), his temper, and everything said to him since.
-public enum LawKind { KeepBread, ExportDuty, ImportDuty, NoSpirits }   // saved as ints: append only
+public enum LawKind { KeepBread, ExportDuty, ImportDuty, NoSpirits, HoldFurs }   // saved as ints: append only
 public enum BodyKind { Town, Band, Company }
 public enum Motion { Enact, Repeal }
 public enum MotionStage { Canvassing, Called, Debating, Decided }
@@ -197,12 +197,15 @@ public static class Laws
     // company's counter.
     public static bool Dry(Household h) => Of(h)?.Get(LawKind.NoSpirits) != null;
     public static bool CompanyDry(Faction company) => CompanyOf(company)?.Get(LawKind.NoSpirits) != null;
+    // The share of a poor year's furs the company keeps off the sale (Economy/Companies).
+    public static float FursHeld(Faction company) => CompanyOf(company)?.Get(LawKind.HoldFurs)?.Value ?? 0f;
 
     public static string Short(LawKind k) => k switch
     {
         LawKind.KeepBread => "the bread kept back",
         LawKind.ExportDuty => "the duty on grain shipped",
         LawKind.ImportDuty => "the duty on store goods",
+        LawKind.HoldFurs => "holding furs off a poor sale",
         _ => "the ban on spirits",
     };
     // The law as it is written: "that the market keep ...".
@@ -211,8 +214,10 @@ public static class Laws
         LawKind.KeepBread => $"that the market keep {Bread(v)} before any is shipped down the lakes",
         LawKind.ExportDuty => $"that a duty of {Mathf.RoundToInt(v * 100)} in the hundred be paid on grain shipped down the lakes",
         LawKind.ImportDuty => $"that a duty of {Mathf.RoundToInt(v * 100)} in the hundred be paid on store goods brought up",
+        LawKind.HoldFurs => $"that {Share(v)} of the furs be held off any sale that will not pay par, until the price mends",
         _ => b?.Kind == BodyKind.Company ? (b.Firm == Faction.NWC ? "that no spirits be given in trade at the North West Company's posts" : "that no spirits be given in trade at the Company's posts") : b?.Kind == BodyKind.Band ? "that no rum be taken into the camp" : "that no spirits be sold in the town",
     };
+    private static string Share(float v) => Mathf.Round(v * 4f) switch { 1f => "a quarter", 2f => "half", 3f => "three parts", 4f => "all", _ => $"{Mathf.RoundToInt(v * 100)} in the hundred" };
     // A third of the year's food in each of the three main kinds is the town's food until the harvest.
     private static string Bread(float v)
     {
@@ -225,9 +230,10 @@ public static class Laws
     public static IEnumerable<LawKind> Competent(Body b) => b.Kind switch
     {
         BodyKind.Town => new[] { LawKind.KeepBread, LawKind.ExportDuty, LawKind.ImportDuty, LawKind.NoSpirits },
+        BodyKind.Company => new[] { LawKind.NoSpirits, LawKind.HoldFurs },
         _ => new[] { LawKind.NoSpirits },
     };
-    public static float DefaultValue(LawKind k) => k switch { LawKind.KeepBread => 1f / 3f, LawKind.ExportDuty => 0.1f, LawKind.ImportDuty => 0.1f, _ => 1f };
+    public static float DefaultValue(LawKind k) => k switch { LawKind.KeepBread => 1f / 3f, LawKind.ExportDuty => 0.1f, LawKind.ImportDuty => 0.1f, LawKind.HoldFurs => 0.5f, _ => 1f };
 
     // ---- the bodies and their standing laws ------------------------------------
 
@@ -239,7 +245,10 @@ public static class Laws
         foreach (var bl in Sim.Bands) if (bl != null) AddBand(bl);
         // The camps of the country keep their own ledgers, not in Sim.Bands.
         foreach (var c in Camps.All) if (c.Ledger != null && !Bodies.Exists(b => b.Band == c.Ledger)) AddBand(c.Ledger);
-        Bodies.Add(new Body { Key = "company:HBC", Name = "the Governor and Committee", Kind = BodyKind.Company, Firm = Faction.HBC, Majority = 0.5f });
+        var hbc = new Body { Key = "company:HBC", Name = "the Governor and Committee", Kind = BodyKind.Company, Firm = Faction.HBC, Majority = 0.5f };
+        // London had been warehousing its furs through the blockade rather than sell them for nothing.
+        hbc.Laws.Add(new Law { Kind = LawKind.HoldFurs, Value = 0.5f, Since = 1808, By = "the Committee, in the blockade" });
+        Bodies.Add(hbc);
         Bodies.Add(new Body { Key = "company:NWC", Name = "the partners at Fort William", Kind = BodyKind.Company, Firm = Faction.NWC, Majority = 0.5f });
     }
     private static Body AddTown(Town t)
@@ -276,7 +285,7 @@ public static class Laws
         float now = p.Body.Get(p.Kind)?.Value ?? 0f;
         float then = p.Motion == Motion.Repeal ? 0f : p.Value;
         float d = then - now;
-        return p.Kind switch { LawKind.KeepBread => d * 3f, LawKind.NoSpirits => d, _ => d * 5f };
+        return p.Kind switch { LawKind.KeepBread => d * 3f, LawKind.NoSpirits => d, LawKind.HoldFurs => d * 2f, _ => d * 5f };
     }
 
     // What one person's house gains from the law being tighter (+) or looser (-), per unit.
@@ -299,6 +308,8 @@ public static class Laws
                 return n.Role switch { Role.Farmer => -0.35f, Role.Merchant => -0.6f, Role.Labourer => 0.3f, Role.Priest => 0.2f, _ => 0f } + hunger * 0.3f + own * 0.3f;
             case LawKind.ImportDuty:
                 return n.Role switch { Role.Merchant => -0.5f, Role.Artisan => 0.5f, Role.Farmer => -0.1f, Role.Labourer => -0.2f, _ => 0f } + own * 0.3f;
+            case LawKind.HoldFurs:
+                return own * 0.3f;   // a matter for the company's own voters (CommitteeStance)
             default:
                 if (b.Kind == BodyKind.Band)
                 {
@@ -311,6 +322,15 @@ public static class Laws
     }
     private static float CommitteeStance(Body b, string name, LawKind k)
     {
+        // Holding furs back: a full purse can wait for a better sale, an empty one cannot.
+        // A wintering partner wants his share of this year's sale; the agents finance the wait.
+        if (k == LawKind.HoldFurs)
+        {
+            var purse = Economy.Companies.Of(b.Firm);
+            float rich = Mathf.Clamp(purse.Cash / Mathf.Max(1000f, purse.LastCosts), -1f, 1f);
+            float firm = b.Firm == Faction.NWC && Council.Members.Find(c => c.Name == name) is { } m ? (m.AgentFirm ? 0.15f : -0.2f) : 0.1f;
+            return rich * 0.5f + firm + ((Hash(name + (int)k) % 1000) / 1000f - 0.5f) * 0.3f;
+        }
         // A partner lives by the furs the rum fetches; the agents in Montreal count its cost.
         if (b.Firm == Faction.NWC && Council.Members.Find(c => c.Name == name) is { } cn)
             return (cn.AgentFirm ? 0.1f : -0.15f) - cn.Ambition * 0.4f + cn.Loyalty * 0.2f + ((Hash(name + (int)k) % 1000) / 1000f - 0.5f) * 0.3f;
@@ -640,6 +660,8 @@ public static class Laws
             (LawKind.KeepBread, true) => pick == 0 ? "Sell the winter's bread down the lakes and what do we eat in March? Money?" : "Every one of you remembers a hungry spring. Keep the bread.",
             (LawKind.ExportDuty or LawKind.ImportDuty, true) => "A little on every barrel, and no family in this town goes on the parish.",
             (LawKind.ExportDuty or LawKind.ImportDuty, false) => "A tax on honest trade. It's the merchant pays it today and you tomorrow.",
+            (LawKind.HoldFurs, true) => "Sell into a glut and we give the furs away. Keep them in the warehouse till the price mends.",
+            (LawKind.HoldFurs, false) => "Furs in a warehouse pay no wages. The moth takes its share while we wait.",
             (LawKind.NoSpirits, true) => p.Body.Kind == BodyKind.Band ? "Look at the young men after the traders come. The rum makes us poor and foolish." : "Drink has ruined better towns than this one.",
             _ => p.Body.Kind == BodyKind.Band ? "A man may take what he likes for his furs. Who tells a hunter what to want?" : "A man may have his dram. This is a free country.",
         };
