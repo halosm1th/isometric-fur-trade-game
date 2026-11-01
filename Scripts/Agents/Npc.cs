@@ -205,6 +205,8 @@ public partial class Npc : Agent
     // A company man's standing with his master (design doc 3.6): what the
     // year-end report says of him. Rises with work done, falls with refusals.
     public float Standing = 20f;
+    // Winter strain (design doc 17.6, Agents/WinterStrain): 0 settled, 100 past bearing.
+    public float Strain;
     // Something to tell the leader when next at the post (design doc 3.9 step 6).
     public string PendingReport; public string PendingReportSite; public Vector2I? PendingReportCell;
 

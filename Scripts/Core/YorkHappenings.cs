@@ -346,6 +346,7 @@ public static class YorkHappenings
         var cal = GameCalendar.Instance;
         float hours = Mathf.Clamp(24.5f - (cal?.Hour ?? 20f), 2.5f, 4.5f);
         _danceOn = true; _danceUntil = Now() + hours;
+        WinterStrain.Relieve(Sim.Fort, 10f);   // an evening of it lifts the whole house
         _fiddler = men[0].DisplayName;
         _dancers.Clear();
         int spot = 0;

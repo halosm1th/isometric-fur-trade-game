@@ -301,6 +301,8 @@ public static class Delegation
         if (t.Name == "cut wood" && man.Personality.Ambition > 0.6f) p -= 0.15f;
         if (man.Needs.Hunger < 40f || man.Needs.Warmth < 40f) p -= 0.2f;  // his own needs come first
         if (man.HasScurvy || man.IsSick) p -= 0.2f;
+        p -= man.Strain / 200f;                                           // a long winter (WinterStrain)
+        if (WinterStrain.Mutinous(man)) return Compliance.Refused;
         float r = GD.Randf();
         if (r < p) return Compliance.Willing;
         if (r < p + 0.25f) return Compliance.Grudging;

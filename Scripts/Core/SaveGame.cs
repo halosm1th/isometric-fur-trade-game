@@ -309,7 +309,7 @@ public static class SaveGame
             d["spouse"] = n.Spouse?.DisplayName ?? ""; d["father"] = n.Father?.DisplayName ?? "";
             var kids = new GArr(); foreach (var c in n.Children) kids.Add(c.DisplayName);
             d["children"] = kids;
-            d["gifts"] = n.GiftsFromPlayerMb; d["npcStanding"] = n.Standing; d["held"] = n.HeldBy == Sim.Nwc ? "nwc" : n.HeldBy == Sim.Fort ? "fort" : n.HeldBy == Sim.Outpost ? "outpost" : ""; d["heldUntil"] = n.HeldUntilDay;
+            d["gifts"] = n.GiftsFromPlayerMb; d["npcStanding"] = n.Standing; d["strain"] = n.Strain; d["held"] = n.HeldBy == Sim.Nwc ? "nwc" : n.HeldBy == Sim.Fort ? "fort" : n.HeldBy == Sim.Outpost ? "outpost" : ""; d["heldUntil"] = n.HeldUntilDay;
             var rapport = new GDict(); foreach (var kv in n.Rapport) if (kv.Key != null && GodotObject.IsInstanceValid(kv.Key)) rapport[kv.Key.DisplayName] = kv.Value;
             d["rapport"] = rapport;
             var mem = new GArr();
@@ -531,7 +531,7 @@ public static class SaveGame
                 var p = nd["personality"].AsGodotArray();
                 npc.Personality = new Personality { Loyalty = p[0].AsSingle(), Talkative = p[1].AsSingle(), Suspicion = p[2].AsSingle(), Ambition = p[3].AsSingle(), Courage = p[4].AsSingle() };
                 npc.FatherName = S(nd, "fatherName");
-                npc.GiftsFromPlayerMb = F(nd, "gifts"); npc.Standing = F(nd, "npcStanding", 20f);
+                npc.GiftsFromPlayerMb = F(nd, "gifts"); npc.Standing = F(nd, "npcStanding", 20f); npc.Strain = F(nd, "strain");
                 npc.HeldBy = S(nd, "held") switch { "nwc" => Sim.Nwc, "fort" => Sim.Fort, "outpost" => Sim.Outpost, _ => null }; npc.HeldUntilDay = I(nd, "heldUntil", -1);
                 if (npc.HeldBy != null) npc.Brain.Push(npc, new Agents.Goals.HeldPrisonerGoal(npc.HeldBy));
                 npc.AssignedTaskName = S(nd, "task");

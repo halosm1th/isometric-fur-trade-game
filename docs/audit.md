@@ -210,7 +210,7 @@ The 21 October catalogue, less what has since landed. Sources: "Doc" = the desig
 
 **People.** The Métis/freeman road in (Doc 5.3). Personality sliders and skill points (Doc 5.4). Faces and bodies (`longer_goals` #3). Slavery (Doc 9.2). Death branches (Doc 9.3). Decline and death from age (Doc 9.4). Perks (Doc 12.7). The missing skills (Doc 3.10). Sociability as a trait (Doc 11.4). Tradesmen and boat ranks among the trade's roles (Content §7). Adoption into a band (Plains #2).
 
-**The body.** Winter strain and mutiny (Doc 17.6). Wound treatment (Doc 17.5). Hit location (Doc 15.3). Surrender and bluff (Doc 15.5). Epidemics (Doc 13.5). Addiction and diluted liquor (Doc 13.4). The famine-food ladder (Doc 13.1).
+**The body.** ~~Winter strain and mutiny (Doc 17.6)~~ built 2026-11-01 (`Agents/WinterStrain.cs`). Wound treatment (Doc 17.5). Hit location (Doc 15.3). Surrender and bluff (Doc 15.5). Epidemics (Doc 13.5). Addiction and diluted liquor (Doc 13.4). The famine-food ladder (Doc 13.1).
 
 **Making things.** Player crafting and smithing; the player running the pemmican chain; player farming (Doc 12.6; Plains #5; `longer_goals` #5).
 
