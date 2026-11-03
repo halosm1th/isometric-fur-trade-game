@@ -22,7 +22,7 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | Map of the whole western fur-trade country (Hudson Bay to the Pacific, Missouri to Athabasca), 40 px per km | Implemented | Imported from the Pemmican Empire atlas; fogged until explored (§6). See [[World Map]], [[Regions]] |
 | Posts across the map, by founding year; major posts hand-laid | Implemented / Partial | York Factory, Fort William, Moose Factory, Edmonton House, Cumberland House, Fort Chipewyan, Fort Gibraltar laid out; the rest are generated plans. See [[All Trading Posts]] |
 | Regional terrain and flora | Implemented (placeholder tiles) | Prairie, tallgrass, parkland, tundra, Shield, muskeg, mountain. See [[Terrain and Biomes]] |
-| Calendar, seasons, day/night | Implemented | 30 s a game hour with uneven pacing (quick winter nights, slow ship days); dated events. Day length is York's (57 N) everywhere. See [[Calendar and Seasons]] |
+| Calendar, seasons, day/night | Implemented | 30 s a game hour with uneven pacing (quick winter nights, slow ship days); dated events. Day length follows the latitude of the place. See [[Calendar and Seasons]] |
 | Weather | Implemented | Clear, overcast, snow, blizzard, rain, storm; rolled in regions about 200 km across from each region's climate and asked for by position (`Weather.At`), so the plains are drier and the Pacific slope wetter than York (commit `3c74eb6`); drawn on screen as snow, rain, whiteout, river fog and the aurora (`UI/WeatherOverlay.cs`). See [[Weather]] |
 | Fire (hearths, blazes, spread) | Implemented (partial) | Hearths, blazes, arson, fire bell. §18.4 flammability partly built |
 | Travel mode (G) | Implemented | §18.3. See [[Travel and Wayfinding]] |
@@ -47,7 +47,7 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | Captivity, parole, ransom | Partial | Light captivity (§9.1) is a page of choices (`Core/Captivity.cs`): questioned (truth, lie, silence), then wait, be bought back, give parole or escape over the pickets. Slavery (§9.2) is not built |
 | Aging and natural decline | Partial | §9.4. A year older each New Year; NPCs past 45 slow; children grow up (`World/Population.cs`). No decline for the player, no death of age |
 | Languages | Implemented | Ten languages with kinship between them. [[Languages]] |
-| Councils and accords | Implemented (first cut) | Fort William council with shares and temper (§3.8.1). [[Councils and Accords]] |
+| Councils and accords | Implemented (first cut) | Fort William council with shares and temper (§3.8.1). Accords with peace, exclusive trade and alliance terms (§3.8.2, `Economy/Accords.cs`). [[Councils and Accords]] |
 | London Committee | Partial | Orders, packet, quota. [[London Committee]] |
 | Information and messages (sealed news, mail, packets) | Implemented | §10. [[Information and Messages]] |
 | Black-market intelligence, message forgery | Partial | §10.3. Carried packets can be sold to the other company (`UI/Conversation.cs`, `SellPacket`); no forgery, express couriers or blowback |
@@ -103,7 +103,7 @@ Legend: Implemented / Partial / Planned. "§" = design doc section.
 | Non-lethal outcomes | Partial: a killing blow from the other company takes you prisoner instead (§9.1); no surrender or bluff verb |
 | Hit location and lethality (§15.3) | Planned: damage is a health pool; muskets do not use powder |
 | Horse raids between nations (live where a player is near, numbers elsewhere), feuds | Partial: `Economy/Plains.cs`, `Agents/Goals/PlainsGoals.cs` |
-| War parties, morale, truce | Implemented: `Economy/War.cs`, `Agents/Goals/WarGoals.cs` (commit `797a6df`). Truces are timed, not Accords; no battle larger than one party |
+| War parties, morale, truce | Implemented: `Economy/War.cs`, `Agents/Goals/WarGoals.cs` (commit `797a6df`). Truces are peace Accords; no battle larger than one party |
 
 ### Interface and platform
 
@@ -138,7 +138,7 @@ See [[Asset Inventory]]: 21 character sheets, 6 animal sets, 51 item icons, 37+ 
 
 ## What is missing
 
-Crafting, slavery, decline with age, the Métis/freeman path as a full third road, hit-location combat, Accords, winter strain, wound treatment, the fur market's holding back and flooding, Astor and St. Louis as background nodes, farming by the player, and the eight-year epilogue. See [[Roadmap]] and `docs/audit.md`.
+Crafting, slavery, decline with age, the Métis/freeman path as a full third road, hit-location combat, wound treatment, Astor and St. Louis as background nodes, and farming by the player. See [[Roadmap]] and `docs/audit.md`.
 
 ## See also
 

@@ -138,6 +138,7 @@ public static class Rivalry
         }
         if (sent.Count > 0)
         {
+            Accords.Raid(from, target);
             from.LastRaidDay = GameCalendar.Instance?.Day ?? 0;
             Core.Director.Saw("raid", 2f);
             var names = new List<string>(); foreach (var n in sent) names.Add(n.DisplayName);

@@ -113,7 +113,7 @@ public partial class Agent : CharacterBody2D
         Sim.Unregister(this);
     }
 
-    private float _envTimer = (float)GD.RandRange(0.0, 0.25), _exposure, _weatherExposure = 1f, _clothing;
+    private float _envTimer = (float)GD.RandRange(0.0, 0.25), _exposure, _daylight = 1f, _weatherExposure = 1f, _clothing;
     private bool _rainedOn, _wading;
     // How many frames' worth of time this step covers (1 for anyone who steps every frame).
     protected float StepScale = 1f;
@@ -170,7 +170,8 @@ public partial class Agent : CharacterBody2D
             bool enclosed = false;
             HeatNear = structures?.HeatAt(GlobalPosition, out enclosed) ?? 0f;
             HeatEnclosed = enclosed;
-            _exposure = Climate.ExposureAt(GlobalPosition, cal.DaylightFactor, cal.DayOfYear);
+            _daylight = cal.DaylightAt(Climate.LatitudeAt(GlobalPosition));
+            _exposure = Climate.ExposureAt(GlobalPosition, _daylight, cal.DayOfYear);
             _weatherExposure = cal.Weather.ExposureMultiplierAt(GlobalPosition);
             _rainedOn = cal.Weather.At(GlobalPosition) is SkyState.Rain or SkyState.Storm;
             _wading = structures != null && Sim.Terrain != null && Sim.Terrain.IsWading(IsoGrid.FromWorld(GlobalPosition)) && !(this is Player.PlayerController { IsAfloat: true });
@@ -200,7 +201,7 @@ public partial class Agent : CharacterBody2D
             heat: HeatNear,
             clothingWarmth: _clothing,
             season: cal.CurrentSeason,
-            daylight: cal.DaylightFactor,
+            daylight: _daylight,
             fireEnclosed: HeatEnclosed,
             localExposure: _exposure,
             localWeather: _weatherExposure,

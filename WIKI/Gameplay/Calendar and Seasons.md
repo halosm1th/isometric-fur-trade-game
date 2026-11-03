@@ -9,7 +9,7 @@ status: implemented
 
 **Status:** Implemented. Code: `Scripts/Core/GameCalendar.cs`; HUD in `Scripts/UI/CalendarHud.cs`.
 
-Everything time-dependent (light, weather, the annual ship, the hunts, the freezing of the water) hangs off the game calendar. Dates are on **Hudson Bay terms**: York Factory is at 57 degrees north, so daylight swings from about nine and a half hours in December to nearly sixteen in June.
+Everything time-dependent (light, weather, the annual ship, the hunts, the freezing of the water) hangs off the game calendar. Dates are on **Hudson Bay terms**: at York Factory, 57 degrees north, daylight swings from about ten hours in December to nearly sixteen in June. Day length follows the latitude, so Red River and the Lakes have milder swings.
 
 ## The clock
 
@@ -94,11 +94,11 @@ The HUD also carries a reckoning counter such as `N days to the ship  -  packs 3
 
 ## Day length and light
 
-Sunrise and sunset come from latitude and the date, then are nudged so days are never shorter than 12.6 hours (9.5 in December and January). Twilight lasts 1.5 hours each side. Approximate figures by month:
+Sunrise and sunset come from the latitude and the date, then are nudged so days are never shorter than 12.6 hours. In December and January that floor drops to 9.5 hours, sliding down from 52 to 58 degrees north. So at midwinter Red River and Fort William have 12.6 hours, Edmonton about 11.8, York 10 and Fort Chipewyan 9.5. Each person gets the day at their own latitude for the cold. The light on screen follows the camera. Twilight lasts 1.5 hours each side. Approximate figures by month at York:
 
 | Month | Day length (h) | Sunrise | Sunset |
 |---|---|---|---|
-| Jan | 9.5 | 07:40 | 17:05 |
+| Jan | 10.0 | 07:20 | 17:20 |
 | Feb-Mar | 12.6 | 06:00 | 18:35 |
 | Apr | 13.6 | 05:30 | 19:05 |
 | May | 14.9 | 04:50 | 19:45 |
@@ -106,9 +106,9 @@ Sunrise and sunset come from latitude and the date, then are nudged so days are 
 | Jul | 15.4 | 04:35 | 20:00 |
 | Aug | 14.2 | 05:10 | 19:25 |
 | Sep-Nov | 12.6-12.7 | 06:00 | 18:35 |
-| Dec | 9.5 | 07:40 | 17:05 |
+| Dec | 10.0 | 07:20 | 17:20 |
 
-(Computed from the formula in `GameCalendar.DayLengthHours` for the middle of each month.) Cold bites harder at night: see [[Needs and Survival]]. Weather rolls from the season: see [[Weather]].
+(Computed from `GameCalendar.DayLengthAt` for the middle of each month. `--climate` prints each post's day length for the date.) Cold bites harder at night: see [[Needs and Survival]]. Weather rolls from the season: see [[Weather]].
 
 ## Command-line aids
 

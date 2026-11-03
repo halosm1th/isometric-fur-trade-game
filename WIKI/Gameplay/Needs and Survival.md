@@ -66,6 +66,27 @@ At a post, routine needs largely resolve themselves, as they do for NPCs; a post
 
 Your pack also has a weight limit; exceeding it slows you and burns food faster. See [[Inventory and Hotbar]].
 
+## Winter strain
+
+A long winter shut in a post wears on the men. Each man's strain builds every winter evening from:
+- the short days;
+- salt food with no fresh meat;
+- two weeks with no new face at the gate;
+- a small house;
+- hunger and cold.
+
+Sociable men feel it sooner. Out of winter it fades fast.
+
+- **At 40** they grumble aloud.
+- **At 60** sour men quarrel.
+- **All the way up** they refuse orders more often.
+- **At 85** a man may walk out to the other company's house or to a band's camp.
+- **When four in ten are past 75** the post mutinies. The men down tools for up to three days, until the Factor gives in, faces them down, or loses men.
+
+The Factor serves a dram all round when the house is sour and the stores hold the rum, and keeps the New Year's regale. The fiddle at York lifts everyone who dances.
+
+At your own post you will be asked, now and then, what to do about it: tell a story by the stove, share your own rum, or ask the Factor for a dram. In a mutiny you choose a side, or try to talk both round.
+
 ## Tips
 
 > [!tip]

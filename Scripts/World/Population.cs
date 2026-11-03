@@ -38,7 +38,7 @@ public partial class Population : Node2D
 		// every SECONDS (up to six), so a run can be checked without a window capture.
 		foreach (string arg in OS.GetCmdlineUserArgs())
 			if (arg.StartsWith("--shot=") && float.TryParse(arg.Substring(7), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float every))
-				for (int i = 1; i <= 6; i++) { int n = i; GetTree().CreateTimer(every * i).Timeout += () => { var path = ProjectSettings.GlobalizePath($"user://shot_{n}.png"); GetViewport().GetTexture().GetImage().SavePng(path); GD.Print($"[shot] {path}"); }; }
+				for (int i = 1; i <= 6; i++) { int n = i; GetTree().CreateTimer(every * i, true, false, true).Timeout += () => { var path = ProjectSettings.GlobalizePath($"user://shot_{n}.png"); GetViewport().GetTexture().GetImage().SavePng(path); GD.Print($"[shot] {path}"); }; }
 		// Dev aid: `-- --lineup` - every sheet's dyes stood in rows beside you (Agents/Garb).
 		if (System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--lineup") >= 0)
 			GetTree().CreateTimer(4.0).Timeout += () => { if (Sim.Player is Node2D p) Agents.Garb.Lineup(this, p.GlobalPosition + new Vector2(-600, -330)); };
@@ -364,7 +364,7 @@ public partial class Population : Node2D
 	private float _traceTimer;
 	public override void _Process(double delta)
 	{
-		if (Net.Net.IsServer) { SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f); Tiers.Tick((float)delta); HungrySpells(); Losses.Tick(); Births(); RunConversations(); Core.YorkHappenings.Tick(GameCalendar.Instance?.DeltaGameHours ?? 0f); Ruins.Tick((float)delta);Npc.DecayBodies(GameCalendar.Instance?.DeltaGameHours ?? 0f); }
+		if (Net.Net.IsServer) { SicknessAndYears(GameCalendar.Instance?.DeltaGameHours ?? 0f); Tiers.Tick((float)delta); HungrySpells(); Losses.Tick(); Births(); RunConversations(); Core.YorkHappenings.Tick(GameCalendar.Instance?.DeltaGameHours ?? 0f); WinterStrain.Tick(); Inspections.Tick(); Ruins.Tick((float)delta);Npc.DecayBodies(GameCalendar.Instance?.DeltaGameHours ?? 0f); }
 		if (!_trace) return;
 		_traceTimer -= GameCalendar.Instance?.DeltaGameHours ?? 0f;
 		if (_traceTimer > 0f) return;

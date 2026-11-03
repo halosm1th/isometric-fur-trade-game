@@ -46,6 +46,17 @@ Per [[Design Principles]], the timeline is not a script the world plays regardle
 
 The design document describes an optional 1801-1811 prologue (the tail of the XY Company rivalry, Lewis and Clark's journey, Astor assembling the Pacific Fur Company) and a post-1821 epilogue (Simpson's country wives and his 1830 marriage to a cousin). Only the first is hinted at in the code: the second shipped campaign, **The Plains Ablaze (1801-1821)**, contains Lewis-and-Clark beats dated 1804-1805. See [[Campaigns and Adherence]].
 
+## The end of the story
+
+When the companies are made one, in 1821 or sooner if the rivalry ruins one of them, the new Company weighs every man. You are given charge, kept on, or let go. Then an end screen tells you what you came to:
+- the verdict;
+- your years, rank and standing, and each ambition you declared against what came of it;
+- your wife, children, friends, rival and enemies;
+- your last year as it will be told;
+- what came after: Simpson's economies, the fashion turning against country wives, Fort William emptying, and the Southern Department under the old order until 1826.
+
+You can then play on in the world as it is, or return to the main menu. Dev: `--union` makes the union on the first morning; `--endtrace` prints the screen.
+
 ## See also
 
 [[Game Overview]] - [[Campaigns and Adherence]] - [[Calendar and Seasons]] - [[Factions]] - [[Historical People]]

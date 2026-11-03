@@ -425,6 +425,7 @@ public partial class Conversation
         // A town merchant's counter, for coin (UI/ConversationStore).
         if (npc.Role == Role.Merchant && MarketOf(npc) != null) AddOption("The store...", () => ShowStore(npc));
         if (LawsBody(npc) != null) AddOption(LawsLabel(npc), () => ShowLaws(npc));
+        if (CanTreat(npc)) AddOption("Agreements...", () => ShowAccords(npc));
         if (npc.IsBandPerson && npc.Role is Role.Hunter or Role.Chief && _player.Faction is Faction.HBC or Faction.NWC && Barter(_player).Count > 0)
             AddOption("Trade on your own account, quietly...", () => ShowPrivateTrade(npc));
         AddOption("Give a gift", () => ShowGive(npc));
@@ -484,6 +485,7 @@ public partial class Conversation
             {
                 _player.Inventory.Remove(g); npc.Inventory.Add(g);
                 npc.Inventory.Remove(f, skins); _player.Inventory.Add(f, skins);
+                _player.PrivateFurs += skins;
                 npc.ChangeRapport(_player, 2f);
                 _player.Skills.Learn(ref _player.Skills.Trade, 0.01f, "trading on your own account");
                 string saw = Core.YorkHappenings.Witnessed(_player, npc, "traded with the homeguard on the side");
@@ -960,6 +962,12 @@ public partial class Conversation
             AddOption(npc.Faction == Faction.HBC ? "Propose seizing the Nor'Westers' stores" : "Propose seizing the Company's stores", () => ShowCompanies(npc, ProposeRaid(npc)));
         if (!ownLeader && Economy.Rivalry.Tension >= 35f)
             AddOption("Propose a truce between the companies", () => ShowCompanies(npc, ProposeTruce(npc)));
+        if (ownLeader && npc.Faction is Faction.HBC or Faction.NWC)
+        {
+            AddOption("Ask how the furs are selling", () => ShowCompanies(npc, FurMarket(npc)));
+            if (Economy.Companies.CouldDump(npc.Faction) && Economy.Companies.Of(npc.Faction).UrgedYear != GameCalendar.Instance.Year)
+                AddOption("Urge that the warehoused furs be thrown on the sale, while the other company is short", () => ShowCompanies(npc, UrgeDump(npc)));
+        }
         if (npc.Role == Role.NwcPartner && _player.Faction != Faction.NWC)
             AddOption("Ask about signing on with the North West Company", () => ShowCompanies(npc, OfferNwc(npc)));
         if (npc.Role == Role.NwcPartner && _player.Faction != Faction.NWC && _player.WantsToDefect)
@@ -1555,6 +1563,38 @@ public partial class Conversation
         return $"\"Very well. {string.Join(", ", sent.ConvertAll(n => n.DisplayName))} go with you - muskets, and no shooting unless they shoot first. Bring back what you can carry.\"";
     }
 
+    // The fur market as the master hears of it (design doc 13.6): last year's
+    // sale, what lies in the warehouse, and the rule on holding furs back.
+    private string FurMarket(Npc leader)
+    {
+        var a = Economy.Companies.Of(leader.Faction);
+        float price = Economy.Companies.Price(leader.Faction);
+        float hold = Laws.FursHeld(leader.Faction);
+        string last = a.Years.Count > 0 ? a.Years[^1] : "no year closed yet";
+        return $"\"The last year's account: {last}. A beaver would fetch {price:0.00} of its worth on the sale as things stand. "
+            + (a.HeldMb >= 1f ? $"There are {a.HeldMb:0} made beaver of furs lying in the warehouse, waiting for a better price. " : "Nothing is lying in the warehouse. ")
+            + (hold > 0f ? $"Our orders are to keep {Mathf.RoundToInt(hold * 100)} in the hundred off any sale that will not pay par." : "Our orders are to sell all, whatever the price.")
+            + "\"";
+    }
+
+    // Throw the held furs on the market to beat the price down under the
+    // other company: the master writes home if he thinks well enough of you.
+    private string UrgeDump(Npc leader)
+    {
+        var a = Economy.Companies.Of(leader.Faction);
+        float will = 0.25f + leader.Personality.Ambition * 0.4f + leader.RapportWith(_player) / 150f + _player.Standing / 100f + Economy.Rivalry.Tension / 250f;
+        if (GD.Randf() > will)
+        {
+            leader.ChangeRapport(_player, -1f);
+            return "\"And sell our own furs for nothing to spite them? That is for the Committee to judge, not a man of your station.\"";
+        }
+        a.UrgedYear = GameCalendar.Instance.Year;
+        _player.Standing += 1f;
+        leader.ChangeRapport(_player, 3f);
+        _player.Journal.Add($"{GameCalendar.Instance.DateString}: You urged {leader.DisplayName} to have the warehoused furs thrown on the sale.");
+        return $"He taps his teeth with his pen. \"It would hurt us. It would hurt them more, this year of all years. I'll put it in my letter home.\" The {a.HeldMb:0} made beaver in the warehouse may go on this year's sale.";
+    }
+
     private string ProposeTruce(Npc leader)
     {
         float t = Economy.Rivalry.Tension;
@@ -1566,7 +1606,9 @@ public partial class Conversation
             leader.ChangeRapport(_player, -4f);
             return "\"A truce? After what your people have done? Go back and tell your master we remember.\"";
         }
-        Economy.Rivalry.Raise(-35f, "a truce agreed");
+        Economy.Rivalry.Raise(-15f, "a truce agreed");
+        // The truce is an accord of peace between the two houses (Economy/Accords), which brings the rest down.
+        if (own != null && _player.HomePost is { } mine && mine != own) Economy.Accords.Make(own, mine, new[] { Economy.Term.Peace }, 120, $"{_player.DisplayName} and {leader.DisplayName}");
         Core.Campaign.Deed("truce");
         leader.ChangeRapport(_player, 10f);
         Chronicle.Event($"{_player.DisplayName} and {leader.DisplayName} agreed a truce between the companies.", leader.GlobalPosition, _player, weight: 1.5f);

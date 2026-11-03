@@ -301,6 +301,8 @@ public static class Delegation
         if (t.Name == "cut wood" && man.Personality.Ambition > 0.6f) p -= 0.15f;
         if (man.Needs.Hunger < 40f || man.Needs.Warmth < 40f) p -= 0.2f;  // his own needs come first
         if (man.HasScurvy || man.IsSick) p -= 0.2f;
+        p -= man.Strain / 200f;                                           // a long winter (WinterStrain)
+        if (WinterStrain.Mutinous(man)) return Compliance.Refused;
         float r = GD.Randf();
         if (r < p) return Compliance.Willing;
         if (r < p + 0.25f) return Compliance.Grudging;
@@ -325,7 +327,7 @@ public static class Delegation
         bool shipIn = fort == Sim.Fort && Sim.Ship != null && Sim.Ship.IsDocked;
         int raidersSent = 0;
         bool sanctioned = fort is NwcLedger nl && nl.RaidsSanctioned && Rivalry.Tension >= 45f;
-        if (rival != null && (Rivalry.OpenHostility || sanctioned) && men.Count >= 2 && today - fort.LastRaidDay > 4 && !shipIn)
+        if (rival != null && !Accords.AtPeace(fort, rival) && (Rivalry.OpenHostility || sanctioned) && men.Count >= 2 && today - fort.LastRaidDay > 4 && !shipIn)
         {
             int mouths = fort.Alive();
             bool worthIt = fort.FoodDays(mouths + 1) < 30f || fort.Stores.Count(ItemId.TradeGoods) < 15 || Rivalry.Tension >= 90f || fort.RaidedRecently(today);

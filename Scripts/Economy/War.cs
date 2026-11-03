@@ -61,16 +61,13 @@ public static class War
 
 	// ---- truces -------------------------------------------------------------------------
 
-	public static bool AtPeace(Household a, Household b) => a != null && b != null && _truces.TryGetValue(Pair(a, b), out int until) && Plains.Today < until;
+	public static bool AtPeace(Household a, Household b) => a != null && b != null && (_truces.TryGetValue(Pair(a, b), out int until) && Plains.Today < until || Accords.AtPeace(a, b));
 
 	public static void Truce(Household a, Household b, int days)
 	{
+		// A truce is an accord of peace (Economy/Accords), which lays down the scores between them.
 		if (a == null || b == null) return;
-		_truces[Pair(a, b)] = Plains.Today + Mathf.Max(1, days);
-		// The scores between them are laid down with the truce.
-		Plains.CoolFeud(a, b); Plains.CoolFeud(b, a);
-		Chronicle.Event($"{NameOf(a)} and {NameOf(b)} made peace for {(days >= 300 ? "a year" : $"{days} days")}.", IsoGrid.ToWorld(CampOf(a)), subject: NameOf(a), weight: 1.5f);
-		Sim.Notice($"A truce: {NameOf(a)} and {NameOf(b)} will not raid or fight each other for {(days >= 300 ? "a year" : $"{days} days")}.");
+		Accords.Make(a, b, new[] { Term.Peace }, days, "");
 	}
 
 	// ---- who fights ---------------------------------------------------------------------
@@ -94,6 +91,7 @@ public static class War
 	{
 		if (from == null || against == null || from == against) return null;
 		foreach (var p in Parties) if (p.From == from && p.Phase != WarPhase.Over) return p;   // one at a time from a camp
+		Accords.WarParty(from, against);
 		var party = new WarParty { From = from, Against = against, Why = why ?? "", Rider = rider, Started = Plains.Today };
 		bool live = rider != null || Plains.NearPlayer(party.Target, 12000f) || Plains.NearPlayer(party.Home, 12000f);
 		Chronicle.Event($"{from.Name} rode out against {NameOf(against)}{(party.Why != "" ? ", " + party.Why : "")}.", party.Home, subject: from.Name, weight: 1.2f);
@@ -337,5 +335,5 @@ public static class War
 		if (d != null && d.ContainsKey("truces")) foreach (var kv in d["truces"].AsGodotDictionary()) _truces[kv.Key.AsString()] = kv.Value.AsInt32();
 	}
 
-	public static void Reset() { _truces.Clear(); Parties.Clear(); }
+	public static void Reset() { _truces.Clear(); Parties.Clear(); Accords.Reset(); }
 }

@@ -24,7 +24,7 @@ This is a spot-check, not a line-by-line review. "Missing" means nothing was fou
 - **Closed or moved forward since 21 October:** marriage by each side's custom; the goal-reading skill (§3.5); company money, with a merger when a company is exhausted (§13.7, §4.4); London catching shaded books; powder; the recruit names; orders that need a man within earshot; wet clothing (§17.3); shallow, deep and white water; and the distance gradient (global-trade P1). Ten of the twelve false claims in the old §5 are fixed.
 - **The biggest change is to the endgame.** The 1821 union can now come from the companies running out of money, not only from the campaign's flag. That was the audit's top structural gap. It is wired in but not proven: no soak run has shown a company exhausting on its own (§4).
 - **Large new systems that the design doc doesn't describe** (§6): **laws** made and repealed by meetings and councils, **towns** with farms, fields, coin and store credit, **life at York** and **incidents on the journey**, **musters** run by campaigns, an **observer mode**, and **lacrosse**. Laws and the towns are good instances of §2. Musters and the scripted York raid sit in the same tension with §2 as quests do.
-- **The build order runs against §P.9.** That section says to make one river and one year fun before adding regions. Since 21 October the map has grown to the Pacific and the St. Lawrence, with 3,267 town people on the Lakes frontier and the War of 1812. York is getting attention now, but the milestone that one year on the river is fun on its own has not been tested.
+- **The build order runs against §P.9.** *(2026-10-31: the owner has set P.9 aside. The game has grown past one river on purpose, and the fun test is now a campaign of conflict and action. P.9 carries a note saying so.)* That section says to make one river and one year fun before adding regions. Since 21 October the map has grown to the Pacific and the St. Lawrence, with 3,267 town people on the Lakes frontier and the War of 1812. York is getting attention now, but the milestone that one year on the river is fun on its own has not been tested.
 - **The pacing target (§P.3) is still unmeasured.**
 
 ---
@@ -36,7 +36,7 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 | § | System | Verdict | Evidence / gap |
 |---|---|---|---|
 | 1, 11.1 | Player as an equal agent | Built | `Agents/Agent.cs` |
-| 1 | 1821 weighs the player | Partial | `Union.Weigh`: given charge, kept on, or cut loose as a freeman. No end screen or epilogue |
+| 1 | 1821 weighs the player | **Built (2026-11-01)** | `Union.Weigh`: given charge, kept on, or cut loose as a freeman. Then the end screen (`Core/Epilogue.cs`, `UI/EndScreen.cs`): verdict, career and ambitions, the player's people, the last year told, and the Simpson-era epilogue; play on or leave |
 | 2.2 | Director | Built | `Core/Director.cs` |
 | 2.3 | Campaign scripts and adherence | Built | `Core/CampaignRunner.cs` |
 | P.2 | Ambitions | Partial | Five offered; `FoundAPost` removed until founding a post is built |
@@ -45,7 +45,7 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 | P.5 | Needs create decisions | Built (Changed) | `Core/YorkHappenings.cs` (waiting at York), `World/JourneyIncidents.cs` (the boats) |
 | P.6 | Succession | Built | `Agents/Heirs.cs` |
 | P.8 / P.8.1 / P.10 | Attachment, favours, leverage, lies, year told | Built | Unchanged |
-| P.9 | One river, one year first | **Not followed** | See §1 |
+| P.9 | One river, one year first | **Superseded** | Set aside 2026-10-31; the test is now an action campaign. See §1 |
 | 3.1-3.4 | Goal tiers, chains, shared verbs | Built | `Goals/Goal.cs` |
 | 3.5 | Goal-reading skill | **Built (Changed)** | `UI/ConversationDepth.cs`: insight per person, tiered from a vague sense of priority to the goal to its steps, and spotting lies. Earned by talking, as the doc asks |
 | 3.6 | Persuade | Built (Changed) | `ConversationDepth.cs`: five appeals, chosen by who the listener is |
@@ -53,8 +53,8 @@ Legend: **Built** = matches the doc in substance · **Partial** = the shape is t
 | 3.7 | Career rival | Built | `Agents/Rival.cs` |
 | 3.8 | Councils | Partial (Changed) | `Core/Laws.cs`: motions canvassed, debated and voted in town meetings, band councils and the Committee |
 | 3.8.1 | Fort William council | Partial | Share votes, carried agenda, minutes that can be intercepted. **No proxies, splinters or arrival windows** |
-| 3.8.2 | Accords | Missing | Truces are still a pair table (`Economy/War.cs`) |
-| 3.9 | Delegation | Partial | Orders need earshot (`Delegation.Earshot`). London audits the Factor's books (`LondonCommittee.Audit`). At York the Factor hears of private dealings someone saw. **No surprise inspections by a superior** |
+| 3.8.2 | Accords | **Built (2026-11-01)** | `Economy/Accords.cs`: peace, exclusive trade, alliance; breaches; made by the world and by the player |
+| 3.9 | Delegation | Partial (Changed) | Orders need earshot (`Delegation.Earshot`). London audits the Factor's books (`LondonCommittee.Audit`). Surprise inspections of subordinate posts and of the men's chests (`Agents/Inspections.cs`, 2026-11-01) |
 | 3.10 | Skills | **Diverges** | Still 4 (`Agents/Needs.cs`) against about 12 |
 | 4.2 | 1801 prologue | Missing | |
 | 4.4 | Merger from exhaustion | **Partial (Changed)** | `Economy/Companies.cs`: two years owing more than a year's costs exhausts a company, and `Union.Daily` then makes the union in any year. Not seen in a run |
@@ -148,7 +148,7 @@ Each of these still needs a decision: change the code, or rewrite the section.
    - Nobody has seen it happen. The starting purses (HBC 3,000 MB, NWC 5,000) and the costs are tuned by hand, and no long run has checked whether either company actually reaches two years of debt, or when. Tools T1/T7's `--assert merger-between 1819..1823` is the test for this, and it isn't built.
    - Under "no script" the blockade and war flags are never raised, so the fur price lacks the shocks that ruined the companies historically. Either company may then never exhaust.
    - The costs leave out violence and legal fees, which the doc names as the main drain of the trade war.
-8. **New: day length (§14.3).** Latitude is computed but never set from where the player is, so the plains and the Columbia get York's days. This was listed before as Diverges. It is cheap to fix now that the map spans 42°N to the Arctic.
+8. **Fixed 2026-10-31: day length (§14.3).** Each person gets the day at their own latitude (`GameCalendar.DayLengthAt`), and the light on screen follows the camera.
 
 ---
 
@@ -167,7 +167,7 @@ The 21 October list:
 | 7 | `FoundAPost` | Removed |
 | 8 | Cree-named generic roles | Renamed, with aliases |
 | 9 | Orders are messages, inert until read | **In part:** earshot only; an order does not travel to an outpost as a letter |
-| 10 | The Reckoning weighs the player | Fixed (`Union.Weigh`); no end screen |
+| 10 | The Reckoning weighs the player | Fixed (`Union.Weigh`), with an end screen (2026-11-01) |
 | 11 | Wind drives fire | Fixed |
 | 12 | MB token worth exactly 1 MB | **In part:** priced right; nobody issues them |
 
@@ -178,7 +178,7 @@ New in this pass:
 | 13 | "No money or solvency ledger" | Design doc §13.7 note, `Development Status.md` | Stale: both exist now. **Corrected in this pass** |
 | 14 | "The HBC way only, for every player" | `Development Status.md` marriage row | Stale. **Corrected** |
 | 15 | Marriage and the Company rows list built work as planned | `Roadmap.md` | **Corrected** |
-| 16 | "Day length comes from latitude and the date" | `Core/GameCalendar.cs:322` | True of the formula, but the latitude is a constant 57°. The comment says "York Factory sits at 57 N", so it isn't false, but a reader would expect it to vary |
+| 16 | "Day length comes from latitude and the date" | `Core/GameCalendar.cs` | **Fixed 2026-10-31:** the latitude now varies by place |
 
 ---
 
@@ -186,11 +186,11 @@ New in this pass:
 
 | System | Where | Note |
 |---|---|---|
-| **Laws** | `Core/Laws.cs` (989 lines), `UI/ConversationLaws.cs` | Rules a town meeting, a band council or the Committee makes and repeals. Motions are canvassed house to house and voted by whoever comes. A strong instance of §2 and of §3.8's councils. The doc should have a section on it |
-| **Towns of the Lakes frontier** | `World/Towns.cs`, `Agents/TownLife.cs`, `World/Fields.cs`, `Economy/Money.cs` | Detroit, York, Niagara and the rest, 3,267 people; farms worked step by step; coin, wages, the store's book. Far outside §P.9's first milestone |
-| **Life at York; the journey** | `Core/YorkHappenings.cs`, `World/JourneyIncidents.cs` | Pages of choices every few hours. Good §P.5 work. The Nor'Westers' raid on York, once, a day or two after a Company man lands, is scripted: the doc should say so, as for quests |
-| **Musters** | `Economy/Musters.cs`, `Goals/MusterGoal.cs` | A campaign calls men to arms, marches them and attacks. This is a script moving people, in the same tension with §2 as quests |
-| **Quests** | `Core/Quests.cs` | Still not in the doc (recommended on 21 October) |
+| **Laws** | `Core/Laws.cs` (989 lines), `UI/ConversationLaws.cs` | Rules a town meeting, a band council or the Committee makes and repeals. Motions are canvassed house to house and voted by whoever comes. A strong instance of §2 and of §3.8's councils. **Now design doc §3.8.3** |
+| **Towns of the Lakes frontier** | `World/Towns.cs`, `Agents/TownLife.cs`, `World/Fields.cs`, `Economy/Money.cs` | Detroit, York, Niagara and the rest, 3,267 people; farms worked step by step; coin, wages, the store's book. Far outside §P.9's first milestone. **Now design doc §6.3** |
+| **Life at York; the journey** | `Core/YorkHappenings.cs`, `World/JourneyIncidents.cs` | Pages of choices every few hours. Good §P.5 work. The Nor'Westers' raid on York, once, a day or two after a Company man lands, is scripted. **Now design doc §2.4** |
+| **Musters** | `Economy/Musters.cs`, `Goals/MusterGoal.cs` | A campaign calls men to arms, marches them and attacks. This is a script moving people, in the same tension with §2 as quests. **Now design doc §2.4** |
+| **Quests** | `Core/Quests.cs` | **Now design doc §2.4** |
 | Observer mode | `Core/Observer.cs`, `UI/Observer*.cs` | "Watch the world": a camera with no body. A tool for checking §2 by eye |
 | Lacrosse | `Economy/Lacrosse.cs` | Wagers, injuries, and a feud cooled |
 | Dyed garments | `Agents/Garb.cs` | Part of `longer_goals` #3 |
@@ -202,15 +202,15 @@ New in this pass:
 
 The 21 October catalogue, less what has since landed. Sources: "Doc" = the design doc; "Content" = `world-content-needed.md`; "Trade" / "Plains" / "Tools" = the specs.
 
-**Economy and the endgame.** A market where furs can be held back or dumped as a weapon (Doc 13.6). Credit, crisis moves (austerity, calling in debts, a bailout) and violence and legal costs in the purse (Doc 13.7). A shock calendar that runs without a campaign (Trade §3.5). The Trade Ledger page and `--dump-economy` (Trade P0, Tools T2). A finite recruit pool (Doc 13.2). Debt as a weapon (Doc 13.3). Surprise audits by a superior (Doc 3.9). Founding a post (Doc 13.8). The end screen and the Simpson epilogue (Doc 1, 4.3).
+**Economy and the endgame.** ~~A market where furs can be held back or dumped as a weapon (Doc 13.6)~~ built 2026-11-01. Credit, crisis moves (austerity, calling in debts, a bailout) and violence and legal costs in the purse (Doc 13.7). A shock calendar that runs without a campaign (Trade §3.5). The Trade Ledger page and `--dump-economy` (Trade P0, Tools T2). A finite recruit pool (Doc 13.2). Debt as a weapon (Doc 13.3). ~~Surprise audits by a superior (Doc 3.9)~~ built 2026-11-01. Founding a post (Doc 13.8). ~~The end screen and the Simpson epilogue (Doc 1, 4.3)~~ built 2026-11-01.
 
 **Companies and the metropole.** Fort William's proxies, splinters and arrival windows (Doc 3.8.1). The NWC's two-years-in-three rule and earned shares (Doc 5.2). Montreal agents; named London Committee members (Doc 10.7). The Southern Department (Doc 6.2). Astor and St. Louis as nodes (Doc 7.3). The XY Company and an 1801 start (Doc 4.2). The Red River Colony as people (Content §2-3).
 
-**Agreements and information.** Accords (Doc 3.8.2). Forged dispatches, express couriers and blowback (Doc 10.3). Literacy, and interpreters who lie (Doc 10.6). Maps as items (Doc 10.8). Faction trust rolling up from sightings (Doc 10.5). Authorised sightings (Doc 11.5). Memories passing to kin (Doc 10.9).
+**Agreements and information.** ~~Accords (Doc 3.8.2)~~ built 2026-11-01. Forged dispatches, express couriers and blowback (Doc 10.3). Literacy, and interpreters who lie (Doc 10.6). Maps as items (Doc 10.8). Faction trust rolling up from sightings (Doc 10.5). Authorised sightings (Doc 11.5). Memories passing to kin (Doc 10.9).
 
 **People.** The Métis/freeman road in (Doc 5.3). Personality sliders and skill points (Doc 5.4). Faces and bodies (`longer_goals` #3). Slavery (Doc 9.2). Death branches (Doc 9.3). Decline and death from age (Doc 9.4). Perks (Doc 12.7). The missing skills (Doc 3.10). Sociability as a trait (Doc 11.4). Tradesmen and boat ranks among the trade's roles (Content §7). Adoption into a band (Plains #2).
 
-**The body.** Winter strain and mutiny (Doc 17.6). Wound treatment (Doc 17.5). Hit location (Doc 15.3). Surrender and bluff (Doc 15.5). Epidemics (Doc 13.5). Addiction and diluted liquor (Doc 13.4). The famine-food ladder (Doc 13.1).
+**The body.** ~~Winter strain and mutiny (Doc 17.6)~~ built 2026-11-01 (`Agents/WinterStrain.cs`). Wound treatment (Doc 17.5). Hit location (Doc 15.3). Surrender and bluff (Doc 15.5). Epidemics (Doc 13.5). Addiction and diluted liquor (Doc 13.4). The famine-food ladder (Doc 13.1).
 
 **Making things.** Player crafting and smithing; the player running the pemmican chain; player farming (Doc 12.6; Plains #5; `longer_goals` #5).
 
@@ -241,8 +241,8 @@ The 21 October catalogue, less what has since landed. Sources: "Doc" = the desig
 ## 10. Recommendations, in order
 
 1. **Prove the exhaustion merger.** Run a headless soak 1811-1821 under "historical" and "no script", log the purse (`--plainslog`), and tune the starting purses and costs until a company exhausts around 1819-1821 historically and plausibly without a script. This is the cheapest step from here to an emergent 1821, and global-trade P0's `--dump-economy` is the natural tool for it.
-2. **Run the §P.9 test on York.** Play one in-game year on the York river with quiet days on, time it against §P.3's target, and note whether it passes §P.1's story test. The recent York work (raid, happenings, journey incidents) is aimed at exactly this, and nothing has measured it.
-3. **Write design-doc sections for laws, towns and scripted set pieces** (quests, musters, the York raid), saying where each sits relative to §2.
+2. **Run the fun test**, now on the action campaign rather than York (P.9 superseded 2026-10-31). *Original wording:* Play one in-game year on the York river with quiet days on, time it against §P.3's target, and note whether it passes §P.1's story test. The recent York work (raid, happenings, journey incidents) is aimed at exactly this, and nothing has measured it.
+3. **Done 2026-10-31 (§2.4, §3.8.3, §6.3). Write design-doc sections for laws, towns and scripted set pieces** (quests, musters, the York raid), saying where each sits relative to §2.
 4. **Decide the five standing divergences** (§4: traits, skills, combat, tiers, disconnection) and rewrite the doc sections either way.
-5. **Set latitude from position** (§4.8). Small and visible.
+5. **Done 2026-10-31. Set latitude from position** (§4.8). Small and visible.
 6. **Add `check_wiki.py --code-claims`**, or re-run this audit after every large merge.

@@ -62,7 +62,7 @@ public static class Sim
         // with it, and the new scene subscribes afresh in its _Ready.
         LocalPlayerChanged = null; OnHeadline = null;
         IsometricFurTradeGame.Scripts.World.WorldLayout.ForgetSites();
-        YorkHappenings.Reset(); Nwc = null; Outpost = null; Assiniboine = null; Bands.Clear(); Economy.Union.Reset(); QuietDays.Reset();
+        YorkHappenings.Reset(); IsometricFurTradeGame.Scripts.Agents.WinterStrain.Reset(); IsometricFurTradeGame.Scripts.Agents.Inspections.Reset(); Nwc = null; Outpost = null; Assiniboine = null; Bands.Clear(); Economy.Union.Reset(); QuietDays.Reset();
         IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); UI.Acquaintance.Clear(); World.Fields.Clear(); Economy.Money.Clear(); Laws.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear(); IsometricFurTradeGame.Scripts.Agents.Barks.Reset(); IsometricFurTradeGame.Scripts.Agents.Losses.Reset(); IsometricFurTradeGame.Scripts.Agents.Lies.Reset(); IsometricFurTradeGame.Scripts.Agents.Friends.Reset(); IsometricFurTradeGame.Scripts.Agents.Favours.Reset(); IsometricFurTradeGame.Scripts.Agents.Leverage.Reset(); Core.Starts.Reset(); Core.CharacterSheet.ResetKin();
     }
 

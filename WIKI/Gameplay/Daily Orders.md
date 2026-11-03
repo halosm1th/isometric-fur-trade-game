@@ -83,6 +83,18 @@ Other standing movements: telling the Factor about a game site +3 each; stowing 
 > [!tip]
 > "Your own way" lets you meet the order with furs or goods, handy if you run a trapline anyway ([[Trapping]]).
 
+## Inspections
+
+A suspicious master does not wait for London to read the books.
+
+**Your chest.** Now and then the master comes down the men's house with his clerk and a lantern, and every chest is turned out. It happens more often under a suspicious master, and soon after someone has told him you trade on the side. Skins you traded on your own account are the evidence. Your choices:
+- **Open it.** If it's clean you gain his trust. If not, the skins and your year's wages go to the store. Eight or more skins also cost you your rank.
+- **Slip the skins to a friend** before they reach you. It needs a man of the house who likes you, and you will owe him.
+- **Talk your way out** ("my own catch"). Your trade skill and standing help; his suspicion works against you.
+- **Refuse.** You keep the furs and lose standing, and he will be back.
+
+**The posts' books.** The master of the head house (York, or Fort William) sends his clerk to look over a subordinate post's ledger. A master who has been keeping furs back for himself is likely found out. He is docked and disgraced. At Oxford House, if it was gross, he is put out of his charge and York sends a new man.
+
 ## See also
 
 [[Standing]] - [[Delegation]] - [[Factor]] - [[Hudson's Bay Company]] - [[Beginner's Guide]] - [[Journal, Map and UI]]

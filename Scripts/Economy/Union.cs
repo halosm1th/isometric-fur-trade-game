@@ -94,6 +94,8 @@ public static class Union
 		foreach (var f in AllPosts()) f.PeltPrice *= PriceAfter;
 
 		foreach (var pc in Sim.Players()) if (pc.Faction == Faction.HBC && !pc.IsDead) Weigh(pc, wereNorWesters.Contains(pc));
+		// Everyone else - born to a band, a soldier, a freeman, Astor's man - is told what the union means for them.
+		foreach (var pc in Sim.Players()) if (!pc.IsDead && pc.Faction != Faction.HBC && pc.Rank != "freeman") Epilogue.Show(pc, null, false);
 
 		Chronicle.Event("The North West Company went into the Hudson's Bay Company.", Sim.Fort != null ? IsoGrid.ToWorld(Sim.Fort.AccessCell) : Vector2.Zero, subject: "the companies", weight: 3f);
 		Sim.Notice($"The union: {closed} North West posts given up, {kept} kept under the Company, {letGo} men let go. The Company pays less for furs now that it is the only buyer.");
@@ -121,7 +123,10 @@ public static class Union
 	{
 		float worth = Worth(pc, wasNorWester);
 		string date = GameCalendar.Instance?.DateString ?? "";
-		switch (Judge(worth))
+		var verdict = Judge(worth);
+		// The end screen once the verdict is written (Core/Epilogue).
+		pc.GetTree().CreateTimer(1.0).Timeout += () => Epilogue.Show(pc, verdict, wasNorWester);
+		switch (verdict)
 		{
 			case Verdict.GivenCharge:
 				// Set over others: a chief trader's place, and the men he must let go.
