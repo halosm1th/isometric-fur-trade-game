@@ -173,7 +173,7 @@ public static class Heirs
 
         p.Journal.Add($"{cal?.DateString}: {old} is dead. You are {inh.Name}, {inh.Relation}.");
         foreach (var b in inh.Burdens) p.Journal.Add($"{cal?.DateString}: Inherited - {b}");
-        Sim.Headline($"{old} is dead. {inh.Name} takes his place: {inh.Relation}.");
+        Sim.HeadlineAt(p, $"{old} is dead. {inh.Name} takes his place: {inh.Relation}.");
         Chronicle.Event($"{old} is dead; {inh.Name} has come to take his place.", p.GlobalPosition, p, inh.Name, 2f);
     }
 

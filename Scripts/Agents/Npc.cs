@@ -490,7 +490,7 @@ public partial class Npc : Agent
                 {
                     if (a.IsDead || a.Describe() != g.Against) continue;
                     var pursue = Grudges.Pursue(this, a);
-                    if (pursue != null) { Sim.Notice($"{DisplayName} sees {a.Describe()} and remembers {g.Victim}."); if (a is Player.PlayerController gp) Core.Reveal.Lands(gp, $"{DisplayName} is coming for you over {g.Victim}.", $"killed {g.Victim}", 1.5f); Brain.Push(this, pursue); return; }
+                    if (pursue != null) { Sim.NoticeAt(this, $"{DisplayName} sees {a.Describe()} and remembers {g.Victim}."); if (a is Player.PlayerController gp) Core.Reveal.Lands(gp, $"{DisplayName} is coming for you over {g.Victim}.", $"killed {g.Victim}", 1.5f); Brain.Push(this, pursue); return; }
                 }
             }
         }
@@ -919,7 +919,7 @@ public partial class Npc : Agent
                 Brain.Push(this, new Goals.HeldPrisonerGoal(post));
                 ForgetAttacker();
                 Economy.Rivalry.Raise(6f, $"{DisplayName} taken prisoner");
-                Sim.Notice($"{captor.DisplayName} has taken {DisplayName} prisoner.");
+                Sim.NoticeAt(this, $"{captor.DisplayName} has taken {DisplayName} prisoner.");
                 Chronicle.Event($"{captor.DisplayName} took {DisplayName} prisoner.", GlobalPosition, captor, DisplayName, 2f);
                 // Seeing a man of yours walked off is as bad for a party's
                 // nerve as seeing him shot (design doc 15.6).
@@ -1047,14 +1047,14 @@ public partial class Npc : Agent
             Npc heir = null;
             foreach (var n in Sim.Npcs) if (n.Role == Role.Clerk && n.HomeStores == HomeStores && !n.IsDead && (heir == null || n.Standing + n.Personality.Ambition * 10f > heir.Standing + heir.Personality.Ambition * 10f)) heir = n;
             if (heir == null) foreach (var n in Sim.Npcs) if (n.Role == Role.Labourer && n.HomeStores == HomeStores && !n.IsDead) { heir = n; break; }
-            if (heir == null) { Sim.Notice("There is no one left to take charge of the post."); return; }
+            if (heir == null) { Sim.NoticeAt(this, "There is no one left to take charge of the post."); return; }
             heir.Role = Role.Factor;
             heir.DisplayName = "Mr. " + heir.DisplayName.Replace(" (clerk)", "") + " (acting Factor)";
             heir.ResetBehaviour(); heir.Brain.Clear(heir);
             heir.BedCell = BedCell; heir.WorkCell = WorkCell;
             if (HomeStores != null) HomeStores.Leader = heir;
             if (heir._label != null) heir._label.Text = heir.DisplayName;
-            Sim.Notice($"{heir.DisplayName} takes charge of the post.");
+            Sim.NoticeAt(this, $"{heir.DisplayName} takes charge of the post.");
         }
         else if (Role == Role.Postmaster)
         {
@@ -1065,7 +1065,7 @@ public partial class Npc : Agent
             foreach (var n in Sim.Npcs) if (n.Role == Role.Labourer && n.HomeStores == HomeStores && !n.IsDead && (heir == null || n.Standing > heir.Standing)) heir = n;
             string where = HomeStores == Sim.Outpost ? "Oxford House" : (HomeStores?.Title ?? "the post").Replace(" stores", "").Replace("the ", "");
             if (HomeStores != null) HomeStores.Leader = null;
-            Sim.Notice($"{DisplayName} is dead. {char.ToUpper(where[0])}{where.Substring(1)} is without a master{(heir != null ? $"; {heir.DisplayName} keeps the men together" : "")}.");
+            Sim.NoticeAt(this, $"{DisplayName} is dead. {char.ToUpper(where[0])}{where.Substring(1)} is without a master{(heir != null ? $"; {heir.DisplayName} keeps the men together" : "")}.");
         }
         else if (Role == Role.Chief)
         {
@@ -1078,11 +1078,11 @@ public partial class Npc : Agent
             heir.ResetBehaviour(); heir.Brain.Clear(heir);
             foreach (var child in Children) { child.Father = heir; heir.Children.Add(child); }
             if (heir._label != null) heir._label.Text = heir.DisplayName;
-            Sim.Notice($"{heir.DisplayName} now leads the band.");
+            Sim.NoticeAt(this, $"{heir.DisplayName} now leads the band.");
         }
         int hbcAlive = 0;
         foreach (var n in Sim.Npcs) if (n.Faction == Faction.HBC && !n.IsDead && !n.IsFemale) hbcAlive++;
-        if (hbcAlive == 0 && Faction == Faction.HBC) Sim.Notice("York Factory has no men left. The post has fallen.");
+        if (hbcAlive == 0 && Faction == Faction.HBC) Sim.NoticeAt(this, "York Factory has no men left. The post has fallen.");
     }
 
     // ---- death ------------------------------------------------------------
@@ -1192,7 +1192,7 @@ public partial class Npc : Agent
             : Needs.Hunger <= 1f ? "of hunger"
             : "of want";
         // A quiet death is told by whoever caused it (the daily batch says what took him), not twice.
-        if (!_quietDeath) Sim.Notice($"{DisplayName} has died {cause}.");
+        if (!_quietDeath) Sim.NoticeAt(this, $"{DisplayName} has died {cause}.");
         string how = DeathCause == null && Killer != null ? $"{DisplayName} was killed by {Killer.Describe()}." : $"{DisplayName} died {cause}.";
         Chronicle.Event(how, GlobalPosition, Killer, DisplayName, 2f);
         if (IsBandPerson && Killer != null) (HomeStores as BandLedger)?.OnMemberKilledBy(Killer);
@@ -1201,7 +1201,7 @@ public partial class Npc : Agent
         if (Killer != null) Nerve.TheyBreak(this, Killer);
         // Blood debts (design doc 7.4): a killing makes one, a killer's death pays one, a holder's death passes one on.
         if (Killer != null) Grudges.OnKilled(this, Killer);
-        foreach (var g in new List<Grudge>(Grudges.All)) if (!g.Settled && g.Against == DisplayName) { Grudges.Settle(g, true); Sim.Notice($"{DisplayName} is dead; the debt for {g.Victim} is paid in blood."); }
+        foreach (var g in new List<Grudge>(Grudges.All)) if (!g.Settled && g.Against == DisplayName) { Grudges.Settle(g, true); Sim.NoticeAt(this, $"{DisplayName} is dead; the debt for {g.Victim} is paid in blood."); }
         Grudges.OnHolderDied(this);
         if (Spouse is Npc widow) widow.Spouse = null;
         Succession();

@@ -64,7 +64,7 @@ public static class Union
 				letGo += Merge(p.Ledger, near.Ledger, near.House.Top, near.AccessCell);
 				CloseRecord(p);
 				closed++;
-				Sim.Notice($"{p.Name} is given up; its people and stores go across to {near.Name}.");
+				Sim.NoticeAt(near.Ledger, $"{p.Name} is given up; its people and stores go across to {near.Name}.");
 			}
 			else
 			{

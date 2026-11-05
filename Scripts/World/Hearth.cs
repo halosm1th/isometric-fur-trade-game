@@ -117,7 +117,7 @@ public partial class Hearth : Node2D
             if (FuelHours > 15f && Fire.I != null && GD.Randf() < cal.DeltaGameHours * 0.02f)
             {
                 var floor = IsoGrid.DownLeft(Cell);
-                if (Fire.I.Ignite(floor, "A spark from an overloaded hearth has caught the floor!")) Sim.Notice("FIRE! Water, quick!");
+                if (Fire.I.Ignite(floor, "A spark from an overloaded hearth has caught the floor!")) Sim.NoticeAt(IsoGrid.ToWorld(Cell), "FIRE! Water, quick!");
             }
         }
 

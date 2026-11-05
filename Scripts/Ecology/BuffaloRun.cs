@@ -156,7 +156,7 @@ public class BuffaloRun
         else if (who is Npc rider && rider.HomeStores == Band)
         {
             foreach (var n in Sim.Npcs) if (n.HomeStores == Band && !n.IsDead && n != rider) n.ChangeRapport(rider, -20f);
-            Sim.Notice($"{rider.DisplayName} broke from the line at {Site.Name} and the herd ran. The soldiers cut up his lodge cover for it.");
+            Sim.NoticeAt(rider, $"{rider.DisplayName} broke from the line at {Site.Name} and the herd ran. The soldiers cut up his lodge cover for it.");
         }
     }
 
@@ -202,7 +202,7 @@ public class BuffaloRun
             pc.Say($"{Band.Name} killed {Kills} at {Site.Name}. Your share of the meat comes to you: ten pieces of dried meat and a robe.");
         }
         string how = Broken ? $"a spoiled run - {BrokenBy} went before the word - and only {Kills} killed" : $"{Kills} killed";
-        Sim.Notice($"{Band.Name} ran the buffalo at {Site.Name}: {how}. The women are bringing in the meat - {haul} pieces dried, and more fresh.");
+        Sim.NoticeAt(Band, $"{Band.Name} ran the buffalo at {Site.Name}: {how}. The women are bringing in the meat - {haul} pieces dried, and more fresh.");
         Chronicle.Event($"{Band.Name} ran the buffalo at {Site.Name}: {how}.", Site.WorldPos, Captain, Band.Name, Broken ? 1.5f : 1f);
     }
 

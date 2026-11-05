@@ -89,7 +89,9 @@ public static class Companies
     {
         var cal = GameCalendar.Instance;
         float p = 1f;
-        if (Campaign.Has("blockade") && !Campaign.Has("blockade-lifted")) p *= 0.75f;
+        // The blockade shuts the Baltic: the Bay's furs, all through London, worst;
+        // the Nor'Westers' less, some going out by New York; the Americans not at all (design doc 13.6).
+        if (Campaign.Has("blockade") && !Campaign.Has("blockade-lifted")) p *= f switch { Faction.HBC => 0.7f, Faction.NWC => 0.85f, _ => 1f };
         else if (Campaign.Has("blockade-lifted")) p *= 1.08f;
         if (f == Faction.NWC && Campaign.Has("war-of-1812") && !Campaign.Has("peace_of_ghent")) p *= 0.9f;
         float sold = extra; foreach (var a in Books.Values) sold += a.SoldMb;
@@ -133,7 +135,7 @@ public static class Companies
             a.HeldMb = 0f; a.DumpYear = year;
             Rivalry.Raise(10f, "furs dumped on the sale");
             Chronicle.Event($"{co} threw every fur it had on the sale {where}, {all:0} made beaver, to beat the price down under its rival.", at, null, a.Name, 1.8f);
-            Sim.Headline($"{co} floods the sale {where} with {all:0} made beaver of furs. The price will be ruinous for everyone this year.");
+            Sim.Log($"{co} floods the sale {where} with {all:0} made beaver of furs. The price will be ruinous for everyone this year.");
             return all;
         }
         if (a.Cash < 0f && a.HeldMb > 0f)
@@ -264,7 +266,7 @@ public static class Companies
             {
                 a.Exhausted = true;
                 Campaign.Flag(a.Company == Faction.NWC ? "nwc_exhausted" : "hbc_exhausted");
-                Sim.Headline($"{Capital(a.Name)} is exhausted: two years owing more than a year's costs. Its creditors will have a union.");
+                Sim.Log($"{Capital(a.Name)} is exhausted: two years owing more than a year's costs. Its creditors will have a union.");
             }
             else if (net < 0f && a.Company != Faction.American)
                 Chronicle.Event($"{Capital(a.Name)}'s year closed at a loss.", IsoGrid.ToWorld(WorldLayout.GateOutside), null, a.Name, 0.6f);

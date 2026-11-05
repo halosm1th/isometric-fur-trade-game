@@ -216,16 +216,16 @@ public static class Council
         {
             nwc.DirectiveText = m.Text;
             nwc.DirectiveReadDay = cal?.Day ?? 0;
-            Sim.Notice($"{reader?.Describe() ?? "The partner"} reads the council's minutes: the Nor'Westers will pay {nwc.PeltPrice:0.00}{(nwc.PriceAtDiscretion ? " (or what he judges right)" : "")}, with {nwc.OutfitPieces} pieces landed.");
+            Sim.NoticeAt(reader, $"{reader?.Describe() ?? "The partner"} reads the council's minutes: the Nor'Westers will pay {nwc.PeltPrice:0.00}{(nwc.PriceAtDiscretion ? " (or what he judges right)" : "")}, with {nwc.OutfitPieces} pieces landed.");
         };
         m.OnIntercepted = reader =>
         {
             if (reader == null || reader.Faction != Faction.HBC) return;
-            Sim.Notice($"{reader.Describe()} reads the Nor'Westers' minutes: {nwc.DirectiveSummary()}. The Factor knows their whole year's plan.");
+            Sim.NoticeAt(reader, $"{reader.Describe()} reads the Nor'Westers' minutes: {nwc.DirectiveSummary()}. The Factor knows their whole year's plan.");
             Rivalry.Raise(6f, "the Nor'Westers' minutes read at the Bay");
             if (Sim.Fort != null) Sim.Fort.KnowsRivalPlan = true;
         };
-        Sim.Notice($"At Fort William the partners have sat: {items.Count} questions decided. The minutes come north with the brigade.");
+        Sim.Log($"At Fort William the partners have sat: {items.Count} questions decided. The minutes come north with the brigade.");
         return m;
     }
 

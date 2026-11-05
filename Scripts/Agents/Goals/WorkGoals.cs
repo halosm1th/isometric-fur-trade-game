@@ -85,7 +85,7 @@ public class HuntSiteGoal : Goal
                 {
                     _phase = 3;
                     if (npc.HomeStores != null) npc.HomeStores.SiteLostDay[_site.Name] = GameCalendar.Instance.Day;
-                    Sim.Notice($"{npc.DisplayName} comes home empty-handed: {_site.Name} has moved and nobody knows where.");
+                    Sim.NoticeAt(npc, $"{npc.DisplayName} comes home empty-handed: {_site.Name} has moved and nobody knows where.");
                     if (npc.HomeStores == null) return GoalStatus.Done;
                     return Delegate(new GoToGoal(npc.HomeStores.AccessCell, 100f));
                 }
@@ -136,7 +136,7 @@ public class HuntSiteGoal : Goal
                             myBand.StandingWithOtherBand = Mathf.Max(0f, myBand.StandingWithOtherBand - 2f);
                             if (myBand.OtherBand != null) myBand.OtherBand.StandingWithOtherBand = Mathf.Max(0f, myBand.OtherBand.StandingWithOtherBand - 2f);
                             Chronicle.Event($"there were hard words between {npc.DisplayName} and {o.DisplayName} over the game at {_site.Name}.", npc.GlobalPosition, npc, o.DisplayName, 1f);
-                            if (myBand.AtOddsWithOtherBand) Sim.Notice($"The Cree and the Assiniboine are at odds over {_site.Name}. Their hunters will not pass each other quietly now.");
+                            if (myBand.AtOddsWithOtherBand) Sim.NoticeAt(npc, $"The Cree and the Assiniboine are at odds over {_site.Name}. Their hunters will not pass each other quietly now.");
                         }
                         break;
                     }
@@ -234,7 +234,7 @@ public class RaidGoal : Goal
                 // better of it. That is what a guard is for.
                 if (Economy.Rivalry.HouseHasOdds(_target.Company, npc.GlobalPosition) && npc.Personality.Courage < 0.65f)
                 {
-                    Sim.Notice($"{npc.DisplayName} turned back at the door of {_target.Title}: too many muskets about.");
+                    Sim.NoticeAt(npc, $"{npc.DisplayName} turned back at the door of {_target.Title}: too many muskets about.");
                     Chronicle.Event($"{npc.DisplayName} came for {_target.Title} and turned back at the sight of the guard.", npc.GlobalPosition, npc, weight: 1f);
                     Economy.Rivalry.Raise(3f, "a party turned back at the door");
                     npc.Raiding = false;   // going home empty-handed; not a target any more
@@ -258,7 +258,7 @@ public class RaidGoal : Goal
                         int give = kind == ItemKind.Food ? n - 1 : n;
                         npc.Inventory.Remove(id, give); npc.HomeStores.Stores.Add(id, give); lots += give;
                     }
-                    if (lots > 0) Sim.Notice($"{npc.DisplayName} is back with {lots} lots of the {(_target.Company == Faction.NWC ? "Nor'Westers'" : "Company's")} goods.");
+                    if (lots > 0) Sim.NoticeAt(npc, $"{npc.DisplayName} is back with {lots} lots of the {(_target.Company == Faction.NWC ? "Nor'Westers'" : "Company's")} goods.");
                 }
                 return GoalStatus.Done;
         }
@@ -355,13 +355,13 @@ public class CheckTraplineGoal : Goal
                 if (line != null)
                 {
                     got = line.Caught; line.Caught = 0; line.HoursSinceCheck = 0f;
-                    if (line.Robbed > 0) { Chronicle.Event($"{npc.DisplayName} found the traps at {_site.Name} robbed.", npc.GlobalPosition, npc, weight: 1.2f); Sim.Notice($"{npc.DisplayName}: someone has been at our traps at {_site.Name}."); line.Robbed = 0; }
+                    if (line.Robbed > 0) { Chronicle.Event($"{npc.DisplayName} found the traps at {_site.Name} robbed.", npc.GlobalPosition, npc, weight: 1.2f); Sim.NoticeAt(npc, $"{npc.DisplayName}: someone has been at our traps at {_site.Name}."); line.Robbed = 0; }
                 }
                 // Others' lines: the less honest take what's in them.
                 int poached = TraplineRules.Poach(_site, owner, Mathf.Clamp(0.6f - npc.Personality.Loyalty, 0f, 0.6f));
                 if (poached > 0) Chronicle.Event($"{npc.DisplayName} took beaver from another party's traps at {_site.Name}.", npc.GlobalPosition, npc, weight: 1.5f);
                 for (int i = 0; i < got + poached; i++) SpeciesInfo.Yield(Species.Beaver, npc.Inventory);
-                if (got + poached > 0) Sim.Notice($"{npc.DisplayName} lifted {got + poached} beaver from the traps at {_site.Name}.");
+                if (got + poached > 0) Sim.NoticeAt(npc, $"{npc.DisplayName} lifted {got + poached} beaver from the traps at {_site.Name}.");
                 _phase = 3;
                 if (npc.HomeStores == null) return GoalStatus.Done;
                 return Delegate(new GoToGoal(npc.HomeStores.AccessCell, 100f));
@@ -431,7 +431,7 @@ public class TradeTripGoal : Goal
                 int bought = 0, soldFood = 0;
                 if (_buyFood) bought = fort.SellFood(npc.Inventory, npc.Inventory.Count(ItemId.TradeGoods), band);
                 if (_sellProvisions && npc.Inventory.Count(ItemId.Pemmican) >= 4) { int m = fort.Alive(); soldFood = fort.BuyProvisions(npc.Inventory, npc.Inventory, m); }
-                Sim.Notice($"{npc.DisplayName} traded at {fort.Title}{(pipe ? "" : " (no tobacco for the pipe)")}: {paid:0} MB in goods{(bought > 0 ? $", bought {bought} of food" : "")}{(soldFood > 0 ? $", sold {soldFood} pemmican" : "")}{(fort.DebtOf(band) > 0 ? $" (owes {fort.DebtOf(band):0.#} MB)" : "")}.");
+                Sim.NoticeAt(npc, $"{npc.DisplayName} traded at {fort.Title}{(pipe ? "" : " (no tobacco for the pipe)")}: {paid:0} MB in goods{(bought > 0 ? $", bought {bought} of food" : "")}{(soldFood > 0 ? $", sold {soldFood} pemmican" : "")}{(fort.DebtOf(band) > 0 ? $" (owes {fort.DebtOf(band):0.#} MB)" : "")}.");
                 Chronicle.Event($"{npc.DisplayName} traded furs at {fort.Title}.", npc.GlobalPosition, npc, weight: 0.4f);
                 if (fort is Economy.NwcLedger && Sim.Fort != null) { Sim.Fort.LostToRivalMb += paid; Economy.Rivalry.Raise(paid * 0.25f, "furs going to the Nor'Westers"); }
                 band.InvitedToTrade = false;

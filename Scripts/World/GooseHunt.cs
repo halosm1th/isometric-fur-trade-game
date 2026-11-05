@@ -105,14 +105,14 @@ public static class GooseHunt
 				{
 					if (site.Species != Ecology.Species.Goose || site.IsDead) continue;
 					site.Count = site.Capacity * 8f;
-					Sim.Notice($"The flight is on {site.Name}: the water black with geese.");
+					Sim.NoticeAt(IsoGrid.ToWorld(site.Cell), $"The flight is on {site.Name}: the water black with geese.");
 				}
 			if (cal.Year != _seasonYear) { _casks.Clear(); _birds.Clear(); _seasonYear = cal.Year; }
 			foreach (var post in Sim.Posts())
 			{
 				if (post == null) continue;
 				int want = Wanted(post);
-				Sim.Headline($"The geese are on the marsh. {post.Leader?.DisplayName ?? post.Title} turns the post out: {want} casks in the cellar before the flight goes over, or we eat short.");
+				Sim.HeadlineAt(post, $"The geese are on the marsh. {post.Leader?.DisplayName ?? post.Title} turns the post out: {want} casks in the cellar before the flight goes over, or we eat short.");
 				break;   // one headline is enough; every house hears its own master
 			}
 		}
@@ -125,7 +125,7 @@ public static class GooseHunt
 				{
 					if (post == null || post != Sim.Fort) continue;
 					int birds = post.Stores.Count(ItemId.Goose), casks = post.Stores.Count(ItemId.SaltGeese);
-					Sim.Notice($"The flight: {casks} casks down, {birds} birds on the floor, {DaysLeft} days of geese left (wanted {Wanted(post)}).");
+					Sim.NoticeAt(post, $"The flight: {casks} casks down, {birds} birds on the floor, {DaysLeft} days of geese left (wanted {Wanted(post)}).");
 				}
 		}
 		else if (!Autumn && _opened && !_closed)
@@ -137,7 +137,7 @@ public static class GooseHunt
 					if (site.Species != Ecology.Species.Goose || site.IsDead) continue;
 					site.Count = Mathf.Min(site.Count, site.Capacity * 0.4f);
 				}
-			Sim.Notice("The flight has passed over; only the late birds are left on the marsh.");
+			Sim.NoticeAt(Sim.Fort, "The flight has passed over; only the late birds are left on the marsh.");
 			CloseTheBooks();
 		}
 	}
@@ -157,13 +157,13 @@ public static class GooseHunt
 			{
 				// No goose ground of its own: it goes into the winter on what
 				// the brigade brought and what the country will sell it.
-				Sim.Notice($"{post.Title} has no goose ground: {weeks:0} weeks' food in hand, and the winter to get through on the brigade's provisions and what the bands will sell.");
+				Sim.NoticeAt(post, $"{post.Title} has no goose ground: {weeks:0} weeks' food in hand, and the winter to get through on the brigade's provisions and what the bands will sell.");
 				continue;
 			}
 			string verdict = got >= want ? "a good autumn"
 				: got >= want / 2 ? "a thin autumn"
 				: got > 0 ? "a bad autumn" : "no autumn at all";
-			Sim.Notice($"The flight is over. {post.Title}: {got} casks salted of {want} wanted - {verdict}, {weeks:0} weeks' food in hand.");
+			Sim.NoticeAt(post, $"The flight is over. {post.Title}: {got} casks salted of {want} wanted - {verdict}, {weeks:0} weeks' food in hand.");
 			foreach (var p in Sim.Players())
 			{
 				if (p == null || p.IsDead || p.HomePost != post && Sim.Fort != post) continue;
@@ -171,7 +171,7 @@ public static class GooseHunt
 					got >= want ? "the men were at the marsh while the flight lasted" : "the flight went over with the work half done",
 					got >= want ? 1.2f : 1.8f);
 			}
-			if (got < want / 2) Sim.Headline($"{post.Title} goes into the winter short: {got} casks where {want} were wanted.");
+			if (got < want / 2) Sim.HeadlineAt(post, $"{post.Title} goes into the winter short: {got} casks where {want} were wanted.");
 		}
 	}
 

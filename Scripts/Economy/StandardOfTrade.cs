@@ -289,7 +289,7 @@ public static class StandardOfTrade
         {
             Chronicle.Event($"{b.Name} came to {post.Post.Name} wanting {string.Join(" and ", shortOf)}, found none, and carried their furs home again.", IsoGrid.ToWorld(post.AccessCell), subject: post.Post.Name, weight: 1f);
             if (Plains.NearPlayer(IsoGrid.ToWorld(post.AccessCell), 8000f))
-                Sim.Notice($"{b.Name} came in to {post.Post.Name} wanting {string.Join(" and ", shortOf)}. There was none on the shelves, and they took their furs away again.");
+                Sim.NoticeAt(post, $"{b.Name} came in to {post.Post.Name} wanting {string.Join(" and ", shortOf)}. There was none on the shelves, and they took their furs away again.");
         }
     }
 

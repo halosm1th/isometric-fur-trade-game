@@ -72,14 +72,14 @@ public partial class BandLedger : Household
 		StandingWithCompany = Mathf.Clamp(StandingWithCompany + drift, 0f, 100f);
 		if (was && !WillTrade)
 		{
-			Sim.Headline($"{Name} have had enough of the Company. They will not bring their furs to the post.");
+			Sim.HeadlineAt(this, $"{Name} have had enough of the Company. They will not bring their furs to the post.");
 			foreach (var pc in Sim.Players())
 			{
 				string cause = LastInsultCause;
 				Core.Reveal.Lands(pc, $"{Name} will not trade with the post.", cause, 1.5f);
 			}
 		}
-		if (!was && WillTrade) Sim.Notice($"{Name} are willing to trade with the post again.");
+		if (!was && WillTrade) Sim.NoticeAt(this, $"{Name} are willing to trade with the post again.");
 		StandingWithOtherBand = Mathf.Min(100f, StandingWithOtherBand + 0.3f);   // old alliances mend slowly
 		// The Assiniboine's seasonal round: down to the Bay for high summer, home for the buffalo in autumn.
 		if (!IsCree)
@@ -96,7 +96,15 @@ public partial class BandLedger : Household
 		_hoursToWeek -= hours;
 		if (_hoursToWeek > 0f) return;
 		_hoursToWeek += 24f * 7f;
-		if (Camp == WinterGround) { Stores.Add(ItemId.Pemmican, 14); Stores.Add(ItemId.CaribouHide, 1); }
+		// Made by their own hands (Economy/Subsistence) from the buffalo of the
+		// plains, which this test band's winter ground by the Bay does not have
+		// on the map: the herds it comes from are not simulated (docs/agency-audit.md).
+		if (Camp == WinterGround)
+		{
+			int pem = Mathf.RoundToInt(14 * Subsistence.HandsShare(this, Mouths));
+			Stores.Add(ItemId.Pemmican, pem);
+			if (pem >= 7) Stores.Add(ItemId.CaribouHide, 1);
+		}
 		SellTheSurplus();
 	}
 
@@ -111,7 +119,7 @@ public partial class BandLedger : Household
 		if (spare < 10) return;
 		var post = WillTrade ? Sim.Fort : null;
 		if (post == null && StandingWithNwc > 20f) post = Sim.Nwc;
-		if (post == null) { Sim.Notice($"{Name} have pemmican to spare and nobody they will sell it to."); return; }
+		if (post == null) { Sim.NoticeAt(this, $"{Name} have pemmican to spare and nobody they will sell it to."); return; }
 		int lot = Mathf.Min(spare, 20);
 		int pay = Mathf.Max(1, Mathf.RoundToInt(lot * Items.Items.Of(ItemId.Pemmican).ValueMb * post.PeltPrice));
 		if (post.Stores.Count(ItemId.TradeGoods) < pay) return;
@@ -121,7 +129,7 @@ public partial class BandLedger : Household
 		Stores.Add(ItemId.TradeGoods, pay);
 		post.GoodsPaidMb += pay;
 		MarketNews.Meet(this, post);   // what the Assiniboine saw at the towns, they tell at the post
-		Sim.Notice($"{Name} brought {lot} pieces of pemmican down to {post.Title} and took {pay} in goods for it.");
+		Sim.NoticeAt(this, $"{Name} brought {lot} pieces of pemmican down to {post.Title} and took {pay} in goods for it.");
 		Chronicle.Event($"{Name} sold {lot} pemmican at {post.Title}.", IsoGrid.ToWorld(post.AccessCell), subject: Name, weight: 0.5f);
 	}
 
@@ -143,7 +151,7 @@ public partial class BandLedger : Household
 		else if (killer.Faction == Agents.Faction.NWC) StandingWithNwc = Mathf.Max(0f, StandingWithNwc - 25f);
 		else if (killer.Faction == Agents.Faction.American) StandingWithAmericans = Mathf.Max(0f, StandingWithAmericans - 25f);
 		else return;
-		Sim.Notice($"{Name} will remember who killed one of theirs.");
+		Sim.NoticeAt(this, $"{Name} will remember who killed one of theirs.");
 	}
 
 	public override void _Ready()
@@ -223,6 +231,6 @@ public partial class BandLedger : Household
 			// A long move goes by the river road, tipis and all.
 			n.Brain.Push(n, far ? new Agents.Goals.RoadGoal(n.WorkCell) : new Agents.Goals.GoToGoal(n.WorkCell, 120f));
 		}
-		if (notice != null) { Sim.Notice(notice); Agents.Chronicle.Event($"{Name} moved camp.", IsoGrid.ToWorld(centre), subject: Name, weight: 0.8f); }
+		if (notice != null) { Sim.NoticeAt(IsoGrid.ToWorld(centre), notice); Agents.Chronicle.Event($"{Name} moved camp.", IsoGrid.ToWorld(centre), subject: Name, weight: 0.8f); }
 	}
 }

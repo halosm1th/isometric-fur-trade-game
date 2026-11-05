@@ -134,10 +134,12 @@ public static class WinterStrain
             build *= Mathf.Lerp(0.6f, 1.4f, n.Personality.Talkative);
             float relief = winter ? 0.35f : 3f;
             if (n.Intoxication > 10f) relief += 2f;
+            if (n.DaysSinceFresh < 1f) relief += 2f;   // fresh meat in the kettle tonight
             n.Strain = Mathf.Clamp(n.Strain + build - relief, 0f, 100f);
         }
 
         Administer(post, men, cal, today);
+        Story(post, men);
         Ladder(post, men, cal, today);
         PlayerPages(post, men, today);
         if (Trace) GD.Print($"[strain] {Economy.Accords.Name(post)} ({post.Title}): {men.Count} men, avg {Average(post):0}, max {Max(men):0}, day {dayLen:0.0} h, {sinceFaces} days since a new face{(Mutinous(men[0]) ? ", IN MUTINY" : "")}");
@@ -177,6 +179,29 @@ public static class WinterStrain
             foreach (var n in men) { n.Strain = Mathf.Max(0f, n.Strain - 8f); n.Intoxication = Mathf.Min(100f, n.Intoxication + 20f); n.ChangeRapport(boss, 2f); }
             Notice(post, $"{boss.DisplayName} has a dram served out all round at {place}. It is a long winter.");
         }
+    }
+
+    // A story by the stove: the best talker in the house, on a sour evening,
+    // and whoever is near enough to hear him. It costs nothing but the
+    // evening, and it is a man's own doing, not the Factor's.
+    private static readonly string[] Openers =
+    {
+        "Did I ever tell you about the winter at Severn?", "There was a man at Albany, a Lewisman, and he swore...",
+        "My grandfather saw the sea serpent off Stroma. Truly.", "You want to hear about the time the ice took the boat?",
+    };
+
+    private static void Story(FortLedger post, List<Npc> men)
+    {
+        if (GameCalendar.Instance.CurrentSeason != Season.Winter || Average(post) < 30f || GD.Randf() > 0.35f) return;
+        Npc teller = null;
+        foreach (var n in men) if (!n.Sleeping && n.Personality.Talkative >= 0.6f && n.Strain < 70f && (teller == null || n.Personality.Talkative > teller.Personality.Talkative)) teller = n;
+        if (teller == null) return;
+        teller.Bark(Openers[GD.RandRange(0, Openers.Length - 1)]);
+        int heard = 0;
+        foreach (var a in Sim.AgentsWithin(teller.GlobalPosition, 700f))
+            if (a is Npc n && n != teller && !n.Sleeping && n.HomeStores == post) { n.Strain = Mathf.Max(0f, n.Strain - 3f); n.ChangeRapport(teller, 1f); heard++; }
+        if (heard > 0) Chronicle.Event($"{teller.DisplayName} kept the house laughing with a story by the stove.", teller.GlobalPosition, teller, weight: 0.4f);
+        if (Trace) GD.Print($"[strain] {teller.DisplayName} tells a story at {Economy.Accords.Name(post)}: {heard} listening");
     }
 
     // ---- the ladder ---------------------------------------------------------------------
@@ -435,10 +460,6 @@ public static class WinterStrain
         return page;
     }
 
-    private static void Notice(FortLedger post, string text)
-    {
-        foreach (var p in Sim.Players())
-            if (p.HomePost == post && !p.IsDead) { Sim.Notice(text); return; }
-        GD.Print("[strain] " + text);
-    }
+    // Told to whoever is at the post to see it; the rest hear it as it travels.
+    private static void Notice(FortLedger post, string text) => Sim.NoticeAt(post, text);
 }

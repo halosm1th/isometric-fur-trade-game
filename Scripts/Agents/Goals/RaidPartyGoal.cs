@@ -4,10 +4,10 @@ using IsometricFurTradeGame.Scripts.World;
 
 namespace IsometricFurTradeGame.Scripts.Agents.Goals;
 
-// A party come from outside (Core/YorkHappenings: the Nor'Westers down the
-// Hayes in the night): up to the stores, take what can be carried, and back
-// to the boats they came in. At the boats they are gone, with whatever they
-// got away with. Unlike RaidGoal there is no house of theirs to walk home to.
+// The Nor'Westers' men from their house across the river, by night
+// (Core/YorkHappenings): up to the stores, take what can be carried, and
+// back to the boats they came in - and home in them, where what they got
+// away with goes into their own house's stores.
 public class RaidPartyGoal : Goal
 {
     private readonly Economy.FortLedger _target;
@@ -37,12 +37,26 @@ public class RaidPartyGoal : Goal
                 if (!ChildFinished(out _)) return GoalStatus.Running;
                 Away = true;
                 npc.Raiding = false;
-                npc.QueueFree();
+                Home(npc);
                 return GoalStatus.Done;
         }
     }
 
     public override void OnExit(Npc npc) { npc.Raiding = false; npc.RaidTimer = 0f; }
+
+    // Paddled home across the river: the plunder into the house's stores, and back to his own work.
+    public static void Home(Npc npc)
+    {
+        if (npc.HomeStores is not Economy.Household home) return;
+        foreach (var (id, c) in new System.Collections.Generic.List<(Items.ItemId, int)>(npc.Inventory.All()))
+        {
+            var k = Items.Items.Of(id).Kind;
+            if (k is Items.ItemKind.Weapon or Items.ItemKind.Clothing or Items.ItemKind.Tool || id == Items.ItemId.Powder) continue;
+            npc.Inventory.Remove(id, c); home.Stores.Add(id, c);
+        }
+        npc.GlobalPosition = IsoGrid.ToWorld(home.AccessCell);   // the boats land them at their own door
+        npc.ResetBehaviour();
+    }
 }
 
 // The house's men when the alarm rings (Core/YorkHappenings): stand to by

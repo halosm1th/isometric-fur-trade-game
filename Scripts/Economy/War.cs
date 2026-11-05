@@ -113,7 +113,7 @@ public static class War
 		party.RouteTask = Routes.PlanAsync(party.Home, party.Target, Sim.Terrain?.FrozenAt(party.Home) ?? false);
 		party.Leader = from.Leader != null && party.Men.Contains(from.Leader) ? from.Leader : party.Men[0];
 		Parties.Add(party);
-		Sim.Notice($"{from.Name}'s war party rides out against {NameOf(against)}: {party.Men.Count} men{(rider != null ? ", and you with them" : "")}.");
+		Sim.NoticeAt(from, $"{from.Name}'s war party rides out against {NameOf(against)}: {party.Men.Count} men{(rider != null ? ", and you with them" : "")}.");
 		return party;
 	}
 
@@ -255,7 +255,7 @@ public static class War
 			w.Brain.Clear(w);
 			w.Brain.Push(w, new AttackGoal(nearest));
 		}
-		Sim.Notice($"{p.From.Name}'s war party is at {NameOf(p.Against)}: they are fighting!");
+		Sim.NoticeAt(p.Against, $"{p.From.Name}'s war party is at {NameOf(p.Against)}: they are fighting!");
 	}
 
 	private static void Retreat(WarParty p, string outcome)
@@ -266,7 +266,7 @@ public static class War
 		// them is home: a quest waiting on the fight goes on from the field.
 		Campaign.Flag($"war:{p.From.Name}:{outcome}");
 		Campaign.Flag($"war:{p.From.Name}:{NameOf(p.Against)}:{outcome}");
-		Sim.Notice(outcome switch
+		Sim.NoticeAt(p.Against, outcome switch
 		{
 			"won" => $"{NameOf(p.Against)} have broken: {p.From.Name}'s war party has the field.",
 			"lost" => $"{p.From.Name}'s war party is beaten and riding for home.",
@@ -294,7 +294,7 @@ public static class War
 			}
 		string how = outcome switch { "won" => "won the fight", "lost" => "were beaten", _ => "came home without a fight" };
 		Chronicle.Event($"{p.From.Name}'s war party against {NameOf(p.Against)} {how}.", p.Home, subject: p.From.Name, weight: 2f);
-		if (Plains.NearPlayer(p.Home, 20000f) || Plains.NearPlayer(p.Target, 20000f)) Sim.Notice($"{p.From.Name}'s war party against {NameOf(p.Against)} {how}.");
+		if (Plains.NearPlayer(p.Home, 20000f) || Plains.NearPlayer(p.Target, 20000f)) Sim.NoticeAt(p.Home, $"{p.From.Name}'s war party against {NameOf(p.Against)} {how}.");
 		// For the story: war:<band>:won / lost / turned_back, and the same against the target.
 		Campaign.Flag($"war:{p.From.Name}:{outcome}");
 		Campaign.Flag($"war:{p.From.Name}:{NameOf(p.Against)}:{outcome}");

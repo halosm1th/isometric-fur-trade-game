@@ -57,11 +57,15 @@ public partial class TradingPostLedger : FortLedger
         if (mouths == 0) return;
         // A week of nets and snares, and what the post's hunters bring in,
         // dried and put by (fresh it would spoil on the books before anyone
-        // ate it): less in the hard months, made up by what the bands sell.
+        // ate it): less in the hard months, made up by what the bands sell -
+        // as much as its men at home can get from the game left in its
+        // country, and taken off those grounds (Economy/Subsistence).
         bool winter = cal.IsFrozen;
-        Stores.Add(ItemId.DriedMeat, mouths * (winter ? 5 : 7));
-        if (winter) Stores.Add(ItemId.Pemmican, mouths);
-        if (Stores.Count(ItemId.Firewood) < 20) Stores.Add(ItemId.Firewood, 6);
+        float game = Subsistence.Game(this, out var ground), share = Subsistence.HandsShare(this, mouths);
+        int dried = Mathf.RoundToInt(mouths * (winter ? 6 : 7) * game * share);
+        Stores.Add(ItemId.DriedMeat, dried);
+        Subsistence.Take(ground, dried);
+        if (Stores.Count(ItemId.Firewood) < 20 && share > 0f) Stores.Add(ItemId.Firewood, 6);
         // The trade itself is the country's camps coming in with their furs
         // (Economy/StandardOfTrade); the goods come up, and the furs go down,
         // with the post's own feeder brigade (Economy/Outfits, World/Convoys).

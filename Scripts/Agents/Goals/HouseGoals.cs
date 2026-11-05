@@ -238,7 +238,7 @@ public class CarouseGoal : Goal
                         if (a is Npc other && other != npc && !other.IsDead && other.Intoxication > 30f && !other.IsFemale)
                         {
                             Chronicle.Event($"{npc.DisplayName} and {other.DisplayName} came to blows over the rum.", npc.GlobalPosition, npc, other.DisplayName, 1f);
-                            Sim.Notice($"{npc.DisplayName} and {other.DisplayName} are brawling, drunk.");
+                            Sim.NoticeAt(npc, $"{npc.DisplayName} and {other.DisplayName} are brawling, drunk.");
                             return Delegate(new BrawlGoal(other));
                         }
                     }

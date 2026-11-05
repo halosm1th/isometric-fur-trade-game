@@ -515,7 +515,7 @@ public static class Campaign
     {
         string text = $"{Str(news, "from", "")}: {Str(news, "subject", "")}. {Str(news, "text", "")}";
         _flags.Add("heard:" + Str(news, "beat", ""));
-        Sim.Notice($"{reader?.Describe() ?? "Someone"} reads news from {text}");
+        Sim.NoticeAt(reader, $"{reader?.Describe() ?? "Someone"} reads news from {text}");
         if (reader != null) Chronicle.Event($"news from {text}", reader.GlobalPosition, reader, subject: Str(news, "subject", ""), weight: 1.4f);
     }
 

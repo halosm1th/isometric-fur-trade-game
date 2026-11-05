@@ -312,7 +312,7 @@ public static class Middlemen
             n.Brain.Push(n, new MeetVisitGoal(j, k == 0));
             k++;
         }
-        Sim.Notice($"Men of {j.Goer.Name} are riding in to {j.Host.Name}'s lodges to trade.");
+        Sim.NoticeAt(j.Host, $"Men of {j.Goer.Name} are riding in to {j.Host.Name}'s lodges to trade.");
     }
 
     // The meeting itself, at the host's lodges.
@@ -525,7 +525,7 @@ public static class Middlemen
         Log(cal, $"{mid.Name} met {far.Name}: {string.Join(", ", sold)} for {paid} ({owed:0} MB{(gunMarkup > 0f ? $"; a gun at {gunMarkup * Items.Items.Of(ItemId.Musket).ValueMb:0} MB" : "")})");
         Chronicle.Event($"{mid.Name} met {far.Name} and traded them {string.Join(", ", sold)}, used, for {paid}.", IsoGrid.ToWorld(far.Camp), subject: mid.Name, weight: 0.6f);
         if (Plains.NearPlayer(IsoGrid.ToWorld(far.Camp), 12000f) || Plains.NearPlayer(IsoGrid.ToWorld(mid.Camp), 12000f))
-            Sim.Notice($"{mid.Name} have been to meet {far.Name}, and come home with {paid} for {string.Join(", ", sold)} they had used a season.");
+            Sim.NoticeAt(mid, $"{mid.Name} have been to meet {far.Name}, and come home with {paid} for {string.Join(", ", sold)} they had used a season.");
     }
 
     // Each side goes home knowing how the other stands today.

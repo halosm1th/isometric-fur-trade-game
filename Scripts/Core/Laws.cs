@@ -845,16 +845,14 @@ public static class Laws
         return list;
     }
 
-    // Said aloud to whoever is near enough to hear of it.
+    // Said aloud to whoever is near enough to hear of it. What the Committee
+    // or the partners decide happens far off: it reaches the country only as
+    // the orders that come with the ship or the brigade.
     private static void Tell(Body b, string line, bool headline = false)
     {
+        if (b.Kind == BodyKind.Company) { Sim.Log(line); return; }
         Vector2 at = b.Kind == BodyKind.Town ? b.Town.Centre : b.Band != null ? IsoGrid.ToWorld(b.Band.Camp) : Vector2.Zero;
-        foreach (var pc in Sim.Players())
-            if (pc != null && GodotObject.IsInstanceValid(pc) && (b.Kind == BodyKind.Company ? pc.Faction == b.Firm : pc.GlobalPosition.DistanceSquaredTo(at) < 4000f * 4000f))
-            {
-                if (headline) Sim.Headline(line); else Sim.Notice(line);
-                return;
-            }
+        if (headline) Sim.HeadlineAt(at, line); else Sim.NoticeAt(at, line);
     }
 
     // Dev (--lawtrace), twice a month: each town's bread law, the market's

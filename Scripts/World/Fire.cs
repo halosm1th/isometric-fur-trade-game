@@ -52,7 +52,7 @@ public partial class Fire : Node2D
         if (_burning.ContainsKey(c) || _burnt.Contains(c) || !s.IsFlammable(c)) return false;
         _burning[c] = 0f;
         ShowBlaze(c, true);
-        if (cause != null) Sim.Notice(cause);
+        if (cause != null) Sim.NoticeAt(IsoGrid.ToWorld(c), cause);
         return true;
     }
 

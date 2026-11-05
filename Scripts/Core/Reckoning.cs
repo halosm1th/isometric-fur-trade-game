@@ -163,7 +163,7 @@ public static class Reckoning
 	private static void Close(Player.PlayerController p, List<string> lines, string headline)
 	{
 		foreach (string l in lines) p.Journal.Add(l);
-		Sim.Headline(headline);
+		Net.Net.I?.HeadlineTo(p, headline);
 		YearStory.Write(p);   // the same year told rather than tallied
 		p.LastYearStanding = p.Standing;
 		p.LastYearRank = p.Rank;

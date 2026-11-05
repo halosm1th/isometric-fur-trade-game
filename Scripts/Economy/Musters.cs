@@ -105,7 +105,7 @@ public static class Musters
 			m.Called = m.Men.Count;
 			All.Add(m);
 			Campaign.Flag($"muster:{post}");
-			Sim.Notice($"{War.NameOf(h)}: {m.Men.Count} men are called from their work and take up arms.");
+			Sim.NoticeAt(h, $"{War.NameOf(h)}: {m.Men.Count} men are called from their work and take up arms.");
 		}
 		Send(m, where.Value, string.IsNullOrEmpty(at) ? post : at, MusterPhase.Marching);
 		return null;
@@ -129,7 +129,7 @@ public static class Musters
 		m.Foe = foe; m.FoeName = against; m.Why = why ?? "";
 		Send(m, PostPos(foe) ?? Where(against) ?? m.Dest, against, MusterPhase.Attacking);
 		Chronicle.Event($"The men of {War.NameOf(h)} went against {War.NameOf(foe)}{(m.Why != "" ? ", " + m.Why : "")}.", m.Dest, m.Leader, subject: War.NameOf(h), weight: 1.4f);
-		Sim.Notice($"{War.NameOf(h)}'s men go against {War.NameOf(foe)}!");
+		Sim.NoticeAt(h, $"{War.NameOf(h)}'s men go against {War.NameOf(foe)}!");
 		return null;
 	}
 
@@ -138,7 +138,7 @@ public static class Musters
 	{
 		if (PostNamed(post) is not { } h || Of(h) is not { } m) return null;   // nobody under arms: nothing to do
 		End(m, null);
-		Sim.Notice($"{War.NameOf(h)}'s men are stood down and go back to their work.");
+		Sim.NoticeAt(h, $"{War.NameOf(h)}'s men are stood down and go back to their work.");
 		return null;
 	}
 
@@ -234,7 +234,7 @@ public static class Musters
 					{
 						m.Phase = MusterPhase.Holding;
 						Campaign.Flag($"march:{m.Name}:{m.DestName}");
-						Sim.Notice($"{War.NameOf(m.Post)}'s men are at {m.DestName}.");
+						Sim.NoticeAt(m.Post, $"{War.NameOf(m.Post)}'s men are at {m.DestName}.");
 					}
 					break;
 				case MusterPhase.Attacking:
@@ -285,7 +285,7 @@ public static class Musters
 			d.Brain.Clear(d);
 			d.Brain.Push(d, new AttackGoal(nearest));
 		}
-		Sim.Notice($"{War.NameOf(m.Post)}'s men are at {War.NameOf(m.Foe)}: they are fighting!");
+		Sim.NoticeAt(m.Post, $"{War.NameOf(m.Post)}'s men are at {War.NameOf(m.Foe)}: they are fighting!");
 	}
 
 	// Out of sight: men and arms against men and arms, with the walls on the defender's side.
@@ -324,7 +324,7 @@ public static class Musters
 			Campaign.Flag($"attack:{m.Name}:{m.FoeName}:{outcome}");
 			string how = outcome switch { "won" => "carried the day", "lost" => "were beaten off", _ => "turned back without a fight" };
 			Chronicle.Event($"The men of {War.NameOf(m.Post)} {how} at {War.NameOf(m.Foe)}.", m.Dest, m.Leader, subject: War.NameOf(m.Post), weight: 2f);
-			Sim.Notice($"The men of {War.NameOf(m.Post)} {how} at {War.NameOf(m.Foe)}.");
+			Sim.NoticeAt(m.Post, $"The men of {War.NameOf(m.Post)} {how} at {War.NameOf(m.Foe)}.");
 		}
 		foreach (var n in m.Men) if (Ok(n) && n.Brain.Has<MusterGoal>()) n.Brain.Clear(n);
 	}

@@ -83,7 +83,7 @@ public partial class OutpostLedger : FortLedger
                 GoodsPaidMb += canSpend;
                 Chronicle.Event($"Oxford House bought {canSpend * 3} pieces of provisions off the country for {canSpend} in goods.", IsoGrid.ToWorld(AccessCell), subject: Name, weight: 0.6f);
             }
-            else Sim.Notice("Oxford House has neither provisions nor goods to buy them with.");
+            else Sim.NoticeAt(this, "Oxford House has neither provisions nor goods to buy them with.");
         }
     }
 }

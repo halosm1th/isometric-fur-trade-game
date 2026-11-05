@@ -117,7 +117,7 @@ public partial class Ship : Node2D
 		Current = State.Arriving;
 		_ordersRead = false;
 		if (Sim.Fort != null) Packet = Letters.Directive(Sim.Fort.LondonIncentiveNext, Sim.Fort.QuotaNextMb, GameCalendar.Instance?.Year ?? 1811);
-		Sim.Notice("A sail on the bay: the ship from England is standing in.");
+		Sim.NoticeAt(Sim.Fort, "A sail on the bay: the ship from England is standing in.");
 	}
 
 	// The new hand's last day of the crossing: out in the Bay where her
@@ -214,7 +214,7 @@ public partial class Ship : Node2D
 		if (alive < 3)
 		{
 			Current = State.Stranded;
-			Sim.Notice("The ship cannot sail: too few of her crew are left alive. She lies at the wharf.");
+			Sim.NoticeAt(Sim.Fort, "The ship cannot sail: too few of her crew are left alive. She lies at the wharf.");
 			return;
 		}
 		foreach (var c in Crew) if (c != null && IsInstanceValid(c)) c.QueueFree();
@@ -238,12 +238,12 @@ public partial class Ship : Node2D
 		if (Economy.LondonCommittee.Recalled && factor != null)
 		{
 			Economy.LondonCommittee.Recalled = false;
-			Sim.Headline($"{factor.DisplayName} sails for London on the ship, recalled to answer for the accounts.");
+			Sim.HeadlineAt(Sim.Fort, $"{factor.DisplayName} sails for London on the ship, recalled to answer for the accounts.");
 			factor.Recall("recalled to London to answer for the accounts");
 		}
 		float mb = Hold.TotalValueMb;
 		Economy.Companies.Sell(Faction.HBC, mb, "at the London sale");
-		Sim.Notice($"The ship has sailed for London with {mb:0} MB of furs aboard" + (Sim.Fort != null ? $" (quota was {Sim.Fort.QuotaMb:0})." : "."));
+		Sim.NoticeAt(Sim.Fort, $"The ship has sailed for London with {mb:0} MB of furs aboard" + (Sim.Fort != null ? $" (quota was {Sim.Fort.QuotaMb:0})." : "."));
 		foreach (var pc in Sim.Players())
 		{
 			if (pc.Faction != Faction.HBC) continue;
@@ -357,7 +357,7 @@ public partial class Ship : Node2D
 		_dockedHours = 0f;
 		_lighterLbsPerHour = Mathf.Max(60f, Cargo.TotalWeightLbs / (LighteringDays * 14f));
 		_onWharfLbs = Mathf.Min(Cargo.TotalWeightLbs, _lighterLbsPerHour * 2f);   // the first boatload is waiting
-		Sim.Notice("The ship is alongside the wharf. All hands to the landing.");
+		Sim.NoticeAt(Sim.Fort, "The ship is alongside the wharf. All hands to the landing.");
 		Agents.Chronicle.Shared(Sim.Fort, "the ship came in to the wharf, and everyone ran to the shore", 1.3f);
 		if (_population != null)
 		{
@@ -368,7 +368,7 @@ public partial class Ship : Node2D
 			{
 				var sick = Crew[(int)(GD.Randi() % (uint)Crew.Count)];
 				sick.CatchFever();
-				Sim.Notice("There is fever aboard, the mate says. Keep the men off her if you can.");
+				Sim.NoticeAt(Sim.Fort, "There is fever aboard, the mate says. Keep the men off her if you can.");
 			}
 		}
 		// The bos'n carries the Committee's packet up to the Factor; it is
@@ -380,7 +380,7 @@ public partial class Ship : Node2D
 			bosun.Mail.Add(Packet);
 			bosun.Brain.Clear(bosun);
 			bosun.Brain.Push(bosun, new Agents.Goals.DeliverMailGoal());
-			Sim.Notice($"{bosun.DisplayName} comes ashore with the Committee's packet under his arm.");
+			Sim.NoticeAt(Sim.Fort, $"{bosun.DisplayName} comes ashore with the Committee's packet under his arm.");
 			Packet = null;
 		}
 		// An event the Factor replans on (design doc 3.9 step 7).

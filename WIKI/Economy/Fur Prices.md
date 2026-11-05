@@ -63,7 +63,7 @@ When a house pays in drink as well, part of the goods are handed out as rum: the
 `Economy/Companies.cs` (design doc 13.6). The furs are sold where they leave the country: the Bay's at the London sale when the ship is home, the Nor'Westers' at Montreal, the Americans' at New York and St. Louis.
 
 What a beaver fetches there depends on four things:
-- **The blockade** (0.75 until it lifts, then 1.08).
+- **The blockade**: the Bay's price ×0.7 and the Nor'Westers' ×0.85 until it lifts (some of their furs go out by New York); the Americans' untouched. Then 1.08.
 - **The war** (0.9 for the Nor'Westers).
 - **This year's volume:** above 6,000 MB sold across all the companies, the price falls. A sale counts against its own price.
 - **Last years' gluts:** each year's excess carries into the next, halving yearly.
@@ -76,7 +76,7 @@ What a beaver fetches there depends on four things:
 
 ## Planned
 
-A quality rating on every pack, and the blockade hitting the Bay harder than the Nor'Westers by route (it now hits both the same).
+A quality rating on every pack.
 
 ## See also
 

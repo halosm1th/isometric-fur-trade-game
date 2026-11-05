@@ -53,7 +53,7 @@ public static class Grudges
         }
         if (kin.Count > 0)
         {
-            Sim.Notice($"{victim.DisplayName}'s people hold {killer.Describe()} to account. It will be made right with goods, or with blood.");
+            Sim.NoticeAt(victim, $"{victim.DisplayName}'s people hold {killer.Describe()} to account. It will be made right with goods, or with blood.");
             Chronicle.Event($"{killer.Describe()} killed {victim.DisplayName}; the family will want it answered.", victim.GlobalPosition, killer, victim.DisplayName, 3f);
         }
     }
@@ -68,7 +68,7 @@ public static class Grudges
             foreach (var n in Sim.Npcs) if (!n.IsDead && n.HomeStores == holder.HomeStores && n != holder && (n.Role == Role.Chief || n.Role == Role.Hunter)) { heir = n; break; }
             if (heir == null) { g.Settled = true; continue; }
             g.Holder = heir.DisplayName;
-            Sim.Notice($"The debt for {g.Victim} passes to {heir.DisplayName}.");
+            Sim.NoticeAt(heir, $"The debt for {g.Victim} passes to {heir.DisplayName}.");
         }
     }
 

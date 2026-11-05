@@ -604,6 +604,22 @@ public partial class Net : Node
     }
 
     // A line for one player only (their own actions' results).
+    // A world notice in one player's log only (Sim.NoticeAt).
+    public void LogTo(PlayerController p, string text)
+    {
+        if (p == null || string.IsNullOrEmpty(text)) return;
+        if (p.OwnerPeer == LocalPeerId) Sim.NoticeLocal(text);
+        else if (Current != Mode.Offline) RpcId(p.OwnerPeer, nameof(NoticeAll), text);
+    }
+
+    // A headline on one player's screen only (Sim.HeadlineAt).
+    public void HeadlineTo(PlayerController p, string text)
+    {
+        if (p == null || string.IsNullOrEmpty(text)) return;
+        if (p.OwnerPeer == LocalPeerId) Sim.NoticeHeadlineLocal(text);
+        else if (Current != Mode.Offline) RpcId(p.OwnerPeer, nameof(HeadlineRpc), text);
+    }
+
     public void NoticeTo(PlayerController p, string text)
     {
         if (p == null || string.IsNullOrEmpty(text)) return;

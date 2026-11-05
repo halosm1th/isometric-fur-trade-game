@@ -93,6 +93,8 @@ public static class Delegation
         float foodDays = fort.FoodDays(mouths + 1);
         bool gooseSeason = World.GooseHunt.Season && eco?.BestSite(Species.Goose, fort) != null;
         bool foodShort = foodDays < 30f || scorbutic >= 3;
+        // A sour house in a long winter (Agents/WinterStrain): fresh meat does them more good than rum.
+        bool sour = WinterStrain.Average(fort) >= 45f;
         // The autumn flight: the whole establishment goes to the marsh while
         // it lasts, because what is not salted now is not eaten in February.
         if (World.GooseHunt.Autumn && eco?.BestSite(Species.Goose, fort) is SpawnSite marsh)
@@ -114,16 +116,16 @@ public static class Delegation
         // leave the marsh and get them into casks, or they rot on the floor.
         if (World.GooseHunt.Season && fort.Stores.Count(ItemId.Goose) >= 40)
             tasks.Add(new PostTask { Name = "salt the geese down", Make = _ => new SaltGeeseGoal(), Men = fort.Stores.Count(ItemId.Goose) >= 120 ? 3 : 1, Urgency = 80f, KeyTask = true, Intent = $"{fort.Stores.Count(ItemId.Goose)} birds on the floor and the flight still on" });
-        if (gooseSeason || foodShort)
+        if (gooseSeason || foodShort || sour)
         {
             var site = gooseSeason ? eco?.BestSite(Species.Goose, fort) : eco?.BestBigGame(fort);
             if (site == null) { var lodge = eco?.BestSite(Species.Beaver, fort); if (lodge != null && lodge.Count > lodge.Capacity * 0.6f) site = lodge; }
-            float urgency = foodDays < 10f ? 85f : scorbutic >= 3 ? 70f : gooseSeason ? 55f : 45f;
+            float urgency = foodDays < 10f ? 85f : scorbutic >= 3 ? 70f : sour ? 60f : gooseSeason ? 55f : 45f;
             int want = foodDays < 10f ? 3 : 2;
             if (site != null)
-                tasks.Add(new PostTask { Name = $"hunt at {site.Name}", Make = _ => new HuntSiteGoal(site, 6f), Men = site.Species == Species.Beaver ? 1 : want, Urgency = urgency, Hunt = true, NeedsMusket = true, KeyTask = true, Site = site, Intent = foodShort ? $"we have {foodDays:0} days of food" : "the geese are in" });
+                tasks.Add(new PostTask { Name = $"hunt at {site.Name}", Make = _ => new HuntSiteGoal(site, 6f), Men = site.Species == Species.Beaver ? 1 : want, Urgency = urgency, Hunt = true, NeedsMusket = true, KeyTask = true, Site = site, Intent = foodShort ? $"we have {foodDays:0} days of food" : sour ? "the men are sour on salt food, and fresh meat will do them good" : "the geese are in" });
             else
-                tasks.Add(new PostTask { Name = "snare small game", Make = _ => new ForageGoal(5f), Men = want, Urgency = urgency - 5f, Hunt = true, Intent = scorbutic >= 3 ? "the men want fresh meat" : $"we have {foodDays:0} days of food" });
+                tasks.Add(new PostTask { Name = "snare small game", Make = _ => new ForageGoal(5f), Men = want, Urgency = urgency - 5f, Hunt = true, Intent = scorbutic >= 3 || sour ? "the men want fresh meat" : $"we have {foodDays:0} days of food" });
         }
 
         // Returns (design doc 3.9 step 1): the directive's quota by the
@@ -210,7 +212,7 @@ public static class Delegation
             float score = n.Standing + Trust(factor, n) * 20f + n.Personality.Ambition * 5f;
             if (best == null || score > best.Standing + Trust(factor, best) * 20f + best.Personality.Ambition * 5f) { runnerUp = best; best = n; } else if (runnerUp == null) runnerUp = n;
         }
-        if (best == null) { Sim.Notice($"{factor.DisplayName} has no clerk to send to Oxford House."); fort.LastPostingDay = Cal.Day; return; }
+        if (best == null) { Sim.NoticeAt(factor, $"{factor.DisplayName} has no clerk to send to Oxford House."); fort.LastPostingDay = Cal.Day; return; }
         fort.LastPostingDay = Cal.Day;
         best.Role = Role.Postmaster;
         best.DisplayName = "Mr. " + best.DisplayName.Replace(" (clerk)", "") + " (postmaster)";
@@ -224,7 +226,7 @@ public static class Delegation
         best.Mail.Add(orders);
         best.Brain.Push(best, new RoadGoal(op.AccessCell));
         fort.KnowsOutpostMasterless = false;
-        Sim.Notice($"{factor.DisplayName} names {best.DisplayName} to the charge of Oxford House and sends him up the river road.");
+        Sim.NoticeAt(factor, $"{factor.DisplayName} names {best.DisplayName} to the charge of Oxford House and sends him up the river road.");
         // If that was the seat the player was after, he hears who got it and why.
         Rivals.SeatFilled(best, "the charge of Oxford House");
         Chronicle.Event($"{factor.DisplayName} gave {best.DisplayName} the charge of Oxford House.", factor.GlobalPosition, factor, best.DisplayName, 1.5f);
@@ -242,12 +244,12 @@ public static class Delegation
         if (fort == null || op == null || fort != Sim.Fort) return;
         var men = new List<Npc>();
         foreach (var n in Sim.Npcs) if (n.HomeStores == fort && n.Role == Role.Labourer && !n.IsDead && !n.IsSick) men.Add(n);
-        if (men.Count < 3) { Sim.Notice($"{factor.DisplayName} has not the men to send the outfit inland this year."); return; }
+        if (men.Count < 3) { Sim.NoticeAt(factor, $"{factor.DisplayName} has not the men to send the outfit inland this year."); return; }
         men.Sort((a, b) => Trust(factor, b).CompareTo(Trust(factor, a)));
         var cargo = new List<(ItemId, int)> { (ItemId.TradeGoods, 20), (ItemId.Pemmican, 10), (ItemId.Rum, 3), (ItemId.SteelTrap, 4) };
         var cargo2 = new List<(ItemId, int)> { (ItemId.TradeGoods, 15), (ItemId.DriedGoose, 12), (ItemId.Musket, 1), (ItemId.PointBlanket, 4) };
         var letter = new Message { Kind = "orders", From = factor.DisplayName, To = "the postmaster at Oxford House", Company = Faction.HBC, Subject = "the winter's orders", Text = $"Hold the post; pay {fort.PeltPrice:0.00}; send the furs down before the ice goes out. London wants {fort.QuotaMb:0} MB from this district." };
-        letter.OnRead = r => { op.PeltPrice = fort.PeltPrice; op.DirectiveText = letter.Text; op.DirectiveReadDay = Cal.Day; Sim.Notice($"{r?.Describe() ?? "The postmaster"} reads the Factor's orders: pay {op.PeltPrice:0.00} inland."); };
+        letter.OnRead = r => { op.PeltPrice = fort.PeltPrice; op.DirectiveText = letter.Text; op.DirectiveReadDay = Cal.Day; Sim.NoticeAt(r, $"{r?.Describe() ?? "The postmaster"} reads the Factor's orders: pay {op.PeltPrice:0.00} inland."); };
         for (int i = 0; i < 2; i++)
         {
             var m = men[i];
@@ -256,7 +258,7 @@ public static class Delegation
             m.Brain.Push(m, new CourierGoal(fort, op, i == 0 ? letter : null, false, i == 0 ? cargo : cargo2));
         }
         fort.LastSupplyDay = Cal.Day;
-        Sim.Notice($"{factor.DisplayName}: \"{men[0].DisplayName}, {men[1].DisplayName} - the outfit for Oxford House. Take the river road and mind the packet.\"");
+        Sim.NoticeAt(factor, $"{factor.DisplayName}: \"{men[0].DisplayName}, {men[1].DisplayName} - the outfit for Oxford House. Take the river road and mind the packet.\"");
         Chronicle.Event($"{factor.DisplayName} sent the fall outfit inland with {men[0].DisplayName} and {men[1].DisplayName}.", factor.GlobalPosition, factor, weight: 0.8f);
     }
 
@@ -360,10 +362,10 @@ public static class Delegation
         // Anyone left keeps the woodpile up.
         foreach (var m in free) { m.AssignedTask = null; m.AssignedTaskName = "cut wood"; m.AssignedTaskIsHunt = false; summary.Append($"{m.DisplayName}: cut wood; "); }
 
-        Sim.Notice($"{leader.DisplayName} gives the morning's orders. {summary}");
-        foreach (var r in refused) Sim.Notice(r);
-        if (fort.LostToRivalMb > 0f && fort.Company == Faction.HBC) Sim.Notice($"{leader.DisplayName}: \"{fort.LostToRivalMb:0} Made Beaver walked past us to the Nor'Westers this season. London will want to know why.\"");
-        if (fort.LotsLostToRaids > 0 && fort.RaidedRecently(today)) Sim.Notice($"{leader.DisplayName}: \"{fort.LotsLostToRaids} lots gone out of our stores to the other side. That will be answered.\"");
+        Sim.NoticeAt(leader, $"{leader.DisplayName} gives the morning's orders. {summary}");
+        foreach (var r in refused) Sim.NoticeAt(leader, r);
+        if (fort.LostToRivalMb > 0f && fort.Company == Faction.HBC) Sim.NoticeAt(leader, $"{leader.DisplayName}: \"{fort.LostToRivalMb:0} Made Beaver walked past us to the Nor'Westers this season. London will want to know why.\"");
+        if (fort.LotsLostToRaids > 0 && fort.RaidedRecently(today)) Sim.NoticeAt(leader, $"{leader.DisplayName}: \"{fort.LotsLostToRaids} lots gone out of our stores to the other side. That will be answered.\"");
 
         // The players get theirs the same way - if they're here to hear it.
         foreach (var pc in Sim.Players())
@@ -436,7 +438,7 @@ public static class Delegation
         if (man.GlobalPosition.DistanceTo(leader.GlobalPosition) > Earshot) return false;
         var refused = new List<string>();
         Give(leader, fort, man, t, new System.Text.StringBuilder(), refused);
-        foreach (var r in refused) Sim.Notice(r);
+        foreach (var r in refused) Sim.NoticeAt(leader, r);
         return true;
     }
 
@@ -477,7 +479,7 @@ public static class Delegation
             if (site != null && siteCell != null) fort.Believe(site, siteCell.Value);
         }
         leader.ChangeRapport(man, 1f);
-        if (GD.Randf() < 0.35f) Sim.Notice($"{man.DisplayName} to {leader.DisplayName}: \"{report}.\"");
+        if (GD.Randf() < 0.35f) Sim.NoticeAt(leader, $"{man.DisplayName} to {leader.DisplayName}: \"{report}.\"");
     }
 
     // A man sent out yesterday who hasn't been seen since: send someone to look.
@@ -501,7 +503,7 @@ public static class Delegation
             searcher.AssignedTask = null; searcher.AssignedTaskName = $"look for {m.DisplayName}";
             searcher.Brain.Clear(searcher);
             searcher.Brain.Push(searcher, new LookForGoal(m, fort.BelievedCell(a.Site)));
-            Sim.Notice($"{leader.DisplayName}: \"{m.DisplayName} went out to {a.Task} and has not come back. {searcher.DisplayName} - go and look.\"");
+            Sim.NoticeAt(leader, $"{leader.DisplayName}: \"{m.DisplayName} went out to {a.Task} and has not come back. {searcher.DisplayName} - go and look.\"");
             Chronicle.Event($"{m.DisplayName} did not come back from {a.Site.Name}.", leader.GlobalPosition, subject: m.DisplayName, weight: 1f);
         }
     }
@@ -515,10 +517,10 @@ public static class Delegation
         var tasks = Objectives(leader, fort, new List<Npc> { man });
         tasks.Sort((a, b) => b.Urgency.CompareTo(a.Urgency));
         var t = tasks.Count > 0 ? tasks[0] : null;
-        if (t == null || !RoleBehaviourHours()) { man.AssignedTask = null; man.AssignedTaskName = "cut wood"; Sim.Notice($"{leader.DisplayName} looks the new hand over. \"{man.DisplayName}. Find a bed in the men's house; there's wood wants cutting.\""); return; }
+        if (t == null || !RoleBehaviourHours()) { man.AssignedTask = null; man.AssignedTaskName = "cut wood"; Sim.NoticeAt(leader, $"{leader.DisplayName} looks the new hand over. \"{man.DisplayName}. Find a bed in the men's house; there's wood wants cutting.\""); return; }
         var sb = new System.Text.StringBuilder(); var refused = new List<string>();
         Give(leader, fort, man, t, sb, refused);
-        Sim.Notice($"{leader.DisplayName} to the new hand: \"{man.DisplayName}, is it? You'll {t.Name} - {t.Intent}.\"" + (refused.Count > 0 ? " " + refused[0] : ""));
+        Sim.NoticeAt(leader, $"{leader.DisplayName} to the new hand: \"{man.DisplayName}, is it? You'll {t.Name} - {t.Intent}.\"" + (refused.Count > 0 ? " " + refused[0] : ""));
     }
 
     private static bool RoleBehaviourHours() => Cal.Hour >= 7f && Cal.Hour < 17f;

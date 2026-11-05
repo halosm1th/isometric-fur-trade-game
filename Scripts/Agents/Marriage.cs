@@ -72,7 +72,7 @@ public static class Marriage
         float kin = way == Way.NorWest ? 20f : 10f;
         foreach (var n in Sim.Npcs) if (n.HomeStores == father.HomeStores) n.ChangeRapport(p, kin);
         if (way == Way.NorWest && father.HomeStores is BandLedger band) band.StandingWithNwc = Mathf.Min(100f, band.StandingWithNwc + 10f);
-        Sim.Notice($"{daughter.DisplayName} has married {p.DisplayName} in the custom of the country{where}.");
+        Sim.NoticeAt(p, $"{daughter.DisplayName} has married {p.DisplayName} in the custom of the country{where}.");
         return way switch
         {
             Way.NorWest => $"\"So be it.\" {daughter.DisplayName} stays with her people, and you are of her family now. Come back to her often.",
@@ -179,7 +179,7 @@ public static class Marriage
         wife.Role = best.IsBandPerson ? Role.BandWoman : Role.Wife;
         best.ChangeRapport(p, -15f);
         if (!best.IsBandPerson && best.HomeStores != null) MoveInWith(wife, best);
-        Sim.Notice($"{wife.DisplayName} has married {best.DisplayName}.");
+        Sim.NoticeAt(wife, $"{wife.DisplayName} has married {best.DisplayName}.");
     }
 
     private static void MoveInWith(Npc wife, Npc husband)

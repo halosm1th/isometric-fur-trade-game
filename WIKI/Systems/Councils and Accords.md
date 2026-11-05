@@ -67,6 +67,7 @@ As a Nor'Wester with standing 20+ before July: **The companies... > Write to the
 | Peace | No war party, raid or armed party against the other. War parties launched by the plains simulation skip a partner. The houses' daily raid decision skips a partner. A truce (`War.Truce`, the campaign's `truce` action) is now a peace accord. |
 | Exclusive | The camp carries its furs only to that company's houses, and is paid 15% over the standard there. A chief who cares little for his word may still go to the other company. |
 | Alliance | A war party or raid against one partner heats the ally's feud with the attacker, and an allied camp may ride out against the attacker. |
+| Settlement | A house that owes a camp blood pays restitution in trade goods; the kin's blood debts are laid down, with a year's peace. |
 
 **Breaking one** is a deed the world sees: riding against a partner in peace, a house sending armed men against a partner, or carrying furs to the other company. The wronged side's standing with the breaker drops 20 to 25, the feud heats, rivalry between the companies jumps 25, and the breach is told as a heavy story.
 
@@ -78,7 +79,9 @@ As a Nor'Wester with standing 20+ before July: **The companies... > Write to the
 
 Dev: `--accord=A:B:Peace+Exclusive[:days]` (camp or post names; `nwc` for the Nor'Westers at York), `--accordtrace`.
 
-Not yet: safe passage, debt restructuring, vendetta settlement, terms voted in a camp council, and the 1821 merger as an accord.
+**A camp's council decides.** The chief (three voices) and the heads of lodges each weigh it by their own interest and temper (and, if you are asking, by what they think of you). Two in three must agree. This applies to your proposals and to the world's.
+
+Not yet: safe passage (nobody stops travellers at a camp's border yet), debt restructuring, and the 1821 merger as an accord.
 
 ## Tips
 

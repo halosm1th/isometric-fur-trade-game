@@ -195,7 +195,7 @@ public static class Tiers
         {
             n.SickDaysLeft -= 1f;
             n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 8f);
-            if (n.SickDaysLeft <= 0f) { n.Immune = true; Sim.Notice($"{n.Describe()} is over the fever."); }
+            if (n.SickDaysLeft <= 0f) { n.Immune = true; Sim.NoticeAt(n, $"{n.Describe()} is over the fever."); }
         }
         else if (n.HasScurvy) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 3f);
 
@@ -228,7 +228,7 @@ public static class Tiers
         {
             string took = n.IsSick ? "the fever" : n.Needs.Warmth <= 0f ? "cold" : n.HasScurvy && n.Needs.Hunger > 1f ? "the scurvy" : "want";
             n.DieQuietly();
-            Sim.Notice($"{n.DisplayName} has died of {took} at {home.Title}.");
+            Sim.NoticeAt(home, $"{n.DisplayName} has died of {took} at {home.Title}.");
             return;
         }
 
@@ -295,7 +295,7 @@ public static class Tiers
         int days = (_hungryDays.TryGetValue(home, out int had) ? had : 0) + 1;
         _hungryDays[home] = days;
         if (days == 8 || days % 30 == 0)
-            Sim.Headline($"Word comes that {home.Title} is on short commons: nothing in the store and the men going thin.");
+            Sim.HeadlineAt(home, $"Word comes that {home.Title} is on short commons: nothing in the store and the men going thin.");
     }
 
     private static readonly System.Collections.Generic.HashSet<string> _toldOf = new();
@@ -363,7 +363,7 @@ public static class Tiers
         if (desperate && home is not Economy.BandLedger && site.Name != "" && !_toldOf.Contains(home.Title + site.Name))
         {
             _toldOf.Add(home.Title + site.Name);
-            Sim.Notice($"{home.Title}: the men went looking and found the game at {site.Name}.");
+            Sim.NoticeAt(home, $"{home.Title}: the men went looking and found the game at {site.Name}.");
         }
         float chance = Mathf.Clamp(site.Count / site.Capacity, 0.05f, 1f) * (0.16f + n.Skills.Hunting * 0.24f);
         if (GD.Randf() >= chance) return;

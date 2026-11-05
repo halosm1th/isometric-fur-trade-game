@@ -138,7 +138,7 @@ public static class Fields
                     p.Weeds = Mathf.Min(0.6f, p.Weeds + 0.02f);
                     if (month >= (p.Crop == Crop.Wheat ? 8 : 9)) p.Stage = PlotStage.Ripe;
                 }
-                else if (p.Stage == PlotStage.Ripe && month >= 11) { p.Stage = PlotStage.Stubble; p.Weeds = 0f; Sim.Notice($"{f.Home.Title}: a field of {CropName(p.Crop)} was never reaped and is lost to the frost."); }
+                else if (p.Stage == PlotStage.Ripe && month >= 11) { p.Stage = PlotStage.Stubble; p.Weeds = 0f; Sim.NoticeAt(f.Home, $"{f.Home.Title}: a field of {CropName(p.Crop)} was never reaped and is lost to the frost."); }
                 if (p.Stage != was) Paint(p);
             }
         if (Report) PrintReport();

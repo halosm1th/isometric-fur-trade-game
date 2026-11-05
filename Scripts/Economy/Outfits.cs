@@ -99,7 +99,7 @@ public static class Outfits
             _entryYears[e.Post] = cal.Year;
             var at = Posts.Named(e.Post)?.Ledger;
             if (at == null) continue;
-            if (Campaign.Has(e.Flag)) { Sim.Notice($"No goods came in at {e.Post} this year."); continue; }
+            if (Campaign.Has(e.Flag)) { Sim.Log($"No goods came in at {e.Post} this year."); continue; }
             float order = Companies.Order(at.Company, e.Mb);
             foreach (var (id, mb) in PostWants.YearOrder(at)) at.Stores.Add(id, Mathf.RoundToInt(mb * order / 100f / Items.Items.Of(id).ValueMb));
             if (Plains.Log) GD.Print($"[trade] {cal.DateString} {e.Story} ({order:0} MB)");

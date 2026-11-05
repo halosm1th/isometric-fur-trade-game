@@ -36,6 +36,8 @@ public static class Inspections
     private static readonly Dictionary<FortLedger, int> _lastPost = new();
     private static readonly Dictionary<FortLedger, float> _found = new();          // skim already brought to light
     private static readonly Dictionary<PlayerController, float> _suspect = new();
+    // A post someone has told the master about, and who told him.
+    private static readonly Dictionary<FortLedger, PlayerController> _toldOf = new();
     private static readonly Dictionary<PlayerController, int> _lastKit = new();
     private static readonly HashSet<PlayerController> _owed = new();               // ordered while he was away
     private static int _lastDay = -1;
@@ -48,7 +50,7 @@ public static class Inspections
 
     public static void Reset()
     {
-        _onTheRoad.Clear(); _lastPost.Clear(); _found.Clear(); _suspect.Clear(); _lastKit.Clear(); _owed.Clear(); _lastDay = -1; _devDone = false;
+        _onTheRoad.Clear(); _lastPost.Clear(); _found.Clear(); _suspect.Clear(); _toldOf.Clear(); _lastKit.Clear(); _owed.Clear(); _lastDay = -1; _devDone = false;
     }
 
     private static int Today(GameCalendar cal) => cal.Year * 366 + (int)cal.DayOfYear;
@@ -76,6 +78,22 @@ public static class Inspections
         if (head == null || head == post) return null;
         return head.Leader is { IsDead: false } l ? l : null;
     }
+
+    // ---- a word in the master's ear -------------------------------------------------------------
+
+    // The subordinate posts a player could tell his master about.
+    public static List<FortLedger> UnderHim(PlayerController p)
+    {
+        var list = new List<FortLedger>();
+        var boss = p.HomePost?.Leader;
+        if (boss == null) return list;
+        foreach (var post in Sim.Posts())
+            if (post != p.HomePost && post.Leader != null && SuperiorOf(post) == boss && !_toldOf.ContainsKey(post)) list.Add(post);
+        return list;
+    }
+
+    // He tells his master he thinks this post's books are short: an inspection is likelier soon.
+    public static void Report(PlayerController p, FortLedger post) => _toldOf[post] = p;
 
     // ---- the master's own share ---------------------------------------------------------------
 
@@ -132,7 +150,7 @@ public static class Inspections
             if (sup == null || post.Leader == null || post.Leader.IsDead) continue;
             if (_lastPost.TryGetValue(post, out int last) && today - last < 120 && !dev) continue;
             if (_onTheRoad.Exists(v => v.Post == post)) continue;
-            float chance = 0.002f + sup.Personality.Suspicion * 0.006f;
+            float chance = 0.002f + sup.Personality.Suspicion * 0.006f + (_toldOf.ContainsKey(post) ? 0.08f : 0f);
             if (!dev && GD.Randf() > chance) continue;
             _lastPost[post] = today;
             var head = HeadOf(post.Company);
@@ -178,6 +196,14 @@ public static class Inspections
         {
             master.ChangeRapport(v.Superior, -3f);   // nobody likes being doubted
             if (Trace) GD.Print($"[inspect] {v.Inspector} finds the books at {place} in order{(missing >= 1f ? $" (missing {missing:0} MB, not found)" : "")}");
+            if (_toldOf.Remove(post, out var wrong) && GodotObject.IsInstanceValid(wrong))
+            {
+                // The man who told tales was wrong, and the master learns who it was.
+                wrong.Standing -= 3f;
+                master.ChangeRapport(wrong, -20f);
+                v.Superior.ChangeRapport(wrong, -5f);
+                wrong.Journal.Add($"{GameCalendar.Instance?.DateString}: {v.Inspector} found the books at {place} in order. You were wrong about {mn}, and he knows it was you. (standing -3)");
+            }
             return;
         }
         _found[post] = post.SkimmedMb;
@@ -189,7 +215,14 @@ public static class Inspections
         bool gross = missing >= 30f && post is OutpostLedger;
         Chronicle.Event($"{v.Inspector} found {missing:0} made beaver of furs kept back by {mn} at {place}.", IsoGrid.ToWorld(post.AccessCell), master, mn, 2f);
         if (gross) PutOut(post, master, v.Superior);
-        Sim.Notice(gross
+        if (_toldOf.Remove(post, out var right) && GodotObject.IsInstanceValid(right))
+        {
+            right.Standing += 3f;
+            v.Superior.ChangeRapport(right, 8f);
+            master.ChangeRapport(right, -30f);
+            right.Journal.Add($"{GameCalendar.Instance?.DateString}: {v.Inspector} found {mn} keeping furs back at {place}, as you said. (standing +3)");
+        }
+        Sim.NoticeAt(post, gross
             ? $"{v.Inspector} has found {mn} keeping back {missing:0} made beaver of furs at {place}. {mn} is put out of his charge and called in to answer for it."
             : $"{v.Inspector} has found {mn} keeping back {missing:0} made beaver of furs at {place}. A year's wages docked, and a hard letter.");
         if (Trace) GD.Print($"[inspect] caught: {mn} at {place}, {missing:0} MB{(gross ? ", put out" : "")}");

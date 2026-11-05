@@ -233,7 +233,7 @@ public partial class PlayerController : Agent
 		Journal.Add($"{GameCalendar.Instance?.DateString}: You deserted {left}{(to != null ? $" and went over to {went}" : "")}. {(from is Faction.Crown or Faction.American ? "Its soldiers will take you back if they find you." : "They will not forget it.")}");
 		Say(to != null ? $"You have gone over to {went}." : $"You are nobody's man now: {left} will call you a deserter.");
 		Chronicle.Event($"{DisplayName} deserted {left}{(to != null ? $" for {went}" : "")}.", GlobalPosition, this, weight: 2f);
-		Sim.Notice($"{DisplayName} has deserted {left}.");
+		Sim.NoticeAt(this, $"{DisplayName} has deserted {left}.");
 		Core.Campaign.Deed("desert");
 	}
 
@@ -274,7 +274,7 @@ public partial class PlayerController : Agent
 		Journal.Add($"{GameCalendar.Instance?.DateString}: Taken by {taker.DisplayName} and brought back{(town != null ? $" to {town.FortName}" : "")}. The court martial gave you three hundred lashes, and you are back in the ranks.");
 		Say($"{taker.DisplayName} has you. You are marched back{(town != null ? $" to {town.FortName}" : "")}, tried, and flogged before the garrison.");
 		Chronicle.Event($"{taker.DisplayName} took the deserter {DisplayName}.", GlobalPosition, taker, DisplayName, 2f);
-		Sim.Notice($"The deserter {DisplayName} has been taken.");
+		Sim.NoticeAt(this, $"The deserter {DisplayName} has been taken.");
 	}
 
 	// Afloat: which canoe carries you (server), mirrored as a flag.
@@ -466,7 +466,7 @@ public partial class PlayerController : Agent
 			if (n.Faction == to) n.ChangeRapport(this, 5f);
 		}
 		Chronicle.Event($"{DisplayName} left the {(from == Faction.HBC ? "Hudson's Bay Company" : "North West Company")} for the {(to == Faction.HBC ? "Hudson's Bay Company" : "North West Company")}.", GlobalPosition, this, weight: 2f);
-		Sim.Notice($"{DisplayName} has gone over to the {(to == Faction.HBC ? "Hudson's Bay Company" : "Nor'Westers")}.");
+		Sim.NoticeAt(this, $"{DisplayName} has gone over to the {(to == Faction.HBC ? "Hudson's Bay Company" : "Nor'Westers")}.");
 	}
 
 	// Mirrored from the server for the owner's HUD.
@@ -695,7 +695,7 @@ public partial class PlayerController : Agent
 		if (Task.Kind != TaskKind.CarryCargo || Task.IsComplete || ShipCargoCarried > 0) return;
 		if (Sim.Ship != null && Sim.Ship.IsDocked && Sim.Ship.Cargo.SlotCount > 0) return;
 		Task.Done = Task.Need;
-		Sim.Notice("The ship's cargo is all ashore. Task done.");
+		this.Say("The ship's cargo is all ashore. Task done.");
 	}
 
 	// The Factor's morning orders for the new hand (server side).
@@ -750,7 +750,7 @@ public partial class PlayerController : Agent
 		ForgetAttacker();
 		Economy.Rivalry.Raise(5f, $"{DisplayName} taken prisoner");
 		Chronicle.Event($"{captor.DisplayName} took {DisplayName} prisoner.", GlobalPosition, captor, DisplayName, 2f);
-		Sim.Notice($"{DisplayName} has been taken by the {(post.Company == Faction.NWC ? "Nor'Westers" : "Company")}.");
+		Sim.NoticeAt(this, $"{DisplayName} has been taken by the {(post.Company == Faction.NWC ? "Nor'Westers" : "Company")}.");
 		Core.Captivity.Begin(this, post, captor, taken);
 	}
 

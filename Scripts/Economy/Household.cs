@@ -54,7 +54,7 @@ public partial class Household : Node
     {
         if (at != null) SiteBelief[siteName] = at.Value;
         if (!KnownSites.Add(siteName)) return false;
-        Sim.Notice($"{Title}: the location of {siteName} is now known.");
+        Sim.NoticeAt(this, $"{Title}: the location of {siteName} is now known.");
         return true;
     }
 
@@ -112,7 +112,7 @@ public partial class Household : Node
         if (v < lost) v += Stores.TakeUpTo(ItemId.Fish, lost - v);
         if (v < lost) v += Stores.TakeUpTo(ItemId.Hare, lost - v);
         if (v < lost) Stores.TakeUpTo(ItemId.Berries, lost - v);
-        if (lost > 0) Sim.Notice($"{Title}: {lost} pieces of fresh meat have gone bad.");
+        if (lost > 0) Sim.NoticeAt(this, $"{Title}: {lost} pieces of fresh meat have gone bad.");
     }
 
     public float FoodDays(int mouths) => mouths <= 0 ? 999f : Stores.FoodNutritionTotal / (mouths * 1.4f * 24f);

@@ -66,7 +66,7 @@ public class CourierGoal : Goal
                 if (!npc.Inventory.Has(ItemId.Musket) && _from.Stores.Remove(ItemId.Musket)) npc.Inventory.Add(ItemId.Musket);
                 npc.Inventory.Add(ItemId.Pemmican, _from.Stores.TakeUpTo(ItemId.Pemmican, 3));
                 _phase = 1;
-                Sim.Notice($"{npc.DisplayName} sets out on the river road for {_to.Title}{(_carryFurs ? " with the furs" : "")}{(_packet != null ? " and the post" : "")}.");
+                Sim.NoticeAt(npc, $"{npc.DisplayName} sets out on the river road for {_to.Title}{(_carryFurs ? " with the furs" : "")}{(_packet != null ? " and the post" : "")}.");
                 return Delegate(new RoadGoal(_to.AccessCell));
             case 1:
             {
@@ -83,7 +83,7 @@ public class CourierGoal : Goal
                 }
                 var master = _to.Leader != null && GodotObject.IsInstanceValid(_to.Leader) && !_to.Leader.IsDead ? _to.Leader : Delegation.LeaderOf(npc);
                 foreach (var m in new System.Collections.Generic.List<Message>(npc.Mail)) { if (m.Read) continue; npc.Mail.Remove(m); if (master != null) Mail.Give(m, master); else _to.Mailbox.Add(m); }
-                Sim.Notice($"{npc.DisplayName} comes in to {_to.Title} with {lots} lots{(master != null ? $" and hands the packet to {master.DisplayName}" : "")}.");
+                Sim.NoticeAt(npc, $"{npc.DisplayName} comes in to {_to.Title} with {lots} lots{(master != null ? $" and hands the packet to {master.DisplayName}" : "")}.");
                 Chronicle.Event($"{npc.DisplayName} came down the river road from {_from.Title}.", npc.GlobalPosition, npc, weight: 0.6f);
                 _phase = 2;
                 return Delegate(new WaitGoal(1.5f));
@@ -163,7 +163,7 @@ public class AmbushGoal : Goal
                     var master = npc.HomeStores.Leader;
                     foreach (var m in new System.Collections.Generic.List<Message>(npc.Mail)) { npc.Mail.Remove(m); if (master != null && !master.IsDead) { master.Mail.Add(m); Mail.Open(m, master); } }
                 }
-                if (_took) { Economy.Rivalry.Raise(10f, "the Company's packet taken on the road"); Sim.Notice($"{npc.DisplayName} is back across the river with what he took on the road."); }
+                if (_took) { Economy.Rivalry.Raise(10f, "the Company's packet taken on the road"); Sim.NoticeAt(npc, $"{npc.DisplayName} is back across the river with what he took on the road."); }
                 npc.PendingReport = _took ? "took the Company's packet on the road" : "saw nothing on the road";
                 return GoalStatus.Done;
             }
@@ -190,7 +190,7 @@ public class HeldPrisonerGoal : Goal
             var held = npc.HeldBy;
             npc.HeldBy = null;
             npc.Inventory.Add(ItemId.Pemmican, 2);
-            Sim.Notice($"{npc.DisplayName} has been let go by the {(held.Company == Faction.NWC ? "Nor'Westers" : "Company")} and is walking home.");
+            Sim.NoticeAt(npc, $"{npc.DisplayName} has been let go by the {(held.Company == Faction.NWC ? "Nor'Westers" : "Company")} and is walking home.");
             Chronicle.Event($"{npc.DisplayName} was released and walked home.", npc.GlobalPosition, npc, weight: 0.8f);
             return GoalStatus.Done;
         }
@@ -235,14 +235,14 @@ public class RescueGoal : Goal
                 bool theyHaveOdds = Economy.Rivalry.HouseHasOdds(_post.Company, npc.GlobalPosition);
                 if (theyHaveOdds && GD.Randf() < 0.6f)
                 {
-                    Sim.Notice($"{_post.Title} will not give {_held.DisplayName} up. {npc.DisplayName} comes away empty-handed.");
+                    Sim.NoticeAt(npc, $"{_post.Title} will not give {_held.DisplayName} up. {npc.DisplayName} comes away empty-handed.");
                     Economy.Rivalry.Raise(5f, "a man refused back");
                     return GoalStatus.Failed;
                 }
                 _held.HeldBy = null; _held.HeldUntilDay = -1;
                 _held.Brain.Clear(_held);
                 _held.Brain.Push(_held, new GoToGoal(npc.HomeStores?.AccessCell ?? npc.BedCell, 140f));
-                Sim.Notice($"{npc.DisplayName} has brought {_held.DisplayName} home from {_post.Title}.");
+                Sim.NoticeAt(npc, $"{npc.DisplayName} has brought {_held.DisplayName} home from {_post.Title}.");
                 Chronicle.Event($"{npc.DisplayName} fetched {_held.DisplayName} back from {_post.Title}.", npc.GlobalPosition, npc, weight: 1.5f);
                 return GoalStatus.Done;
             }
@@ -317,7 +317,7 @@ public class DeliverMailGoal : Goal
                     npc.Mail.Remove(m);
                     Mail.Give(m, _to);
                 }
-                Sim.Notice($"{npc.DisplayName} hands the packet to {_to.DisplayName}.");
+                Sim.NoticeAt(npc, $"{npc.DisplayName} hands the packet to {_to.DisplayName}.");
                 Chronicle.Event($"{npc.DisplayName} delivered a packet to {_to.DisplayName}.", npc.GlobalPosition, npc, weight: 0.5f);
                 return GoalStatus.Done;
         }
@@ -421,9 +421,9 @@ public class ReportForDutyGoal : Goal
                 _phase = 1;
                 // Detours first: the thirsty find the rum, the sociable the men's house.
                 if (npc.Personality.Loyalty < 0.35f && npc.HomeStores != null && (npc.HomeStores.Stores.Has(Items.ItemId.Rum) || npc.HomeStores.Stores.Has(Items.ItemId.Ale)))
-                { Sim.Notice($"{npc.DisplayName}, just landed, goes looking for the rum before he goes looking for the Factor."); return Delegate(new CarouseGoal()); }
+                { Sim.NoticeAt(npc, $"{npc.DisplayName}, just landed, goes looking for the rum before he goes looking for the Factor."); return Delegate(new CarouseGoal()); }
                 if (npc.Personality.Talkative > 0.65f && npc.Personality.Loyalty < 0.6f)
-                { Sim.Notice($"{npc.DisplayName} drifts into the men's house to see who's who before reporting."); return Delegate(new WanderGoal(WorldLayout.MensHouse.Centre, 2, 1.5f)); }
+                { Sim.NoticeAt(npc, $"{npc.DisplayName} drifts into the men's house to see who's who before reporting."); return Delegate(new WanderGoal(WorldLayout.MensHouse.Centre, 2, 1.5f)); }
                 return GoalStatus.Running;
             }
             case 1:

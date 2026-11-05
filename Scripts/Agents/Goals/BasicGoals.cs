@@ -417,14 +417,14 @@ public class FollowGoal : Goal
             npc.Visible = rider.RideId == 0;   // under way the boat's painted crew stands for him
             npc.Needs.Thirst = 100f;
             npc.Needs.Hunger = Mathf.Max(npc.Needs.Hunger, 60f);
-            if (!_aboard) { _aboard = true; Sim.Notice($"{npc.DisplayName} climbs into the boats after {Leader.Describe()}."); }
+            if (!_aboard) { _aboard = true; Sim.NoticeAt(npc, $"{npc.DisplayName} climbs into the boats after {Leader.Describe()}."); }
             return GoalStatus.Running;
         }
         if (_aboard) { _aboard = false; npc.Visible = true; }
         _hoursLeft -= hours;
         if (_hoursLeft <= 0f) { npc.StopMoving(); return GoalStatus.Done; }
         float dist = npc.GlobalPosition.DistanceTo(Leader.GlobalPosition);
-        if (dist > 3000f) { npc.StopMoving(); Sim.Notice($"{npc.DisplayName} has lost sight of {Leader.Describe()} and turns back."); return GoalStatus.Done; }
+        if (dist > 3000f) { npc.StopMoving(); Sim.NoticeAt(npc, $"{npc.DisplayName} has lost sight of {Leader.Describe()} and turns back."); return GoalStatus.Done; }
         if (dist < 150f) { npc.StopMoving(); return GoalStatus.Running; }
         if (dist < 420f) { npc.ChaseToward(Leader.GlobalPosition, dt); return GoalStatus.Running; }
         _repath -= dt;
