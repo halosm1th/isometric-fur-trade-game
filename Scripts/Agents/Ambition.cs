@@ -96,7 +96,7 @@ public class Ambition
             AmbitionKind.RiseAtThePost => p.Rank == "postmaster" ? "you have a post" : p.Rank == "clerk" ? "a post wants a master; be the clerk the Factor names" : $"standing {p.Standing:0} - a clerk's place comes at 35",
             AmbitionKind.MarryIn => p.Spouse != null ? $"married to {p.Spouse.Describe()}" : "gifts to her father, and keep coming back",
             AmbitionKind.PrivateTrade => $"{p.PrivateWorthMb:0} MB of your own, counting what you carry and what you've cached",
-            AmbitionKind.DriveOffTheRival => Sim.Nwc != null ? $"their shelves hold {Sim.Nwc.Stores.Count(ItemId.TradeGoods)} pieces; the rivalry stands at {Rivalry.Tension:0}" : "they are gone",
+            AmbitionKind.DriveOffTheRival => Sim.Nwc != null ? $"they are still across the river; between the companies, {Rivalry.Describe()}" : "they are gone",
             AmbitionKind.KeepTheBandWhole => Sim.Band != null ? $"the band has {Sim.Band.FoodDays(Sim.Band.Mouths):0} days of food, standing {Sim.Band.StandingWithCompany:0}" : "",
             _ => "",
         };

@@ -965,6 +965,11 @@ public partial class Conversation
         if (ownLeader && npc.Faction is Faction.HBC or Faction.NWC)
         {
             AddOption("Ask how the furs are selling", () => ShowCompanies(npc, FurMarket(npc)));
+            foreach (var sub in Agents.Inspections.UnderHim(_player))
+            {
+                var post = sub;
+                AddOption($"Tell him you think the books at {Economy.Accords.Name(post)} are short", () => ShowCompanies(npc, TellOf(npc, post)));
+            }
             if (Economy.Companies.CouldDump(npc.Faction) && Economy.Companies.Of(npc.Faction).UrgedYear != GameCalendar.Instance.Year)
                 AddOption("Urge that the warehoused furs be thrown on the sale, while the other company is short", () => ShowCompanies(npc, UrgeDump(npc)));
         }
@@ -1157,7 +1162,7 @@ public partial class Conversation
                 _player.AssignTask(TaskKind.Courier, goods, "the inland outfit");
                 _player.PostedInland = true; _player.Standing += 2f;
                 var orders = new Message { Kind = "orders", From = leader.DisplayName, To = "the postmaster at Oxford House", Company = Faction.HBC, Subject = "a new hand and the outfit", Text = $"{leader.DisplayName} sends {_player.DisplayName} to serve at Oxford House with {goods} pieces of the outfit. Pay {fort.PeltPrice:0.00}." };
-                orders.OnRead = r => { if (Sim.Outpost != null) { Sim.Outpost.PeltPrice = fort.PeltPrice; } Sim.Notice($"{r?.Describe() ?? "The postmaster"} reads the Factor's line: {_player.DisplayName} is his now."); };
+                orders.OnRead = r => { if (Sim.Outpost != null) { Sim.Outpost.PeltPrice = fort.PeltPrice; } Sim.NoticeAt(r, $"{r?.Describe() ?? "The postmaster"} reads the Factor's line: {_player.DisplayName} is his now."); };
                 _player.Mail.Add(orders);
                 ShowTopics($"\"Very well. {goods} pieces and a letter for Mr. Sutherland. The road head is below the gate, on the bank - a day's march. You are posted to Oxford House till I say otherwise; he gives your orders now.\"");
             });
@@ -1577,6 +1582,14 @@ public partial class Conversation
             + "\"";
     }
 
+    // A word in the master's ear about a subordinate post (Agents/Inspections).
+    private string TellOf(Npc leader, Economy.FortLedger post)
+    {
+        Agents.Inspections.Report(_player, post);
+        _player.Journal.Add($"{GameCalendar.Instance.DateString}: You told {leader.DisplayName} you think {post.Leader?.DisplayName ?? "the master"} is keeping furs back at {Economy.Accords.Name(post)}.");
+        return $"He hears you out without a word, then writes something in the margin of his book. \"If you are right, I will know it. If you are wrong, so will he.\"";
+    }
+
     // Throw the held furs on the market to beat the price down under the
     // other company: the master writes home if he thinks well enough of you.
     private string UrgeDump(Npc leader)
@@ -1646,13 +1659,13 @@ public partial class Conversation
         {
             // Cowed: hands over something small and remembers it.
             var slot = npc.Inventory.Slot(0);
-            if (slot is var (id, _) && slot != null && Items.Items.Of(id).Kind != ItemKind.Weapon) { npc.Inventory.Remove(id); _player.Inventory.Add(id); Close(); Sim.Notice($"{npc.DisplayName} hands over a {Items.Items.Of(id).Name.ToLower()} and backs away."); return ""; }
+            if (slot is var (id, _) && slot != null && Items.Items.Of(id).Kind != ItemKind.Weapon) { npc.Inventory.Remove(id); _player.Inventory.Add(id); Close(); Sim.NoticeAt(npc, $"{npc.DisplayName} hands over a {Items.Items.Of(id).Name.ToLower()} and backs away."); return ""; }
             Close();
             return "";
         }
         Close();
         npc.Brain.Push(npc, new Agents.Goals.AttackGoal(_player));
-        Sim.Notice($"{npc.DisplayName} is not having it. Fists up.");
+        Sim.NoticeAt(npc, $"{npc.DisplayName} is not having it. Fists up.");
         return "";
     }
 

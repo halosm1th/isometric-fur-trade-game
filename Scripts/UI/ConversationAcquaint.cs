@@ -252,7 +252,7 @@ public partial class Conversation
         if (GD.Randf() < 0.3f + master.Personality.Talkative * 0.5f)
         {
             npc.ChangeRapport(_player, -30f);
-            Sim.Notice($"{npc.DisplayName} has found out who carried their words to {master.DisplayName}.");
+            Sim.NoticeAt(npc, $"{npc.DisplayName} has found out who carried their words to {master.DisplayName}.");
             return $"Later you hear that {master.DisplayName} let something slip, and {npc.DisplayName} knows exactly who told. They will not forget it.";
         }
         return $"You keep your face straight. {master.DisplayName} will hear it from you tonight; {npc.DisplayName} need never know.";

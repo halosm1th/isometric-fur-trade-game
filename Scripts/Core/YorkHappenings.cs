@@ -364,7 +364,7 @@ public static class YorkHappenings
             _dancers.Add(w);
         }
         Audio.DanceOn = true;
-        Sim.Headline("A fiddle strikes up in the men's house.");
+        Sim.HeadlineAt(Sim.Fort, "A fiddle strikes up in the men's house.");
         Chronicle.Shared(Sim.Fort, $"{_fiddler} played the fiddle in the men's house and everyone danced", 1f);
         GD.Print($"[york] the dance: {_fiddler} plays, {_dancers.Count} on the floor, {hours:0.0} h");
         return true;
@@ -547,7 +547,7 @@ public static class YorkHappenings
         string factor = (p.HomePost ?? Sim.Fort)?.Leader?.DisplayName ?? "The Factor";
         Note(p, $"{r.Witness} told {factor} you {r.What}. Your standing with the Company suffers.");
         if (p.IsLocal) Sim.NoticeLocal($"{factor} has heard that you {r.What}: {r.Witness} told him. (standing -2)");
-        else Sim.Notice($"{factor} has heard that {p.DisplayName} {r.What}.");
+        else Sim.NoticeAt(p, $"{factor} has heard that {p.DisplayName} {r.What}.");
     }
 
     // ---- the raid ------------------------------------------------------------------------
@@ -590,34 +590,40 @@ public static class YorkHappenings
         if (now >= _raidAt) BeginRaid();
     }
 
-    private static readonly string[] RaiderNames = { "Baptiste Cadotte", "Joseph Falcon", "Pierre Deschamps", "Toussaint Lapointe", "Louis Primeau", "Antoine Trottier", "Michel Paquette" };
-
     private static void BeginRaid()
     {
-        var pop = (Engine.GetMainLoop() as SceneTree)?.GetFirstNodeInGroup("population") as Population;
-        if (pop == null) { _raidAt = -1f; return; }
+        // The raiders are the Nor'Westers' own men at York, armed from their
+        // own rack. A house without the men for it does not raid: try again
+        // the next night.
+        var men = new List<Npc>();
+        foreach (var m in Sim.Nwc.Members)
+            if (GodotObject.IsInstanceValid(m) && !m.IsDead && !m.IsFemale && !m.Away && m.HeldBy == null && !m.IsSick && m.Role is Role.Voyageur or Role.Labourer) men.Add(m);
+        if (men.Count < 3) { _raidAt = Now() + 24f; GD.Print($"[york] the Nor'Westers have {men.Count} men fit to go: no raid tonight"); return; }
         Campaign.Flag("york_raid");
         _raidOn = true; _raidHours = 0f;
         var gate = IsoGrid.ToWorld(WorldLayout.GateOutside);
         var away = (gate - WorldLayout.FortCentre).Normalized();
         var boatsAt = Convoys.LandNear(gate + away * 900f + away.Orthogonal() * 500f);
         var boats = Sim.Paths?.NearestWalkable(IsoGrid.FromWorld(boatsAt), 6) ?? IsoGrid.FromWorld(boatsAt);
-        int party = 5 + (Economy.Rivalry.Tension > 50f ? 1 : 0);
-        var frames = GD.Load<SpriteFrames>("res://Scenes/Npc/FactorFrames.tres");
+        int party = Mathf.Min(men.Count, 5 + (Economy.Rivalry.Tension > 50f ? 1 : 0));
+        // The bravest go.
+        men.Sort((a, b) => b.Personality.Courage.CompareTo(a.Personality.Courage));
         for (int i = 0; i < party; i++)
         {
+            var n = men[i];
             var cell = Sim.Paths?.NearestWalkable(IsoGrid.Cell(boats, i % 3 - 1, i / 3), 4) ?? boats;
-            var n = pop.Spawn(RaiderNames[i % RaiderNames.Length], Role.Voyageur, Faction.NWC, cell, cell, Sim.Nwc, frames, new Color(0.85f, 0.75f, 0.75f));
-            n.Inventory.Add(ItemId.Capote); n.Inventory.Add(ItemId.Knife);
-            if (i < party - 1) { n.Inventory.Add(ItemId.Musket); n.Inventory.Add(ItemId.Powder, 4); }
-            n.Personality.Courage = Mathf.Max(n.Personality.Courage, 0.5f);
+            n.Tier = Tier.Live; n.ProcessMode = Node.ProcessModeEnum.Inherit; n.Visible = true;
+            NetHub.I?.AnnounceTier(n, false);
+            n.GlobalPosition = IsoGrid.ToWorld(cell);   // landed from the boats below the fort
+            if (!n.Inventory.Has(ItemId.Musket) && Sim.Nwc.Stores.Remove(ItemId.Musket)) n.Inventory.Add(ItemId.Musket);
+            if (n.Inventory.Has(ItemId.Musket)) n.Inventory.Add(ItemId.Powder, Sim.Nwc.Stores.TakeUpTo(ItemId.Powder, 4));
             n.Brain.Clear(n);
             n.Brain.Push(n, new Agents.Goals.RaidPartyGoal(Sim.Fort, boats));
             _raiders.Add(n);
         }
         Economy.Rivalry.Raise(12f, "the Nor'Westers' raid on York Factory");
         Chronicle.Event($"A party of Nor'Westers came down the Hayes in the night and fell on York Factory.", gate, null, "the raid on York", 2.5f);
-        Sim.Headline("Nor'Westers at York! The alarm bell is ringing.");
+        Sim.HeadlineAt(Sim.Fort, "Nor'Westers at York! The alarm bell is ringing.");
         Audio.Play("fort_bell_alarm");
         Audio.Play("fort_bell_alarm", delay: 2.5f);
 
@@ -682,6 +688,7 @@ public static class YorkHappenings
                 continue;
             }
             if (n.LastAttacker is PlayerController ph) _stoodTo.Add(ph);
+            if (!n.Brain.Has<Agents.Goals.RaidPartyGoal>()) { _carriedOff += _loot.GetValueOrDefault(n); _loot.Remove(n); _raiders.Remove(n); continue; }   // home across the river with it
             int lots = 0;
             foreach (var (id, c) in n.Inventory.All()) { var k = Items.Items.Of(id).Kind; if (k is not (ItemKind.Weapon or ItemKind.Clothing or ItemKind.Tool)) lots += c; }
             _loot[n] = Mathf.Max(0, lots - 4);   // what they brought (powder) is not loot
@@ -694,14 +701,14 @@ public static class YorkHappenings
     private static void EndRaid()
     {
         _raidOn = false;
-        foreach (var n in _raiders) if (n != null && GodotObject.IsInstanceValid(n) && !n.IsDead) { _carriedOff += _loot.GetValueOrDefault(n); n.Raiding = false; n.QueueFree(); }
+        foreach (var n in _raiders) if (n != null && GodotObject.IsInstanceValid(n) && !n.IsDead) { _carriedOff += _loot.GetValueOrDefault(n); n.Raiding = false; n.Brain.Clear(n); Agents.Goals.RaidPartyGoal.Home(n); }
         _raiders.Clear(); _loot.Clear();
         string how = _carriedOff == 0
             ? "They got away with nothing."
             : $"They got away with {_carriedOff} pieces from the stores.";
         string dead = _killed == 0 ? "" : _killed == 1 ? " One of them lies dead in the yard." : $" {_killed} of them lie dead in the yard.";
         string line = $"The Nor'Westers are gone from York, back down the river. {how}{dead}";
-        Sim.Headline(line);
+        Sim.HeadlineAt(Sim.Fort, line);
         Chronicle.Event(line, WorldLayout.FortCentre, null, "the raid on York", 2f);
         foreach (var p in Sim.Players())
         {

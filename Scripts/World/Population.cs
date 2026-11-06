@@ -135,7 +135,7 @@ public partial class Population : Node2D
 		Posts.StaffUnmarked(this);
 		Towns.SeedStores();
 		Stress();
-		Sim.Notice($"York Factory: {Sim.Npcs.Count} souls in the world.");
+		Sim.Log($"York Factory: {Sim.Npcs.Count} souls in the world.");
 	}
 
 	// A marriage bears children (design doc 8, P.6): a year or so in, if
@@ -177,7 +177,7 @@ public partial class Population : Node2D
 				child.ApplyAppearance();   // now it knows it is a child
 				wife.Children.Add(child);
 				child.Skills.Seed(0.1f, 0.1f, 0.1f, 0.1f);
-				Sim.Headline($"{wife.DisplayName} has borne {p.DisplayName} a {(boy ? "son" : "daughter")}: {name}.");
+				Sim.HeadlineAt(wife, $"{wife.DisplayName} has borne {p.DisplayName} a {(boy ? "son" : "daughter")}: {name}.");
 				Core.Reveal.Lands(p, $"You have a {(boy ? "son" : "daughter")}, {name}.", "", 1.6f);
 				foreach (var n in Sim.Npcs) if (n.HomeStores == wife.Father?.HomeStores) n.ChangeRapport(p, 8f);
 			}
@@ -213,7 +213,7 @@ public partial class Population : Node2D
 				if (n.FatherName != "" && n.Age <= 16)
 				{
 					n.SpriteScale = Mathf.Lerp(0.6f, 0.8f, Mathf.Clamp(n.Age / 16f, 0f, 1f)); n.ApplyAppearance();
-					if (n.Age == 16) Sim.Notice($"{n.DisplayName} is grown and takes a man's work at the post.");
+					if (n.Age == 16) Sim.NoticeAt(n, $"{n.DisplayName} is grown and takes a man's work at the post.");
 				}
 			}
 			foreach (var p in Sim.Players()) { p.Age++; p.Immune = false; }
@@ -478,7 +478,7 @@ public partial class Population : Node2D
 			m.Brain.Push(m, new Agents.Goals.ReportForDutyGoal());   // design doc 5.5: his first order
 			landed++;
 		}
-		if (landed > 0) Sim.Notice($"{landed} new hands off the ship from Stromness: {(landed == 1 ? "a green lad" : "green lads")} with a five-year contract.");
+		if (landed > 0) Sim.NoticeAt(Sim.Fort, $"{landed} new hands off the ship from Stromness: {(landed == 1 ? "a green lad" : "green lads")} with a five-year contract.");
 		return landed;
 	}
 
@@ -502,7 +502,7 @@ public partial class Population : Node2D
 			v.Brain.Push(v, new Agents.Goals.ReportForDutyGoal());
 			landed++;
 		}
-		if (landed > 0) Sim.Notice($"{landed} voyageurs came north with the brigade to fill the Nor'Westers' ranks.");
+		if (landed > 0) Sim.NoticeAt(Sim.Nwc, $"{landed} voyageurs came north with the brigade to fill the Nor'Westers' ranks.");
 		return landed;
 	}
 

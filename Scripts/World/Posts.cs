@@ -233,7 +233,7 @@ public static class Posts
             if (m.Leader) p.Ledger.Leader = npc;
         }
         if (p.Ledger.Leader == null) Staff(pop, p);   // nobody placed for it in the editor
-        Sim.Notice($"{p.Name} is built and manned ({CompanyName(p)}).");
+        Sim.NoticeAt(p.Ledger, $"{p.Name} is built and manned ({CompanyName(p)}).");
     }
 
     // ---- the American posts --------------------------------------------------

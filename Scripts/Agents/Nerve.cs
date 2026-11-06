@@ -91,7 +91,7 @@ public static class Nerve
 			Faction.HBC => "the Company's men",
 			_ => "the band's men",
 		};
-		Sim.Notice(broke.Count > 2
+		Sim.NoticeAt(fallen, broke.Count > 2
 			? $"{fallen.DisplayName} is down and {who} break: {string.Join(", ", names)} run for it."
 			: $"{fallen.DisplayName} is down and {string.Join(", ", names)} will not stand it.");
 		Chronicle.Event($"{who} broke when {fallen.DisplayName} fell to {killer?.Describe() ?? "a shot"}.",

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Godot;
 using IsometricFurTradeGame.Scripts.Agents;
 using IsometricFurTradeGame.Scripts.Core;
+using IsometricFurTradeGame.Scripts.Items;
 using IsometricFurTradeGame.Scripts.World;
 
 namespace IsometricFurTradeGame.Scripts.Economy;
@@ -13,6 +14,7 @@ namespace IsometricFurTradeGame.Scripts.Economy;
 //   Exclusive  - the camp carries its furs to that company's houses alone,
 //                and the house pays it better for them (Bonus).
 //   Alliance   - a war party or raid against one brings the other out.
+//   Settlement - blood debts between them paid in goods and laid down (7.4).
 // It is broken by a deed the world can see: riding against a partner,
 // carrying furs to the other company. A broken word is the worst thing a
 // people can be caught at: standing falls hard, the feud is hot, the two
@@ -20,11 +22,15 @@ namespace IsometricFurTradeGame.Scripts.Economy;
 //
 // Accords are made by the world's own people (Week: camps worn down by a
 // feud sue for peace, the houses agree a truce when the raiding costs them
-// both, a house buys a camp away from its rival) and by a player, in talk
-// with a chief or a master of a post (UI/ConversationAccords).
+// both, a house buys a camp away from its rival, a house pays for the blood
+// it owes) and by a player, in talk with a chief (UI/ConversationAccords).
+// A camp's word is its council's: the chief and the heads of lodges each
+// lean by their own interest and temper, and two in three must agree.
+// There is no safe-passage term: nobody in the country stops travellers at
+// a camp's border yet, so there would be nothing for it to lift.
 //
 // Server only. Dev: `--accord=A:B:Peace+Exclusive[:days]`, `--accordtrace`.
-public enum Term { Peace, Exclusive, Alliance }   // saved as ints: append only
+public enum Term { Peace, Exclusive, Alliance, Settlement }   // saved as ints: append only
 
 public class Accord
 {
@@ -115,6 +121,7 @@ public static class Accords
         if (ac.Has(Term.Peace)) parts.Add("peace");
         if (ac.Has(Term.Exclusive)) parts.Add($"{Name(ac.A is BandLedger ? ac.A : ac.B)}'s furs to {Name(ac.A is BandLedger ? ac.B : ac.A)}'s company alone, at {ac.Bonus * 100f:0}% over the standard");
         if (ac.Has(Term.Alliance)) parts.Add("each to stand by the other");
+        if (ac.Has(Term.Settlement)) parts.Add("the blood between them paid for");
         int left = ac.Until - Plains.Today;
         return $"{Name(ac.A)} and {Name(ac.B)}: {string.Join("; ", parts)} ({(left >= 365 ? $"{left / 365} year{(left >= 730 ? "s" : "")}" : $"{left} days")} to run{(ac.By != "" ? $", made by {ac.By}" : "")})";
     }
@@ -138,7 +145,7 @@ public static class Accords
         if (ac.Has(Term.Exclusive)) { if (a is BandLedger ba) _lastOffer[ba] = Plains.Today; if (b is BandLedger bb) _lastOffer[bb] = Plains.Today; }
         string text = Describe(ac);
         Chronicle.Event($"An accord: {text}.", IsoGrid.ToWorld(War.CampOf(a)), subject: Name(a), weight: 1.6f);
-        Sim.Notice($"An accord: {text}.");
+        Sim.NoticeAt(a, $"An accord: {text}.");
         if (Trace) GD.Print($"[accord] made #{ac.Id}: {text}");
         return ac;
     }
@@ -158,7 +165,7 @@ public static class Accords
         if (by.Leader != null && wronged.Leader != null) wronged.Leader.ChangeRapport(by.Leader, -30f);
         string line = $"{Name(by)} broke its word to {Name(wronged)}: {what}";
         Chronicle.Event(line + ".", IsoGrid.ToWorld(War.CampOf(wronged)), subject: Name(by), weight: 2.2f);
-        Sim.Notice(line + ". Nobody will forget it soon.");
+        Sim.NoticeAt(wronged, line + ". Nobody will forget it soon.");
         if (Trace) GD.Print($"[accord] broken #{ac.Id} by {Name(by)}: {what}");
     }
 
@@ -224,6 +231,7 @@ public static class Accords
         SuePeace();
         HousesTruce();
         BuyAway();
+        PayForBlood();
         if (Trace) foreach (var ac in All) if (ac.Live) GD.Print($"[accord] in force: {Describe(ac)}");
     }
 
@@ -241,9 +249,8 @@ public static class Accords
                 if (GD.Randf() > 0.15f) continue;
                 int ma = War.Fighters(a).Count, mb = War.Fighters(b).Count;
                 var (weak, strong) = ma <= mb ? (a, b) : (b, a);
-                float strongFeud = Plains.Feud(strong, weak);
-                bool takes = strongFeud < 4f || GD.Randf() < 0.3f + (strong.Leader?.Personality.Loyalty ?? 0.5f) * 0.2f;
-                if (!takes) { if (Trace) GD.Print($"[accord] {strong.Name} turned away {weak.Name}'s pipe"); continue; }
+                var vote = Council(strong, Term.Peace, weak);
+                if (!vote.Yes) { if (Trace) GD.Print($"[accord] {strong.Name}'s council turned away {weak.Name}'s pipe ({vote.For:0} of {vote.All:0})"); continue; }
                 Make(weak, strong, new[] { Term.Peace }, 365, $"the chiefs of {weak.Name} and {strong.Name}");
             }
     }
@@ -279,10 +286,116 @@ public static class Accords
             }
             if (theirs == null || GD.Randf() > 0.25f) continue;
             _lastOffer[b] = Plains.Today;
-            float standing = b.StandingWith(rival);
-            bool yes = standing >= 45f && GD.Randf() < 0.3f + (b.Leader?.Personality.Ambition ?? 0.5f) * 0.3f + (standing - 45f) / 100f;
-            if (!yes) { if (Trace) GD.Print($"[accord] {b.Name} would not give {Name(theirs)} its furs alone"); continue; }
+            var vote = Council(b, Term.Exclusive, theirs);
+            if (!vote.Yes) { if (Trace) GD.Print($"[accord] {b.Name}'s council would not give {Name(theirs)} its furs alone ({vote.For:0} of {vote.All:0})"); continue; }
             Make(b, theirs, new[] { Term.Exclusive }, 730, $"{theirs.Leader.DisplayName} and {b.Leader?.DisplayName ?? b.Name}", 0.15f);
+        }
+    }
+
+    // ---- a camp's council ------------------------------------------------------------------
+
+    // The chief and the heads of lodges (Core/Laws: the band's voters), each
+    // by his own lean; a player putting it to them sways each by what they
+    // think of him. Two in three of the voices, or the chief alone if there
+    // is no council to sit.
+    public static (bool Yes, float For, float All) Council(BandLedger b, Term term, Household other, Player.PlayerController sway = null)
+    {
+        var body = Laws.Of(b);
+        float yes = 0f, all = 0f;
+        if (body != null)
+            foreach (var v in body.Voters())
+            {
+                if (v.Npc == null || v.Npc.IsDead) continue;
+                all += v.Weight;
+                if (Lean(v.Npc, b, term, other, sway) > 0f) yes += v.Weight;
+            }
+        if (all <= 0f)
+        {
+            bool chief = Lean(b.Leader, b, term, other, sway) > 0f;
+            return (chief, chief ? 1f : 0f, 1f);
+        }
+        return (yes / all >= (body?.Majority ?? 2f / 3f), yes, all);
+    }
+
+    private static float Lean(Npc n, BandLedger b, Term term, Household other, Player.PlayerController sway)
+    {
+        if (n == null) return -1f;
+        var p = n.Personality;
+        float standing = other is FortLedger f ? b.StandingWith(f.Company) : 50f;
+        float feud = Plains.Feud(b, other);
+        float v = term switch
+        {
+            Term.Peace => 0.25f - feud * 0.12f + (1f - p.Courage) * 0.2f - p.Ambition * 0.1f,
+            Term.Exclusive => (standing - 50f) / 50f + p.Ambition * 0.2f - p.Suspicion * 0.3f,
+            Term.Alliance => (standing - 60f) / 40f + p.Courage * 0.3f - 0.15f,
+            _ => 0.3f + (1f - p.Courage) * 0.2f - feud * 0.05f - (OwesHim(n, other) ? 0.35f : 0f),
+        };
+        if (sway != null) v += sway.Standing / 150f + n.RapportWith(sway) / 200f;
+        uint h = 2166136261; foreach (char c in n.DisplayName + (int)term) h = (h ^ c) * 16777619;
+        return v + (h % 1000 / 1000f - 0.5f) * 0.5f;   // his own way of seeing it, the same each time he is asked
+    }
+
+    // Does this man himself hold a blood debt against someone of that house?
+    private static bool OwesHim(Npc n, Household other)
+    {
+        foreach (var g in Grudges.HeldBy(n.DisplayName)) if (IsOf(g.Against, other)) return true;
+        return false;
+    }
+
+    // ---- blood paid for (design doc 7.4) ------------------------------------------------------
+
+    private static bool IsOf(string name, Household h)
+    {
+        foreach (var pc in Sim.Players()) if (pc.DisplayName == name) return pc.HomePost == h;
+        foreach (var n in h.Members) if (GodotObject.IsInstanceValid(n) && n.DisplayName == name) return true;
+        return false;
+    }
+
+    // The blood a camp's people hold against a house's, and what would make it right.
+    public static float Owed(BandLedger holders, Household debtors, List<Grudge> into = null, string only = null)
+    {
+        float mb = 0f;
+        var seen = new HashSet<string>();
+        foreach (var g in Grudges.All)
+        {
+            if (g.Settled || only != null && g.Against != only || !IsOf(g.Against, debtors)) continue;
+            bool held = false;
+            foreach (var n in holders.Members) if (GodotObject.IsInstanceValid(n) && n.DisplayName == g.Holder) { held = true; break; }
+            if (!held) continue;
+            into?.Add(g);
+            if (seen.Add(g.Victim + "|" + g.Against)) mb += g.DebtMb;   // one payment per death
+        }
+        return mb;
+    }
+
+    // Goods across, the debts laid down, a year's peace.
+    public static Accord Settle(BandLedger holders, Household debtors, Inventory paidFrom, float mb, List<Grudge> debts, string by)
+    {
+        int goods = Mathf.CeilToInt(mb);
+        int paid = paidFrom.TakeUpTo(ItemId.TradeGoods, goods);
+        holders.Stores.Add(ItemId.TradeGoods, paid);
+        foreach (var g in debts) Grudges.Settle(g, false);
+        return Make(holders, debtors, new[] { Term.Settlement, Term.Peace }, 365, by);
+    }
+
+    // A house that owes blood to a camp, and has the goods and the will to pay it.
+    private static void PayForBlood()
+    {
+        foreach (var c in Camps.All)
+        {
+            var b = c.Ledger;
+            if (b == null) continue;
+            foreach (var post in Sim.Posts())
+            {
+                if (post.Leader == null || post.Leader.IsDead || Between(b, post, Term.Settlement) != null) continue;
+                var debts = new List<Grudge>();
+                float mb = Owed(b, post, debts);
+                if (mb < 1f || post.Stores.Count(ItemId.TradeGoods) < mb || GD.Randf() > 0.2f) continue;
+                if (post.Leader.Personality.Ambition > 0.7f && post.Leader.Personality.Loyalty < 0.4f) continue;   // he will not pay for what his men did
+                var vote = Council(b, Term.Settlement, post);
+                if (!vote.Yes) { if (Trace) GD.Print($"[accord] {b.Name}'s council would not take {Name(post)}'s goods for the blood ({vote.For:0} of {vote.All:0})"); continue; }
+                Settle(b, post, post.Stores, mb, debts, $"{post.Leader.DisplayName} and {b.Leader?.DisplayName ?? b.Name}");
+            }
         }
     }
 

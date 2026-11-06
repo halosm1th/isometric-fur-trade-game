@@ -45,14 +45,20 @@ public partial class CountryBand : BandLedger
         int mouths = Mouths;
         if (mouths == 0) return;
         // A week of the hunt, the fishery and the snares, dried and put by:
-        // lean in late winter, fat in the autumn.
+        // lean in late winter, fat in the autumn - as much as the camp's own
+        // hands at home can bring in from what its country still holds, and
+        // taken off those grounds (Economy/Subsistence).
         int lean = cal.Month is 2 or 3 or 4 ? 4 : cal.Month is 9 or 10 ? 8 : 6;
-        Stores.Add(ItemId.DriedMeat, mouths * lean);
+        float game = Subsistence.Game(this, out var ground), share = Subsistence.HandsShare(this, mouths);
+        int dried = Mathf.RoundToInt(mouths * lean * game * share);
         // Part of the week's take is eaten fresh off the hunt and the nets.
         // Without it the camp has nothing but dried meat and the whole country
         // dies of the scurvy over a winter (design doc 13.5).
-        Stores.Add(ItemId.Venison, mouths * 2);
-        Stores.Add(ItemId.Fish, mouths);
+        int venison = Mathf.RoundToInt(mouths * 2 * game * share), fish = Mathf.RoundToInt(mouths * share);
+        Stores.Add(ItemId.DriedMeat, dried);
+        Stores.Add(ItemId.Venison, venison);
+        Stores.Add(ItemId.Fish, fish);
+        Subsistence.Take(ground, dried + venison);
         // The women keep the woodpile (or the chip pile, on the plains) up to
         // a week and more of the lodges' fires: the daily reckoning burns a
         // piece a person a day, and a camp that ran short froze in November.
@@ -66,8 +72,7 @@ public partial class CountryBand : BandLedger
             // traps, more.
             int trappers = Mathf.Max(1, mouths / 6);
             float traps = Mathf.Clamp(Stores.Count(ItemId.SteelTrap) / (float)Mathf.Max(1, trappers * 4), 0f, 1f);
-            int pelts = 0;
-            for (int i = 0; i < trappers; i++) pelts += (GD.Randf() < 0.35f ? 1 : 0) + (GD.Randf() < traps * 0.5f ? 1 : 0);
+            int pelts = Subsistence.Pelts(this, trappers, traps);   // off the lodges of its own country
             Stores.Add(ItemId.BeaverPelt, pelts);
             Wants.OnTrapping(this, pelts);
         }

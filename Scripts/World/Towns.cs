@@ -288,7 +288,8 @@ public static class Towns
     // History being recalled at the start (Campaign.Recall): nothing is said,
     // and the dead of a battle before play began are simply gone.
     public static bool Quiet;
-    private static void Tell(string text, bool headline = false) { if (Quiet) return; if (headline) Sim.Headline(text); else Sim.Notice(text); }
+    // News of a town is told where it happens; the rest of the country hears it as it travels.
+    private static void Tell(Town t, string text, bool headline = false) { if (Quiet) return; if (headline) Sim.HeadlineAt(t.Centre, text); else Sim.NoticeAt(t.Centre, text); }
     private static void Dies(Npc n, string cause)
     {
         if (!Quiet) { n.Die(cause); return; }
@@ -323,7 +324,7 @@ public static class Towns
                 n.SendOffMap(from == "AMER" ? "a prisoner of war at Quebec" : "a prisoner of war in the United States", t.Name);
                 taken++;
             }
-        Tell($"{t.Name} has fallen to {t.RulerName}{(taken > 0 ? $"; {taken} of its garrison are taken prisoner" : "")}.", true);
+        Tell(t, $"{t.Name} has fallen to {t.RulerName}{(taken > 0 ? $"; {taken} of its garrison are taken prisoner" : "")}.", true);
         return null;
     }
 
@@ -346,7 +347,7 @@ public static class Towns
         }
         if (b.Garrison.Leader == null || !GodotObject.IsInstanceValid(b.Garrison.Leader) || b.Garrison.Leader.IsDead || b.Garrison.Leader.Away)
             foreach (var n in b.Garrison.Members) if (n.Role == Role.Officer && !n.IsDead && !n.Away) { b.Garrison.Leader = n; break; }
-        Tell($"{moved} men of the garrison at {a.Name} are sent to {b.Name}.");
+        Tell(a, $"{moved} men of the garrison at {a.Name} are sent to {b.Name}.");
         return null;
     }
 
@@ -382,7 +383,7 @@ public static class Towns
         }
         if (t.Garrison.Leader == null || !GodotObject.IsInstanceValid(t.Garrison.Leader) || t.Garrison.Leader.IsDead || t.Garrison.Leader.Away)
             foreach (var n in t.Garrison.Members) if (n.Role == Role.Officer && !n.IsDead && !n.Away) { t.Garrison.Leader = n; break; }
-        Tell($"{back} of the garrison of {t.Name} are back in its fort.");
+        Tell(t, $"{back} of the garrison of {t.Name} are back in its fort.");
         return null;
     }
 
@@ -399,7 +400,7 @@ public static class Towns
             if (!GodotObject.IsInstanceValid(n) || n.IsDead || n.Away) continue;
             n.SendOffMap(where, t.Name); gone++;
         }
-        Tell($"The garrison of {t.Name}, {gone} souls, has marched {where}.");
+        Tell(t, $"The garrison of {t.Name}, {gone} souls, has marched {where}.");
         return null;
     }
 
@@ -453,7 +454,7 @@ public static class Towns
             if (Fire.I != null && Fire.I.Ignite(c, $"{b.Def.Name} at {t.Name} {verb} burning.")) lit++;
             if (building != "*" && building != "fort") break;
         }
-        Tell(building == "*" ? $"{t.Name} is burning." : building == "fort" ? $"{t.FortName} is burning." : $"{building} at {t.Name} {(building.EndsWith("s") ? "are" : "is")} burning.", true);
+        Tell(t, building == "*" ? $"{t.Name} is burning." : building == "fort" ? $"{t.FortName} is burning." : $"{building} at {t.Name} {(building.EndsWith("s") ? "are" : "is")} burning.", true);
         return lit > 0 || building is "*" or "fort" ? null : $"no building called {building} at {town}";
     }
 }

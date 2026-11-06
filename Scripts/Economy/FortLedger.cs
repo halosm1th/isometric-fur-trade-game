@@ -170,11 +170,11 @@ public partial class FortLedger : Household
 		foreach (var b in Sim.Bands) if (b != null && b.WillTradeWith(this) && b.Stores.Count(ItemId.Pemmican) + b.Stores.Count(ItemId.DriedMeat) > 10) { from = b; break; }
 		if (from == null)
 		{
-			Sim.Notice($"{Title}: {FoodDays(mouths):0} days' food in the store and nobody selling provisions.");
+			Sim.NoticeAt(this, $"{Title}: {FoodDays(mouths):0} days' food in the store and nobody selling provisions.");
 			return;
 		}
 		int goods = Mathf.Min(Stores.Count(ItemId.TradeGoods), Mathf.Max(4, mouths / 2));
-		if (goods <= 0) { Sim.Notice($"{Title}: no goods left to buy provisions with."); return; }
+		if (goods <= 0) { Sim.NoticeAt(this, $"{Title}: no goods left to buy provisions with."); return; }
 		int got = 0;
 		for (int i = 0; i < goods; i++)
 		{
@@ -184,7 +184,7 @@ public partial class FortLedger : Household
 			Stores.Remove(ItemId.TradeGoods); from.Stores.Add(ItemId.TradeGoods);
 			GoodsPaidMb += 1;
 		}
-		if (got > 0) Sim.Notice($"{Title} bought {got} pieces of provisions from {from.Name} - {FoodDays(mouths):0} days' food in hand.");
+		if (got > 0) Sim.NoticeAt(this, $"{Title} bought {got} pieces of provisions from {from.Name} - {FoodDays(mouths):0} days' food in hand.");
 	}
 
 	// A Cree party sells furs at the counter. Returns the MB of goods paid.
@@ -206,7 +206,7 @@ public partial class FortLedger : Household
 					SetDebt(band, Mathf.Max(0f, DebtOf(band) - v)); settled += v;
 				}
 			}
-			if (settled > 0f) Sim.Notice($"{band.Name}'s debt at {Title} is worked down by {settled:0.#} MB of furs; {DebtOf(band):0.#} MB still owing.");
+			if (settled > 0f) Sim.NoticeAt(this, $"{band.Name}'s debt at {Title} is worked down by {settled:0.#} MB of furs; {DebtOf(band):0.#} MB still owing.");
 		}
 		// A fair deal is remembered too.
 		if (band != null) SetStanding(band, Mathf.Min(100f, StandingOf(band) + (PeltPrice >= 1f ? 2f : 0.5f)));

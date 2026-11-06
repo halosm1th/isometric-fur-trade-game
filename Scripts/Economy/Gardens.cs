@@ -269,8 +269,9 @@ public static class Gardens
 		return $"sown {p.Year}: {p.Planted} seed, stand {p.Stand:0.00}, {p.Ripe} standing, {p.Harvested} in; last crop {p.LastResult} ({p.LastResultYear})";
 	}
 
-	// Berry season: every camp and post gathers while it lasts, and what is
-	// gathered is what keeps the scurvy off. Out of season the posts brew
+	// Berry season: every camp and post gathers while it lasts, as many as
+	// its hands at home can pick (Economy/Subsistence), and what is gathered
+	// is what keeps the scurvy off. Out of season the posts brew
 	// spruce beer instead, which is what the Company actually did.
 	private static void Berries(GameCalendar cal)
 	{
@@ -278,17 +279,17 @@ public static class Gardens
 		foreach (var camp in Camps.All)
 		{
 			if (camp.Ledger == null || Named(camp.Name)) continue;
-			if (season) camp.Ledger.Stores.Add(ItemId.Berries, Mathf.Max(2, camp.Ledger.Mouths * 4));
+			if (season) camp.Ledger.Stores.Add(ItemId.Berries, Mathf.RoundToInt(camp.Ledger.Mouths * 4 * Subsistence.HandsShare(camp.Ledger, camp.Ledger.Mouths)));
 		}
 		foreach (var b in Sim.Bands)
-			if (b != null && season) b.Stores.Add(ItemId.Berries, Mathf.Max(2, b.Mouths * 3));
+			if (b != null && season) b.Stores.Add(ItemId.Berries, Mathf.RoundToInt(b.Mouths * 3 * Subsistence.HandsShare(b, b.Mouths)));
 		foreach (var post in Sim.Posts())
 		{
 			if (post == null) continue;
 			int mouths = 0;
 			foreach (var n in Sim.Npcs) if (!n.IsDead && n.HomeStores == post) mouths++;
 			if (mouths == 0) continue;
-			if (season) { post.Stores.Add(ItemId.Berries, mouths * 2); continue; }
+			if (season) { post.Stores.Add(ItemId.Berries, Mathf.RoundToInt(mouths * 2 * Subsistence.HandsShare(post, mouths))); continue; }
 			// Spruce beer: a kettle, a fire and the woods outside. The post
 			// brews it when its men have been too long without anything fresh.
 			if (!post.Stores.Has(ItemId.Kettle) || !post.Stores.Has(ItemId.Firewood)) continue;

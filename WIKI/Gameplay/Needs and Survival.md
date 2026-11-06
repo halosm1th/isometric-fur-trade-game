@@ -83,7 +83,7 @@ Sociable men feel it sooner. Out of winter it fades fast.
 - **At 85** a man may walk out to the other company's house or to a band's camp.
 - **When four in ten are past 75** the post mutinies. The men down tools for up to three days, until the Factor gives in, faces them down, or loses men.
 
-The Factor serves a dram all round when the house is sour and the stores hold the rum, and keeps the New Year's regale. The fiddle at York lifts everyone who dances.
+The Factor serves a dram all round when the house is sour and the stores hold the rum, keeps the New Year's regale, and sends a hunting party for fresh meat. Fresh meat in the kettle eases the strain. On a sour evening the best talker in the house tells a story by the stove, which eases whoever is close enough to hear. The fiddle at York lifts everyone who dances.
 
 At your own post you will be asked, now and then, what to do about it: tell a story by the stove, share your own rum, or ask the Factor for a dram. In a mutiny you choose a side, or try to talk both round.
 

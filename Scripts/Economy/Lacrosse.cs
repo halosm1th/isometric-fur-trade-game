@@ -164,7 +164,7 @@ public static class Lacrosse
                 // man of the guest camp walks over.
                 n.Brain.Push(n, player ? new WanderGoal(g.Field, 5, 4f) : new WanderGoal(g.Field, 10, 4f));
             }
-        Sim.Headline($"{g.Host.Country?.Name} and {g.Guest.Country?.Name} are playing {NameOf(g.Host.Country)} by {g.Host.Country?.Name}'s camp.");
+        Sim.HeadlineAt(IsoGrid.ToWorld(g.Field), $"{g.Host.Country?.Name} and {g.Guest.Country?.Name} are playing {NameOf(g.Host.Country)} by {g.Host.Country?.Name}'s camp.");
     }
 
     // Who won, what changed hands, who was hurt; and the country hears.
@@ -218,7 +218,7 @@ public static class Lacrosse
         string text = $"{wonC.Name} beat {lostC.Name} at {NameOf(host)}{stakes}.{hurt}";
         Chronicle.Event(text, IsoGrid.ToWorld(g.Field), null, wonC.Name, played ? 1.4f : 0.9f);
         if (Plains.Log) GD.Print($"[lacrosse] {(played ? "played" : "settled")}: {text}");
-        if (played) Sim.Headline(text);
+        if (played) Sim.HeadlineAt(IsoGrid.ToWorld(g.Field), text);
         foreach (var n in g.Players) if (GodotObject.IsInstanceValid(n) && !n.IsDead) n.Brain.Clear(n);
     }
 }

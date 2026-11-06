@@ -93,7 +93,7 @@ A suspicious master does not wait for London to read the books.
 - **Talk your way out** ("my own catch"). Your trade skill and standing help; his suspicion works against you.
 - **Refuse.** You keep the furs and lose standing, and he will be back.
 
-**The posts' books.** The master of the head house (York, or Fort William) sends his clerk to look over a subordinate post's ledger. A master who has been keeping furs back for himself is likely found out. He is docked and disgraced. At Oxford House, if it was gross, he is put out of his charge and York sends a new man.
+**The posts' books.** The master of the head house (York, or Fort William) sends his clerk to look over a subordinate post's ledger. You can tell your master you think a post's books are short ("The companies..."). The inspection comes sooner. If you are right, your standing rises; if you are wrong, it falls, and the man you accused knows it was you. A master who has been keeping furs back for himself is likely found out. He is docked and disgraced. At Oxford House, if it was gross, he is put out of his charge and York sends a new man.
 
 ## See also
 

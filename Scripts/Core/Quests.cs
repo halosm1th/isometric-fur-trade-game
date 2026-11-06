@@ -187,7 +187,7 @@ public static class Quests
 		p.Quests.Declined.Remove(q.Id);
 		var line = LineOf(q);
 		p.Journal.Add($"{GameCalendar.Instance?.DateString}: {(line != null && line.Title != "" ? line.Title + " - " : "")}{q.Title}. {q.Summary}".Trim());
-		Sim.Notice($"New: {q.Title}");
+		p.Say($"New: {q.Title}");
 		Campaign.RunFor(p, q.OnStart);
 		if (q.Objectives.Count == 0) { Finish(p, q, st, true); return; }
 		Announce(p, q, st);
@@ -347,7 +347,7 @@ public static class Quests
 		if (st.Status != QuestStatus.Active) return;
 		st.Status = done ? QuestStatus.Done : QuestStatus.Failed;
 		p.Journal.Add($"{GameCalendar.Instance?.DateString}: {q.Title} - {(done ? "done" : "failed")}.");
-		Sim.Notice(done ? $"Done: {q.Title}" : $"Failed: {q.Title}");
+		p.Say(done ? $"Done: {q.Title}" : $"Failed: {q.Title}");
 		GD.Print($"[quest] {q.Id} {(done ? "done" : "failed")}");
 		Campaign.RunFor(p, done ? q.OnComplete : q.OnFail);
 	}

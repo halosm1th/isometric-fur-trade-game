@@ -364,7 +364,7 @@ public static class Plains
         string by = b.Herd.Carts > 0 ? $"in {b.Herd.Carts} carts" : b.Herd.Horses > 0 ? "on the travois" : "on their backs";
         Chronicle.Event($"{cb.Name} brought {lot} pemmican to {post.Title} {by}.", IsoGrid.ToWorld(post.AccessCell), subject: cb.Name, weight: 0.5f);
         if (NearPlayer(IsoGrid.ToWorld(post.AccessCell), 6000f))
-            Sim.Notice($"{cb.Name} have come in {by} with {lot} pieces of pemmican for {post.Title}, and taken {pay} in goods.");
+            Sim.NoticeAt(post, $"{cb.Name} have come in {by} with {lot} pieces of pemmican for {post.Title}, and taken {pay} in goods.");
     }
 
     // ---- raids ----
@@ -447,7 +447,7 @@ public static class Plains
             Heat(target, raider, 1f);
             if (target is BandLedger tb) Wants.OnRaided(tb, armed > 0.2f);
             Chronicle.Event($"{raider.Name}'s young men ran off {n} horses from {NameOf(target)}.", where, subject: raider.Name, weight: 1f);
-            if (told) Sim.Notice($"Horse thieves: {raider.Name}'s young men ran off {n} horses from {NameOf(target)} in the night.");
+            if (told) Sim.NoticeAt(target, $"Horse thieves: {raider.Name}'s young men ran off {n} horses from {NameOf(target)} in the night.");
             return;
         }
         if (GD.Randf() < 0.3f)
@@ -459,7 +459,7 @@ public static class Plains
                 Heat(raider, target, 2f);
                 Wants.OnFight(raider, 3, defended > 0.2f, true);
                 Chronicle.Event($"{dead.DisplayName} of {raider.Name} was killed going after {NameOf(target)}'s horses.", where, dead, raider.Name, 2f);
-                if (told) Sim.Notice($"{dead.DisplayName} of {raider.Name} was killed stealing horses from {NameOf(target)}. His people will want it answered.");
+                if (told) Sim.NoticeAt(target, $"{dead.DisplayName} of {raider.Name} was killed stealing horses from {NameOf(target)}. His people will want it answered.");
                 dead.DieQuietly();
                 return;
             }
@@ -543,7 +543,7 @@ public static class Plains
                     w.Brain.Clear(w);
                     w.Brain.Push(w, new AttackGoal(nearest));
                 }
-                Sim.Notice($"Horse thieves at {NameOf(raid.Target)}'s herd! {NameOf(raid.Raider)}'s young men are among the horses.");
+                Sim.NoticeAt(raid.Target, $"Horse thieves at {NameOf(raid.Target)}'s herd! {NameOf(raid.Raider)}'s young men are among the horses.");
             }
             if (goingOn) continue;
             // It is over: count what got away and who did not come home.
@@ -555,7 +555,7 @@ public static class Plains
             if (dead > 0) Heat(raid.Raider, raid.Target, 2f * dead);
             string how = taken > 0 ? $"got away with {taken} horses" : "went home with nothing";
             Chronicle.Event($"{NameOf(raid.Raider)}'s young men came for {NameOf(raid.Target)}'s horses and {how}{(dead > 0 ? $"; {dead} of them did not go home" : "")}.", IsoGrid.ToWorld(raid.Target.AccessCell), subject: NameOf(raid.Raider), weight: 1.5f);
-            Sim.Notice($"The horse thieves from {NameOf(raid.Raider)} {how}{(dead > 0 ? $", and left {dead} dead behind them" : "")}.");
+            Sim.NoticeAt(raid.Target, $"The horse thieves from {NameOf(raid.Raider)} {how}{(dead > 0 ? $", and left {dead} dead behind them" : "")}.");
             foreach (var pc in Sim.Players())
                 foreach (var r in raid.Party)
                     if (r != null && GodotObject.IsInstanceValid(r) && r.IsDead && r.LastAttacker == pc)

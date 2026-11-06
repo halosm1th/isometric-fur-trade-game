@@ -124,7 +124,7 @@ public static class TradeTrips
             n.Brain.Push(n, new TradeVisitGoal(t, k == 0));
             k++;
         }
-        Sim.Notice($"Men of {t.Camp.Name} are coming in to {t.Post.Post.Name} with furs to trade.");
+        Sim.NoticeAt(t.Post, $"Men of {t.Camp.Name} are coming in to {t.Post.Post.Name} with furs to trade.");
     }
 
     // The leader of the party has reached the door.

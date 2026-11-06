@@ -51,7 +51,7 @@ public static class LondonCommittee
         fort.LondonIncentiveNext = Mathf.Clamp(price, 0.3f, 3f);
         fort.QuotaNextMb = Mathf.Clamp(quota, 10f, 400f);
         verdict += Audit(fort, shippedMb);
-        Sim.Notice($"(In London, the ship home:) {verdict} The orders that will sail next year: {fort.LondonIncentiveNext:0.00} MB per MB, quota {fort.QuotaNextMb:0}.");
+        Sim.Log($"(In London, the ship home:) {verdict} The orders that will sail next year: {fort.LondonIncentiveNext:0.00} MB per MB, quota {fort.QuotaNextMb:0}.");
     }
 
     // The furs landed against York's account of them: what went missing since

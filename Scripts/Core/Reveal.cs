@@ -24,7 +24,7 @@ public static class Reveal
         if (p.Journal.Count > 120) p.Journal.RemoveAt(0);
         p.Say(line);
         QuietDays.Interrupt(p, cause: "reveal: " + what);
-        if (importance >= 1.5f) Sim.Headline(line);
+        if (importance >= 1.5f) Net.Net.I?.HeadlineTo(p, line);
     }
 
     // A consequence whose reason is known but is not something the player did:
@@ -39,7 +39,7 @@ public static class Reveal
         p.Journal.Add($"{cal?.DateString}: {line}");
         if (p.Journal.Count > 120) p.Journal.RemoveAt(0);
         p.Say(line);
-        if (importance >= 1.5f) Sim.Headline(line);
+        if (importance >= 1.5f) Net.Net.I?.HeadlineTo(p, line);
     }
 
     // Look back through what the player themselves witnessed for the deed,

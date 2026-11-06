@@ -100,6 +100,40 @@ public static class Sim
         parent.AddChild(ring);
     }
 
+    // ---- news of a place (design doc 10: nobody knows what they did not see or hear) ----
+    // Notice and Headline put a line on every player's screen at once, which
+    // is ambient knowledge: keep them for what every player truly knows (his
+    // own doings shown to himself are p.Say; the game's own housekeeping is
+    // Notice). Anything that happens somewhere goes through NoticeAt or
+    // HeadlineAt: only the players within sight of it are told now; everyone
+    // else hears it as the story travels (Chronicle). Log is for what nobody
+    // in the country could see at all - the London sale, the Committee's
+    // sitting - and reaches the console only.
+    public const float SightPx = 2400f;   // a post is some 1500 px across: within sight of it, or of the man
+
+    public static void Log(string text) { if (!string.IsNullOrEmpty(text)) GD.Print($"[world] {text}"); }
+
+    public static void NoticeAt(Vector2 where, string text) => TellNear(where, text, false);
+    public static void NoticeAt(Agent who, string text) { if (who != null && GodotObject.IsInstanceValid(who)) TellNear(who.GlobalPosition, text, false); else Log(text); }
+    public static void NoticeAt(Household h, string text) { if (h != null) TellNear(IsoGrid.ToWorld(h.AccessCell), text, false); else Log(text); }
+    public static void HeadlineAt(Vector2 where, string text) => TellNear(where, text, true);
+    public static void HeadlineAt(Agent who, string text) { if (who != null && GodotObject.IsInstanceValid(who)) TellNear(who.GlobalPosition, text, true); else Log(text); }
+    public static void HeadlineAt(Household h, string text) { if (h != null) TellNear(IsoGrid.ToWorld(h.AccessCell), text, true); else Log(text); }
+
+    private static void TellNear(Vector2 where, string text, bool headline)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+        GD.Print($"[world] {text}");
+        bool seen = false;
+        foreach (var p in Players())
+        {
+            if (p == null || !GodotObject.IsInstanceValid(p) || p.IsDead || p.GlobalPosition.DistanceTo(where) > SightPx) continue;
+            seen = true;
+            if (headline) Net.Net.I?.HeadlineTo(p, text); else Net.Net.I?.LogTo(p, text);
+        }
+        if (headline && seen) { Director.Saw("headline", 1f); QuietDays.Interrupt(cause: "headline: " + text); }
+    }
+
     // Something that takes the screen for a moment: a death in the family,
     // a post lost, an accord broken (design doc P.4).
     public static event System.Action<string> OnHeadline;

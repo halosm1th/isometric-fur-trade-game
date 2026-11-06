@@ -90,7 +90,7 @@ public static class Losses
                 {
                     l.AuctionOpen = true;
                     OpenLot(l);
-                    Sim.Notice($"At {Chronicle.PlaceOf(l.Home)} they are selling {l.Name}'s effects among the men, one thing at a time. Talk to {Auctioneer(l).DisplayName} to bid.");
+                    Sim.NoticeAt(l.Home, $"At {Chronicle.PlaceOf(l.Home)} they are selling {l.Name}'s effects among the men, one thing at a time. Talk to {Auctioneer(l).DisplayName} to bid.");
                 }
                 else Settle(l);
                 continue;
@@ -262,12 +262,12 @@ public static class Losses
         }
         l.Lots.Clear();
         if (_putBy > 0)
-            Sim.Notice($"{_putBy} of {l.Name}'s things went into the store: there was nobody at the house to take them.");
+            Sim.NoticeAt(l.Home, $"{_putBy} of {l.Name}'s things went into the store: there was nobody at the house to take them.");
         int putBy = _putBy; _putBy = 0;
-        if (given.Count == 0) { if (l.Home is FortLedger && putBy == 0) Sim.Notice($"The sale of {l.Name}'s effects is over."); return; }
+        if (given.Count == 0) { if (l.Home is FortLedger && putBy == 0) Sim.NoticeAt(l.Home, $"The sale of {l.Name}'s effects is over."); return; }
         string what = l.Home is FortLedger ? $"what nobody bought of {l.Name}'s went to those closest to him: {string.Join(", ", given)}" : $"{l.Name}'s family gave away his things: {string.Join(", ", given)}";
         Chronicle.Shared(l.Home, what, 0.9f);   // told at the fire, not mooned over
-        Sim.Notice(char.ToUpper(what[0]) + what.Substring(1) + ".");
+        Sim.NoticeAt(l.Home, char.ToUpper(what[0]) + what.Substring(1) + ".");
     }
 
     public static Loss OpenSaleAt(Household h)

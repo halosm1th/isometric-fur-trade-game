@@ -1229,7 +1229,7 @@ public static class Convoys
 			if (c.Now != ConvoyState.Paddling) { c.CampAt = LandNear(c.Now == ConvoyState.Calling ? Landing(c.At) : c.Path.At(c.Along)); c.HasCamp = true; }
 			All.Add(c);
 		}
-		if (All.Count > 0) Sim.Notice($"{All.Count} brigade{(All.Count == 1 ? " is" : "s are")} on the country's rivers.");
+		if (All.Count > 0) Sim.Log($"{All.Count} brigade{(All.Count == 1 ? " is" : "s are")} on the country's rivers.");
 	}
 
 	// ---- dev aids ---------------------------------------------------------------------------------------------------

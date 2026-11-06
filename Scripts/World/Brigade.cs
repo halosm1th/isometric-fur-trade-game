@@ -111,7 +111,7 @@ public static class Brigades
 			foreach (var (id, n) in new List<(ItemId, int)>(b.Cargo.All())) { b.Cargo.Remove(id, n); b.From.Stores.Add(id, n); lots += n; }
 			foreach (var (id, n) in new List<(ItemId, int)>(b.Provisions.All())) { b.Provisions.Remove(id, n); b.From.Stores.Add(id, n); }
 			foreach (var n in b.Men) PutAshore(n, b.From);
-			if (lots > 0) Sim.Notice($"{b.Name} was never sent after all: {lots} pieces back on {b.From.Title}'s books.");
+			if (lots > 0) Sim.NoticeAt(b.From, $"{b.Name} was never sent after all: {lots} pieces back on {b.From.Title}'s books.");
 		}
 		All.Clear();
 		_lastDay = -1;
@@ -131,7 +131,7 @@ public static class Brigades
 			int got = from.Stores.TakeUpTo(id, n);
 			if (got > 0) b.Cargo.Add(id, got);
 		}
-		if (b.Cargo.TotalWeightLbs < 1f) { Sim.Notice($"{from.Title} has nothing to send inland."); return null; }
+		if (b.Cargo.TotalWeightLbs < 1f) { Sim.NoticeAt(from, $"{from.Title} has nothing to send inland."); return null; }
 		// The men: whoever can be spared. They go off the post's books for the
 		// whole journey - no orders, no rations from the store, not at the fire -
 		// which is what makes sending a brigade cost something.
@@ -158,7 +158,7 @@ public static class Brigades
 		b.GumLeft = 1 + taken / 3;
 		All.Add(b);
 		int lots = 0; foreach (var (_, n) in b.Cargo.All()) lots += n;
-		Sim.Headline($"{name} sets off {(upstream ? "up" : "down")} the river: {taken} men, {lots} pieces, {Brigade.Portages.Length} portages between here and {to.Title}.");
+		Sim.HeadlineAt(from, $"{name} sets off {(upstream ? "up" : "down")} the river: {taken} men, {lots} pieces, {Brigade.Portages.Length} portages between here and {to.Title}.");
 		Chronicle.Event($"{name} left {from.Title} for {to.Title} with {lots} pieces.", IsoGrid.ToWorld(from.AccessCell), null, name, 1.2f);
 		return b;
 	}
@@ -248,7 +248,7 @@ public static class Brigades
 			{
 				n.SickDaysLeft -= 1f;
 				n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 8f);
-				if (n.SickDaysLeft <= 0f) { n.Immune = true; Sim.Notice($"{n.Describe()} is over the fever, on the water with {b.Name}."); }
+				if (n.SickDaysLeft <= 0f) { n.Immune = true; Sim.NoticeAt(b.Where, $"{n.Describe()} is over the fever, on the water with {b.Name}."); }
 			}
 			else if (n.HasScurvy) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 3f);
 
@@ -262,11 +262,11 @@ public static class Brigades
 			n.Needs.Hunger = Mathf.Max(0f, n.Needs.Hunger - 26f);
 			n.Needs.Thirst = 100f;   // there is no want of water on a river
 			if (n.Needs.Hunger <= 0f) n.Needs.Health = Mathf.Max(0f, n.Needs.Health - 4f);
-			if (n.Needs.Health <= 0f) { Sim.Notice($"{n.DisplayName} died on the water with {b.Name}."); n.Away = false; n.DieQuietly(); }
+			if (n.Needs.Health <= 0f) { Sim.NoticeAt(b.Where, $"{n.DisplayName} died on the water with {b.Name}."); n.Away = false; n.DieQuietly(); }
 			else short_ = true;
 		}
 		if (short_ && GD.Randf() < 0.3f)
-			Sim.Notice($"{b.Name} is out of provisions: the men are on short commons on the water.");
+			Sim.NoticeAt(b.Where, $"{b.Name} is out of provisions: the men are on short commons on the water.");
 	}
 
 	private static void Paddle(Brigade b, GameCalendar cal)
@@ -277,7 +277,7 @@ public static class Brigades
 			if (b.Now != Brigade.State.Camped)
 			{
 				b.Now = Brigade.State.Camped;
-				Sim.Headline($"{b.Name} is frozen in short of {b.To?.Title}: the pieces winter on the bank.");
+				Sim.HeadlineAt(b.Where, $"{b.Name} is frozen in short of {b.To?.Title}: the pieces winter on the bank.");
 			}
 			return;
 		}
@@ -297,7 +297,7 @@ public static class Brigades
 				b.GumLeft--;
 				b.Condition = Mathf.Min(1f, b.Condition + 0.35f);
 				b.Now = Brigade.State.Broken; b.DayLeft = 1;
-				Sim.Notice($"{b.Name} lies up a day gumming a hull - {b.GumLeft} patch{(b.GumLeft == 1 ? "" : "es")} left.");
+				Sim.NoticeAt(b.Where, $"{b.Name} lies up a day gumming a hull - {b.GumLeft} patch{(b.GumLeft == 1 ? "" : "es")} left.");
 				return;
 			}
 			// No gum: a canoe is lost, and what was in it with her.
@@ -309,7 +309,7 @@ public static class Brigades
 			}
 			b.Condition = 0.6f;
 			b.Now = Brigade.State.Broken; b.DayLeft = 2;
-			Sim.Headline($"A canoe of {b.Name} is stove in with no gum left: {lost} pieces gone in the river.");
+			Sim.HeadlineAt(b.Where, $"A canoe of {b.Name} is stove in with no gum left: {lost} pieces gone in the river.");
 			Tell(b, $"{lost} pieces of {b.Name} went down in the rapids.", "a hull opened with no gum left to mend it", 1.6f);
 			return;
 		}
@@ -324,7 +324,7 @@ public static class Brigades
 			b.At = name;
 			b.DayLeft = heavy ? 2 : 1;
 			b.Condition -= heavy ? 0.1f : 0.05f;
-			Sim.Notice($"{b.Name} is at {name}: the canoes out of the water and the pieces over on men's backs{(heavy ? ", two days of it" : "")}.");
+			Sim.NoticeAt(b.Where, $"{b.Name} is at {name}: the canoes out of the water and the pieces over on men's backs{(heavy ? ", two days of it" : "")}.");
 			Chronicle.Event($"{b.Name} was at {name} with the pieces on the bank.", b.Where, null, b.Name, 0.8f);
 			Interception(b, name);
 			return;
@@ -355,7 +355,7 @@ public static class Brigades
 		}
 		if (b.From != null) { b.From.LotsLostToRaids += lots; b.From.LostToRivalMb += lots * 0.5f; }
 		Rivalry.Raise(8f, $"{(rival.Company == Faction.NWC ? "the Nor'Westers" : "the Company's men")} took {b.Name} at {portage}");
-		Sim.Headline($"{b.Name} was taken at {portage}: {lots} pieces carried off by {(rival.Company == Faction.NWC ? "the Nor'Westers" : "the Company's men")}.");
+		Sim.HeadlineAt(b.Where, $"{b.Name} was taken at {portage}: {lots} pieces carried off by {(rival.Company == Faction.NWC ? "the Nor'Westers" : "the Company's men")}.");
 		Tell(b, $"{b.Name} was waylaid at {portage} and lost {lots} pieces.", "the other house knew which day you would be on the carrying place", 2f);
 		Chronicle.Event($"{(rival.Company == Faction.NWC ? "the Nor'Westers" : "the Company's men")} waylaid {b.Name} at {portage} and took {lots} pieces.", b.Where, null, b.Name, 2f);
 	}
@@ -395,10 +395,10 @@ public static class Brigades
 					}
 				home.GumLeft = 1 + home.Men.Count / 3;
 				All.Add(home);
-				Sim.Notice($"{home.Men.Count} of {b.Name}'s men start back down the river for {b.From.Title}.");
+				Sim.NoticeAt(b.Where, $"{home.Men.Count} of {b.Name}'s men start back down the river for {b.From.Title}.");
 			}
 		}
-		Sim.Headline($"{b.Name} is in at {b.To.Title}: {lots} pieces landed after {b.DaysOut} days and {Brigade.Portages.Length} portages.");
+		Sim.HeadlineAt(b.Where, $"{b.Name} is in at {b.To.Title}: {lots} pieces landed after {b.DaysOut} days and {Brigade.Portages.Length} portages.");
 		Tell(b, $"{b.Name} landed {lots} pieces at {b.To.Title}.", $"{b.DaysOut} days up the river", 1.2f);
 		Chronicle.Event($"{b.Name} came in to {b.To.Title} with {lots} pieces.", IsoGrid.ToWorld(b.To.AccessCell), null, b.Name, 1.2f);
 	}
@@ -477,7 +477,7 @@ public static class Brigades
 			}
 			if (b.From != null && b.To != null) All.Add(b);
 		}
-		if (All.Count > 0) Sim.Notice($"{All.Count} brigade{(All.Count == 1 ? " is" : "s are")} still on the river.");
+		if (All.Count > 0) Sim.Log($"{All.Count} brigade{(All.Count == 1 ? " is" : "s are")} still on the river.");
 	}
 
 	private static string Key(Economy.FortLedger f) =>

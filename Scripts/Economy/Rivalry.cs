@@ -28,8 +28,8 @@ public static class Rivalry
         bool was = OpenHostility;
         Tension = Mathf.Clamp(Tension + amount, 0f, 100f);
         if (!was && OpenHostility) Campaign.Flag("open_hostility");
-        if (!was && OpenHostility) Sim.Notice($"Bad blood between the companies has become open hostility ({why}). Armed men go about both posts now.");
-        if (was && !OpenHostility) Sim.Notice($"The companies have drawn back from open hostility ({why}).");
+        if (!was && OpenHostility) Sim.Log($"Bad blood between the companies has become open hostility ({why}). Armed men go about both posts now.");
+        if (was && !OpenHostility) Sim.Log($"The companies have drawn back from open hostility ({why}).");
     }
 
     public static void DailyTick(int day)
@@ -65,7 +65,7 @@ public static class Rivalry
         who.Raiding = true; who.RaidTarget = target.Company; who.RaidTimer = 120f;
         string what = took > 0 ? $"carried off {took} lots" : "found little worth taking";
         Chronicle.Event($"{who.Describe()} broke into {target.Title} and {what}.", who.GlobalPosition, who, weight: 2f);
-        Sim.Notice($"{who.Describe()} broke into {target.Title} and {what}.");
+        Sim.NoticeAt(target, $"{who.Describe()} broke into {target.Title} and {what}.");
         Raise(took > 0 ? 12f : 6f, "a raid on the stores");
         Alarm(who, target.Company);
         return took;
@@ -109,7 +109,7 @@ public static class Rivalry
             if (fighter && (odds ? n.Personality.Courage > 0.2f : n.Personality.Courage > 0.7f)) n.Brain.Push(n, new AttackGoal(intruder));
             else if (!fighter || n.Personality.Courage < 0.5f) n.Brain.Push(n, new FleeGoal(intruder, 6f));
         }
-        if (!odds && defenders > 0) Sim.Notice($"The {(house == Faction.NWC ? "Nor'Westers" : "Company's men")} are outgunned and stand aside.");
+        if (!odds && defenders > 0) Sim.NoticeAt(intruder, $"The {(house == Faction.NWC ? "Nor'Westers" : "Company's men")} are outgunned and stand aside.");
     }
 
     // A leader deciding to send men across the river (design doc 3.9).
@@ -143,7 +143,7 @@ public static class Rivalry
             Core.Director.Saw("raid", 2f);
             var names = new List<string>(); foreach (var n in sent) names.Add(n.DisplayName);
             Chronicle.Event($"{leader.DisplayName} sent {string.Join(", ", names)} to seize {target.Title}.", leader.GlobalPosition, leader, weight: 1.5f);
-            Sim.Notice($"{leader.DisplayName}: \"{string.Join(", ", names)} - muskets. We are going to relieve the {(target.Company == Faction.NWC ? "Nor'Westers" : "Company")} of their provisions.\"");
+            Sim.NoticeAt(leader, $"{leader.DisplayName}: \"{string.Join(", ", names)} - muskets. We are going to relieve the {(target.Company == Faction.NWC ? "Nor'Westers" : "Company")} of their provisions.\"");
             Raise(8f, "a party sent against the other post");
         }
         return sent;

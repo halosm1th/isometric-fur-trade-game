@@ -86,7 +86,7 @@ public static class MissouriTrade
             MarketNews.Observe(b, town); MarketNews.Meet(b, town);
             Chronicle.Event($"{b.Name} went down to {town.Name} and came home with {n} horses, paid for in {paid}.", IsoGrid.ToWorld(b.Camp), subject: b.Name, weight: 0.6f);
             if (Plains.NearPlayer(IsoGrid.ToWorld(b.Camp), 12000f) || Plains.NearPlayer(IsoGrid.ToWorld(town.Camp), 12000f))
-                Sim.Notice($"{b.Name} are back from the Missouri towns with {n} horses, paid for in {paid}.");
+                Sim.NoticeAt(b, $"{b.Name} are back from the Missouri towns with {n} horses, paid for in {paid}.");
         }
     }
 
@@ -206,7 +206,7 @@ public static class MissouriTrade
             Log(cal, $"{post.Title} men to {town.Name}: {goods} goods and {guns} guns for {brought}");
             Chronicle.Event($"Men from {post.Title} went down to {town.Name} with {goods} in goods and {guns} guns and came back with {brought}.", IsoGrid.ToWorld(post.AccessCell), subject: post.Title, weight: 0.8f);
             if (Plains.NearPlayer(IsoGrid.ToWorld(post.AccessCell), 12000f))
-                Sim.Notice($"The men are back at {post.Title} from the Missouri towns: {brought}.");
+                Sim.NoticeAt(post, $"The men are back at {post.Title} from the Missouri towns: {brought}.");
         }
     }
 

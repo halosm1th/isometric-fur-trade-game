@@ -184,7 +184,7 @@ public partial class Agent : CharacterBody2D
         DaysSinceFresh += hoursStep / 24f;
         if (HasScurvy)
         {
-            if (!_scurvyTold) { _scurvyTold = true; Sim.Notice($"{Describe()} has the scurvy: gums bleeding, old wounds opening. Fresh meat is the cure."); }
+            if (!_scurvyTold) { _scurvyTold = true; Sim.NoticeAt(this, $"{Describe()} has the scurvy: gums bleeding, old wounds opening. Fresh meat is the cure."); }
             Needs.Health = Mathf.Max(0f, Needs.Health - 0.12f * hoursStep);   // ~3 a day
         }
         if (IsSick)
@@ -192,7 +192,7 @@ public partial class Agent : CharacterBody2D
             SickDaysLeft -= hoursStep / 24f;
             Needs.Health = Mathf.Max(0f, Needs.Health - 0.35f * hoursStep);   // ~8 a day
             Needs.Hunger = Mathf.Max(0f, Needs.Hunger - 0.4f * hoursStep);
-            if (SickDaysLeft <= 0f) { Immune = true; Sim.Notice($"{Describe()} is over the fever."); }
+            if (SickDaysLeft <= 0f) { Immune = true; Sim.NoticeAt(this, $"{Describe()} is over the fever."); }
         }
         Needs.Tick(
             hoursStep,
@@ -299,7 +299,7 @@ public partial class Agent : CharacterBody2D
     {
         if (IsSick || Immune || IsDead) return;
         SickDaysLeft = (float)GD.RandRange(6.0, 11.0);
-        Sim.Notice($"{Describe()} has come down with the fever.");
+        Sim.NoticeAt(this, $"{Describe()} has come down with the fever.");
     }
 
     // ---- shared action vocabulary (design doc 3.3) ----
@@ -327,7 +327,7 @@ public partial class Agent : CharacterBody2D
         // settlers' potatoes from the cellar.
         if (id == ItemId.Venison || id == ItemId.Goose || id == ItemId.Fish || id == ItemId.Hare || id == ItemId.Ptarmigan || id == ItemId.Berries || id == ItemId.SpruceBeer || id == ItemId.Roots)
         {
-            if (HasScurvy) Sim.Notice($"{Describe()} is mending: {(id == ItemId.Berries ? "berries at last" : id == ItemId.SpruceBeer ? "spruce beer at last" : id == ItemId.Roots ? "potatoes at last" : "fresh meat at last")}.");
+            if (HasScurvy) Sim.NoticeAt(this, $"{Describe()} is mending: {(id == ItemId.Berries ? "berries at last" : id == ItemId.SpruceBeer ? "spruce beer at last" : id == ItemId.Roots ? "potatoes at last" : "fresh meat at last")}.");
             DaysSinceFresh = 0f; _scurvyTold = false;
         }
         if (def.Kind == ItemKind.Drink) Needs.Warmth = Mathf.Min(100f, Needs.Warmth + def.Warmth);

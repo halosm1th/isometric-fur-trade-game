@@ -43,20 +43,20 @@ public class SpawnSite
             Passing = true;
             _scattered = false;
             Count = Mathf.Max(Count, Capacity * (month >= 9 ? 1f : 0.7f));
-            Sim.Notice($"{Name}: the deer are passing - the country is full of caribou.");
+            Sim.NoticeAt(IsoGrid.ToWorld(Cell), $"{Name}: the deer are passing - the country is full of caribou.");
         }
         else if (!pass && Passing)
         {
             Passing = false;
             Count = Mathf.Min(Count, Capacity * 0.25f);
-            Sim.Notice($"{Name}: the main herd has gone on. A few deer winter in the country.");
+            Sim.NoticeAt(IsoGrid.ToWorld(Cell), $"{Name}: the main herd has gone on. A few deer winter in the country.");
         }
     }
 
     public float Migrate(int month)
     {
         if (!IsMobile || IsDead) return 0f;
-        if (_scattered && month == 5) { _scattered = false; Count = Mathf.Max(Count, Capacity * 0.4f); Sim.Notice($"{Name}: the {Beasts} have come back into the country with the spring."); }
+        if (_scattered && month == 5) { _scattered = false; Count = Mathf.Max(Count, Capacity * 0.4f); Sim.NoticeAt(IsoGrid.ToWorld(Cell), $"{Name}: the {Beasts} have come back into the country with the spring."); }
         if (month != _driftMonth) { _driftMonth = month; _drift = new Vector2I(GD.RandRange(-3, 3), GD.RandRange(-6, 6)); }
         var target = Route[Mathf.Clamp(month - 1, 0, Route.Length - 1)] + _drift;
         var d = target - Cell;
@@ -140,7 +140,7 @@ public class SpawnSite
                 _scattered = true;
                 Passing = false;
                 Count = 1f;   // gone: the ground is bare till the herd passes again
-                Sim.Notice($"{Name}: the {Beasts} have been worked so hard they have quit this country. Nothing will be had here till they come again.");
+                Sim.NoticeAt(IsoGrid.ToWorld(Cell), $"{Name}: the {Beasts} have been worked so hard they have quit this country. Nothing will be had here till they come again.");
             }
             return;
         }
@@ -148,7 +148,7 @@ public class SpawnSite
         {
             BreedingCapacity = 0f;
             Count = Mathf.Min(Count, 2f);
-            Sim.Notice($"{Name} has been hunted out. It will not recover.");
+            Sim.NoticeAt(IsoGrid.ToWorld(Cell), $"{Name} has been hunted out. It will not recover.");
         }
     }
 
@@ -176,8 +176,8 @@ public class SpawnSite
         FoodStock = Mathf.Clamp(FoodStock + (over > 1f ? -(over - 1f) * 0.6f : 0.15f), 0f, 1f);
         bool wasScarce = Scarcity;
         Scarcity = FoodStock < 0.35f && over > 0.95f;
-        if (Scarcity && !wasScarce) Sim.Notice($"{Name}: too many animals for the ground. They are hungry and ranging toward the post.");
-        if (!Scarcity && wasScarce) Sim.Notice($"{Name} has settled again.");
+        if (Scarcity && !wasScarce) Sim.NoticeAt(IsoGrid.ToWorld(Cell), $"{Name}: too many animals for the ground. They are hungry and ranging toward the post.");
+        if (!Scarcity && wasScarce) Sim.NoticeAt(IsoGrid.ToWorld(Cell), $"{Name} has settled again.");
     }
 
     public Animal NearestLiveAnimal(Vector2 pos, float radius)
@@ -504,8 +504,8 @@ public partial class EcologyManager : Node2D
         foreach (var s in Sites)
         {
             if (s.Species != Species.Goose || s.IsDead) continue;
-            if (away) { s.Count = 0f; Sim.Notice($"The geese have gone south. {s.Name} is empty till spring."); }
-            else { s.Count = s.Capacity * 0.7f; Sim.Notice($"The geese are back on {s.Name}. The spring hunt is on."); }
+            if (away) { s.Count = 0f; Sim.NoticeAt(IsoGrid.ToWorld(s.Cell), $"The geese have gone south. {s.Name} is empty till spring."); }
+            else { s.Count = s.Capacity * 0.7f; Sim.NoticeAt(IsoGrid.ToWorld(s.Cell), $"The geese are back on {s.Name}. The spring hunt is on."); }
         }
     }
 

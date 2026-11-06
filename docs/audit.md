@@ -240,6 +240,8 @@ The 21 October catalogue, less what has since landed. Sources: "Doc" = the desig
 
 ## 10. Recommendations, in order
 
+*(2026-11-04: see `docs/agency-audit.md` for a separate audit of shortcuts no agent made: ambient notices, goods and people from nowhere, omniscient decisions.)*
+
 1. **Prove the exhaustion merger.** Run a headless soak 1811-1821 under "historical" and "no script", log the purse (`--plainslog`), and tune the starting purses and costs until a company exhausts around 1819-1821 historically and plausibly without a script. This is the cheapest step from here to an emergent 1821, and global-trade P0's `--dump-economy` is the natural tool for it.
 2. **Run the fun test**, now on the action campaign rather than York (P.9 superseded 2026-10-31). *Original wording:* Play one in-game year on the York river with quiet days on, time it against §P.3's target, and note whether it passes §P.1's story test. The recent York work (raid, happenings, journey incidents) is aimed at exactly this, and nothing has measured it.
 3. **Done 2026-10-31 (§2.4, §3.8.3, §6.3). Write design-doc sections for laws, towns and scripted set pieces** (quests, musters, the York raid), saying where each sits relative to §2.
