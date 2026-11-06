@@ -75,7 +75,7 @@ public static class SaveGame
         {
             ["version"] = 1,
             ["calendar"] = new GDict { ["year"] = cal.Year, ["month"] = cal.Month, ["day"] = cal.Day, ["hour"] = cal.Hour, ["sky"] = (int)cal.Weather.Current, ["skies"] = cal.Weather.Save(), ["skyHours"] = cal.Weather.HoursLeft },
-            ["tension"] = Rivalry.Tension,
+            ["tension"] = Rivalry.Tension, ["grievance"] = Rivalry.Save(),
             ["union"] = Union.Save(),
             ["campaign"] = Campaign.Save(),
             ["explored"] = UI.Exploration.Save(),
@@ -149,7 +149,7 @@ public static class SaveGame
         d["peltPrice"] = f.PeltPrice; d["incentiveNext"] = f.LondonIncentiveNext; d["quota"] = f.QuotaMb; d["quotaNext"] = f.QuotaNextMb;
         d["fursTaken"] = f.FursTakenMb; d["lostToRival"] = f.LostToRivalMb; d["goodsPaid"] = f.GoodsPaidMb; d["year"] = f.Year;
         d["lastRaided"] = f.LastRaidedDay; d["lastRaid"] = f.LastRaidDay; d["lotsLost"] = f.LotsLostToRaids;
-        d["directive"] = f.DirectiveText; d["directiveDay"] = f.DirectiveReadDay; d["directiveYear"] = f.DirectiveYear; d["skimmed"] = f.SkimmedMb;
+        d["directive"] = f.DirectiveText; d["directiveDay"] = f.DirectiveReadDay; d["directiveYear"] = f.DirectiveYear; d["skimmed"] = f.SkimmedMb; d["dry"] = f.OrderedDry;
         d["outpostReportDay"] = f.LastOutpostReportDay; d["outpostReport"] = f.OutpostReportText; d["supplyDay"] = f.LastSupplyDay; d["masterless"] = f.KnowsOutpostMasterless; d["postingDay"] = f.LastPostingDay;
         if (f is OutpostLedger ol) d["reportSent"] = ol.LastReportSentDay;
         return d;
@@ -407,7 +407,7 @@ public static class SaveGame
         f.PeltPrice = F(d, "peltPrice", 1f); f.LondonIncentiveNext = F(d, "incentiveNext", 1f); f.QuotaMb = F(d, "quota", 60f); f.QuotaNextMb = F(d, "quotaNext", 60f);
         f.FursTakenMb = F(d, "fursTaken"); f.LostToRivalMb = F(d, "lostToRival"); f.GoodsPaidMb = F(d, "goodsPaid"); f.Year = I(d, "year", 1811);
         f.LastRaidedDay = I(d, "lastRaided", -999); f.LastRaidDay = I(d, "lastRaid", -999); f.LotsLostToRaids = I(d, "lotsLost");
-        if (d.ContainsKey("directive")) { f.DirectiveText = S(d, "directive"); f.DirectiveReadDay = I(d, "directiveDay", -999); f.DirectiveYear = I(d, "directiveYear"); f.SkimmedMb = F(d, "skimmed"); }
+        if (d.ContainsKey("directive")) { f.DirectiveText = S(d, "directive"); f.DirectiveReadDay = I(d, "directiveDay", -999); f.DirectiveYear = I(d, "directiveYear"); f.SkimmedMb = F(d, "skimmed"); f.OrderedDry = d.ContainsKey("dry") ? B(d, "dry") : Laws.CompanyDry(f.Company); }
         if (d.ContainsKey("outpostReportDay")) { f.LastOutpostReportDay = I(d, "outpostReportDay", -999); f.OutpostReportText = S(d, "outpostReport"); f.LastSupplyDay = I(d, "supplyDay", -999); f.KnowsOutpostMasterless = B(d, "masterless"); f.LastPostingDay = I(d, "postingDay", -999); }
         if (f is OutpostLedger ol2 && d.ContainsKey("reportSent")) ol2.LastReportSentDay = I(d, "reportSent", -999);
     }
@@ -442,6 +442,7 @@ public static class SaveGame
             cal.Weather.Force((SkyState)I(c, "sky"), F(c, "skyHours", 6f));
             if (c.ContainsKey("skies")) cal.Weather.Load(c["skies"].AsGodotArray());
             Rivalry.Tension = F(d, "tension", 20f);
+            if (d.ContainsKey("grievance")) Rivalry.Load(d["grievance"].AsGodotArray());
             Union.Load(d.ContainsKey("union") ? d["union"].AsGodotDictionary() : null);
             Campaign.Restore(d.ContainsKey("campaign") ? d["campaign"].AsGodotDictionary() : null);
             if (d.ContainsKey("explored")) UI.Exploration.Load(d["explored"].AsGodotArray());

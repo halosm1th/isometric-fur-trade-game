@@ -48,6 +48,9 @@ public partial class FortLedger : Household
 	public float SkimmedMb;
 	// The other company's minutes have been read here (design doc 10.3).
     public bool KnowsRivalPlan;
+    // The company's spirits order as this house has received it (Core/Laws.PostDry):
+    // a change made in London or at Fort William holds here only once the order arrives.
+    public bool OrderedDry;
     // What the Bay post believes about its inland post, from the last report (design doc 3.9 step 6).
     public int LastOutpostReportDay = -999;
     public string OutpostReportText = "";
@@ -224,7 +227,7 @@ public partial class FortLedger : Household
 				Stores.Add(id);
 				// Part of the price in rum, when there's rum and the band takes it.
 				int rum = 0;
-				if (RumShare > 0f && Stores.Has(ItemId.Rum) && !Core.Laws.CompanyDry(Company) && !Core.Laws.Dry(band) && GD.Randf() < RumShare * 2f) { rum = Mathf.Min(goods, Mathf.Max(1, Mathf.RoundToInt(goods * RumShare * 2f))); }
+				if (RumShare > 0f && Stores.Has(ItemId.Rum) && !Core.Laws.PostDry(this) && !Core.Laws.Dry(band) && GD.Randf() < RumShare * 2f) { rum = Mathf.Min(goods, Mathf.Max(1, Mathf.RoundToInt(goods * RumShare * 2f))); }
 				Stores.Remove(ItemId.TradeGoods, goods - rum);
 				buyerGoodsTo.Add(ItemId.TradeGoods, goods - rum);
 				if (rum > 0)

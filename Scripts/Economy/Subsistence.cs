@@ -52,6 +52,34 @@ public static class Subsistence
         return cap <= 0f ? Unmapped : Mathf.Clamp(have / cap, Floor, 1f);
     }
 
+    // The nearest herd of a kind anywhere on the map, and how full it is
+    // (0.2..1): for people whose living comes from far grounds - the buffalo
+    // a plains people winters on, wherever their camp stands that season.
+    public static float Herd(Household h, Species kind, out SpawnSite herd)
+    {
+        herd = null;
+        var eco = Sim.Ecology;
+        if (eco == null) return Unmapped;
+        var at = IsoGrid.ToWorld(h.AccessCell);
+        float best = float.MaxValue;
+        foreach (var s in eco.Sites)
+        {
+            if (s.Species != kind || s.IsDead) continue;
+            float d = IsoGrid.ToWorld(s.Cell).DistanceTo(at);
+            if (d < best) { best = d; herd = s; }
+        }
+        return herd == null ? Unmapped : Mathf.Clamp(herd.Count / Mathf.Max(1f, herd.Capacity), Floor, 1f);
+    }
+
+    // Off one herd: the pieces brought in, as beasts of its kind.
+    public static void TakeFrom(SpawnSite herd, int pieces)
+    {
+        if (herd == null || pieces <= 0) return;
+        float beasts = pieces / PiecesPerBeast(herd.Species);
+        int whole = Mathf.FloorToInt(beasts) + (GD.Randf() < beasts - Mathf.Floor(beasts) ? 1 : 0);
+        if (whole > 0) herd.Take(whole);
+    }
+
     // Meat to a beast, in pieces, by kind: a buffalo is a great deal more than a hare.
     private static float PiecesPerBeast(Species s) => s switch
     {

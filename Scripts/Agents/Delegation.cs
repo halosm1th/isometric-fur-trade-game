@@ -81,7 +81,7 @@ public static class Delegation
 
         // The rivalry: a guard after a robbery or with tempers high.
         var rival = fort is OutpostLedger ? null : Rivalry.PostOf(Rivalry.RivalOf(fort.Company));
-        if (rival != null && (fort.RaidedRecently(today) || Rivalry.Tension >= 60f))
+        if (rival != null && (fort.RaidedRecently(today) || Rivalry.TensionOf(fort.Company) >= 60f))
         {
             var door = fort.Company == Faction.HBC ? WorldLayout.Warehouse.DoorCell : WorldLayout.NwcHouse.DoorCell;
             tasks.Add(new PostTask { Name = "stand guard at the stores", Make = _ => new GuardGoal(door, 4f), Men = 1, Urgency = 60f, NeedsMusket = true, KeyTask = true, Intent = "the other side has been at our stores" });
@@ -178,7 +178,7 @@ public static class Delegation
 
         // The Nor'Westers on the river road (design doc 10.3): with tempers up,
         // two men lie in wait a day's march out for the Company's inland packet.
-        if (fort is NwcLedger nwcFort && Sim.Outpost != null && (Rivalry.Tension >= 55f || nwcFort.RaidsSanctioned) && men.Count >= 3 && today - nwcFort.LastAmbushDay > 12 && GD.Randf() < 0.3f + leader.Personality.Ambition * 0.3f)
+        if (fort is NwcLedger nwcFort && Sim.Outpost != null && (Rivalry.TensionOf(Faction.NWC) >= 55f || nwcFort.RaidsSanctioned) && men.Count >= 3 && today - nwcFort.LastAmbushDay > 12 && GD.Randf() < 0.3f + leader.Personality.Ambition * 0.3f)
         {
             var spot = IsoGrid.FromWorld(WorldLayout.RiverRoad[4]);
             var nf = nwcFort;
@@ -328,11 +328,11 @@ public static class Delegation
         var rival = fort is OutpostLedger ? null : Rivalry.PostOf(Rivalry.RivalOf(fort.Company));
         bool shipIn = fort == Sim.Fort && Sim.Ship != null && Sim.Ship.IsDocked;
         int raidersSent = 0;
-        bool sanctioned = fort is NwcLedger nl && nl.RaidsSanctioned && Rivalry.Tension >= 45f;
-        if (rival != null && !Accords.AtPeace(fort, rival) && (Rivalry.OpenHostility || sanctioned) && men.Count >= 2 && today - fort.LastRaidDay > 4 && !shipIn)
+        bool sanctioned = fort is NwcLedger nl && nl.RaidsSanctioned && Rivalry.TensionOf(fort.Company) >= 45f;
+        if (rival != null && !Accords.AtPeace(fort, rival) && (Rivalry.HostileIn(fort.Company) || sanctioned) && men.Count >= 2 && today - fort.LastRaidDay > 4 && !shipIn)
         {
             int mouths = fort.Alive();
-            bool worthIt = fort.FoodDays(mouths + 1) < 30f || fort.Stores.Count(ItemId.TradeGoods) < 15 || Rivalry.Tension >= 90f || fort.RaidedRecently(today);
+            bool worthIt = fort.FoodDays(mouths + 1) < 30f || fort.Stores.Count(ItemId.TradeGoods) < 15 || Rivalry.TensionOf(fort.Company) >= 90f || fort.RaidedRecently(today);
             if (worthIt && GD.Randf() < 0.35f + leader.Personality.Ambition * 0.4f)
                 raidersSent = Rivalry.OrderRaid(leader, fort, rival, Math.Min(3, men.Count - 1)).Count;
         }

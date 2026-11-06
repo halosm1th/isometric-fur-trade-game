@@ -338,8 +338,8 @@ public static class Brigades
 	// who do it are the other post's own.
 	private static void Interception(Brigade b, string portage)
 	{
-		float tension = Rivalry.Tension;
 		var rival = b.From != null && b.From.Company == Faction.HBC ? (FortLedger)Sim.Nwc : Sim.Fort;
+		float tension = rival != null ? Rivalry.TensionOf(rival.Company) : 0f;   // the house that would send the men
 		if (rival == null || tension < 45f) return;
 		float chance = Mathf.Clamp((tension - 40f) / 150f, 0f, 0.4f);
 		if (rival.KnowsRivalPlan) chance += 0.15f;
@@ -354,7 +354,7 @@ public static class Brigades
 			b.Cargo.Remove(id, take); rival.Stores.Add(id, take); lots += take;
 		}
 		if (b.From != null) { b.From.LotsLostToRaids += lots; b.From.LostToRivalMb += lots * 0.5f; }
-		Rivalry.Raise(8f, $"{(rival.Company == Faction.NWC ? "the Nor'Westers" : "the Company's men")} took {b.Name} at {portage}");
+		Rivalry.Raise(8f, $"{(rival.Company == Faction.NWC ? "the Nor'Westers" : "the Company's men")} took {b.Name} at {portage}", b.Where);
 		Sim.HeadlineAt(b.Where, $"{b.Name} was taken at {portage}: {lots} pieces carried off by {(rival.Company == Faction.NWC ? "the Nor'Westers" : "the Company's men")}.");
 		Tell(b, $"{b.Name} was waylaid at {portage} and lost {lots} pieces.", "the other house knew which day you would be on the carrying place", 2f);
 		Chronicle.Event($"{(rival.Company == Faction.NWC ? "the Nor'Westers" : "the Company's men")} waylaid {b.Name} at {portage} and took {lots} pieces.", b.Where, null, b.Name, 2f);

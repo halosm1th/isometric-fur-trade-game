@@ -12,21 +12,69 @@ namespace IsometricFurTradeGame.Scripts.Economy;
 // two companies are to blows. Furs walking to the other counter, desertions
 // and blood raise it; time and a truce bring it down. Past the threshold
 // the leaders start sending armed parties for each other's stores.
+//
+// Each house at York holds its own grievance (design doc 10): a wrong done
+// at York is felt at once, one done on a river a month off reaches the house
+// only when the news does - a day's travel for every 4,000 px - and the
+// London sale's news with the ship. Its master decides on raids from his own
+// house's grievance (TensionOf). Tension is what is said at York: the two
+// houses' grievances together, for talk, the council and the campaign.
 public static class Rivalry
 {
-    public static float Tension = 20f;
+    private static readonly Dictionary<Faction, float> _grievance = new() { [Faction.HBC] = 20f, [Faction.NWC] = 20f };
+    private sealed class News { public Faction House; public float Amount; public int Due; public string Why; }
+    private static readonly List<News> _coming = new();
+    private const float NewsPxPerDay = 4000f, AtHomePx = 3000f;
+
+    public static float Tension
+    {
+        get => (_grievance[Faction.HBC] + _grievance[Faction.NWC]) / 2f;
+        set { bool was = OpenHostility; _grievance[Faction.HBC] = _grievance[Faction.NWC] = Mathf.Clamp(value, 0f, 100f); Crossed(was, "set"); }
+    }
+    // A house's own grievance against the other: what its master decides by.
+    public static float TensionOf(Faction house) => _grievance.TryGetValue(house, out float g) ? g : Tension;
     // After the union of 1821 (Economy/Union.cs) there is one company: nobody
     // is anybody's rival, and there is no other post to raid.
     public static bool United;
     public const float HostileAt = 70f;
     public static bool OpenHostility => Tension >= HostileAt;
+    public static bool HostileIn(Faction house) => TensionOf(house) >= HostileAt;
     private static int _lastDecayDay = -1;
 
-    public static void Raise(float amount, string why)
+    // A wrong done at York (the houses are a river apart: both feel it at once).
+    public static void Raise(float amount, string why) => Raise(amount, why, WorldLayout.FortCentre);
+
+    // A wrong done somewhere: each house feels it when the news reaches it.
+    public static void Raise(float amount, string why, Vector2 where)
     {
         if (!Net.Net.IsServer || amount == 0f || United) return;
+        foreach (var house in new[] { Faction.HBC, Faction.NWC })
+        {
+            var post = PostOf(house);
+            float d = post != null ? IsoGrid.ToWorld(post.AccessCell).DistanceTo(where) : 0f;
+            int days = d <= AtHomePx ? 0 : Mathf.CeilToInt(d / NewsPxPerDay);
+            if (days == 0) Feel(house, amount, why);
+            else _coming.Add(new News { House = house, Amount = amount, Due = Plains.Today + days, Why = why });
+        }
+    }
+
+    // News from the London sale or Montreal: it comes with the ship or the canoes.
+    public static void RaiseFromAway(float amount, string why, int days)
+    {
+        if (!Net.Net.IsServer || amount == 0f || United) return;
+        foreach (var house in new[] { Faction.HBC, Faction.NWC })
+            _coming.Add(new News { House = house, Amount = amount, Due = Plains.Today + days, Why = why });
+    }
+
+    private static void Feel(Faction house, float amount, string why)
+    {
         bool was = OpenHostility;
-        Tension = Mathf.Clamp(Tension + amount, 0f, 100f);
+        _grievance[house] = Mathf.Clamp(TensionOf(house) + amount, 0f, 100f);
+        Crossed(was, why);
+    }
+
+    private static void Crossed(bool was, string why)
+    {
         if (!was && OpenHostility) Campaign.Flag("open_hostility");
         if (!was && OpenHostility) Sim.Log($"Bad blood between the companies has become open hostility ({why}). Armed men go about both posts now.");
         if (was && !OpenHostility) Sim.Log($"The companies have drawn back from open hostility ({why}).");
@@ -36,7 +84,18 @@ public static class Rivalry
     {
         if (day == _lastDecayDay) return;
         _lastDecayDay = day;
-        Tension = Mathf.Max(0f, Tension - 1.2f);
+        foreach (var n in new List<News>(_coming))
+            if (Plains.Today >= n.Due) { _coming.Remove(n); if (!United) Feel(n.House, n.Amount, n.Why); }
+        foreach (var house in new[] { Faction.HBC, Faction.NWC }) _grievance[house] = Mathf.Max(0f, _grievance[house] - 1.2f);
+    }
+
+    // Saved apart from the York figure, so each house keeps its own.
+    public static Godot.Collections.Array Save() => new() { _grievance[Faction.HBC], _grievance[Faction.NWC] };
+    public static void Load(Godot.Collections.Array a)
+    {
+        _coming.Clear();
+        if (a == null || a.Count < 2) return;
+        _grievance[Faction.HBC] = a[0].AsSingle(); _grievance[Faction.NWC] = a[1].AsSingle();
     }
 
     public static Faction RivalOf(Faction f) => United && f is Faction.HBC or Faction.NWC ? Faction.Wild : f == Faction.HBC ? Faction.NWC : f == Faction.NWC ? Faction.HBC : f;

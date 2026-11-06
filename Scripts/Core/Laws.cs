@@ -197,6 +197,53 @@ public static class Laws
     // company's counter.
     public static bool Dry(Household h) => Of(h)?.Get(LawKind.NoSpirits) != null;
     public static bool CompanyDry(Faction company) => CompanyOf(company)?.Get(LawKind.NoSpirits) != null;
+    // Does this house hold to a ban on spirits? Only once the order has reached it.
+    public static bool PostDry(Economy.FortLedger post) => post != null && post.OrderedDry;
+
+    // The company's orders on its way out to its houses (design doc 10): the
+    // Committee's with the next ship into York and then up the rivers, the
+    // partners' from Fort William - a day for every 4,000 px of road.
+    private sealed class Order { public Economy.FortLedger Post; public bool Dry; public int Due; public string Line; }
+    private static readonly List<Order> _orders = new();
+
+    private static void SendOrders(Body b, string line)
+    {
+        if (b.Kind != BodyKind.Company) return;
+        bool dry = b.Get(LawKind.NoSpirits) != null;
+        var cal = Cal;
+        int today = Economy.Plains.Today;
+        // From where the order comes into the country, and how long it takes to get there.
+        Vector2 from; int wait;
+        if (b.Firm == Faction.HBC)
+        {
+            from = WorldLayout.FortCentre;
+            int doy = (int)(cal?.DayOfYear ?? 1f);
+            wait = doy <= 225 ? 225 - doy : 365 - doy + 225;   // the ship is in about the middle of August
+        }
+        else { from = Convoys.PostPos("Fort William"); wait = 0; }
+        foreach (var post in Sim.Posts())
+        {
+            if (post.Company != b.Firm) continue;
+            int road = Mathf.CeilToInt(IsoGrid.ToWorld(post.AccessCell).DistanceTo(from) / 4000f);
+            _orders.RemoveAll(o => o.Post == post);   // a later order takes the place of one still on its way
+            _orders.Add(new Order { Post = post, Dry = dry, Due = today + wait + road, Line = line });
+        }
+    }
+
+    private static void DeliverOrders()
+    {
+        int today = Economy.Plains.Today;
+        foreach (var o in new List<Order>(_orders))
+        {
+            if (today < o.Due) continue;
+            _orders.Remove(o);
+            if (o.Post.OrderedDry == o.Dry) continue;
+            o.Post.OrderedDry = o.Dry;
+            string what = o.Dry ? "no spirits are to be given in trade" : "spirits may be given in trade again";
+            Sim.NoticeAt(o.Post, $"Orders have come to {Economy.Accords.Name(o.Post)}: {what}.");
+            Chronicle.Event($"Orders came to {Economy.Accords.Name(o.Post)} that {what}.", IsoGrid.ToWorld(o.Post.AccessCell), o.Post.Leader, weight: 0.9f);
+        }
+    }
     // The share of a poor year's furs the company keeps off the sale (Economy/Companies).
     public static float FursHeld(Faction company) => CompanyOf(company)?.Get(LawKind.HoldFurs)?.Value ?? 0f;
 
@@ -484,6 +531,7 @@ public static class Laws
             _lastDay = today;
             foreach (var b in Bodies) Agitators(b);
             foreach (var p in Open.ToArray()) DayOf(p);
+            DeliverOrders();
             if (cal.Day == 1) Relief();
             if (Trace && (cal.Day == 1 || cal.Day == 15)) FoodReport();
             Open.RemoveAll(p => p.Stage == MotionStage.Decided && today - p.MeetingDay > 30);
@@ -690,6 +738,7 @@ public static class Laws
         }
         string verb = b.Kind == BodyKind.Band ? (carried ? "agreed" : "would not agree") : carried ? "carried" : "threw out";
         Announce(p, $"The {b.Meeting} {(b.Kind == BodyKind.Town ? "of " + b.Town.Name + " " : "")}{verb} the motion {title}{tally}.");
+        if (carried && p.Kind == LawKind.NoSpirits) SendOrders(b, title);
         // The sponsor's standing rises or falls with it.
         if (Speaker(p.Sponsor) is Npc sn) sn.Standing = Mathf.Clamp(sn.Standing + (carried ? 6f : -3f), 0f, 100f);
         if (Speaker(p.Opponent) is Npc on) on.Standing = Mathf.Clamp(on.Standing + (carried ? -3f : 4f), 0f, 100f);
@@ -942,7 +991,7 @@ public static class Laws
 
     // ---- saves ------------------------------------------------------------------
 
-    public static void Clear() { Bodies.Clear(); Open.Clear(); Minutes.Clear(); _lastTried.Clear(); _calls.Clear(); _seeded = false; _lastDay = -1; _lastHour = -1f; _nextId = 1; }
+    public static void Clear() { _orders.Clear(); Bodies.Clear(); Open.Clear(); Minutes.Clear(); _lastTried.Clear(); _calls.Clear(); _seeded = false; _lastDay = -1; _lastHour = -1f; _nextId = 1; }
 
     public static Godot.Collections.Dictionary Save()
     {

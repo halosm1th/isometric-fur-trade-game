@@ -133,7 +133,7 @@ public static class Companies
         {
             float all = mb + a.HeldMb;
             a.HeldMb = 0f; a.DumpYear = year;
-            Rivalry.Raise(10f, "furs dumped on the sale");
+            Rivalry.RaiseFromAway(10f, "furs dumped on the sale", 120);   // the news comes out with next year's ship and canoes
             Chronicle.Event($"{co} threw every fur it had on the sale {where}, {all:0} made beaver, to beat the price down under its rival.", at, null, a.Name, 1.8f);
             Sim.Log($"{co} floods the sale {where} with {all:0} made beaver of furs. The price will be ruinous for everyone this year.");
             return all;
