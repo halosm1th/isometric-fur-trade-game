@@ -161,7 +161,7 @@ public static class Accords
         if (wronged is BandLedger wb && by is FortLedger bf) Lower(wb, bf.Company, 25f);
         if (by is BandLedger bb && wronged is FortLedger wf) Lower(bb, wf.Company, 20f);
         Plains.HeatFeud(wronged, by, 4f);
-        if (Rivalry.AreRivals(CompanyOf(by), CompanyOf(wronged))) Rivalry.Raise(25f, "a truce broken");
+        if (Rivalry.AreRivals(CompanyOf(by), CompanyOf(wronged))) Rivalry.Raise(25f, "a truce broken", IsoGrid.ToWorld(War.CampOf(wronged)));
         if (by.Leader != null && wronged.Leader != null) wronged.Leader.ChangeRapport(by.Leader, -30f);
         string line = $"{Name(by)} broke its word to {Name(wronged)}: {what}";
         Chronicle.Event(line + ".", IsoGrid.ToWorld(War.CampOf(wronged)), subject: Name(by), weight: 2.2f);
@@ -216,6 +216,8 @@ public static class Accords
     public static void Traded(BandLedger b, FortLedger post)
     {
         _lastTraded[b] = (post, Plains.Today);
+        // Seen at the post's counter: the men there remember it, and it travels as talk does.
+        Chronicle.Event($"Men of {b.Name} brought their furs to {Name(post)}.", IsoGrid.ToWorld(post.AccessCell), subject: b.Name, weight: 0.7f);
         if (ExclusiveOf(b) is { } ac && CompanyOf(ac.Other(b)) != post.Company && GD.Randf() < 0.6f)
             Breach(ac, b, $"its men carried their furs to {Name(post)}");
     }
@@ -260,7 +262,7 @@ public static class Accords
     {
         var hbc = Sim.Fort; var nwc = Sim.Nwc;
         if (hbc?.Leader == null || nwc?.Leader == null || hbc.Leader.IsDead || nwc.Leader.IsDead || Rivalry.United) return;
-        if (Rivalry.Tension < 60f || AtPeace(hbc, nwc) || GD.Randf() > 0.1f) return;
+        if (Mathf.Min(Rivalry.TensionOf(Faction.HBC), Rivalry.TensionOf(Faction.NWC)) < 60f || AtPeace(hbc, nwc) || GD.Randf() > 0.1f) return;   // both houses must be sick of it
         if (hbc.LotsLostToRaids + nwc.LotsLostToRaids < 2) return;   // it has cost them both something
         float willing = 1.4f - hbc.Leader.Personality.Ambition - nwc.Leader.Personality.Ambition * 0.8f;
         if (GD.Randf() > willing) { if (Trace) GD.Print("[accord] the houses at York could not agree a truce"); return; }
@@ -285,6 +287,8 @@ public static class Accords
                 if (d < best) { best = d; theirs = p; }
             }
             if (theirs == null || GD.Randf() > 0.25f) continue;
+            // Only a master who has heard where they took their furs makes the offer.
+            if (!HasHeard(theirs.Leader, b, last.Post)) continue;
             _lastOffer[b] = Plains.Today;
             var vote = Council(b, Term.Exclusive, theirs);
             if (!vote.Yes) { if (Trace) GD.Print($"[accord] {b.Name}'s council would not give {Name(theirs)} its furs alone ({vote.For:0} of {vote.All:0})"); continue; }
@@ -397,6 +401,15 @@ public static class Accords
                 Settle(b, post, post.Stores, mb, debts, $"{post.Leader.DisplayName} and {b.Leader?.DisplayName ?? b.Name}");
             }
         }
+    }
+
+    // Does this man remember being told (or seeing) that the camp traded at that post?
+    private static bool HasHeard(Npc n, BandLedger b, FortLedger post)
+    {
+        if (n == null) return false;
+        string where = Name(post);
+        foreach (var m in n.Memories) if (m.Subject == b.Name && m.Text != null && m.Text.Contains(where)) return true;
+        return false;
     }
 
     // A homeguard family lives by its post: nobody bargains for its furs.

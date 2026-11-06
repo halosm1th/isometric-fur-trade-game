@@ -126,7 +126,7 @@ public static class Council
                 Key = "bay", Question = "The Company's post at the Bay",
                 Options = new[] { "keep the peace and take their trade", "press them hard - their stores are fair game" },
                 Leaning = (c, i) => i == 0 ? c.Loyalty * 0.4f + (1f - c.Ambition) * 0.4f + (c.AgentFirm ? 0.4f : 0f) : c.Ambition * 0.6f + c.Suspicion * 0.3f + (Rivalry.Tension > 70f ? 0.3f : 0f),
-                Apply = i => { if (i == 0) Rivalry.Raise(-20f, "the council orders peace at the Bay"); else { Rivalry.Raise(15f, "the council orders the Bay pressed"); nwc.RaidsSanctioned = true; } },
+                Apply = i => { if (i == 0) Rivalry.Raise(-20f, "the council orders peace at the Bay"); else { Rivalry.Raise(15f, "the council orders the Bay pressed"); nwc.RaidsSanctioned = true; } },   // applied when the minutes are read at York
             });
         }
 
@@ -167,6 +167,7 @@ public static class Council
         Minutes.Add($"Fort William, July {LastYear}. Present: {string.Join("; ", Members.FindAll(c => c.Present).ConvertAll(c => c.Name))}.");
         if (partner != null && partner.IsDead) Minutes.Add("The Bay partner is dead; his district is spoken for by the agents.");
 
+        var orders = new List<System.Action>();   // what the partners decided, carried north in the minutes
         foreach (var item in items)
         {
             var weight = new float[item.Options.Length];
@@ -191,7 +192,9 @@ public static class Council
             var parts = new List<string>(); for (int i = 0; i < weight.Length; i++) parts.Add($"{item.Options[i]} {weight[i]:0}");
             item.Tally = string.Join(" / ", parts);
             Minutes.Add($"{item.Question}: {item.Options[decided]} ({item.Tally} shares).");
-            item.Apply(decided);
+            // The decision holds in the country only when the minutes are read there (below).
+            var it = item; int d = decided;
+            orders.Add(() => it.Apply(d));
         }
         Letters.Clear();
 
@@ -214,6 +217,7 @@ public static class Council
         m.Payload["shipped"] = shipped; m.Payload["quota"] = quota; m.Payload["minutes"] = m.Text;
         m.OnRead = reader =>
         {
+            foreach (var order in orders) order();
             nwc.DirectiveText = m.Text;
             nwc.DirectiveReadDay = cal?.Day ?? 0;
             Sim.NoticeAt(reader, $"{reader?.Describe() ?? "The partner"} reads the council's minutes: the Nor'Westers will pay {nwc.PeltPrice:0.00}{(nwc.PriceAtDiscretion ? " (or what he judges right)" : "")}, with {nwc.OutfitPieces} pieces landed.");

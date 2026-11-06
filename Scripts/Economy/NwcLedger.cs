@@ -11,6 +11,8 @@ namespace IsometricFurTradeGame.Scripts.Economy;
 // partner who sets his own price, usually a shade better than the Company's.
 public partial class NwcLedger : FortLedger
 {
+    // What the band hunters coming in to trade say the Factor across the river pays (WorkGoals: TradeTripGoal).
+    public float HeardFortPrice = 1f;
     public override Agents.Faction Company => Agents.Faction.NWC;
     // What the council settled (design doc 3.8.1), or what the partner does regardless.
     public float RumShareSetting = 0.35f;
@@ -84,8 +86,9 @@ public partial class NwcLedger : FortLedger
         // A Nor'Wester's year closes with the brigade, as a Company man's does
         // with the ship (design doc P.3).
         foreach (var pc in Sim.Players()) Core.Reckoning.AtBrigadeAway(pc, this, shipped);
-        // A partner left to his own judgment sets the price the country requires.
-        if (PriceAtDiscretion && Sim.Fort != null) PeltPrice = Mathf.Clamp(Mathf.Max(PeltPrice, Sim.Fort.PeltPrice * 1.25f), 0.5f, 3f);
+        // A partner left to his own judgment sets the price the country requires:
+        // above what the hunters tell him the Factor is paying (HeardFortPrice).
+        if (PriceAtDiscretion) PeltPrice = Mathf.Clamp(Mathf.Max(PeltPrice, HeardFortPrice * 1.25f), 0.5f, 3f);
         (GetTree().GetFirstNodeInGroup("population") as Population)?.LandVoyageurs(3, Companies.Hires(Agents.Faction.NWC, 3));
     }
 }

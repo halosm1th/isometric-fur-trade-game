@@ -30,6 +30,9 @@ public partial class BandLedger : Household
 	// How the band feels about the Company: fed and fairly paid, it trades;
 	// starved or shot at, it stops coming (design doc 3.6, 10.5).
 	public float StandingWithCompany = 50f;
+	// What its hunters were paid the last time they traded at the Company's counter, and when (WorkGoals: TradeTripGoal).
+	public float LastCompanyPrice = 1f;
+	public int LastCompanyTradeDay = -999;
 	// How the band thinks of a company: the Nor'Westers and the Americans
 	// have their own accounts with it; everyone else (the Bay, and after the
 	// union the Nor'Westers too) the Company's.
@@ -65,19 +68,28 @@ public partial class BandLedger : Household
 		int mouths = 0;
 		mouths = Mouths;
 		bool hungry = FoodDays(mouths) < 3f;
-		float price = Sim.Fort?.PeltPrice ?? 1f;
-		// Hunger is blamed on the Company when its price is poor.
-		float drift = hungry ? (price < 0.9f ? -3f : -1f) : (price >= 1.2f ? 1f : 0.3f);
+		// What they think of the Company comes from their own dealings with it:
+		// hunger is blamed on it when the price they were paid was poor, and a
+		// fair price is remembered - for a couple of months after the trade.
+		// With no dealings, old feeling eases back towards indifference.
+		bool dealt = Plains.Today - LastCompanyTradeDay <= 60;
+		float price = LastCompanyPrice;
+		float drift = dealt
+			? (hungry ? (price < 0.9f ? -3f : -1f) : (price >= 1.2f ? 1f : 0.3f))
+			: (StandingWithCompany < 50f ? 0.1f : StandingWithCompany > 50f ? -0.05f : 0f);
 		bool was = WillTrade;
 		StandingWithCompany = Mathf.Clamp(StandingWithCompany + drift, 0f, 100f);
 		if (was && !WillTrade)
 		{
 			Sim.HeadlineAt(this, $"{Name} have had enough of the Company. They will not bring their furs to the post.");
+			// Those at the post or at the camp see it; the rest will hear.
 			foreach (var pc in Sim.Players())
 			{
-				string cause = LastInsultCause;
-				Core.Reveal.Lands(pc, $"{Name} will not trade with the post.", cause, 1.5f);
+				bool there = pc.GlobalPosition.DistanceTo(World.IsoGrid.ToWorld(Camp)) < Sim.SightPx
+					|| Sim.Fort != null && pc.GlobalPosition.DistanceTo(World.IsoGrid.ToWorld(Sim.Fort.AccessCell)) < Sim.SightPx;
+				if (there) Core.Reveal.Lands(pc, $"{Name} will not trade with the post.", LastInsultCause, 1.5f);
 			}
+			Agents.Chronicle.Event($"{Name} said they would bring no more furs to the Company's post.", World.IsoGrid.ToWorld(Camp), subject: Name, weight: 1.5f);
 		}
 		if (!was && WillTrade) Sim.NoticeAt(this, $"{Name} are willing to trade with the post again.");
 		StandingWithOtherBand = Mathf.Min(100f, StandingWithOtherBand + 0.3f);   // old alliances mend slowly
@@ -96,12 +108,14 @@ public partial class BandLedger : Household
 		_hoursToWeek -= hours;
 		if (_hoursToWeek > 0f) return;
 		_hoursToWeek += 24f * 7f;
-		// Made by their own hands (Economy/Subsistence) from the buffalo of the
-		// plains, which this test band's winter ground by the Bay does not have
-		// on the map: the herds it comes from are not simulated (docs/agency-audit.md).
+		// Made by their own hands (Economy/Subsistence) from the buffalo they
+		// hunt up-country: the nearest herd on the map, as full as it is, and
+		// the meat taken off it (a bag of pemmican is the meat of about three pieces).
 		if (Camp == WinterGround)
 		{
-			int pem = Mathf.RoundToInt(14 * Subsistence.HandsShare(this, Mouths));
+			float herd = Subsistence.Herd(this, Ecology.Species.Buffalo, out var buffalo);
+			int pem = Mathf.RoundToInt(14 * herd * Subsistence.HandsShare(this, Mouths));
+			Subsistence.TakeFrom(buffalo, pem * 3);
 			Stores.Add(ItemId.Pemmican, pem);
 			if (pem >= 7) Stores.Add(ItemId.CaribouHide, 1);
 		}

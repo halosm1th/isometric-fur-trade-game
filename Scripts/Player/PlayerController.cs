@@ -485,6 +485,7 @@ public partial class PlayerController : Agent
 
 	public override void _Ready()
 	{
+		Task.Owner = this;
 		_sprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
 		ApplyLook();
 		_camera = GetNodeOrNull<Camera2D>("Camera2D");

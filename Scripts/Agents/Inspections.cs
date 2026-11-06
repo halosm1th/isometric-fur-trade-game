@@ -35,6 +35,7 @@ public static class Inspections
     private static readonly List<Visit> _onTheRoad = new();
     private static readonly Dictionary<FortLedger, int> _lastPost = new();
     private static readonly Dictionary<FortLedger, float> _found = new();          // skim already brought to light
+    private static readonly Dictionary<FortLedger, Inventory> _kept = new();       // the very furs a master has put by
     private static readonly Dictionary<PlayerController, float> _suspect = new();
     // A post someone has told the master about, and who told him.
     private static readonly Dictionary<FortLedger, PlayerController> _toldOf = new();
@@ -50,7 +51,7 @@ public static class Inspections
 
     public static void Reset()
     {
-        _onTheRoad.Clear(); _lastPost.Clear(); _found.Clear(); _suspect.Clear(); _toldOf.Clear(); _lastKit.Clear(); _owed.Clear(); _lastDay = -1; _devDone = false;
+        _onTheRoad.Clear(); _lastPost.Clear(); _found.Clear(); _kept.Clear(); _suspect.Clear(); _toldOf.Clear(); _lastKit.Clear(); _owed.Clear(); _lastDay = -1; _devDone = false;
     }
 
     private static int Today(GameCalendar cal) => cal.Year * 366 + (int)cal.DayOfYear;
@@ -112,6 +113,8 @@ public static class Inspections
             int take = Mathf.Min(n, Mathf.CeilToInt((want - got) / d.ValueMb));
             if (take <= 0) continue;
             post.Stores.Remove(id, take);
+            if (!_kept.TryGetValue(post, out var put)) _kept[post] = put = new Inventory();
+            put.Add(id, take);
             got += take * d.ValueMb;
             if (got >= want) break;
         }
@@ -207,7 +210,9 @@ public static class Inspections
             return;
         }
         _found[post] = post.SkimmedMb;
-        post.Stores.Add(ItemId.BeaverPelt, Mathf.RoundToInt(missing));   // what he had put by goes back on the Company's shelf
+        // What he had put by goes back on the Company's shelf: the very furs, or (after a reload) their worth in beaver.
+        if (_kept.Remove(post, out var put)) foreach (var (id, c) in new List<(ItemId, int)>(put.All())) post.Stores.Add(id, c);
+        else post.Stores.Add(ItemId.BeaverPelt, Mathf.RoundToInt(missing));
         master.Standing -= 20f;
         master.ChangeRapport(v.Superior, -15f);
         v.Superior.ChangeRapport(master, -30f);

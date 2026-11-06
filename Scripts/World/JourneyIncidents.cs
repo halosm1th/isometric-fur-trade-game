@@ -182,7 +182,7 @@ public static class JourneyIncidents
             if (won)
             {
                 Men(c, p, 8f); p.Standing += 1f;
-                Rivalry.Raise(1f, $"{c.Name} raced the other house's men on the river");
+                Rivalry.Raise(1f, $"{c.Name} raced the other house's men on the river", c.Where);
                 Note(p, $"{c.Name} raced the other house's men on the river and beat them.");
                 return Done(c, "You put your back into it with the rest. For an hour the two crews are bow to bow, and then the other boat falls away, its steersman swearing. The men howl with joy. Twenty-five miles gone today, and every one of them earned.");
             }

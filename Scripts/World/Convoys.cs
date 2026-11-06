@@ -734,10 +734,10 @@ public static class Convoys
 	// blood as the York road (Brigade.cs), thinner the further from the Bay.
 	private static bool Intercept(Convoy c, RoadEvent e, Vector2 at)
 	{
-		float tension = Rivalry.Tension;
-		if (tension < 45f) return false;
 		FortLedger rival = c.Company == Faction.HBC ? Sim.Nwc : Sim.Fort;
 		if (rival == null) return false;
+		float tension = Rivalry.TensionOf(rival.Company);   // the house that would send the men
+		if (tension < 45f) return false;
 		float chance = Mathf.Clamp((tension - 40f) / 250f, 0f, 0.3f);
 		if (rival.KnowsRivalPlan) chance += 0.1f;
 		if (!Director.MayActNow("portage", 2f, at) || GD.Randf() > chance) return false;
@@ -753,7 +753,7 @@ public static class Convoys
 				c.Cargo.Remove(id, take); rival.Stores.Add(id, take); lots += take;
 			}
 			if (c.From != null) { c.From.LotsLostToRaids += lots; c.From.LostToRivalMb += lots * 0.5f; }
-			Rivalry.Raise(6f, $"{who} took {c.Name} at {e.Name}");
+			Rivalry.Raise(6f, $"{who} took {c.Name} at {e.Name}", at);
 			Raise("brigade_robbed"); Raise($"robbed:{c.Name}");
 			string line = $"{c.Name} were waylaid at {e.Name} by {who}: {lots} pieces carried off.";
 			Chronicle.Event(line, at, null, c.Name, 2f);
@@ -763,7 +763,7 @@ public static class Convoys
 		else
 		{
 			TurnBack(c);
-			Rivalry.Raise(4f, $"{who} turned {c.Name} back at {e.Name}");
+			Rivalry.Raise(4f, $"{who} turned {c.Name} back at {e.Name}", at);
 			Raise("brigade_turned_back"); Raise($"turned:{c.Name}");
 			string line = $"{c.Name} were turned back at {e.Name} by {who}; they are going home to {c.ToName} with the pieces still in the boats.";
 			Chronicle.Event(line, at, null, c.Name, 2f);

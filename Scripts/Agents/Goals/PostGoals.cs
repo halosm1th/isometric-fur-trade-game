@@ -189,7 +189,7 @@ public class HeldPrisonerGoal : Goal
         {
             var held = npc.HeldBy;
             npc.HeldBy = null;
-            npc.Inventory.Add(ItemId.Pemmican, 2);
+            npc.Inventory.Add(ItemId.Pemmican, held.Stores.TakeUpTo(ItemId.Pemmican, 2));   // two days' pemmican, if they can spare it
             Sim.NoticeAt(npc, $"{npc.DisplayName} has been let go by the {(held.Company == Faction.NWC ? "Nor'Westers" : "Company")} and is walking home.");
             Chronicle.Event($"{npc.DisplayName} was released and walked home.", npc.GlobalPosition, npc, weight: 0.8f);
             return GoalStatus.Done;

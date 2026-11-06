@@ -9,6 +9,7 @@ public enum TaskKind { Firewood, CarryCargo, DriveOffAnimals, DeliverLetter, Rai
 // standing with the Company; ignoring it costs a little.
 public class PlayerTask
 {
+    public PlayerController Owner;   // whose orders these are
     public TaskKind Kind = TaskKind.None;
     public int Need;
     public int Done;
@@ -49,6 +50,6 @@ public class PlayerTask
         Counted?.Invoke(kind, n);
         if (Kind != kind || IsComplete) return;
         Done += n;
-        if (IsComplete) Sim.Notice("Task done. The Factor will hear of it.");
+        if (IsComplete) Owner?.Say("Task done. The Factor will hear of it.");
     }
 }

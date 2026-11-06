@@ -433,7 +433,10 @@ public class TradeTripGoal : Goal
                 if (_sellProvisions && npc.Inventory.Count(ItemId.Pemmican) >= 4) { int m = fort.Alive(); soldFood = fort.BuyProvisions(npc.Inventory, npc.Inventory, m); }
                 Sim.NoticeAt(npc, $"{npc.DisplayName} traded at {fort.Title}{(pipe ? "" : " (no tobacco for the pipe)")}: {paid:0} MB in goods{(bought > 0 ? $", bought {bought} of food" : "")}{(soldFood > 0 ? $", sold {soldFood} pemmican" : "")}{(fort.DebtOf(band) > 0 ? $" (owes {fort.DebtOf(band):0.#} MB)" : "")}.");
                 Chronicle.Event($"{npc.DisplayName} traded furs at {fort.Title}.", npc.GlobalPosition, npc, weight: 0.4f);
+                // Over the counter they tell the partner what the Factor is paying across the river.
+                if (fort is Economy.NwcLedger heard && Sim.Fort != null) heard.HeardFortPrice = Sim.Fort.PeltPrice;
                 if (fort is Economy.NwcLedger && Sim.Fort != null) { Sim.Fort.LostToRivalMb += paid; Economy.Rivalry.Raise(paid * 0.25f, "furs going to the Nor'Westers"); }
+                if (fort == Sim.Fort) { band.LastCompanyPrice = fort.PeltPrice; band.LastCompanyTradeDay = Economy.Plains.Today; }
                 band.InvitedToTrade = false;
                 // A clerk who dealt fairly earns a little standing with the band.
                 _phase = 4;

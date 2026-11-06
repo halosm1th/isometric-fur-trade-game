@@ -61,27 +61,38 @@ These do something no agent in the country did, and are allowed by the design:
 
 ---
 
-## 3. Still open
+## 3. The open items, fixed (2026-11-06)
 
-Ordered by how much they bend the principle.
+The first pass left eight items open. All are fixed except the stand-ins for ecology the map does not have yet (item 6, last two points).
 
-1. **Rivalry tension is one number for both companies, raised the moment anything happens anywhere** (`Economy/Rivalry.cs`). A brigade taken a thousand miles off, or a flood of furs at the London sale, makes the leaders at York readier to raid that same day, though none of them has heard of it. *Fix:* tension as each leader's own grievance, built from what reaches him (memories, letters); raids decided on his.
-2. **A post offers a camp exclusive trade knowing exactly where the camp last traded** (`Economy/Accords.cs`, `BuyAway`). *Fix:* only what the offering post has seen or been told.
-3. **The Nor'Westers' partner sets his price from the Bay's true price** (`Economy/NwcLedger.cs`). Plausible at York, where the hunters carry the Factor's prices across the river, but it should come from what he has heard.
-4. **The Committee's and the partners' laws reach the country only as their effects.** No letter carries them, and nobody is told why the rule changed. *Fix:* send law changes with the ship's packet and the July minutes, like the price directive.
-5. **A band's standing with a company drifts each day with the price and its hunger** (`Economy/BandLedger.cs`): a ledger mood, not people's memories of being cheated. Low.
-6. **The ecology the map does not have yet:**
-   - Where no grounds are mapped, the bush gives a hare (`Core/Tiers.cs`, the snares fallback).
-   - A country with no grounds laid out feeds its people at 0.6 (`Subsistence.Unmapped`).
-   - The test-world Assiniboine's pemmican at their winter ground by the Bay comes from buffalo that are not on the map near them. It is scaled by their hands only. Tying it to the York country's caribou starved the whole York region in testing, because that pemmican feeds it through trade.
-
-   *Fix:* the buffalo herds their pemmican comes from, as grounds.
+1. **Rivalry is each house's own grievance** (`Economy/Rivalry.cs`).
+   - Each house at York holds its own (`TensionOf`).
+   - A wrong done at York is felt there at once. One done elsewhere reaches each house only when the news does, a day for every 4,000 px. A flood at the London sale comes with the next year's ship and canoes (`RaiseFromAway`).
+   - Each master decides from his own house's grievance: raids, the ambush on the river road, the convoys and brigades waylaid, the size of the York raid, the raid and truce a player proposes. A truce between the houses needs both to be sick of it.
+   - `Tension` remains as what is said at York (the two houses together): for talk, the Fort William council and campaign conditions.
+   - **Also:** the Fort William council's decisions took effect at the sitting. They now take effect when the partner at York reads the minutes. Minutes lost or intercepted on the way carry no orders.
+2. **An offer of exclusive trade needs the master to have heard** (`Economy/Accords.cs`). A camp trading at a post is now a remembered event at that post's counter, and it travels as talk does. A house offers a camp exclusive trade only if its master remembers where the camp took its furs.
+3. **The partner's price follows what he is told** (`Economy/NwcLedger.cs`). He prices against what the band hunters at his counter say the Factor pays (`HeardFortPrice`), not the Factor's books.
+4. **Company orders travel** (`Core/Laws.cs`, `FortLedger.OrderedDry`).
+   - A spirits order from the Committee comes out with the next ship to York, then up the rivers to each house. A partners' order travels from Fort William.
+   - A post holds to the order only once it arrives, and its people are told why.
+   - Holding furs back at the sale, and the rum loaded at Montreal, rightly apply where they are decided.
+5. **A band's mood comes from its own dealings** (`Economy/BandLedger.cs`).
+   - It moves only after its hunters have traded at the Company's counter in the last two months, by the price they were actually paid. With no dealings it eases toward indifference.
+   - The news that a band will not trade reaches only the players who are there, and travels from there.
+6. **The test-world Assiniboine's pemmican comes off a real herd** (`Subsistence.Herd`): the nearest buffalo on the map, as full as it is, with the meat taken off it.
+   - **Still open:** where no grounds are mapped, the bush still gives a hare (`Core/Tiers.cs`).
+   - **Still open:** a country with no grounds laid out still feeds its people at 0.6 (`Subsistence.Unmapped`).
+   - These two stand in for grounds the map does not have yet. The fix is map content, not code.
 7. **Small conjured items:**
-   - 2 pemmican for a released prisoner (`Goals/PostGoals.cs`);
-   - a horn of powder for a spawned musket-man (`World/Population.cs`);
-   - the York happenings' props (geese, a sailor's tobacco);
-   - an inspection restoring missing furs as beaver pelts rather than the furs that were taken (`Agents/Inspections.cs`).
-8. **"Task done"** (`Player/PlayerTask.cs`) goes to every player: the task does not know whose it is. A small multiplayer leak.
+   - A released prisoner's two days' pemmican comes from his captors' stores.
+   - A man placed with a musket gets his powder from his house's store.
+   - The homeguard's geese come off the actual marsh; with no geese there, the scene does not happen.
+   - The sailor's skins go under his jacket.
+   - Winnings at cards and on a fight are another man's stake, if he has it.
+   - The tobacco for a jig is one of the men's.
+   - An inspection puts back the very furs that were kept back.
+8. **"Task done" goes to the player whose task it was** (`PlayerTask.Owner`).
 
 ---
 
@@ -105,7 +116,8 @@ The same winter each time: 1 November 1811, about seven months at `--speed=0.02`
 | People up close counted as hands | 55 | 44 |
 | Take spread across grounds by species; geese left out | 62 | 39 |
 | Assiniboine pemmican by hands only | 66 | – |
-| **Floor 0.5 (what is committed)** | **39** | **35** |
+| Floor 0.5 (the first commit) | 39 | 35 |
+| **With the open items fixed (2026-11-06)** | **40** | **35** |
 
 - **Everything except the food is neutral.** With the old fixed food back on, deaths match `master` (31 against 30).
 - **The extra deaths came from the floor.** At 0.2, the York-area camps were starving in winter once the caribou had gone on.

@@ -170,7 +170,9 @@ public static class YorkHappenings
         {
             if (!p.Inventory.Has(ItemId.Tobacco)) return Done("A fight", "You pat your coat. Nothing to bet with. You watch instead.");
             bool won = GD.Randf() < 0.5f;
-            if (won) p.Inventory.Add(ItemId.Tobacco); else p.Inventory.Remove(ItemId.Tobacco);
+            // The winnings are the man who laid against you: his twist, if he has one.
+            if (won) { if (MenNear(p.GlobalPosition, 900f, n => Hand(n) && n != a && n != b && n.Inventory.Has(ItemId.Tobacco)) is { Count: > 0 } payers && payers[0].Inventory.Remove(ItemId.Tobacco)) p.Inventory.Add(ItemId.Tobacco); }
+            else { p.Inventory.Remove(ItemId.Tobacco); if (MenNear(p.GlobalPosition, 900f, n => Hand(n) && n != a && n != b) is { Count: > 0 } takers) takers[0].Inventory.Add(ItemId.Tobacco); }
             foreach (var m in MenNear(p.GlobalPosition, 900f, Hand)) m.ChangeRapport(p, 2f);
             p.Standing -= 0.5f;
             return Done("A fight", won
@@ -196,11 +198,15 @@ public static class YorkHappenings
         var hunters = MenNear(p.GlobalPosition, 2600f, n => n.IsBandPerson && n.Role is Role.Hunter or Role.Chief);
         if (hunters.Count == 0) return null;
         var h = hunters[0];
+        // The geese are off the marsh: none there, no canoe-load.
+        var marsh = Sim.Ecology?.BestSite(Ecology.Species.Goose, Sim.Fort);
+        if (marsh == null || marsh.Count < 2f) return null;
         h.Bark("Niska! Geese for the house.");
         string hn = h.DisplayName;
         var page = Page("Geese", $"{hn} of the homeguard has come up from the marsh with a canoe-load of geese, forty or more, still warm. He wants them weighed and paid for at the trading shop before the clerk goes to his dinner, and there is no one at the landing to carry.");
         page.Add("Help him carry them up to the provision store", () =>
         {
+            marsh.Take(2);   // about four birds a shot into the flock
             Sim.Fort.Stores.Add(ItemId.Goose, 8);
             h.ChangeRapport(p, 8f);
             p.Standing += 1f;
@@ -282,7 +288,7 @@ public static class YorkHappenings
                 {
                     if (Items.Items.Of(id).Kind != ItemKind.Fur) continue;
                     mb += Items.Items.Of(id).ValueMb * n * 1.6f; sold += n;
-                    p.Inventory.Remove(id, n);
+                    p.Inventory.Remove(id, n); s.Inventory.Add(id, n);   // under his jacket, and home on the ship
                 }
                 p.PrivateWorthMb += mb;
                 Witnessed(p, s, "sold furs to the ship's crew");
@@ -477,7 +483,8 @@ public static class YorkHappenings
     private static ScenePage Turn3(PlayerController p, string said, bool tobacco = false)
     {
         const string T = "The men's house";
-        if (tobacco) p.Inventory.Add(Items.ItemId.Tobacco);
+        // The twist of tobacco is one of the men's, put up for the jig.
+        if (tobacco && Dancer(n => n.Inventory.Has(Items.ItemId.Tobacco)) is { } stake && stake.Inventory.Remove(Items.ItemId.Tobacco)) p.Inventory.Add(Items.ItemId.Tobacco);
         var a = Dancer(n => !n.IsFemale);
         var b = Dancer(n => !n.IsFemale && n != a);
         if (a == null || b == null)
@@ -512,7 +519,7 @@ public static class YorkHappenings
         page.Add($"Play a hand ({sname})", () =>
         {
             bool won = GD.Randf() < 0.45f + p.Skills.Trade * 0.15f;
-            if (won) p.Inventory.Add(stake); else { p.Inventory.Remove(stake); dealer.Inventory.Add(stake); }
+            if (won) { if (dealer.Inventory.Remove(stake)) p.Inventory.Add(stake); } else { p.Inventory.Remove(stake); dealer.Inventory.Add(stake); }   // won off him, if he has it to lose
             dealer.ChangeRapport(p, 2f);
             if (GameCalendar.Instance?.Hour > 21f) p.Standing -= 0.25f;
             return Done("Cards", won ? $"The cards fall your way. You stand up {sname} richer, and {dn} swears you've done this before." : $"The cards do not fall your way, and {dn} pockets your stake with a wink.");
@@ -605,7 +612,7 @@ public static class YorkHappenings
         var away = (gate - WorldLayout.FortCentre).Normalized();
         var boatsAt = Convoys.LandNear(gate + away * 900f + away.Orthogonal() * 500f);
         var boats = Sim.Paths?.NearestWalkable(IsoGrid.FromWorld(boatsAt), 6) ?? IsoGrid.FromWorld(boatsAt);
-        int party = Mathf.Min(men.Count, 5 + (Economy.Rivalry.Tension > 50f ? 1 : 0));
+        int party = Mathf.Min(men.Count, 5 + (Economy.Rivalry.TensionOf(Faction.NWC) > 50f ? 1 : 0));
         // The bravest go.
         men.Sort((a, b) => b.Personality.Courage.CompareTo(a.Personality.Courage));
         for (int i = 0; i < party; i++)
@@ -621,7 +628,7 @@ public static class YorkHappenings
             n.Brain.Push(n, new Agents.Goals.RaidPartyGoal(Sim.Fort, boats));
             _raiders.Add(n);
         }
-        Economy.Rivalry.Raise(12f, "the Nor'Westers' raid on York Factory");
+        Economy.Rivalry.Raise(12f, "the Nor'Westers' raid on York Factory");   // at York: both houses feel it at once
         Chronicle.Event($"A party of Nor'Westers came down the Hayes in the night and fell on York Factory.", gate, null, "the raid on York", 2.5f);
         Sim.HeadlineAt(Sim.Fort, "Nor'Westers at York! The alarm bell is ringing.");
         Audio.Play("fort_bell_alarm");

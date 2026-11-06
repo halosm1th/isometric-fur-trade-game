@@ -122,7 +122,7 @@ public partial class Population : Node2D
 			var npc = Spawn(m.DisplayName, m.Role, m.Faction, m.Shifted(m.BedCell, home), m.Shifted(m.WorkCell, home), home, m.Frames ?? _hbcFrames, m.Tint, m.SpriteScale, m.Female);
 			if (m.Age > 0) { npc.Age = m.Age; if (npc.Age < 16) npc.ApplyAppearance(); }
 			m.FillInventory(npc);
-			if (npc.Inventory.Has(ItemId.Musket) && !npc.Inventory.Has(ItemId.Powder)) npc.Inventory.Add(ItemId.Powder);
+			if (npc.Inventory.Has(ItemId.Musket) && !npc.Inventory.Has(ItemId.Powder) && home.Stores.Remove(ItemId.Powder)) npc.Inventory.Add(ItemId.Powder);   // a horn from the house's store
 			if (m.Leader) home.Leader = npc;
 			made[m] = npc;
 		}

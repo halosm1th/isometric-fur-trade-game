@@ -958,9 +958,9 @@ public partial class Conversation
         foreach (var m in new List<Message>(_player.Mail))
             if (!m.Read && Economy.Rivalry.AreRivals(m.Company, npc.Faction))
                 AddOption($"Sell them the {m.Kind} from {m.From} ({PacketPrice(m)} trade goods)", () => ShowCompanies(npc, SellPacket(npc, m)));
-        if (ownLeader && Economy.Rivalry.Tension >= 40f && Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(npc.Faction)) != null)
+        if (ownLeader && Economy.Rivalry.TensionOf(npc.Faction) >= 40f && Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(npc.Faction)) != null)
             AddOption(npc.Faction == Faction.HBC ? "Propose seizing the Nor'Westers' stores" : "Propose seizing the Company's stores", () => ShowCompanies(npc, ProposeRaid(npc)));
-        if (!ownLeader && Economy.Rivalry.Tension >= 35f)
+        if (!ownLeader && Economy.Rivalry.TensionOf(npc.Faction) >= 35f)
             AddOption("Propose a truce between the companies", () => ShowCompanies(npc, ProposeTruce(npc)));
         if (ownLeader && npc.Faction is Faction.HBC or Faction.NWC)
         {
@@ -1167,7 +1167,7 @@ public partial class Conversation
                 ShowTopics($"\"Very well. {goods} pieces and a letter for Mr. Sutherland. The road head is below the gate, on the bank - a day's march. You are posted to Oxford House till I say otherwise; he gives your orders now.\"");
             });
         }
-        if (Economy.Rivalry.Tension >= 40f && Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(leader.Faction)) != null)
+        if (Economy.Rivalry.TensionOf(leader.Faction) >= 40f && Economy.Rivalry.PostOf(Economy.Rivalry.RivalOf(leader.Faction)) != null)
             AddOption("\"Let me stand guard at the stores.\"", () => { _player.AssignTask(TaskKind.Firewood, 0, "guard the storeroom"); _player.Standing += 1f; ShowTopics("\"Keep your eyes open, then.\""); });
         if (leader.Role is Role.Factor or Role.Postmaster or Role.NwcPartner)
         {
