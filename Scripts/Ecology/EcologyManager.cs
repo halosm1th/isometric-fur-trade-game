@@ -104,6 +104,8 @@ public class SpawnSite
     }
 
     public Vector2 WorldPos => IsoGrid.ToWorld(Cell);
+    // Made for a country the map gives no such ground (EcologyManager.LocalGrounds), not drawn on the map.
+    public bool Local;
     public bool IsDead => BreedingCapacity <= 0f;
     public SpeciesDef Def => SpeciesInfo.Of(Species);
 
@@ -175,7 +177,7 @@ public class SpawnSite
         float over = Count / Capacity;
         FoodStock = Mathf.Clamp(FoodStock + (over > 1f ? -(over - 1f) * 0.6f : 0.15f), 0f, 1f);
         bool wasScarce = Scarcity;
-        Scarcity = FoodStock < 0.35f && over > 0.95f;
+        Scarcity = Species != Species.Fish && FoodStock < 0.35f && over > 0.95f;   // fish do not range toward the post
         if (Scarcity && !wasScarce) Sim.NoticeAt(IsoGrid.ToWorld(Cell), $"{Name}: too many animals for the ground. They are hungry and ranging toward the post.");
         if (!Scarcity && wasScarce) Sim.NoticeAt(IsoGrid.ToWorld(Cell), $"{Name} has settled again.");
     }
@@ -238,6 +240,95 @@ public partial class EcologyManager : Node2D
             var site = new SpawnSite { Name = d.Name, Species = d.Species, Cell = d.Cell, HomeCell = d.Cell, Count = d.Count, Capacity = d.Capacity, RadiusPx = d.RadiusPx, Route = d.Route };
             Sites.Add(site);
         }
+    }
+
+    // ---- the grounds every country has (design doc 16.4) -----------------------------------
+
+    // The map lays out the big grounds - the caribou, the buffalo, the beaver
+    // lodges, many of the hare flats. Every household also lives off what is
+    // round its own door: the snares in the willows and a fishery in the
+    // nearest water. Where its country has no such ground on the map, one is
+    // made here, from the world's own layout so it is the same every time:
+    // a hare flat on the land near the house, and a fishery in the nearest
+    // water within a few days (none, if there is no water). The houses there
+    // know of them. They are grounds like any other - hunted down, recovering.
+    private const float LocalPx = WorldLayout.HomeCountryPx / 2f;
+
+    private void LocalGrounds()
+    {
+        var places = new List<(Vector2I Cell, string Name)>();
+        foreach (var h in Economy.Horses.All()) places.Add((h.AccessCell, Economy.Accords.Name(h)));
+        foreach (var t in Towns.All) places.Add((IsoGrid.FromWorld(t.Centre), t.Name));
+        int made = 0;
+        foreach (var (cell, name) in places)
+        {
+            var at = IsoGrid.ToWorld(cell);
+            if (!Near(at, LocalPx, Species.Hare, Species.Ptarmigan) && LandNear(cell) is { } land)
+            { AddLocal($"Hare flats by {name}", Species.Hare, land, 200, 0.6f); made++; }
+            if (!Near(at, LocalPx, Species.Fish) && WaterNear(cell) is { } water)
+            { AddLocal($"Fishery by {name}", Species.Fish, water, 600, 0.8f); made++; }
+        }
+        // The houses of each country know the grounds round their own doors.
+        foreach (var h in Economy.Horses.All())
+            foreach (var s in Sites)
+                if (s.Local && s.WorldPos.DistanceTo(IsoGrid.ToWorld(h.AccessCell)) <= LocalPx) { h.KnownSites.Add(s.Name); h.Believe(s.Name, s.Cell); }   // always known: no news of it
+        GD.Print($"[ecology] {made} local grounds made where the map has none");
+    }
+
+    private bool Near(Vector2 at, float px, params Species[] kinds)
+    {
+        foreach (var s in Sites) if (System.Array.IndexOf(kinds, s.Species) >= 0 && s.WorldPos.DistanceTo(at) <= px) return true;
+        return false;
+    }
+
+    public SpawnSite AddLocal(string name, Species kind, Vector2I cell, int capacity, float full)
+    {
+        var have = Sites.Find(s => s.Name == name);
+        if (have != null) return have;
+        var site = new SpawnSite { Name = name, Species = kind, Cell = cell, HomeCell = cell, Count = capacity * full, Capacity = capacity, RadiusPx = 500f, Local = true };
+        Sites.Add(site);
+        return site;
+    }
+
+    // Dry ground a short walk from the door, searched outward in a fixed order.
+    private static Vector2I? LandNear(Vector2I c)
+    {
+        for (int r = 12; r <= 60; r += 12)
+            foreach (var d in new[] { new Vector2I(r, 0), new Vector2I(0, r), new Vector2I(-r, 0), new Vector2I(0, -r), new Vector2I(r, r), new Vector2I(-r, -r) })
+                if (WorldMap.Loaded && !WorldMap.IsWater(c + d)) return c + d;
+        return null;
+    }
+
+    // The nearest water within a few days' walk, ring by ring.
+    private static Vector2I? WaterNear(Vector2I c)
+    {
+        if (!WorldMap.Loaded) return null;
+        for (int r = 0; r <= 240; r += 8)
+            for (int dx = -r; dx <= r; dx += 8)
+                foreach (int dy in new[] { -r, r })
+                {
+                    if (WorldMap.IsWater(c + new Vector2I(dx, dy))) return c + new Vector2I(dx, dy);
+                    if (WorldMap.IsWater(c + new Vector2I(dy, dx))) return c + new Vector2I(dy, dx);
+                }
+        return null;
+    }
+
+    // Fish taken from the nearest fishery within reach: as many as are wanted
+    // and it holds. A net or a line where there is no fishery takes nothing.
+    public int Catch(Vector2 at, int want, float reachPx = WorldLayout.HomeCountryPx)
+    {
+        if (want <= 0) return 0;
+        SpawnSite best = null; float bd = reachPx;
+        foreach (var s in Sites)
+        {
+            if (s.Species != Species.Fish || s.IsDead || s.Count < 1f) continue;
+            float d = s.WorldPos.DistanceTo(at);
+            if (d < bd) { bd = d; best = s; }
+        }
+        if (best == null) return 0;
+        int got = Mathf.Min(want, Mathf.FloorToInt(best.Count));
+        best.Take(got);
+        return got;
     }
 
     // The big meat animal of a people's own country (design doc 16.1, 16.2):
@@ -349,6 +440,7 @@ public partial class EcologyManager : Node2D
         if (!_scenarioDone)
         {
             _scenarioDone = true;
+            LocalGrounds();
             // A herd stands where the year has it, not where it was drawn:
             // a game begun in July finds the buffalo out on the open grass,
             // not still in the winter quarters its route starts at. (Done
@@ -525,6 +617,7 @@ public partial class EcologyManager : Node2D
         Species.Beaver => 3,
         Species.Wolf => 5,
         Species.Hare => 5,
+        Species.Fish => 0,   // a fishery is a count, never animals on the land
         Species.Ptarmigan => 8,
         _ => 4,
     };

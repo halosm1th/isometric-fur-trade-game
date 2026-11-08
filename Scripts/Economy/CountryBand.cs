@@ -54,7 +54,8 @@ public partial class CountryBand : BandLedger
         // Part of the week's take is eaten fresh off the hunt and the nets.
         // Without it the camp has nothing but dried meat and the whole country
         // dies of the scurvy over a winter (design doc 13.5).
-        int venison = Mathf.RoundToInt(mouths * 2 * game * share), fish = Mathf.RoundToInt(mouths * share);
+        int venison = Mathf.RoundToInt(mouths * 2 * game * share);
+        int fish = Sim.Ecology?.Catch(IsoGrid.ToWorld(AccessCell), Mathf.RoundToInt(mouths * share)) ?? 0;   // the camp's nets, off its fishery
         Stores.Add(ItemId.DriedMeat, dried);
         Stores.Add(ItemId.Venison, venison);
         Stores.Add(ItemId.Fish, fish);

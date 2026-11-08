@@ -15,6 +15,9 @@ public enum Species
     // The prairie-forest edge of the upper Mississippi and the Lakes country
     // (design doc 16.2): the big game south of the caribou's range.
     Elk,
+    // A lake's or a river's fishery (design doc 14.4, 16.1): nets in summer, a
+    // line through the ice in winter. Never walks about on land.
+    Fish,
 }
 
 public enum Diet { Prey, Predator }
@@ -47,6 +50,8 @@ public static class SpeciesInfo
         // two hundred and fifty pounds of meat. Drawn as the caribou until its sheet comes.
         { Species.Elk, new("Elk", Diet.Prey, 190f, 150f, 14f, 250f, 0.6f, 0.4f, 0.22f, "res://Scenes/Animals/CaribouFrames.tres") },
         { Species.Buffalo, new("Buffalo", Diet.Prey, 200f, 260f, 25f, 400f, 1.2f, 1.4f, 0.25f, "res://Scenes/Animals/CaribouFrames.tres") },
+        // A lake's whitefish and pike: they fill again in a season, unless the nets take the spawners.
+        { Species.Fish, new("Fish", Diet.Prey, 0f, 1f, 0f, 2f, 0f, 1.5f, 0.15f, "") },
     };
     public static SpeciesDef Of(Species s) => Defs[s];
 
@@ -94,6 +99,7 @@ public static class SpeciesInfo
             }
             case Species.Wolf: into.Add(shot ? IsometricFurTradeGame.Scripts.Items.ItemId.ShotPelt : IsometricFurTradeGame.Scripts.Items.ItemId.WolfPelt, 1); break;
             case Species.Hare: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Hare, 1); break;
+            case Species.Fish: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Fish, 1); break;
             case Species.Ptarmigan: into.Add(IsometricFurTradeGame.Scripts.Items.ItemId.Ptarmigan, PerKill(s, shot)); break;
         }
     }

@@ -342,12 +342,13 @@ public static class Tiers
             if (snared > 0)
             {
                 var small = eco.BestSite(Species.Hare, known) ?? eco.BestSite(Species.Ptarmigan, known);
-                if (small != null && small.Count >= snared)
+                // Off the hare flats or the ptarmigan willows his house knows (every country has one: EcologyManager.LocalGrounds).
+                if (small != null && small.Count >= 1f)
                 {
+                    snared = Mathf.Min(snared, Mathf.FloorToInt(small.Count));
                     small.Take(snared);
                     for (int i = 0; i < snared; i++) SpeciesInfo.Yield(small.Species, home.Stores);
                 }
-                else home.Stores.Add(ItemId.Hare, snared);   // whatever the bush gives where there is no ground mapped
             }
             // A line through the ice is how an inland post got through March
             // (design doc 14.4, 16.1): thin, steady, and it keeps men alive.
@@ -356,6 +357,7 @@ public static class Tiers
             {
                 int fish = (GD.Randf() < 0.65f ? 1 : 0) + (GD.Randf() < 0.35f + n.Skills.Hunting * 0.3f ? 1 : 0);
                 if (home.Stores.Has(ItemId.FishingNet)) fish = fish * 2 + 1;
+                fish = eco.Catch(World.IsoGrid.ToWorld(home.AccessCell), fish);   // out of the nearest fishery, as far as it holds
                 if (fish > 0) home.Stores.Add(ItemId.Fish, fish);
             }
             return;
@@ -441,7 +443,7 @@ public static class Tiers
             return;
         }
         if (home.Stores.Count(ItemId.Firewood) < 12) home.Stores.Add(ItemId.Firewood, 3);
-        else if (!GameCalendar.Instance.IsFrozen) home.Stores.Add(ItemId.Fish, GD.Randf() < 0.6f ? 2 : 1);
+        else if (!GameCalendar.Instance.IsFrozen && Sim.Ecology?.Catch(World.IsoGrid.ToWorld(home.AccessCell), GD.Randf() < 0.6f ? 2 : 1) is int f and > 0) home.Stores.Add(ItemId.Fish, f);
     }
 
     public static string Report() => $"live {LiveCount}, background {BackgroundCount}";

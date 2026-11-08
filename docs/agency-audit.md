@@ -63,7 +63,7 @@ These do something no agent in the country did, and are allowed by the design:
 
 ## 3. The open items, fixed (2026-11-06)
 
-The first pass left eight items open. All are fixed except the stand-ins for ecology the map does not have yet (item 6, last two points).
+The first pass left eight items open. All eight are now fixed: the last two stand-ins (item 6) on 2026-11-07.
 
 1. **Rivalry is each house's own grievance** (`Economy/Rivalry.cs`).
    - Each house at York holds its own (`TensionOf`).
@@ -81,9 +81,10 @@ The first pass left eight items open. All are fixed except the stand-ins for eco
    - It moves only after its hunters have traded at the Company's counter in the last two months, by the price they were actually paid. With no dealings it eases toward indifference.
    - The news that a band will not trade reaches only the players who are there, and travels from there.
 6. **The test-world Assiniboine's pemmican comes off a real herd** (`Subsistence.Herd`): the nearest buffalo on the map, as full as it is, with the meat taken off it.
-   - **Still open:** where no grounds are mapped, the bush still gives a hare (`Core/Tiers.cs`).
-   - **Still open:** a country with no grounds laid out still feeds its people at 0.6 (`Subsistence.Unmapped`).
-   - These two stand in for grounds the map does not have yet. The fix is map content, not code.
+   - **Every country now has real grounds of its own** (2026-11-07, `EcologyManager.LocalGrounds`). Where a household's or a town's country has no hare or ptarmigan ground on the map, a hare flat is made on the land near it. Where it has no fishery, one is made in the nearest water within a few days. The houses there know them. They are built from the world's own layout, so they are the same every game; they are saved and restored with the rest. There are 38 in the full world.
+   - **Fish is a ground** (`Species.Fish`, added at the end of the list). It has a count and a capacity, it fills again in a season, and it never walks about on land. Every fish now comes out of one through `EcologyManager.Catch`: snares and lines out of sight, a camp's nets, a man's fishing goal, the player's line, the brigades and convoys on the road, and the fish bought or caught on the journey. A water fished out gives nothing until it recovers.
+   - **The bush's free hare is gone** (`Core/Tiers.cs`): snares take only what the hare flats hold.
+   - **The 0.6 share for unmapped country is gone** (`Subsistence`): a country with no meat ground at all gets the floor (the snares). Only a scene with no ecology loaded, such as a test room, skips the scaling.
 7. **Small conjured items:**
    - A released prisoner's two days' pemmican comes from his captors' stores.
    - A man placed with a musket gets his powder from his house's store.
@@ -117,7 +118,8 @@ The same winter each time: 1 November 1811, about seven months at `--speed=0.02`
 | Take spread across grounds by species; geese left out | 62 | 39 |
 | Assiniboine pemmican by hands only | 66 | – |
 | Floor 0.5 (the first commit) | 39 | 35 |
-| **With the open items fixed (2026-11-06)** | **40** | **35** |
+| With the open items fixed (2026-11-06) | 40 | 35 |
+| **With real local grounds and fisheries (2026-11-07)** | **33** | **39** |
 
 - **Everything except the food is neutral.** With the old fixed food back on, deaths match `master` (31 against 30).
 - **The extra deaths came from the floor.** At 0.2, the York-area camps were starving in winter once the caribou had gone on.

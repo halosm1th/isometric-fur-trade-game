@@ -1513,7 +1513,7 @@ public partial class PlayerController : Agent
 				if (GameCalendar.Instance.IsFrozen) return "The water is frozen. You could jig through the ice if you had the patience - not yet.";
 				if (!CanAttack) return "";
 				_attackCooldownPublic(3f);
-				if (GD.Randf() < 0.45f) { int n = GD.RandRange(1, 2); Inventory.Add(ItemId.Fish, n); return $"You land {n} fish."; }
+				if (GD.Randf() < 0.45f) { int n = Sim.Ecology?.Catch(GlobalPosition, GD.RandRange(1, 2)) ?? 0; if (n > 0) { Inventory.Add(ItemId.Fish, n); return $"You land {n} fish."; } return "Nothing on the line. This water has been fished hard."; }
 				return "Nothing on the line.";
 			}
 			case ItemKind.Tool when id == ItemId.Flint:
