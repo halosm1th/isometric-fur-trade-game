@@ -119,6 +119,7 @@ public class FishGoal : Goal
                 // keeps the hole from closing over (design doc 14.4).
                 if (Gear(ItemId.FishingNet)) caught = caught * 2 + 1;
                 if (_throughIce && Gear(ItemId.IceChisel)) caught += GD.RandRange(0, 2);
+                caught = Sim.Ecology?.Catch(npc.GlobalPosition, caught) ?? caught;   // out of the nearest fishery, as far as it holds
                 npc.Inventory.Add(ItemId.Fish, caught);
                 _phase = 3;
                 return Delegate(new GoToGoal(stores.AccessCell, 100f));

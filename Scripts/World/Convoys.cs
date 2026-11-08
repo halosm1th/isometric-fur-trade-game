@@ -825,7 +825,7 @@ public static class Convoys
 	private static void Feed(Convoy c, GameCalendar cal)
 	{
 		if (c.Crew <= 0) return;
-		if (GD.Randf() < 0.55f) c.Provisions.Add(ItemId.Fish, 1 + c.Crew / 12);
+		if (GD.Randf() < 0.55f) c.Provisions.Add(ItemId.Fish, Sim.Ecology?.Catch(c.Path.At(c.Along), 1 + c.Crew / 12) ?? 0);   // off the fisheries along the way
 		int need = Mathf.Max(1, c.Crew / 8);
 		foreach (var id in new[] { ItemId.Fish, ItemId.Pemmican, ItemId.DriedMeat, ItemId.DriedGoose, ItemId.SaltGeese })
 		{

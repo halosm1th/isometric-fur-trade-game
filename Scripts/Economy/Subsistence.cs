@@ -17,7 +17,7 @@ namespace IsometricFurTradeGame.Scripts.Economy;
 // as the ecology lets them.
 public static class Subsistence
 {
-    private const float Unmapped = 0.6f;   // a country with no grounds laid out: about as before, a little lean
+    private const float NoEcology = 1f;    // a scene with no ecology loaded at all (a test room): nothing to scale by
     private const float Floor = 0.5f;      // snares, the fishery and the hare flats: lean, but never nothing
 
     // Able hands at home.
@@ -33,10 +33,12 @@ public static class Subsistence
     // household being able hands is a full complement.
     public static float HandsShare(Household h, int mouths) => mouths <= 0 ? 0f : Mathf.Clamp(Hands(h) / (mouths * 0.5f), 0f, 1f);
 
-    // The grounds of a household's own country that feed it through the
-    // year: not the geese, which are away half of it (World/GooseHunt has them).
+    // The grounds of a household's own country that feed it meat through the
+    // year: not the geese, which are away half of it (World/GooseHunt has
+    // them), and not the fishery, which the nets draw on (EcologyManager.Catch).
+    // Every country has at least its hare flats (EcologyManager.LocalGrounds).
     private static bool Feeds(SpawnSite s, Vector2 at) =>
-        !s.IsDead && s.Species is not (Species.Beaver or Species.Wolf or Species.Goose)
+        !s.IsDead && s.Species is not (Species.Beaver or Species.Wolf or Species.Goose or Species.Fish)
         && IsoGrid.ToWorld(s.Cell).DistanceTo(at) <= WorldLayout.HomeCountryPx;
 
     // What the household's own country still holds of food game, 0.2..1.
@@ -45,11 +47,11 @@ public static class Subsistence
     {
         ground = h;
         var eco = Sim.Ecology;
-        if (eco == null) return Unmapped;
+        if (eco == null) return NoEcology;
         var at = IsoGrid.ToWorld(h.AccessCell);
         float have = 0f, cap = 0f;
         foreach (var s in eco.Sites) if (Feeds(s, at)) { have += s.Count; cap += s.Capacity; }
-        return cap <= 0f ? Unmapped : Mathf.Clamp(have / cap, Floor, 1f);
+        return cap <= 0f ? Floor : Mathf.Clamp(have / cap, Floor, 1f);   // no ground at all: the snares and nothing more
     }
 
     // The nearest herd of a kind anywhere on the map, and how full it is
@@ -59,7 +61,7 @@ public static class Subsistence
     {
         herd = null;
         var eco = Sim.Ecology;
-        if (eco == null) return Unmapped;
+        if (eco == null) return NoEcology;
         var at = IsoGrid.ToWorld(h.AccessCell);
         float best = float.MaxValue;
         foreach (var s in eco.Sites)
@@ -68,7 +70,7 @@ public static class Subsistence
             float d = IsoGrid.ToWorld(s.Cell).DistanceTo(at);
             if (d < best) { best = d; herd = s; }
         }
-        return herd == null ? Unmapped : Mathf.Clamp(herd.Count / Mathf.Max(1f, herd.Capacity), Floor, 1f);
+        return herd == null ? Floor : Mathf.Clamp(herd.Count / Mathf.Max(1f, herd.Capacity), Floor, 1f);
     }
 
     // Off one herd: the pieces brought in, as beasts of its kind.

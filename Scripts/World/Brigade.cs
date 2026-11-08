@@ -237,7 +237,7 @@ public static class Brigades
 		// A brigade fishes and snares at the carrying places and the camps, as
 		// voyageurs did: thin, and not enough on its own for a long journey.
 		if (b.Men.Count > 0 && b.Provisions.FoodNutritionTotal < b.Men.Count * 40f && GD.Randf() < 0.7f)
-			b.Provisions.Add(ItemId.Fish, 1 + b.Men.Count / 3);
+			b.Provisions.Add(ItemId.Fish, Sim.Ecology?.Catch(b.Where, 1 + b.Men.Count / 3) ?? 0);   // off the fisheries along the way
 		foreach (var n in b.Men)
 		{
 			if (n == null || !GodotObject.IsInstanceValid(n) || n.IsDead) continue;

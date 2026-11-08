@@ -185,7 +185,7 @@ public static class SaveGame
             a.Add(new GDict
             {
                 ["name"] = s.Name, ["workedDay"] = s.WorkedDay, ["count"] = s.Count, ["breeding"] = s.BreedingCapacity, ["scarcity"] = s.Scarcity, ["food"] = s.FoodStock,
-                ["cx"] = s.Cell.X, ["cy"] = s.Cell.Y, ["lines"] = lines,
+                ["cx"] = s.Cell.X, ["cy"] = s.Cell.Y, ["lines"] = lines, ["sp"] = (int)s.Species, ["cap"] = s.Capacity, ["local"] = s.Local,
             });
         }
         return a;
@@ -490,6 +490,9 @@ public static class SaveGame
                 {
                     var sd = sv.AsGodotDictionary();
                     var site = Sim.Ecology.Sites.Find(s => s.Name == S(sd, "name"));
+                    // A ground made for a country with none on the map (EcologyManager.LocalGrounds), loaded before it is made again.
+                    if (site == null && B(sd, "local") && sd.ContainsKey("sp"))
+                        site = Sim.Ecology.AddLocal(S(sd, "name"), (Ecology.Species)I(sd, "sp"), new Vector2I(I(sd, "cx"), I(sd, "cy")), I(sd, "cap", 200), 0f);
                     if (site == null) continue;
                     site.Count = F(sd, "count"); site.WorkedDay = I(sd, "workedDay", -1); site.BreedingCapacity = F(sd, "breeding", 1f); site.Scarcity = B(sd, "scarcity"); site.FoodStock = F(sd, "food", 1f);
                     site.Cell = new Vector2I(I(sd, "cx", site.Cell.X), I(sd, "cy", site.Cell.Y));

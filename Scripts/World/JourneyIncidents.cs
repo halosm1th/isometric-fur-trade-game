@@ -146,7 +146,7 @@ public static class JourneyIncidents
             page.Add("Put in at the next camp and trade for fish", () =>
             {
                 var pay = p.Inventory.Has(ItemId.Tobacco) ? ItemId.Tobacco : ItemId.TradeGoods;
-                p.Inventory.Remove(pay); c.Provisions.Add(ItemId.Fish, 4 + c.Crew / 6); c.ShortDays = 0;
+                p.Inventory.Remove(pay); c.Provisions.Add(ItemId.Fish, Sim.Ecology?.Catch(c.Path.At(c.Along), 4 + c.Crew / 6) ?? 0); c.ShortDays = 0;   // the family's catch, off their own water
                 Men(c, p, 6f); p.Standing += 1f;
                 Note(p, $"You bought fish for {c.Name} at a camp on the river with your own {Items.Items.Of(pay).Name}.");
                 return Done(c, $"There is smoke on a point ahead. You trade your {Items.Items.Of(pay).Name} with the family there for a pile of whitefish, and that night for once everyone in the brigade goes to sleep full.");
@@ -154,7 +154,7 @@ public static class JourneyIncidents
         page.Add("Set nets and lose a day", () =>
         {
             c.Now = ConvoyState.Held; c.DayLeft = 1; c.At = "on the bank, fishing"; c.CampAt = Convoys.LandNear(c.Path.At(c.Along)); c.HasCamp = true; c.Step = 0f;
-            c.Provisions.Add(ItemId.Fish, 2 + c.Crew / 8); c.ShortDays = Mathf.Max(0, c.ShortDays - 2);
+            c.Provisions.Add(ItemId.Fish, Sim.Ecology?.Catch(c.Path.At(c.Along), 2 + c.Crew / 8) ?? 0); c.ShortDays = Mathf.Max(0, c.ShortDays - 2);
             return Done(c, $"{c.Guide} puts in at a sandbar and the nets go out. A day lost, but a few fish in the bags.");
         });
         page.Add("\"Tighten your belts. We go on.\"", () =>
