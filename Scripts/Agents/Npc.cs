@@ -710,7 +710,9 @@ public partial class Npc : Agent
         {
             IsSprinting = _steerRun;
             Velocity = _steer * EffectiveSpeed * motion * GroundFactor(out _);
-            Solid(true);
+            // A man at your heels never boxes you in (you were pinned on a
+            // bank with a canoe on your shoulders between two friends).
+            Solid(Following == null);
             MoveAndSlide();
             return;
         }

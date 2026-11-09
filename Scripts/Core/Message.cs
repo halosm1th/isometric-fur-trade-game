@@ -81,12 +81,20 @@ public static class Mail
     // "the Factor" / "the partner" as addressees, so a successor still opens the packet.
     public static string RoleName(Npc n) => n.Role switch
     {
-        Role.Factor => "the Factor at York Factory",
-        Role.Postmaster => n.HomeStores == Sim.Outpost ? "the postmaster at Oxford House" : $"the master at {n.HomeStores?.Title.Replace(" stores", "") ?? "his post"}",
+        Role.Factor when n.HomeStores == Sim.Fort => "the Factor at York Factory",
+        Role.Factor => $"the master at {MasterOf(n)}",
+        Role.Postmaster => n.HomeStores == Sim.Outpost ? "the postmaster at Oxford House" : $"the master at {MasterOf(n)}",
         Role.NwcPartner => "the wintering partner",
         Role.Chief => "the chief of the band",
         _ => n.DisplayName,
     };
+
+    // The post a master keeps, by its name on the map.
+    private static string MasterOf(Npc n)
+    {
+        foreach (var p in World.Posts.All) if (p.Ledger != null && p.Ledger == n.HomeStores) return p.Name;
+        return n.HomeStores?.Title.Replace(" stores", "") ?? "his post";
+    }
 
     public static Npc Addressee(Message m)
     {

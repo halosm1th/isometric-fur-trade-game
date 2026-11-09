@@ -968,8 +968,29 @@ public static class Convoys
 		if (BoardedBy(p) == c)
 		{
 			if (c.Moving) page.Add("Step ashore", () => { Leave(p, "You step ashore."); return null; });
-			else page.Add("Leave the brigade here", () => { Leave(p, $"You leave {c.Name}."); return null; });
+			else
+			{
+				// Lying at a post or held on the bank: they go on in their own
+				// time; sit it out with them rather than stand in the boat.
+				int days = Mathf.Max(1, c.DayLeft);
+				if (c.Now is ConvoyState.Calling or ConvoyState.Held or ConvoyState.Portaging)
+					page.Add($"Wait with the boats till they push off (about {days} day{(days == 1 ? "" : "s")})", () =>
+					{
+						var cal = GameCalendar.Instance;
+						cal?.SkipHours(Mathf.Max(1f, days * 24f + 6f - (cal?.Hour ?? 6f)));
+						return null;
+					});
+				page.Add("Leave the brigade here", () => { Leave(p, $"You leave {c.Name}."); return null; });
+			}
 		}
+		else if (mine && OrdersFor(p, c) is { } orders)
+			page.Add($"Show {c.Guide} the Factor's letter", () =>
+			{
+				if (c.Now == ConvoyState.Wintering) return Meet(p, c, Board(p, c));
+				Riders[p] = c;
+				p.Journal.Add($"{GameCalendar.Instance?.DateString}: You showed {c.Guide} {orders.From}'s letter and took your place with {c.Name}.");
+				return Meet(p, c, $"\"{c.Guide}\" reads the outside of it - {orders.To} - and hands it back. \"Keep it dry; it is for him, not me. There is a thwart for you, and for your men.\" You are with {c.Name} now. The letter goes to the master at {c.ToName}.");
+			});
 		else if (rival) page.Add("Ask for a place in the boats", () => Meet(p, c, $"\"{c.Guide}\" looks at your coat. \"We take no passengers of the other house.\""));
 		else page.Add(mine ? $"Ask to go along to {c.ToName}" : $"Ask for a place in the boats to {c.ToName} (two pieces of goods)", () => Meet(p, c, Board(p, c)));
 		if (c.Provisions.FoodNutritionTotal < c.Crew * 20f && p.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
@@ -998,6 +1019,13 @@ public static class Convoys
 		return c.Moving
 			? $"\"Take a thwart and keep your head down in the rapids.\" You climb in. Any step of your own takes you ashore; the boats stop you themselves at each carrying place."
 			: $"\"We push off when the work is done. Stay close.\" You are with {c.Name} now.";
+	}
+
+	// The master's letter sending this man with these boats (UI/ConversationBrigade).
+	private static Message OrdersFor(PlayerController p, Convoy c)
+	{
+		foreach (var m in p.Mail) if (!m.Read && m.Kind == "orders" && m.Subject == $"a hand with {c.Name}") return m;
+		return null;
 	}
 
 	public static void Leave(PlayerController p, string why)

@@ -1237,7 +1237,7 @@ public partial class PlayerController : Agent
 			if (IsSprinting) target = "run" + target.Substring(4);
 		}
 		// In a canoe he paddles; sitting still, the paddle rests.
-		bool paddling = IsAfloat && _sprite.SpriteFrames.HasAnimation("paddle");
+		bool paddling = (IsAfloat || RideId != 0) && _sprite.SpriteFrames.HasAnimation("paddle");
 		if (paddling) target = "paddle";
 		if (!_sprite.SpriteFrames.HasAnimation(target)) target = target.StartsWith("idle") ? "idle"
 			: target.StartsWith("run") && _sprite.SpriteFrames.HasAnimation("walk" + target.Substring(3)) ? "walk" + target.Substring(3) : "walk";

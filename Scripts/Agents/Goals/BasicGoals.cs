@@ -414,8 +414,13 @@ public class FollowGoal : Goal
         if (Leader is Player.PlayerController rider && World.Convoys.BoardedBy(rider) is { } boats)
         {
             npc.StopMoving();
-            npc.GlobalPosition = Leader.GlobalPosition + new Vector2(-36f, 10f);
-            npc.Visible = rider.RideId == 0;   // under way the boat's painted crew stands for him
+            // On the thwarts beside you, pulling an oar: you asked for them,
+            // so you can see they came (they were hidden among the painted crew).
+            int seat = 0;
+            foreach (var other in Sim.Npcs) { if (other == npc) break; if (other.Following == Leader && !other.IsDead) seat++; }
+            npc.GlobalPosition = Leader.GlobalPosition + new Vector2(-34f * (seat + 1), 4f + seat);
+            npc.Visible = true;
+            npc.HoldPose("paddle");
             npc.Needs.Thirst = 100f;
             npc.Needs.Hunger = Mathf.Max(npc.Needs.Hunger, 60f);
             if (!_aboard) { _aboard = true; Sim.NoticeAt(npc, $"{npc.DisplayName} climbs into the boats after {Leader.Describe()}."); }

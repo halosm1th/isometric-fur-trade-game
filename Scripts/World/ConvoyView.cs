@@ -101,7 +101,11 @@ public partial class ConvoyView : Node2D
 			if (d < MenIn) EnsureMen(c);
 			else if (d > MenOut && c.Men.Count > 0) Convoys.DropMenOf(c);
 			if (d > ViewPx) continue;
-			var at = c.Moving || !c.HasCamp ? c.Afloat : c.CampAt;
+			// Lying at a post or held up, the boats ride at the water's edge by
+			// the camp (they were drawn on the grass by the palisade); frozen
+			// in or over a portage they are ashore.
+			var at = c.Moving || !c.HasCamp ? c.Afloat
+				: c.Now is ConvoyState.Calling or ConvoyState.Held && Convoys.WaterNear(IsoGrid.FromWorld(c.CampAt), 6) is { } wet ? IsoGrid.ToWorld(wet) : c.CampAt;
 			var heading = c.Heading;
 			rows.Add(new Godot.Collections.Array { c.Id, at.X, at.Y, heading.X, heading.Y, (int)c.Now, c.Boats, c.Run.Craft.Name, c.Name });
 		}
