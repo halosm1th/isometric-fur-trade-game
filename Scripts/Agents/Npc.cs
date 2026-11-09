@@ -1161,6 +1161,8 @@ public partial class Npc : Agent
         {
             if (node is not Npc n || !IsInstanceValid(n) || n.IsQueuedForDeletion() || n.DiedAt < 0f) continue;
             float age = now - n.DiedAt;
+            // About a post the men carry him off and bury him within the day.
+            if (age > 4f && n.BurialSent < 0f || age > 4f && now - n.BurialSent > 12f) SendBurial(n, now);
             bool stripped = n.Inventory.SlotCount == 0 && n.Mail.Count == 0;
             if (age < (stripped ? 72f : 240f)) continue;
             n.RemoveFromGroup("corpses");
@@ -1168,6 +1170,23 @@ public partial class Npc : Agent
             fade.TweenProperty(n, "modulate:a", 0f, 2.5f);
             fade.TweenCallback(Callable.From(n.QueueFree));
         }
+    }
+
+    public float BurialSent = -1f;
+    private static void SendBurial(Npc body, float now)
+    {
+        Npc best = null; float bd = 2500f;
+        foreach (var a in Sim.AgentsWithin(body.GlobalPosition, 2500f))
+        {
+            if (a is not Npc m || m.IsDead || m.Sleeping || m.Conversing || m.Convoy != null || m.HeldBy != null || m.Following != null) continue;
+            if (m.Role is not (Role.Labourer or Role.Voyageur or Role.Hunter or Role.BandWoman) || m.Brain.Tier0Goal() != null || m.Brain.Has<Goals.BuryGoal>()) continue;
+            float d = m.GlobalPosition.DistanceTo(body.GlobalPosition);
+            if (d < bd) { bd = d; best = m; }
+        }
+        if (best == null) return;   // nobody about: the weather does it
+        body.BurialSent = now;
+        best.Brain.Push(best, new Goals.BuryGoal(body));
+        Sim.NoticeAt(best, $"{best.DisplayName} goes to carry off {body.DisplayName} and dig a grave.");
     }
 
     // Put in the ground by someone (the player, PlayerController): gone, and remembered for it.

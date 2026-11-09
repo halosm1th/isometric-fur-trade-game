@@ -232,7 +232,7 @@ public partial class JournalPanel : Control
             foreach (var m in _player.Mail) sb.AppendLine($"   {m.Summary}{(m.Read ? $"\n      [color=#998]{m.Text}[/color]" : "")}");
         }
         sb.AppendLine();
-        sb.AppendLine("[color=#998]The first row is the hotbar. Drag items between squares to arrange them (an occupied square swaps). Right-click uses an item, or wears / takes off clothing. With a pad: LT / RT turn the pages, A on the first row puts it in hand, X uses or wears, Y lifts a stack to move it.[/color]");
+        sb.AppendLine("[color=#998]The first row is the hotbar. Drag items between squares to arrange them (an occupied square swaps). Right-click uses an item, or wears / takes off clothing. With a pad: A lifts a stack, A again sets it down (an occupied square swaps), B drops the lift; X uses or wears; Y on the first row puts it in hand; LT / RT turn the pages.[/color]");
         _pack.Text = Ink(sb.ToString());
 
         EnsureGrid();

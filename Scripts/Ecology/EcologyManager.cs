@@ -361,6 +361,11 @@ public partial class EcologyManager : Node2D
                 if (site.Count < site.Capacity * 0.45f) score *= 0.4f;
                 // A lodge a day's walk away is worth a fraction of one at the door.
                 float walk = IsoGrid.ToWorld(knownBy.AccessCell).DistanceTo(site.WorldPos);
+                // A post's men go out for the day and come back: a plain two
+                // hundred miles off (Cumberland House was sent to the Touchwood
+                // Hills every morning, failed the road, and stood about) is no
+                // day's hunt, however thick the buffalo on it.
+                if (knownBy is Economy.FortLedger && walk > 40f * World.WorldMap.PxPerKm) continue;
                 score /= 1f + walk / 2500f;
             }
             if (best == null || score > bestScore) { best = site; bestScore = score; }

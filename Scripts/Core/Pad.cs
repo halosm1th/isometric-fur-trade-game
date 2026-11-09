@@ -24,14 +24,18 @@ public static class Pad
         ("hotbar_use", (int)JoyButton.Y),
         ("sprint", Axis(JoyAxis.TriggerLeft, 1)),
         ("use_ahead", Axis(JoyAxis.TriggerRight, 1)),
-        ("time_fast", (int)JoyButton.LeftShoulder),
-        ("mount", (int)JoyButton.RightShoulder),
+        ("time_fast", (int)JoyButton.DpadLeft),
+        ("mount", (int)JoyButton.DpadRight),
         ("drink", (int)JoyButton.LeftStick),
-        ("pause_clock", (int)JoyButton.RightStick),
+        // Click the right stick to bring the musket up (aim mode); the clock
+        // stops from the Menu button's pause instead.
+        ("ready_gun", (int)JoyButton.RightStick),
         ("map", (int)JoyButton.DpadUp),
         ("wait", (int)JoyButton.DpadDown),
-        ("hotbar_prev", (int)JoyButton.DpadLeft),
-        ("hotbar_next", (int)JoyButton.DpadRight),
+        // The bumpers step along the hotbar (the user's ask); the d-pad
+        // sides took the clock and the horse.
+        ("hotbar_prev", (int)JoyButton.LeftShoulder),
+        ("hotbar_next", (int)JoyButton.RightShoulder),
         ("inventory", (int)JoyButton.Back),
     };
 

@@ -849,12 +849,26 @@ public partial class PlayerController : Agent
 		}
 		// The pad's trigger: the same, where the right stick last put the
 		// pointer, or else just ahead of you.
+		if (UI.PadDriver.GunReady && Weapon != ItemId.Musket) UI.PadDriver.GunReady = false;
+		if (@event.IsActionPressed("ready_gun")) { ReadyGun(!UI.PadDriver.GunReady); return; }
 		if (@event.IsActionPressed("use_ahead"))
 		{
-			ClickAtLocal(UI.PadDriver.Aiming ? GetGlobalMousePosition() : GlobalPosition + _aimDir * 90f + new Vector2(0, 20));
+			if (UI.PadDriver.GunReady) { FireAtSights(); return; }
+			ClickAtLocal(UI.PadDriver.Aiming ? GetGlobalMousePosition() : GlobalPosition + _aimDir * 90f + new Vector2(0, 20), pad: true);
 			return;
 		}
-		if (@event.IsActionPressed("attack_nearest")) { NetHub.I?.Act("attack_nearest"); return; }
+		if (@event.IsActionPressed("attack_nearest"))
+		{
+			// A gun is not fired from the hip at whoever is nearest: X brings
+			// it up with the sights on the likeliest mark, and X (or RT) again
+			// fires. (The old X/RT let it off at anyone near: the misfires.)
+			if (Weapon == ItemId.Musket && HasCharge() && Core.Pad.Active)
+			{
+				if (!UI.PadDriver.GunReady) ReadyGun(true); else FireAtSights();
+				return;
+			}
+			NetHub.I?.Act("attack_nearest"); return;
+		}
 		if (@event.IsActionPressed("interact"))
 		{
 			if (_travel != null) { StopTravel("You stop."); return; }
@@ -868,15 +882,48 @@ public partial class PlayerController : Agent
 
 	// Left click (design doc 3.3): strike with a readied weapon, use the
 	// item in hand on the ground, or just interact.
-	private void ClickAtLocal(Vector2 at)
+	private void ClickAtLocal(Vector2 at, bool pad = false)
 	{
 		var target = AgentNear(at);
 		int slot = UI.Hotbar.SelectedSlot;
 		var held = Inventory.Slot(slot);
 		bool weapon = held != null && Items.Items.Of(held.Value.id).Kind == ItemKind.Weapon;
+		// The pad's trigger with the gun slung: a man ahead is spoken to, not shot.
+		if (pad && target is Npc && Weapon == ItemId.Musket && HasCharge()) { NetHub.I?.Act("interact"); return; }
 		if (target != null && (weapon || held == null || target is Animal && Items.Items.Of(held.Value.id).Kind != ItemKind.Food)) { NetHub.I?.Act("attack", new Godot.Collections.Array { target.NetId }); return; }
 		if (target != null && target is Npc) { NetHub.I?.Act("interact"); return; }
 		NetHub.I?.Act("click", new Godot.Collections.Array { slot, at.X, at.Y });
+	}
+
+	// The pad's aim mode: the sights go on the likeliest mark in front of
+	// you (or just ahead), the right stick moves them, RT or X fires.
+	private void ReadyGun(bool up)
+	{
+		if (up && Weapon != ItemId.Musket) { Say("You have no musket to bring up."); return; }
+		if (up && !HasCharge()) { Say("Your horn is empty: no powder for the gun."); return; }
+		UI.PadDriver.GunReady = up;
+		if (!up) { Say("You sling the musket."); return; }
+		Agent mark = null; float best = float.MaxValue;
+		foreach (var a in Sim.AgentsWithin(GlobalPosition, 650f))
+		{
+			if (a == this || a.IsDead || a is Npc { HeldBy: not null }) continue;
+			bool likely = a is Animal || IsHostileTo(a) || a is Npc n && (n.Raiding || n.LastAttacker == this);
+			if (!likely) continue;
+			var off = a.GlobalPosition - GlobalPosition;
+			float score = off.Length() * (1.6f - 0.6f * _aimDir.Normalized().Dot(off.Normalized()));
+			if (score < best) { best = score; mark = a; }
+		}
+		var sights = mark != null ? mark.GlobalPosition + new Vector2(0, -40) : GlobalPosition + _aimDir * 200f;
+		GetViewport().WarpMouse(GetViewport().GetCanvasTransform() * sights);
+		Core.Pad.LastWarpMs = Time.GetTicksMsec();
+		Say(mark != null ? $"You bring the musket up on {mark.Describe()}. Right stick to aim, {Core.Keybinds.KeyFor("use_ahead")} to fire, {Core.Keybinds.KeyFor("ready_gun")} to sling it." : $"You bring the musket up. Right stick to aim, {Core.Keybinds.KeyFor("use_ahead")} to fire, {Core.Keybinds.KeyFor("ready_gun")} to sling it.");
+	}
+
+	private void FireAtSights()
+	{
+		var target = AgentNear(GetGlobalMousePosition());
+		if (target == null) { Say("Nothing in your sights. Move them onto your mark with the right stick."); return; }
+		NetHub.I?.Act("attack", new Godot.Collections.Array { target.NetId });
 	}
 
 	// Which way you last walked: what the pad means by "ahead".

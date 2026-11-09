@@ -182,7 +182,19 @@ public partial class WayfindingHud : Control
         if (Waypoint.Target is { } w) Mark(w, "waypoint", new Color(1f, 0.82f, 0.3f));
         if (Objective.Of(_player) is { } o) Mark(o.At, o.Label, new Color(0.55f, 0.8f, 1f));
         if (_player.QuestMark is { } q) Mark(q.At, q.Label, QuestColour);
+        // Someone who called you over ("A word, if you've a moment"): a
+        // lesser mark over him until you have heard him out, or two days pass.
+        int today = (int)(Core.GameCalendar.Instance?.DayOfYear ?? 0f), shown = 0;
+        foreach (var f in Agents.Favours.All)
+        {
+            if (shown >= 2) break;
+            if (f.Accepted || f.Done || f.Lapsed || f.Player != _player.DisplayName || f.Asker == null || !IsInstanceValid(f.Asker) || f.Asker.IsDead) continue;
+            if (Mathf.PosMod(today - f.Day, 365) > 2) continue;
+            Mark(f.Asker.GlobalPosition, $"{f.Asker.DisplayName} wants a word", HailColour);
+            shown++;
+        }
     }
+    public static readonly Color HailColour = new(0.95f, 0.75f, 0.85f);
     public static readonly Color QuestColour = new(0.62f, 0.9f, 0.45f);
 
     private void Mark(Vector2 world, string label, Color col)

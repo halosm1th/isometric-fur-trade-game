@@ -16,7 +16,7 @@ public static class Keybinds
     {
         ("move_up", "Walk up"), ("move_down", "Walk down"), ("move_left", "Walk left"), ("move_right", "Walk right"),
         ("sprint", "Run"), ("sneak", "Crouch / sneak (and deliberate arson with flint)"), ("interact", "Talk / use what's in front of you"),
-        ("attack_nearest", "Strike the nearest hostile"), ("drink", "Drink"), ("mount", "Mount / get down off your horse (E on your horse does it too)"), ("wait", "Wait an hour / sleep at night"),
+        ("attack_nearest", "Strike the nearest hostile"), ("ready_gun", "Bring the musket up to aim / sling it"), ("drink", "Drink"), ("mount", "Mount / get down off your horse (E on your horse does it too)"), ("wait", "Wait an hour / sleep at night"),
         ("hotbar_use", "Use the selected hotbar slot"), ("hotbar_prev", "Previous hotbar slot (or the mouse wheel)"), ("hotbar_next", "Next hotbar slot (or the mouse wheel)"),
         ("use_ahead", "Use what's in hand on the ground ahead (the mouse does it with a left click)"),
         ("hotbar_1", "Hotbar slot 1"), ("hotbar_2", "Hotbar slot 2"), ("hotbar_3", "Hotbar slot 3"), ("hotbar_4", "Hotbar slot 4"), ("hotbar_5", "Hotbar slot 5"),
@@ -39,7 +39,7 @@ public static class Keybinds
     {
         if (_installed) return;
         _installed = true;
-        foreach (var name in new[] { "hotbar_prev", "hotbar_next", "use_ahead", "pause_menu" })
+        foreach (var name in new[] { "hotbar_prev", "hotbar_next", "use_ahead", "pause_menu", "ready_gun" })
             if (!InputMap.HasAction(name)) InputMap.AddAction(name, 0.4f);
         if (InputMap.ActionGetEvents("pause_menu").Count == 0)
         {

@@ -221,6 +221,17 @@ public class LabourerBehaviour : RoleBehaviour
         if (water != null) return water;
         // Nothing assigned: keep the woodpile up.
         if (npc.HomeStores != null && npc.HomeStores.Stores.Count(ItemId.Firewood) < 30) return new ChopWoodGoal();
+        // A post's man with nothing set does what such men did all day: the
+        // nets, the woodpile for the winter, a few hares - not stand in the
+        // house from breakfast to supper.
+        if (npc.HomeStores is Economy.FortLedger)
+        {
+            float r = GD.Randf();
+            if (!Cal.IsFrozen && r < 0.4f) return new FishGoal();
+            if (Cal.IsFrozen && r < 0.3f) return new FishGoal(true);
+            if (r < 0.7f && npc.HomeStores.Stores.Count(ItemId.Firewood) < 120) return new ChopWoodGoal();
+            if (r < 0.85f) return new ForageGoal(3f);
+        }
         return new WanderGoal(npc.WorkCell, 3, 1f);
     }
 }

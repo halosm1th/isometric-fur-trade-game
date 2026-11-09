@@ -218,13 +218,31 @@ public partial class Animal : Agent
     {
         if (Velocity == Vector2.Zero) return false;
         var ahead = GlobalPosition + Velocity.Normalized() * 24f + Velocity * dt;
-        if (!StructurePainter.InsidePalisade(ahead, out _) || StructurePainter.InsidePalisade(GlobalPosition, out _)) return false;
+        if (_insideFor > 0f || !StructurePainter.InsidePalisade(ahead, out _) || StructurePainter.InsidePalisade(GlobalPosition, out _)) return false;
         Velocity = Vector2.Zero;
+        return true;
+    }
+
+    // A beast already inside a palisade (spawned there, shoved in, a herd
+    // that crossed where a post now stands) is not kept in by KeptOut, which
+    // only stops one stepping in: the beast goes for the gate, and one that
+    // hasn't found it in half a minute is put outside it.
+    private float _insideCheck, _insideFor;
+    private bool LetOut(float dt)
+    {
+        if ((_insideCheck -= dt) > 0f) return _insideFor > 0f;
+        _insideCheck = 1f;
+        if (!StructurePainter.InsidePalisade(GlobalPosition, out var gate)) { _insideFor = 0f; return false; }
+        _insideFor += 1f;
+        var outside = gate;
+        if (_insideFor > 30f) { GlobalPosition = outside; _insideFor = 0f; _mode = Mode.Graze; _target = outside + new Vector2((float)GD.RandRange(-300, 300), 200f); return false; }
+        if (_mode == Mode.Graze) _target = outside;
         return true;
     }
 
     private void Act(float dt, float motion)
     {
+        bool penned = LetOut(dt);
         switch (_mode)
         {
             case Mode.Flee:
