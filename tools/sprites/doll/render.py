@@ -343,6 +343,7 @@ THREE = ("three",)
 ANIMS = {
     "idle": (1, ("front", "side", "back"), 5, True, stand, carry, ["gun"]),
     "walk": (4, ("front", "side", "back"), 8, True, lambda r, t, i: pose.walk(r, t), carry, ["gun"]),
+    "run": (4, ("front", "side", "back"), 12, True, lambda r, t, i: pose.run(r, t), None, []),
     "shoot": (4, ("side",), 9, False, aim_pose, aim, ["gun"]),
     "paddle": (4, THREE, 6, True, kneel, paddle, ["paddle"]),
     "portage": (4, THREE, 6, True, stoop, portage, ["packs"]),

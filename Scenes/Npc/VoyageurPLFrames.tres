@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=64 format=3]
+[gd_resource type="SpriteFrames" load_steps=76 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/idle_front.png" id="t1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/idle_back.png" id="t2"]
@@ -63,6 +63,18 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/talk_1.png" id="t61"]
 [ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/talk_2.png" id="t62"]
 [ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/talk_3.png" id="t63"]
+[ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/run_0.png" id="t64"]
+[ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/run_1.png" id="t65"]
+[ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/run_2.png" id="t66"]
+[ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/run_3.png" id="t67"]
+[ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/run_back_0.png" id="t68"]
+[ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/run_back_1.png" id="t69"]
+[ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/run_back_2.png" id="t70"]
+[ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/run_back_3.png" id="t71"]
+[ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/run_side_0.png" id="t72"]
+[ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/run_side_1.png" id="t73"]
+[ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/run_side_2.png" id="t74"]
+[ext_resource type="Texture2D" path="res://assets/sprites/voyageur_pl/run_side_3.png" id="t75"]
 
 [resource]
 animations = [{
@@ -388,5 +400,65 @@ animations = [{
 {
 "duration": 1.0,
 "texture": ExtResource("t63")
+}]
+}, {
+"name": &"run",
+"speed": 12.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t64")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t65")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t66")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t67")
+}]
+}, {
+"name": &"run_back",
+"speed": 12.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t68")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t69")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t70")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t71")
+}]
+}, {
+"name": &"run_side",
+"speed": 12.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t72")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t73")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t74")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t75")
 }]
 }]

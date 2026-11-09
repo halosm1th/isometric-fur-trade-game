@@ -841,10 +841,12 @@ public partial class Npc : Agent
             target = side ? "walk_side" : (v.Y < -0.3f * v.Length() ? "walk_back" : "walk");
             _sprite.FlipH = v.X < 0f;
             _facing = target;
+            // Running, where his sheet has a run drawn that way.
+            if (IsSprinting && _anims.Has("run" + target.Substring(4))) target = "run" + target.Substring(4);
         }
         if (!_anims.Has(target)) target = "idle";
         _anims.Play(target);
-        _sprite.SpeedScale = IsSprinting ? 1.6f : 1f;
+        _sprite.SpeedScale = IsSprinting && !target.StartsWith("run") ? 1.6f : 1f;
     }
 
     private string _facing = "walk";

@@ -80,6 +80,9 @@ ACTIONS = {
     "walk": ("idle", "walk", "south", "walk", "", 8, True),
     "walk_back": ("idle_back", "walk_back", "north", "walk", "", 8, True),
     "walk_side": ("idle_side", "walk_side", "south-east", "walk", "", 8, True),
+    "run": ("idle", "run", "south", "run", "", 12, True),
+    "run_back": ("idle_back", "run_back", "north", "run", "", 12, True),
+    "run_side": ("idle_side", "run_side", "south-east", "run", "", 12, True),
     "shoot": ("idle_side", "shoot", "south-east", "shoot a musket", "a long flintlock trade musket, butt at the shoulder", 9, False),
     "attack": ("idle_side", "attack", "south-east", "punch", "nothing, fists bare", 9, False),
     "death": ("idle_side", "death", "south-east", "fall down dead", "nothing", 5, False),
@@ -126,7 +129,7 @@ def ref_anim(role, action):
     if (role, action) in ACTION_REF:
         return ACTION_REF[role, action][0]
     idle = ACTIONS[action][0]
-    if idle == "idle_side" and action != "walk_side" and role in SIDE_REF:
+    if idle == "idle_side" and action not in ("walk_side", "run_side") and role in SIDE_REF:
         return SIDE_REF[role]
     return idle
 

@@ -1152,14 +1152,15 @@ public partial class PlayerController : Agent
 			bool side = Mathf.Abs(input.X) > Mathf.Abs(input.Y) * 1.2f;
 			target = side ? "walk_side" : input.Y < -0.3f ? "walk_back" : "walk";
 			_facing = target;
-			if (side && IsSprinting) target = "run_side";
+			if (IsSprinting) target = "run" + target.Substring(4);
 		}
 		// In a canoe he paddles; sitting still, the paddle rests.
 		bool paddling = IsAfloat && _sprite.SpriteFrames.HasAnimation("paddle");
 		if (paddling) target = "paddle";
-		if (!_sprite.SpriteFrames.HasAnimation(target)) target = target.StartsWith("idle") ? "idle" : target == "run_side" ? "walk_side" : "walk";
+		if (!_sprite.SpriteFrames.HasAnimation(target)) target = target.StartsWith("idle") ? "idle"
+			: target.StartsWith("run") && _sprite.SpriteFrames.HasAnimation("walk" + target.Substring(3)) ? "walk" + target.Substring(3) : "walk";
 		if (_sprite.Animation != target) _sprite.Play(target);
-		_sprite.SpeedScale = paddling ? (input != Vector2.Zero ? 1f : 0f) : IsSprinting && input != Vector2.Zero && target != "run_side" ? 1.6f : 1f;
+		_sprite.SpeedScale = paddling ? (input != Vector2.Zero ? 1f : 0f) : IsSprinting && input != Vector2.Zero && !target.StartsWith("run") ? 1.6f : 1f;
 		MoveAndSlide();
 	}
 

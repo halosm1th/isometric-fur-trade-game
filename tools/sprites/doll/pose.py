@@ -98,3 +98,24 @@ def walk(rig, t):
     p["spine_03"] = fwd(4)
     lift = -0.025 * abs(s) + 0.01 * abs(c)
     return p, lift
+
+
+def run(rig, t):
+    """The run at phase t (0..1): a longer stride than the walk, the knees
+    high, the body leaning in, the elbows bent and pumping."""
+    s, c = math.sin(2 * math.pi * t), math.cos(2 * math.pi * t)
+    p = arms_down(rig, elbow=85)
+    for side, sg in (("l", 1), ("r", -1)):
+        th = 42 * s * sg
+        # The back leg kicks up behind; the knee comes high in front.
+        kn = 20 + 70 * max(0.0, c * sg)
+        p[f"thigh_{side}"] = fwd(th + 8)
+        p[f"calf_{side}"] = fwd(-kn)
+        p[f"foot_{side}"] = fwd(kn - th - 10 * max(0.0, -c * sg))
+        p[f"upperarm_{side}"] = fwd(-45 * s * sg + 10) @ p[f"upperarm_{side}"]
+    p["spine_01"] = fwd(-12) @ twist(-8 * s)
+    p["spine_03"] = fwd(2)
+    p["head"] = fwd(8)
+    # Both feet leave the ground between strides.
+    lift = -0.05 + 0.05 * abs(c)
+    return p, lift
