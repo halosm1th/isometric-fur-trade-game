@@ -600,6 +600,7 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--flags=") && NetHub.IsServer) GetTree().CreateTimer(2.5).Timeout += () => { foreach (var f in arg.Substring(8).Split(',', System.StringSplitOptions.RemoveEmptyEntries)) { Core.Campaign.Flag(f.Trim()); GD.Print($"[dev] flag {f.Trim()}"); } };
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
 			// Dev: `--canoe` gets into the nearest canoe a few seconds in (after any --spawn).
+			if (arg.StartsWith("--fish")) GetTree().CreateTimer(6.0).Timeout += () => UI.Fishing.DevStart(this, arg == "--fish=auto");
 			if (arg == "--canoe") GetTree().CreateTimer(4.0).Timeout += () => GD.Print("[dev] canoe: " + ServerAction("canoe", new Godot.Collections.Array()));
 			// Dev: `--taken` has the nearest man of the other company lay you out a few seconds in (with --pick to walk the pages).
 			if (arg == "--taken" && NetHub.IsServer) GetTree().CreateTimer(4.0).Timeout += () =>
@@ -827,7 +828,7 @@ public partial class PlayerController : Agent
 		}
 		if (_dialogue != null && _dialogue.IsOpen) return;
 		if (UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping) return;
-		if (UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen) return;
+		if (UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen || UI.Fishing.IsOpen) return;
 		// Watching, not playing: the camera's keys, then the clock's, and nothing else.
 		if (Ghost && ObserverInput(@event)) { GetViewport().SetInputAsHandled(); return; }
 		// The clock: Space stops it, [ and ] slow and quicken it (host).
@@ -899,6 +900,8 @@ public partial class PlayerController : Agent
 		if (pad && target is Npc && Weapon == ItemId.Musket && HasCharge()) { NetHub.I?.Act("interact"); return; }
 		if (target != null && (weapon || held == null || target is Animal && Items.Items.Of(held.Value.id).Kind != ItemKind.Food)) { NetHub.I?.Act("attack", new Godot.Collections.Array { target.NetId }); return; }
 		if (target != null && target is Npc) { NetHub.I?.Act("interact"); return; }
+		// The fishing line: out it goes, aimed where you clicked (UI/Fishing).
+		if (held != null && held.Value.id == ItemId.FishingLine) { Say(UI.Fishing.Begin(this, pad && !UI.PadDriver.Aiming ? null : at, _aimDir)); return; }
 		NetHub.I?.Act("click", new Godot.Collections.Array { slot, at.X, at.Y });
 	}
 
@@ -956,7 +959,12 @@ public partial class PlayerController : Agent
 	private Vector2 _aimDir = new Vector2(0, 1);
 
 	// Hotbar: the owner asks the server to use slot i.
-	public void UseSlot(int i) => NetHub.I?.Act("use", new Godot.Collections.Array { i });
+	public void UseSlot(int i)
+	{
+		// The fishing line is a game played here, not a roll on the host (UI/Fishing).
+		if (Inventory.Slot(i) is { id: ItemId.FishingLine }) { Say(UI.Fishing.Begin(this, Core.Pad.Active ? null : GetGlobalMousePosition(), _aimDir)); return; }
+		NetHub.I?.Act("use", new Godot.Collections.Array { i });
+	}
 
 	// What the pointer is over, said in the shape of the pointer itself.
 	private void CursorOverWhat()
@@ -1177,7 +1185,7 @@ public partial class PlayerController : Agent
 		IsSneaking = !typing && !Mounted && Input.IsActionPressed("sneak") && !Input.IsActionPressed("sprint");
 		IsSprinting = !typing && Input.IsActionPressed("sprint");
 		// With the pad in a menu, the left stick is moving through the menu, not you.
-		bool padInMenu = UI.PadDriver.MenuUp;
+		bool padInMenu = UI.PadDriver.MenuUp || UI.Fishing.IsOpen;
 		if (padInMenu) { IsSneaking = false; IsSprinting = false; }
 		Vector2 input = typing || padInMenu ? Vector2.Zero : Input.GetVector("move_left", "move_right", "move_up", "move_down");
 		if (input.LengthSquared() > 0.04f) _aimDir = input.Normalized();
@@ -1356,6 +1364,7 @@ public partial class PlayerController : Agent
 			case "interact": { _serverPick = args != null && args.Count > 0 ? (int)args[0] : 0; var said = Interact(); _serverPick = 0; return said; }
 			case "mount": return RideAction();
 			case "use": return UseSlotServer((int)args[0]);
+			case "fish_catch": return World.Angling.Land(this, (int)args[0], new Vector2((float)args[1], (float)args[2]));
 			case "travel": TravellingServer = (bool)args[0]; return "";
 			case "ride_off": Convoys.Leave(this, "You step ashore."); return "";
 			case "click": { var r = ClickAt((int)args[0], new Vector2((float)args[1], (float)args[2])); if (_devClick) GD.Print("[click] " + r); return r; }
