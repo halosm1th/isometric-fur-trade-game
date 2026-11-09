@@ -32,7 +32,7 @@ public partial class HelpPanel : Control
         $"{K("interact")}  talk / bed / pick up / loot / woodpile / warehouse / ration / ship / door / look at a fire\n" +
         $"{K("hotbar_prev")} / {K("hotbar_next")}  choose a hotbar slot     {K("hotbar_use")}  use it (eat, drink, read...)     {K("use_ahead")}  use what's in hand on the ground ahead, or strike\n" +
         $"Right stick  move the pointer: for a few seconds after, {K("use_ahead")} acts there instead of just ahead     {K("attack_nearest")}  fire the musket / strike: the enemy or game you face\n" +
-        $"Musket: {K("ready_gun")} or {K("attack_nearest")} brings it up, sights on the likeliest mark; right stick moves the sights, {K("use_ahead")} or {K("attack_nearest")} fires, {K("ready_gun")} slings it. Slung, it never goes off\n" +
+        $"Musket: the right stick (with game or a foe about), {K("ready_gun")} or {K("attack_nearest")} brings it up, a ring of sights on the likeliest mark; right stick moves the sights, {K("use_ahead")} or {K("attack_nearest")} fires, {K("ready_gun")} slings it. Slung, it never goes off\n" +
         $"{K("wait")}  wait an hour (sleep at night)     {K("time_fast")}  hold to fast-forward     {K("mount")}  mount / get down     {K("drink")}  drink     Menu  pause\n" +
         $"{K("inventory")}  your book (LT / RT turn to the journal, log, pack, yourself)      {K("map")}  map      Menu  menu (settings, controls, save)\n" +
         "In menus: d-pad or left stick to move, A to choose, B to go back, right stick to scroll. In the pack, X uses or wears and Y lifts a stack to move it.\n" +

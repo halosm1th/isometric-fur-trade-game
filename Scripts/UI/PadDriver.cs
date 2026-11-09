@@ -190,6 +190,7 @@ public partial class PadDriver : Node
             return;
         }
         if (MapPanel.IsOpen) return;   // the map pans itself
+        if (GunReady) return;          // the sights take the stick (UI/Sights)
         // In play: the pointer follows the right stick.
         var pos = vp.GetMousePosition() + rs * rs.Length() * 1100f * dt;
         var size = vp.GetVisibleRect().Size;

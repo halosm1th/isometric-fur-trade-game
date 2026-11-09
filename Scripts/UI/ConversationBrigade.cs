@@ -41,7 +41,9 @@ public partial class Conversation
         foreach (var n in Sim.Npcs)
         {
             if (n.IsDead || n == leader || n.HomeStores != leader.HomeStores || n.Faction != _player.Faction) continue;
-            if (n.Role is not (Role.Labourer or Role.Voyageur) || n.Following == _player || n.HeldBy != null) continue;
+            // A friend already at your side for the day still needs the master's leave
+            // to go up the country (he was left off this list, so Flett could not be asked for).
+            if (n.Role is not (Role.Labourer or Role.Voyageur) || n.HeldBy != null || n.AssignedTaskName.StartsWith($"go with {_player.DisplayName} in")) continue;
             if (n.RapportWith(_player) < 10f || n.GlobalPosition.DistanceTo(leader.GlobalPosition) > 4000f) continue;
             list.Add(n);
         }
@@ -58,7 +60,7 @@ public partial class Conversation
         foreach (var f in FriendsWhoMightGo(leader))
         {
             var friend = f;
-            AddOption($"\"May I take {friend.DisplayName} with me?\"", () => ShowBrigadeAgreed(leader, TakeFriend(leader, friend, boats), boats));
+            AddOption(friend.Following == _player ? $"\"{friend.DisplayName} is with me. May he come too?\"" : $"\"May I take {friend.DisplayName} with me?\"", () => ShowBrigadeAgreed(leader, TakeFriend(leader, friend, boats), boats));
         }
         AddOption("Back", () => ShowTopics(Greeting(leader)));
     }
@@ -66,7 +68,7 @@ public partial class Conversation
     private string TakeFriend(Npc leader, Npc friend, string boats)
     {
         int hands = 0;
-        foreach (var n in Sim.Npcs) if (!n.IsDead && n.HomeStores == leader.HomeStores && n.Role is Role.Labourer or Role.Voyageur && n.Following == null) hands++;
+        foreach (var n in Sim.Npcs) if (!n.IsDead && n.HomeStores == leader.HomeStores && n.Role is Role.Labourer or Role.Voyageur && !n.AssignedTaskName.StartsWith("go with ")) hands++;
         if (hands <= 4) return $"\"{friend.DisplayName}? I've hardly men enough to keep the fires in. No.\"";
         if (_player.Standing < 10f) return $"\"You're asking a favour on a fortnight's service. {friend.DisplayName} stays.\" (standing 10)";
         if (friend.RapportWith(_player) < 10f) return $"{friend.DisplayName} shakes his head. \"I'll not go up the country, not this year.\"";

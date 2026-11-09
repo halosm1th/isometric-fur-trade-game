@@ -849,7 +849,7 @@ public partial class PlayerController : Agent
 		}
 		// The pad's trigger: the same, where the right stick last put the
 		// pointer, or else just ahead of you.
-		if (UI.PadDriver.GunReady && Weapon != ItemId.Musket) UI.PadDriver.GunReady = false;
+		if (UI.PadDriver.GunReady && Weapon != ItemId.Musket) { UI.PadDriver.GunReady = false; if (_sights != null && IsInstanceValid(_sights)) _sights.QueueFree(); _sights = null; }
 		if (@event.IsActionPressed("ready_gun")) { ReadyGun(!UI.PadDriver.GunReady); return; }
 		if (@event.IsActionPressed("use_ahead"))
 		{
@@ -902,7 +902,8 @@ public partial class PlayerController : Agent
 		if (up && Weapon != ItemId.Musket) { Say("You have no musket to bring up."); return; }
 		if (up && !HasCharge()) { Say("Your horn is empty: no powder for the gun."); return; }
 		UI.PadDriver.GunReady = up;
-		if (!up) { Say("You sling the musket."); return; }
+		GD.Print($"[aim] musket {(up ? "up" : "slung")}");
+		if (!up) { if (_sights != null && IsInstanceValid(_sights)) _sights.QueueFree(); _sights = null; Say("You sling the musket."); return; }
 		Agent mark = null; float best = float.MaxValue;
 		foreach (var a in Sim.AgentsWithin(GlobalPosition, 650f))
 		{
@@ -913,15 +914,19 @@ public partial class PlayerController : Agent
 			float score = off.Length() * (1.6f - 0.6f * _aimDir.Normalized().Dot(off.Normalized()));
 			if (score < best) { best = score; mark = a; }
 		}
-		var sights = mark != null ? mark.GlobalPosition + new Vector2(0, -40) : GlobalPosition + _aimDir * 200f;
-		GetViewport().WarpMouse(GetViewport().GetCanvasTransform() * sights);
-		Core.Pad.LastWarpMs = Time.GetTicksMsec();
+		var sights = mark != null ? mark.GlobalPosition + new Vector2(0, -40) : GlobalPosition + new Vector2(0, -40) + _aimDir * 200f;
+		if (_sights == null || !IsInstanceValid(_sights)) { _sights = new UI.Sights { Owner = this }; AddChild(_sights); }
+		_sights.GlobalPosition = sights;
 		Say(mark != null ? $"You bring the musket up on {mark.Describe()}. Right stick to aim, {Core.Keybinds.KeyFor("use_ahead")} to fire, {Core.Keybinds.KeyFor("ready_gun")} to sling it." : $"You bring the musket up. Right stick to aim, {Core.Keybinds.KeyFor("use_ahead")} to fire, {Core.Keybinds.KeyFor("ready_gun")} to sling it.");
 	}
 
+	private UI.Sights _sights;
+	private float _autoAimCheck;
+
 	private void FireAtSights()
 	{
-		var target = AgentNear(GetGlobalMousePosition());
+		var target = _sights != null && IsInstanceValid(_sights) ? _sights.Mark : AgentNear(GetGlobalMousePosition());
+		GD.Print($"[aim] fire at {target?.Describe() ?? "nothing"}");
 		if (target == null) { Say("Nothing in your sights. Move them onto your mark with the right stick."); return; }
 		NetHub.I?.Act("attack", new Godot.Collections.Array { target.NetId });
 	}
@@ -1088,6 +1093,15 @@ public partial class PlayerController : Agent
 
 		if (IsLocal)
 		{
+			// Pushing the right stick with a loaded musket and game about brings
+			// the gun up: the stick is the aim, as the mouse is.
+			if (Core.Pad.Active && !UI.PadDriver.GunReady && Core.Pad.RightStick().Length() > 0.5f && UI.PadDriver.TopMenu() == null && !UI.MapPanel.IsOpen
+				&& Weapon == ItemId.Musket && HasCharge() && (_autoAimCheck -= dt) <= 0f)
+			{
+				_autoAimCheck = 0.5f;
+				foreach (var a in Sim.AgentsWithin(GlobalPosition, 650f))
+					if (a != this && !a.IsDead && (a is Animal || IsHostileTo(a) || a is Npc { Raiding: true })) { ReadyGun(true); break; }
+			}
 			CursorOverWhat();
 			QuietWatch(dt);
 			LocalMove(dt);
