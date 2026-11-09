@@ -27,6 +27,15 @@ public partial class BoatPanel : Control
         SetAnchorsPreset(LayoutPreset.FullRect);
         MouseFilter = MouseFilterEnum.Ignore;
         Visible = false;
+        // Dev: `--boatcount=S` prints the boats this machine knows of after S seconds (a client's view).
+        foreach (string arg in OS.GetCmdlineUserArgs())
+            if (arg.StartsWith("--boatcount=") && double.TryParse(arg.Substring(12), out double when))
+                GetTree().CreateTimer(when).Timeout += () =>
+                {
+                    var bits = new List<string>();
+                    if (Sim.Spawner != null) foreach (var c in Sim.Spawner.Canoes) bits.Add($"{c.Index}:{c.Kind}/{c.Stage}{(c.Owner != "" ? "/" + c.Owner : "")}{(c.Leaks.Count > 0 ? $"/{c.Leaks.Count}leaks" : "")}");
+                    GD.Print($"[boats] this machine knows {bits.Count} boats: {string.Join(", ", bits)}");
+                };
         // Dev: `--boats` opens this page a few seconds in; `--boats=S` after S seconds.
         foreach (string arg in OS.GetCmdlineUserArgs())
             if (arg == "--boats" || arg.StartsWith("--boats=")) GetTree().CreateTimer(arg.Length > 8 && double.TryParse(arg.Substring(8), out double at) ? at : 3.0).Timeout += Toggle;

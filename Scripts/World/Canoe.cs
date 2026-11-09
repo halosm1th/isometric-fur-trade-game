@@ -126,7 +126,7 @@ public partial class Canoe : Node2D
         if (Spec.Planked) { half = 80f; depth = 14f; }
         var stake = new Color(0.32f, 0.22f, 0.12f);
         var bed = new List<Vector2>();
-        for (int i = 0; i <= 16; i++) { float a = Mathf.Pi * 2f * i / 16f; bed.Add(new Vector2(Mathf.Cos(a) * (half + 14f), -14f + Mathf.Sin(a) * (depth + 12f))); }
+        for (int i = 0; i < 16; i++) { float a = Mathf.Pi * 2f * i / 16f; bed.Add(new Vector2(Mathf.Cos(a) * (half + 14f), -14f + Mathf.Sin(a) * (depth + 12f))); }
         DrawColoredPolygon(bed.ToArray(), new Color(0.36f, 0.28f, 0.2f, 0.55f));
         if (Stage >= 1)
         {
@@ -134,7 +134,7 @@ public partial class Canoe : Node2D
             for (int i = 0; i <= 20; i++) { float t = i / 20f; sheet.Add(new Vector2(Mathf.Lerp(-half, half, t), -14f - Mathf.Sin(t * Mathf.Pi) * depth)); }
             for (int i = 20; i >= 0; i--) { float t = i / 20f; sheet.Add(new Vector2(Mathf.Lerp(-half, half, t), -14f + Mathf.Sin(t * Mathf.Pi) * depth)); }
             var col = Spec.Planked ? new Color(0.6f, 0.43f, 0.26f) : new Color(0.93f, 0.9f, 0.82f);
-            for (int i = 0; i < 20; i++) DrawColoredPolygon(new[] { sheet[i], sheet[i + 1], sheet[sheet.Count - 2 - i], sheet[sheet.Count - 1 - i] }, col);
+            for (int i = 0; i < 20; i++) Strip(sheet[i], sheet[i + 1], sheet[sheet.Count - 2 - i], sheet[sheet.Count - 1 - i], col);
             sheet.Add(sheet[0]);
             DrawPolyline(sheet.ToArray(), new Color(0.3f, 0.2f, 0.1f), 1.5f);
             // Ribs across her once they are in.
@@ -149,6 +149,16 @@ public partial class Canoe : Node2D
         }
         // Stock laid by: a little pile beside the bed.
         if (Stock.SlotCount > 0) DrawRect(new Rect2(half + 8f, -18f, 14f, 10f), new Color(0.85f, 0.82f, 0.74f));
+    }
+
+    // A quad of the sheet; at bow and stern two corners meet and it is a
+    // triangle (a repeated point will not triangulate).
+    private void Strip(Vector2 a, Vector2 b, Vector2 c, Vector2 d, Color col)
+    {
+        var pts = new List<Vector2>(4);
+        foreach (var p in new[] { a, b, c, d }) if (pts.Count == 0 || pts[^1].DistanceSquaredTo(p) > 0.01f) pts.Add(p);
+        if (pts.Count > 1 && pts[0].DistanceSquaredTo(pts[^1]) <= 0.01f) pts.RemoveAt(pts.Count - 1);
+        if (pts.Count >= 3) DrawColoredPolygon(pts.ToArray(), col);
     }
 
     public void SetState(Vector2 pos, int rider)

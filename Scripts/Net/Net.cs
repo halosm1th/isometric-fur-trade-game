@@ -574,9 +574,12 @@ public partial class Net : Node
         SkipStatusText = skipStatus;
     }
 
+    private static readonly bool _boatTrace = System.Array.Exists(OS.GetCmdlineUserArgs(), a => a.StartsWith("--boatcount"));
+    private int _boatsHeard;
     [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void BoatsRpc(Godot.Collections.Array boats)
     {
+        if (_boatTrace && _boatsHeard++ % 20 == 0) GD.Print($"[boats] the host tells of {boats.Count} boats near you");
         if (Sim.Spawner == null) return;
         foreach (var v in boats)
         {
