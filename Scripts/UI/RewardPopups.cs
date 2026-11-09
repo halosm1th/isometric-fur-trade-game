@@ -33,7 +33,7 @@ public partial class RewardPopups : Control
     private void Baseline()
     {
         _standing = _player.Standing;
-        _skills = new[] { _player.Skills.Hunting, _player.Skills.Trapping, _player.Skills.Trade, _player.Skills.Woodcraft };
+        _skills = new[] { _player.Skills.Hunting, _player.Skills.Trapping, _player.Skills.Trade, _player.Skills.Woodcraft, _player.Skills.Crafting };
         _pendingStanding = 0f;
     }
 
@@ -55,8 +55,8 @@ public partial class RewardPopups : Control
             _pendingStanding = 0f;
         }
 
-        var now = new[] { _player.Skills.Hunting, _player.Skills.Trapping, _player.Skills.Trade, _player.Skills.Woodcraft };
-        for (int i = 0; i < 4; i++)
+        var now = new[] { _player.Skills.Hunting, _player.Skills.Trapping, _player.Skills.Trade, _player.Skills.Woodcraft, _player.Skills.Crafting };
+        for (int i = 0; i < Agents.Skills.Count; i++)
         {
             // Skills creep a hair at a time; show each whole step of 0.01.
             if (Mathf.FloorToInt(now[i] * 100f) > Mathf.FloorToInt(_skills[i] * 100f) && now[i] - _skills[i] < 0.2f)

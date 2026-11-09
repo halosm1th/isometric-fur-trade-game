@@ -121,6 +121,9 @@ public sealed class Convoy
 	public bool Late;
 	public int ArrivedDay;                  // boats lie at the landing for the rest of the day they come in
 	public int Crew, Boats;
+	// How sound her boats are, all told (World/Boats): worn by every day and
+	// portage, opened on the rocks, put right by a day's gumming on the bank.
+	public float Hull = 0.9f;
 	public string Guide = "";
 	public readonly Inventory Cargo = new(), Provisions = new();
 	public int LotsAtStart;
@@ -544,9 +547,14 @@ public static class Convoys
 			Upstream = leg.Cargo == "outfit", Boats = run.Boats, Crew = run.Boats * run.Men,
 			Guide = GuideFor(run),
 		};
+		// The boats themselves come out of the sending post's yard (World/
+		// Boatwrights): a yard short of boats sends fewer, and worn ones.
+		var (got, sound) = Boatwrights.Draw(leg.From, Boats.ForCraft(run.Craft.Name), run.Boats);
+		c.Boats = got; c.Hull = sound;
+		if (got < run.Boats) Hear(c, $"Only {got} of {run.Boats} {run.Craft.Name}s at {leg.From} were fit to go with {run.Name}: the yard is short of boats.", "", 0.8f);
 		// A boat carries pieces of ninety pounds (design doc 12): what fills her
 		// is weight, so a case of awls is one piece and not two hundred.
-		float capLbs = run.Craft.LotsPerBoat * run.Boats * 90f;
+		float capLbs = run.Craft.LotsPerBoat * c.Boats * 90f;
 		int Fits(ItemId id, int n) => Mathf.Min(n, Mathf.FloorToInt(capLbs / Mathf.Max(0.05f, Items.Items.Of(id).WeightLbs)));
 		if (leg.Cargo == "returns")
 		{
@@ -681,6 +689,18 @@ public static class Convoys
 		km *= Mathf.Lerp(0.75f, 1.05f, Mathf.Clamp(c.Crew / (float)Mathf.Max(1, c.Run.Boats * c.Run.Men), 0f, 1f));
 		if (c.Lots > c.Run.Craft.LotsPerBoat * c.Boats * 0.8f) km *= 0.85f;
 		if (c.ShortDays > 0) km *= 0.7f;
+		// The boats wear as they go, and go slower for it; badly worn, they put
+		// ashore for a day to gum them (World/Boats).
+		c.Hull = Mathf.Max(0.05f, c.Hull - (c.Run.Craft.Name == "york boat" ? 0.002f : 0.004f));
+		km *= Mathf.Lerp(0.7f, 1f, Mathf.Clamp(c.Hull / 0.6f, 0f, 1f));
+		if (c.Hull < 0.4f && GD.Randf() < 0.6f)
+		{
+			c.Now = ConvoyState.Held; c.DayLeft = 1; c.At = c.Run.Craft.Name == "york boat" ? "caulking the boats on the bank" : "gumming the canoes on the bank";
+			c.CampAt = Convoys.LandNear(c.Path.At(c.Along)); c.HasCamp = true;
+			c.Hull = Mathf.Min(0.85f, c.Hull + 0.3f);
+			Hear(c, $"{c.Name} lie up a day {c.At}.", "", 0.5f);
+			return;
+		}
 		var sky = cal.Weather.At(c.Where);
 		if (sky is SkyState.Storm or SkyState.Blizzard)
 		{
@@ -775,6 +795,8 @@ public static class Convoys
 	// Rock and rapid: a hull opened, a pack wet, once in a long while a boat lost.
 	private static void Mishap(Convoy c, RoadEvent e, Vector2 at)
 	{
+		// Every carrying place and rapid takes something out of the boats.
+		c.Hull = Mathf.Max(0.05f, c.Hull - 0.015f);
 		float r = GD.Randf();
 		if (r < 0.015f)
 		{
@@ -801,6 +823,7 @@ public static class Convoys
 				if (take > 0) { c.Cargo.Remove(id, take); spoiled += take; }
 			}
 			c.DayLeft += 1 + (int)(GD.Randi() % 2);
+			c.Hull = Mathf.Max(0.05f, c.Hull - 0.05f);
 			Chronicle.Event($"{c.Name} gummed a hull at {e.Name}; {spoiled} pieces were spoiled.", at, null, c.Name, 0.8f);
 			Hear(c, $"{c.Name} lie up a day at {e.Name} gumming a hull: {spoiled} pieces were wet.", "", 0.8f);
 		}
@@ -852,6 +875,8 @@ public static class Convoys
 		foreach (var (id, n) in new List<(ItemId, int)>(c.Provisions.All())) { c.Provisions.Remove(id, n); c.To.Stores.Add(id, n); }
 		c.To.LastSupplyDay = today;
 		c.ArrivedDay = today; c.HasCamp = false;
+		// The boats go into the yard at this end, as worn as the road left them.
+		Boatwrights.Return(c.ToName, Boats.ForCraft(c.Run.Craft.Name), c.Boats, c.Hull);
 		Unraise($"late:{c.Name}"); Raise($"in:{c.Name}"); Raise("brigade_in");
 		if (c.Leg.Cargo == "returns") Economy.PostWants.OnReturnsIn(c.Id, c.ToName);
 		// At the edge of the map the returns go on down to market (Economy/Companies).
@@ -1211,7 +1236,7 @@ public static class Convoys
 				["run"] = c.Run.Name, ["leg"] = c.Run.Legs.IndexOf(c.Leg), ["from"] = c.FromName, ["to"] = c.ToName,
 				["back"] = c.TurnedBack, ["along"] = c.Along, ["step"] = c.Step, ["state"] = (int)c.Now, ["dayLeft"] = c.DayLeft,
 				["next"] = c.NextEvent, ["out"] = c.DaysOut, ["due"] = c.DueDay, ["late"] = c.Late, ["short"] = c.ShortDays,
-				["at"] = c.At, ["crew"] = c.Crew, ["boats"] = c.Boats, ["guide"] = c.Guide, ["start"] = c.LotsAtStart,
+				["at"] = c.At, ["crew"] = c.Crew, ["boats"] = c.Boats, ["hull"] = c.Hull, ["guide"] = c.Guide, ["start"] = c.LotsAtStart,
 				["cargo"] = cargo, ["food"] = food,
 			});
 		}
@@ -1253,6 +1278,7 @@ public static class Convoys
 				Crew = r["crew"].AsInt32(), Boats = r["boats"].AsInt32(), Guide = r["guide"].AsString(), LotsAtStart = r["start"].AsInt32(),
 			};
 			if (c.From == null || c.To == null) continue;
+			if (r.TryGetValue("hull", out var hull)) c.Hull = (float)hull.AsDouble();
 			foreach (var kv in r["cargo"].AsGodotDictionary()) if (Enum.TryParse<ItemId>(kv.Key.AsString(), out var cid)) c.Cargo.Add(cid, kv.Value.AsInt32());
 			foreach (var kv in r["food"].AsGodotDictionary()) if (Enum.TryParse<ItemId>(kv.Key.AsString(), out var fid)) c.Provisions.Add(fid, kv.Value.AsInt32());
 			if (c.Now != ConvoyState.Paddling) { c.CampAt = LandNear(c.Now == ConvoyState.Calling ? Landing(c.At) : c.Path.At(c.Along)); c.HasCamp = true; }

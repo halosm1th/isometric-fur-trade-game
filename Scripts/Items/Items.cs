@@ -73,6 +73,20 @@ public enum ItemId
     // Coin of the towns (Economy/Money): one is a penny of Halifax currency,
     // shown as shillings and pence, or dollars and cents in an American town.
     Coin,
+    // Boats (World/Boats): what a birchbark canoe is made of - bark, the
+    // split spruce root it is sewn with (watap), the gum its seams are
+    // sealed with, split cedar for ribs, sheathing and gunwales - and what a
+    // York boat is: sawn planks, nails, oakum for the seams and pitch over
+    // it. The crooked knife is the builder's tool and the gatherer's.
+    CrookedKnife,
+    BirchBark,
+    Watap,
+    SpruceGum,
+    Cedar,
+    Plank,
+    Nails,
+    Oakum,
+    Pitch,
 }
 
 public enum ItemKind { Food, Drink, Fuel, Clothing, Fur, Goods, Weapon, Tool }
@@ -161,6 +175,17 @@ public static class Items
         // keeps the hole open and the men at it longer.
         { ItemId.IceChisel,    new("Ice chisel",     ItemKind.Tool,     4.0f, IconDir + "ice_chisel.png",   ValueMb: 1f) },
         { ItemId.FishingNet,   new("Fishing net",    ItemKind.Tool,     6.0f, IconDir + "fishing_net.png",  ValueMb: 2f) },
+        // A roll of bark is one sheet off one good tree; a small canoe takes
+        // four or five, a north canoe a dozen and more.
+        { ItemId.CrookedKnife, new("Crooked knife",  ItemKind.Tool,     0.5f, IconDir + "crooked_knife.png", ValueMb: 0.5f) },
+        { ItemId.BirchBark,    new("Roll of birch bark", ItemKind.Goods, 6.0f, IconDir + "birch_bark.png",  ValueMb: 0.5f) },
+        { ItemId.Watap,        new("Coil of watap",  ItemKind.Goods,    1.0f, IconDir + "watap.png",        ValueMb: 0.15f) },
+        { ItemId.SpruceGum,    new("Cake of spruce gum", ItemKind.Goods, 0.5f, IconDir + "spruce_gum.png",  ValueMb: 0.15f) },
+        { ItemId.Cedar,        new("Bundle of split cedar", ItemKind.Goods, 8.0f, IconDir + "cedar.png",    ValueMb: 0.3f) },
+        { ItemId.Plank,        new("Sawn plank",     ItemKind.Goods,   14.0f, IconDir + "plank.png",        ValueMb: 0.4f) },
+        { ItemId.Nails,        new("Pound of nails", ItemKind.Goods,    1.0f, IconDir + "nails.png",        ValueMb: 0.5f) },
+        { ItemId.Oakum,        new("Bundle of oakum", ItemKind.Goods,   2.0f, IconDir + "oakum.png",        ValueMb: 0.3f) },
+        { ItemId.Pitch,        new("Keg of pitch",   ItemKind.Goods,    8.0f, IconDir + "pitch.png",        ValueMb: 0.8f) },
     };
 
     // Many of these are mass nouns or have an odd plural, and "5 dried gooses"
@@ -180,6 +205,9 @@ public static class Items
         (ItemId.Firewood, "firewood"), (ItemId.TradeGoods, "trade goods"), (ItemId.Fish, "fish"),
         (ItemId.Knife, "knives"), (ItemId.Flint, "flints and steels"), (ItemId.FishingLine, "fishing line"),
         (ItemId.Snowshoes, "pairs of snowshoes"), (ItemId.ShotPelt, "shot-through pelts"),
+        (ItemId.CrookedKnife, "crooked knives"), (ItemId.BirchBark, "rolls of birch bark"), (ItemId.Watap, "coils of watap"),
+        (ItemId.SpruceGum, "cakes of spruce gum"), (ItemId.Cedar, "bundles of split cedar"), (ItemId.Plank, "sawn planks"),
+        (ItemId.Nails, "pounds of nails"), (ItemId.Oakum, "bundles of oakum"), (ItemId.Pitch, "kegs of pitch"),
     });
 
     private static Dictionary<ItemId, string> Plurals((ItemId Id, string Many)[] rows)

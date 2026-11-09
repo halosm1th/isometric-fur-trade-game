@@ -54,6 +54,7 @@ public static class Tiers
             World.Brigades.Season();
             World.Brigades.Tick();
             World.Convoys.Tick();
+            World.Boatwrights.Day();
             ulong t1 = Time.GetTicksUsec();
             DailyBatch();
             if (Perf) GD.Print($"[perf] day {cal.Day}: the day's round {(t1 - t0) / 1000f:0.0} ms, the batch's first slice {(Time.GetTicksUsec() - t1) / 1000f:0.0} ms, {_batch.Count} to go");

@@ -43,7 +43,12 @@ public partial class HelpPanel : Control
         "do what the Factor sets you each morning and your standing rises. Furs are money: trap beaver\n" +
         "(steel traps, come back tomorrow), sell at the counter, trade with the band, or take the\n" +
         "Nor'Westers' better price across the river. Flint and wood make a fire in the bush.\n" +
-        "Talk to people: they know things, and they remember what you do.";
+        "Talk to people: they know things, and they remember what you do.\n\n" +
+        "Boats: a crooked knife in hand (from the store chest), used in the bush, strips birch bark (best June-July),\n" +
+        "digs spruce roots for watap, scrapes gum, splits cedar (with an axe), and lays a canoe bed by the water.\n" +
+        "Each stage is hand-work: stakes, lashing, sewing, ribs, gum - friends who follow you help by their skill.\n" +
+        "Boats wear: rocks hole them, gum cracks, water gets in (bail, mend at the bank). K shows your boats.\n" +
+        "The camps build canoes in summer and the posts York boats in winter: buy one, commission one, or help and learn.";
 
     private Label _title, _body;
 

@@ -336,7 +336,7 @@ public partial class JournalPanel : Control
         // One table so the bars line up; why a skill moved and what comes
         // next go small under its word.
         sb.Append("[table=3]");
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < Skills.Count; i++)
         {
             float v = sk[i];
             var (gain, from) = sk.Recent(i, 30);
@@ -410,6 +410,7 @@ public partial class JournalPanel : Control
         0 => "comes of shooting game at a distance",
         1 => "comes of setting traps at beaver lodges",
         2 => "comes of bargaining at counters and camps",
+        4 => "comes of building and mending boats (and of watching a master at it)",
         _ => "comes of felling and splitting wood",
     };
 

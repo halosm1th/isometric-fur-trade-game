@@ -901,7 +901,8 @@ public partial class Npc : Agent
     private static readonly (string[] words, string anim)[] Postures = new (string words, string anim)[]
     {
         ("sleep", "sleep"),
-        ("firewood|fetch wood|thresh|fences|odd jobs", "chop"),
+        ("firewood|fetch wood|thresh|fences|odd jobs|split cedar|saw out the keel|plank the boat", "chop"),
+        ("canoe|watap|birch bark|spruce gum|gunwales|ribs|seams|caulk|frames", "work"),
         ("pemmican|dry meat|salt the geese|fishing|washing|bake bread|grind meal|tend the fires|cleaning his musket|his trade|the trade|set traps|check the traps", "work"),
         ("sitting|warm up|resting|mend and spin|church|read the post|parish registers|orderly room|count the till|drinking", "sit"),
         ("haggle|selling|behind the counter|clerking|keep the store|choosing cloth|trade|report|visit the sick", "talk"),

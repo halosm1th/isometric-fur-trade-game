@@ -65,6 +65,9 @@ public abstract class RoleBehaviour
         // A motion before the town or the council: canvassing for it, or the meeting (Core/Laws).
         if (Core.Laws.Errand(npc) is { } motion) return motion;
         if (npc.OrderWaiting != null) Delegation.Hear(npc);
+        // A boat on the yard's bed: its builders go out to it, or to the
+        // birches, before the day's other orders (World/Boatwrights).
+        if (IsWorkHours && World.Boatwrights.Errand(npc) is { } boat) return boat;
         if (npc.AssignedTask != null && IsWorkHours && !(npc.AssignedTaskIsHunt && Cal.Hour >= 12f))
         {
             var g = npc.AssignedTask(npc);
