@@ -430,7 +430,11 @@ public class FollowGoal : Goal
             npc.StopMoving();
             var v = paddler.Velocity;
             if (v.LengthSquared() > 25f) _bow = v.Normalized();
-            npc.GlobalPosition = canoe.GlobalPosition + _bow * 26f + new Vector2(0f, 2f);
+            // A thwart each: the first in the bow, the next in the stern.
+            int seat = 0;
+            foreach (var other in Sim.Npcs) { if (other == npc) break; if (other.Following == Leader && !other.IsDead) seat++; }
+            float place = seat switch { 0 => 26f, 1 => -26f, 2 => 44f, _ => -44f };
+            npc.GlobalPosition = canoe.GlobalPosition + _bow * place + new Vector2(0f, 2f + seat);
             npc.Visible = true;
             npc.HoldPose("paddle");
             npc.Needs.Thirst = 100f;

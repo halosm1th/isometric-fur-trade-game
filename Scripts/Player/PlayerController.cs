@@ -705,7 +705,7 @@ public partial class PlayerController : Agent
 		var cal = GameCalendar.Instance;
 		EndCargoTaskIfHoldEmpty();
 		// Reporting in is not a chore left undone: the order to report is answered by reporting.
-		if (Task.Kind is not (TaskKind.None or TaskKind.Report) && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say($"Yesterday's task went undone. {(Task.Boss != "" ? Task.Boss : "The master")} noticed."); }
+		if (Task.Kind is not (TaskKind.None or TaskKind.Report or TaskKind.Brigade or TaskKind.Courier) && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say($"Yesterday's task went undone. {(Task.Boss != "" ? Task.Boss : "The master")} noticed."); }
 		if (Task.Kind != TaskKind.None && Task.IsComplete) { Standing += 5f; TasksDone++; }
 		Task.Kind = kind; Task.Need = need; Task.Done = 0; Task.DayAssigned = cal.Day; Task.Intent = intent ?? ""; Task.Deadline = cal.Day + 1; Task.Accepted = false; Task.OwnWay = false;
 		Task.Boss = HomePost?.Leader is { } boss && !boss.IsDead ? Agents.Barks.CallName(boss) : "";
