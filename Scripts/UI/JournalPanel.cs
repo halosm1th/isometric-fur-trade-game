@@ -14,6 +14,8 @@ namespace IsometricFurTradeGame.Scripts.UI;
 public partial class JournalPanel : Control
 {
     public static bool IsOpen { get; private set; }
+    public static JournalPanel Instance { get; private set; }
+    public Control PadRoot => _panel;
     // Where the book lies on screen, so the talk window can keep clear of it.
     public static Rect2 Area { get; private set; }
 
@@ -23,10 +25,12 @@ public partial class JournalPanel : Control
     private VBoxContainer _packRows;
     private GridContainer _grid;
     private readonly List<InventorySlot> _gridSlots = new();
+    private Label _focusInfo;
     private PlayerController _player;
 
     public override void _Ready()
     {
+        Instance = this;
         _player = Sim.Player as PlayerController;
         Sim.LocalPlayerChanged += p => _player = p;
         _panel = new PanelContainer { Visible = false };
@@ -103,6 +107,7 @@ public partial class JournalPanel : Control
         else if (@event.IsActionPressed("log")) { Toggle(1); GetViewport().SetInputAsHandled(); }
         else if (@event.IsActionPressed("inventory")) { Toggle(2); GetViewport().SetInputAsHandled(); }
         else if (@event.IsActionPressed("character")) { Toggle(3); GetViewport().SetInputAsHandled(); }
+        else if (_panel.Visible && @event.IsActionPressed("ui_cancel") && InventorySlot.Carrying >= 0) { InventorySlot.Carrying = -1; GetViewport().SetInputAsHandled(); }
         else if (_panel.Visible && @event.IsActionPressed("ui_cancel")) { _panel.Visible = false; IsOpen = false; GetViewport().SetInputAsHandled(); }
     }
 
@@ -227,11 +232,20 @@ public partial class JournalPanel : Control
             foreach (var m in _player.Mail) sb.AppendLine($"   {m.Summary}{(m.Read ? $"\n      [color=#998]{m.Text}[/color]" : "")}");
         }
         sb.AppendLine();
-        sb.AppendLine("[color=#998]The first row is the hotbar. Drag items between squares to arrange them (an occupied square swaps). Right-click uses an item, or wears / takes off clothing.[/color]");
+        sb.AppendLine("[color=#998]The first row is the hotbar. Drag items between squares to arrange them (an occupied square swaps). Right-click uses an item, or wears / takes off clothing. With a pad: LT / RT turn the pages, A on the first row puts it in hand, X uses or wears, Y lifts a stack to move it.[/color]");
         _pack.Text = Ink(sb.ToString());
 
         EnsureGrid();
         for (int i = 0; i < _gridSlots.Count; i++) _gridSlots[i].Refresh(_player, i < Hotbar.Slots ? Core.Keybinds.KeyFor($"hotbar_{i + 1}") : "");
+        // The pad has no hover: what the focused square holds is written under the grid.
+        if (_focusInfo == null) { _focusInfo = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(500, 0) }; _focusInfo.AddThemeColorOverride("font_color", MenuTheme.DarkInk); _focusInfo.AddThemeFontSizeOverride("font_size", 13); _packRows.AddChild(_focusInfo); }
+        if (_grid != null && _focusInfo.GetIndex() != _grid.GetIndex() + 1) _packRows.MoveChild(_focusInfo, _grid.GetIndex() + 1);
+        string info = "";
+        if (Core.Pad.Active && GetViewport().GuiGetFocusOwner() is InventorySlot fs && _player.Inventory.Slot(fs.Index) is var (fid, fn) && _player.Inventory.Slot(fs.Index) != null)
+            info = InventorySlot.Describe(_player, fid, fn).Replace("right-click", "X").Replace("Right-click", "X").Replace("Drag", "Y").Replace("\nX to use. Y to move.", "\nX uses it. Y lifts it to move; A or Y sets it down.");
+        if (Core.Pad.Active && InventorySlot.Carrying >= 0) info = "Carrying a stack: move to a square and press A or Y to set it down there (an occupied square swaps). B puts it back.";
+        _focusInfo.Visible = Core.Pad.Active;
+        if (_focusInfo.Text != info) _focusInfo.Text = info;
     }
 
     // ---- yourself (design doc 12.7) ---------------------------------------------------
@@ -414,7 +428,7 @@ public partial class JournalPanel : Control
         while (_gridSlots.Count < want)
         {
             int idx = _gridSlots.Count;
-            var slot = new InventorySlot { Index = idx, Hotbar = idx < Hotbar.Slots, CustomMinimumSize = new Vector2(46, 46) };
+            var slot = new InventorySlot { Index = idx, Hotbar = idx < Hotbar.Slots, CustomMinimumSize = new Vector2(46, 46), FocusMode = FocusModeEnum.All };
             if (idx < Hotbar.Slots) slot.LeftClicked += i => Hotbar.SelectSlot(i);
             _grid.AddChild(slot); _gridSlots.Add(slot);
         }

@@ -48,6 +48,15 @@ public partial class MapPanel : Control
 
     public override void _UnhandledInput(InputEvent @event)
     {
+        // The pad on the map: A marks the centre, X clears the mark, Y sets out for it.
+        if (_panel.Visible && @event is InputEventJoypadButton { Pressed: true } jb)
+        {
+            if (jb.ButtonIndex == JoyButton.A) { Waypoint.Set(_canvas.CentreWorld()); GetViewport().SetInputAsHandled(); return; }
+            if (jb.ButtonIndex == JoyButton.X) { Waypoint.Clear(); GetViewport().SetInputAsHandled(); return; }
+            if (jb.ButtonIndex == JoyButton.Y) { _panel.Visible = false; TravelMode.Instance?.SetOutOrStop(); GetViewport().SetInputAsHandled(); return; }
+        }
+        // Not over another menu the pad is working in.
+        if (!_panel.Visible && Core.Pad.IsPad(@event) && PadDriver.TopMenu() != null) return;
         if (@event.IsActionPressed("map")) { _panel.Visible = !_panel.Visible; _title.Text = $"The country as you know it ({Core.Keybinds.KeyFor("map")})"; if (_panel.Visible && _player != null) _canvas.CallDeferred(nameof(MapCanvas.CentreOn), _player.GlobalPosition); GetViewport().SetInputAsHandled(); }
         else if (_panel.Visible && @event.IsActionPressed("ui_cancel")) { _panel.Visible = false; GetViewport().SetInputAsHandled(); }
     }
@@ -55,7 +64,7 @@ public partial class MapPanel : Control
     public override void _Process(double delta)
     {
         IsOpen = _panel.Visible;
-        if (_panel.Visible) _canvas.QueueRedraw();
+        if (_panel.Visible) { if (Core.Pad.Active) _canvas.PadSteer((float)delta); _canvas.QueueRedraw(); }
     }
 }
 
@@ -116,6 +125,24 @@ public partial class MapCanvas : Control
             AcceptEvent();
         }
     }
+
+    // The pad: either stick pans, the triggers zoom about the centre, where a cross marks what A would mark.
+    public void PadSteer(float dt)
+    {
+        var v = Input.GetVector("move_left", "move_right", "move_up", "move_down") + Core.Pad.RightStick();
+        if (v != Vector2.Zero) Pan -= v.LimitLength(1f) * 520f * dt;
+        float z = Core.Pad.Trigger(JoyAxis.TriggerRight) - Core.Pad.Trigger(JoyAxis.TriggerLeft);
+        if (z != 0f)
+        {
+            float newZoom = Mathf.Clamp(Zoom * Mathf.Pow(2.5f, z * dt), 0.6f, 8f);
+            var c = Size / 2f;
+            Pan = c - (c - Pan) * (newZoom / Zoom);
+            Zoom = newZoom;
+        }
+        ClampPan();
+    }
+
+    public Vector2 CentreWorld() => (Size / 2f - Pan) / (S * Zoom);
 
     private void ClampPan()
     {
@@ -305,6 +332,14 @@ public partial class MapCanvas : Control
         {
             var p = M(Player.Spouse.GlobalPosition);
             DrawCircle(p, 3f, new Color(0.9f, 0.5f, 0.6f));
+        }
+        if (Core.Pad.Active)
+        {
+            var c = Size / 2f;
+            var cross = new Color(0.25f, 0.12f, 0.04f, 0.8f);
+            DrawLine(c + new Vector2(-10, 0), c + new Vector2(-3, 0), cross, 1.5f); DrawLine(c + new Vector2(3, 0), c + new Vector2(10, 0), cross, 1.5f);
+            DrawLine(c + new Vector2(0, -10), c + new Vector2(0, -3), cross, 1.5f); DrawLine(c + new Vector2(0, 3), c + new Vector2(0, 10), cross, 1.5f);
+            DrawString(font, new Vector2(8, Size.Y - 8), "sticks: pan   LT / RT: zoom   A: mark the centre   X: clear the mark   Y: set out   B: close", HorizontalAlignment.Left, -1, 11, ink);
         }
     }
 }

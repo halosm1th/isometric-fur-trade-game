@@ -12,6 +12,7 @@ public partial class EndScreen : Control
     private static EndScreen _instance;
     private VBoxContainer _body;
     private Label _title, _subtitle;
+    public static Control PadRoot => IsOpen ? _instance : null;
     public static bool IsOpen => _instance != null && GodotObject.IsInstanceValid(_instance) && _instance.Visible;
 
     public static void Open(Godot.Collections.Dictionary d)

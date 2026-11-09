@@ -24,6 +24,10 @@ public partial class InventorySlot : Panel
     private static readonly StyleBoxFlat HotbarStyle = Make(new Color(0.12f, 0.1f, 0.06f, 0.75f), new Color(0.6f, 0.5f, 0.3f));
     private static readonly StyleBoxFlat SelectedStyle = Make(new Color(0.16f, 0.13f, 0.08f, 0.85f), new Color(0.95f, 0.8f, 0.45f));
     private static readonly StyleBoxFlat DropStyle = Make(new Color(0.18f, 0.2f, 0.1f, 0.9f), new Color(0.7f, 0.95f, 0.5f));
+    private static readonly StyleBoxFlat FocusStyle = Thick(Make(new Color(0.24f, 0.19f, 0.09f, 0.95f), new Color(1f, 1f, 0.85f)));
+    private static StyleBoxFlat Thick(StyleBoxFlat s) { s.SetBorderWidthAll(4); return s; }
+    // The pad's way of dragging: Y lifts a stack (this is the square it came from), Y again sets it down.
+    public static int Carrying = -1;
     private static readonly System.Collections.Generic.Dictionary<ItemId, Texture2D> IconCache = new();
 
     private static StyleBoxFlat Make(Color bg, Color border)
@@ -90,7 +94,7 @@ public partial class InventorySlot : Panel
         }
         if (!_dropHover)
         {
-            var style = Selected ? SelectedStyle : Hotbar ? HotbarStyle : Plain;
+            var style = HasFocus() ? FocusStyle : Carrying == Index && FocusMode == FocusModeEnum.All ? DropStyle : Selected ? SelectedStyle : Hotbar ? HotbarStyle : Plain;
             if (style != _styleShown) { AddThemeStyleboxOverride("panel", style); _styleShown = style; }
         }
     }
@@ -117,6 +121,29 @@ public partial class InventorySlot : Panel
 
     public override void _GuiInput(InputEvent @event)
     {
+        if (@event is InputEventJoypadButton { Pressed: true } jb && Sim.Player is PlayerController pp)
+        {
+            var held = pp.Inventory.Slot(Index);
+            switch (jb.ButtonIndex)
+            {
+                case JoyButton.A:
+                    if (Carrying >= 0) { MoveHere(Carrying); Carrying = -1; }
+                    else LeftClicked?.Invoke(Index);
+                    break;
+                case JoyButton.X:
+                    if (held == null) return;
+                    if (pp.Inventory.Wearable(held.Value.id)) Net.Net.I?.Act("wear", new Godot.Collections.Array { Index });
+                    else pp.UseSlot(Index);
+                    break;
+                case JoyButton.Y:
+                    if (Carrying < 0) { if (held != null) Carrying = Index; }
+                    else { MoveHere(Carrying); Carrying = -1; }
+                    break;
+                default: return;
+            }
+            AcceptEvent();
+            return;
+        }
         if (@event is not InputEventMouseButton { Pressed: true } mb) return;
         var p = Sim.Player as PlayerController;
         if (mb.ButtonIndex == MouseButton.Left) { LeftClicked?.Invoke(Index); AcceptEvent(); }
@@ -159,7 +186,11 @@ public partial class InventorySlot : Panel
     public override void _DropData(Vector2 atPosition, Variant data)
     {
         _dropHover = false;
-        int from = (int)data.AsGodotDictionary()["inv_slot"];
+        MoveHere((int)data.AsGodotDictionary()["inv_slot"]);
+    }
+
+    private void MoveHere(int from)
+    {
         if (from == Index) return;
         var p = Sim.Player as PlayerController;
         // Apply locally at once so the square follows the cursor; the server's

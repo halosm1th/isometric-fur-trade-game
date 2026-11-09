@@ -842,18 +842,16 @@ public partial class PlayerController : Agent
 		}
 		if (Ghost) return;
 
-		if (@event is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left })
+		if (@event is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } && !Core.Pad.Synthetic)
 		{
-			// Left click (design doc 3.3): strike with a readied weapon, use the
-			// item in hand on the ground, or just interact.
-			var target = AgentUnderCursor();
-			int slot = UI.Hotbar.SelectedSlot;
-			var held = Inventory.Slot(slot);
-			bool weapon = held != null && Items.Items.Of(held.Value.id).Kind == ItemKind.Weapon;
-			if (target != null && (weapon || held == null || target is Animal && Items.Items.Of(held.Value.id).Kind != ItemKind.Food)) { NetHub.I?.Act("attack", new Godot.Collections.Array { target.NetId }); return; }
-			if (target != null && target is Npc) { NetHub.I?.Act("interact"); return; }
-			var mouse = GetGlobalMousePosition();
-			NetHub.I?.Act("click", new Godot.Collections.Array { slot, mouse.X, mouse.Y });
+			ClickAtLocal(GetGlobalMousePosition());
+			return;
+		}
+		// The pad's trigger: the same, where the right stick last put the
+		// pointer, or else just ahead of you.
+		if (@event.IsActionPressed("use_ahead"))
+		{
+			ClickAtLocal(UI.PadDriver.Aiming ? GetGlobalMousePosition() : GlobalPosition + _aimDir * 90f + new Vector2(0, 20));
 			return;
 		}
 		if (@event.IsActionPressed("attack_nearest")) { NetHub.I?.Act("attack_nearest"); return; }
@@ -867,6 +865,22 @@ public partial class PlayerController : Agent
 		if (@event.IsActionPressed("mount")) { NetHub.I?.Act("mount"); return; }
 		if (@event.IsActionPressed("wait")) { NetHub.I?.Act("wait"); return; }
 	}
+
+	// Left click (design doc 3.3): strike with a readied weapon, use the
+	// item in hand on the ground, or just interact.
+	private void ClickAtLocal(Vector2 at)
+	{
+		var target = AgentNear(at);
+		int slot = UI.Hotbar.SelectedSlot;
+		var held = Inventory.Slot(slot);
+		bool weapon = held != null && Items.Items.Of(held.Value.id).Kind == ItemKind.Weapon;
+		if (target != null && (weapon || held == null || target is Animal && Items.Items.Of(held.Value.id).Kind != ItemKind.Food)) { NetHub.I?.Act("attack", new Godot.Collections.Array { target.NetId }); return; }
+		if (target != null && target is Npc) { NetHub.I?.Act("interact"); return; }
+		NetHub.I?.Act("click", new Godot.Collections.Array { slot, at.X, at.Y });
+	}
+
+	// Which way you last walked: what the pad means by "ahead".
+	private Vector2 _aimDir = new Vector2(0, 1);
 
 	// Hotbar: the owner asks the server to use slot i.
 	public void UseSlot(int i) => NetHub.I?.Act("use", new Godot.Collections.Array { i });
@@ -886,9 +900,10 @@ public partial class PlayerController : Agent
 		UI.Cursors.Show(over is Agents.Npc n && n.IsBandPerson ? UI.Cursors.Look.Trade : UI.Cursors.Look.Talk);
 	}
 
-	private Agent AgentUnderCursor()
+	private Agent AgentUnderCursor() => AgentNear(GetGlobalMousePosition());
+
+	private Agent AgentNear(Vector2 mouse)
 	{
-		var mouse = GetGlobalMousePosition();
 		Agent best = null; float bestD = 70f;
 		foreach (var a in Sim.AgentsWithin(mouse, 120f))
 		{
@@ -1044,7 +1059,7 @@ public partial class PlayerController : Agent
 		bool headless = DisplayServer.GetName() == "headless";
 		// Dev (`--quiet` headless): nobody is there to end a conversation, so walk away from it.
 		if (headless && _quietInHeadless && _dialogue != null && _dialogue.IsOpen && (_leaveTimer += dt) > 3f) { _leaveTimer = 0f; NetHub.I?.DialogueRequest(_dialogue.CurrentNpc, _dialogue.OptionCount - 1); }
-		bool busy = Input.IsAnythingPressed() || IsDead || Ghost
+		bool busy = Input.IsAnythingPressed() || Core.Pad.AnyAxisHeld() || IsDead || Ghost
 			|| (_dialogue != null && _dialogue.IsOpen) || (UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping)
 			|| UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen || UI.TravelMode.Active;
 		if (_quietInHeadless && busy != _lastBusy) { _lastBusy = busy; QuietDays.Dev(busy ? "hands on the controls" : "hands off"); }
@@ -1079,7 +1094,11 @@ public partial class PlayerController : Agent
 		bool typing = UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping;
 		IsSneaking = !typing && !Mounted && Input.IsActionPressed("sneak") && !Input.IsActionPressed("sprint");
 		IsSprinting = !typing && Input.IsActionPressed("sprint");
-		Vector2 input = typing ? Vector2.Zero : Input.GetVector("move_left", "move_right", "move_up", "move_down");
+		// With the pad in a menu, the left stick is moving through the menu, not you.
+		bool padInMenu = UI.PadDriver.MenuUp;
+		if (padInMenu) { IsSneaking = false; IsSprinting = false; }
+		Vector2 input = typing || padInMenu ? Vector2.Zero : Input.GetVector("move_left", "move_right", "move_up", "move_down");
+		if (input.LengthSquared() > 0.04f) _aimDir = input.Normalized();
 		if (input != Vector2.Zero && WantsSkipHours > 0f) NetHub.I?.Act("cancel_wait");
 		if (_travel != null)
 		{

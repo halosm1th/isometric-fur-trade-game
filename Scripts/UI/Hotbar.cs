@@ -6,7 +6,7 @@ using IsometricFurTradeGame.Scripts.Player;
 namespace IsometricFurTradeGame.Scripts.UI;
 
 // Nine slots along the bottom showing what the player carries, in the order
-// it was picked up. Scroll wheel moves the selection, Enter uses it, and
+// it was picked up. Scroll wheel (the pad's d-pad left / right) moves the selection, Enter (Y) uses it, and
 // the number keys use a slot directly.
 public partial class Hotbar : Control
 {
@@ -80,6 +80,10 @@ public partial class Hotbar : Control
             return;
         }
 
+        // A menu the pad is working in keeps its buttons to itself.
+        if (Pad.IsPad(@event) && PadDriver.MenuUp) return;
+        if (@event.IsActionPressed("hotbar_prev")) { Select(_selected - 1); return; }
+        if (@event.IsActionPressed("hotbar_next")) { Select(_selected + 1); return; }
         if (@event.IsActionPressed("hotbar_use"))
         {
             Use(_selected);
