@@ -225,18 +225,28 @@ public partial class Animal : Agent
 
     // A beast already inside a palisade (spawned there, shoved in, a herd
     // that crossed where a post now stands) is not kept in by KeptOut, which
-    // only stops one stepping in: the beast goes for the gate, and one that
-    // hasn't found it in half a minute is put outside it.
+    // only stops one stepping in: it walks to the gate from inside, then out.
+    // One still caught on the buildings after half a minute stops bumping
+    // into them (it shoulders past) - but it walks every step; nothing is
+    // ever lifted out (no teleports, the user's rule).
     private float _insideCheck, _insideFor;
+    private bool _shouldering;
     private bool LetOut(float dt)
     {
         if ((_insideCheck -= dt) > 0f) return _insideFor > 0f;
         _insideCheck = 1f;
-        if (!StructurePainter.InsidePalisade(GlobalPosition, out var gate)) { _insideFor = 0f; return false; }
+        if (!StructurePainter.InsidePalisade(GlobalPosition, out var outside))
+        {
+            if (_shouldering && !IsDead) { _shouldering = false; CollisionMask = 5; }
+            _insideFor = 0f; return false;
+        }
         _insideFor += 1f;
-        var outside = gate;
-        if (_insideFor > 30f) { GlobalPosition = outside; _insideFor = 0f; _mode = Mode.Graze; _target = outside + new Vector2((float)GD.RandRange(-300, 300), 200f); return false; }
-        if (_mode == Mode.Graze) _target = outside;
+        var c = IsoGrid.FromWorld(outside);
+        var downLeft = IsoGrid.ToWorld(IsoGrid.DownLeft(c)) - IsoGrid.ToWorld(c);
+        var inner = outside - downLeft * 4f;   // just inside the gate
+        if (_insideFor > 30f && !_shouldering) { _shouldering = true; CollisionMask = 0; }
+        _mode = Mode.Graze; _modeTimer = 2f;
+        _target = GlobalPosition.DistanceTo(inner) > 40f && GlobalPosition.DistanceTo(outside) > GlobalPosition.DistanceTo(inner) * 0.5f ? inner : outside + downLeft * 3f;
         return true;
     }
 

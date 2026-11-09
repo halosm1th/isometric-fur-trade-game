@@ -728,10 +728,23 @@ public partial class Npc : Agent
 
         // Time is skipping (sleeping, waiting) or running so fast that
         // physics would tunnel: resolve the walk lazily.
+        // He still walks it - along the path, as far as his legs go in the
+        // game time this frame covers - without the physics. (It used to put
+        // him at the end of the path at once: a man at your side on the
+        // Saskatchewan was in his bunk at York by morning. No teleports.)
         if (skipping || motion > GameCalendar.LazyMotion)
         {
-            GlobalPosition = IsoGrid.ToWorld(_path[^1]);
-            _path.Clear(); Arrived = true; Velocity = Vector2.Zero;
+            float budget = EffectiveSpeed * motion * dt;
+            var pos = GlobalPosition;
+            while (budget > 0f && _pathIndex < _path.Count)
+            {
+                var wp = IsoGrid.ToWorld(_path[_pathIndex]);
+                float d = pos.DistanceTo(wp);
+                if (d <= budget) { pos = wp; budget -= d; _pathIndex++; continue; }
+                pos += (wp - pos) / d * budget; budget = 0f;
+            }
+            GlobalPosition = pos; Velocity = Vector2.Zero;
+            if (_pathIndex >= _path.Count) { _path.Clear(); Arrived = true; }
             return;
         }
 

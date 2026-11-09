@@ -110,6 +110,13 @@ public class EatGoal : Goal
                 if (npc.Inventory.FirstOfKind(ItemKind.Food) != null) { _phase = 2; return GoalStatus.Running; }
                 var store = npc.HomeStores;
                 if (store == null || store.Stores.FirstOfKind(ItemKind.Food) == null) return GoalStatus.Failed;
+                // Out with someone, far from his post: he says so rather than
+                // walk home across the country for his rations.
+                if (npc.Following != null && npc.GlobalPosition.DistanceTo(IsoGrid.ToWorld(store.AccessCell)) > 4000f)
+                {
+                    if (GD.Randf() < 0.3f) npc.Bark($"{Agents.Barks.CallName(npc.Following)}, I've nothing left to eat.");
+                    return GoalStatus.Failed;
+                }
                 _phase = 1;
                 return Delegate(new GoToGoal(store.AccessCell, 90f));
             case 1:
@@ -448,7 +455,11 @@ public class FollowGoal : Goal
         }
         if (_inCanoe) { _inCanoe = false; npc.GlobalPosition = Leader.GlobalPosition; }   // out on the bank where you stepped out
         if (_aboard) { _aboard = false; npc.Visible = true; }
-        _hoursLeft -= hours;
+        // His day with you runs out only about his own post: up the country
+        // he stays at your side (he used to set off for his bunk at York at
+        // nightfall, hundreds of miles off).
+        bool nearHome = npc.HomeStores == null || npc.GlobalPosition.DistanceTo(IsoGrid.ToWorld(npc.HomeStores.AccessCell)) < 4000f;
+        if (nearHome) _hoursLeft -= hours;
         if (_hoursLeft <= 0f) { npc.StopMoving(); return GoalStatus.Done; }
         float dist = npc.GlobalPosition.DistanceTo(Leader.GlobalPosition);
         if (dist > 3000f) { npc.StopMoving(); Sim.NoticeAt(npc, $"{npc.DisplayName} has lost sight of {Leader.Describe()} and turns back."); return GoalStatus.Done; }

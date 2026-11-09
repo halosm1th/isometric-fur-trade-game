@@ -81,6 +81,8 @@ public partial class Conversation
         // A season, not a day: he stays at your side until you send him off.
         friend.Brain.Push(friend, new Agents.Goals.FollowGoal(_player, 24f * 120f));
         friend.ChangeRapport(_player, 3f);
+        // Rations for the road, from the post's stores.
+        if (leader.HomeStores is { } stores) { int got = stores.Stores.TakeUpTo(Items.ItemId.Pemmican, 4); if (got > 0) friend.Inventory.Add(Items.ItemId.Pemmican, got); }
         _player.Standing -= 1f;
         Chronicle.Event($"{leader.DisplayName} let {friend.DisplayName} go with {_player.DisplayName} in {boats}.", leader.GlobalPosition, _player, weight: 0.6f);
         return $"{leader.DisplayName} looks at you a long moment. \"Take him, then. One less mouth at the table.\" {friend.DisplayName} grins and goes for his bag. He will stay at your side, into the boats and up the country.";
