@@ -83,12 +83,20 @@ public class FetchWaterGoal : Goal
 }
 
 // Fishing (design doc 14.4): a line at the water's edge for a few hours,
-// a handful of fish for the pot. Open water only.
+// a handful of fish for the pot. Open water, or a hole in the ice.
+// Played by the same rules as the player's line (World/Angling): fish come
+// to the hook now and then, and each one is landed or lost on the bar game
+// played in the dice at his Woodcraft. A net set alongside takes more.
 public class FishGoal : Goal
 {
     private int _phase;
     private readonly bool _throughIce;
-    public FishGoal(bool throughIce = false) { _throughIce = throughIce; }
+    private float _left, _nextBite, _fight, _cueFor;
+    private int _size, _landed;
+    private Npc.FishState _cue;
+    private readonly Vector2I? _at;
+    public static bool Trace;   // --fishwatch: every bite and how it went
+    public FishGoal(bool throughIce = false, Vector2I? at = null) { _throughIce = throughIce; _at = at; }
     public override string Label => _throughIce ? "fishing through the ice" : "fishing";
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
@@ -103,32 +111,101 @@ public class FishGoal : Goal
         switch (_phase)
         {
             case 0:
-                var cell = npc.NearestWaterCell(9000f);
+                var cell = _at ?? npc.NearestWaterCell(9000f);
                 if (cell == null) return GoalStatus.Failed;
                 _phase = 1;
-                return Delegate(new GoToGoal(cell.Value, 30f));
+                // Open water is fished from the bank beside it; ice is walked out on.
+                var stand = _throughIce ? cell.Value : Shore(cell.Value, npc.GlobalPosition) ?? cell.Value;
+                if (Trace) GD.Print($"[fish] {npc.DisplayName}: off to {stand} (water {cell.Value}), {IsoGrid.ToWorld(stand).DistanceTo(npc.GlobalPosition):0} px");
+                return Delegate(new GoToGoal(stand, 30f));
             case 1:
                 if (!ChildFinished(out var r)) return GoalStatus.Running;
-                if (r != GoalStatus.Done) return GoalStatus.Failed;
+                if (r != GoalStatus.Done) { if (Trace) GD.Print($"[fish] {npc.DisplayName}: couldn't walk to the water ({r})"); return GoalStatus.Failed; }
+                if (Sim.Terrain != null && !Sim.Terrain.IsWaterNear(npc.GlobalPosition, 160f)) { if (Trace) GD.Print($"[fish] {npc.DisplayName}: stopped at {IsoGrid.FromWorld(npc.GlobalPosition)}, no water near"); return GoalStatus.Failed; }   // never got to the water
                 _phase = 2;
-                return Delegate(new WaitGoal(_throughIce ? 4f : 2.5f));
+                _left = _throughIce ? 4f : 2.5f;
+                _nextBite = NextBite(Gear(ItemId.IceChisel));
+                _cue = Npc.FishState.Waiting;
+                return GoalStatus.Running;
             case 2:
-                if (!ChildFinished(out _)) return GoalStatus.Running;
-                int caught = _throughIce ? GD.RandRange(1, 3) : GD.RandRange(0, 4);
-                // A net set under the ice takes far more than a line; a chisel
-                // keeps the hole from closing over (design doc 14.4).
-                if (Gear(ItemId.FishingNet)) caught = caught * 2 + 1;
-                if (_throughIce && Gear(ItemId.IceChisel)) caught += GD.RandRange(0, 2);
-                caught = Sim.Ecology?.Catch(npc.GlobalPosition, caught) ?? caught;   // out of the nearest fishery, as far as it holds
-                npc.Inventory.Add(ItemId.Fish, caught);
+            {
+                // Hours pass in one lump for a man far off: play them all out.
+                float h = hours;
+                while (h > 0f && _left > 0f)
+                {
+                    float step = Mathf.Min(h, _fight > 0f ? _fight : _cueFor > 0f ? _cueFor : _nextBite);
+                    step = Mathf.Max(step, 0.0001f);
+                    h -= step; _left -= step;
+                    if (_fight > 0f)
+                    {
+                        _fight -= step;
+                        if (_fight > 0f) continue;
+                        bool landed = Angling.NpcLands(_size, npc.Skills.Woodcraft);
+                        int got = landed ? Angling.Take(npc.GlobalPosition, _size) : 0;
+                        if (got > 0) { npc.Inventory.Add(ItemId.Fish, got); _landed += got; Angling.Learned(npc.Skills, _size, false); }
+                        _cue = got > 0 ? Npc.FishState.Landed : Npc.FishState.Lost;
+                        if (Trace) GD.Print($"[fish] {npc.DisplayName} (woodcraft {npc.Skills.Woodcraft:0.00}): {Angling.Name(_size)} - {(got > 0 ? $"landed, {got} fish" : landed ? "landed, thrown back" : "lost")}");
+                        _cueFor = 0.15f;
+                    }
+                    else if (_cueFor > 0f)
+                    {
+                        _cueFor -= step;
+                        if (_cueFor <= 0f) { _cue = Npc.FishState.Waiting; _nextBite = NextBite(Gear(ItemId.IceChisel)); }
+                    }
+                    else
+                    {
+                        _nextBite -= step;
+                        if (_nextBite > 0f) continue;
+                        _size = Angling.RollSize();
+                        _fight = 0.3f;     // a few breaths on the line
+                        _cue = Npc.FishState.Fighting;
+                        if (Trace) GD.Print($"[fish] {npc.DisplayName}: a bite");
+                    }
+                }
+                npc.SetFishCue(_cue);
+                if (_left > 0f) return GoalStatus.Running;
+                // A net set under the ice or off the shore takes far more than a line.
+                if (Gear(ItemId.FishingNet))
+                {
+                    int want = (_throughIce ? GD.RandRange(2, 5) : GD.RandRange(1, 4));
+                    int net = Sim.Ecology?.Catch(npc.GlobalPosition, want) ?? want;
+                    npc.Inventory.Add(ItemId.Fish, net);
+                }
+                npc.SetFishCue(Npc.FishState.None);
                 _phase = 3;
                 return Delegate(new GoToGoal(stores.AccessCell, 100f));
+            }
             default:
                 if (!ChildFinished(out _)) return GoalStatus.Running;
                 stores.Stores.Add(ItemId.Fish, npc.Inventory.TakeUpTo(ItemId.Fish, 99));
                 return GoalStatus.Done;
         }
     }
+
+    // Dry ground on the edge of the water, the nearest such to `from`.
+    private static Vector2I? Shore(Vector2I water, Vector2 from)
+    {
+        var t = Sim.Terrain;
+        if (t == null) return null;
+        Vector2I? best = null; float bd = float.MaxValue;
+        for (int dx = -3; dx <= 3; dx++)
+            for (int dy = -6; dy <= 6; dy++)
+            {
+                var c = new Vector2I(water.X + dx, water.Y + dy);
+                if (t.IsWaterOrIce(c)) continue;
+                bool edge = false;
+                foreach (var nb in IsoGrid.EdgeNeighbours(c)) if (t.IsWater(nb)) { edge = true; break; }
+                if (!edge) continue;
+                float d = IsoGrid.ToWorld(c).DistanceSquaredTo(from);
+                if (d < bd) { bd = d; best = c; }
+            }
+        return best;
+    }
+
+    // Hours until the next fish takes the hook: slower through the ice, a
+    // little quicker where a chisel keeps the hole open.
+    private float NextBite(bool chisel) =>
+        _throughIce ? (float)GD.RandRange(0.6, 1.4) * (chisel ? 0.75f : 1f) : (float)GD.RandRange(0.25, 0.6);
 }
 
 // Water on the flames. Tier 0: your house is burning.

@@ -55,7 +55,7 @@ public partial class Fishing : Node2D
     // The fight on the bar (all 0..1 along it).
     private float _needle, _needleDir = 1f, _needleSpeed, _zoneC, _zoneW, _zoneDrift, _zoneVel;
     private int _pulls, _need, _misses;
-    private const int MaxMisses = 3;
+    private const int MaxMisses = Angling.MaxMisses;
     private float _sinceGood, _flash; private bool _flashGood;
 
     private CanvasLayer _layer;
@@ -156,8 +156,7 @@ public partial class Fishing : Node2D
         {
             var at = _p.GlobalPosition + Vector2.FromAngle(rng.RandfRange(0f, Mathf.Tau)) * rng.RandfRange(90f, CastRange + 40f);
             if (!Water(at)) continue;
-            float r = rng.Randf();
-            var f = new Fish { Pos = at, Target = at, Phase = rng.Randf() * 10f, Size = r < 0.55f ? 1 : r < 0.88f ? 2 : 3 };
+            var f = new Fish { Pos = at, Target = at, Phase = rng.Randf() * 10f, Size = Angling.RollSize() };
             f.Speed = 22f - 3f * f.Size;
             _fish.Add(f); n--;
         }
@@ -332,12 +331,12 @@ public partial class Fishing : Node2D
     {
         int s = _biter.Size;
         float hand = _p.Skills.Woodcraft;
-        _need = 2 + s;
+        _need = Angling.PullsNeeded(s);
         _pulls = 0; _misses = 0; _sinceGood = 0f;
         _needle = 0f; _needleDir = 1f;
-        _needleSpeed = 0.85f + 0.3f * s;                       // bars per second
-        _zoneW = Mathf.Clamp(0.24f - 0.035f * s + 0.12f * hand, 0.1f, 0.34f);
-        _zoneDrift = 0.08f + 0.07f * s;
+        _needleSpeed = Angling.NeedleSpeed(s);
+        _zoneW = Angling.ZoneWidth(s, hand);
+        _zoneDrift = Angling.ZoneDrift(s);
         _zoneC = (float)GD.RandRange(0.3, 0.7); _zoneVel = 1f;
         _ripples.Add((_bobber, 0f)); _ripples.Add((_bobber, 0.25f));
         Say("It takes the hook! Strike when the needle is on the green.", 2.5f);
@@ -381,7 +380,7 @@ public partial class Fishing : Node2D
                 if (_misses >= MaxMisses) { LoseFish("The line goes slack - it has thrown the hook."); return; }
             }
         }
-        if (_sinceGood > 6f) LoseFish("You gave it too long: it shakes the hook loose.");
+        if (_sinceGood > Angling.GiveUpSecs) LoseFish("You gave it too long: it shakes the hook loose.");
     }
 
     private void Land()
@@ -521,7 +520,7 @@ public partial class Fishing : Node2D
                 _hud.DrawCircle(c, 6f, i < _misses ? new Color(0.95f, 0.3f, 0.25f) : new Color(0.3f, 0.3f, 0.3f, 0.8f));
             }
             // How long the fish will stand for no good pull.
-            float left = Mathf.Clamp(1f - _sinceGood / 6f, 0f, 1f);
+            float left = Mathf.Clamp(1f - _sinceGood / Angling.GiveUpSecs, 0f, 1f);
             _hud.DrawRect(new Rect2(bar.Position.X, bar.End.Y + 6f, w * left, 3f), new Color(0.95f, 0.8f, 0.3f, 0.8f));
         }
 

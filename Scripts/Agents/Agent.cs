@@ -283,10 +283,25 @@ public partial class Agent : CharacterBody2D
         return Mounted ? Sim.Terrain.RideFactorAt(GlobalPosition, out slippery) * RidePace : Sim.Terrain.SpeedFactorAt(GlobalPosition, Inventory.IsWorn(ItemId.Snowshoes), out slippery);
     }
     // What goes over the wire: the animation, and the horse if there is one.
-    public string NetAnim => Mounted ? $"{CurrentAnimation}|h{MountCoat}" : CurrentAnimation;
+    // (and, for a man at the water with a line, how his fishing goes: "|f<cue>").
+    public string NetAnim => (Mounted ? $"{CurrentAnimation}|h{MountCoat}" : CurrentAnimation) + (FishCue > 0 ? $"|f{FishCue}" : "");
     public static string StripMount(string anim) { int bar = anim.IndexOf("|h"); return bar >= 0 ? anim.Substring(0, bar) : anim; }
+
+    // A line in the water (World/Angling, FishGoal): 1 waiting, 2 a fish on,
+    // 3 landed it, 4 lost it. Set by the host as it happens; it lapses on its
+    // own when nothing renews it (the goal was dropped). Clients get it in
+    // the snapshot (FishCueMirror); UI/FishingLines draws it.
+    public enum FishState { None, Waiting, Fighting, Landed, Lost }
+    private FishState _fishCue; private ulong _fishCueAt;
+    public void SetFishCue(FishState f) { _fishCue = f; _fishCueAt = Time.GetTicksMsec(); }
+    public int FishCue => Net.Net.IsServer ? (Time.GetTicksMsec() - _fishCueAt < 2500 ? (int)_fishCue : 0) : FishCueMirror;
+    public int FishCueMirror;
+
     public void ApplyNetSnapshot(Vector2 pos, string anim, bool flip)
     {
+        int fbar = anim.IndexOf("|f");
+        FishCueMirror = fbar >= 0 && int.TryParse(anim.Substring(fbar + 2), out int fc) ? fc : 0;
+        if (fbar >= 0) anim = anim.Substring(0, fbar);
         int bar = anim.IndexOf("|h");
         int coat = bar >= 0 && int.TryParse(anim.Substring(bar + 2), out int c) ? c : -1;
         if (coat != MountCoat) SetMounted(coat);
