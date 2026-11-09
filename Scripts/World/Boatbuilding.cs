@@ -600,7 +600,18 @@ public static class Boatbuilding
                 GameCalendar.Instance.CancelSkip(); p.WantsSkipHours = 0f;
             }
             UI.HandWork.Dismiss();
-            if (c.Building) { Say($"stopped on the bed at stage {c.Stage}"); NetHub.I?.PushDialogue(p, p.Conversation.Step(UI.Conversation.CanoeId, -1)); return; }
+            if (c.Building)
+            {
+                Say($"stopped on the bed at stage {c.Stage}");
+                NetHub.I?.PushDialogue(p, p.Conversation.Step(UI.Conversation.CanoeId, -1));
+                // `--boattestsave`: save the world now (the quicksave), boats and all.
+                if (System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--boattestsave") >= 0)
+                {
+                    foreach (var b in Sim.Spawner.Canoes) Say($"before save: {b.Index}:{b.Kind}/{b.Stage}/{b.Owner}/{b.Leaks.Count} leaks/stock {b.Stock.SlotCount}");
+                    SaveGame.Save(); Say("saved: " + SaveGame.LastMessage);
+                }
+                return;
+            }
             Say($"launched={c.Launched} quality {c.Quality:0.00} ({Boats.Grade(c.Quality)}), capacity {c.CapacityLbs:0}, speed {c.SpeedFactor:0.00}, leak rate {c.LeakRate:0.0000}, owner {c.Owner}");
             // On the rocks.
             c.Wear(HullPart.Skin, 0.4f); c.Wear(HullPart.Ribs, 0.3f); c.Hole(0.2f, 0.4f); c.Hole(0.7f, 0.3f); c.Wear(HullPart.Seams, 0.4f);

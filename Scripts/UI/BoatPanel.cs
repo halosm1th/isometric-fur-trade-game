@@ -30,10 +30,10 @@ public partial class BoatPanel : Control
         // Dev: `--boatcount=S` prints the boats this machine knows of after S seconds (a client's view).
         foreach (string arg in OS.GetCmdlineUserArgs())
             if (arg.StartsWith("--boatcount=") && double.TryParse(arg.Substring(12), out double when))
-                GetTree().CreateTimer(when).Timeout += () =>
+                GetTree().CreateTimer(when, true, false, true).Timeout += () =>
                 {
                     var bits = new List<string>();
-                    if (Sim.Spawner != null) foreach (var c in Sim.Spawner.Canoes) bits.Add($"{c.Index}:{c.Kind}/{c.Stage}{(c.Owner != "" ? "/" + c.Owner : "")}{(c.Leaks.Count > 0 ? $"/{c.Leaks.Count}leaks" : "")}");
+                    if (Sim.Spawner != null) foreach (var c in Sim.Spawner.Canoes) bits.Add($"{c.Index}:{c.Kind}/{c.Stage}{(c.Owner != "" ? "/" + c.Owner : "")}{(c.Leaks.Count > 0 ? $"/{c.Leaks.Count}leaks" : "")}{(c.Stock.SlotCount > 0 ? $"/stock {c.Stock.SlotCount}" : "")}");
                     GD.Print($"[boats] this machine knows {bits.Count} boats: {string.Join(", ", bits)}");
                 };
         // Dev: `--boats` opens this page a few seconds in; `--boats=S` after S seconds.
