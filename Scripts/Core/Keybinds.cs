@@ -15,7 +15,7 @@ public static class Keybinds
     public static readonly (string action, string what)[] Actions =
     {
         ("move_up", "Walk up"), ("move_down", "Walk down"), ("move_left", "Walk left"), ("move_right", "Walk right"),
-        ("sprint", "Run"), ("sneak", "Crouch / sneak (and deliberate arson with flint)"), ("interact", "Talk / use what's in front of you"),
+        ("sprint", "Run"), ("sneak", "Crouch / sneak (and deliberate arson with flint)"), ("interact", "Talk / use what's in front of you"), ("interact_next", "Next person or thing in reach to talk to / use"),
         ("attack_nearest", "Strike the nearest hostile"), ("ready_gun", "Bring the musket up to aim / sling it"), ("drink", "Drink"), ("mount", "Mount / get down off your horse (E on your horse does it too)"), ("wait", "Wait an hour / sleep at night"),
         ("hotbar_use", "Use the selected hotbar slot"), ("hotbar_prev", "Previous hotbar slot (or the mouse wheel)"), ("hotbar_next", "Next hotbar slot (or the mouse wheel)"),
         ("use_ahead", "Use what's in hand on the ground ahead (the mouse does it with a left click)"),
@@ -39,8 +39,9 @@ public static class Keybinds
     {
         if (_installed) return;
         _installed = true;
-        foreach (var name in new[] { "hotbar_prev", "hotbar_next", "use_ahead", "pause_menu", "ready_gun" })
+        foreach (var name in new[] { "hotbar_prev", "hotbar_next", "use_ahead", "pause_menu", "ready_gun", "interact_next" })
             if (!InputMap.HasAction(name)) InputMap.AddAction(name, 0.4f);
+        if (InputMap.ActionGetEvents("interact_next").Count == 0) InputMap.ActionAddEvent("interact_next", new InputEventKey { PhysicalKeycode = Key.G });
         if (InputMap.ActionGetEvents("pause_menu").Count == 0)
         {
             InputMap.ActionAddEvent("pause_menu", new InputEventKey { PhysicalKeycode = Key.Escape });

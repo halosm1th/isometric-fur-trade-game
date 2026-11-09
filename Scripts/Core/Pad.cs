@@ -25,7 +25,9 @@ public static class Pad
         ("sprint", Axis(JoyAxis.TriggerLeft, 1)),
         ("use_ahead", Axis(JoyAxis.TriggerRight, 1)),
         ("time_fast", (int)JoyButton.DpadLeft),
-        ("mount", (int)JoyButton.DpadRight),
+        // Who or what A talks to, when several are in reach (the canoe behind
+        // two friends). The horse is mounted with A beside him.
+        ("interact_next", (int)JoyButton.DpadRight),
         ("drink", (int)JoyButton.LeftStick),
         // Click the right stick to bring the musket up (aim mode); the clock
         // stops from the Menu button's pause instead.

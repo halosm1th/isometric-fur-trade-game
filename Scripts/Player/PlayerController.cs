@@ -873,7 +873,14 @@ public partial class PlayerController : Agent
 		{
 			if (_travel != null) { StopTravel("You stop."); return; }
 			if (NearRoadHead(out bool atYork) && NearestNpc(110f) == null) { StartTravel(atYork); return; }
-			NetHub.I?.Act("interact"); return;
+			NetHub.I?.Act("interact", new Godot.Collections.Array { _pick }); _pick = 0; return;
+		}
+		if (@event.IsActionPressed("interact_next"))
+		{
+			int people = PeopleInReach(false).Count;
+			_pick = people == 0 ? 0 : (_pick + 1) % (people + 1);
+			_pickAt = GlobalPosition;
+			return;
 		}
 		if (@event.IsActionPressed("drink")) { NetHub.I?.Act("drink"); return; }
 		if (@event.IsActionPressed("mount")) { NetHub.I?.Act("mount"); return; }
@@ -1346,7 +1353,7 @@ public partial class PlayerController : Agent
 		if (IsDead) return action == "respawn" ? Respawn() : "";
 		switch (action)
 		{
-			case "interact": return Interact();
+			case "interact": { _serverPick = args != null && args.Count > 0 ? (int)args[0] : 0; var said = Interact(); _serverPick = 0; return said; }
 			case "mount": return RideAction();
 			case "use": return UseSlotServer((int)args[0]);
 			case "travel": TravellingServer = (bool)args[0]; return "";
@@ -1700,7 +1707,7 @@ public partial class PlayerController : Agent
 	private string Interact()
 	{
 		if (Carrying != null) return SetDownCanoe();
-		var npc = NearestNpc(110f);
+		var npc = PickedNpc(true);
 		if (npc != null && !npc.IsDead)
 		{
 			var state = Conversation.Start(npc);
@@ -1877,8 +1884,12 @@ public partial class PlayerController : Agent
 		if (_travel != null) return "On the river road - E or any step stops";
 		if (IsCarryingCanoe) return $"{Core.Keybinds.KeyFor("interact")}  Set the canoe down";
 		if (NearRoadHead(out bool atYork) && NearestNpc(110f) == null) return atYork ? $"{Core.Keybinds.KeyFor("interact")}  Take the river road inland to Oxford House (a day's march)" : $"{Core.Keybinds.KeyFor("interact")}  Take the river road down to York Factory";
-		var npc = NearestNpc(110f);
-		if (npc != null) return $"{Core.Keybinds.KeyFor("interact")}  Talk to {npc.DisplayName}";
+		if (_pick != 0 && _pickAt.DistanceTo(GlobalPosition) > 60f) _pick = 0;   // walked off: back to the nearest
+		var npc = PickedNpc(false);
+		int reach = PeopleInReach(false).Count;
+		string more = reach > 0 && (reach > 1 || OtherThanPeople()) ? $"   ({Core.Keybinds.KeyFor("interact_next")}: next)" : "";
+		if (npc != null) return $"{Core.Keybinds.KeyFor("interact")}  Talk to {npc.DisplayName}{more}";
+		if (reach > 0) { _hintPeopleSkipped = true; var rest = InteractHint(); _hintPeopleSkipped = false; return rest == "" ? "" : rest + more; }
 		if (NearOwnHorse) return $"{Core.Keybinds.KeyFor("interact")}  Get up on {HorseName}";
 		var body = NearestCorpse(110f);
 		if (body != null) return body is Animal ? $"{Core.Keybinds.KeyFor("interact")}  Butcher the {body.Describe().ToLower()}" : $"{Core.Keybinds.KeyFor("interact")}  Search {body.Describe()}";
@@ -1991,6 +2002,30 @@ public partial class PlayerController : Agent
 		foreach (var _ in Sim.Players()) n++;
 		return n;
 	}
+
+	// Who A talks to: the nearest, or the one the cycle button has moved to;
+	// past the last person comes whatever else is in reach (the canoe).
+	private int _pick, _serverPick;
+	private Vector2 _pickAt;
+	private bool _hintPeopleSkipped;
+	private List<Npc> PeopleInReach(bool server)
+	{
+		var list = new List<Npc>();
+		if (_hintPeopleSkipped && !server) return list;
+		foreach (var a in Sim.AgentsWithin(GlobalPosition, 110f))
+			if (a is Npc n && !n.IsDead && GlobalPosition.DistanceTo(n.GlobalPosition) < 110f) list.Add(n);
+		list.Sort((a, b) => GlobalPosition.DistanceSquaredTo(a.GlobalPosition).CompareTo(GlobalPosition.DistanceSquaredTo(b.GlobalPosition)));
+		return list;
+	}
+	private Npc PickedNpc(bool server)
+	{
+		var list = PeopleInReach(server);
+		int i = server ? _serverPick : _pick;
+		return i < list.Count ? list[i] : null;
+	}
+	private bool OtherThanPeople() => NearOwnHorse || NearestCorpse(110f) != null || NearestPickup() != null
+		|| (Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f)) != null || Sim.Structures?.NearestBed(GlobalPosition, 90f) != null
+		|| Sim.Structures != null && Sim.Structures.HasDoorNear(Position) || Sim.Structures?.HearthNear(GlobalPosition) != null;
 
 	private Npc NearestNpc(float reach)
 	{
