@@ -15,6 +15,7 @@ public partial class PauseMenu : Control
     private VBoxContainer _main;
     private SettingsPanel _settings;
     private Label _status;
+    public Control PadRoot => _panel;
 
     public override void _EnterTree() => Instance = this;
     public override void _ExitTree() { if (Instance == this) Instance = null; }
@@ -41,6 +42,7 @@ public partial class PauseMenu : Control
         Button("Resume", Close);
         Button("What you mean to do...", () => { _main.Visible = false; BuildAmbitions(); _ambitions.Visible = true; });
         if (NetHub.IsServer) Button("Save (F5)", () => { SaveGame.Save(); _status.Text = SaveGame.LastMessage; });
+        Button("How to play", () => { Close(); HelpPanel.Instance?.Open(); });
         Button("Settings", () => { _main.Visible = false; _settings.Visible = true; _settings.Refresh(); });
         _main.AddChild(new HSeparator());
         Button("Main menu", ToMainMenu);
@@ -135,7 +137,10 @@ public partial class PauseMenu : Control
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (!@event.IsActionPressed("ui_cancel")) return;
+        // Esc and the pad's Menu open it; B (ui_cancel on the pad) only backs out, since in play B is crouch.
+        bool menuKey = @event.IsActionPressed("pause_menu");
+        if (!menuKey && !@event.IsActionPressed("ui_cancel")) return;
+        if (!_panel.Visible && !menuKey) return;
         if (_panel.Visible) { if (_settings.Visible) { _settings.Visible = false; _main.Visible = true; } else if (_ambitions != null && _ambitions.Visible) { _ambitions.Visible = false; _main.Visible = true; } else Close(); GetViewport().SetInputAsHandled(); return; }
         if (AnotherMenuOpen) return;   // Esc closes that first
         Open();

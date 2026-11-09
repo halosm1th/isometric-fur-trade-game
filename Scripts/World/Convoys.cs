@@ -1062,6 +1062,7 @@ public static class Convoys
 	private static readonly Dictionary<PlayerController, string> _waiting = new();
 	public static void WaitFor(PlayerController p, ConvoyRun run, ConvoyLeg leg) => _waiting[p] = $"{run.Name}|{leg.From}";
 	public static bool IsWaiting(PlayerController p) => _waiting.ContainsKey(p);
+	public static Vector2? WaitingLanding(PlayerController p) => p != null && _waiting.TryGetValue(p, out var k) && k.Split('|') is { Length: 2 } parts ? Landing(parts[1]) : null;
 
 	private static void BoardWaiting(Convoy c)
 	{

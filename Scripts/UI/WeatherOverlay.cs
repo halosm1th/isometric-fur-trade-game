@@ -158,22 +158,22 @@ public partial class WeatherOverlay : Node
             if (s._white > 0.004f)
             {
                 DrawRect(r, new Color(0.93f, 0.95f, 0.99f, 0.42f * s._white));
-                Tile(s._blizzard.At(t), r, new Vector2(-900f, 260f) * t, 2.4f, new Color(1, 1, 1, 0.9f * s._white));
-                Tile(s._blizzard.At(t + 0.17f), r, new Vector2(-1500f, 420f) * t, 3.6f, new Color(1, 1, 1, 0.7f * s._white));
+                Drift(s._blizzard, t, 0f, r, new Vector2(-700f, 200f) * t, 2.4f, new Color(1, 1, 1, 0.7f * s._white));
+                Drift(s._blizzard, t, 2f, r, new Vector2(-1000f, 280f) * t, 3.6f, new Color(1, 1, 1, 0.45f * s._white));
             }
 
             if (s._snow > 0.004f)
             {
                 var sheet = s._white > 0.1f ? s._snowHeavy : s._snowLight;
                 float gust = s._white > 0.1f ? 420f : 70f;
-                Tile(sheet.At(t), r, new Vector2(-gust, 120f) * t, 1.7f, new Color(1, 1, 1, 0.7f * s._snow));
-                Tile(sheet.At(t + 0.21f), r, new Vector2(-gust * 1.7f, 240f) * t, 2.9f, new Color(1, 1, 1, 0.45f * s._snow));
+                Drift(sheet, t, 0f, r, new Vector2(-gust, 120f) * t, 1.7f, new Color(1, 1, 1, 0.7f * s._snow));
+                Drift(sheet, t, 2f, r, new Vector2(-gust * 1.7f, 240f) * t, 2.9f, new Color(1, 1, 1, 0.45f * s._snow));
             }
 
             if (s._rainy > 0.004f)
             {
-                Tile(s._rain.At(t), r, new Vector2(-260f, 1500f) * t, 1.5f, new Color(0.85f, 0.9f, 1f, 0.55f * s._rainy));
-                Tile(s._rain.At(t + 0.14f), r, new Vector2(-430f, 2400f) * t, 2.4f, new Color(0.85f, 0.9f, 1f, 0.4f * s._rainy));
+                Drift(s._rain, t, 0f, r, new Vector2(-260f, 1500f) * t, 1.5f, new Color(0.85f, 0.9f, 1f, 0.55f * s._rainy));
+                Drift(s._rain, t, 2f, r, new Vector2(-430f, 2400f) * t, 2.4f, new Color(0.85f, 0.9f, 1f, 0.4f * s._rainy));
             }
 
             // Fog lies in bands rather than falling: three of them, drifting
@@ -201,6 +201,21 @@ public partial class WeatherOverlay : Node
                 }
             }
 
+        }
+
+        // A falling layer. The motion is the scroll; the frames only vary the
+        // pattern, so they melt into one another over seconds. The four frames
+        // of each sheet are quite different pictures, and cutting between them
+        // eight times a second flashed the whole screen - in a blizzard, with
+        // four layers over a white veil, badly enough to be a seizure risk.
+        private void Drift(Sheet sheet, float t, float offset, Rect2 r, Vector2 scroll, float scale, Color tint)
+        {
+            float phase = t * 0.2f + offset;
+            int a = Mathf.PosMod((int)Mathf.Floor(phase), 4), b = (a + 1) % 4;
+            float mix = phase - Mathf.Floor(phase);
+            mix = mix * mix * (3f - 2f * mix);
+            Tile(sheet.Frames[a], r, scroll, scale, new Color(tint, tint.A * (1f - mix)));
+            Tile(sheet.Frames[b], r, scroll, scale, new Color(tint, tint.A * mix));
         }
 
         // One tiled pass of a frame, scrolled and scaled.

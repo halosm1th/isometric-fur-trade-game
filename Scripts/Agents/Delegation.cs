@@ -75,7 +75,7 @@ public static class Delegation
         if (ship != null && ship.IsDocked)
         {
             bool unload = ship.Cargo.SlotCount > 0;
-            tasks.Add(new PostTask { Name = unload ? "unload the ship" : "load the furs", Make = _ => new CarryCargoGoal(unload), Men = 99, Urgency = 90f, PlayerKind = unload ? Player.TaskKind.CarryCargo : Player.TaskKind.None, PlayerNeed = 8, Intent = "the ship must sail before the ice" });
+            tasks.Add(new PostTask { Name = unload ? "unload the ship" : "load the furs", Make = _ => new CarryCargoGoal(unload), Men = unload ? 3 : 99, Urgency = 90f, PlayerKind = unload ? Player.TaskKind.CarryCargo : Player.TaskKind.None, PlayerNeed = 8, Intent = "the ship must sail before the ice" });
             return tasks;
         }
 
@@ -318,7 +318,7 @@ public static class Delegation
         var fort = leader.HomeStores as FortLedger;
         if (fort == null) return;
         var men = new List<Npc>();
-        foreach (var n in Sim.Npcs) if (n.HomeStores == fort && (n.Role == Role.Labourer || n.Role == Role.Voyageur) && !n.IsDead && n != leader && n.HeldBy == null && n.Tier == Core.Tier.Live) men.Add(n);
+        foreach (var n in Sim.Npcs) if (n.HomeStores == fort && (n.Role == Role.Labourer || n.Role == Role.Voyageur) && !n.IsDead && n != leader && n.HeldBy == null && n.Following == null && n.Tier == Core.Tier.Live) men.Add(n);
         if (men.Count == 0) return;
         int today = Cal.Day;
 
@@ -371,19 +371,23 @@ public static class Delegation
         foreach (var pc in Sim.Players())
         {
             if (pc.IsDead || pc.HomePost != fort) continue;
-            if (pc.GlobalPosition.DistanceTo(leader.GlobalPosition) > Earshot)
-            {
-                pc.Standing -= 1f;
-                pc.Say($"You were not at the post when the morning's orders were given. {leader.DisplayName} noticed.");
-                continue;
-            }
+            // Out of earshot but about the post (asleep in the men's house, at
+            // the wharf): a boy is sent with the order. It used to cost a point
+            // of standing every morning, which the player could not see coming.
+            // A man away up the country is not docked either: he keeps the work
+            // he went out on.
+            float far = pc.GlobalPosition.DistanceTo(leader.GlobalPosition);
+            if (far > PostGrounds) continue;
             if (pc.Task.Kind == Player.TaskKind.Report && !pc.Task.IsComplete) continue;   // report first
+            if (far > Earshot) pc.Say($"A boy comes running with {leader.DisplayName}'s orders for the day.");
             AssignPlayer(leader, fort, pc, tasks, raidersSent > 0);
         }
     }
 
     // How far a man can be from the leader and still hear the morning's orders.
     public const float Earshot = 900f;
+    // How far a man can be and still be "at the post" (a runner reaches him).
+    public const float PostGrounds = 4000f;
 
     private static void Give(Npc leader, FortLedger fort, Npc m, PostTask t, System.Text.StringBuilder summary, List<string> refused)
     {

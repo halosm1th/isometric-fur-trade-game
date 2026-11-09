@@ -112,7 +112,9 @@ public static class Objective
             case TaskKind.Courier:
                 return Sim.Outpost != null ? (IsoGrid.ToWorld(Sim.Outpost.AccessCell), "Oxford House") : null;
             case TaskKind.Brigade:
-                return Convoys.Find(t.Convoy) is { } boats ? (boats.Where, boats.Name) : null;
+                if (Convoys.Find(t.Convoy) is { } boats) return (boats.Where, boats.Name);
+                // Not yet launched: be at the landing when they go.
+                return Convoys.WaitingLanding(p) is { } landing ? (landing, $"the landing - {t.Convoy} leave from here") : null;
             case TaskKind.Geese:
                 foreach (var s in WorldLayout.Sites) if (s.Species == Ecology.Species.Goose) return (IsoGrid.ToWorld(s.Cell), s.Name);
                 return null;

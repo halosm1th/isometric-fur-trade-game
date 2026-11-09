@@ -32,6 +32,7 @@ public partial class DialogueMenu : Control
     private int _npcId = -1;
 
     public bool IsOpen => _panel != null && _panel.Visible;
+    public Control PadRoot => _options;
     public int CurrentNpc => _npcId;
     public int OptionCount => _buttons.Count;
 
@@ -223,7 +224,8 @@ public partial class DialogueMenu : Control
     public override void _UnhandledInput(InputEvent @event)
     {
         if (!IsOpen) return;
-        if (@event.IsActionPressed("ui_cancel") || @event.IsActionPressed("interact")) { Close(); GetViewport().SetInputAsHandled(); return; }
+        // On the pad A is both "interact" and "choose": only B walks away.
+        if (@event.IsActionPressed("ui_cancel") || @event.IsActionPressed("interact") && !Core.Pad.IsPad(@event)) { Close(); GetViewport().SetInputAsHandled(); return; }
         for (int i = 0; i < _buttons.Count && i < 9; i++)
         {
             if (@event.IsActionPressed($"hotbar_{i + 1}")) { Pick(i); GetViewport().SetInputAsHandled(); return; }

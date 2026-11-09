@@ -95,11 +95,13 @@ public partial class SettingsPanel : VBoxContainer
     // ---- key rebinding ------------------------------------------------------
 
     private (string action, int slot, Button button)? _capturing;
+    private const int PadSlot = -1;
+    private static string SlotName(string action, int slot) => slot == PadSlot ? Pad.Name(Keybinds.CurrentPad(action)) : Keybinds.Name(Keybinds.Current(action)[slot]);
     private Label _keyStatus;
 
     private void BuildKeys(VBoxContainer page)
     {
-        Note(page, "Click a key, then press the new one. Esc cancels; right-click clears it. A key taken from another action leaves that one without it.");
+        Note(page, "Click a key, then press the new one. Esc cancels; right-click clears it. A key taken from another action leaves that one without it. The last column is the controller's: choose it, then press a button, a trigger or a stick direction (Menu cancels).");
         foreach (var (action, what) in Keybinds.Actions)
         {
             if (!InputMap.HasAction(action)) continue;
@@ -111,7 +113,7 @@ public partial class SettingsPanel : VBoxContainer
             for (int slot = 0; slot < Keybinds.Slots; slot++)
             {
                 int s = slot;
-                var b = new Button { CustomMinimumSize = new Vector2(110, 0), FocusMode = FocusModeEnum.None };
+                var b = new Button { CustomMinimumSize = new Vector2(110, 0) };
                 b.AddThemeFontSizeOverride("font_size", 13);
                 b.Pressed += () => StartCapture(action, s, b);
                 b.GuiInput += e =>
@@ -127,9 +129,27 @@ public partial class SettingsPanel : VBoxContainer
                 row.AddChild(b);
                 _refreshers.Add(() => { if (_capturing?.button != b) b.Text = Keybinds.Name(Keybinds.Current(action)[s]); });
             }
+            {
+                var pb = new Button { CustomMinimumSize = new Vector2(120, 0) };
+                pb.AddThemeFontSizeOverride("font_size", 13);
+                pb.AddThemeColorOverride("font_color", new Color(0.75f, 0.88f, 1f));
+                pb.Pressed += () => StartCapture(action, PadSlot, pb);
+                pb.GuiInput += e =>
+                {
+                    if (e is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right })
+                    {
+                        _capturing = null;
+                        Keybinds.BindPad(action, Pad.None, out _);
+                        _keyStatus.Text = "";
+                        RefreshAll();
+                    }
+                };
+                row.AddChild(pb);
+                _refreshers.Add(() => { if (_capturing?.button != pb) pb.Text = Pad.Name(Keybinds.CurrentPad(action)); });
+            }
             page.AddChild(row);
         }
-        Note(page, "Kept by the game: Esc (menus), F5 / F9 (save / load), F11 (full screen), Ctrl + wheel (zoom), left click (strike), mouse wheel (hotbar).");
+        Note(page, "Kept by the game: Esc (menus), F5 / F9 (save / load), F11 (full screen), Ctrl + wheel (zoom), left click (strike), mouse wheel (hotbar). On the controller: Menu (this menu), the right stick (the pointer in play, scrolling in menus), A / B (choose / back in menus), LT / RT (turn pages in menus).");
         var reset = new Button { Text = "Restore default keys", SizeFlagsHorizontal = SizeFlags.ShrinkBegin };
         reset.Pressed += () => { _capturing = null; Keybinds.ResetAll(); _keyStatus.Text = "Keys put back as they came."; RefreshAll(); };
         page.AddChild(reset);
@@ -139,9 +159,9 @@ public partial class SettingsPanel : VBoxContainer
 
     private void StartCapture(string action, int slot, Button b)
     {
-        if (_capturing is { } old) old.button.Text = Keybinds.Name(Keybinds.Current(old.action)[old.slot]);
+        if (_capturing is { } old) old.button.Text = SlotName(old.action, old.slot);
         _capturing = (action, slot, b);
-        b.Text = "press a key...";
+        b.Text = slot == PadSlot ? "press a button..." : "press a key...";
         _keyStatus.Text = "";
     }
 
@@ -151,6 +171,22 @@ public partial class SettingsPanel : VBoxContainer
         if (@event is InputEventMouseButton { Pressed: true } && !c.button.GetGlobalRect().HasPoint(c.button.GetGlobalMousePosition()))
         {
             _capturing = null; Refresh(); return;   // clicked elsewhere: never mind
+        }
+        if (c.slot == PadSlot)
+        {
+            // Swallow everything until a button, a trigger or a firm push of a stick.
+            if (@event is InputEventKey { Pressed: true, Keycode: Key.Escape }) { GetViewport().SetInputAsHandled(); _capturing = null; Refresh(); return; }
+            if (!Pad.IsPad(@event) && @event is not InputEventKey) return;
+            GetViewport().SetInputAsHandled();
+            bool firm = @event is InputEventJoypadButton { Pressed: true } || @event is InputEventJoypadMotion jm && Mathf.Abs(jm.AxisValue) > 0.7f;
+            if (!firm) return;
+            int code = Pad.CodeOf(@event);
+            _capturing = null;
+            if (code == (int)Pad.MenuButton) { Refresh(); return; }
+            string took = Keybinds.BindPad(c.action, code, out bool no);
+            _keyStatus.Text = no ? took : took != null ? $"{Pad.Name(code)} was \"{took}\"; that has lost it." : "";
+            RefreshAll();
+            return;
         }
         if (@event is not InputEventKey { Pressed: true, Echo: false } k) return;
         GetViewport().SetInputAsHandled();
@@ -235,7 +271,7 @@ public partial class SettingsPanel : VBoxContainer
         slider.GuiInput += e =>
         {
             if (live || _refreshing) return;
-            if ((e is InputEventMouseButton { Pressed: false } || e is InputEventKey { Pressed: true }) && !Mathf.IsEqualApprox((float)slider.Value, get()))
+            if ((e is InputEventMouseButton { Pressed: false } || e is InputEventKey { Pressed: true } || Pad.IsPad(e)) && !Mathf.IsEqualApprox((float)slider.Value, get()))
                 Callable.From(() => { set((float)slider.Value); RefreshAll(); }).CallDeferred();
         };
         row.AddChild(slider);

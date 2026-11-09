@@ -141,6 +141,10 @@ public partial class GameCalendar : Node
             CurrentSeason = season;
             EmitSignal(SignalName.SeasonChanged, (int)season);
         }
+        // The skies were rolled for the old date (a January start jumped to
+        // the ship's day in August kept its snow). A save reloads its own
+        // skies after this.
+        Weather.Roll(CurrentSeason);
         EmitSignal(SignalName.DayPassed, Year, Month, Day);
     }
 

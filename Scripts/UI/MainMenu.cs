@@ -48,7 +48,7 @@ public partial class MainMenu : Control
 
         Build();
         if (page == "settings") Show(_settings);
-        else if (page == "controls") { Show(_settings); _settings.ShowTab(3); }
+        else if (page == "controls") { Show(_settings); _settings.ShowTab(4); }
         else if (page == "multiplayer") Show(_multi);
         else if (page == "newgame") Show(_newGame);
         else if (page == "character") ShowCharacter("new", _newGame);

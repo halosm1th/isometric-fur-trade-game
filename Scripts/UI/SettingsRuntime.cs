@@ -28,6 +28,7 @@ public partial class SettingsRuntime : Node
     public override void _Ready()
     {
         GetTree().Root.SizeChanged += Settings.ApplyScale;
+        AddChild(new PadDriver { Name = "PadDriver", ProcessMode = ProcessModeEnum.Always });
         var layer = new CanvasLayer { Layer = 100 };
         AddChild(layer);
         // Top centre: the calendar has the top-left corner, the focus panel the top-right.
@@ -88,6 +89,7 @@ public partial class SettingsRuntime : Node
 
     public override void _Input(InputEvent @event)
     {
+        Pad.Saw(@event);
         if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F11 })
         {
             Settings.ToggleFullscreen();

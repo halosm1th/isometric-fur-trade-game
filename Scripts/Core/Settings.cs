@@ -54,6 +54,7 @@ public static class Settings
     public static void Load()
     {
         var cfg = new ConfigFile();
+        Keybinds.Install();
         if (cfg.Load(Path) == Error.Ok)
         {
             // Older files only had the fullscreen flag.

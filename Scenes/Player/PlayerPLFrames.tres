@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=94 format=3]
+[gd_resource type="SpriteFrames" load_steps=98 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/player/idle_front.png" id="t1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player_pl/walk_0.png" id="t2"]
@@ -41,10 +41,10 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/player_pl/walk_side_1.png" id="t39"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player_pl/walk_side_2.png" id="t40"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player_pl/walk_side_3.png" id="t41"]
-[ext_resource type="Texture2D" path="res://assets/sprites/player/run_side_0.png" id="t42"]
-[ext_resource type="Texture2D" path="res://assets/sprites/player/run_side_1.png" id="t43"]
-[ext_resource type="Texture2D" path="res://assets/sprites/player/run_side_2.png" id="t44"]
-[ext_resource type="Texture2D" path="res://assets/sprites/player/run_side_3.png" id="t45"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player_pl/run_side_0.png" id="t42"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player_pl/run_side_1.png" id="t43"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player_pl/run_side_2.png" id="t44"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player_pl/run_side_3.png" id="t45"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player_pl/attack_0.png" id="t46"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player_pl/attack_1.png" id="t47"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player_pl/attack_2.png" id="t48"]
@@ -93,6 +93,10 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/player_pl/talk_1.png" id="t91"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player_pl/talk_2.png" id="t92"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player_pl/talk_3.png" id="t93"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player_pl/run_0.png" id="t94"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player_pl/run_1.png" id="t95"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player_pl/run_2.png" id="t96"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player_pl/run_3.png" id="t97"]
 
 [resource]
 animations = [{
@@ -574,5 +578,25 @@ animations = [{
 {
 "duration": 1.0,
 "texture": ExtResource("t93")
+}]
+}, {
+"name": &"run_flared",
+"speed": 12.0,
+"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("t94")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t95")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t96")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("t97")
 }]
 }]

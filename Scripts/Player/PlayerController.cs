@@ -842,18 +842,16 @@ public partial class PlayerController : Agent
 		}
 		if (Ghost) return;
 
-		if (@event is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left })
+		if (@event is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } && !Core.Pad.Synthetic)
 		{
-			// Left click (design doc 3.3): strike with a readied weapon, use the
-			// item in hand on the ground, or just interact.
-			var target = AgentUnderCursor();
-			int slot = UI.Hotbar.SelectedSlot;
-			var held = Inventory.Slot(slot);
-			bool weapon = held != null && Items.Items.Of(held.Value.id).Kind == ItemKind.Weapon;
-			if (target != null && (weapon || held == null || target is Animal && Items.Items.Of(held.Value.id).Kind != ItemKind.Food)) { NetHub.I?.Act("attack", new Godot.Collections.Array { target.NetId }); return; }
-			if (target != null && target is Npc) { NetHub.I?.Act("interact"); return; }
-			var mouse = GetGlobalMousePosition();
-			NetHub.I?.Act("click", new Godot.Collections.Array { slot, mouse.X, mouse.Y });
+			ClickAtLocal(GetGlobalMousePosition());
+			return;
+		}
+		// The pad's trigger: the same, where the right stick last put the
+		// pointer, or else just ahead of you.
+		if (@event.IsActionPressed("use_ahead"))
+		{
+			ClickAtLocal(UI.PadDriver.Aiming ? GetGlobalMousePosition() : GlobalPosition + _aimDir * 90f + new Vector2(0, 20));
 			return;
 		}
 		if (@event.IsActionPressed("attack_nearest")) { NetHub.I?.Act("attack_nearest"); return; }
@@ -867,6 +865,22 @@ public partial class PlayerController : Agent
 		if (@event.IsActionPressed("mount")) { NetHub.I?.Act("mount"); return; }
 		if (@event.IsActionPressed("wait")) { NetHub.I?.Act("wait"); return; }
 	}
+
+	// Left click (design doc 3.3): strike with a readied weapon, use the
+	// item in hand on the ground, or just interact.
+	private void ClickAtLocal(Vector2 at)
+	{
+		var target = AgentNear(at);
+		int slot = UI.Hotbar.SelectedSlot;
+		var held = Inventory.Slot(slot);
+		bool weapon = held != null && Items.Items.Of(held.Value.id).Kind == ItemKind.Weapon;
+		if (target != null && (weapon || held == null || target is Animal && Items.Items.Of(held.Value.id).Kind != ItemKind.Food)) { NetHub.I?.Act("attack", new Godot.Collections.Array { target.NetId }); return; }
+		if (target != null && target is Npc) { NetHub.I?.Act("interact"); return; }
+		NetHub.I?.Act("click", new Godot.Collections.Array { slot, at.X, at.Y });
+	}
+
+	// Which way you last walked: what the pad means by "ahead".
+	private Vector2 _aimDir = new Vector2(0, 1);
 
 	// Hotbar: the owner asks the server to use slot i.
 	public void UseSlot(int i) => NetHub.I?.Act("use", new Godot.Collections.Array { i });
@@ -886,9 +900,10 @@ public partial class PlayerController : Agent
 		UI.Cursors.Show(over is Agents.Npc n && n.IsBandPerson ? UI.Cursors.Look.Trade : UI.Cursors.Look.Talk);
 	}
 
-	private Agent AgentUnderCursor()
+	private Agent AgentUnderCursor() => AgentNear(GetGlobalMousePosition());
+
+	private Agent AgentNear(Vector2 mouse)
 	{
-		var mouse = GetGlobalMousePosition();
 		Agent best = null; float bestD = 70f;
 		foreach (var a in Sim.AgentsWithin(mouse, 120f))
 		{
@@ -1044,7 +1059,7 @@ public partial class PlayerController : Agent
 		bool headless = DisplayServer.GetName() == "headless";
 		// Dev (`--quiet` headless): nobody is there to end a conversation, so walk away from it.
 		if (headless && _quietInHeadless && _dialogue != null && _dialogue.IsOpen && (_leaveTimer += dt) > 3f) { _leaveTimer = 0f; NetHub.I?.DialogueRequest(_dialogue.CurrentNpc, _dialogue.OptionCount - 1); }
-		bool busy = Input.IsAnythingPressed() || IsDead || Ghost
+		bool busy = Input.IsAnythingPressed() || Core.Pad.AnyAxisHeld() || IsDead || Ghost
 			|| (_dialogue != null && _dialogue.IsOpen) || (UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping)
 			|| UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen || UI.TravelMode.Active;
 		if (_quietInHeadless && busy != _lastBusy) { _lastBusy = busy; QuietDays.Dev(busy ? "hands on the controls" : "hands off"); }
@@ -1079,7 +1094,11 @@ public partial class PlayerController : Agent
 		bool typing = UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping;
 		IsSneaking = !typing && !Mounted && Input.IsActionPressed("sneak") && !Input.IsActionPressed("sprint");
 		IsSprinting = !typing && Input.IsActionPressed("sprint");
-		Vector2 input = typing ? Vector2.Zero : Input.GetVector("move_left", "move_right", "move_up", "move_down");
+		// With the pad in a menu, the left stick is moving through the menu, not you.
+		bool padInMenu = UI.PadDriver.MenuUp;
+		if (padInMenu) { IsSneaking = false; IsSprinting = false; }
+		Vector2 input = typing || padInMenu ? Vector2.Zero : Input.GetVector("move_left", "move_right", "move_up", "move_down");
+		if (input.LengthSquared() > 0.04f) _aimDir = input.Normalized();
 		if (input != Vector2.Zero && WantsSkipHours > 0f) NetHub.I?.Act("cancel_wait");
 		if (_travel != null)
 		{
@@ -1133,14 +1152,15 @@ public partial class PlayerController : Agent
 			bool side = Mathf.Abs(input.X) > Mathf.Abs(input.Y) * 1.2f;
 			target = side ? "walk_side" : input.Y < -0.3f ? "walk_back" : "walk";
 			_facing = target;
-			if (side && IsSprinting) target = "run_side";
+			if (IsSprinting) target = "run" + target.Substring(4);
 		}
 		// In a canoe he paddles; sitting still, the paddle rests.
 		bool paddling = IsAfloat && _sprite.SpriteFrames.HasAnimation("paddle");
 		if (paddling) target = "paddle";
-		if (!_sprite.SpriteFrames.HasAnimation(target)) target = target.StartsWith("idle") ? "idle" : target == "run_side" ? "walk_side" : "walk";
+		if (!_sprite.SpriteFrames.HasAnimation(target)) target = target.StartsWith("idle") ? "idle"
+			: target.StartsWith("run") && _sprite.SpriteFrames.HasAnimation("walk" + target.Substring(3)) ? "walk" + target.Substring(3) : "walk";
 		if (_sprite.Animation != target) _sprite.Play(target);
-		_sprite.SpeedScale = paddling ? (input != Vector2.Zero ? 1f : 0f) : IsSprinting && input != Vector2.Zero && target != "run_side" ? 1.6f : 1f;
+		_sprite.SpeedScale = paddling ? (input != Vector2.Zero ? 1f : 0f) : IsSprinting && input != Vector2.Zero && !target.StartsWith("run") ? 1.6f : 1f;
 		MoveAndSlide();
 	}
 
@@ -1268,14 +1288,30 @@ public partial class PlayerController : Agent
 			}
 			case "attack_nearest":
 			{
-				Agent best = null; float bestD = 400f;
-				foreach (var a in Sim.AgentsWithin(GlobalPosition, 400f))
+				// The pad's way to fire: the gun reaches past the old 400 px, the
+				// Nor'Westers in a raid on the stores count (they were never
+				// "hostile", so the button did nothing in a raid), game is fair
+				// when nothing worse is about, and the mark you face, with a clear
+				// line, comes before a nearer one behind you or behind a wall.
+				var (_, reach, _) = AttackProfile();
+				reach = Mathf.Max(400f, reach + 20f);
+				Agent best = null; float bestScore = float.MaxValue; bool bestThreat = false;
+				foreach (var a in Sim.AgentsWithin(GlobalPosition, reach))
 				{
-					if (a == this || !IsHostileTo(a)) continue;
-					float d = GlobalPosition.DistanceTo(a.GlobalPosition);
-					if (d < bestD) { bestD = d; best = a; }
+					if (a == this || a.IsDead) continue;
+					bool threat = IsHostileTo(a) && a is not Animal { IsDangerous: false }
+						|| a is Npc n && n.HeldBy == null && (n.Raiding || n.LastAttacker == this || (Task.Kind == TaskKind.Raid && !Task.IsComplete && Economy.Rivalry.AreRivals(n.Faction, Faction)));
+					bool game = !threat && a is Animal;
+					if (!threat && !game) continue;
+					if (bestThreat && !threat) continue;
+					var off = a.GlobalPosition - GlobalPosition;
+					float d = off.Length();
+					float facing = _aimDir.LengthSquared() > 0.01f && d > 1f ? _aimDir.Normalized().Dot(off / d) : 0f;
+					float score = d * (1.6f - facing * 0.6f);
+					if (reach > 120f && Sim.Structures?.ShotBlockedAt(GlobalPosition, a.GlobalPosition) != null) score += 2000f;
+					if (threat && !bestThreat || score < bestScore) { bestScore = score; best = a; bestThreat = threat; }
 				}
-				return best != null ? TryAttack(best) : "Nothing hostile within reach.";
+				return best != null ? TryAttack(best) : Weapon == ItemId.Musket ? "Nothing to shoot at within range. (Aim with the right stick and pull the right trigger to fire where you point.)" : "Nothing hostile within reach.";
 			}
 			case "drink":
 			{

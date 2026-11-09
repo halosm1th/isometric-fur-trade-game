@@ -17,6 +17,14 @@ namespace IsometricFurTradeGame.Scripts.UI;
 public partial class TravelMode : Control
 {
     public static bool Active { get; private set; }
+    public static TravelMode Instance { get; private set; }
+
+    // The map's pad button: the same as G.
+    public void SetOutOrStop()
+    {
+        if (Active || _planning) { Stop("You stop."); return; }
+        SetOut();
+    }
     private const float SpeedPx = 900f;              // how fast the token moves on screen
     private const float KmPerGameHour = 1.05f;       // ~25 km a day, rests included
     private const float StopNearPx = 1800f;           // a post or camp this close is "ahead"
@@ -36,6 +44,7 @@ public partial class TravelMode : Control
 
     public override void _Ready()
     {
+        Instance = this;
         SetAnchorsPreset(LayoutPreset.FullRect);
         MouseFilter = MouseFilterEnum.Ignore;
         if (!InputMap.HasAction("set_out"))
