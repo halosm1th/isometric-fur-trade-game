@@ -921,6 +921,20 @@ public partial class PlayerController : Agent
 	}
 
 	private UI.Sights _sights;
+
+	// Friends in the canoe with you each pull a paddle: a fifth faster
+	// apiece, up to three of them. Counted twice a second, not every frame.
+	private int _paddlers; private ulong _paddlersAt;
+	private int PaddlersWithMe()
+	{
+		ulong now = Time.GetTicksMsec();
+		if (now - _paddlersAt < 500) return _paddlers;
+		_paddlersAt = now; _paddlers = 0;
+		foreach (var a in Sim.AgentsWithin(GlobalPosition, 120f))
+			if (a is Npc n && n.Following == this && !n.IsDead) _paddlers++;
+		_paddlers = Mathf.Min(_paddlers, 3);
+		return _paddlers;
+	}
 	private float _autoAimCheck;
 
 	private void FireAtSights()
@@ -1178,7 +1192,7 @@ public partial class PlayerController : Agent
 		}
 		bool slippery = false;
 		float ground = GroundFactor(out slippery);
-		if (IsAfloat) { ground = 1.5f * (Aboard != null && Aboard.Overloaded ? 0.6f : Aboard != null ? Mathf.Lerp(1f, 0.75f, Aboard.LoadLbs / Canoe.CapacityLbs) : 1f); slippery = false; }
+		if (IsAfloat) { ground = 1.5f * (Aboard != null && Aboard.Overloaded ? 0.6f : Aboard != null ? Mathf.Lerp(1f, 0.75f, Aboard.LoadLbs / Canoe.CapacityLbs) : 1f) * (1f + 0.2f * PaddlersWithMe()); slippery = false; }
 		// On the road the march is compressed with the clock (design doc 18.3).
 		float travelBoost = _travel != null ? Mathf.Clamp(NetHub.IsServer ? GameCalendar.Instance.MotionScale : GameCalendar.TravelBoost, 1f, 8f) : 1f;
 		// Your legs keep pace with a faster clock, as everyone else's do: at x2

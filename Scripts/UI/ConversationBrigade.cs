@@ -20,6 +20,9 @@ public partial class Conversation
         if (_player.Task.Kind != TaskKind.Brigade || _player.Task.Convoy != boats || _player.Task.IsComplete)
             _player.AssignTask(TaskKind.Brigade, 1, guide != "" ? $"{guide} is in charge of the boats" : "be at the landing when they go");
         _player.Task.Convoy = boats; _player.Task.Dest = dest;
+        // He is the far post's man from now: York's morning orders are done
+        // with him, and its master is who he reports to on arrival.
+        if (World.Convoys.Ledger(dest) is { } there && there != leader.HomeStores && _player.PostedTo != dest) _player.PostTo(dest);
         foreach (var m in _player.Mail) if (m.Kind == "orders" && m.Subject == $"a hand with {boats}" && !m.Read) return;   // asked twice: one letter
         string from = leader.DisplayName, who = _player.DisplayName;
         var letter = new Message
