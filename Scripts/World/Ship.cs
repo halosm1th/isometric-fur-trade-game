@@ -39,12 +39,25 @@ public partial class Ship : Node2D
 
 	// Take a man's load from what is on the wharf (the hold itself is out of
     // reach). Nothing landed yet: nothing to carry.
-    public int Land(Inventory to, float lbs)
+    public int Land(Inventory to, float lbs, bool forMan = false)
     {
         float before = Cargo.TotalWeightLbs;
-        int moved = Cargo.MoveByWeight(to, Mathf.Min(lbs, _onWharfLbs));
+        float avail = _onWharfLbs;
+        // The Company's men leave a load for a player sent to the same work
+        // and standing by: six of them used to take every piece the boats
+        // landed, and the player's order to carry could not be done.
+        if (forMan && PlayerWaitingForCargo()) avail -= 100f;
+        if (avail <= 0f) return 0;
+        int moved = Cargo.MoveByWeight(to, Mathf.Min(lbs, avail));
         _onWharfLbs = Mathf.Max(0f, _onWharfLbs - (before - Cargo.TotalWeightLbs));
         return moved;
+    }
+    private static bool PlayerWaitingForCargo()
+    {
+        var end = IsoGrid.ToWorld(WorldLayout.WharfEnd);
+        foreach (var p in Sim.Players())
+            if (!p.IsDead && p.Task.Kind == IsometricFurTradeGame.Scripts.Player.TaskKind.CarryCargo && !p.Task.IsComplete && p.GlobalPosition.DistanceTo(end) < 1200f) return true;
+        return false;
     }
     // Lying to off the coast (the prologue aboard her, Core/Starts): she
     // stands in only when told to.

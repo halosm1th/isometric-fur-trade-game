@@ -518,13 +518,21 @@ public partial class Conversation
             {
                 var cal = GameCalendar.Instance;
                 World.Convoys.WaitFor(_player, run, leg);
+                BrigadeOrders(npc, run.Name, leg.To, "");
                 cal?.SkipHours(Mathf.Max(0.5f, days * 24f + 6.5f - (cal?.Hour ?? 6f)));
                 _player.Standing += Mathf.Min(3f, days * 0.15f);
                 _player.Journal.Add($"{cal?.DateString}: You worked out the days at {npc.HomeStores?.Title} waiting for {run.Name}.");
                 Close();
             });
         else if (days == 0)
-            AddOption("Go down to the landing", () => { World.Convoys.WaitFor(_player, run, leg); Close(); });
+            AddOption("Go down to the landing", () => { World.Convoys.WaitFor(_player, run, leg); BrigadeOrders(npc, run.Name, leg.To, ""); Close(); });
+        if (npc.Faction == _player.Faction)
+            AddOption("\"Give me my letter, and I'll be there.\"", () =>
+            {
+                World.Convoys.WaitFor(_player, run, leg);
+                BrigadeOrders(npc, run.Name, leg.To, "");
+                ShowBrigadeAgreed(npc, $"\"Good.\" He writes a few lines for the master at {leg.To}, seals them, and hands you the letter. \"Be at the landing when {run.Name} go.\"", run.Name);
+            });
         AddOption("Back", () => ShowTopics(Greeting(npc)));
     }
 
@@ -1176,7 +1184,13 @@ public partial class Conversation
             {
                 if (shown++ >= 3) break;
                 var cv = boats;
-                AddOption($"\"Send me with {cv.Name} to {cv.ToName}.\"", () => ShowTopics(World.Convoys.Assign(_player, leader, cv)));
+                AddOption($"\"Send me with {cv.Name} to {cv.ToName}.\"", () =>
+                {
+                    string said = World.Convoys.Assign(_player, leader, cv);
+                    if (_player.Task.Kind != TaskKind.Brigade || _player.Task.Convoy != cv.Name) { ShowTopics(said); return; }
+                    BrigadeOrders(leader, cv.Name, cv.ToName, cv.Guide);
+                    ShowBrigadeAgreed(leader, said + $" He writes a few lines for the master at {cv.ToName}, seals them, and hands you the letter.", cv.Name);
+                });
             }
         }
         AddOption("Back", () => ShowTopics(Greeting(leader)));

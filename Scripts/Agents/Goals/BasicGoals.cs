@@ -398,7 +398,8 @@ public class FollowGoal : Goal
     public readonly Agent Leader;
     private float _hoursLeft;
     private float _repath;
-    private bool _aboard;
+    private bool _aboard, _inCanoe;
+    private Vector2 _bow = new(1f, 0f);
     public FollowGoal(Agent leader, float hours = 10f) { Leader = leader; _hoursLeft = hours; }
     public override string Label => $"follow {Leader?.Describe()}";
 
@@ -420,6 +421,23 @@ public class FollowGoal : Goal
             if (!_aboard) { _aboard = true; Sim.NoticeAt(npc, $"{npc.DisplayName} climbs into the boats after {Leader.Describe()}."); }
             return GoalStatus.Running;
         }
+        // Your own canoe: he was at your side when you pushed off, so he is
+        // in her with you, paddling in the bow, and out on the bank with you.
+        // (He used to be left standing on the shore.)
+        if (Leader is Player.PlayerController paddler && paddler.Aboard is { } canoe && GodotObject.IsInstanceValid(canoe))
+        {
+            if (!_inCanoe && npc.GlobalPosition.DistanceTo(Leader.GlobalPosition) > 900f) { npc.StopMoving(); return GoalStatus.Running; }   // too far off: waits on the bank
+            npc.StopMoving();
+            var v = paddler.Velocity;
+            if (v.LengthSquared() > 25f) _bow = v.Normalized();
+            npc.GlobalPosition = canoe.GlobalPosition + _bow * 26f + new Vector2(0f, 2f);
+            npc.Visible = true;
+            npc.HoldPose("paddle");
+            npc.Needs.Thirst = 100f;
+            if (!_inCanoe) { _inCanoe = true; Sim.NoticeAt(npc, $"{npc.DisplayName} climbs into the canoe after {Leader.Describe()}."); }
+            return GoalStatus.Running;
+        }
+        if (_inCanoe) { _inCanoe = false; npc.GlobalPosition = Leader.GlobalPosition; }   // out on the bank where you stepped out
         if (_aboard) { _aboard = false; npc.Visible = true; }
         _hoursLeft -= hours;
         if (_hoursLeft <= 0f) { npc.StopMoving(); return GoalStatus.Done; }

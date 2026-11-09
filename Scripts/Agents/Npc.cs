@@ -330,7 +330,19 @@ public partial class Npc : Agent
         var p = Sim.Player;
         bool near = p != null && IsInstanceValid(p) && p.GlobalPosition.DistanceSquaredTo(GlobalPosition) < NameRange * NameRange;
         if (_label.Visible != near) _label.Visible = near;
+        if (!near) return;
+        // Men standing in a knot wrote their names over one another ("P Hugh
+        // Rendall"): a name whose line is taken this frame drops to the next.
+        ulong frame = Engine.GetPhysicsFrames();
+        if (frame != _labelFrame) { _labelFrame = frame; _labelRows.Clear(); }
+        int col = Mathf.RoundToInt(GlobalPosition.X / 130f), row = Mathf.RoundToInt((GlobalPosition.Y + 4f) / 18f), drop = 0;
+        while (drop < 4 && (_labelRows.Contains((col, row + drop)) || _labelRows.Contains((col - 1, row + drop)) || _labelRows.Contains((col + 1, row + drop)))) drop++;
+        _labelRows.Add((col, row + drop));
+        float top = 4f + drop * 18f;
+        if (!Mathf.IsEqualApprox(_label.OffsetTop, top)) { _label.OffsetTop = top; _label.OffsetBottom = top + 18f; }
     }
+    private static ulong _labelFrame;
+    private static readonly System.Collections.Generic.HashSet<(int, int)> _labelRows = new();
 
     public override void _PhysicsProcess(double delta)
     {
@@ -675,7 +687,14 @@ public partial class Npc : Agent
     public void FaceToward(Vector2 target)
     {
         if (_sprite != null) _sprite.FlipH = target.X < GlobalPosition.X;
+        // Turn the body as well as the flip: front, back or side.
+        var d = target - GlobalPosition;
+        if (d.LengthSquared() < 1f) return;
+        _facing = Mathf.Abs(d.X) > Mathf.Abs(d.Y) * 1.6f ? "walk_side" : d.Y < -0.3f * d.Length() ? "walk_back" : "walk";
+        _lookAway = _facing == "walk_back";
     }
+    private ulong _stillSince;
+    private bool _lookAway;
 
     private void Move(float dt, bool skipping)
     {
@@ -830,13 +849,19 @@ public partial class Npc : Agent
         {
             // Stood still, he does what he is there for - asleep, at the
             // woodpile, scraping a hide - or else stays facing the way he
-            // was going.
+            // was going. Not for long with his back turned: a crowd at the
+            // fire stood all evening as a row of backs and hair. After a few
+            // seconds he turns round, unless something has him looking away.
+            ulong now = Time.GetTicksMsec();
+            if (_stillSince == 0) _stillSince = now;
+            if (_facing == "walk_back" && now - _stillSince > 4000 && !_lookAway) _facing = "walk";
             string work = Posture();
             target = work != null && _anims.Has(work) ? work
                 : _facing == "walk_side" ? "idle_side" : _facing == "walk_back" ? "idle_back" : "idle";
         }
         else
         {
+            _stillSince = 0; _lookAway = false;
             bool side = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f && _anims.Has("walk_side");
             target = side ? "walk_side" : (v.Y < -0.3f * v.Length() ? "walk_back" : "walk");
             _sprite.FlipH = v.X < 0f;

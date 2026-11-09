@@ -1288,14 +1288,30 @@ public partial class PlayerController : Agent
 			}
 			case "attack_nearest":
 			{
-				Agent best = null; float bestD = 400f;
-				foreach (var a in Sim.AgentsWithin(GlobalPosition, 400f))
+				// The pad's way to fire: the gun reaches past the old 400 px, the
+				// Nor'Westers in a raid on the stores count (they were never
+				// "hostile", so the button did nothing in a raid), game is fair
+				// when nothing worse is about, and the mark you face, with a clear
+				// line, comes before a nearer one behind you or behind a wall.
+				var (_, reach, _) = AttackProfile();
+				reach = Mathf.Max(400f, reach + 20f);
+				Agent best = null; float bestScore = float.MaxValue; bool bestThreat = false;
+				foreach (var a in Sim.AgentsWithin(GlobalPosition, reach))
 				{
-					if (a == this || !IsHostileTo(a)) continue;
-					float d = GlobalPosition.DistanceTo(a.GlobalPosition);
-					if (d < bestD) { bestD = d; best = a; }
+					if (a == this || a.IsDead) continue;
+					bool threat = IsHostileTo(a) && a is not Animal { IsDangerous: false }
+						|| a is Npc n && n.HeldBy == null && (n.Raiding || n.LastAttacker == this || (Task.Kind == TaskKind.Raid && !Task.IsComplete && Economy.Rivalry.AreRivals(n.Faction, Faction)));
+					bool game = !threat && a is Animal;
+					if (!threat && !game) continue;
+					if (bestThreat && !threat) continue;
+					var off = a.GlobalPosition - GlobalPosition;
+					float d = off.Length();
+					float facing = _aimDir.LengthSquared() > 0.01f && d > 1f ? _aimDir.Normalized().Dot(off / d) : 0f;
+					float score = d * (1.6f - facing * 0.6f);
+					if (reach > 120f && Sim.Structures?.ShotBlockedAt(GlobalPosition, a.GlobalPosition) != null) score += 2000f;
+					if (threat && !bestThreat || score < bestScore) { bestScore = score; best = a; bestThreat = threat; }
 				}
-				return best != null ? TryAttack(best) : "Nothing hostile within reach.";
+				return best != null ? TryAttack(best) : Weapon == ItemId.Musket ? "Nothing to shoot at within range. (Aim with the right stick and pull the right trigger to fire where you point.)" : "Nothing hostile within reach.";
 			}
 			case "drink":
 			{

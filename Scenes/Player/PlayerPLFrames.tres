@@ -580,7 +580,7 @@ animations = [{
 "texture": ExtResource("t93")
 }]
 }, {
-"name": &"run",
+"name": &"run_flared",
 "speed": 12.0,
 "loop": true,
 "frames": [{
