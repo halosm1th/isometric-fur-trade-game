@@ -75,6 +75,11 @@ public partial class TravelMode : Control
     public override void _UnhandledInput(InputEvent e)
     {
         if (!e.IsActionPressed("set_out") || (ChatBox.Instance?.IsTyping ?? false)) return;
+        // G is also "next person or thing in reach" (Keybinds interact_next):
+        // with a choice to make among the people about you it is that, and
+        // the player's own input takes it; on the map, or with nobody to
+        // choose among, it sets out for the waypoint.
+        if (!Active && !_planning && !MapPanel.IsOpen && _player != null && _player.CanCycleInteract) return;
         GetViewport().SetInputAsHandled();
         if (Active || _planning) { Stop("You stop."); return; }
         SetOut();

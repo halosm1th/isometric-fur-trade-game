@@ -656,6 +656,7 @@ public partial class PlayerController : Agent
 		if (_becameLocal) return;
 		_becameLocal = true;
 		IsPuppet = false;
+		AddChild(new UI.FishingLines { Name = "FishingLines" });   // others' lines in the water near you
 		if (_camera != null) { _camera.Enabled = true; _camera.MakeCurrent(); }
 		if (_label != null) _label.Visible = false;
 		CallDeferred(nameof(FindDialogue));
@@ -693,6 +694,9 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--flags=") && NetHub.IsServer) GetTree().CreateTimer(2.5).Timeout += () => { foreach (var f in arg.Substring(8).Split(',', System.StringSplitOptions.RemoveEmptyEntries)) { Core.Campaign.Flag(f.Trim()); GD.Print($"[dev] flag {f.Trim()}"); } };
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
 			// Dev: `--canoe` gets into the nearest canoe a few seconds in (after any --spawn).
+			// --fishwatch: the two nearest men with a house go fishing now (UI/FishingLines).
+			if (arg == "--fishwatch") GetTree().CreateTimer(5.0).Timeout += () => { int n = 0; foreach (var a in Sim.AgentsWithin(GlobalPosition, 2500f).OrderBy(a => a.GlobalPosition.DistanceTo(GlobalPosition))) if (a is Npc m && m.HomeStores != null && !m.IsDead && n < 2) { Agents.Goals.FishGoal.Trace = true; var spot = IsoGrid.FromWorld(GlobalPosition + (n == 0 ? new Vector2(-300, 60) : new Vector2(330, 60))); m.Brain.Push(m, new Agents.Goals.FishGoal(false, Sim.Terrain.IsWater(spot) ? spot : null)); n++; GD.Print($"[fish] {m.DisplayName} goes fishing"); } };
+			if (arg == "--fishwatch") continue;
 			if (arg.StartsWith("--fish")) GetTree().CreateTimer(6.0).Timeout += () => UI.Fishing.DevStart(this, arg == "--fish=auto");
 			if (arg == "--canoe") GetTree().CreateTimer(4.0).Timeout += () => GD.Print("[dev] canoe: " + ServerAction("canoe", new Godot.Collections.Array()));
 			// Dev: `--taken` has the nearest man of the other company lay you out a few seconds in (with --pick to walk the pages).
@@ -743,6 +747,25 @@ public partial class PlayerController : Agent
 			// Dev: `--quitafter=S` closes the game cleanly after S seconds, so a
 			// test run ends without the runtime being killed mid-print.
 			if (arg.StartsWith("--boattest=") && NetHub.IsServer) Boatbuilding.DevTest(this);
+			// Dev: `--presskey=G@8` feeds the key in through Godot's own input (as
+			// a real press would come) at that second, three times, and prints the E prompt each time.
+			if (arg.StartsWith("--presskey="))
+			{
+				var pk = arg.Substring(11).Split('@');
+				double at = pk.Length > 1 && double.TryParse(pk[1], out double pks) ? pks : 8.0;
+				if (System.Enum.TryParse<Key>(pk[0], true, out var key))
+					for (int k = 0; k < 3; k++)
+					{
+						int kk = k;
+						GetTree().CreateTimer(at + kk * 1.0, true, false, true).Timeout += () =>
+						{
+							GD.Print($"[presskey] before {key} #{kk + 1}: '{InteractHint()}' (people {PeopleInReach(false).Count}, cycle {CanCycleInteract})");
+							Input.ParseInputEvent(new InputEventKey { PhysicalKeycode = key, Keycode = key, Pressed = true });
+							Input.ParseInputEvent(new InputEventKey { PhysicalKeycode = key, Keycode = key, Pressed = false });
+							GetTree().CreateTimer(0.3, true, false, true).Timeout += () => GD.Print($"[presskey] after: '{InteractHint()}'");
+						};
+					}
+			}
 			if (arg.StartsWith("--quitafter=") && double.TryParse(arg.Substring(12), out double qsecs)) GetTree().CreateTimer(qsecs, true, false, true).Timeout += () => { GD.Print("[dev] quitting after " + qsecs + "s"); GetTree().Quit(); };
 			// Dev: `--ambition=RiseAtThePost` declares one at the start, so the
 			// systems that hang off a declared ambition can be watched.
@@ -2012,7 +2035,8 @@ public partial class PlayerController : Agent
 		if (_pick != 0 && _pickAt.DistanceTo(GlobalPosition) > 60f) _pick = 0;   // walked off: back to the nearest
 		var npc = PickedNpc(false);
 		int reach = PeopleInReach(false).Count;
-		string more = reach > 0 && (reach > 1 || OtherThanPeople()) ? $"   ({Core.Keybinds.KeyFor("interact_next")}: next)" : "";
+		int choices = reach + (OtherThanPeople() ? 1 : 0);
+		string more = reach > 0 && choices > 1 ? $"   ({Core.Keybinds.KeyFor("interact_next")}: next - {Mathf.Min(_pick, choices - 1) + 1} of {choices})" : "";
 		if (npc != null) return $"{Core.Keybinds.KeyFor("interact")}  Talk to {npc.DisplayName}{more}";
 		if (reach > 0) { _hintPeopleSkipped = true; var rest = InteractHint(); _hintPeopleSkipped = false; return rest == "" ? "" : rest + more; }
 		if (NearOwnHorse) return $"{Core.Keybinds.KeyFor("interact")}  Get up on {HorseName}";
@@ -2147,6 +2171,12 @@ public partial class PlayerController : Agent
 		var list = PeopleInReach(server);
 		int i = server ? _serverPick : _pick;
 		return i < list.Count ? list[i] : null;
+	}
+	// More than one person or thing in reach for E: the cycle key (G) is
+	// for choosing among them, not for setting out (UI/TravelMode).
+	public bool CanCycleInteract
+	{
+		get { if (IsDead || _travel != null) return false; int reach = PeopleInReach(false).Count; return reach > 1 || reach > 0 && OtherThanPeople(); }
 	}
 	private bool OtherThanPeople() => NearOwnHorse || NearestCorpse(110f) != null || NearestPickup() != null
 		|| (Aboard ?? Sim.Spawner?.NearestBoat(GlobalPosition, 240f)) != null || Sim.Structures?.NearestBed(GlobalPosition, 90f) != null
