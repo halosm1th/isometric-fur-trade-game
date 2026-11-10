@@ -111,7 +111,14 @@ public static class Sim
     // sitting - and reaches the console only.
     public const float SightPx = 2400f;   // a post is some 1500 px across: within sight of it, or of the man
 
-    public static void Log(string text) { if (!string.IsNullOrEmpty(text)) GD.Print($"[world] {text}"); }
+    // An observer (Observer, PlayerController.Ghost) is nobody in the country
+    // and sees all of it: every line goes in their log, wherever it happened.
+    public static void Log(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+        GD.Print($"[world] {text}");
+        foreach (var p in Players()) if (p != null && GodotObject.IsInstanceValid(p) && p.Ghost) Net.Net.I?.LogTo(p, text);
+    }
 
     public static void NoticeAt(Vector2 where, string text) => TellNear(where, text, false);
     public static void NoticeAt(Agent who, string text) { if (who != null && GodotObject.IsInstanceValid(who)) TellNear(who.GlobalPosition, text, false); else Log(text); }
@@ -127,7 +134,10 @@ public static class Sim
         bool seen = false;
         foreach (var p in Players())
         {
-            if (p == null || !GodotObject.IsInstanceValid(p) || p.IsDead || p.GlobalPosition.DistanceTo(where) > SightPx) continue;
+            if (p == null || !GodotObject.IsInstanceValid(p)) continue;
+            // The observer reads it all, but only what is in sight takes the screen.
+            if (p.Ghost && p.GlobalPosition.DistanceTo(where) > SightPx) { Net.Net.I?.LogTo(p, text); continue; }
+            if (p.IsDead || p.GlobalPosition.DistanceTo(where) > SightPx) continue;
             seen = true;
             if (headline) Net.Net.I?.HeadlineTo(p, text); else Net.Net.I?.LogTo(p, text);
         }
