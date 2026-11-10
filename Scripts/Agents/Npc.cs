@@ -877,17 +877,37 @@ public partial class Npc : Agent
         else
         {
             _stillSince = 0; _lookAway = false;
-            bool side = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f && _anims.Has("walk_side");
+            bool side = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f && (_anims.Has("walk_side") || !_anims.Has("walk") && _anims.Has("idle_side"));
             target = side ? "walk_side" : (v.Y < -0.3f * v.Length() ? "walk_back" : "walk");
             _sprite.FlipH = v.X < 0f;
             _facing = target;
             // Running, where his sheet has a run drawn that way.
             if (IsSprinting && _anims.Has("run" + target.Substring(4))) target = "run" + target.Substring(4);
         }
-        if (!_anims.Has(target)) target = "idle";
+        // A sheet with no walk drawn (the plains, woodland, Dene and plateau
+        // women so far): the standing picture that faces the way she goes,
+        // with a step in it, rather than the front view sliding away
+        // backwards.
+        bool glide = false;
+        if (!_anims.Has(target) && target.StartsWith("walk"))
+        {
+            string still = "idle" + target.Substring(4);
+            if (_anims.Has(still)) { target = still; glide = true; }
+        }
+        if (!_anims.Has(target)) { glide = target.StartsWith("walk") || target.StartsWith("run"); target = "idle"; }
+        if (glide)
+        {
+            _stepClock += (float)GetProcessDeltaTime() * (IsSprinting ? 14f : 9f);
+            _sprite.Position = new Vector2(0f, -Mathf.Abs(Mathf.Sin(_stepClock)) * 3f);
+            _sprite.Rotation = Mathf.Sin(_stepClock) * 0.035f;
+            _stepping = true;
+        }
+        else if (_stepping) { _sprite.Position = Vector2.Zero; _sprite.Rotation = 0f; _stepping = false; }
         _anims.Play(target);
         _sprite.SpeedScale = IsSprinting && !target.StartsWith("run") ? 1.6f : 1f;
     }
+    private float _stepClock;
+    private bool _stepping;
 
     private string _facing = "walk";
 

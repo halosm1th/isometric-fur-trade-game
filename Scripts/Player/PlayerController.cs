@@ -747,6 +747,38 @@ public partial class PlayerController : Agent
 			// Dev: `--quitafter=S` closes the game cleanly after S seconds, so a
 			// test run ends without the runtime being killed mid-print.
 			if (arg.StartsWith("--boattest=") && NetHub.IsServer) Boatbuilding.DevTest(this);
+			// Dev: `--standby=Name` (or `--standby=sheet:PlainsWoman`) stands you a
+			// little off the first person by that name (or wearing that sheet)
+			// six seconds in, without a word, to watch them go about.
+			if (arg.StartsWith("--standby=") && NetHub.IsServer)
+			{
+				string want = arg.Substring(10);
+				GetTree().CreateTimer(6.0, true, false, true).Timeout += () =>
+				{
+					Npc best = null;
+					foreach (var n in Sim.Npcs)
+					{
+						if (n.IsDead || n.HeldBy != null || n.Away) continue;
+						bool hit = want.StartsWith("sheet:") ? (n.FramesPath ?? "").Contains(want.Substring(6)) : n.DisplayName.Contains(want);
+						if (hit && (best == null || n.GlobalPosition.DistanceTo(GlobalPosition) < best.GlobalPosition.DistanceTo(GlobalPosition))) best = n;
+					}
+					foreach (var n in best != null ? new[] { best } : System.Array.Empty<Npc>())
+					{
+						// She is brought here and walks away up the screen, then back down past you.
+						n.GlobalPosition = GlobalPosition + new Vector2(-120, 120);
+						n.Tier = Core.Tier.Live; n.ProcessMode = ProcessModeEnum.Inherit; n.Visible = true;
+						n.Brain.Clear(n);
+						var away = IsoGrid.FromWorld(GlobalPosition + new Vector2(-260, -330));
+						var back = IsoGrid.FromWorld(GlobalPosition + new Vector2(260, 200));
+						n.Brain.Push(n, new Agents.Goals.ChoreGoal("walk about", Agents.Goals.ChoreGoal.Walk("walk away", Sim.Paths?.NearestWalkable(away, 4) ?? away, 40f), Agents.Goals.ChoreGoal.Walk("walk back", Sim.Paths?.NearestWalkable(back, 4) ?? back, 40f)));
+						GD.Print($"[dev] standing by {n.DisplayName} ({n.FramesPath}), who is: {n.GoalDescription}");
+						return;
+					}
+					var sheets = new Dictionary<string, int>();
+					foreach (var n in Sim.Npcs) if (!n.IsDead) { string f = System.IO.Path.GetFileName(n.FramesPath ?? "?"); sheets[f] = sheets.GetValueOrDefault(f) + 1; }
+					GD.Print($"[dev] nobody like '{want}'; sheets: {string.Join(", ", sheets)}");
+				};
+			}
 			// Dev: `--presskey=G@8` feeds the key in through Godot's own input (as
 			// a real press would come) at that second, three times, and prints the E prompt each time.
 			if (arg.StartsWith("--presskey="))
