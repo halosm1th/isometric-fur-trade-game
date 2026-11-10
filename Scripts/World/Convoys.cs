@@ -265,7 +265,7 @@ public static class Convoys
 	public static void Reset()
 	{
 		foreach (var c in All) DropMen(c);
-		All.Clear(); Riders.Clear(); _paths.Clear(); _launched.Clear(); _waiting.Clear(); JourneyIncidents.Reset();
+		All.Clear(); Riders.Clear(); _paths.Clear(); _landings.Clear(); _launched.Clear(); _waiting.Clear(); JourneyIncidents.Reset();
 		_lastDay = -1; _nextId = 1; _seeded = false; _loaded = false;
 		_devLaunched = false;
 	}
@@ -293,12 +293,20 @@ public static class Convoys
 	}
 
 	// Where boats come in to a post: its landing, outside the palisade.
+	// The landing is on the water nearest the post's gate: the boats lie in
+	// it and the camp goes on the bank beside it (LandNear). It used to be
+	// the gate itself, and at Oxford House the old river road's head, so the
+	// boats were drawn up on the grass by the palisade.
+	private static readonly Dictionary<string, Vector2> _landings = new();
 	public static Vector2 Landing(string name)
 	{
 		if (name == "York Factory") return IsoGrid.ToWorld(WorldLayout.WharfEnd);
-		if (name == "Oxford House") return IsoGrid.ToWorld(WorldLayout.RoadHeadOutpost);
-		if (Posts.Named(name) is { } p) return IsoGrid.ToWorld(p.GateOutside);
-		return PostPos(name);
+		if (name != null && _landings.TryGetValue(name, out var known)) return known;
+		Vector2I? gate = name == "Oxford House" ? WorldLayout.OutpostGateOutside : Posts.Named(name)?.GateOutside;
+		if (gate == null) return PostPos(name);
+		var at = IsoGrid.ToWorld(WaterNear(gate.Value, 40) ?? gate.Value);
+		_landings[name] = at;
+		return at;
 	}
 
 	// The nearest open-water cell, ring by ring outward; null if none within reach.
@@ -1246,7 +1254,7 @@ public static class Convoys
 	public static void Load(Godot.Collections.Dictionary d)
 	{
 		foreach (var c in All) DropMen(c);
-		All.Clear(); Riders.Clear(); _paths.Clear(); _launched.Clear(); _waiting.Clear(); JourneyIncidents.Reset();
+		All.Clear(); Riders.Clear(); _paths.Clear(); _landings.Clear(); _launched.Clear(); _waiting.Clear(); JourneyIncidents.Reset();
 		_loaded = false; _seeded = true; _devLaunched = true;
 		LoadRuns();
 		if (d == null || d.Count == 0) { _lastDay = -1; return; }
