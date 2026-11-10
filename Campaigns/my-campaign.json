@@ -1,0 +1,21 @@
+{
+  "title": "The Bloody War",
+  "description": "This is all about war!",
+  "seed": 2001,
+  "posts_by_founding_year": true,
+  "beats": [
+    {
+      "id": "TheFirstThing",
+      "title": "The War starts",
+      "kind": "fixed",
+      "date": "1812-06-01",
+      "happens": [
+        {
+          "do": "say",
+          "text": "Something has happened.",
+          "to": "HBC"
+        }
+      ]
+    }
+  ]
+}

@@ -72,7 +72,7 @@ public class WanderGoal : Goal
     {
         _centre = centre; _radius = radius; _hoursLeft = hours;
     }
-    public override string Label => "about";
+    public override string Label => "idling about";
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {
@@ -110,6 +110,13 @@ public class EatGoal : Goal
                 if (npc.Inventory.FirstOfKind(ItemKind.Food) != null) { _phase = 2; return GoalStatus.Running; }
                 var store = npc.HomeStores;
                 if (store == null || store.Stores.FirstOfKind(ItemKind.Food) == null) return GoalStatus.Failed;
+                // Out with someone, far from his post: he says so rather than
+                // walk home across the country for his rations.
+                if (npc.Following != null && npc.GlobalPosition.DistanceTo(IsoGrid.ToWorld(store.AccessCell)) > 4000f)
+                {
+                    if (GD.Randf() < 0.3f) npc.Bark($"{Agents.Barks.CallName(npc.Following)}, I've nothing left to eat.");
+                    return GoalStatus.Failed;
+                }
                 _phase = 1;
                 return Delegate(new GoToGoal(store.AccessCell, 90f));
             case 1:
@@ -414,8 +421,13 @@ public class FollowGoal : Goal
         if (Leader is Player.PlayerController rider && World.Convoys.BoardedBy(rider) is { } boats)
         {
             npc.StopMoving();
-            npc.GlobalPosition = Leader.GlobalPosition + new Vector2(-36f, 10f);
-            npc.Visible = rider.RideId == 0;   // under way the boat's painted crew stands for him
+            // On the thwarts beside you, pulling an oar: you asked for them,
+            // so you can see they came (they were hidden among the painted crew).
+            int seat = 0;
+            foreach (var other in Sim.Npcs) { if (other == npc) break; if (other.Following == Leader && !other.IsDead) seat++; }
+            npc.GlobalPosition = Leader.GlobalPosition + new Vector2(-34f * (seat + 1), 4f + seat);
+            npc.Visible = true;
+            npc.HoldPose("paddle");
             npc.Needs.Thirst = 100f;
             npc.Needs.Hunger = Mathf.Max(npc.Needs.Hunger, 60f);
             if (!_aboard) { _aboard = true; Sim.NoticeAt(npc, $"{npc.DisplayName} climbs into the boats after {Leader.Describe()}."); }
@@ -430,7 +442,11 @@ public class FollowGoal : Goal
             npc.StopMoving();
             var v = paddler.Velocity;
             if (v.LengthSquared() > 25f) _bow = v.Normalized();
-            npc.GlobalPosition = canoe.GlobalPosition + _bow * 26f + new Vector2(0f, 2f);
+            // A thwart each: the first in the bow, the next in the stern.
+            int seat = 0;
+            foreach (var other in Sim.Npcs) { if (other == npc) break; if (other.Following == Leader && !other.IsDead) seat++; }
+            float place = seat switch { 0 => 26f, 1 => -26f, 2 => 44f, _ => -44f };
+            npc.GlobalPosition = canoe.GlobalPosition + _bow * place + new Vector2(0f, 2f + seat);
             npc.Visible = true;
             npc.HoldPose("paddle");
             npc.Needs.Thirst = 100f;
@@ -439,7 +455,11 @@ public class FollowGoal : Goal
         }
         if (_inCanoe) { _inCanoe = false; npc.GlobalPosition = Leader.GlobalPosition; }   // out on the bank where you stepped out
         if (_aboard) { _aboard = false; npc.Visible = true; }
-        _hoursLeft -= hours;
+        // His day with you runs out only about his own post: up the country
+        // he stays at your side (he used to set off for his bunk at York at
+        // nightfall, hundreds of miles off).
+        bool nearHome = npc.HomeStores == null || npc.GlobalPosition.DistanceTo(IsoGrid.ToWorld(npc.HomeStores.AccessCell)) < 4000f;
+        if (nearHome) _hoursLeft -= hours;
         if (_hoursLeft <= 0f) { npc.StopMoving(); return GoalStatus.Done; }
         float dist = npc.GlobalPosition.DistanceTo(Leader.GlobalPosition);
         if (dist > 3000f) { npc.StopMoving(); Sim.NoticeAt(npc, $"{npc.DisplayName} has lost sight of {Leader.Describe()} and turns back."); return GoalStatus.Done; }

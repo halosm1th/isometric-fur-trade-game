@@ -379,6 +379,10 @@ public static class Delegation
             float far = pc.GlobalPosition.DistanceTo(leader.GlobalPosition);
             if (far > PostGrounds) continue;
             if (pc.Task.Kind == Player.TaskKind.Report && !pc.Task.IsComplete) continue;   // report first
+            // Sent up the country (the boats, the inland outfit): that is his
+            // order until it is done. The next morning's chores used to
+            // replace it, and dock him for "leaving it undone".
+            if (pc.Task.Kind is Player.TaskKind.Brigade or Player.TaskKind.Courier && !pc.Task.IsComplete) continue;
             if (far > Earshot) pc.Say($"A boy comes running with {leader.DisplayName}'s orders for the day.");
             AssignPlayer(leader, fort, pc, tasks, raidersSent > 0);
         }

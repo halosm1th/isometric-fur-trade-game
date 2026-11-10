@@ -100,32 +100,6 @@ public partial class Conversation
             AddOption(label, () => { _scene = go(); if (_scene == null) Close(); else ShowScene(); });
         }
     }
-    public Godot.Collections.Dictionary StartCanoe(World.Canoe canoe)
-    {
-        if (_npc != null && GodotObject.IsInstanceValid(_npc)) _npc.Conversing = false;
-        _npc = null; _scene = null; _stores = null; _pile = null; _canoe = canoe; _closed = false;
-        ShowCanoe();
-        return State();
-    }
-
-    private void ShowCanoe()
-    {
-        var c = _canoe;
-        _text = $"A canoe on the bank. She carries {c.LoadLbs:0} of {World.Canoe.CapacityLbs:0} lb{(c.Overloaded ? " and rides dangerously low" : "")}.{(c.Cargo.SlotCount > 0 ? " In her: " + c.Cargo.Summary() : "")}";
-        ClearOptions();
-        if (_player.Aboard == null) AddOption("Push off", () => { Close(); Net.Net.I?.Act("canoe"); });
-        AddOption("Load your goods and furs into her", () => { _text = _player.CanoeLoad(c, true); ShowCanoe(); });
-        if (c.Cargo.SlotCount > 0) AddOption("Take everything out", () => { _text = _player.CanoeLoad(c, false); ShowCanoe(); });
-        if (_player.Aboard == null && _player.Carrying == null)
-            AddOption("Shoulder her and carry her over the portage", () =>
-            {
-                string said = _player.ShoulderCanoe(c);
-                if (_player.Carrying == c) { Close(); _player.Say(said); }
-                else { _text = said; ShowCanoe(); }
-            });
-        AddOption("Leave her", Close);
-    }
-
     // The storeroom chest has two faces: the front (stow, ration) and the
     // kit you may draw. _said is the last thing that happened, shown above.
     private bool _drawing;
@@ -164,6 +138,11 @@ public partial class Conversation
             (ItemId.Snowshoes, 1, true, null),
             (ItemId.Kettle, 1, true, null),
             (ItemId.Tumpline, 1, true, null),
+            (ItemId.CrookedKnife, 1, true, null),
+            (ItemId.Awl, 1, true, null),
+            (ItemId.SpruceGum, 2, false, null),
+            (ItemId.Nails, 2, false, _player.Standing >= 10f ? null : "nails are counted out to the boatbuilders (standing 10)"),
+            (ItemId.Oakum, 1, false, null),
             (ItemId.PointBlanket, 1, false, _player.Standing >= 10f ? null : "blankets are trade stock (standing 10)"),
             (ItemId.TradeGoods, 4, false, clerk ? null : "trade goods are the clerk's to count out"),
         };
@@ -306,7 +285,7 @@ public partial class Conversation
         return new Godot.Collections.Dictionary
         {
             ["closed"] = _closed, ["npc"] = _scene != null ? SceneId : _canoe != null ? CanoeId : _pile != null ? PileId : _stores != null ? StoresId : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.NetId : -1,
-            ["title"] = _scene != null ? _scene.Title : _canoe != null ? "The canoe" : _pile != null ? "The woodpile" : _stores != null ? _stores.Title : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.DisplayName : "", ["text"] = _text, ["options"] = opts,
+            ["title"] = _scene != null ? _scene.Title : _canoe != null ? CanoeTitle : _pile != null ? "The woodpile" : _stores != null ? _stores.Title : _npc != null && GodotObject.IsInstanceValid(_npc) ? _npc.DisplayName : "", ["text"] = _text, ["options"] = opts,
         };
     }
 
@@ -420,6 +399,7 @@ public partial class Conversation
         if (npc.Role == Role.Clerk || npc.Role == Role.Factor || npc.Role == Role.Chief || npc.Role == Role.NwcPartner || npc.Role == Role.Postmaster)
             AddOption("Trade", () => ShowTrade(npc));
         if (Economy.HorseTrade.Options(npc, _player).Count > 0) AddOption("Horses...", () => ShowHorses(npc));
+        if (CanTalkBoats(npc)) AddOption("Canoes and boats...", () => ShowBoatTalk(npc));
         if (npc.IsFemale && _player.Needs.Health < 70f && !_player.IsDead)
             AddOption("Ask her to see to your wounds", () => ShowTopics(Treat(npc)));
         // A town merchant's counter, for coin (UI/ConversationStore).

@@ -1,0 +1,121 @@
+# Notes on Various HBC Articles on Soverignty
+
+## "Fantasies of Sovereignty: Deconstructing British and Canadian Claims to Ownership of the Historic North-West" (_Native American and Indigenous Studies_, 2017)
+- The goal is to unpack the claimt hat "the hbc possessed legimtatew ownership of the Nowrht-West and could sell it to Cnaada in 1870 without the involvement of the Indigenous Peoples who lived there"
+- starts by claiming that before and after 1870 natives exercised "more or less unconstrainead politicla auhtoirty over most of their lands" 
+	- Canadaq and HBC mobalized "a complex array of legal arguemnts to cliam possession of the territories they 'discovered'"
+		- this is supposedly rooted in the "problematic doctrine of discovery"
+- "This article shows that at the heart of Canadian claims to ownership of Indigenous lands in the North-West lies an impractical mythology that, in the words of John Borrows, allowed the Crown to secure legal control of Indigenous lands through “raw assertion."
+	- proves this through five "publnic polticila evnets"
+		- The british cornws inital discovery claim at HudBay
+		- The HBC charter of 1679
+		- The Selkirk Grant of 1811 and Treaty of 18717
+		- CAnada's North-West discovery by New France
+		- the HBc transcfer in 1869
+	- all of which is really rooted in "problematic claims of soverignty made by British and Canadian explores, politicla,s and businessmen, using the lanuage of discovery and soverignty to obscure Indigenous governacne alreadyu in practice."
+		- very prominenit int he moment of transition as the old fur-trade society si moving to settler society and as a result there is a change in relationship w/ Indigenous people, a transition moment or flux point.
+- Article tries to show that Canada's claim to soveringty rests on the hinge propistion "The hinge in this proposition is that if we recognize that Indigenous peoples are not inherently inferior to Europeans, as a growing number of scholars contend,5 then Indigenous political formations ought to be considered political powers in their own right. If we accept such a logic, we must then call into question how Indigenous peoples ceased to gov ern themselves and control their territories and how Canadian sovereignty became ascendant.6 Thus, for Canada to be able to sweep aside pre existing Indigenous political authority, it must rely on a fantasy of sovereignty, predicated on an inherent inferiority of Indigenous political formations that could easily be unhinged from their territories and replaced by foreign systems of power."
+	- challengtes the idea that "Canada['s] exercises\[ion of an] exclusive jurisidciton over the 'Canadian West'  is premised largely ona fantasy that Europeans founda  continent fulll of privitive people who receded from the advance of a politically sophsticated civilization, rathjer th an complex indigenous p[olities with intericate political instiuttions capable of contreolling political events in their territories" "
+- The article uses an expanded idea of indigenous to justify itself, encompassing everything from missoinaries going out to Indigenous society to Metis and free trader uprisings in Red River.
+	- Furthermore, the opening argument ends with this anti-empericist claim "Whatever the on-the-ground reality of life in the historic North-West, British political institutions relied on a foundational moment of discovery to justify their claims to territorial ownership and political authority."
+	- This expoeses the three main flaws of the argument. First it hinges on a false premise that the core of the Canadian claim _today_ hinges on inferiority of Indigenous people. Second, it uses overly broad terminology to attempt to make an overly rhetorical argument. Third, it is explicitly rooted in making an ideological claim, resting on the moral illiegitmacy of the Docotrine of Discogery preivous described as problematic. 
+		- The modern Canada claim hinges on its de facto claim to soverinty from which the de jure claim flows. The legimated root rests less on the doctrine of discovery than on actions taken to actualize those claims, first by the HBC and then by Canada, as Documented Galbrath and any book ont the railway. 
+- The article then moves to prove the docterine of discovery section
+	- Discusses the variosu grups, Assiniboine, Blackfoot,C ree, Dakota, Dene, Lakota, Metis, and SAulteaux among others, who calimed to have owned htge land with shifting governance patters. 
+		- This system was working due to a large supply of buffallow into the mid 19th century, the breakdown fo which lead to increases in conflit,  with settlers. 
+- The british adn later candian claim to posession si rooted in the "'disocvery' of Indigenou s lands by foregn 'explorers.'"
+	- Discovery is false and abd because it claiemd that new land which wasn't really new was found for europeans who had never been there, and thereby allowed them to claim the territory. 
+		- "Even though most European explorers were aware that the lands they discovered were long inhabited, discovery was premised on the myth that Indigenous peoples possessed an inferior relationship to their territory and had a weaker form of political authority that could be overridden by the presence of European political power."
+		- this allowed for a legal logic of european ownershipon whiel recognzing that the lands had people on them. 
+		- "At its core, then, discovery claimed to disrupt Indigenous ownership, al lowing the discovering empire to envision itself, in an obvious legal fiction, as the original occupant of Indigenous lands, and thus in possession of a superior and underlying title."
+	- Talks about how the corwn owned hte land adn colonail govs didnt't have the right to negotiaonte, and that the usage rights remaiend but were now operated at hte pleasure of the crown.
+	- Britain claimed HudBay when two explorers discovered it for the corwn in 1668
+		- By finding hte land under euroepan law the British got all the rivers and lands which fed the rivers.
+		- and he makes the point that by making the land known to Europeans the basis for claiming it was provided 
+	- The charter
+		- Basically, when Charles II granted it, he granted it to the HBC so long as no other christian nation owned it, and in doing so theoreitically gave it soverign power. Thereby establishing crown title in theory to the lands which drained into the bay
+			- This feels like the exposure of the articles weakness. THe HBC's claims were disrupted by Americans and the French. They were at  teh whims of the Imperial parliament too, in essence. Yes, the crown could only cliam what other european kingdoms could not cliam, yes they assumed Indigenous people did not have translat able systems of sovergitny in toto, but the whoel in theory adn fictional thing is both accurate and pointless. 
+	- notes again that knowled != contrl anda  de iure claim isnt; a defacto claim. Indingeous people had de facto ownership, the HBC de iure as far as teh euroepans were concerned.
+		- argues the charter mattered msot for its ability to motivate traders and settlers
+		- as the discovery was abstract and mostly for euroepans it had little imapct on the ppl there.
+		- charter allowed for trade on Native lands which largely occured on native terms charter did not define Indigenous relationship and ppl wanted to define the relationship more specifically
+- The Quitrent and the Selkirk Grant
+	- land claims of Red River can be traced to Earl of Selkirk 1811 land grant
+		- Company could do this because hte charter gave it an ownership claim
+		- howeveer on the ground the reality was that the Copmany's ownership claim was limited to say the least
+	- Selkirk had hte settlesr hide as traders so the natives wouldn't know the settlers were trying to land steal
+	- Selkirk failed to prosecute the case against those who destroyed Red RIver in 1816, which emant he eneded tro get INdigenous support for his colony
+	- Selkirk turned to trying to negotiate for the land from Saulteaux and Cree bands in the area, negotaitng a poresnet or quitrent for hte land
+		- bczt he natives still had use and occupacy rights they had to be negotiated under the treaty 
+		- from native view this did not extinguish the title
+		- the view of whether the title was contested was debated for years to come. where Saulteaux aruged that the land was a rental agreement and not a transfer of ownership
+	- The treaty did not clearly kill native title, it has as quitrent relationship which Slekirk would';ve undersood as a fuelda pracitcve where tenant farmer pays an annual fixed and heritable charge upon the land which recognized that the feudal lord owner the land adn estabsliehd relationship between lord and tenant. It did not trnasfer land to the tenant 
+		- selkrik a lord, knew of quitrent and wrote aobut how the annual gift giving ctreated a relatioship defined in treaty
+	- The gifts, not the claim of ownership, were more effetive and real ways for the British to claim ownership
+	- Cree and Saulteaux chiefs udnerstood the rent as a gift with selkirk as tenant and cheifs as the fuedla lord, so that the selkirk treaty, rather than transfering ownership, actually reaffirmed native onwership over the lands. Quitrent also undermines a claim to own the territory outright
+		- Peguius saw the treaty as a rental agreement, and his son maintained this view
+	- That selkirk also negotiated tells us that hte local indigneous peole did not take the claim of ownership serioulsy, an assertion did not a reality make.
+		- Donalnd Gunn argues that if the company truly believed it owned the land, then why bother with treaty making
+	- Regardless of what selkirk thought, for Indigenous people the treaty was a rental agreemnt
+		- it setup a euroepan agri settlemtnm with a basis for land tenture rooted in quitrent 
+	- "Tellingly, Selkirk’s settlement was made possible by a treaty, which sought consent of the local Indigenous peoples, rather than a document that claimed ownership through discov ery. From the perspective of most Indigenous people in the region, Selkirk’s Treaty left their relationship to the North-West almost entirely unchanged."
+- Claims of Discovery at 1857 selet committee
+	- this period saw two differnet colonial governemtns come into conflict, the settler colonial of Cnaada and hte profit colonial of hte HBC. The former was rooted in the idea that settled agricutlure was as mark of civilization 
+	- 1857 commitee was to check how the HBC was doing as civilizing mission and how well its alnds could be used for colonization
+		- apparently the select committee is resposnible for crfeatigna politlca space for hte fertile belt of hte north-west
+			- conflict between copamny anti settleement whnich siad frozen wasteland and pro settlement which said its great for colonization
+	-  Apparently William Draper "estabsluhed a narraitve of canidan settler soveignty over hte nort hwest in deifance of both indigeonus people and the charter"
+		- argues that just becuase the HBC discovered it, doesnt give it possession, as Canada was the rightful possessor
+		- Canada says discovery doesn't matter, it had a fantasy of posession
+		- rather than problematize the doctrine of discovery, draper actually just contested who qui bono of it. Draper was focused on contesting european soverignty claims not native ones
+		- Draper arguest hat the copmany claim was challenged and pre-empted by French claims, as the French had always cliamed the northern sea 
+		- Draper says int eh 1700s the HBC was willing to negotiate a boundary, a stance which it would later drop.
+		- basicalyl the HBC couldn't claim the fertile belt through discovery because the French had been there first and the French claim went to Canada 
+	- Draper then draws on tow stasutes, *THe Canada Jurisidction Act* and the *Regulation of the FUr TRade act* of 1803/1821 respectively These acts tried to say that capital crimes in HBC lands had to be tried in Montreal but the company refused to listen and asserted its own legal capacities instead 
+	- From Indigenous perpsecitve both claims are bullshit. A few fur trade posts does tnoa  calim make, nor coudl the groups compete with INdigenous polities 
+	- Riel believed in itnergenraitonal ancestral attachment to land, pretty classical catholic philosophy stuff tbh. For riel et al, land coudl only be legimately claimed through multiple gnerationss of attachment, not disvovery 
+		- "Thus ownership of land fell to those who inher ited it by birth—Indigenous peoples of the North-West—rather than those who claimed it through more abstract means."
+	- Drapers real sin was "crafting a powerful fantasy that justified unrestricted Canadian settler-colonial expansion" which legitmated the canadian expasion and gave the ontario people a sense of entitlement
+		- Nor-Westernr supported Drapers vision, used it to justif teh idea htat Canada was the best country for caryring out the interests of the settlers and creatging propserity for them
+		- but it was still unconvincing in London, and was eventually abandonded by Canada, HOwever it remained" a powerufl nat narrative for Canada's incrasing settler-colonial drive." and powered the idea that hte land was already essentially Canada's which drove the trouble at Red River in 1870
+		- thus the claim to discvoery rooted int he French tradition sereved as Canada's cliam just as the HBC used the claim of discovery to underpin their charter
+			- both fo which were in oppositio to the Metis idea rooted in ancestrial ownership or a view rooted in de facto control
+- The legitlative approrpation of the North-West in the 1860s
+	- now the colony had ot use British constitutional channels for their goal
+		- more importantly, Canada was now willing ot pay for it 
+	- negotiaotns beetween Canada, Brtain, and Uk setup laws to allow hte land to be transfered between Briiths lands without invovlement of the natives and hte transfer from HBC to Canada was three pieces
+		- The ruperts alnd act, and hte British NRoth america Act from UK, and CAnada Act for the Temrporary Govenrance of RUperts Land 
+		- these three bills allowed the transfer
+		- The rupets alnd act cleared the way as far as imperial law was concerned, as the corwn considered itslef hte owner fo the title 
+			- "Since it has already been established that this was based on a questionable claim of discovery in 1668, it is difficult to imagine that the Crown could claim ownership of the North-West from the Company whose own control to the territory proved so tenuous. None of these entities (as the Red River Resistance in 1869–70 soon demonstrated) could actualize its governance or ownership of the land if Indigenous peoples rejected it."
+		- When canada bought the land, it thought it was buying out the HBC's possible cliams because Canada still claimed ot own the land through French discovery but hte meetings ahd no natives from the ground there
+	- but after the transfer Canada would have to deal with the new title 
+	- BNa allowed Canada to take over any Britsh north american colonies
+		-  But two types of colonies, those which the local govs had to agree ot join and those which could be joined by act of law without local consultation. Those loclas could be native, or settler
+	- Then the temproraryu govenance act bridgfed the Rupets land law and the BNA to allow Cand to cliam the north-west
+		- the enableling at would've allowed for the vcreation of a new family compat iun the north-west
+	- While Can and the UK wanted ot ignore the Metis on theground, they made that impossible as Canada lakced the miltary power to claim the land 
+		- as the Metis were not consulted htey did not recognize the HBC or Can's legitmacy 
+		- the trnasfer of land and buying did not make canada the legitimatee owner of theland as far as the metis there were concnered, bcz the land was not the HBC's to sell
+		- other non metis leaders also wanted moeny for their land
+		- "Even though the transfer agreement satisfied British and Canadian legal necessities, the transfer’s legislative package did little to transform ac tual political authority in the lands it claimed to annex, or the opinions of the people who lived there. They were, in reality, unilateral acts by a foreign power, which at the time had little substantive effect on still-independent Indigenous peoples."
+		- natives cared about agreements they got ot negotiate in not just hte  pronouncement of far away imperials 
+	- "At the heart of this proposed territorial transfer was the Company’s discovery claim, meaning that Cana da’s claim to ownership, sovereignty, and settler-colonial imperative in the region is also initially premised on the same problematic justifications as the Company’s. Canada’s purchase from the Company, which relies on the assumption of legitimate Company ownership in 1869, suffers from a seri ous problem of credibility. This means that Canada’s claim to have purchased the North-West—over half of Canada’s current land mass—is premised on a legal fiction. Since the Company’s claim was itself founded on the fantasy of discovery, Canada was in effect purchasing a fantastical claim to this already-peopled territory."
+- Conclusion
+	- It was not legla logic which made hte claim legiamt e but hte large number of settlesr who actuzlid it
+	- it was only with growing military in the area that Canada could relize its fantasy claims 
+	- However the author says from a perspective of justice neither settler nor miltiary control establish legitmacy and the doctirne of discovery allowed britain to act like the sole owner of the area even if twaqsn't really. 
+		- "At no point before 1870 had Britain or Canada gained the consent of Indigenous peoples to govern the territory, and the presence of settlers and fur traders had been possible due to local agreements like the Selkirk Treaty (and the numbered treaties after 1870) rather than by abstract claims of European ownership."
+
+
+---
+## "Assembling Sovereignty: Canadian Claims to the Athabasca District Prior to Treaty No. 8" (_Journal of Imperial and Commonwealth History_ 48, no. 4, 2020)
+- 
+
+---
+## Russell Smandych & Rick Linden, "Administering Justice without the State"
+- 
+
+---
+## Long-Distance Justice: The Criminal Jurisdiction of Canadian Courts West of the Canadas, 1763-1859 - Hamar Foster (The American Journal of Legal History , Jan., 1990, Vol. 34, No. 1 (Jan., 1990), pp. 1-48) 
+- 

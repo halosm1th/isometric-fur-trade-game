@@ -14,8 +14,11 @@ namespace IsometricFurTradeGame.Scripts.Agents;
 // trains; you get better by doing the thing, a hair at a time.
 public class Skills
 {
-    public float Hunting = 0.15f, Trapping = 0.15f, Trade = 0.15f, Woodcraft = 0.15f;
-    public static readonly string[] Names = { "Hunting", "Trapping", "Trade", "Woodcraft" };
+    // Crafting (design doc 3.10, 12.6): making things with the hands - the
+    // canoe above all (World/Boats), and the mending of her.
+    public float Hunting = 0.15f, Trapping = 0.15f, Trade = 0.15f, Woodcraft = 0.15f, Crafting = 0.1f;
+    public static readonly string[] Names = { "Hunting", "Trapping", "Trade", "Woodcraft", "Crafting" };
+    public const int Count = 5;
 
     // What has been feeding each skill (design doc 12.7): the player's own
     // practice says why it moved, so the character page can show the trend
@@ -30,12 +33,12 @@ public class Skills
         float before = skill;
         skill = Mathf.Min(1f, skill + amount);
         if (why == null || skill <= before) return;
-        int which = Unsafe.AreSame(ref skill, ref Hunting) ? 0 : Unsafe.AreSame(ref skill, ref Trapping) ? 1 : Unsafe.AreSame(ref skill, ref Trade) ? 2 : 3;
+        int which = Unsafe.AreSame(ref skill, ref Hunting) ? 0 : Unsafe.AreSame(ref skill, ref Trapping) ? 1 : Unsafe.AreSame(ref skill, ref Trade) ? 2 : Unsafe.AreSame(ref skill, ref Crafting) ? 4 : 3;
         History.Add(new Lesson(Today, which, skill - before, why));
         if (History.Count > HistoryCap) History.RemoveRange(0, History.Count - HistoryCap);
     }
 
-    public float this[int i] => i switch { 0 => Hunting, 1 => Trapping, 2 => Trade, _ => Woodcraft };
+    public float this[int i] => i switch { 0 => Hunting, 1 => Trapping, 2 => Trade, 4 => Crafting, _ => Woodcraft };
     public string Describe(float s) => s >= 0.75f ? "master" : s >= 0.5f ? "practised" : s >= 0.3f ? "passable" : "green";
     // The next word up, and how far off it is.
     public static (string Word, float At) NextStep(float s) => s < 0.3f ? ("passable", 0.3f) : s < 0.5f ? ("practised", 0.5f) : s < 0.75f ? ("master", 0.75f) : ("", 1f);

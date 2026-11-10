@@ -48,7 +48,7 @@
     "buildings": [
       { "kind": "Depot", "name": "the trading room", "i": 2, "j": 2 },
       { "kind": "ProvisionStore", "name": "the provision store", "i": 10, "j": 2 },
-      { "kind": "MensHouse", "name": "the men's house", "i": 1, "j": 7 },
+      { "kind": "MensHouse", "name": "the men's house", "i": 1, "j": 8 },
       { "kind": "FactorsHouse", "name": "the master's house", "i": 10, "j": 7 }
     ],
     "props": [ { "kind": "flagstaff", "i": 9, "j": 6 }, { "kind": "woodpile", "i": 14, "j": 2 } ],
@@ -57,8 +57,8 @@
   "Fort Chipewyan": {
     "width": 18, "depth": 14, "gate": 8,
     "buildings": [
-      { "kind": "FactorsHouse", "name": "the partner's house", "i": 2, "j": 2 },
-      { "kind": "ClerksHouse", "name": "the library and counting house", "i": 10, "j": 2 },
+      { "kind": "FactorsHouse", "name": "the partner's house", "i": 2, "j": 1 },
+      { "kind": "ClerksHouse", "name": "the library and counting house", "i": 10, "j": 1 },
       { "kind": "MensHouse", "name": "the men's house", "i": 1, "j": 8 },
       { "kind": "ProvisionStore", "name": "the store", "i": 11, "j": 8 }
     ],
@@ -68,8 +68,8 @@
   "Fort Gibraltar": {
     "width": 18, "depth": 14, "gate": 8,
     "buildings": [
-      { "kind": "FactorsHouse", "name": "the master's house", "i": 2, "j": 2 },
-      { "kind": "Warehouse", "name": "the pemmican store", "i": 9, "j": 2 },
+      { "kind": "FactorsHouse", "name": "the master's house", "i": 2, "j": 1 },
+      { "kind": "Warehouse", "name": "the pemmican store", "i": 9, "j": 1 },
       { "kind": "Depot", "name": "the trading room", "i": 1, "j": 8 },
       { "kind": "MensHouse", "name": "the men's house", "i": 10, "j": 8 }
     ],

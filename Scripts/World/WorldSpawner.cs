@@ -64,18 +64,43 @@ public partial class WorldSpawner : Node2D
         foreach (var v in gone) RemoveItem(v.AsInt32());
     }
 
+    // Every boat in the world, afloat-ready or on her bed (World/Canoe), by
+    // index; a client makes its copy the first time the host mentions one.
     public readonly System.Collections.Generic.List<Canoe> Canoes = new();
-    private void PlaceCanoe(int index, Vector2 pos)
+    private readonly System.Collections.Generic.Dictionary<int, Canoe> _canoeByIndex = new();
+    private int _nextCanoe = 2;
+    public Canoe PlaceCanoe(int index, Vector2 pos, BoatKind kind = BoatKind.Small)
     {
-        var c = new Canoe { Index = index, Position = pos, Name = $"Canoe_{index}" };
+        if (index < 0) index = _nextCanoe;
+        if (_canoeByIndex.TryGetValue(index, out var had)) return had;
+        var c = new Canoe { Index = index, Position = pos, Name = $"Canoe_{index}", Kind = kind };
         AddChild(c);
         Canoes.Add(c);
+        _canoeByIndex[index] = c;
+        _nextCanoe = Mathf.Max(_nextCanoe, index + 1);
+        return c;
+    }
+    public Canoe CanoeAt(int index) => _canoeByIndex.TryGetValue(index, out var c) && IsInstanceValid(c) ? c : null;
+    public void RemoveCanoe(Canoe c)
+    {
+        if (c == null) return;
+        Canoes.Remove(c); _canoeByIndex.Remove(c.Index);
+        if (IsInstanceValid(c)) c.QueueFree();
     }
 
+    // A boat a man could get into: finished, whole, nobody in her.
     public Canoe NearestFreeCanoe(Vector2 pos, float reach)
     {
         Canoe best = null; float bestD = reach;
-        foreach (var c in Canoes) { if (!c.IsFree) continue; float d = c.GlobalPosition.DistanceTo(pos); if (d < bestD) { bestD = d; best = c; } }
+        foreach (var c in Canoes) { if (!c.IsFree || c.Building || c.Wrecked) continue; float d = c.GlobalPosition.DistanceTo(pos); if (d < bestD) { bestD = d; best = c; } }
+        return best;
+    }
+
+    // Any boat at hand, on her bed or drawn up, for the bank menu.
+    public Canoe NearestBoat(Vector2 pos, float reach)
+    {
+        Canoe best = null; float bestD = reach;
+        foreach (var c in Canoes) { if (!c.IsFree || c.Wrecked) continue; float d = c.GlobalPosition.DistanceTo(pos); if (d < bestD) { bestD = d; best = c; } }
         return best;
     }
 

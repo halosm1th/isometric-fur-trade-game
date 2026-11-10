@@ -218,13 +218,41 @@ public partial class Animal : Agent
     {
         if (Velocity == Vector2.Zero) return false;
         var ahead = GlobalPosition + Velocity.Normalized() * 24f + Velocity * dt;
-        if (!StructurePainter.InsidePalisade(ahead, out _) || StructurePainter.InsidePalisade(GlobalPosition, out _)) return false;
+        if (_insideFor > 0f || !StructurePainter.InsidePalisade(ahead, out _) || StructurePainter.InsidePalisade(GlobalPosition, out _)) return false;
         Velocity = Vector2.Zero;
+        return true;
+    }
+
+    // A beast already inside a palisade (spawned there, shoved in, a herd
+    // that crossed where a post now stands) is not kept in by KeptOut, which
+    // only stops one stepping in: it walks to the gate from inside, then out.
+    // One still caught on the buildings after half a minute stops bumping
+    // into them (it shoulders past) - but it walks every step; nothing is
+    // ever lifted out (no teleports, the user's rule).
+    private float _insideCheck, _insideFor;
+    private bool _shouldering;
+    private bool LetOut(float dt)
+    {
+        if ((_insideCheck -= dt) > 0f) return _insideFor > 0f;
+        _insideCheck = 1f;
+        if (!StructurePainter.InsidePalisade(GlobalPosition, out var outside))
+        {
+            if (_shouldering && !IsDead) { _shouldering = false; CollisionMask = 5; }
+            _insideFor = 0f; return false;
+        }
+        _insideFor += 1f;
+        var c = IsoGrid.FromWorld(outside);
+        var downLeft = IsoGrid.ToWorld(IsoGrid.DownLeft(c)) - IsoGrid.ToWorld(c);
+        var inner = outside - downLeft * 4f;   // just inside the gate
+        if (_insideFor > 30f && !_shouldering) { _shouldering = true; CollisionMask = 0; }
+        _mode = Mode.Graze; _modeTimer = 2f;
+        _target = GlobalPosition.DistanceTo(inner) > 40f && GlobalPosition.DistanceTo(outside) > GlobalPosition.DistanceTo(inner) * 0.5f ? inner : outside + downLeft * 3f;
         return true;
     }
 
     private void Act(float dt, float motion)
     {
+        bool penned = LetOut(dt);
         switch (_mode)
         {
             case Mode.Flee:

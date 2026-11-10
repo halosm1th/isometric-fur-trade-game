@@ -74,6 +74,8 @@ public partial class Npc : Agent
     public bool Sleeping;
     // Stopped to talk to the player; movement pauses.
     public bool Conversing;
+    // Sitting in a brigade's boat (World/ConvoyView): over the water but dry, not wading.
+    public bool InBoat;
     // Whom we're walking with, if anyone (FollowGoal).
     public Agent Following;
     // Held by the other company (design doc 9.1): walked home, kept a few
@@ -710,7 +712,9 @@ public partial class Npc : Agent
         {
             IsSprinting = _steerRun;
             Velocity = _steer * EffectiveSpeed * motion * GroundFactor(out _);
-            Solid(true);
+            // A man at your heels never boxes you in (you were pinned on a
+            // bank with a canoe on your shoulders between two friends).
+            Solid(Following == null);
             MoveAndSlide();
             return;
         }
@@ -726,10 +730,23 @@ public partial class Npc : Agent
 
         // Time is skipping (sleeping, waiting) or running so fast that
         // physics would tunnel: resolve the walk lazily.
+        // He still walks it - along the path, as far as his legs go in the
+        // game time this frame covers - without the physics. (It used to put
+        // him at the end of the path at once: a man at your side on the
+        // Saskatchewan was in his bunk at York by morning. No teleports.)
         if (skipping || motion > GameCalendar.LazyMotion)
         {
-            GlobalPosition = IsoGrid.ToWorld(_path[^1]);
-            _path.Clear(); Arrived = true; Velocity = Vector2.Zero;
+            float budget = EffectiveSpeed * motion * dt;
+            var pos = GlobalPosition;
+            while (budget > 0f && _pathIndex < _path.Count)
+            {
+                var wp = IsoGrid.ToWorld(_path[_pathIndex]);
+                float d = pos.DistanceTo(wp);
+                if (d <= budget) { pos = wp; budget -= d; _pathIndex++; continue; }
+                pos += (wp - pos) / d * budget; budget = 0f;
+            }
+            GlobalPosition = pos; Velocity = Vector2.Zero;
+            if (_pathIndex >= _path.Count) { _path.Clear(); Arrived = true; }
             return;
         }
 
@@ -862,17 +879,37 @@ public partial class Npc : Agent
         else
         {
             _stillSince = 0; _lookAway = false;
-            bool side = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f && _anims.Has("walk_side");
+            bool side = Mathf.Abs(v.X) > Mathf.Abs(v.Y) * 1.6f && (_anims.Has("walk_side") || !_anims.Has("walk") && _anims.Has("idle_side"));
             target = side ? "walk_side" : (v.Y < -0.3f * v.Length() ? "walk_back" : "walk");
             _sprite.FlipH = v.X < 0f;
             _facing = target;
             // Running, where his sheet has a run drawn that way.
             if (IsSprinting && _anims.Has("run" + target.Substring(4))) target = "run" + target.Substring(4);
         }
-        if (!_anims.Has(target)) target = "idle";
+        // A sheet with no walk drawn (the plains, woodland, Dene and plateau
+        // women so far): the standing picture that faces the way she goes,
+        // with a step in it, rather than the front view sliding away
+        // backwards.
+        bool glide = false;
+        if (!_anims.Has(target) && target.StartsWith("walk"))
+        {
+            string still = "idle" + target.Substring(4);
+            if (_anims.Has(still)) { target = still; glide = true; }
+        }
+        if (!_anims.Has(target)) { glide = target.StartsWith("walk") || target.StartsWith("run"); target = "idle"; }
+        if (glide)
+        {
+            _stepClock += (float)GetProcessDeltaTime() * (IsSprinting ? 14f : 9f);
+            _sprite.Position = new Vector2(0f, -Mathf.Abs(Mathf.Sin(_stepClock)) * 3f);
+            _sprite.Rotation = Mathf.Sin(_stepClock) * 0.035f;
+            _stepping = true;
+        }
+        else if (_stepping) { _sprite.Position = Vector2.Zero; _sprite.Rotation = 0f; _stepping = false; }
         _anims.Play(target);
         _sprite.SpeedScale = IsSprinting && !target.StartsWith("run") ? 1.6f : 1f;
     }
+    private float _stepClock;
+    private bool _stepping;
 
     private string _facing = "walk";
 
@@ -886,7 +923,8 @@ public partial class Npc : Agent
     private static readonly (string[] words, string anim)[] Postures = new (string words, string anim)[]
     {
         ("sleep", "sleep"),
-        ("firewood|fetch wood|thresh|fences|odd jobs", "chop"),
+        ("firewood|fetch wood|thresh|fences|odd jobs|split cedar|saw out the keel|plank the boat", "chop"),
+        ("canoe|watap|birch bark|spruce gum|gunwales|ribs|seams|caulk|frames", "work"),
         ("pemmican|dry meat|salt the geese|fishing|washing|bake bread|grind meal|tend the fires|cleaning his musket|his trade|the trade|set traps|check the traps", "work"),
         ("sitting|warm up|resting|mend and spin|church|read the post|parish registers|orderly room|count the till|drinking", "sit"),
         ("haggle|selling|behind the counter|clerking|keep the store|choosing cloth|trade|report|visit the sick", "talk"),
@@ -1161,6 +1199,8 @@ public partial class Npc : Agent
         {
             if (node is not Npc n || !IsInstanceValid(n) || n.IsQueuedForDeletion() || n.DiedAt < 0f) continue;
             float age = now - n.DiedAt;
+            // About a post the men carry him off and bury him within the day.
+            if (age > 4f && n.BurialSent < 0f || age > 4f && now - n.BurialSent > 12f) SendBurial(n, now);
             bool stripped = n.Inventory.SlotCount == 0 && n.Mail.Count == 0;
             if (age < (stripped ? 72f : 240f)) continue;
             n.RemoveFromGroup("corpses");
@@ -1168,6 +1208,23 @@ public partial class Npc : Agent
             fade.TweenProperty(n, "modulate:a", 0f, 2.5f);
             fade.TweenCallback(Callable.From(n.QueueFree));
         }
+    }
+
+    public float BurialSent = -1f;
+    private static void SendBurial(Npc body, float now)
+    {
+        Npc best = null; float bd = 2500f;
+        foreach (var a in Sim.AgentsWithin(body.GlobalPosition, 2500f))
+        {
+            if (a is not Npc m || m.IsDead || m.Sleeping || m.Conversing || m.Convoy != null || m.HeldBy != null || m.Following != null) continue;
+            if (m.Role is not (Role.Labourer or Role.Voyageur or Role.Hunter or Role.BandWoman) || m.Brain.Tier0Goal() != null || m.Brain.Has<Goals.BuryGoal>()) continue;
+            float d = m.GlobalPosition.DistanceTo(body.GlobalPosition);
+            if (d < bd) { bd = d; best = m; }
+        }
+        if (best == null) return;   // nobody about: the weather does it
+        body.BurialSent = now;
+        best.Brain.Push(best, new Goals.BuryGoal(body));
+        Sim.NoticeAt(best, $"{best.DisplayName} goes to carry off {body.DisplayName} and dig a grave.");
     }
 
     // Put in the ground by someone (the player, PlayerController): gone, and remembered for it.

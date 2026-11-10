@@ -232,7 +232,7 @@ public partial class JournalPanel : Control
             foreach (var m in _player.Mail) sb.AppendLine($"   {m.Summary}{(m.Read ? $"\n      [color=#998]{m.Text}[/color]" : "")}");
         }
         sb.AppendLine();
-        sb.AppendLine("[color=#998]The first row is the hotbar. Drag items between squares to arrange them (an occupied square swaps). Right-click uses an item, or wears / takes off clothing. With a pad: LT / RT turn the pages, A on the first row puts it in hand, X uses or wears, Y lifts a stack to move it.[/color]");
+        sb.AppendLine("[color=#998]The first row is the hotbar. Drag items between squares to arrange them (an occupied square swaps). Right-click uses an item, or wears / takes off clothing. With a pad: A lifts a stack, A again sets it down (an occupied square swaps), B drops the lift; X uses or wears; Y on the first row puts it in hand; LT / RT turn the pages.[/color]");
         _pack.Text = Ink(sb.ToString());
 
         EnsureGrid();
@@ -336,7 +336,7 @@ public partial class JournalPanel : Control
         // One table so the bars line up; why a skill moved and what comes
         // next go small under its word.
         sb.Append("[table=3]");
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < Skills.Count; i++)
         {
             float v = sk[i];
             var (gain, from) = sk.Recent(i, 30);
@@ -410,6 +410,7 @@ public partial class JournalPanel : Control
         0 => "comes of shooting game at a distance",
         1 => "comes of setting traps at beaver lodges",
         2 => "comes of bargaining at counters and camps",
+        4 => "comes of building and mending boats (and of watching a master at it)",
         _ => "comes of felling and splitting wood",
     };
 

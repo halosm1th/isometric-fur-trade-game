@@ -126,18 +126,26 @@ public partial class InventorySlot : Panel
             var held = pp.Inventory.Slot(Index);
             switch (jb.ButtonIndex)
             {
+                // A lifts what is in the square; A again sets it down, and an
+                // occupied square swaps. (A used to only select, and moving
+                // things was hidden on Y.) A on an empty square, nothing lifted,
+                // still selects it.
                 case JoyButton.A:
-                    if (Carrying >= 0) { MoveHere(Carrying); Carrying = -1; }
+                    if (Carrying >= 0) { if (Carrying != Index) MoveHere(Carrying); Carrying = -1; }
+                    else if (held != null) { Carrying = Index; }
                     else LeftClicked?.Invoke(Index);
+                    break;
+                case JoyButton.B when Carrying >= 0:
+                    Carrying = -1;
                     break;
                 case JoyButton.X:
                     if (held == null) return;
                     if (pp.Inventory.Wearable(held.Value.id)) Net.Net.I?.Act("wear", new Godot.Collections.Array { Index });
                     else pp.UseSlot(Index);
                     break;
+                // Y puts it in hand: the first row is the hotbar.
                 case JoyButton.Y:
-                    if (Carrying < 0) { if (held != null) Carrying = Index; }
-                    else { MoveHere(Carrying); Carrying = -1; }
+                    LeftClicked?.Invoke(Index);
                     break;
                 default: return;
             }

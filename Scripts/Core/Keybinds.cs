@@ -15,13 +15,13 @@ public static class Keybinds
     public static readonly (string action, string what)[] Actions =
     {
         ("move_up", "Walk up"), ("move_down", "Walk down"), ("move_left", "Walk left"), ("move_right", "Walk right"),
-        ("sprint", "Run"), ("sneak", "Crouch / sneak (and deliberate arson with flint)"), ("interact", "Talk / use what's in front of you"),
-        ("attack_nearest", "Strike the nearest hostile"), ("drink", "Drink"), ("mount", "Mount / get down off your horse (E on your horse does it too)"), ("wait", "Wait an hour / sleep at night"),
+        ("sprint", "Run"), ("sneak", "Crouch / sneak (and deliberate arson with flint)"), ("interact", "Talk / use what's in front of you"), ("interact_next", "Next person or thing in reach to talk to / use"),
+        ("attack_nearest", "Strike the nearest hostile"), ("ready_gun", "Bring the musket up to aim / sling it"), ("drink", "Drink"), ("mount", "Mount / get down off your horse (E on your horse does it too)"), ("wait", "Wait an hour / sleep at night"),
         ("hotbar_use", "Use the selected hotbar slot"), ("hotbar_prev", "Previous hotbar slot (or the mouse wheel)"), ("hotbar_next", "Next hotbar slot (or the mouse wheel)"),
         ("use_ahead", "Use what's in hand on the ground ahead (the mouse does it with a left click)"),
         ("hotbar_1", "Hotbar slot 1"), ("hotbar_2", "Hotbar slot 2"), ("hotbar_3", "Hotbar slot 3"), ("hotbar_4", "Hotbar slot 4"), ("hotbar_5", "Hotbar slot 5"),
         ("hotbar_6", "Hotbar slot 6"), ("hotbar_7", "Hotbar slot 7"), ("hotbar_8", "Hotbar slot 8"), ("hotbar_9", "Hotbar slot 9"),
-        ("inventory", "Your pack"), ("character", "Yourself (body, skills, standing)"), ("journal", "Journal"), ("map", "Map"), ("log", "The log"), ("chat", "Chat"), ("help", "Help"),
+        ("inventory", "Your pack"), ("character", "Yourself (body, skills, standing)"), ("boats", "Your boats (condition, leaks, load, the build)"), ("journal", "Journal"), ("map", "Map"), ("log", "The log"), ("chat", "Chat"), ("help", "Help"),
         ("time_fast", "Hold to fast-forward"), ("pause_clock", "Stop / start the clock (host)"), ("clock_slower", "Slower clock (host)"), ("clock_faster", "Faster clock (host)"),
         ("restart", "Begin again after death"), ("debug_menu", "Test console (host)"),
     };
@@ -39,8 +39,11 @@ public static class Keybinds
     {
         if (_installed) return;
         _installed = true;
-        foreach (var name in new[] { "hotbar_prev", "hotbar_next", "use_ahead", "pause_menu" })
+        foreach (var name in new[] { "hotbar_prev", "hotbar_next", "use_ahead", "pause_menu", "ready_gun", "interact_next" })
             if (!InputMap.HasAction(name)) InputMap.AddAction(name, 0.4f);
+        if (InputMap.ActionGetEvents("interact_next").Count == 0) InputMap.ActionAddEvent("interact_next", new InputEventKey { PhysicalKeycode = Key.G });
+        if (!InputMap.HasAction("boats")) InputMap.AddAction("boats", 0.4f);
+        if (InputMap.ActionGetEvents("boats").Count == 0) InputMap.ActionAddEvent("boats", new InputEventKey { PhysicalKeycode = Key.K });
         if (InputMap.ActionGetEvents("pause_menu").Count == 0)
         {
             InputMap.ActionAddEvent("pause_menu", new InputEventKey { PhysicalKeycode = Key.Escape });

@@ -106,6 +106,7 @@ public static class SaveGame
             ["herds"] = Horses.Save(HomeKey),
             ["plains"] = Plains.Save(),
             ["convoys"] = World.Convoys.Save(),
+            ["boatyards"] = World.Boatwrights.Save(),
             ["ship"] = Ship(),
             ["npcs"] = Npcs(),
             ["players"] = Players(),
@@ -203,7 +204,7 @@ public static class SaveGame
     {
         var a = new GArr();
         if (Sim.Spawner == null) return a;
-        foreach (var c in Sim.Spawner.Canoes) a.Add(new GArr { c.Index, c.GlobalPosition.X, c.GlobalPosition.Y, Inv(c.Cargo) });
+        foreach (var c in Sim.Spawner.Canoes) a.Add(new GArr { c.Index, c.GlobalPosition.X, c.GlobalPosition.Y, Inv(c.Cargo), c.Pack(), c.PaidMb });
         return a;
     }
 
@@ -222,7 +223,7 @@ public static class SaveGame
             ["hunger"] = a.Needs.Hunger, ["thirst"] = a.Needs.Thirst, ["warmth"] = a.Needs.Warmth, ["health"] = a.Needs.Health,
             ["inv"] = Inv(a.Inventory), ["age"] = a.Age, ["sick"] = a.SickDaysLeft, ["immune"] = a.Immune, ["drunk"] = a.Intoxication,
             ["weapon"] = a.PreferredWeapon?.ToString() ?? "", ["dead"] = a.IsDead, ["fresh"] = a.DaysSinceFresh, ["mail"] = MailOf(a.Mail),
-            ["skills"] = new GArr { a.Skills.Hunting, a.Skills.Trapping, a.Skills.Trade, a.Skills.Woodcraft },
+            ["skills"] = new GArr { a.Skills.Hunting, a.Skills.Trapping, a.Skills.Trade, a.Skills.Woodcraft, a.Skills.Crafting },
             ["keepsakes"] = Keepsakes(a),
         };
     }
@@ -424,7 +425,7 @@ public static class SaveGame
         a.PreferredWeapon = w != "" && Enum.TryParse(w, out ItemId wid) ? wid : null;
         a.Mail.Clear();
         if (d.ContainsKey("mail")) foreach (var mv in d["mail"].AsGodotArray()) a.Mail.Add(MailFrom(mv.AsGodotDictionary()));
-        if (d.ContainsKey("skills")) { var sk = d["skills"].AsGodotArray(); if (sk.Count == 4) { a.Skills.Hunting = sk[0].AsSingle(); a.Skills.Trapping = sk[1].AsSingle(); a.Skills.Trade = sk[2].AsSingle(); a.Skills.Woodcraft = sk[3].AsSingle(); } }
+        if (d.ContainsKey("skills")) { var sk = d["skills"].AsGodotArray(); if (sk.Count >= 4) { a.Skills.Hunting = sk[0].AsSingle(); a.Skills.Trapping = sk[1].AsSingle(); a.Skills.Trade = sk[2].AsSingle(); a.Skills.Woodcraft = sk[3].AsSingle(); if (sk.Count >= 5) a.Skills.Crafting = sk[4].AsSingle(); } }
     }
 
     // Called by Population.SpawnAll instead of the default cast. Spawns the
@@ -518,7 +519,14 @@ public static class SaveGame
                 {
                     var ca = cv.AsGodotArray();
                     int idx = ca[0].AsInt32();
-                    foreach (var canoe in Sim.Spawner.Canoes) if (canoe.Index == idx) { canoe.SetState(new Vector2(ca[1].AsSingle(), ca[2].AsSingle()), 0); if (ca.Count > 3) LoadInv(canoe.Cargo, ca[3].AsGodotDictionary()); }
+                    // Every boat as she was: the built ones and the beds (World/Canoe).
+                    var at = new Vector2(ca[1].AsSingle(), ca[2].AsSingle());
+                    var canoe = Sim.Spawner.CanoeAt(idx) ?? (ca.Count > 4 ? Sim.Spawner.PlaceCanoe(idx, at) : null);
+                    if (canoe == null) continue;
+                    if (ca.Count > 4) canoe.Unpack(ca[4].AsGodotDictionary());
+                    if (ca.Count > 5) canoe.PaidMb = ca[5].AsSingle();
+                    canoe.SetState(at, 0);
+                    if (ca.Count > 3) { canoe.Cargo.Clear(); LoadInv(canoe.Cargo, ca[3].AsGodotDictionary()); }
                 }
             }
 
@@ -583,6 +591,7 @@ public static class SaveGame
             if (d.ContainsKey("herds")) Horses.Load(d["herds"].AsGodotDictionary(), HomeOf);
             Plains.Load(d.ContainsKey("plains") ? d["plains"].AsGodotDictionary() : null);
             World.Convoys.Load(d.ContainsKey("convoys") ? d["convoys"].AsGodotDictionary() : null);
+            if (d.ContainsKey("boatyards")) World.Boatwrights.Load(d["boatyards"].AsGodotDictionary());
 
             _savedPlayers.Clear();
             foreach (var pv in d["players"].AsGodotArray()) { var pd = pv.AsGodotDictionary(); _savedPlayers[S(pd, "name")] = pd; }

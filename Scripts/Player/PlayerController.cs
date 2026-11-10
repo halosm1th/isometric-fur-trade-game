@@ -76,6 +76,7 @@ public partial class PlayerController : Agent
 	// sheet.
 	public float FluencyWith(Agent who)
 	{
+		if (Ghost) return 1f;   // the observer hears every tongue
 		if (who == null || !Agents.Languages.IsNation(who.Faction)) return EffectiveFluency;
 		if (HasInterpreterFor(who)) return 1f;
 		float best = CreeFluency * Agents.Languages.Kin(Faction.Cree, who.Faction);
@@ -110,7 +111,7 @@ public partial class PlayerController : Agent
 			return false;
 		}
 	}
-	public float EffectiveFluency => HasInterpreter ? 1f : CreeFluency;
+	public float EffectiveFluency => Ghost || HasInterpreter ? 1f : CreeFluency;
 	// Time-skip agreement: how many hours this player wants to skip (0 = none).
 	public float WantsSkipHours;
 	// Leaving the controls alone, so the quiet days may pass (Core/QuietDays): on the server.
@@ -280,6 +281,19 @@ public partial class PlayerController : Agent
 	// Afloat: which canoe carries you (server), mirrored as a flag.
 	public Canoe Aboard;
 	public bool IsAfloat => Aboard != null || _afloatMirror;
+	// The boat under him on any machine: the server's word, or on a client the
+	// copy the host says he rides (World/Canoe.RiderNetId).
+	public Canoe Riding
+	{
+		get
+		{
+			if (Aboard != null) return Aboard;
+			if (Carrying != null) return Carrying;
+			if (!_afloatMirror && !_carryMirror && !IsLocal || Sim.Spawner == null) return null;
+			foreach (var c in Sim.Spawner.Canoes) if (c.RiderNetId == NetId && NetId != 0) return c;
+			return null;
+		}
+	}
 	private bool _afloatMirror;
 	public void SetAfloatMirror(bool v) => _afloatMirror = v;
 
@@ -301,14 +315,28 @@ public partial class PlayerController : Agent
 		if (Carrying != null) return "You have one on your shoulders already.";
 		if (Mounted) return "Get down off the horse first.";
 		if (c.Cargo.SlotCount > 0) return "Take her load out first. A canoe is one carry and her pieces are another.";
+		if (c.Building) return "She isn't finished.";
+		// A north canoe is two men's carry, a Montreal canoe four; a York
+		// boat is hauled over on rollers by her whole crew (World/Boats).
+		int backs = 1;
+		foreach (var a in Sim.AgentsWithin(GlobalPosition, 300f)) if (a is Npc n && n.Following == this && !n.IsDead) backs++;
+		if (backs < c.Spec.Carriers)
+			return c.Spec.Planked ? $"A York boat is hauled over on rollers by her crew: you need {c.Spec.Carriers} pairs of hands and have {backs}." : $"She is a {c.Spec.Carriers}-man carry; you have {backs}. Bring men with you.";
 		c.SetState(GlobalPosition, NetId);
 		Carrying = c;
-		return "You turn her over and get her up on your shoulders. Walk her round to the next water and set her down there.";
+		_carryStart = GlobalPosition;
+		return c.Spec.Carriers > 1 ? $"You and {backs - 1} more get her up {(c.Spec.Planked ? "onto the rollers" : "onto your shoulders")}. Walk her round to the next water and set her down there." : "You turn her over and get her up on your shoulders. Walk her round to the next water and set her down there.";
 	}
 
+	private Vector2 _carryStart;
 	public string SetDownCanoe()
 	{
 		if (Carrying == null) return "";
+		// A long carry strains her gunwales and ribs a little.
+		float carried = _carryStart.DistanceTo(GlobalPosition);
+		Carrying.Wear(HullPart.Gunwales, carried / 60000f);
+		Carrying.Wear(HullPart.Ribs, carried / 120000f);
+		Carrying.Refresh();
 		Carrying.SetState(GlobalPosition, 0);
 		Carrying = null;
 		return OpenWaterNear(Cell, 8) != null ? "You set the canoe down at the water's edge." : "You set the canoe down.";
@@ -322,17 +350,27 @@ public partial class PlayerController : Agent
 	private static readonly float IsoTilt = Mathf.Atan(0.5f);   // a grid axis on screen: two across, one down
 	private Vector2 _canoeLastPos;
 	private float _canoeTilt;
+	private BoatKind _canoeKindShown = BoatKind.Small;
 	private void UpdateCanoeVisual()
 	{
 		bool afloat = IsAfloat;
+		var riding = afloat || IsCarryingCanoe ? Riding : null;
+		var spec = riding?.Spec ?? Boats.Of(BoatKind.Small);
+		if (_canoeSprite != null && _canoeKindShown != spec.Kind)
+		{
+			_canoeSprite.QueueFree(); _canoeNear.QueueFree(); _canoeSprite = null; _canoeNear = null;
+			if (_carriedSprite != null) { _carriedSprite.QueueFree(); _carriedSprite = null; }
+		}
+		_canoeKindShown = spec.Kind;
 		if (_canoeSprite == null)
 		{
-			var tex = GD.Load<Texture2D>("res://assets/sprites/canoe.png");
+			var tex = GD.Load<Texture2D>(spec.Sprite);
+			float scale = CanoeScale * spec.SpriteScale * (spec.Planked ? 1f / 0.42f * 0.75f : 1f);
 			var size = tex.GetSize();
-			_canoeSprite = new Sprite2D { Texture = tex, Scale = Vector2.One * CanoeScale, Offset = new Vector2(0, -20), ZIndex = -1, Visible = false };
+			_canoeSprite = new Sprite2D { Texture = tex, Scale = Vector2.One * scale, Offset = new Vector2(0, -20), ZIndex = -1, Visible = false };
 			// The near gunwale and hull: the lower part of the same picture.
 			float cut = size.Y * 0.5f;
-			_canoeNear = new Sprite2D { Texture = tex, Scale = Vector2.One * CanoeScale, RegionEnabled = true, RegionRect = new Rect2(0, cut, size.X, size.Y - cut),
+			_canoeNear = new Sprite2D { Texture = tex, Scale = Vector2.One * scale, RegionEnabled = true, RegionRect = new Rect2(0, cut, size.X, size.Y - cut),
 				Offset = new Vector2(0, -20 + cut / 2f), ZIndex = 1, Visible = false };
 			AddChild(_canoeSprite);
 			AddChild(_canoeNear);
@@ -358,7 +396,7 @@ public partial class PlayerController : Agent
 		// Carried, she is over his head, keel up, facing the way he faces.
 		if (_carriedSprite == null)
 		{
-			_carriedSprite = new Sprite2D { Texture = _canoeSprite.Texture, Scale = Vector2.One * CanoeScale * 0.9f, FlipV = true, Offset = new Vector2(0, -50), ZIndex = 2, Visible = false };
+			_carriedSprite = new Sprite2D { Texture = _canoeSprite.Texture, Scale = _canoeSprite.Scale * 0.9f, FlipV = true, Offset = new Vector2(0, -50), ZIndex = 2, Visible = false };
 			AddChild(_carriedSprite);
 		}
 		bool carried = IsCarryingCanoe && !IsDead && !afloat;
@@ -384,6 +422,7 @@ public partial class PlayerController : Agent
 		if (t == null) return;
 		var cell = Cell;
 		if (RunRapids(cell, dt)) return;
+		if (Leaking(cell, dt)) return;
 		if (!t.IsWaterOrIce(cell) && Sim.Paths != null && Sim.Paths.IsWalkable(cell))
 		{
 			// Landed. Leave the canoe on the nearest water cell behind us.
@@ -409,10 +448,53 @@ public partial class PlayerController : Agent
 		if (white && !_inRapids) Say("White water! The river runs over rocks here - this is why there is a portage. Make for the bank and carry round, or run it and hope.");
 		_inRapids = white;
 		if (!white || Velocity.LengthSquared() < 25f) return false;
-		float load = Mathf.Clamp(Aboard.LoadLbs / Canoe.CapacityLbs, 0f, 1.5f);
-		float perSecond = 0.07f * (1.3f - Skills.Woodcraft) * (0.6f + load);
+		float load = Mathf.Clamp(Aboard.LoadLbs / Aboard.CapacityLbs, 0f, 1.5f);
+		// Rocks: the bark opens, a rib cracks (World/Canoe). A sound hull
+		// shrugs off a graze that holes a tired one.
+		if (GD.Randf() < 0.3f * (1.25f - Skills.Woodcraft) * (0.6f + load) * dt)
+		{
+			float hit = GD.Randf() * 0.12f + 0.04f;
+			Aboard.Wear(HullPart.Skin, hit);
+			if (GD.Randf() < 0.4f) Aboard.Wear(HullPart.Ribs, hit * 0.8f);
+			Aboard.Hole(GD.Randf(), 0.15f + 0.35f * (1f - Aboard.Part(HullPart.Skin)));
+			Aboard.Refresh();
+			if (_strikeSaid <= 0f) { Say(Aboard.Part(HullPart.Skin) < 0.3f ? "She strikes again - you feel the bark give under your knees. She won't take much more." : "Crack! She grazes a rock. Water starts to come in."); _strikeSaid = 4f; }
+			if (Aboard.Part(HullPart.Skin) <= 0.02f) return Upset("She strikes a rock and the bottom tears out of her.", wreck: true);
+		}
+		float perSecond = 0.07f * (1.3f - Skills.Woodcraft) * (0.6f + load) * (Aboard.Spec.Kind == BoatKind.Small ? 1f : 0.7f);
 		if (GD.Randf() >= perSecond * dt) return false;
-		// Over she goes.
+		return Upset(null, wreck: false);
+	}
+	private float _strikeSaid;
+
+	// Water coming in faster than it goes out: the bilge fills, she slows, and
+	// at the last she swamps. Friends paddling with you bail as they go.
+	private bool Leaking(Vector2I cell, float dt)
+	{
+		var c = Aboard;
+		_strikeSaid = Mathf.Max(0f, _strikeSaid - dt);
+		if (c == null) return false;
+		float inflow = c.LeakRate * (c.Overloaded ? 1.6f : 1f);
+		float bail = 0.004f * PaddlersWithMe();
+		c.Bilge = Mathf.Clamp(c.Bilge + (inflow - bail) * dt, 0f, 1f);
+		// Grinding over the shallows at speed scrapes the bark.
+		if (WorldMap.DepthAt(cell) == Depth.Shallow && Velocity.LengthSquared() > 2500f)
+		{
+			c.Wear(HullPart.Skin, 0.0015f * dt);
+			if (GD.Randf() < 0.01f * dt) { c.Hole(GD.Randf(), 0.12f); if (_strikeSaid <= 0f) { Say("She scrapes bottom in the shallows."); _strikeSaid = 6f; } }
+		}
+		if (c.Bilge > 0.5f && _bilgeSaid == 0) { _bilgeSaid = 1; Say("There's a good deal of water in her. Put in to a bank and tip it out, or bail (E)."); }
+		if (c.Bilge < 0.3f) _bilgeSaid = 0;
+		if (c.Bilge >= 1f) return Upset("She fills and goes down under you.", wreck: false);
+		return false;
+	}
+	private int _bilgeSaid;
+
+	// Over she goes: thrown on the bank with her, soaked and bruised, and
+	// some of what was in her gone down the river. A boat torn open is lost.
+	private bool Upset(string how, bool wreck)
+	{
+		var t = Sim.Terrain;
 		int lost = 0;
 		foreach (var (id, n) in new List<(ItemId, int)>(Aboard.Cargo.All()))
 		{
@@ -422,14 +504,26 @@ public partial class PlayerController : Agent
 		var land = Convoys.LandNear(GlobalPosition);
 		Vector2I water = IsoGrid.FromWorld(land);
 		foreach (var n in IsoGrid.EdgeNeighbours(water)) if (t_IsWater(n)) { water = n; break; }
-		Aboard.SetState(IsoGrid.ToWorld(water), 0);
+		var boat = Aboard;
+		boat.SetState(IsoGrid.ToWorld(water), 0);
+		boat.Bilge = 0f;
 		Aboard = null; _inRapids = false;
 		SetStartPosition(land);
 		Needs.Wet = 1f;
 		TakeDamage(12f, null);
 		Skills.Learn(ref Skills.Woodcraft, 0.02f, "upset in a rapid");
-		Chronicle.Event($"{DisplayName} was upset running a rapid.", GlobalPosition, this, weight: 0.8f);
-		Say(lost > 0 ? $"The canoe broaches on a rock and rolls over. You come up gasping and drag yourself and her onto the bank. {lost} pieces of what she carried are gone down the river." : "The canoe broaches on a rock and rolls over. You come up gasping and drag yourself and her onto the bank, soaked to the skin.");
+		if (wreck)
+		{
+			boat.Wrecked = true;
+			foreach (var (id, n) in new List<(ItemId, int)>(boat.Cargo.All())) { boat.Cargo.Remove(id, n); lost += n; }
+			Chronicle.Event($"{DisplayName}'s canoe was torn open and lost.", GlobalPosition, this, weight: 1.2f);
+			Journal.Add($"{GameCalendar.Instance?.DateString}: {char.ToUpperInvariant(boat.Describe()[0]) + boat.Describe()[1..]} was torn open on the rocks and lost.");
+			Say($"{how} You come up gasping and drag yourself onto the bank. She is gone{(lost > 0 ? $", and {lost} pieces with her" : "")}.");
+			return true;
+		}
+		Chronicle.Event($"{DisplayName} was upset {(how == null ? "running a rapid" : "in a swamped canoe")}.", GlobalPosition, this, weight: 0.8f);
+		string first = how ?? "The canoe broaches on a rock and rolls over.";
+		Say(lost > 0 ? $"{first} You come up gasping and drag yourself and her onto the bank. {lost} pieces of what she carried are gone down the river." : $"{first} You come up gasping and drag yourself and her onto the bank, soaked to the skin.");
 		return true;
 	}
 	private static bool t_IsWater(Vector2I c) => Sim.Terrain != null && Sim.Terrain.IsWater(c);
@@ -563,6 +657,7 @@ public partial class PlayerController : Agent
 		if (_becameLocal) return;
 		_becameLocal = true;
 		IsPuppet = false;
+		AddChild(new UI.FishingLines { Name = "FishingLines" });   // others' lines in the water near you
 		if (_camera != null) { _camera.Enabled = true; _camera.MakeCurrent(); }
 		if (_label != null) _label.Visible = false;
 		CallDeferred(nameof(FindDialogue));
@@ -600,6 +695,10 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--flags=") && NetHub.IsServer) GetTree().CreateTimer(2.5).Timeout += () => { foreach (var f in arg.Substring(8).Split(',', System.StringSplitOptions.RemoveEmptyEntries)) { Core.Campaign.Flag(f.Trim()); GD.Print($"[dev] flag {f.Trim()}"); } };
 			if (arg.StartsWith("--spawn=") && !NetHub.IsServer) { string spot = arg.Substring(8); GetTree().CreateTimer(1.0).Timeout += () => NetHub.I?.Act("dev_teleport", new Godot.Collections.Array { spot }); }
 			// Dev: `--canoe` gets into the nearest canoe a few seconds in (after any --spawn).
+			// --fishwatch: the two nearest men with a house go fishing now (UI/FishingLines).
+			if (arg == "--fishwatch") GetTree().CreateTimer(5.0).Timeout += () => { int n = 0; foreach (var a in Sim.AgentsWithin(GlobalPosition, 2500f).OrderBy(a => a.GlobalPosition.DistanceTo(GlobalPosition))) if (a is Npc m && m.HomeStores != null && !m.IsDead && n < 2) { Agents.Goals.FishGoal.Trace = true; var spot = IsoGrid.FromWorld(GlobalPosition + (n == 0 ? new Vector2(-300, 60) : new Vector2(330, 60))); m.Brain.Push(m, new Agents.Goals.FishGoal(false, Sim.Terrain.IsWater(spot) ? spot : null)); n++; GD.Print($"[fish] {m.DisplayName} goes fishing"); } };
+			if (arg == "--fishwatch") continue;
+			if (arg.StartsWith("--fish")) GetTree().CreateTimer(6.0).Timeout += () => UI.Fishing.DevStart(this, arg == "--fish=auto");
 			if (arg == "--canoe") GetTree().CreateTimer(4.0).Timeout += () => GD.Print("[dev] canoe: " + ServerAction("canoe", new Godot.Collections.Array()));
 			// Dev: `--taken` has the nearest man of the other company lay you out a few seconds in (with --pick to walk the pages).
 			if (arg == "--taken" && NetHub.IsServer) GetTree().CreateTimer(4.0).Timeout += () =>
@@ -648,6 +747,58 @@ public partial class PlayerController : Agent
 			if (arg.StartsWith("--quest=") && NetHub.IsServer) { var qa = arg.Substring(8).Split(':'); GetTree().CreateTimer(3.0).Timeout += () => Core.Quests.DevJump(this, qa[0], qa.Length > 1 ? qa[1] : null); }
 			// Dev: `--quitafter=S` closes the game cleanly after S seconds, so a
 			// test run ends without the runtime being killed mid-print.
+			if (arg.StartsWith("--boattest=") && NetHub.IsServer) Boatbuilding.DevTest(this);
+			// Dev: `--standby=Name` (or `--standby=sheet:PlainsWoman`) stands you a
+			// little off the first person by that name (or wearing that sheet)
+			// six seconds in, without a word, to watch them go about.
+			if (arg.StartsWith("--standby=") && NetHub.IsServer)
+			{
+				string want = arg.Substring(10);
+				GetTree().CreateTimer(6.0, true, false, true).Timeout += () =>
+				{
+					Npc best = null;
+					foreach (var n in Sim.Npcs)
+					{
+						if (n.IsDead || n.HeldBy != null || n.Away) continue;
+						bool hit = want.StartsWith("sheet:") ? (n.FramesPath ?? "").Contains(want.Substring(6)) : n.DisplayName.Contains(want);
+						if (hit && (best == null || n.GlobalPosition.DistanceTo(GlobalPosition) < best.GlobalPosition.DistanceTo(GlobalPosition))) best = n;
+					}
+					foreach (var n in best != null ? new[] { best } : System.Array.Empty<Npc>())
+					{
+						// She is brought here and walks away up the screen, then back down past you.
+						n.GlobalPosition = GlobalPosition + new Vector2(-120, 120);
+						n.Tier = Core.Tier.Live; n.ProcessMode = ProcessModeEnum.Inherit; n.Visible = true;
+						n.Brain.Clear(n);
+						var away = IsoGrid.FromWorld(GlobalPosition + new Vector2(-260, -330));
+						var back = IsoGrid.FromWorld(GlobalPosition + new Vector2(260, 200));
+						n.Brain.Push(n, new Agents.Goals.ChoreGoal("walk about", Agents.Goals.ChoreGoal.Walk("walk away", Sim.Paths?.NearestWalkable(away, 4) ?? away, 40f), Agents.Goals.ChoreGoal.Walk("walk back", Sim.Paths?.NearestWalkable(back, 4) ?? back, 40f)));
+						GD.Print($"[dev] standing by {n.DisplayName} ({n.FramesPath}), who is: {n.GoalDescription}");
+						return;
+					}
+					var sheets = new Dictionary<string, int>();
+					foreach (var n in Sim.Npcs) if (!n.IsDead) { string f = System.IO.Path.GetFileName(n.FramesPath ?? "?"); sheets[f] = sheets.GetValueOrDefault(f) + 1; }
+					GD.Print($"[dev] nobody like '{want}'; sheets: {string.Join(", ", sheets)}");
+				};
+			}
+			// Dev: `--presskey=G@8` feeds the key in through Godot's own input (as
+			// a real press would come) at that second, three times, and prints the E prompt each time.
+			if (arg.StartsWith("--presskey="))
+			{
+				var pk = arg.Substring(11).Split('@');
+				double at = pk.Length > 1 && double.TryParse(pk[1], out double pks) ? pks : 8.0;
+				if (System.Enum.TryParse<Key>(pk[0], true, out var key))
+					for (int k = 0; k < 3; k++)
+					{
+						int kk = k;
+						GetTree().CreateTimer(at + kk * 1.0, true, false, true).Timeout += () =>
+						{
+							GD.Print($"[presskey] before {key} #{kk + 1}: '{InteractHint()}' (people {PeopleInReach(false).Count}, cycle {CanCycleInteract})");
+							Input.ParseInputEvent(new InputEventKey { PhysicalKeycode = key, Keycode = key, Pressed = true });
+							Input.ParseInputEvent(new InputEventKey { PhysicalKeycode = key, Keycode = key, Pressed = false });
+							GetTree().CreateTimer(0.3, true, false, true).Timeout += () => GD.Print($"[presskey] after: '{InteractHint()}'");
+						};
+					}
+			}
 			if (arg.StartsWith("--quitafter=") && double.TryParse(arg.Substring(12), out double qsecs)) GetTree().CreateTimer(qsecs, true, false, true).Timeout += () => { GD.Print("[dev] quitting after " + qsecs + "s"); GetTree().Quit(); };
 			// Dev: `--ambition=RiseAtThePost` declares one at the start, so the
 			// systems that hang off a declared ambition can be watched.
@@ -705,7 +856,7 @@ public partial class PlayerController : Agent
 		var cal = GameCalendar.Instance;
 		EndCargoTaskIfHoldEmpty();
 		// Reporting in is not a chore left undone: the order to report is answered by reporting.
-		if (Task.Kind is not (TaskKind.None or TaskKind.Report) && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say($"Yesterday's task went undone. {(Task.Boss != "" ? Task.Boss : "The master")} noticed."); }
+		if (Task.Kind is not (TaskKind.None or TaskKind.Report or TaskKind.Brigade or TaskKind.Courier) && !Task.IsComplete && Task.DayAssigned != cal.Day) { Standing -= 2f; Say($"Yesterday's task went undone. {(Task.Boss != "" ? Task.Boss : "The master")} noticed."); }
 		if (Task.Kind != TaskKind.None && Task.IsComplete) { Standing += 5f; TasksDone++; }
 		Task.Kind = kind; Task.Need = need; Task.Done = 0; Task.DayAssigned = cal.Day; Task.Intent = intent ?? ""; Task.Deadline = cal.Day + 1; Task.Accepted = false; Task.OwnWay = false;
 		Task.Boss = HomePost?.Leader is { } boss && !boss.IsDead ? Agents.Barks.CallName(boss) : "";
@@ -827,7 +978,7 @@ public partial class PlayerController : Agent
 		}
 		if (_dialogue != null && _dialogue.IsOpen) return;
 		if (UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping) return;
-		if (UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen) return;
+		if (UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen || UI.HandWork.IsOpen || UI.BoatPanel.IsOpen || UI.Fishing.IsOpen) return;
 		// Watching, not playing: the camera's keys, then the clock's, and nothing else.
 		if (Ghost && ObserverInput(@event)) { GetViewport().SetInputAsHandled(); return; }
 		// The clock: Space stops it, [ and ] slow and quicken it (host).
@@ -849,17 +1000,38 @@ public partial class PlayerController : Agent
 		}
 		// The pad's trigger: the same, where the right stick last put the
 		// pointer, or else just ahead of you.
+		if (UI.PadDriver.GunReady && Weapon != ItemId.Musket) { UI.PadDriver.GunReady = false; if (_sights != null && IsInstanceValid(_sights)) _sights.QueueFree(); _sights = null; }
+		if (@event.IsActionPressed("ready_gun")) { ReadyGun(!UI.PadDriver.GunReady); return; }
 		if (@event.IsActionPressed("use_ahead"))
 		{
-			ClickAtLocal(UI.PadDriver.Aiming ? GetGlobalMousePosition() : GlobalPosition + _aimDir * 90f + new Vector2(0, 20));
+			if (UI.PadDriver.GunReady) { FireAtSights(); return; }
+			ClickAtLocal(UI.PadDriver.Aiming ? GetGlobalMousePosition() : GlobalPosition + _aimDir * 90f + new Vector2(0, 20), pad: true);
 			return;
 		}
-		if (@event.IsActionPressed("attack_nearest")) { NetHub.I?.Act("attack_nearest"); return; }
+		if (@event.IsActionPressed("attack_nearest"))
+		{
+			// A gun is not fired from the hip at whoever is nearest: X brings
+			// it up with the sights on the likeliest mark, and X (or RT) again
+			// fires. (The old X/RT let it off at anyone near: the misfires.)
+			if (Weapon == ItemId.Musket && HasCharge() && Core.Pad.Active)
+			{
+				if (!UI.PadDriver.GunReady) ReadyGun(true); else FireAtSights();
+				return;
+			}
+			NetHub.I?.Act("attack_nearest"); return;
+		}
 		if (@event.IsActionPressed("interact"))
 		{
 			if (_travel != null) { StopTravel("You stop."); return; }
 			if (NearRoadHead(out bool atYork) && NearestNpc(110f) == null) { StartTravel(atYork); return; }
-			NetHub.I?.Act("interact"); return;
+			NetHub.I?.Act("interact", new Godot.Collections.Array { _pick }); _pick = 0; return;
+		}
+		if (@event.IsActionPressed("interact_next"))
+		{
+			int people = PeopleInReach(false).Count;
+			_pick = people == 0 ? 0 : (_pick + 1) % (people + 1);
+			_pickAt = GlobalPosition;
+			return;
 		}
 		if (@event.IsActionPressed("drink")) { NetHub.I?.Act("drink"); return; }
 		if (@event.IsActionPressed("mount")) { NetHub.I?.Act("mount"); return; }
@@ -868,22 +1040,81 @@ public partial class PlayerController : Agent
 
 	// Left click (design doc 3.3): strike with a readied weapon, use the
 	// item in hand on the ground, or just interact.
-	private void ClickAtLocal(Vector2 at)
+	private void ClickAtLocal(Vector2 at, bool pad = false)
 	{
 		var target = AgentNear(at);
 		int slot = UI.Hotbar.SelectedSlot;
 		var held = Inventory.Slot(slot);
 		bool weapon = held != null && Items.Items.Of(held.Value.id).Kind == ItemKind.Weapon;
+		// The pad's trigger with the gun slung: a man ahead is spoken to, not shot.
+		if (pad && target is Npc && Weapon == ItemId.Musket && HasCharge()) { NetHub.I?.Act("interact"); return; }
 		if (target != null && (weapon || held == null || target is Animal && Items.Items.Of(held.Value.id).Kind != ItemKind.Food)) { NetHub.I?.Act("attack", new Godot.Collections.Array { target.NetId }); return; }
 		if (target != null && target is Npc) { NetHub.I?.Act("interact"); return; }
+		// The fishing line: out it goes, aimed where you clicked (UI/Fishing).
+		if (held != null && held.Value.id == ItemId.FishingLine) { Say(UI.Fishing.Begin(this, pad && !UI.PadDriver.Aiming ? null : at, _aimDir)); return; }
 		NetHub.I?.Act("click", new Godot.Collections.Array { slot, at.X, at.Y });
+	}
+
+	// The pad's aim mode: the sights go on the likeliest mark in front of
+	// you (or just ahead), the right stick moves them, RT or X fires.
+	private void ReadyGun(bool up)
+	{
+		if (up && Weapon != ItemId.Musket) { Say("You have no musket to bring up."); return; }
+		if (up && !HasCharge()) { Say("Your horn is empty: no powder for the gun."); return; }
+		UI.PadDriver.GunReady = up;
+		GD.Print($"[aim] musket {(up ? "up" : "slung")}");
+		if (!up) { if (_sights != null && IsInstanceValid(_sights)) _sights.QueueFree(); _sights = null; Say("You sling the musket."); return; }
+		Agent mark = null; float best = float.MaxValue;
+		foreach (var a in Sim.AgentsWithin(GlobalPosition, 650f))
+		{
+			if (a == this || a.IsDead || a is Npc { HeldBy: not null }) continue;
+			bool likely = a is Animal || IsHostileTo(a) || a is Npc n && (n.Raiding || n.LastAttacker == this);
+			if (!likely) continue;
+			var off = a.GlobalPosition - GlobalPosition;
+			float score = off.Length() * (1.6f - 0.6f * _aimDir.Normalized().Dot(off.Normalized()));
+			if (score < best) { best = score; mark = a; }
+		}
+		var sights = mark != null ? mark.GlobalPosition + new Vector2(0, -40) : GlobalPosition + new Vector2(0, -40) + _aimDir * 200f;
+		if (_sights == null || !IsInstanceValid(_sights)) { _sights = new UI.Sights { Owner = this }; AddChild(_sights); }
+		_sights.GlobalPosition = sights;
+		Say(mark != null ? $"You bring the musket up on {mark.Describe()}. Right stick to aim, {Core.Keybinds.KeyFor("use_ahead")} to fire, {Core.Keybinds.KeyFor("ready_gun")} to sling it." : $"You bring the musket up. Right stick to aim, {Core.Keybinds.KeyFor("use_ahead")} to fire, {Core.Keybinds.KeyFor("ready_gun")} to sling it.");
+	}
+
+	private UI.Sights _sights;
+
+	// Friends in the canoe with you each pull a paddle: a fifth faster
+	// apiece, up to three of them. Counted twice a second, not every frame.
+	private int _paddlers; private ulong _paddlersAt;
+	private int PaddlersWithMe()
+	{
+		ulong now = Time.GetTicksMsec();
+		if (now - _paddlersAt < 500) return _paddlers;
+		_paddlersAt = now; _paddlers = 0;
+		foreach (var a in Sim.AgentsWithin(GlobalPosition, 120f))
+			if (a is Npc n && n.Following == this && !n.IsDead) _paddlers++;
+		_paddlers = Mathf.Min(_paddlers, 3);
+		return _paddlers;
+	}
+	private float _autoAimCheck;
+
+	private void FireAtSights()
+	{
+		var target = _sights != null && IsInstanceValid(_sights) ? _sights.Mark : AgentNear(GetGlobalMousePosition());
+		GD.Print($"[aim] fire at {target?.Describe() ?? "nothing"}");
+		if (target == null) { Say("Nothing in your sights. Move them onto your mark with the right stick."); return; }
+		NetHub.I?.Act("attack", new Godot.Collections.Array { target.NetId });
 	}
 
 	// Which way you last walked: what the pad means by "ahead".
 	private Vector2 _aimDir = new Vector2(0, 1);
 
 	// Hotbar: the owner asks the server to use slot i.
-	public void UseSlot(int i) => NetHub.I?.Act("use", new Godot.Collections.Array { i });
+	public void UseSlot(int i)
+	{
+		// The fishing line is a game played here, not a roll on the host (UI/Fishing).
+		if (Inventory.Slot(i) is { id: ItemId.FishingLine }) { Say(UI.Fishing.Begin(this, Core.Pad.Active ? null : GetGlobalMousePosition(), _aimDir)); return; }
+		NetHub.I?.Act("use", new Godot.Collections.Array { i });
+	}
 
 	// What the pointer is over, said in the shape of the pointer itself.
 	private void CursorOverWhat()
@@ -1041,6 +1272,15 @@ public partial class PlayerController : Agent
 
 		if (IsLocal)
 		{
+			// Pushing the right stick with a loaded musket and game about brings
+			// the gun up: the stick is the aim, as the mouse is.
+			if (Core.Pad.Active && !UI.PadDriver.GunReady && Core.Pad.RightStick().Length() > 0.5f && UI.PadDriver.TopMenu() == null && !UI.MapPanel.IsOpen
+				&& Weapon == ItemId.Musket && HasCharge() && (_autoAimCheck -= dt) <= 0f)
+			{
+				_autoAimCheck = 0.5f;
+				foreach (var a in Sim.AgentsWithin(GlobalPosition, 650f))
+					if (a != this && !a.IsDead && (a is Animal || IsHostileTo(a) || a is Npc { Raiding: true })) { ReadyGun(true); break; }
+			}
 			CursorOverWhat();
 			QuietWatch(dt);
 			LocalMove(dt);
@@ -1061,7 +1301,7 @@ public partial class PlayerController : Agent
 		if (headless && _quietInHeadless && _dialogue != null && _dialogue.IsOpen && (_leaveTimer += dt) > 3f) { _leaveTimer = 0f; NetHub.I?.DialogueRequest(_dialogue.CurrentNpc, _dialogue.OptionCount - 1); }
 		bool busy = Input.IsAnythingPressed() || Core.Pad.AnyAxisHeld() || IsDead || Ghost
 			|| (_dialogue != null && _dialogue.IsOpen) || (UI.ChatBox.Instance != null && UI.ChatBox.Instance.IsTyping)
-			|| UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen || UI.TravelMode.Active;
+			|| UI.PauseMenu.IsOpen || UI.MapPanel.IsOpen || UI.JournalPanel.IsOpen || UI.TravelMode.Active || UI.HandWork.IsOpen;
 		if (_quietInHeadless && busy != _lastBusy) { _lastBusy = busy; QuietDays.Dev(busy ? "hands on the controls" : "hands off"); }
 		if (busy || !Settings.QuietDays || headless && !_quietInHeadless)
 		{
@@ -1095,7 +1335,7 @@ public partial class PlayerController : Agent
 		IsSneaking = !typing && !Mounted && Input.IsActionPressed("sneak") && !Input.IsActionPressed("sprint");
 		IsSprinting = !typing && Input.IsActionPressed("sprint");
 		// With the pad in a menu, the left stick is moving through the menu, not you.
-		bool padInMenu = UI.PadDriver.MenuUp;
+		bool padInMenu = UI.PadDriver.MenuUp || UI.HandWork.IsOpen || UI.BoatPanel.IsOpen || UI.Fishing.IsOpen;
 		if (padInMenu) { IsSneaking = false; IsSprinting = false; }
 		Vector2 input = typing || padInMenu ? Vector2.Zero : Input.GetVector("move_left", "move_right", "move_up", "move_down");
 		if (input.LengthSquared() > 0.04f) _aimDir = input.Normalized();
@@ -1117,7 +1357,15 @@ public partial class PlayerController : Agent
 		}
 		bool slippery = false;
 		float ground = GroundFactor(out slippery);
-		if (IsAfloat) { ground = 1.5f * (Aboard != null && Aboard.Overloaded ? 0.6f : Aboard != null ? Mathf.Lerp(1f, 0.75f, Aboard.LoadLbs / Canoe.CapacityLbs) : 1f); slippery = false; }
+		if (IsAfloat)
+		{
+			// Her lines, her bones, the water in her (World/Canoe.SpeedFactor);
+			// a big canoe wants her crew, and alone you barely move her.
+			var rb = Riding;
+			float crew = rb == null || rb.Spec.Kind == BoatKind.Small ? 1f : Mathf.Clamp((1f + PaddlersWithMe()) / rb.Spec.Seats, 0.25f, 1f) / 0.85f;
+			ground = 1.5f * (rb != null && rb.Overloaded ? 0.6f : rb != null ? Mathf.Lerp(1f, 0.75f, rb.LoadLbs / rb.CapacityLbs) : 1f) * (1f + 0.2f * PaddlersWithMe()) * (rb?.SpeedFactor ?? 1f) * crew;
+			slippery = false;
+		}
 		// On the road the march is compressed with the clock (design doc 18.3).
 		float travelBoost = _travel != null ? Mathf.Clamp(NetHub.IsServer ? GameCalendar.Instance.MotionScale : GameCalendar.TravelBoost, 1f, 8f) : 1f;
 		// Your legs keep pace with a faster clock, as everyone else's do: at x2
@@ -1155,7 +1403,7 @@ public partial class PlayerController : Agent
 			if (IsSprinting) target = "run" + target.Substring(4);
 		}
 		// In a canoe he paddles; sitting still, the paddle rests.
-		bool paddling = IsAfloat && _sprite.SpriteFrames.HasAnimation("paddle");
+		bool paddling = (IsAfloat || RideId != 0) && _sprite.SpriteFrames.HasAnimation("paddle");
 		if (paddling) target = "paddle";
 		if (!_sprite.SpriteFrames.HasAnimation(target)) target = target.StartsWith("idle") ? "idle"
 			: target.StartsWith("run") && _sprite.SpriteFrames.HasAnimation("walk" + target.Substring(3)) ? "walk" + target.Substring(3) : "walk";
@@ -1218,7 +1466,7 @@ public partial class PlayerController : Agent
 			["dead"] = IsDead, ["anim"] = _oneShotAnim, ["cd"] = CooldownFraction, ["sheltered"] = IsSheltered,
 			["weapon"] = PreferredWeapon != null ? (int)PreferredWeapon.Value : -1, ["skip"] = NetHub.I?.SkipStatus() ?? "", ["focus"] = Core.Focus.For(this),
 			["px"] = GlobalPosition.X, ["py"] = GlobalPosition.Y, ["tele"] = _teleported, ["ride"] = RideId, ["faction"] = (int)Faction, ["afloat"] = Aboard != null, ["carry"] = Carrying != null,
-			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["skills"] = new float[] { Skills.Hunting, Skills.Trapping, Skills.Trade, Skills.Woodcraft }, ["furs"] = BelievedFursMb, ["quota"] = BelievedQuotaMb, ["counted"] = LastCountedDay, ["unworn"] = UnwornList(),
+			["drunk"] = Intoxication, ["sick"] = SickDaysLeft, ["rank"] = Rank, ["fresh"] = DaysSinceFresh, ["mail"] = MailSummary(), ["tongue"] = CreeFluency, ["tongue2"] = AssiniboineFluency, ["skills"] = new float[] { Skills.Hunting, Skills.Trapping, Skills.Trade, Skills.Woodcraft, Skills.Crafting }, ["furs"] = BelievedFursMb, ["quota"] = BelievedQuotaMb, ["counted"] = LastCountedDay, ["unworn"] = UnwornList(),
 			["journal"] = new Godot.Collections.Array(Journal.ConvertAll(s => (Variant)s)),
 			["qmark"] = Core.Quests.FocusMark(this) is { } qm ? new Godot.Collections.Array { qm.At.X, qm.At.Y, qm.Label } : new Godot.Collections.Array(),
 			["quests"] = new Godot.Collections.Array(Core.Quests.Summary(this).ConvertAll(s => (Variant)s)),
@@ -1253,7 +1501,7 @@ public partial class PlayerController : Agent
 		if (d.ContainsKey("tongue")) CreeFluency = (float)d["tongue"];
 		if (d.ContainsKey("tongue2")) AssiniboineFluency = (float)d["tongue2"];
 		if (d.ContainsKey("furs")) { BelievedFursMb = (float)d["furs"]; BelievedQuotaMb = (float)d["quota"]; LastCountedDay = (int)d["counted"]; }
-		if (d.ContainsKey("skills")) { var sk = (float[])d["skills"]; if (sk.Length == 4) { Skills.Hunting = sk[0]; Skills.Trapping = sk[1]; Skills.Trade = sk[2]; Skills.Woodcraft = sk[3]; } }
+		if (d.ContainsKey("skills")) { var sk = (float[])d["skills"]; if (sk.Length >= 4) { Skills.Hunting = sk[0]; Skills.Trapping = sk[1]; Skills.Trade = sk[2]; Skills.Woodcraft = sk[3]; if (sk.Length >= 5) Skills.Crafting = sk[4]; } }
 		if (d.ContainsKey("unworn")) { Inventory.Unworn.Clear(); foreach (int u in (int[])d["unworn"]) Inventory.Unworn.Add((ItemId)u); }
 		if (d.ContainsKey("mail") && !NetHub.IsServer) { Mail.Clear(); foreach (string line in (string[])d["mail"]) { var parts = line.Split('|'); Mail.Add(new Message { Kind = parts[0], From = parts[1], To = parts[2], Subject = parts[3], Read = parts[4] == "1", Text = parts.Length > 5 ? parts[5] : "" }); } }
 		Journal.Clear(); foreach (var e in (Godot.Collections.Array)d["journal"]) Journal.Add((string)e);
@@ -1271,9 +1519,10 @@ public partial class PlayerController : Agent
 		if (IsDead) return action == "respawn" ? Respawn() : "";
 		switch (action)
 		{
-			case "interact": return Interact();
+			case "interact": { _serverPick = args != null && args.Count > 0 ? (int)args[0] : 0; var said = Interact(); _serverPick = 0; return said; }
 			case "mount": return RideAction();
 			case "use": return UseSlotServer((int)args[0]);
+			case "fish_catch": return World.Angling.Land(this, (int)args[0], new Vector2((float)args[1], (float)args[2]));
 			case "travel": TravellingServer = (bool)args[0]; return "";
 			case "ride_off": Convoys.Leave(this, "You step ashore."); return "";
 			case "click": { var r = ClickAt((int)args[0], new Vector2((float)args[1], (float)args[2])); if (_devClick) GD.Print("[click] " + r); return r; }
@@ -1339,6 +1588,7 @@ public partial class PlayerController : Agent
 			case "cancel_wait": WantsSkipHours = 0f; return "";
 			case "quiet_on": WantsQuiet = true; return "";
 			case "quiet_off": WantsQuiet = false; return "";
+			case "handwork": return Boatbuilding.Result(this, (int)args[0], (float)args[1], (Godot.Collections.Array)args[2], (Godot.Collections.Array)args[3]);
 			case "canoe_load": return CanoeLoad(Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 150f), (bool)args[0]);
 			case "canoe":
 			{
@@ -1356,7 +1606,16 @@ public partial class PlayerController : Agent
 				SetStartPosition(IsoGrid.ToWorld(water.Value));
 				canoe.SetState(GlobalPosition, NetId);
 				Aboard = canoe;
-				return "You push off. Paddle with the movement keys; step onto any bank to land.";
+				// Another's canoe taken from the shore: whoever sees it remembers.
+				if (canoe.Owner != "" && canoe.Owner != DisplayName)
+				{
+					int seen = 0;
+					foreach (var a in Sim.AgentsWithin(GlobalPosition, 700f))
+						if (a is Npc w && !w.IsDead && (w.HomeStores?.Title == canoe.Owner || Boatwrights.YardOf(w.HomeStores)?.Name == canoe.Owner || w.DisplayName == canoe.Owner)) { w.ChangeRapport(this, -8f); seen++; }
+					if (seen > 0) Chronicle.Event($"{DisplayName} took {canoe.Owner}'s canoe from the shore.", GlobalPosition, this, canoe.Owner, 1.2f);
+				}
+				string tell = canoe.Leaks.Count > 0 || canoe.Bilge > 0.2f ? $" She leaks ({canoe.Leaks.Count} places): keep an eye on the water in her." : "";
+				return "You push off. Paddle with the movement keys; step onto any bank to land." + tell;
 			}
 			case "dev_teleport":
 				if (!OS.IsDebugBuild()) return "";
@@ -1371,7 +1630,7 @@ public partial class PlayerController : Agent
 
 	// Sleeping and waiting are agreed by everyone alive (design doc: one
 	// shared clock). Solo, that's just you.
-	private string RequestSkip(float hours, string text)
+	public string RequestSkip(float hours, string text)
 	{
 		WantsSkipHours = hours;
 		NetHub.I?.ServerCheckSkip();
@@ -1538,6 +1797,10 @@ public partial class PlayerController : Agent
 				if (Sim.Structures.FellTreeAt(tree.Value)) { Inventory.Add(ItemId.Firewood, Skills.Woodcraft >= 0.5f ? 6 : 4); Skills.Learn(ref Skills.Woodcraft, 0.02f, "felling and splitting wood"); _busyUntil = Skills.Woodcraft >= 0.5f ? 0.8f : 1.2f; Chronicle.Event($"{DisplayName} felled a tree.", GlobalPosition, this, weight: 0.1f); return "You fell the spruce and split it: 4 firewood."; }
 				return "The axe glances off.";
 			}
+			// The crooked knife: what the bush here gives for a canoe, and a bed for one (World/Boatbuilding).
+			case ItemKind.Tool when id == ItemId.CrookedKnife:
+				NetHub.I?.PushDialogue(this, Conversation.StartScene(Boatbuilding.GatherPage(this)));
+				return "";
 			case ItemKind.Tool when id == ItemId.Snowshoes:
 				Inventory.ToggleWorn(id);
 				return Inventory.IsWorn(id) ? "You lace on the snowshoes. Snow is no trouble now." : "You take the snowshoes off.";
@@ -1625,7 +1888,7 @@ public partial class PlayerController : Agent
 	private string Interact()
 	{
 		if (Carrying != null) return SetDownCanoe();
-		var npc = NearestNpc(110f);
+		var npc = PickedNpc(true);
 		if (npc != null && !npc.IsDead)
 		{
 			var state = Conversation.Start(npc);
@@ -1714,7 +1977,7 @@ public partial class PlayerController : Agent
 			return "";
 		}
 
-		var nearCanoe = Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f);
+		var nearCanoe = Aboard ?? Sim.Spawner?.NearestBoat(GlobalPosition, 240f);
 		if (nearCanoe != null) { NetHub.I?.PushDialogue(this, Conversation.StartCanoe(nearCanoe)); return ""; }
 
 		var bed = Sim.Structures?.NearestBed(GlobalPosition, 90f);
@@ -1802,8 +2065,13 @@ public partial class PlayerController : Agent
 		if (_travel != null) return "On the river road - E or any step stops";
 		if (IsCarryingCanoe) return $"{Core.Keybinds.KeyFor("interact")}  Set the canoe down";
 		if (NearRoadHead(out bool atYork) && NearestNpc(110f) == null) return atYork ? $"{Core.Keybinds.KeyFor("interact")}  Take the river road inland to Oxford House (a day's march)" : $"{Core.Keybinds.KeyFor("interact")}  Take the river road down to York Factory";
-		var npc = NearestNpc(110f);
-		if (npc != null) return $"{Core.Keybinds.KeyFor("interact")}  Talk to {npc.DisplayName}";
+		if (_pick != 0 && _pickAt.DistanceTo(GlobalPosition) > 60f) _pick = 0;   // walked off: back to the nearest
+		var npc = PickedNpc(false);
+		int reach = PeopleInReach(false).Count;
+		int choices = reach + (OtherThanPeople() ? 1 : 0);
+		string more = reach > 0 && choices > 1 ? $"   ({Core.Keybinds.KeyFor("interact_next")}: next - {Mathf.Min(_pick, choices - 1) + 1} of {choices})" : "";
+		if (npc != null) return $"{Core.Keybinds.KeyFor("interact")}  Talk to {npc.DisplayName}{more}";
+		if (reach > 0) { _hintPeopleSkipped = true; var rest = InteractHint(); _hintPeopleSkipped = false; return rest == "" ? "" : rest + more; }
 		if (NearOwnHorse) return $"{Core.Keybinds.KeyFor("interact")}  Get up on {HorseName}";
 		var body = NearestCorpse(110f);
 		if (body != null) return body is Animal ? $"{Core.Keybinds.KeyFor("interact")}  Butcher the {body.Describe().ToLower()}" : $"{Core.Keybinds.KeyFor("interact")}  Search {body.Describe()}";
@@ -1814,7 +2082,7 @@ public partial class PlayerController : Agent
 		var lodge = Sim.Ecology?.SiteNear(GlobalPosition, Ecology.Species.Beaver);
 		if (lodge != null) { var line = lodge.LineOf(TrapOwner); return line != null && line.Traps > 0 ? $"{Core.Keybinds.KeyFor("interact")}  Check your traps ({lodge.Name})" : Inventory.Has(ItemId.SteelTrap) ? $"Use a steel trap here to set a line ({lodge.Name})" : $"{lodge.Name}"; }
 		if (Aboard == null && ConvoyView.NearestId(GlobalPosition, 260f) is var boatId && boatId != 0) return $"{Core.Keybinds.KeyFor("interact")}  {ConvoyView.NameOf(boatId)}";
-		if ((Aboard ?? Sim.Spawner?.NearestFreeCanoe(GlobalPosition, 240f)) != null) return $"{Core.Keybinds.KeyFor("interact")}  The canoe";
+		if ((Aboard ?? Sim.Spawner?.NearestBoat(GlobalPosition, 240f)) is { } hb) return $"{Core.Keybinds.KeyFor("interact")}  {(hb.Building ? "The canoe bed" : hb.BoatName != "" ? hb.BoatName : "The " + hb.Spec.Short)}";
 		if (Sim.Structures?.NearestBed(GlobalPosition, 90f) != null) return (GameCalendar.Instance?.Hour ?? 12f) is >= 17f or < 6f ? $"{Core.Keybinds.KeyFor("interact")}  Sleep till morning" : $"{Core.Keybinds.KeyFor("interact")}  Rest an hour";
 		foreach (var h in OtherHouseholds()) if (GlobalPosition.DistanceTo(IsoGrid.ToWorld(h.WoodpileCell)) < 120f) return $"{Core.Keybinds.KeyFor("interact")}  {h.Title}'s woodpile";
 		var fort = HomePost;
@@ -1846,11 +2114,11 @@ public partial class PlayerController : Agent
 				if (k == ItemKind.Clothing || k == ItemKind.Weapon || (k == ItemKind.Food && n <= 2)) continue;
 				int give = k == ItemKind.Food ? n - 2 : n;
 				float each = Items.Items.Of(id).WeightLbs;
-				if (c.LoadLbs + each * give > Canoe.CapacityLbs) give = Mathf.FloorToInt((Canoe.CapacityLbs - c.LoadLbs) / Mathf.Max(0.1f, each));
+				if (c.LoadLbs + each * give > c.CapacityLbs) give = Mathf.FloorToInt((c.CapacityLbs - c.LoadLbs) / Mathf.Max(0.1f, each));
 				if (give <= 0) continue;
 				Inventory.Remove(id, give); c.Cargo.Add(id, give); moved += give;
 			}
-			return moved > 0 ? $"You stow {moved} lots in her ({c.LoadLbs:0}/{Canoe.CapacityLbs:0} lb)." : "Nothing to stow, or she's full.";
+			return moved > 0 ? $"You stow {moved} lots in her ({c.LoadLbs:0}/{c.CapacityLbs:0} lb)." : "Nothing to stow, or she's full.";
 		}
 		foreach (var (id, n) in new List<(ItemId, int)>(c.Cargo.All())) { c.Cargo.Remove(id, n); Inventory.Add(id, n); moved += n; }
 		return moved > 0 ? $"You take {moved} lots out of her." : "She's empty.";
@@ -1916,6 +2184,36 @@ public partial class PlayerController : Agent
 		foreach (var _ in Sim.Players()) n++;
 		return n;
 	}
+
+	// Who A talks to: the nearest, or the one the cycle button has moved to;
+	// past the last person comes whatever else is in reach (the canoe).
+	private int _pick, _serverPick;
+	private Vector2 _pickAt;
+	private bool _hintPeopleSkipped;
+	private List<Npc> PeopleInReach(bool server)
+	{
+		var list = new List<Npc>();
+		if (_hintPeopleSkipped && !server) return list;
+		foreach (var a in Sim.AgentsWithin(GlobalPosition, 110f))
+			if (a is Npc n && !n.IsDead && GlobalPosition.DistanceTo(n.GlobalPosition) < 110f) list.Add(n);
+		list.Sort((a, b) => GlobalPosition.DistanceSquaredTo(a.GlobalPosition).CompareTo(GlobalPosition.DistanceSquaredTo(b.GlobalPosition)));
+		return list;
+	}
+	private Npc PickedNpc(bool server)
+	{
+		var list = PeopleInReach(server);
+		int i = server ? _serverPick : _pick;
+		return i < list.Count ? list[i] : null;
+	}
+	// More than one person or thing in reach for E: the cycle key (G) is
+	// for choosing among them, not for setting out (UI/TravelMode).
+	public bool CanCycleInteract
+	{
+		get { if (IsDead || _travel != null) return false; int reach = PeopleInReach(false).Count; return reach > 1 || reach > 0 && OtherThanPeople(); }
+	}
+	private bool OtherThanPeople() => NearOwnHorse || NearestCorpse(110f) != null || NearestPickup() != null
+		|| (Aboard ?? Sim.Spawner?.NearestBoat(GlobalPosition, 240f)) != null || Sim.Structures?.NearestBed(GlobalPosition, 90f) != null
+		|| Sim.Structures != null && Sim.Structures.HasDoorNear(Position) || Sim.Structures?.HearthNear(GlobalPosition) != null;
 
 	private Npc NearestNpc(float reach)
 	{

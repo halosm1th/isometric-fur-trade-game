@@ -518,7 +518,18 @@ public partial class Net : Node
         if (Sim.Structures != null) foreach (var h in Sim.Structures.AllHearths) hearths.Add(new Godot.Collections.Array { h.Cell.X, h.Cell.Y, h.Lit ? h.FuelHours : -h.FuelHours - 0.001f });
         var ship = Sim.Ship;
         var canoes = new Godot.Collections.Array();
-        if (Sim.Spawner != null) foreach (var c in Sim.Spawner.Canoes) canoes.Add(new Godot.Collections.Array { c.Index, c.GlobalPosition.X, c.GlobalPosition.Y, c.RiderNetId });
+        if (Sim.Spawner != null) foreach (var c in Sim.Spawner.Canoes) canoes.Add(new Godot.Collections.Array { c.Index, c.GlobalPosition.X, c.GlobalPosition.Y, c.RiderNetId, (int)c.Kind, c.Stage });
+        // The boats near each joined player, in full: her hull, her leaks, her
+        // load, for the bank menu's words and the boats page (UI/BoatPanel).
+        if (Sim.Spawner != null)
+            foreach (var kv in Players)
+            {
+                if (kv.Key == LocalPeerId || !IsInstanceValid(kv.Value)) continue;
+                var near = new Godot.Collections.Array();
+                foreach (var c in Sim.Spawner.Canoes)
+                    if (c.GlobalPosition.DistanceTo(kv.Value.GlobalPosition) < 2600f || c.Owner == kv.Value.DisplayName || c.CommissionedBy == kv.Value.DisplayName) near.Add(c.Pack());
+                if (near.Count > 0) RpcId(kv.Key, nameof(BoatsRpc), near);
+            }
         var fires = new Godot.Collections.Array();
         if (Fire.I != null) foreach (var c in Fire.I.BurningCells) fires.Add(new Godot.Collections.Array { c.X, c.Y });
         Rpc(nameof(SlowState), hearths, ship != null ? ship.GlobalPosition : Vector2.Zero, ship != null ? (int)ship.Current : 0, SkipStatus(), canoes, fires);
@@ -536,11 +547,20 @@ public partial class Net : Node
         Fire.I?.ClientSync(fires);
         if (Sim.Spawner != null)
         {
+            var seen = new HashSet<int>();
             foreach (var e in canoes)
             {
                 var row = (Godot.Collections.Array)e; int idx = (int)row[0];
-                if (idx < Sim.Spawner.Canoes.Count) Sim.Spawner.Canoes[idx].SetState(new Vector2((float)row[1], (float)row[2]), (int)row[3]);
+                var pos = new Vector2((float)row[1], (float)row[2]);
+                var kind = row.Count > 4 ? (BoatKind)(int)row[4] : BoatKind.Small;
+                // A boat the host has and this machine hasn't seen yet: make its copy.
+                var c = Sim.Spawner.CanoeAt(idx) ?? Sim.Spawner.PlaceCanoe(idx, pos, kind);
+                if (c.Kind != kind || row.Count > 5 && c.Stage != (int)row[5]) { c.Kind = kind; if (row.Count > 5) c.Stage = (int)row[5]; c.Refresh(); }
+                c.SetState(pos, (int)row[3]);
+                seen.Add(idx);
             }
+            // Gone on the host (wrecked, broken up, into a post's yard): gone here.
+            foreach (var c in new List<Canoe>(Sim.Spawner.Canoes)) if (!seen.Contains(c.Index)) Sim.Spawner.RemoveCanoe(c);
         }
         if (Sim.Structures != null)
         {
@@ -553,6 +573,32 @@ public partial class Net : Node
         Sim.Ship?.ClientSync(shipPos, (Ship.State)shipState);
         SkipStatusText = skipStatus;
     }
+
+    private static readonly bool _boatTrace = System.Array.Exists(OS.GetCmdlineUserArgs(), a => a.StartsWith("--boatcount"));
+    private int _boatsHeard;
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void BoatsRpc(Godot.Collections.Array boats)
+    {
+        if (_boatTrace && _boatsHeard++ % 20 == 0) GD.Print($"[boats] the host tells of {boats.Count} boats near you");
+        if (Sim.Spawner == null) return;
+        foreach (var v in boats)
+        {
+            var d = v.AsGodotDictionary();
+            int idx = d["i"].AsInt32();
+            var c = Sim.Spawner.CanoeAt(idx) ?? Sim.Spawner.PlaceCanoe(idx, Vector2.Zero, (BoatKind)d["k"].AsInt32());
+            c.Unpack(d);
+        }
+    }
+
+    // A piece of hand-work for one player to play (UI/HandWork; World/Boatbuilding).
+    public void StartHandWork(PlayerController p, Godot.Collections.Dictionary req)
+    {
+        if (p == null) return;
+        if (p.OwnerPeer == LocalPeerId) UI.HandWork.Open(req);
+        else if (Current != Mode.Offline) RpcId(p.OwnerPeer, nameof(HandWorkRpc), req);
+    }
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void HandWorkRpc(Godot.Collections.Dictionary req) => UI.HandWork.Open(req);
 
     // ---- world changes ------------------------------------------------------
 

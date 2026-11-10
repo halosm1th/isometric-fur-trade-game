@@ -146,6 +146,13 @@ public class SpawnSite
             }
             return;
         }
+        // The geese come back down the flyway every spring and autumn whatever
+        // was shot at one marsh; the hare flats, the ptarmigan willows and the
+        // fisheries are thinned by a hard winter's snaring and netting, not
+        // ended by it. These grounds go lean and come back (WeeklyTick); only a
+        // lodge or a resident herd can be hunted out for good. A marsh killed
+        // for ever used to leave York with no goose hunt in every autumn after.
+        if (Species is Species.Goose or Species.Hare or Species.Ptarmigan or Species.Fish) return;
         if (!IsDead && Count < Capacity * Def.SustainFloor)
         {
             BreedingCapacity = 0f;
@@ -361,6 +368,11 @@ public partial class EcologyManager : Node2D
                 if (site.Count < site.Capacity * 0.45f) score *= 0.4f;
                 // A lodge a day's walk away is worth a fraction of one at the door.
                 float walk = IsoGrid.ToWorld(knownBy.AccessCell).DistanceTo(site.WorldPos);
+                // A post's men go out for the day and come back: a plain two
+                // hundred miles off (Cumberland House was sent to the Touchwood
+                // Hills every morning, failed the road, and stood about) is no
+                // day's hunt, however thick the buffalo on it.
+                if (knownBy is Economy.FortLedger && walk > 40f * World.WorldMap.PxPerKm) continue;
                 score /= 1f + walk / 2500f;
             }
             if (best == null || score > bestScore) { best = site; bestScore = score; }

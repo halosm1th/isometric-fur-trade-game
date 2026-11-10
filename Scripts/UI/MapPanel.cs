@@ -44,6 +44,8 @@ public partial class MapPanel : Control
         GetParent()?.CallDeferred(Node.MethodName.AddChild, new WayfindingHud { Name = "Wayfinding" });
         GetParent()?.CallDeferred(Node.MethodName.AddChild, new TravelMode { Name = "TravelMode" });
         GetParent()?.CallDeferred(Node.MethodName.AddChild, new RewardPopups { Name = "RewardPopups" });
+        GetParent()?.CallDeferred(Node.MethodName.AddChild, new BoatPanel { Name = "BoatPanel" });
+        GetParent()?.CallDeferred(Node.MethodName.AddChild, new HandWork { Name = "HandWork" });
     }
 
     public override void _UnhandledInput(InputEvent @event)

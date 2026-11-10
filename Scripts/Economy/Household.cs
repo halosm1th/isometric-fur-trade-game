@@ -93,8 +93,10 @@ public partial class Household : Node
         return false;
     }
 
-    // Fresh meat doesn't keep. A tenth of it goes bad each day in the cache
-    // (winter halves that) - the reason drying and pemmican exist.
+    // Fresh meat doesn't keep. A tenth of it goes bad each day in the cache -
+    // the reason drying and pemmican exist. In a frozen country it is another
+    // matter: meat and fish hung frozen in the flesh house keep the winter
+    // through, which is how a post ate fresh till spring and kept off the scurvy.
     private int _spoilDay = -1;
     public override void _Process(double delta) => SpoilDay();
 
@@ -105,7 +107,8 @@ public partial class Household : Node
         _spoilDay = cal.Day;
         int fresh = Stores.Count(ItemId.Venison) + Stores.Count(ItemId.Goose) + Stores.Count(ItemId.Fish) + Stores.Count(ItemId.Hare) + Stores.Count(ItemId.Ptarmigan) + Stores.Count(ItemId.Berries);
         if (fresh == 0) return;
-        float rate = cal.IsFrozen ? 0.05f : 0.12f;
+        bool frozen = Sim.Terrain?.FrozenAt(IsoGrid.ToWorld(AccessCell)) ?? cal.IsFrozen;
+        float rate = frozen ? 0.01f : 0.12f;
         int lost = Mathf.FloorToInt(fresh * rate + (GD.Randf() < (fresh * rate) % 1f ? 1 : 0));
         int v = Stores.TakeUpTo(ItemId.Venison, lost);
         if (v < lost) v += Stores.TakeUpTo(ItemId.Goose, lost - v);

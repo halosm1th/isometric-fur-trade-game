@@ -183,7 +183,7 @@ public static class Accords
 
     // A camp's war party rides out (War.Launch): a breach if it rides against
     // a partner in peace; the victim's allies come out.
-    public static void WarParty(BandLedger from, Household against)
+    public static void WarParty(Household from, Household against)
     {
         if (Between(from, against, Term.Peace) is { } peace) Breach(peace, from, $"its men rode against {Name(against)}");
         Allies(against, from);

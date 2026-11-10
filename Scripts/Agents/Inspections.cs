@@ -279,7 +279,7 @@ public static class Inspections
     private static void OpenKit(PlayerController p)
     {
         var boss = p.HomePost?.Leader;
-        if (boss == null) return;
+        if (boss == null || p.Ghost) return;   // the observer has no chest to turn out
         GD.Print($"[inspect] kit inspection page for {p.DisplayName}");
         NetHub.I?.PushDialogue(p, p.Conversation.StartScene(KitPage(p, p.HomePost, boss)));
     }

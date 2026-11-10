@@ -148,11 +148,20 @@ public static class YorkHappenings
 
     private static ScenePage Brawl(PlayerController p)
     {
-        var men = MenNear(p.GlobalPosition, 1400f, Hand);
-        if (men.Count < 2) return null;
-        Npc a = men[0], b = men[1];
+        // Two men where you can see them, near enough each other to come to
+        // blows - and then they do. (It used to name two men from anywhere
+        // within a long walk, who carried on with their work while the page
+        // said they were rolling in the mud.)
+        var men = MenNear(p.GlobalPosition, 700f, n => Hand(n) && !n.Sleeping && n.Following == null && n.HeldBy == null);
+        Npc a = null, b = null;
+        for (int i = 0; i < men.Count && a == null; i++)
+            for (int j = i + 1; j < men.Count; j++)
+                if (men[i].GlobalPosition.DistanceTo(men[j].GlobalPosition) < 450f) { a = men[i]; b = men[j]; break; }
+        if (a == null) return null;
         string an = a.DisplayName, bn = b.DisplayName;
         a.Bark($"Say that again, {Barks.CallName(b)}!"); b.Bark("I'll say it twice!");
+        a.Brain.Push(a, new Agents.Goals.BrawlGoal(b));
+        b.Brain.Push(b, new Agents.Goals.BrawlGoal(a));
         Sim.Noise(a.GlobalPosition, 700f, a, "hit");
         var page = Page("A fight", $"Shouting, then the flat smack of a fist. {an} and {bn} are at it in the mud, rolling over and over, and a ring of men is already forming round them. Somebody is laying odds on {bn}.");
         page.Add("Get between them", () =>

@@ -36,7 +36,7 @@ public class WarPartyGoal : Goal
 			// Home the way they came.
 			var back = _party.Route != null ? new List<Vector2>(_party.Route) : new List<Vector2> { _party.Target, _party.Home };
 			back.Reverse();
-			_legs = Legs(npc.GlobalPosition, back, _party.From.Camp);
+			_legs = Legs(npc.GlobalPosition, back, War.CampOf(_party.From));
 			_leg = 0;
 			return Delegate(new GoToGoal(_legs[0], 300f));
 		}

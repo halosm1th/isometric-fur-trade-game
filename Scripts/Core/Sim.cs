@@ -62,8 +62,8 @@ public static class Sim
         // with it, and the new scene subscribes afresh in its _Ready.
         LocalPlayerChanged = null; OnHeadline = null;
         IsometricFurTradeGame.Scripts.World.WorldLayout.ForgetSites();
-        YorkHappenings.Reset(); IsometricFurTradeGame.Scripts.Agents.WinterStrain.Reset(); IsometricFurTradeGame.Scripts.Agents.Inspections.Reset(); Nwc = null; Outpost = null; Assiniboine = null; Bands.Clear(); Economy.Union.Reset(); QuietDays.Reset();
-        IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); UI.Acquaintance.Clear(); World.Fields.Clear(); Economy.Money.Clear(); Laws.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear(); IsometricFurTradeGame.Scripts.Agents.Barks.Reset(); IsometricFurTradeGame.Scripts.Agents.Losses.Reset(); IsometricFurTradeGame.Scripts.Agents.Lies.Reset(); IsometricFurTradeGame.Scripts.Agents.Friends.Reset(); IsometricFurTradeGame.Scripts.Agents.Favours.Reset(); IsometricFurTradeGame.Scripts.Agents.Leverage.Reset(); Core.Starts.Reset(); Core.CharacterSheet.ResetKin();
+        YorkHappenings.Reset(); IsometricFurTradeGame.Scripts.Agents.WinterStrain.Reset(); IsometricFurTradeGame.Scripts.Agents.Inspections.Reset(); Nwc = null; Outpost = null; Assiniboine = null; Bands.Clear(); Economy.Union.Reset(); QuietDays.Reset(); OpenCountry.Reset();
+        IsometricFurTradeGame.Scripts.Agents.Grudges.All.Clear(); UI.Acquaintance.Clear(); World.Fields.Clear(); Economy.Money.Clear(); Laws.Clear(); Mail.Abroad.Clear(); Economy.Council.Letters.Clear(); IsometricFurTradeGame.Scripts.Agents.Barks.Reset(); IsometricFurTradeGame.Scripts.Agents.Losses.Reset(); IsometricFurTradeGame.Scripts.Agents.Lies.Reset(); IsometricFurTradeGame.Scripts.Agents.Friends.Reset(); IsometricFurTradeGame.Scripts.Agents.Favours.Reset(); IsometricFurTradeGame.Scripts.Agents.Leverage.Reset(); Core.Starts.Reset(); Core.CharacterSheet.ResetKin(); World.Boatwrights.Reset(); World.Boatbuilding.Reset();
     }
 
     // A sound in the world (design doc 15, 16): animals in range react, and
@@ -111,7 +111,14 @@ public static class Sim
     // sitting - and reaches the console only.
     public const float SightPx = 2400f;   // a post is some 1500 px across: within sight of it, or of the man
 
-    public static void Log(string text) { if (!string.IsNullOrEmpty(text)) GD.Print($"[world] {text}"); }
+    // An observer (Observer, PlayerController.Ghost) is nobody in the country
+    // and sees all of it: every line goes in their log, wherever it happened.
+    public static void Log(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+        GD.Print($"[world] {text}");
+        foreach (var p in Players()) if (p != null && GodotObject.IsInstanceValid(p) && p.Ghost) Net.Net.I?.LogTo(p, text);
+    }
 
     public static void NoticeAt(Vector2 where, string text) => TellNear(where, text, false);
     public static void NoticeAt(Agent who, string text) { if (who != null && GodotObject.IsInstanceValid(who)) TellNear(who.GlobalPosition, text, false); else Log(text); }
@@ -127,7 +134,10 @@ public static class Sim
         bool seen = false;
         foreach (var p in Players())
         {
-            if (p == null || !GodotObject.IsInstanceValid(p) || p.IsDead || p.GlobalPosition.DistanceTo(where) > SightPx) continue;
+            if (p == null || !GodotObject.IsInstanceValid(p)) continue;
+            // The observer reads it all, but only what is in sight takes the screen.
+            if (p.Ghost && p.GlobalPosition.DistanceTo(where) > SightPx) { Net.Net.I?.LogTo(p, text); continue; }
+            if (p.IsDead || p.GlobalPosition.DistanceTo(where) > SightPx) continue;
             seen = true;
             if (headline) Net.Net.I?.HeadlineTo(p, text); else Net.Net.I?.LogTo(p, text);
         }

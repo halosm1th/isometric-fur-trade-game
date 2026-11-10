@@ -19,6 +19,19 @@ public static class Observer
     public static string FollowName = "";
     public static Func<Vector2?> Follow;
 
+    // The one person clicked on, whose particulars are up (UI/ObserverInspect).
+    public static Agents.Agent Picked;
+    // A power waiting for its second person (UI/ObserverInspect): the next click goes to it.
+    public static Action<Agents.Agent> Targeting;
+    public static void Pick(Agents.Agent a)
+    {
+        Picked = a;
+        if (a == null) { if (Follow != null && Follow == _pickFollow) { Follow = null; FollowName = ""; } _pickFollow = null; return; }
+        FollowName = a.Describe();
+        Follow = _pickFollow = () => GodotObject.IsInstanceValid(a) && a.IsInsideTree() ? a.GlobalPosition : null;
+    }
+    private static Func<Vector2?> _pickFollow;
+
     // Things happening in the country worth watching, for Tab to step through.
     public static List<(string Name, Func<Vector2?> Where)> Happenings()
     {

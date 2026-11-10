@@ -246,6 +246,9 @@ public partial class GameCalendar : Node
         if (QuietDays.Tick()) speed = Mathf.Max(speed, QuietDays.Speed);
         if (SkipRemaining > 0f) speed = SkipSpeed;
         DeltaGameHours = Mathf.Min(MaxDeltaHours, (float)delta / SecondsPerGameHour * speed);
+        // Out in the open country the miles walked cost their hours (OpenCountry).
+        float walked = OpenCountry.Hours(delta, SecondsPerGameHour);
+        if (SkipRemaining <= 0f) DeltaGameHours = Mathf.Min(MaxDeltaHours, Mathf.Max(DeltaGameHours, walked));
         if (SkipRemaining > 0f)
         {
             DeltaGameHours = Mathf.Min(DeltaGameHours, SkipRemaining);

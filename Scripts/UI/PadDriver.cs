@@ -15,7 +15,10 @@ public partial class PadDriver : Node
     // When the right stick last moved the pointer in play: for a while after,
     // the pad's "use" goes where the pointer is, not just ahead of you.
     public static ulong AimedAtMs;
-    public static bool Aiming => Pad.Active && Time.GetTicksMsec() - AimedAtMs < 4000;
+    public static bool Aiming => Pad.Active && (GunReady || Time.GetTicksMsec() - AimedAtMs < 4000);
+    // The musket brought up (Player/PlayerController, the right-stick click
+    // or X): the pointer is the sights, and nothing fires till you pull.
+    public static bool GunReady;
 
     private Control _lastFocus;
 
@@ -187,6 +190,7 @@ public partial class PadDriver : Node
             return;
         }
         if (MapPanel.IsOpen) return;   // the map pans itself
+        if (GunReady) return;          // the sights take the stick (UI/Sights)
         // In play: the pointer follows the right stick.
         var pos = vp.GetMousePosition() + rs * rs.Length() * 1100f * dt;
         var size = vp.GetVisibleRect().Size;

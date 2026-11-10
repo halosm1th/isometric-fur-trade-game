@@ -54,6 +54,7 @@ public static class Tiers
             World.Brigades.Season();
             World.Brigades.Tick();
             World.Convoys.Tick();
+            World.Boatwrights.Day();
             ulong t1 = Time.GetTicksUsec();
             DailyBatch();
             if (Perf) GD.Print($"[perf] day {cal.Day}: the day's round {(t1 - t0) / 1000f:0.0} ms, the batch's first slice {(Time.GetTicksUsec() - t1) / 1000f:0.0} ms, {_batch.Count} to go");
@@ -314,7 +315,9 @@ public static class Tiers
         if (home.Stores.Count(ItemId.Firewood) < 30) { home.Stores.Add(ItemId.Firewood, n.Skills.Woodcraft >= 0.5f ? 5 : 4); n.Skills.Learn(ref n.Skills.Woodcraft, 0.004f); return; }
         // Traps if there is a line to work; otherwise out after meat. A man
         // whose trapline comes to nothing does not stand about all day.
-        if (home is FortLedger f && f.Stores.Has(ItemId.SteelTrap) && GameCalendar.Instance.CurrentSeason == Season.Winter && Trap(n, home)) return;
+        // But a house going hungry sends its men after meat, not beaver.
+        bool hungry = home.FoodDays(Mouths(home)) < 14f;
+        if (!hungry && home is FortLedger f && f.Stores.Has(ItemId.SteelTrap) && GameCalendar.Instance.CurrentSeason == Season.Winter && Trap(n, home)) return;
         Hunt(n, home);
     }
 

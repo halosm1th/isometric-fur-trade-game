@@ -121,6 +121,9 @@ public sealed class Convoy
 	public bool Late;
 	public int ArrivedDay;                  // boats lie at the landing for the rest of the day they come in
 	public int Crew, Boats;
+	// How sound her boats are, all told (World/Boats): worn by every day and
+	// portage, opened on the rocks, put right by a day's gumming on the bank.
+	public float Hull = 0.9f;
 	public string Guide = "";
 	public readonly Inventory Cargo = new(), Provisions = new();
 	public int LotsAtStart;
@@ -262,7 +265,7 @@ public static class Convoys
 	public static void Reset()
 	{
 		foreach (var c in All) DropMen(c);
-		All.Clear(); Riders.Clear(); _paths.Clear(); _launched.Clear(); _waiting.Clear(); JourneyIncidents.Reset();
+		All.Clear(); Riders.Clear(); _paths.Clear(); _landings.Clear(); _launched.Clear(); _waiting.Clear(); JourneyIncidents.Reset();
 		_lastDay = -1; _nextId = 1; _seeded = false; _loaded = false;
 		_devLaunched = false;
 	}
@@ -290,12 +293,20 @@ public static class Convoys
 	}
 
 	// Where boats come in to a post: its landing, outside the palisade.
+	// The landing is on the water nearest the post's gate: the boats lie in
+	// it and the camp goes on the bank beside it (LandNear). It used to be
+	// the gate itself, and at Oxford House the old river road's head, so the
+	// boats were drawn up on the grass by the palisade.
+	private static readonly Dictionary<string, Vector2> _landings = new();
 	public static Vector2 Landing(string name)
 	{
 		if (name == "York Factory") return IsoGrid.ToWorld(WorldLayout.WharfEnd);
-		if (name == "Oxford House") return IsoGrid.ToWorld(WorldLayout.RoadHeadOutpost);
-		if (Posts.Named(name) is { } p) return IsoGrid.ToWorld(p.GateOutside);
-		return PostPos(name);
+		if (name != null && _landings.TryGetValue(name, out var known)) return known;
+		Vector2I? gate = name == "Oxford House" ? WorldLayout.OutpostGateOutside : Posts.Named(name)?.GateOutside;
+		if (gate == null) return PostPos(name);
+		var at = IsoGrid.ToWorld(WaterNear(gate.Value, 40) ?? gate.Value);
+		_landings[name] = at;
+		return at;
 	}
 
 	// The nearest open-water cell, ring by ring outward; null if none within reach.
@@ -544,9 +555,14 @@ public static class Convoys
 			Upstream = leg.Cargo == "outfit", Boats = run.Boats, Crew = run.Boats * run.Men,
 			Guide = GuideFor(run),
 		};
+		// The boats themselves come out of the sending post's yard (World/
+		// Boatwrights): a yard short of boats sends fewer, and worn ones.
+		var (got, sound) = Boatwrights.Draw(leg.From, Boats.ForCraft(run.Craft.Name), run.Boats);
+		c.Boats = got; c.Hull = sound;
+		if (got < run.Boats) Hear(c, $"Only {got} of {run.Boats} {run.Craft.Name}s at {leg.From} were fit to go with {run.Name}: the yard is short of boats.", "", 0.8f);
 		// A boat carries pieces of ninety pounds (design doc 12): what fills her
 		// is weight, so a case of awls is one piece and not two hundred.
-		float capLbs = run.Craft.LotsPerBoat * run.Boats * 90f;
+		float capLbs = run.Craft.LotsPerBoat * c.Boats * 90f;
 		int Fits(ItemId id, int n) => Mathf.Min(n, Mathf.FloorToInt(capLbs / Mathf.Max(0.05f, Items.Items.Of(id).WeightLbs)));
 		if (leg.Cargo == "returns")
 		{
@@ -681,6 +697,18 @@ public static class Convoys
 		km *= Mathf.Lerp(0.75f, 1.05f, Mathf.Clamp(c.Crew / (float)Mathf.Max(1, c.Run.Boats * c.Run.Men), 0f, 1f));
 		if (c.Lots > c.Run.Craft.LotsPerBoat * c.Boats * 0.8f) km *= 0.85f;
 		if (c.ShortDays > 0) km *= 0.7f;
+		// The boats wear as they go, and go slower for it; badly worn, they put
+		// ashore for a day to gum them (World/Boats).
+		c.Hull = Mathf.Max(0.05f, c.Hull - (c.Run.Craft.Name == "york boat" ? 0.002f : 0.004f));
+		km *= Mathf.Lerp(0.7f, 1f, Mathf.Clamp(c.Hull / 0.6f, 0f, 1f));
+		if (c.Hull < 0.4f && GD.Randf() < 0.6f)
+		{
+			c.Now = ConvoyState.Held; c.DayLeft = 1; c.At = c.Run.Craft.Name == "york boat" ? "caulking the boats on the bank" : "gumming the canoes on the bank";
+			c.CampAt = Convoys.LandNear(c.Path.At(c.Along)); c.HasCamp = true;
+			c.Hull = Mathf.Min(0.85f, c.Hull + 0.3f);
+			Hear(c, $"{c.Name} lie up a day {c.At}.", "", 0.5f);
+			return;
+		}
 		var sky = cal.Weather.At(c.Where);
 		if (sky is SkyState.Storm or SkyState.Blizzard)
 		{
@@ -775,6 +803,8 @@ public static class Convoys
 	// Rock and rapid: a hull opened, a pack wet, once in a long while a boat lost.
 	private static void Mishap(Convoy c, RoadEvent e, Vector2 at)
 	{
+		// Every carrying place and rapid takes something out of the boats.
+		c.Hull = Mathf.Max(0.05f, c.Hull - 0.015f);
 		float r = GD.Randf();
 		if (r < 0.015f)
 		{
@@ -801,6 +831,7 @@ public static class Convoys
 				if (take > 0) { c.Cargo.Remove(id, take); spoiled += take; }
 			}
 			c.DayLeft += 1 + (int)(GD.Randi() % 2);
+			c.Hull = Mathf.Max(0.05f, c.Hull - 0.05f);
 			Chronicle.Event($"{c.Name} gummed a hull at {e.Name}; {spoiled} pieces were spoiled.", at, null, c.Name, 0.8f);
 			Hear(c, $"{c.Name} lie up a day at {e.Name} gumming a hull: {spoiled} pieces were wet.", "", 0.8f);
 		}
@@ -852,6 +883,8 @@ public static class Convoys
 		foreach (var (id, n) in new List<(ItemId, int)>(c.Provisions.All())) { c.Provisions.Remove(id, n); c.To.Stores.Add(id, n); }
 		c.To.LastSupplyDay = today;
 		c.ArrivedDay = today; c.HasCamp = false;
+		// The boats go into the yard at this end, as worn as the road left them.
+		Boatwrights.Return(c.ToName, Boats.ForCraft(c.Run.Craft.Name), c.Boats, c.Hull);
 		Unraise($"late:{c.Name}"); Raise($"in:{c.Name}"); Raise("brigade_in");
 		if (c.Leg.Cargo == "returns") Economy.PostWants.OnReturnsIn(c.Id, c.ToName);
 		// At the edge of the map the returns go on down to market (Economy/Companies).
@@ -968,8 +1001,29 @@ public static class Convoys
 		if (BoardedBy(p) == c)
 		{
 			if (c.Moving) page.Add("Step ashore", () => { Leave(p, "You step ashore."); return null; });
-			else page.Add("Leave the brigade here", () => { Leave(p, $"You leave {c.Name}."); return null; });
+			else
+			{
+				// Lying at a post or held on the bank: they go on in their own
+				// time; sit it out with them rather than stand in the boat.
+				int days = Mathf.Max(1, c.DayLeft);
+				if (c.Now is ConvoyState.Calling or ConvoyState.Held or ConvoyState.Portaging)
+					page.Add($"Wait with the boats till they push off (about {days} day{(days == 1 ? "" : "s")})", () =>
+					{
+						var cal = GameCalendar.Instance;
+						cal?.SkipHours(Mathf.Max(1f, days * 24f + 6f - (cal?.Hour ?? 6f)));
+						return null;
+					});
+				page.Add("Leave the brigade here", () => { Leave(p, $"You leave {c.Name}."); return null; });
+			}
 		}
+		else if (mine && OrdersFor(p, c) is { } orders)
+			page.Add($"Show {c.Guide} the Factor's letter", () =>
+			{
+				if (c.Now == ConvoyState.Wintering) return Meet(p, c, Board(p, c));
+				Riders[p] = c;
+				p.Journal.Add($"{GameCalendar.Instance?.DateString}: You showed {c.Guide} {orders.From}'s letter and took your place with {c.Name}.");
+				return Meet(p, c, $"\"{c.Guide}\" reads the outside of it - {orders.To} - and hands it back. \"Keep it dry; it is for him, not me. There is a thwart for you, and for your men.\" You are with {c.Name} now. The letter goes to the master at {c.ToName}.");
+			});
 		else if (rival) page.Add("Ask for a place in the boats", () => Meet(p, c, $"\"{c.Guide}\" looks at your coat. \"We take no passengers of the other house.\""));
 		else page.Add(mine ? $"Ask to go along to {c.ToName}" : $"Ask for a place in the boats to {c.ToName} (two pieces of goods)", () => Meet(p, c, Board(p, c)));
 		if (c.Provisions.FoodNutritionTotal < c.Crew * 20f && p.Inventory.FirstOfKind(ItemKind.Food) is ItemId food)
@@ -998,6 +1052,13 @@ public static class Convoys
 		return c.Moving
 			? $"\"Take a thwart and keep your head down in the rapids.\" You climb in. Any step of your own takes you ashore; the boats stop you themselves at each carrying place."
 			: $"\"We push off when the work is done. Stay close.\" You are with {c.Name} now.";
+	}
+
+	// The master's letter sending this man with these boats (UI/ConversationBrigade).
+	private static Message OrdersFor(PlayerController p, Convoy c)
+	{
+		foreach (var m in p.Mail) if (!m.Read && m.Kind == "orders" && m.Subject == $"a hand with {c.Name}") return m;
+		return null;
 	}
 
 	public static void Leave(PlayerController p, string why)
@@ -1183,7 +1244,7 @@ public static class Convoys
 				["run"] = c.Run.Name, ["leg"] = c.Run.Legs.IndexOf(c.Leg), ["from"] = c.FromName, ["to"] = c.ToName,
 				["back"] = c.TurnedBack, ["along"] = c.Along, ["step"] = c.Step, ["state"] = (int)c.Now, ["dayLeft"] = c.DayLeft,
 				["next"] = c.NextEvent, ["out"] = c.DaysOut, ["due"] = c.DueDay, ["late"] = c.Late, ["short"] = c.ShortDays,
-				["at"] = c.At, ["crew"] = c.Crew, ["boats"] = c.Boats, ["guide"] = c.Guide, ["start"] = c.LotsAtStart,
+				["at"] = c.At, ["crew"] = c.Crew, ["boats"] = c.Boats, ["hull"] = c.Hull, ["guide"] = c.Guide, ["start"] = c.LotsAtStart,
 				["cargo"] = cargo, ["food"] = food,
 			});
 		}
@@ -1193,7 +1254,7 @@ public static class Convoys
 	public static void Load(Godot.Collections.Dictionary d)
 	{
 		foreach (var c in All) DropMen(c);
-		All.Clear(); Riders.Clear(); _paths.Clear(); _launched.Clear(); _waiting.Clear(); JourneyIncidents.Reset();
+		All.Clear(); Riders.Clear(); _paths.Clear(); _landings.Clear(); _launched.Clear(); _waiting.Clear(); JourneyIncidents.Reset();
 		_loaded = false; _seeded = true; _devLaunched = true;
 		LoadRuns();
 		if (d == null || d.Count == 0) { _lastDay = -1; return; }
@@ -1225,6 +1286,7 @@ public static class Convoys
 				Crew = r["crew"].AsInt32(), Boats = r["boats"].AsInt32(), Guide = r["guide"].AsString(), LotsAtStart = r["start"].AsInt32(),
 			};
 			if (c.From == null || c.To == null) continue;
+			if (r.TryGetValue("hull", out var hull)) c.Hull = (float)hull.AsDouble();
 			foreach (var kv in r["cargo"].AsGodotDictionary()) if (Enum.TryParse<ItemId>(kv.Key.AsString(), out var cid)) c.Cargo.Add(cid, kv.Value.AsInt32());
 			foreach (var kv in r["food"].AsGodotDictionary()) if (Enum.TryParse<ItemId>(kv.Key.AsString(), out var fid)) c.Provisions.Add(fid, kv.Value.AsInt32());
 			if (c.Now != ConvoyState.Paddling) { c.CampAt = LandNear(c.Now == ConvoyState.Calling ? Landing(c.At) : c.Path.At(c.Along)); c.HasCamp = true; }

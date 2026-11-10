@@ -46,6 +46,7 @@ public static class JourneyIncidents
         if (atPortage != null && !had.Contains("hurt") && GD.Randf() < 0.45f) { kind = "hurt"; page = Hurt(c, atPortage, riders[0]); }
         else if (c.ShortDays >= 2 && !had.Contains("hungry")) { kind = "hungry"; page = Hungry(c, riders[0]); }
         else if (c.Moving && !had.Contains("rapid") && NextPortage(c) is { } rapid && GD.Randf() < 0.5f) { kind = "rapid"; page = Rapid(c, rapid, riders[0]); }
+        else if (c.Moving && !had.Contains("leak") && c.Hull < 0.65f && GD.Randf() < 0.5f) { kind = "leak"; page = Leak(c, riders[0]); }
         else if (c.Moving && !had.Contains("race") && Rivalry.AreRivals(c.Company, c.Company == Faction.HBC ? Faction.NWC : Faction.HBC) && GD.Randf() < 0.35f) { kind = "race"; page = Race(c, riders[0]); }
         if (page == null) return;
         had.Add(kind);
@@ -99,6 +100,7 @@ public static class JourneyIncidents
                 foreach (var (id, n) in new List<(ItemId, int)>(c.Cargo.All())) { int take = n / 10; if (take > 0) { c.Cargo.Remove(id, take); wet += take; } }
                 p.Needs.Health = Mathf.Max(10f, p.Needs.Health - 12f); p.Needs.Warmth = Mathf.Max(5f, p.Needs.Warmth - 30f);
                 p.Standing -= 1f;
+                c.Hull = Mathf.Max(0.05f, c.Hull - 0.15f);
                 Note(p, $"You told {c.Guide} to run {e?.Name ?? "the rapid"}. A boat struck and {wet} pieces were lost.");
                 return Done(c, $"Halfway down, the second boat strikes a rock with a crack like a musket. She swings broadside and fills. Men are in the water, you among them, and for a long cold minute you do not know which way is up. Everyone comes out alive, but {wet} pieces of the outfit are gone down the river, and {c.Guide} does not look at you for the rest of the day.");
             }
@@ -115,6 +117,39 @@ public static class JourneyIncidents
         {
             if (GD.Randf() < 0.5f) { e = SkipPortage(c, e); return Done(c, $"{c.Guide} grins. \"Then we run it.\" And they do, cleanly. He knows his river."); }
             return Done(c, $"\"Then we carry.\" {c.Guide} steers for the landing above the white water.");
+        });
+        return page;
+    }
+
+    // ---- a leaking boat ---------------------------------------------------------------
+
+    // The boats are tired (Convoy.Hull): one is shipping water faster than
+    // a man can bail. Gum her yourself (UI/HandWork's patch game), leave it
+    // to the bowman and lose a day, or press on bailing and wet the pieces.
+    private static ScenePage Leak(Convoy c, PlayerController p)
+    {
+        string boat = c.Run.Craft.Name == "york boat" ? "York boat" : "canoe";
+        var page = Page(c, $"\"She's weeping at every seam!\" The middleman of the third {boat} is bailing with his hat and the water is gaining on him. {c.Guide} brings the boats in to a gravel beach. \"An hour's gumming, or a day of it if we do it properly,\" he says. The gum pot is already going on the fire.");
+        page.Add("Turn her over and gum her yourself", () =>
+        {
+            Boatbuilding.BeginConvoyPatch(p, c);
+            Note(p, $"You gummed a leaking {boat} of {c.Name} on the bank.");
+            return null;
+        });
+        page.Add("Leave it to the bowman: lie up the day and do it right", () =>
+        {
+            c.Now = ConvoyState.Held; c.DayLeft = 1; c.At = "gumming on the bank";
+            c.Hull = Mathf.Min(0.9f, c.Hull + 0.35f);
+            return Done(c, $"The boats are unloaded and turned over, and the old hands go over every seam. {c.Name} lose a day, but she is tight again.");
+        });
+        page.Add("\"Press on. Bail.\"", () =>
+        {
+            int wet = 0;
+            foreach (var (id, n) in new List<(ItemId, int)>(c.Cargo.All())) { int take = n / 15; if (take > 0) { c.Cargo.Remove(id, take); wet += take; } }
+            c.Hull = Mathf.Max(0.05f, c.Hull - 0.05f);
+            Men(c, p, -2f);
+            Note(p, $"You had {c.Name} press on with a leaking {boat}: {wet} pieces spoiled.");
+            return Done(c, $"They press on, two men bailing all day. By evening {wet} pieces in the bottom of her are soaked through and spoiled, and the men are sullen.");
         });
         return page;
     }

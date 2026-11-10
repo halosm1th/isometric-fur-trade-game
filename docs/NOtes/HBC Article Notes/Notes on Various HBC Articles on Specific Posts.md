@@ -1,0 +1,96 @@
+# Notes on Various HBC Articles on Specific Posts/Moose Factory/Fort Okanaga/York Factory
+Four articles that are interested but not directly related to other topcis, so all are going here.
+
+---
+## "A Place so Dull and Dreary": The Hudson's Bay Company at Fort Okanagan, 1821-1860 - H. Lloyd Keith
+- Explores life at Fort Okanaga, a supposedly very boring post.
+	- but it was the longest lasting post in the fur trade!
+		- not because of its furs, but becaues it was strategically placed for communications
+		- it was between Fort Vancouver and YOrk Factory, and an importnat transshippment point.
+		- lots of horses to keep the place supplied
+	- "With such persistent grousing by discontented clerks, one would suppose Okanagan had little to recommend itself and a posting there was not to be envied. It was true that for young, literate clerks, the rhythms of daily life at this isolated post were rarely interrupted by anything they would have considered interesting. Except for the biannual express that passed through, always on the way to somewhere else, and the going and coming of the brigades each spring and fall, all was mind-numbing sameness. By 1821, local trade in peltry had piddled away to insignificance and relations with the nearby Salishan peoples had dwindled into indifference; only minding the horses and a few sown potatoes required dutiful attention. The daily fare underscored the unappetizing lot faced by those posted to Okanagan. Besides potatoes sown in the arid soil, there might have been a few berries in season, and fresh horse or dog on a festive holiday. The regular staple, though, day in and day out, was dried salmon. “Damned dried salmon” in the opinion of Frank Ermatinger.⁵ One would not willingly submit to such a menu for long."
+- Much of the rest of hte article is the interesting story of the post, however little of great note. 
+	- post was setup by Pacfiic fur copmany in 1811, taken over by NWC, and then by the HBC after merger.When the COpmany took contorl in 21, it found several men, including a hawaiian working there. 
+- Ogden was initally kicked out of HBC for being too violent
+- Special boats built there by master builder Pierre LaCourse, but the post was briefly closed as the routes were reoganized in the early to mid 1820s
+- There is a hot headed and racist man who banged his way through teh fur trade, but hwne his main mate at the fort banged someone else, he cut the other guys ear off, she went back to her family, was shamed, and killed herself, and all the asshole could do was lie to his son aobut his heritage. 
+	- Francis Ermatinger was the mans name, and he was an asshole. Simpson liked him (maybe because they were both philandering womanzing racists)
+	- Thankfully caught VD.
+	- Said of Cleo, his semi-wife, about whom he said "I declare I feel no love for her, by the lord, no!!! NOr do I at present meant o become attach to anyone in the country. THey are all alike, faulty in some shape or another."
+		- He called her cleo aftet cleopatra, so was he Caesar or Augustus?
+- Then John McLeod took over. a man who loved his native wife, and listned to her, mnuch fo Simpsons dismay, so mcuh so he fires McLeod.
+	- Archibald MCDonald followed him, also a family man for his Inidgneous family
+	- Then Frnak Ermatinger took over
+- Followed by the violent Samuel Black, hated like OGden was for bullying HBC people, he then turned his violence on Indigenous people, giving an elder a heart attack, so he was killed, and then his killer was avenged which forced the nearby group to stop the violence from continuing 
+- A few randoms stopped by the post and thought it boring and with bad soil, though when a priest came he got a few converts the first time, and 400 the second.
+- The oreagon treaty formally handed land ot AMerica but HBC stayed until the US could buy them out, for a possibly overvalued price, but declining trade and shiftinf demand started ot hurt the post. It was a supply depot but slowly growing alternative routes were mkaing it redunant 
+- "Today, the remains of both Fort Okanagans lie beneath the Columbia River in water backed up by Wells Dam. At an interpretive center on a nearby ridge, the curious can learn of the trading posts that at one time dominated the scene below them. They will discover that not much fur passed through the gates of these two posts and that their significance can be found in the role that they played as transshipment points. The visitor at the interpretive center will learn that hundreds of horses and their gear and scores of canoes and bateaux were kept in readiness for brigades carrying a year’s supply of trade goods to Kamloops and beyond. They will learn that supplies and provisions were stored here for brigades destined for the east side of the Rocky Mountains. The fort’s logistical importance in the transport of trade goods to the rich fur country to the north and in communications with company officials in the east is key to understanding why it lasted as long as it did. Finally, the visitor will learn that significant contributions to the success of Fort Okanagan can be found in the efforts of ordinary workers like Louis Pion, Étienne Grégoire, and Pierre LaCourse."
+
+---
+## 'Corruption' at Moose - Frits Pannekoek
+- Corruption in this context means going native/embracing Indigenous living, drinking, and other 'sins'
+	- This is in effect the counterpoint to Tolly's artciles re: [[Notes on Various HBC Articles on Religion]]. This is the workers doing all the wrong things
+- Lots of discussion of how being on the bay sucked, it was boring, life was controlled, and generally shit. However, because command was far away, post leaders had to negotiate things on the ground more realistically, tnhey coudn't just ban indigenous women or booze, they had to accept that the men would use this stuff
+	- in part because the captains were a key link, for genuine corruption as well. THye carried the notes, so they could cut off anything which exposed them, and they could be bribed by the servants to import more booze and smuggle it off site, so they were a key focal point for this.
+		- didnt' help that the london committee would side with them
+	- doesn't help that the men were often hungry, and the food was rarely good, just salted goose. So why stay in the stuffy fort hwen you could go hang with the fun natives
+	- the servants often infomrally appointed an "attorney general" who used legally verbage to try and save the men, such as noting that contracts were not stamped so not valid, or other legal trickery
+- Really follows the story of James Duffield, and his attempts to force the corruption away. He tried banning booze, and when threatened with mutiny, imposed a bed time, walked around with pistols, took the doors of the bedroom, locked men to the stove so they couldn't burn the fort down, etc. He was in contlifct with Frost, who wanted to revolt, drink, and live marrily if drunkenlly (or at least retain the conservative way the post was operating but not authoriratively, the drunk men who were new and from the shpi were a third smaller faction which broadly was united with frost in opposing the authoritairn ruler). Exiling frost broke the restistasnce but hurt the forts income bcz he was so key
+	- Moose had become "an indian factory" where credit was plentiful, the gates always open, and other things, Duffield put an end to this.
+	- The natives didn't join the frenceh bcz not enough ammo sold by them.
+	- Conspiracy that the surgeons were going to kill th chief factors, ro so the factors thought, little to no evidnece of this, evne if the surgeons were drunks who were questionally good at theri jobs
+	- Best incident of Duffield:
+		- **The Porto Bello incident** — Duffield's ringleader threatened to hang himself, Duffield handed him a rope, Porto Bello complained it was too short, so Duffield assembled all the servants and presented him with a very long rope, publicly humiliating him. It's the best illustration of Duffield's method of rule by humiliation.
+- There were post coucnils, formally appointed by London, compsoed of the Chief Factor, Surgeon, Accountant, and two to three long lasting men
+- Most chief factors had risen through the ranks, so they knew about the corruption and evils happening, and tolerated them because they were what was necessary for the trade to happen.
+	- So there was the forts which did the core tasks they needed to and otherwise ruled themselves, and the london committee which got what it wanted and pretended to rule. 
+
+---
+## The Political Economy of the "Private Trade" on the Hudson Bay: The Example of Moose Factory, 1741-1744 - Gerhard Ens
+- The article challenges the idea that hte French trade was differnet from the britsh one because the french intermarried with ppl and went out to trad with tehm while the HBC was on hte bay waitintg, bcz hte private trade in small furs drove the english to similar actions as the French 
+- The dynamics of the trade were acuytally not all that different, and when there was diffences it was because of envirometnal and metropole-hinterland relaTionships, but both had hierachial patrichical i which teh intests of the particpiants as part of the collectivty of adult males contributefd singifianct to shared experiences is inboth companies 
+- long kwnon but little ivnestigateed hte private trade at the posts.
+	- Both Ray and Freemand, as well as rich, failed to understand the importacne of hte private trade 
+		- Qualitaitive ewvidence suggests this is wrong, there was a large private trade
+- Tradfe was tolerates as a privilege of ship captains, and factors did it too, largely beuase the company had to tolerate it, evne though it tried ot slow it down by closing native access to the fort
+	- tried to control trade in furs in 1727 by saying thgat private furs could be traded for booze, only sloop captains were too good at smuglging for it to matter and didn't care to lsiten to the company 
+	- teh private trade grew so large it started to impact company profits 
+- There are few soiurces ont he rpivate traadea s the factors were invovled and did not report themselves, the best is the period from 1741-44 when James Duffield was in charge and tried to stamp out the corruption 
+	- 1735 a druken fire burned moose pretty bad adn killed an indigeonus girl which pushed the company to refomr the worst run post they had, and sent Richard Staunton to try and do so, only for him to fail and leae for engalnd in 41 with the post still corrupt as shit
+- The attempted reform was heaevy handed and seems paranoid but actually was logical based on how much disruption it was, and also that his refomrs fit inot a magerial revolution of a sort aligning iwth the early industrial revolution. 
+	- this implies that the HBC was hit by the first wave of the idnstrual revolutionbut slow to take up the second 
+	- ship captainsa opposed the losos of this trade and native women wanted hteir benefits and perks 
+	- Duffield knew the private trade becuse he had served opn the ships, he knew hte harm it caused, and when he was appoitned along iwth Joseph Isbsiter and Christopher middleton to stopt eht rade,
+	- came out that when waggoner was dying at Albany Captain William Coats took advanatge to privatee trade which isbister tried ot stop
+	- Another exploration of ht eimportnace of hierarchy and the senes of hierarch and stuart england social order to the posts
+	- however hte idea of a single household was hard ot sell to ppl livinv there intermarryuing for example it was hard ot stop men from making families with the nativs. Similarly, once they started marrying the homeguard and those men started to see themselves as part of the fort, the single family model started to fall apart
+- Captains were ont he council while in port, but their boats invited a poltics of envy from the employees whiel opening the door to illegial sumggling. Ships catpain controlled flow of goods and had hte hear of the committee.
+	- also fcators pwoer was dimisined when ship was in because it assuemd command fo shjips and navy and the men on them,. 
+	- The cpatain was key to the political economy, botht eh sub households and its corrupting influences who coudl smuggle booze in to the men or natives.
+- utnil 1851 men coudl trap furs along hte bay as an incentive to stay 
+	- one hiuy, Augustine Frost, fell for the natives and stopped carrying about home or the HBC
+	- hunted on his own account and had nativs come just ot trade with him
+- Derouine was a french term for the fur trade post huron middlemen, when bascilly a bouyrgeois would run a fur trade post and hire commis (clerks) nad engages to tavel tot he fur trading bands. For hte HBC, the captain was the bourgeois and men like Frost were the Engage
+- TYhe corruption to be broken was long standing and hard. Frost tried on captain coats and coats had placed his own men all over the place throughout the trade it worked better with a factor on board but could route around him if need bethe chaos this created turned the posts into "indian factories" such as moose fort, being the worst.
+	- When moose reopened ein 1730, Thoams REnder was factor, and tried to stop thje trade leading to a mutiny, which put Mr. Jewer in chrage, though he was replaced with William Bevan who himself got seduced into the criminal enterprise, taking the illegitmaite profits to their greatest height, almost ruinous for the company and it was undewr this leader the post neary burned donw. So he was repalced with Richard Staunton who tried to reform but failed, leading to James Duffield and his attmept to restore order and legitmacy.
+- Duffield did slow the loss of furs, through extreme mesures, such as banning captains from the council, locking the gates every night and unlocking in the morning, limited communications iwth idnigeous peole, enforde rigid work dicpiline, cut off brandy and regularly serached hte quartes wile punshing those who broket he rules, and survieled forst. 
+	- servantgs and the captain struggled against such reforms inclduing some natives thygouh duffield was convinced frost was still illegally trading furs and so sent him home in 1842
+	- tehgn servants and Coats tried ot get rid of duffield 
+	- in 42 Frost told the homeghuard to trade with the french, and they didnt listen but did slow their trade at Moose, while Duffield became convined he wouldbne taken prisoner by Captain Coats. 
+	- in 43 there was another mutiny, but that didint kick him out. it was the ability of teh catptins to talk to London in winter, adn that Coats was tghe son-in0law of thomas Macklish who had risen from servant to bnecoming governor of the bay
+	- the catpains dind;t like the trade loss so they gave fewer rations to moose and similar fatories, so that in 42 Duffield was low on rations and manpower as none of the captisn men wanted to stay and work at the fort. 
+	- Duffield failed ot convince london of what as going on, which he blamed on the war, but really it 3was the captains who triumphed over their rival. In 43 Isbiste rand duffield were ordered to conform to the corruption or be replacead. Duffield retunred home in detirorating health in 44. 
+	- after which the private trade exploded so that by 70 Andrew Graham coudl write aobut it openly, with chief factors invovled, and most employees trading up to them, adn then gifting furs to the captain as well as first and second mates, (100, 31, 21 respectively) amount to some 3,136 skins in a year between YOkr and Severan, worth £1,254 
+- This private trade needs to be considered witht eh French trade asn it suggests a similar pattern between fur tradesr at hte bay and men in hte greeat lakes region, while letting historians se emore of hte jobs invovle in the trade, including more roles of semi-indianized class fo traders employed in this illegal trade.
+	- frost for example travelled to natives and married plenty of them, setting up subhouseholds, but he did not lead otr a rise in metis esc communites. Ens says this is because the lack of a Bourgoise, the ships captains cound't get teh sons inot importnat enough positions, and they intead went to the mtohers family, meanign the kids could not reproduce the class position they had beene born into with the same ease as the French metis coudl, with their establsihmetn fo metis villages and monopolzing hte middle class of the trade 
+## Trade, Consumption, and the Native Economy: Lessons from York Factory, Hudson Bay - Ann Carlos and Frank Lewis
+- A revistionist economic exploration of Indigenous trading pattern
+- challenges Ray and others that INdigneous people were inelastic and fairly passive consumers. Instead argueas that Indigenous people engaged in the same Industrius Society which focused on leisure and luxury goods once possible as rational consumers.
+- the luxury goods include specialized beads, which the HBC had trouble gathering, luxury goods like combs, buttons, needles, looking glasses, hankerchiefs, shoes, spoons, thimbles, pistols as well as tobbacco and alcohol
+	- for beads the colour, size, and variety which the natives wanted. 
+	- Discussion that the amount of booze used increased with competition, but was still on the whole fairly limited, a handful of two ounce drinks for every person in the region roughly, whcih even if spevcalized for the trading group, still not a ton of booze. 
+	- over time as teh value fo producer and household goods went down, along iwth demand as presumably they saturated hte groups, demand for luxury goods increased. 
+		-
+		- Gifts also came to be composed of larger parts of luxury goods.
+- Tldr: "Ray and others have interpreted the supply curve of labour to the trade to be strongly backward-bending; whereas Carlso and Lewis argue for an unward-sloping supply curve of labour, assuming elasticities of one and two in their simulations."
+	-  "In 1715 producer goods accounted for 73% of the goods received in trade. The share dropped to 57% in 1720 and continued to decline over thenext 50 years. In 1770 the share was 41%" 

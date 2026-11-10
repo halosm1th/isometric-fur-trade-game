@@ -1,0 +1,279 @@
+# Notes on Various HBC Articles on the Foundation of the HBC
+
+These articles are primarily centered on the formation of the HBC and its operations
+
+---
+## Hudson s Bay House Bishopsgate for The Governor and Company ... Mewes; Davis The Architectural Review (Archive : 1896-2005); Oct 1, 1928; 64, 383
+- limited writing, most of it covers the history of Canada/the HBC with the French ariving, than the two brothers finding the bay, and Charles II chartering
+- Last few paragraphs are intersting. They describe the company moving to a new headquarters becuse its grown, no longer just fur trade but also land owner. New HQ is in Bishopsgate and the article is mostly pictures of it. This one was more imperial than the last.
+	- "The architects, in collaboration with Sir Charles Allom, who acted as consultant to the Company in all decorative matters, have successfully captured the spirit of romance which enveloped the early history of this great business, and of the solid work which it has done in the interests of the British Empire."
+- "It is interesting to know that Sir Christopher Wren was a large stockholder and for some years was a member of the committee of the Company, for whom he occasionally acted as deputy-governor."
+
+## The early history of the HBC Morton
+- Sort of a review of Tyrrels documents on the early hbc, but also a revision against the then story of the early Bay history as a french project which Morton notes may be a result of the sources which are available 
+- The work is a mixture of the accout of hte history of the bay and a critique of Tyrrell's published works, while also sorrowfully wondeing what hte HBC archives might contain
+- honestly really intersting as an insight into the growth of hte HBC and what its archives have revealed. Largely by challening the dominant narrative of the greatnes of french traders and the poor quality of English ones, the glory of french goals, etc while also reaffirming much of it
+- he specifically critiqeus Tyrrell for getting stuff wrong or mixing things up, as well as for failing for properly reveal more interseting documnet,s often just including a few snippest from the English point of view. THen going through various examples to show how English documents would reaffirm or challenge
+- has a wonderful passage describing hte naval battle on the bay and skips over the question of what caused the English defeat, excpet that it was the skill of hte French commander. 
+	- intersingly dscirbes the vairous raids on forts, how some were left out, and how in at least one case it was a semi military force vs hte untrained HBC men and that is why they succeded. 
+
+## The Fur Trade and Eighteenth-Century Imperialism W. J. Eccles
+- Kinda touches on stuff from Lakota America and Berthelletes book. Basically, the French were using the fur trade for imperial disputes. It might have initially been to make money but very quickly it became a tool to hold onto imperial possessions and challenge English ambitions. TO that end troops were subsides and the goal was shfited from christneizing natives to supporting them with weapons and ammo so the Frnech had the allies necessary to hold the English off. 
+- Irioqous were initally a threat, who crushed vairous groups during hteir expansion whilet he French got rid of middle men, however the French used a treaty to nullifyt he threat the iriqouos posed to them by swearing the natives would not joint he English at war
+- natives usedt he two pwoers to play aginst each other to extract better resources 
+- for examples fo imperial actiosn detoir and Louisiana were built not so much for moeny as to stop British expansion itno the Ohio river valley and nearbny areas, 
+- when trade was thought to be betest for merchants and corrupting ot natives it was turned over to the fort commendonts who still kept teh corurption of natives but now did so under the guise of expansiong frenhc imperial policy
+	- these areas were essentially open to any liscened trader who paid the fee
+	- also rance had ot sign away lands ot england in vairous treaties including Newfoundland and Acadia 
+- bcz hte english wanted land and the Frenhc wanted allies the english often pissed off hte natives while the french supplied them, making the natives an importnat imperial coutnerwieght to the englishf or the frenhc 
+	- some dispuite in utrehct over whether france restored previous lands to HBC or recongized ht e complanies claims to the whole draingage system,
+- "After the Iroquois wars of the seventeenth century, and with the proclamation of Louis XIV's containment policy in North America, fur trade posts had to be sustained among all the nations that could conceiv ably have contact, direct or indirect, with the English colonials or the Hudson's Bay Company. With the exception of the Sioux nation, who always kept the French at arm's length, most of the nations were glad to have these posts on their territory. Although the French maintained that the posts gave them title to the land, their claims were made to exclude the English, not to deny the Indians' title, something they did not dare do. The French were certainly not sovereign in the west, for sovereignty implies the right to impose and collect taxes, and to enforce laws-and they were never able to do either. The Indians never considered themselves to be French subjects, and the French were never able to treat them as such.31 Moreover, the Canadian voyageurs who transported trade goods and supplies to the western posts and took the furs back to Montreal always had to travel in convoy for protection against the Indians through whose lands they passed. One or two canoes alone were an invitation to extortionate demands or outright pillage.32 The Indians allowed the French only the right of passage to the posts, since this assured them a ready supply of European goods close at hand. The land on which the trading posts stood they considered still to be theirs, the French occupants being mere tenants during the Indians' pleasure."
+- Frenhc had better brandy while the english tried to pass off coloured gin as an alterantive but did prtty bad
+	- French dsiputes over whether liquor was bad for natives. those living iwth them \knew it was awful while leadesr figued it couldn't be any worse than giving white people booze
+- move into ohio valley was forced buy frnech without native permission
+- "The French were now able to arm and send out Indian war parties, accompanied by a few Canadian regulars or militia, to ravage the frontiers of the English colonies from New York to Georgia, thereby retaining the initiative and tying down large British and provincial forces. Successful though it was, this strategy posed massive problems in logistics that the minister of marine, Jean-Baptiste de Machault d'Arnouville, and his staff at Versailles were never able to comprehend"
+- "For over half a century the fur trade was used by France as an instrument of its foreign policy and, owing to the peculiar skills of the Canadians, with considerable success. By means of it, most of the Indian nations supported the French cause in the colonial wars, but they did so only as long as it appeared to them to serve their immediate interests. The French were acutely aware of the Indians' true feeling toward them. Governor General Beauharnois remarked that they had their policies just as had the French. "In general," he stated, "they greatly fear us, they have no affection for us whatsoever, and the attitudes they manifest are never sincere."94 A certain Monsieur Le Maire put the French position very succinctly, explaining that there was no middle course: one had to have the Indians either as friends or as foes, and whoever desired them as friends had to furnish them with their necessities, on terms they could afford.95 The policy of the Indian nations was always to play the French off against the English, using the fur trade as an instrument of their own foreign policy.96 Their tragedy was not to have foreseen the consequences were the French to be eliminated from the equation."
+
+## Asleep by a frozen sea or a financial innovator? the HBC, 1714-63
+- Article asks, rather than seeing the company as asleep by the sea, what if it actually was an advantage in terms of flexibility in the field while protecting the interets of the shareholders in the fifty years fromt he war of the SPanish successsion to the end of hte seven years war. 
+	- Eccles challenged Innis argument that teh advatnage of hte HBC int he fur trade was the result of the superior quality of British made goods.   Instead noting that had the seven years war not happened, the HBC might well have died.
+		- Generally agreed the mid century HBC was a well managed if small and realtively insignificant company 
+		- The lack of birch-tree to amke canoes meant that while the HBC had a lower cost to transport goods to the bay, they had much higher costs moving htem inland whereas the french faced the reverse situation, costing the Company market share. 
+	- looking at the HBC from managemetn in London and how it used seecrutires to manage its cash flow has an impact on the Eccles-Innis debate  
+	- Touches on the Jones-Ville vs Carlos-Nicholas debate on whether the Joint-Stock charter company was efficient or not. The first argue it was not , and that it exists for political reasons. THe latter argue that its vertical integration was useful and necessary for the Companies operation, the traditional view. 
+		- heart question is that if the directors were so smart, and so effiecient, why did they waste resources defending their privielges,s houldn't they have been abel to win in open competition. 
+	- Compared to the EIC and RAC the HBC was smaller, which partially explains why it wans't as common in parlaimetnary debates, thgouh it upheld itself in 1749, rather the HBC's financial health mattered too.
+	- The article utlimatley demonstartes that hte hBC was a pioneer in its use of fincial investmetns to complement the traditonal merchant  business of mangaging the flow of commodities.
+- Company Strategy
+	- what were the managers actually trying to achieve?
+		- For the early period the hbc was focused on fighting off the French, and contrinued to pose a threat intot he future
+		- strat was to make money from careful control of cost, and cash was distributed to shareholdres, managers, and investmetnes in variosu fincianl securities because the alterantige would have increased fixed costs with limited growth to returns
+			- This was largley because Sir Bibye lake had  failed captial expansion scheme, having served on both the RAC and, for longer, the HBC managent committees.
+				- father was largest holder of hbc stock and large holder of RAC stock
+			- Lake was working with RAC because he was a pro-joint-stocj laywer
+	- the HBC firmed looked like a family company not a mode rn corpation because its small size, continuintuy of management and succession planning based on the committee \
+	- hbc committee in 1720 main features were longebity of memebr service, and that most who joined around the time as Sir LAke were Sea Captains, and thus invovled in the private trade (see [[Notes on Various HBC Articles on Specific Posts#The Political Economy of the "Private Trade" on the Hudson Bay The Example of Moose Factory, 1741-1744 - Gerhard Ens| Ens on Private Trade as Moose Factory]]).
+		- thsi group was very focused on HBC business
+	- before 1720 lake was intereted in expansion, 
+		- the failure of Knights 1719 expedition, which cost £8,000 pounds or more than double the hbc's usual expenses on trade goods in the first half of the 1700s, and wouldn't be until 1754, and later tghe 1760s and 70s that the HBC would stat going in-land again
+		- only in 1774 did CUberland House open in the interior  
+	- The collapse of the South Sea bubble drove SIr Lake to focus the company on making cash not expanding into rapid growth and exploration. This was because the crash made signficiant capital expansion via joint-stock more risky and therefore much more difficutl for a company as remote as the HBC, 
+		- aug 1720 Lake proposed scheme ot expand stock, 1) 3:1 stocok split to move from £31,500 --> £94,500, thereby more accurately reflecting the value of the Companies assets and 2) and a massive new £283,500 expansion paid 10% every 3 months which would've massively increased the size and scale of the HBC.
+			- Perhaps one of those decisive what if moments.
+			- it woudl;ve need this moen to go inalnd. However,t he massive capital increase, almost tripple the already trippled value of the stock had more to do with inflating hte value of the company in a bubble moment, and shareholders could've sold the new shares based on the right to buy more through it after only paying the inital 10% allowing others to accept the risk should the bubble pop.
+		- however, then the market crashed,  a few months alter. THogu the 3:1 split continued, and some new capital had alreayd been accpeted so that the Company was now capitalized to £103,950. 
+			- had this happened, the HBC woudl have had ot pay out ~8% dividends inline with the EIC on a capital baser of £378,000 or ~£30,000 annually gained from pushing inalnd 
+	- The bubles collapse exposed the real risks of the Joint Stock Company model, and forced lake into a strategy of careful cost mangement to turn a profit  
+		- retained earnings were being invested in financial securties
+		- however, thanks to this careful managemtn, from 1722 until the end of the American Revolution, there were only two years where the HBC  returned only a 7% rather than an 8-10% dividiend 
+			- only failed to pay in 1783 when a squad of french ships destoyed the coapneis two most important posts ont he bay 
+	- A small group composed the HBC shareholder base, though would decreasee intot eh middle fo hte century
+		- 1718: ~2/3 of shares were held by commitee memerbs 
+			- Lake, Father, and Father in law controlled 1/4th of these. In 1828 and 38 lake personally held over 10% of the shares. Typically in his reing the trnasfer of shares outside the commitee was roughly 3% annualy. 
+			- after 1720 the Gov was requried to hold at least £1800 worth of sharesa, and voting rights were restricted to only those with more than £900 of shares. Thoguh the share expansion scheem deliuted hte pwoeer of insides a bit
+			- In 1748 current and future committee held 40% fo shares and would ahve had close to a jaority whcih were not either held by the king @ 3% or Charnacy due to inheritence @ 10%
+			- Thogh it might've looked like it was run for insiders, its shareholders seemed happy that it provided a safe, reliable, reutrn. 
+	- However the results hid a deteroitting competitive sitaution. 
+		- New France always had a bigger fur trade by volume. 
+			- eccles estmaies that from 1716-1761 the french fur trade was at least 2.5 times larger than the HBC which seems to hold true post conquest as that is about what Brtiains import figurtes show. New france was also more varied in furs returned, and as the French pushed west in teh 1730s the value of their fur returns increased dramatically (70% jump betweeen 1718-1727 & 1728-1737) vs a decline in HBC beaver imports from theri 1730-31 peak. 
+		- The HBC saw this but management focused on cash over growth, to undetrsand why it was able to do so, must look at how the Company made revenue in Britain. 
+- HBC Revenue Profile
+	- beaver was the HBC's main fur and amde up £2300 to just over £30,000 per year between 1739-1749, mainly used for exporting hats the value of the market for which trippled between 1720-1750benefiting from protecitoinst legislation 
+		- estamited some 21 mil beaver hats between 1700-1770, between 1700-1725 the valyue of the business increased by a third thanks to growth in the belgium and german markets 
+		- Company coudl use take advantage of price increases bnecause until seven years war it had a steady supply of furss. 
+		- Because the price was increasing the HBC could continue to offer a high dividend under Sir lake while real competitive ability declined
+	- The albany market accounted for 1/3rd of imports in this period, while teh HBC accution was 2/3rds of the market, so the HBC set hte market price and had hte best furs so commanded a 20-40% premium over otehr fur sellers. The minor import market was of little signifance and the HBC was the dominant market force. 
+	- The HBC was not responding to a conusmer revolution, rather it understood itself as a fur wholeseller, few bulk importers selling to few bulk buying clients who exported to british and european markets reducing risk from flucutation and HBC marketing was simplified by selling at auction. 
+		- as this trade requied specific contacts and a large amount fo liquid capital at the right moment it was domainted by a few large buying merchants, bfore teh 1749 parliametnary inquiery 60% of the HBc buyers were just four clinets: Henry Sperling, Herman Berens, Anthony Lutkens, and Samuel Robinson. They were skinners not feltmakers. THey had clsoe ties to the HBC, some being share holder,s SPerlings daughte rmarrying Lakes son, and two of Berens descendant beomcign HBc govenors int he 1800s. These furries were focused on export markets 
+			- the HBC used these larger buyers beacuse they reduced risk, they provided a steady constnat buyer and had steady demand mathcing the HBC's stuggle to increase supply. Plus they had t hree major benefits, financial stability, paid promptly, and assuyemd the risk on developing new markets like russia. 
+- Controlling Costs
+	- the British made goods the HBC gave to FIrst nations peopel did not give the company a competiive advantage. Tried to cover the lower quality by re-exporting goodfs, and made the HBC structure its costs to cotnaintrao overasea maketing in price and distribution.
+	- Relativley high fixed costs, and needed to pay dividnents to keep sharehlder shappy, but had low expenditure on trade goods. Key way to keep fixed costs low was to limted hte numbre of new forts being made 
+	- London tried hard ot manage the trade, controlling salaries and terms of employment, bought goods and tried to reguatle the terms of trade in detail. 
+	- HBC Gov and seven committee memebrs during htge busy early spring and alte autm met at least weekly at the Fenchurch location 
+		- Few staff, but large number of employees for business size. <100 men among the four main posts on the Bay, 3-4 ships sent each year to the bay with 20-30 men each. 
+			- most employees were not well paid, and hte Orkeby islanders were th e main servnats who were paid less than £10 per year plus room and board. 
+			- only the officers, and captains who earned any real money
+	- HBC tried to control pricies of goods and publsihed the standards for trade. Basically offered less stuff than the standard said to, and took the differenc as overplus, which reduced the more competition appeared and in the 1750s the posts offered slightly more than they were supposed to 
+		- the policy probably reduced copmetiion betwene psots, but gave the more flexible french an advantage
+	- Major reason for this was the HBC's costs, whichw ere £25,000 just befor teh 1749 committee, due to both trade goods and provisions. While the copmany had an operating revenue of £31,000 to produce a £6,000 profit.
+		- The company earned £1,000 interest on east india bonds and Lakes widow repaid some £2k of her husbadns laons. The cash inflwo covered that years dividends of £8,000 and hte committee paid <£3,000 to committeemen
+		- Concern with overhread reflects a sophisticated attempt to accoutnf or indivdual facories and ships as profit centers. While it apipd little for trade goods, it had high overhead, a cost not often seen nor understood. 
+	- While management avoidede expansion as long as it could, it was forced to by the French, as they increased company costs.
+		- for example in 1732 the stone fort near Churchill was built beacuse french compeition had moved west from Fort ALbany on james Bay where it had been since 1714
+			- beaver supply was upheld by growth at chuchhill offsetting decline at York
+	- HBc dealt with middlemen in both Britain and Rupet's Land.
+		- the Cree traded with HBc, who took little land, and both benefitted.
+		- HBC Management cared about what Indigenous consumer wanted 
+			- Brandy as always comes up, basically the HBC used it cermonially
+			- the HBC's real speical item, as a result of their connection with brazil via portugal, was tobacco
+				- Roughly a quater of hte value of trade goods @ £1000 was spent on tobacco in 1748, leading ot eh idea that the consumer revolution for the HBC was in america not Britain
+- Managing Cash Flow
+	- the hbc was an intemedairy ebtween suppliers and cusomtes both in britain and overseas, like other chartered companies. They did not really make anything and kept marketing to a minimum. 
+		- Argues: Their core skill was managaing cash flow.
+		- The HBC was concnered with liquidity not credit. Ruperts-land was a barter based society and auctions meant that th eexposure to credit risk when selling in britain was limited. **What mattered was timing the inflows and outflows of capital**
+	- Hbc business was seasonal as a resulting of shipping bcz of weather. 
+		- July ice in the bay breaks up, november or earlier it freezes up, meaing 3-4 months when shipsncould get inot the bay. The trip there took 12 weeks or 3 months and thanks to good wins coming back too 6 weeks, only one one round trip coudl be made per year
+		- ships leave england before the end of may, arrive in summer, and leave in autumn
+		- Looking at the minutes of commmitte and submoittee over a year bfore teh 1749 parliamentary enquiry
+			- April and ealry may were prep for depature from Gravesend on 10 May. Admiral request to convy west of orkensy on April 13, rough drafts of letters for factors reviewed on April 22, and the pay of ships captains authorized on may 4th. Payment of supliers was authorze after ships left and EAst india bonds were cahed in on 25th of may
+			- Summer was quiet. July 6th talks of Tobacco suuplies in LIsob.
+			- Ocotber activists starts, reports of shpis arrives in 5th october, east india bonds cahed on 9th adn letters from the factoires are reviewed. On 11th oct public aution deicde to be hld on 24th november while advertising arnagement were made. Oct 19th duty on impored furs padi and 26th the seamsna wages were dealt with. Nov 16th the quantities of furs to be put up for sale were decided, and nov 24th general court was held in the mouring, the auctiot he afternoon, and COmmiteee of Sale met int he eavning to review the reusylts of actions. 
+				- Sale proceeds were spent on EAst india bonds and to pay returing servants in Decmeber.
+				- Jan and Feb were spetn evaluating and selecting suppliesf o the trade goods and agreeing on staffing for ships and factoires for the next year.
+				- Early march spent preping for next public auction on 16th march, and then the cycle starts again 
+	- Cash in and out were mismached. Money came in at the start and end of the year while it was spent in hte middle. This led ot a liquidity crisis in the Companies early years forcing it to rely on debt and oans freom committee memebrs. The solution was to invest retasined earnings in EIC bonds. Thus they were bought december-January using moeny made in november,. and sold in the spring ot pay dividiends, supply ships, and sold again in the autumn to pay the bulk of salaries.
+		- When the Company decideed to pay the committee members an extra £3,000 the money for that came from a pool of close to £20,000 in East India Bonds giving the company a massive pool of liquid capital, allowing it to dodge the need for debt or loans. 
+		- About ten years later hte portfolio was doublzied in size and inlcuded a range of Bank, East India, and South Sea Securities 
+			- to help manange thist eh company amde in William Baker former alderman and chairman of the eAst India Com,apny, a leading Caroolina Merhcant,m and brought into parlimentary administration for a brief spell. His time as a deputy governor fo hte HBC was when the copmanmies investmetn portfolio diverisfied and he helped double the portfolios size. He eventually became governor in 1760.
+- Conclusion
+	- For HBC shareholders the fur trade was profitbale and predictable
+	- for management, it made a cash surplus which could be used as collateral for other ventures, eitheer in direct loans or short term sales of stock to the Company./ 
+	- the HBC was intetionally not a large business and was kept that way on purpose. 
+		- THe dependency on rising fur prices and reudicng shrae of the inaldn trade bcz of no new inland posts put the comapny at risk should hte london market turn on it. 
+	- Eccles may be right that had hte seven years war not happened the HBC would have died, but Wagner contends not for a while as tghe company had flexibilty to raise prices with low risk. a 50% increase in hte cost of trade goods would've been an extra £2k or a 2% reduction in dividnent / a sale of 5% of hte copanies 1759 securuties, thereby restricitng hte committeemens ability to dip into the companies funds
+	- HBc reprenets stage in evolution of cmerhcnat fianice which had as Stanley CHapman observed, "eighteenth0centuryt merchants were still primarily concerned in handling the commodities of the import-export trade, while the nineteenth cenutyr saw a shift to the porvision of serices." and the HBC had moved byeond simply organzing the exchange of commodities in the first half of the 1700s
+	- the HBC foiled Dobbs attack by showing its costs to be self reliant and that the compant was not helpless unlike other companies, even if it was not being effective. 
+	- "In the context of North America, there was certainly an element of truth in the accusation that the HBC had slept by the edge of a frozen sea prior to the Seven Years War. However, viewed as a British company, the HBC was a financial innovator and its financial strength gave it a greater ability to withstand competition than has been recognized."
+
+## THE HUDSON'S BAY COMPANY AND ITS CRITICS IN THE EIGHTEENTH CENTURY Glyndwr Williams 
+- The HBC survivied controversies which sunk other companies especially around the opposition to monopolies in the mid 1700s 
+- born from charles II charter granting banzana, following the pioneer voyag by nonsuch in 1668-9
+	- Prince Rupert founded it along iwth notables like the EARL of Arlington, duke of Albermarle, a dAnthony AShely Cooper
+- Company was competing with raids from new france raids and new and old england attempst to tak eit over
+- Company transition from courtieres around the king to city men, partially repsosnible for failure to reup the charter in 1690.
+- from 1698 onwards the royal perrogative could've destroyed the Company. Adn it was a small company, low erratic dividend payments  
+	- John OldMixon's British Empire IN Ameirca book doenst look highly on the Company as it had been cut donw to a singhle post though eventually restored by the smug ancient gentlemen of hte HBC after utrechet
+- Another paper on Bibye Lake, of middle temple, 27 year old became deputy gov  in 1711 and full gov at 28 in 1712, a post he held until his death in 1743
+	- Sub governor of the RAC, first gov of HBC to focus on the problems of overseas trade, and the fortunes revived. Sound conservative finance allowed for dividnent payments
+	- if quiet prosperty also saw resentment and opposition to the company, avoidance of which teh COmpany used secrecy to hold onto the knowldge of its employeesm, including hte route, the timings, the way to trade, etc
+		- people were forbidden from talking to people ont he Company, ships captains had to deliver jounrals to the company, and all letters on the ships viewed by the commitee and chartres were not to be let out. Whatever explroation did happen rarely became public knowledge and printed maps were rare and rude 
+		- Shares were not on the open market and stockholdesr and commiteee members were kept secrete
+	- Lake was knownf or his work in RAC not HBC, and in an updated version of Oldmixons work all that could be said was that hte lands were restored to the HBC after utrechet, the coampny did not reply to the request for information. 
+		- this worked for a while, and the company dodged public criticism 
+			- For example *Catos Letters* which shit on the Joint-STock following the South-Sea bubble
+			- but the HBC was not emntioned when the EIC, RAC, Levant and other companies
+			- However hte fialure to explore the north-west passage and arctic explroation which opened it up to attack
+- Lake failed to convince Auther Dobbs that hte North-West Passage did not exist and could not be exploited 
+	- Dobbs used politicla and merhcant contacts to explore the bay for a passage,udner command of CHristophere MIddleton former company man, sailed in 1741, but the COmpany had tried to fight this, and lake refused ot support ht ships pissing offf the first lord of the admiralty, and the charter was attacked as old and likely out of date. 
+	- failure to find passage, and then dobbs called for an inquiry inot middletons work, and and tried ot use the north-west passage as as tool to keep his relentless attack on the Company going. 
+		- Dobbs secured an infomral opinion from the Attornye-GEneral which doubted the validity fo hte charter
+	- Dobbs also started a pamphlet war and wrote his *Account of Hudson's Bay* published in 1744 which was foucsed on the Copmany and its lands, and pleaded the case to destroy the Company
+		- used confidential documents given to Dobbs by Middleton, who used the documents to wrongly depict the Company as having a massive if unfounded profit by ignoring all overheads, charter printed and the size of grant vs the land usd and the challneege by the french
+			- this was used to show the Company was failing to act in its duty as a part of empire, and was insteading losing the bay trade to the hated French
+			- monopolies were at fault for allowing hte French to rival the British
+			- And so dobbs argued that the HBC could increase ten fold if opened to free trade and that settlements would follow and there woudl be inalnd trade and enjoyed by Britain alone
+- Dobbs soudned out ministers inclydig the first lore of the Treausre Henry Pelham and joined with a gorup of merhcants in 1745 ot petition the government to reward the discovery of hte NOrthwest passage thereby incentivizing explroation in HBC lands 
+	- commands liked htese mechant sentiemnts, adn b May 1745 £20,000 was available to whoever finds a navigable passage, a subscription opened and £7,2000 raiused to equipt an exepdition for 1746 to go the bay, 
+		- the HBC saw the threat this posed to it. A new Company woudl be founded to compete with teh COmpany once the passage was discvered, and about 30 London merchants agreed ot fund atr £100 each this venture 
+		- formed ht e North-West committee and psoed a threat to the COpany
+- When it returned in 1747, companies fears were confimred as no passage was found but in febuary 1748 th Norht-est Commitee iwth suppor from Mehcants in London, Birstonl, LIverpol and Glasgol asked the crown for a trading charter, wanting all lands in the Bya which the Company was not actually using, and the exclusive right to trade.
+	- failed to explore or exploit th the lands and shoddy legal grounds, public opnion agreed with Dobbs and was against the HBC 
+	- Henry Ellis took the chance ot attack the company and ignored the failure ot find the passage 
+	- **Dobbs and his supporters monopolized the printed word and as a result controlled what hte public perceived of the Company**
+- For example john Campbell of Harris collection of voyages and travels defends hte EIC for its trade but condemsnt he HBC for its secrecy, failure to find hte North-West passage, for making the aby seam dreadful and boring and failing to expand the fur trade. Failures to anser tghe national purpose of englaring navigation and hiring sea men
+- Privy council called for statements , DObbs gave a 16 point statement which reiterated the usual attacks and rpomsies ot be expansive. Copamny could probably still keep its sad posts
+	- The companyt was more direct, how could Dobbs et al complain of teh charter and then turn around and ask for one themselves? Clearly the charter was not the problem
+	- by appealing to proprety rights which would be threatened not just for the Company but for all groups like the Church and Wealthy, and the law office found that the Charter coudl be challneged in court, but that the petitioners chargers were without substance, and opposed haivng two copmanies chartered for the same region. 
+		- Dobbs was surprised by this as he thought he had support of powerful ministers and assuemd the Company woudl join them
+- Dobbs then tried to pyt the matter to parliament, and in 1749 a committee was struck to investigate the HBC, and outside there was a well organized campaign which agitated against the Company
+	- BY the end of april petitions from manuyfacting ports and t owns wanted the HBC to be opened, and no longer was an alternative monopoly being demanded. 
+	- Though the seminiarlity of the petitions suggests a common origin, and the liverpool merchants wanted an open trade and on march 22nd 9 signed a request to liverpool Mps asking for supporting, and a similar won was sent to the SOicety of merhcants in Bristol. Within three weeks of april two dozen peittions arrived, and that Bistol was just one of many cities asked 
+	- that it came from liverpool is aided byt John Hardman who ciruclated petitions on hte African trade against the RAC and similar petitions as regarded the HBC flew into parliament for hte RAC and coming from the same places
+		- not all of them were even conneted to the trade, Ripon petitioned for bothb HBC and RAC though it mostly made spurs 
+			- 1748-50 was attakced by bristol-liverpool on RAC 
+			- 15/17 were submitted on both
+		- individual links as well, peopel who had subcribed to the 1746 exploration mission
+			- 31 of 39 Liverpool merhcants who signed hte MP letter were slave tradesr as well
+	- Saw coordianted attacks on chartered companies by liverpool and bristol merchants with support from London and other trading towns 
+- Parliamentayr committee asked 22 ppl questions, 15 had worked for the Copany, six were merhcants, and one owas dobbs. All but one merchant supported opening hte bay and were opemsteic about what would happen if so.
+	- Some thought like african trade, but most had arguments from dobbs
+	- former servants were partisan,  mostly had deserted to join the North-West passage expditions, others left so long ago they had little ot say
+	- comittee wante dot konw what hte bay was like, could it be settled and were there minerals, how the copmany traded with natives and why it refused to go inland, the northwest passage, treatment of indians and servants
+		- witnesses left the committee with an unfavourbale interptetion of the Company 
+	- Company produced no witnessness, the Company's secretary Charle Hay has paper which show this was a deliberate choice. It ocudl be heard in the house later, but rn it went past the commitee and sent each MP a pamphlet written by the Company's lawyer making *the case of the HUdson's Bay Company*
+		-  a terse statement which was effective and tried to show off hte companies wins and why it wasn't doing what was wanted
+- Battle was at two levels. Dobbs wanted a big expansiosn, perhaps overconfident 
+	- company was being practical, what was possiuble, and foucsd on the struggles not opportunities. 
+	- records on settlements, standard of trade iwth indians, stokcholders, and instructions which were sent out were printed as an appendix and for the first time the way the trade worked was laid bare 
+	- Copmany did not amke a crazy profit, on an outlay £27,000 made 30% profit and only once in the past 30 years had a 10% dividend been paid
+	- This commitee received this on aripl 24 1749, and hte Company's main adovcate in the house was Sir John Barnard Mp for City of London who was anuthority on finacinal affairs and a possible replacement for Pelham
+		- he thought hte petiion was harming and were soliciited
+		- The companyt had a regular dividend, it invested its capital in a surplus of well-balanced shares, and it did not glut  the fur maket making it respectable in the CIty nor did any rebel sharehodlers want ot break donw the Company
+	- Sat again in May and called more witnesses, incldyuing the most experiunced factors and captains in England and ppl from Liverpool and Bristol,  though no records exist, the house had moved from the former points of detail, now was focused on national policy raised by Dobbs, was it doing a good enough job challenging hte French and should it be doing more to exploit the interior? but the opponents overplayed their hand 
+		- COmpany said cost, terrain and transportation were holding back inalnd moves, and though the future would show that this was not so bad as assumed, it was not wholly wrong 
+		- could not keep the trade without fort and settltements on the aby and would either be paid for by government or the Company so teh Company stayed 
+	- Thgouh not immediately accepted as there were rumours of other attempst to take the trade and in 1752 a futher attempt was made, with Dobbs guiding schemes between 51-52 to damage or destroy the Company, inclyuding having the Irish Government buying out the HBC, or turn the bay into a penal colony, with bad criminals being sent tot he north, and the worst givent ot he Eskimos as slaves
+		- attempt to link two seperate interests, the hatters grumbling about the price of beaver-skins and Dobbs merhcant friends who wanted a foothold in Labrador 
+			- hattesr did not convicne the commons, and similarlyb London merchants failed.
+			- Dobbs paper show that this was an attempt ot take thj Companies trade furhter west. thogh the board of trade was not turned on and saw little reason in having two monopolies 
+		- so the HBC survived ht other companies udner attack, wheras the RAC was dissovled in 1750 and in 1753 the Lvant Company suffered charter modifiation
+		- the HBC was more narrow and thus shold've been weaker than the looser and more open membership alternatives, but the HBC had a steady if limited trade, asked for no subsidies or special favours except its continued existence and privielges, and kept turning a profit. Whereas the other two were needing subidies and favours.
+			- the COmpany may not have energeically exploited its grants, but better a sure thing than a risky idealistic alternative 
+- Company could not longer rely on obscurity for protetoin
+	-  JOsiah Tucker hated the HBC and saw it like other monopolies as only enriching a few people at the top, wanting the goernment to buy out the Company
+	- 1752 sw Joseph RObson;s account of six yars residnece in th3e Hudson's Bay which described the Company as an oppresive and ineffecive employer and said that for the last 80 years the company has slept on the edge of a frozen sea. Tunrs out Dobbs wrote most of the book and wanted to use it to attack the Company, so when others used it support Dobbs' attack, it was circularly Dobbs backing Dobbs
+- hard ot  tell how the company reacted
+	- now tried to move inalnd more obviously. 1750 saw probes inalnd, and proved imporant to expand trade
+		- this was forced on it by the reality of hte situation in north-america as hte CAnadian fur trradesr threanted the trade at its heart and core  
+	- but gradual was slow, no deep ijnalnd posts until the 1770s but it did launch more on foot exploration projects and desire for labradro by other merhcants pushed the Company to explore more quicly   
+	- rumours of hte northwest passage promtped surveyts by the HBC men int he 1760s and onwards adn Alexander Cluny's criticms in his 1769 *The American Traveller* pushed Samuel Hearne's inland journey 
+- At first the HBC did not realize that publicity had wins and loses, thought it just was a loss. The Company did not try and respond to attacks on it as it woudl've been "imprudent" to publish anyyting aobut how the trade actually operated in repsonse to critics. Only waht came out in Committee and its little *Case of the Hudsons' Bay Company* siad anything about exploration by the bay and those who tried to reply from the bay were cenorsoed byt he Company so that only the critics got to have a word on this topic 
+	- fear was rivals woudl benefit but over time total secrecy faded, it started to help in scienfici advancement
+- Samuel Wegg, whos govenrnacne broke the otherwise long dominace by hte Lake family in running hte HBC. 
+	-  Wegg a stockholer since 1748 was elected to commitee in 1760, deputy governor in 1774, and Goveronr in 1780 until he retired in 1799. 
+	- he was also a fellow of hte Royl Society, a mmeber of its council from 1767 and Vice President and Treasure from 1772. Was on good terms witht eh peopoel inovled and gave t he ADmiralty and variosu private people access to HBC jounrals and maps. 
+	- thsi chagned the public image of the Company at the same time as the loss of New France in north AMerica lightened the attack on the Company from that angle
+	- 1767 permission was granted to ROyal SOciety scientists to go to CHurchill to see the Venus transit, an that Wegg was an importynat intermedary for this 
+		- in 1770 a steady flow of natural history specimeis and ntoew, meterolgicla observations and other sicnec ewnet from bay poststot he society, and the society gave the copany scienc tools and expressed its gratitude for the Aid the company was providing 
+	- Wegg was accomidating to the Explroation than earlier htad been, for example sending the First Lrod of hte Admiralty evbidnec form Hearne's jounray and hte Copany's sea based exploiration in 1760 so aid Captain Cooks third exploration mission to find a pacific entrnace to the nrothwest passage
+		- This helped chagne the public perception of the Company and attacked a rival to cook who himeslf was using DObbs work which was now confirmed to be bullshit 
+		- as interest in western North America expanded following Cooks journey, the HBC's records increased in demand. 
+			- For example, Alexander Dalrymple was given free reign to view the records by Wegg, and convinced himself the north-west pasage might exist to link the EIC and HBC 
+			- this led ot a mission to explore the bay but the government got to appoint commander which was necessary to reduce risk to the company as it had experienced duirng Dobbs atttempts 
+- 1790 saw a publication of book of crticims of the Company by a former servant, which siad the Company was actually hiding a north-west passage and most owryring were the re ports taht the NWC felt its explorations entitled it to its own private charter 
+	- Company responded not on controlling information, but instead told the prss what was happenign and wanted an account published on what happened while opening its records to careful and reputable investigators the HBC did a good job explorationg and new management was better at allowing exploration
+		- new management let Hearne review his old books as he wrote his narrative account, generating good publicity for the Company, saying the COmpany was good
+- Though books continued to pritn Dobbs' lies it is more importnat that Adam Smith wrote in favour of the Company as it was a small trade area with high costs and might be the rare example of a good monopoyl that was baically a priate copartnery
+- Wegg was importnat for helping the Copmany determine what was importnat to keep confidential and what could be opened up. THis allowed the Company to build up popuarl good will, it wanted to increase trade and knowledge. Charter was not ignored not attacked. THe copany survived because it was a good trading org, rather than the support it had from geogrpahers, scientics and ministers in th e ood days, but really in a fight were financial strength in Brtiain was as importnat as evnets in North AMeica to help protect the Company from attacks on its privileges. 
+## "The Hudson's Bay Company, Social Legitimacy, and the Political Economy of Eighteenth-Century Empire" (2018)
+- THis article explores the social context in which the HBC was operating, engaing on the question of Company State or For-Profit enterprise by noting that the two are not as distinct as might have been thought, through an analysis of the social obligations and expectations placed on the Company 
+	- basically a deep dive inot the Dobbs affair asking the question, what were the expectations placed on the Company? Sure it was supposed to make money and that argument helped to carry it, but what about the "public good" or "common good" that it was supposed to promote?
+		- it failed to fight the French really, it struggled to promote colonization and it didn't really offer much back to empire except by engaing in trade, though after the Dobbs affair it started to do more. THE decisive argument continued to be the question of why the taxpayer or other merchants should assume the burden of the forts and the Committee was not as idealistic as the speculators who wanted to profit.
+- Dobbs tried to argue that the Company was hiding the passage, making hte trade small on purpose, obscuring its profits, retarding colonziation all while allowing the French to triumph. The copany replied that hte bay trade was a fagile balance and it did not want to upset, which dependent on the goodwill of the natives in the region and this wans't just cynical profit seeking, or if it was, it was persistant cynical profit seeking which said we need to have good relations 
+	- With the collapse of the RAC the British did not want a massive disurption to thier atlantic agenda combined with the fact that swapping out the HBC would either be for just a different monopoly, or else bring in too much uncertainty to make it worthwhile
+	- Dobbs also said the English should be more focused on doing what the French do.
+	- more interestingly Dobbs was repeating an old claim that Monopolies were not helping the public good but hurting it because they only enriched a few people rather than the many 
+- Basically the pattern was for people to say monopolies were lying to the public for their owners benefit, which for the HBC meant hiding the passage and downplaying hte trade and that by just pursing a profit the HBC owners were failing in their objective of expanding hte good of the British empire. 
+	- real question is, were these ideas linking hte corporation to the public good real or were they just set dressing on other fights?
+	- It was a real thing, the HBC defended itself on the grounds of social legitmacy including how the business would operate was rooted in its charter, and how larger corpotions connected to society
+		- corps had to: regualte professions, organize public debt, and govern civic communities and markets. 
+		- The HBC was built inot a network of expectaions on how it owuld treat other communities while it was itslef a community, including bettering its national community, as well as INdigenous suppliers as well as domestic manufaters
+		- Copmany directors were in a neuxs of soical obligation, it had to advance sharehodler and trader ineterst while saying it helped the public good as well as other econbomic and poltiical groups inclduing natives nad in a zero sum way screwing over the French
+- Interdisciplinary view of hte trade, challenges old view of HBC as economic entity which were essentially arms of the state. And new literature which recovers the politicla dimension of the Company by understnading it as a Company-State however the study of non-economci factors as qualified the autonomy of the Company-State.
+- really about how the COmpanyt was emeshed in social netwoks which set obligations on the Company including an obligation to provide for the common good by profint from the trade, rather than just their own enrichment. The social context expected this and hte agents of hte trade lived in the social context and suffered 
+- Joint stocks were neither slavish economic agesnt nor just soverign actors, theyw ere contrained by prifate intests, and the dynamics of markets, pbulic opion, legal regluiations, and the perception of social obligation 
+	- **tldr the company had a social life and social expectations which structures its actions**
+	- this was heightened as the RAC failed in its endevours and the HBC defended itself against DObbs charges of failing ot do its social role by showing that it had sturggled to, and then turning afterwards to more openly embrace it 
+- revelation on the function of imperial markets which neede to stop imperial rivals by gaining hte good favour of Indigenous people, but the question w2as what was best as presevering and expanding the cooperative relationships which underpinned the trade 
+	- to stop the french an orderly and cooperative relationship with the natives was necessary and so both the critics and the HBC tried to argue the trade was good and proper
+- Talks abouyt hte conexicty of empire rooted in "congreries of territories linked by their commerce"
+- hbc from start was expected to enrich its own ppl and the natives 
+	- but ppl like dobbs thought it was failing in this 
+	- Dobbs thought england was giving too much freedom to settlesr in America and they were now tryuing to enrich themselves which was alientating hte natives as colonists stole lands 
+	- needed to colonize for geopolticila reasons to stop french but also to enrich t he BRitain empire, adn the antives, through imrpoving hteir matieral and moral conditons 
+	- wanted to turn the bay inot a springboard to explore the inteiror
+		- now I see shade of Lake's plan here.
+		- claimed opening hte trade woudl drive people to colonize the HBC said it might piss off the natives 
+- HBc argued its case on two grounds: explroation and property rights. the former faded over time, hte latter were stronger but evne still legal opinion was at best lukewarm; the enviroment was seeing the weakening of companies
+- HBC directors care about he native social relations in the trade because they were essential for its profits 
+- what kind of trade should there be, monopoly and forts and open trade and settlemnt, and which was best for bringing in Cree, Dine, and Assianobine people to the empire 
+- now the towns being raliled by Dobbs against the HBC to demand for oen trade as part of the Anti-RAC fervor of the moment but HBC was self sufificent where the RCA sucked money from the public purse 
+	- when dobbs calls witnesses, they end up proving the HBC's POV rather than Dobbs'
+	- arguemnts around economy, like too many suppliers lowering incentives for Indigenous traders to trap furs 
+- When it votredvoted in favour of the HBC, the comoons wanted ot keep an estabslihed market without alternation, an d teh idealistic possiblities were shot down for actualized realities 
+	- bcz forts were seen as necssary, expensive, and already being paid for by the Company
+- "The language of public interest mattered in the debates over the HBC and continued to structure governmental discussion of the man agement of the northern trade. When merchants petitioned in 1752 for an incorporation to expand markets into Labrador, the Board of Trade adopted familiar language, explaining in their report that this would “be of great National Advantage,” possibly “reviv[ing]” the felting and hatting trades in England against foreign competition. The board expected that conditions would be inserted into the grant requiring the new company to build forts and “to promote and establish a Civil correspondence and Amity with the Natives,” all benefits that would “devolve to the Publick at the expiration of this exclusive Trade.”134"
+	- "Corporations existed in a dynamic network of social relationships and responsibilities that were sometimes political and often economic and legal. The HBC could not survive as an incorporated entity, in this line of thinking, simply for the pri vate benefit of its investors; it always operated within manifold social fields. Of course, the responsibilities mentioned in their charter or the needs of the Indigenous peoples who were their suppliers and clients were not the prin cipal concerns of the directors of the HBC. They wanted to make money. But they could be responsive to social pressures, if only to safeguard their business and its reputation and to legitimize their monopolistic privileges."
+- "Consequently, as the HBC example reveals, asserting and assessing corporate legitimacy was a complex process that took place within shifting logics of imperial rivalry and economic theory. Explicating how Dobbs and his allies attacked the HBC and the company defended itself offers insights, for example, into contemporary beliefs about the functioning of markets and their frequently cooperative nature. Claims that the bay trade united British manufactures with Indigenous suppliers in amity, whether voiced by Dobbs or the HBC, were self-serving and ethnocentric. They reflected a co-optive impulse that frequently functioned to justify dispossession and ethnocide by, ironically, extolling the benefits of cooperation as the means to introduce industry or civilization.138 But ideas about commercial coop eration were also intellectual resources that could be used to interpret the workings of imperial structures, such as the trade in Hudson Bay or on the African coast, and to determine political and military action. Projections for and justifications of imperial expansion could be based on the ideal of a coursing, beneficial commerce."
+	- "Subsequent critics of the HBC such as Malachy Postlethwayt and Josiah Tucker explored the possibilities of doux commerce.139 Cooperation, in this line of thinking, could be turned to geopolitical advantage in the creation of alliances or through the incorporation of imperial resources such as populations and land. The image of a beneficent empire of commerce answered criticisms of a ruthless, exploitative empire and assuaged fears about endless warfare due to the “jealousy of trade.”140 Economic coop eration was an approach that both was useful to individual empires and could be universalized to join together all polities that engaged in trade and exchange. This logic was embedded not only in the 1749 language about the public interest and the HBC but also in the early modern British under standing of Atlantic empire and its political economy."

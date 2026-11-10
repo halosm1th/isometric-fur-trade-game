@@ -1,0 +1,176 @@
+---
+tags:
+  - reading_notes
+  - 2025-2026
+  - Indigenous_History
+  - Government_structures
+  - Red_River_Indigenous
+---
+
+# Indigenous Government Structures, societies, institions, etc.
+
+## Assiniboine/Nakoda
+- Focused around the bison hunt
+	- Enough calors for people to have a few kids, 2-5ish, but not enough for larger groups or lasting institions, no real liesuring class
+	- the bison hunt and pounds are the key food source and way or organzing society
+	- bison hunt preps peopel for warriors
+	- horses as an innovation were massively importnt as have made hunt easier
+- Bison hunt == food, more food == more wives, and a greater position of respect
+	- this leads ot a natural or pure aristocracy in some ways, as the successful hunters rise to positions of power based on htier ability to display skill
+		- alos worth consideirng that those with teh most food have hte wives who will ahve the most calories when pregant and kids with the most calories while growing giving them the best chance of having muscle necessary to become a great warrior and leader
+	- however some groups are misled by medicine men who are good orators and use their sacred position to manipualte peoplle to follwing them, leading to failure nad breakup of hte group splitting into others or joining others.
+	- this creates few long temr long lasting insititions to retain cutlure however.
+	- There is at least some sense of wealth hierarhcy organizd around the return on food and furs 
+- Strong gender roles, men hunt, fish, and make war, women tend to the home, cook, take care of the kids. 
+	- women have limited communication and freedom, often shelterd to prevent men and women from interacting, lots of itner women communication
+		- kinda like greek woman in this way, but no gayness mentioned?
+	- women can't go to many dances
+	- women have strong intenral community with their own game and gossip/chatter
+	- men can join secrete societies
+	- women are warned ot finda  good husband who can provide for them and their families, men are told to find wives who will make a good house and good food not just be hot. 
+- Key dance is the grass dance, gathered from the sioux, but adapted, women could join in later versions, ends with warriors reenacting battles
+- Broke off from the Sioux who they share a language with, and joined the Cree/Objiway who were more militarilty powerful
+	- might've migrated slightly from teh east, drawn by the HBC outposts which offered them guns and thus military superioritu
+	- were middle men traders with the HBC for a long time, benefitted greatly from this in temrs fo guns, whcih they used ot maintain their position and power as middle men moving furs and goods each way
+	- archeolgically related to teh motlach phase where htey seem to have been in the manitoba/prairies region for a while, arguing from their myth to have been from the lake winnipeg area
+- Medicine men are key religious postioin and healer, have access to importnat medicine but little to no formalized intitions or shared knowledge, comes ot peopel either pased down from older other medicine people to their chosen successors, or comes to people in dreams and from feeling it. 
+	- need ot make offerings to them for them to come and help
+- pipe and a toke from it is really important, provides spirutal expierence, guidence, and healing power. 
+
+## Ojibway/Anishinabe
+- larger creation myth, possible mulitple myths, one about a creator and first man, and one about a post flood muskrat finding land but dying in the process, essentially dying so man and hte world can be reborn after a massive flood
+	- their mythology clearly seemed inflected with christnaituy elements, such as gee-sus aka the sun, the order of creation being the same as gensis, and other such things. A sort of inter-meditary state, where lots of overlap but some differences, akin to semi-pagan medieval christendom. 
+	- There is also a highly related greek elemnet, female earth for example, though in this case earht is first, praying and offerisng to every river and lots of nature spirits, etc. Pagan seem broadly fitting
+	- animals are very importnat, especailly the bear, otter, wolf, and muskrat, but there are  others of importance too. The directions are alos sacred. East is where life starts and is where women are, and west is where people gow hen they die and is where god is, who is also zeus like, ie lightning god called father. 
+		- Snow is purifying.
+	- Moon is other mother and sacred for woemn, as is water, men are light and fire, women are moon in part because of cycle and birth
+		- lots of focus on cycle and harmony in the religion
+- were initially in a massive society on the east coast around New brunswick, migrated west due to prophecies, stopping at various places before eventually reaching a new semi-homeland, unit eventually even that homeland fell and the people were forced to flee again, some to canada become the Cree and Saulteaux, others heading to places like montana, Wisconson, and minnisota 
+	- new bruskwick to Tutle shaped island around southern quebec
+	- From turtal island to Niagra falls
+	- From the falls to the detroit river on the michigan side 
+	- From michicgan area to Manitoulin island in lake huron
+	- from manitoulin to Sault St Marie in South-Western ontario
+	- From Salt St Marie to Spirit Island Duluth in eastern minnisota on the great lake
+	- from Duluth to madeline island 
+		- ![[Pasted image 20260124004114.png]]
+	- From Madeline island to all over the west
+		- ![[Pasted image 20260124004201.png]]
+- Seven is a really imporatn number
+	- **Seven scared teachings**
+		- (1) To cherish knowledge is to know WISDOM. 
+		- (2) To know LOVE is to know peace. 
+		- (3) To honor all of the Creation is to have RESPECT. 
+		- (4) BRAVERY is to face the foe with integrity. 
+		- (5) HONESTY in facing a situation is to be brave. 
+		- (6) HUMILITY is to know yourself as a sacred part of the Creation. 
+		- (7) TRUTH is to know all of these things.
+	- **seven sacred fires/prophets/prophecies**
+		- The first prophet said to the people, “In the time of the First Fire, the Anishinabe nation will rise up and follow the Sacred Shell of the Mide- wiwin Lodge. The Midewiwin Lodge will serve as a rallying point for the people and its traditional ways will be the source of much strength. The Sacred Megis will lead the way to the chosen ground of the Anishinabe. You are to look for a turtle-shaped island that is linked to the purifica¬ tion of the Earth. You will find such an island at the beginning and end of your journey. There will be seven stopping places along the way. You will know that the chosen ground has been reached when you come to a land where food grows on water. If you do not move, you will be destroyed.”
+		- The second prophet told the people, “You will know the Second Fire because at this time the nation will be camped by a large body of water. In this time the direction of the Sacred Shell will be lost. The Midewiwin will diminish in strength. A boy will be born to point the way back to the traditional ways. He will show the direction to the stepping stones to the future of the Anishinabe people.”
+		- The third prophet said to the people, “In the Third Fire, the Anishinabe will find the path to their chosen ground, a land in the West to which they must move their families. This will be the land where food grows on water.”
+		- The Fourth Fire was originally given to the people by two prophets. They came as one. They told of the coming of the Light-skinned Race.
+			- One of the prophets said, “You will know the future of our people by what face the Light¬ skinned Race wears. If they come wearing the face of nee-kon-nis-i-win' (brotherhood), then there will come a time of wonderful change for generations to come. They will bring new knowl¬ edge and articles that can be joined with the knowledge of this country. In this way two nations will join to make a mighty nation. This new nation will be joined by two more so that the four will form the mightiest nation of all. You will know the face of brotherhood if the Light-skinned Race comes carrying no weapons, if they come bear¬ ing only their knowledge and a handshake.”
+			- The other prophet said, “Beware if the Light¬ skinned Race comes wearing the face of ni-boo- win' (death). You must be careful because the face of brotherhood and the face of death look very much alike. If they come carrying a weapon . . . beware. If they come in suffering . . . they could fool you. Their hearts may be filled with greed for the riches of this land. If they are indeed your brothers, let them prove it. Do not accept them in total trust. You shall know that the face they wear is the one of death if the rivers run with poison and fish become unfit to eat. You shall know them by these many things.”
+		- The fifth prophet said, “In the time of the Fifth Fire there will come a time of great struggle that will grip the lives of all Native people. At the waning of this Fire there will come among the people one who holds a promise of great joy and salvation. If the people accept this promise of a new way and abandon the old teachings, then the struggle of the Fifth Fire will be with the people for many generations. The promise that comes will prove to be a false promise. All those who accept this promise will cause the near destruction of the people.”
+		- The prophet of the Sixth Fire said, “In the time of the Sixth Fire it will be evident that the promise of the Fifth Fire came in a false way. Those deceived by this promise will take their children away from the teachings of the chi-ah-ya-og' (elders). Grandsons and granddaughters will turn against the elders. In this way the elders will lose their reason for living . . . they will lose their purpose in life. At this time a new sickness will come among the people. The balance of many people will be disturbed. The cup of life will almost be spilled. The cup of life will almost become the cup of grief.”
+		- The seventh prophet that came to the people long ago was said to be different from the other prophets.
+			- He was young and had a strange light in his eyes. He said, “In the time of the Seventh Fire a Osh-ki-bi-ma-di-zeeg' (New People) will emerge. They will retrace their steps to find what was left by the trail. Their steps will take them to the elders who they will ask to guide them on their journey. But many of the elders will have fallen asleep. They will awaken to this new time with nothing to offer. Some of the elders will be silent out of fear. Some of the elders will be silent because no one will ask anything of them. The New People will have to be careful in how they approach the elders. The task of the New People will not be easy.
+			- “If the New People will remain strong in their quest, the Waterdrum of the Midewiwin Lodge will again sound its voice. There will be a rebirth of the Anishinabe nation and a rekindling of old flames. The Sacred Fire will again be lit.
+			- “It is at this time that the Light-skinned Race will be given a choice between two roads. If they choose the right road, then the Seventh Fire will light the Eighth and Final Fire — an eternal Fire of peace, love, brotherhood and sisterhood. If the Light-skinned Race makes the wrong choice of roads, then the destruction which they brought with them in coming to this country will come back to them and cause much suffering and death to all the Earth’s people.”
+			- Traditional Mide people of Ojibway and people from other nations have interpreted the “two roads” that face the Light-skinned Race as the road to technology and road to spiritualism. They feel that the road to technology represents a continuation of the head-long rush to techno¬ logical development. This is the road that has led modern society to a damaged and seared Earth.
+	- **Seven clans/totems**
+		- Totem is passed patralinearly by father, son inherits totem retaiing totemic knowldge between generations
+			- but have to marry outside your clan, so sons keep knowldege in clan but get injection from other, while other clan gets injection from fathers clan via the daughter.
+				- this was a natural law from the creator
+			- Totems also create a second web/network for people to have connections throguh
+			- each member of hte band has a totme, so multiple within the band.
+			- this does mean that civil chieftans are a hereditary position passed by generation, while military chieftans come from skill
+				- like the ancient athenians in this way, where dmeocracy could elect almost all positions but skill secured the position of military command.
+		- From AI: The Clan System provided **equal justice, voice, law, and order**. It effectively managed the **division of labor** and resource access; for example, chiefs exercised authority over the **division of hunting grounds** to prevent conflict. This organization was so successful that, during periods when the system was strictly enforced, the Ojibway were said to have suffered **no famine, major sickness, or general violence**. Each clan also held a specific position within the **Midewiwin Lodge**, such as the Bear clan being responsible for guarding the doorway.
+		- Crane Clan (_Ah-ji-jawk_) == Chieftain
+			- leadership qualities and abilities
+			- The Crane clan holds the power of **chieftainship** and leadership. 
+			- Known as the "**Echo-makers**" (_Bus-in-as-see_), they are noted for their loud, ringing voices and serve as the **acknowledged orators and tribal interpreters**.
+		- Loon Clan (_Mahng_) == Chieftain
+			- leadership qualities and abilities
+			- Also a **Chief clan**, the Loon serves alongside the Crane to provide a **balanced government**, with each clan acting as a check on the other. 
+			- Their status is symbolized by the white color around the loon's neck, which resembles the royal _megis_ (wampum) worn by chief
+		- Fish (_Gi-Goon_) == intellectuals/philosophers 
+			- settled disputes between loon and crane leaders, cast deciding vote if need be, tie breaking brought stability by allowing debates to end
+			- Composed of the **intellectuals, scholars, and philosophers**, this clan is often referred to as the "star gazers". 
+			- They serve a **judicial role**, settling disputes and casting deciding votes when the two Chief clans disagree. The **Turtle** is considered the head or "king" of the Fish clan.
+		- Bear (_Mu-Kwa_) == police and herbal medicine people
+			- patrolling outskirts of village
+			- the Bear Clan became known for their knowledge of plants whose roots, bark, or leaves could be used as medicines to treat the ailments of their people.
+			- The Bear clan functions as the **police force and guardians**. 
+			- They patrol the outskirts of the village to ward off intruders and are noted for an ill-tempered, fighting disposition. 
+			- Because of their time spent in the woods, they are also the **experts in herbal medicines**, using roots, bark, and leaves to treat ailments
+		- Martin (_Wa-bi-zha-shi_) == warriors
+			- Force to protect the village as well as strategists
+			- This is the **warrior clan**, providing the military force to **protect the nation**. 
+			- Its members are known as **master strategists** and were the vanguard in the Ojibway's westward expansion.
+		- Deer (*Wa-wa-shesh-she*) == gentle people/poets, no longer exist because they did an intra-clan incest
+			- poets, who would not indulge in harsh woods, very peaceful people
+			- These were the **gentle people, pacifists, and poets**. They were known for never using harsh words. However, the original Deer clan was **destroyed by the Creator** after they violated natural laws by marrying within their own clan; as a result, no members of the Deer clan remain among the Ojibway today.
+		- Bird (*Be-nays*) == spiritual leaders
+			- Its members were noted for their intuition and sense of knowledge of what the future would bring.
+			- Representing the **spiritual leaders**, the Bird clan members are noted for their **intuition** and high-level thinking. They are said to possess the characteristics of the **Eagle**, the head of their clan, pursuing spiritual elevations as the eagle pursues the heights of the sky.
+		- ![[Pasted image 20260124010843.png]]
+		- Other/Special Clans/Totems
+			- **Wolf (Mah-een-gun):** A small but highly respected clan that derived its origin from **intermarriages with the Dakota**. They are considered blood relatives to those with the Wolf totem among the Dakota
+			- **Merman (Ne-baun-aub-ay)** A branch of the Fish clan, also linked through historical intermarriage to the Dakota.
+			- **Reindeer/Caribou Addick):** A branch of the _Mous-o-neeg_ (Moose/Marten group) that resides primarily on the north coast of Lake Superior.
+			- **Other Fish Totems:** The **Catfish, Sturgeon, Pike, Whitefish, and Sucker** are all branches of the original Fish (_A-waus-e_) clan. Members of this group are noted for being **long-lived** and having fine, scanty hair in old age.
+	- **Seven scared teachings**
+		- the first five beings brought messages pertaining to the five senses of man: touch, smell, taste, hearing, and sight. The sixth being brought teachings about ah-mun-ni-soo-win, (intuition) — a special sense that goes beyond the ordinary senses.
+		- Sevenths was believed to be future sight/knowledge of the future. was so powerful people died from seeing it. the person with this gift kept their eyes covered, a traditional sign of foresight. 
+- When they were back in New brusnwick they were massive and powerful
+	- The clan system was at its height
+	- but grousp were united by bands, which specialized in various forms of labour, trading goods with one another
+		- berry pickers
+		- wood carvers
+		- stone carvers
+		- fishermen
+		- canoe makers
+		- farmers ("Those charged with raising food from mother earth")
+		- exchange and communication existed between groups
+			- used waterways and travelled by canoe, overland trials, adn sled with dog teams
+	- Men were expected to be able to hunt and fish to provide for their familes while women collected berries 
+- Modern groups include
+	- The Day Break people or Wa-Bun-u-keeg, aka hte Abnaki, who stayed behind in new brunswick
+	- The Fire People or Ish-ko-day-wa-tomi, who kept hte scared fire, later called the O-day-wa-tomi or Potawatomi
+	- The trader people or O-daw-wahg, provided food goods and supplies, led hunting and trading expeditions, modern day Ottawa
+	- The keepers of teh scared faith retained the name Ojibway, kept sacred scrolls, also called the Chippewa
+	- became known as the three fires for the three groups, which had a warfare militance group and a group of peace makers 
+- Eight notches, represtning 8 generations, when in the third notch the white man came, question is how long does each notch represent, 50 years? 40? 30? 20? 
+- Also had strong gender roles
+	- men did hard, physical labour, like carrying, htuning, and warfare
+	- women, to preserve their beauty, stayed inside, cared for the house, because of their nature connection to create they cared for the kids, prepared foods and collected sap
+- Major enemies include
+	- The iroquois whos land they had invaded
+	- the dakota whos land they were invading 
+- Fasting, the vision quest and the sweat lodge are importnat religious institons
+	- fasting for the vision quest is common, but the first vision quest tells you what your life will be, the goal etc, normally happens as a teen, need to purify for it
+	- the sweat lodge can purify, had storng ritual around it, only the east door cna be used by people
+		- four essential animal who fill roles: Bear, Bird, Ceder, and the conductor who brings hte souls in, as well as the fire man and a door guard
+		- leavin the lodge is like being born anew
+		- women can partake but because of their power the conductor needs ot be powerful and have fasted 
+		- ![[Pasted image 20260124011345.png]]
+	- The religious tent  thing aka **the Midewiwin Lodge** is also an essential part and main rleigious/political building like the senate in rome could be a temple, but also acting as a chuch-esc thing
+		- ![[Pasted image 20260124013626.png]]
+	- religious breakdown in fighting between christianityu spread by jesuist who were mean unlike the nice trading frenchmen who married and accepted ojibway ways, and the traditioanl pagan religion led ot breakdowns and infhting infighting within the ojibway weakneing htem when the americans launched their wars.
+	- Had a mythical figure who goes by two main names, and his spirit became the mythical herotic almost hercules of the ojibway of the third. Names are: Original Man -> Anishinabe, and eventually Waynaboozhoo
+	- family structure to the gods
+		- Earth is woman, named Ah-ki
+			- moon is grandmother named Nee-ba-gee-sis
+			- sun is grandfather named Gee-sis
+			- the creator of all mysteries, the highest god is Gitchie Manito
+			- father  is to the west, god of lightning, where the sasquatch wathced over the red wood forest, brother of original man
+			- mother is in the east, hanging with original mans wife, the daughter of the fire keeper
+			- this is the family of original man
+				- original man marries the daughter of the fire keeper, who he went to out in the coal fields of alberta to get fire to take to his grandma, nookomis who lives with the moon, and had to travel over the bitumen lake where if he dropped it the world would burn. 
+				- with the daughter has four kids, one who goes in each direction and marries the daughter of the winds of that direction, founding the four original ojibway tribes 
+- The pipe is important, given by lightning father, used for symbols and rituals. Tobacco is an importnat offering to be given to rivers and other areas.
+- Four directions and colours/races
+	- ![[Pasted image 20260124011504.png]]

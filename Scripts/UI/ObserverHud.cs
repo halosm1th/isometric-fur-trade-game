@@ -47,7 +47,7 @@ public partial class ObserverHud : Control
         int wars = 0; foreach (var w in War.Parties) if (w.Phase != WarPhase.Over) wars++;
         int raids = 0; foreach (var _ in Plains.LiveRaids()) raids++;
         string follow = Observer.FollowName != "" ? $"\nFollowing: {Observer.FollowName}" : "";
-        _label.Text = "Watching the world   ·   WASD fly (Shift faster)   ·   wheel or + / - zoom   ·   Tab the next thing happening   ·   Home York   ·   [ ] the clock, Space stops it   ·   M the map\n"
+        _label.Text = $"Watching the world   ·   Click someone to look at them   ·   Tab the next thing happening   ·   {Keybinds.KeyFor("help")} the key and all the keys\n"
             + $"{convoys} brigades on the rivers   ·   {TradeTrips.All.Count} trading parties out   ·   {wars} war parties   ·   {raids} raids   ·   {Ecology.BuffaloRun.Active.Count} buffalo runs   ·   {Tiers.LiveCount} people in sight, {Tiers.BackgroundCount} beyond{follow}";
     }
 }

@@ -423,6 +423,11 @@ public partial class Population : Node2D
 			role is Role.CreeHunter or Role.CreeChief ? (float)GD.RandRange(0.5, 0.85) : role == Role.Voyageur ? 0.35f : (float)GD.RandRange(0.1, 0.35),
 			role is Role.Factor or Role.Clerk or Role.NwcPartner or Role.Postmaster or Role.CreeChief ? (float)GD.RandRange(0.5, 0.8) : 0.15f,
 			role is Role.Labourer or Role.Voyageur or Role.CreeHunter or Role.CreeWoman or Role.Woman ? (float)GD.RandRange(0.3, 0.6) : 0.15f);
+		// Canoe-making was the camps' craft, the women's sewing and gumming
+		// as much as the men's ribs and gunwales; at the posts a few men
+		// (Orkney boatbuilders, Canadian canoe men) had the trade (World/Boats).
+		npc.Skills.Crafting = role is Role.CreeWoman or Role.CreeHunter or Role.CreeChief ? (float)GD.RandRange(0.35, 0.8)
+			: role is Role.Labourer or Role.Voyageur or Role.Artisan ? (float)GD.RandRange(0.1, 0.45) : (float)GD.RandRange(0.05, 0.2);
 		npc.BedCell = bed;
 		npc.WorkCell = work;
 		npc.HomeStores = home;

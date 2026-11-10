@@ -35,6 +35,27 @@ public partial class PlayerController
         var root = GetTree().CurrentScene;
         root?.CallDeferred(Node.MethodName.AddChild, new UI.ObserverView { Name = "ObserverView" });
         root?.GetNodeOrNull<CanvasLayer>("HUD")?.CallDeferred(Node.MethodName.AddChild, new UI.ObserverHud { Name = "ObserverHud" });
+        root?.GetNodeOrNull<CanvasLayer>("HUD")?.CallDeferred(Node.MethodName.AddChild, new UI.ObserverInspect { Name = "ObserverInspect" });
+        root?.GetNodeOrNull<CanvasLayer>("HUD")?.CallDeferred(Node.MethodName.AddChild, new UI.ObserverKey { Name = "ObserverKey", Visible = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--observekey") >= 0 });
+        // Dev: `--inspect` picks whoever is nearest after a few seconds, `--inspect=Name` that person.
+        foreach (string arg in OS.GetCmdlineUserArgs())
+            if (arg == "--inspect" || arg.StartsWith("--inspect="))
+            {
+                string want = arg.Length > 10 ? arg.Substring(10) : "";
+                GetTree().CreateTimer(6.0, true, false, true).Timeout += () =>
+                {
+                    Agents.Agent pick = null; float best = float.MaxValue;
+                    foreach (var a in Sim.Agents)
+                    {
+                        if (a == this || !GodotObject.IsInstanceValid(a) || a.IsDead || !a.IsVisibleInTree() || a is not Agents.Npc) continue;
+                        if (want != "" && !a.Describe().Contains(want, System.StringComparison.OrdinalIgnoreCase)) continue;
+                        float d = a.GlobalPosition.DistanceSquaredTo(GlobalPosition);
+                        if (d < best) { best = d; pick = a; }
+                    }
+                    GD.Print($"[inspect] {(pick == null ? "nobody found" : pick.Describe())}");
+                    Observer.Pick(pick);
+                };
+            }
     }
 
     private void ObserverMove(float dt)
@@ -67,6 +88,13 @@ public partial class PlayerController
         {
             if (mb.ButtonIndex == MouseButton.WheelUp) { _observerZoom = Mathf.Min(MaxZoom, _observerZoom * 1.18f); return true; }
             if (mb.ButtonIndex == MouseButton.WheelDown) { _observerZoom = Mathf.Max(MinZoom, _observerZoom / 1.18f); return true; }
+            if (mb.ButtonIndex == MouseButton.Left)
+            {
+                if (Observer.Targeting is { } then) then(PersonUnderMouse());
+                else Observer.Pick(PersonUnderMouse());
+                return true;
+            }
+            if (mb.ButtonIndex == MouseButton.Right && Observer.Targeting != null) { Observer.Targeting = null; return true; }
         }
         if (e is InputEventKey k && k.Pressed && !k.Echo)
         {
@@ -78,6 +106,7 @@ public partial class PlayerController
                 var all = Observer.Happenings();
                 if (all.Count == 0) { Say("Nothing is moving in the country just now."); return true; }
                 int i = (all.FindIndex(h => h.Name == Observer.FollowName) + 1) % all.Count;
+                Observer.Pick(null);
                 Observer.FollowName = all[i].Name; Observer.Follow = all[i].Where;
                 if (Observer.Follow() is Vector2 p) GlobalPosition = p;
                 if (_observerZoom < 0.2f) _observerZoom = 0.35f;
@@ -89,4 +118,24 @@ public partial class PlayerController
     }
 
     public float ObserverZoom => _observerZoom;
+
+    // Whoever is nearest the pointer, within a fixed reach on screen; the
+    // people out of sight (Tiers' background, drawn nowhere) can't be clicked.
+    private Agents.Agent PersonUnderMouse()
+    {
+        var cam = GetNodeOrNull<Camera2D>("Camera2D");
+        float zoom = cam?.Zoom.X ?? _observerZoom;
+        var at = GetGlobalMousePosition();
+        float reach = 36f / Mathf.Max(0.005f, zoom), best = reach * reach;
+        Agents.Agent pick = null;
+        foreach (var a in Sim.Agents)
+        {
+            if (a == this || !GodotObject.IsInstanceValid(a) || !a.IsVisibleInTree()) continue;
+            // Feet are at the origin; the body stands above them.
+            float d = Mathf.Min(a.GlobalPosition.DistanceSquaredTo(at), (a.GlobalPosition + new Vector2(0, -28f)).DistanceSquaredTo(at));
+            if (a.IsDead) d *= 2.5f;   // the living first
+            if (d < best) { best = d; pick = a; }
+        }
+        return pick;
+    }
 }
