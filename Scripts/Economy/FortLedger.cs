@@ -48,32 +48,32 @@ public partial class FortLedger : Household
 	public float SkimmedMb;
 	// The other company's minutes have been read here (design doc 10.3).
     public bool KnowsRivalPlan;
-    // The company's spirits order as this house has received it (Core/Laws.PostDry):
-    // a change made in London or at Fort William holds here only once the order arrives.
-    public bool OrderedDry;
-    // What the Bay post believes about its inland post, from the last report (design doc 3.9 step 6).
-    public int LastOutpostReportDay = -999;
-    public string OutpostReportText = "";
-    public float OutpostBelievedFursMb, OutpostBelievedFoodDays;
-    public int LastSupplyDay = -999;
-    public bool KnowsOutpostMasterless;
-    public int LastPostingDay = -999;
-    public bool RaidedRecently(int today) => today - LastRaidedDay >= 0 && today - LastRaidedDay < 6;
+	// The company's spirits order as this house has received it (Core/Laws.PostDry):
+	// a change made in London or at Fort William holds here only once the order arrives.
+	public bool OrderedDry;
+	// What the Bay post believes about its inland post, from the last report (design doc 3.9 step 6).
+	public int LastOutpostReportDay = -999;
+	public string OutpostReportText = "";
+	public float OutpostBelievedFursMb, OutpostBelievedFoodDays;
+	public int LastSupplyDay = -999;
+	public bool KnowsOutpostMasterless;
+	public int LastPostingDay = -999;
+	public bool RaidedRecently(int today) => today - LastRaidedDay >= 0 && today - LastRaidedDay < 6;
 
-    // Which company this counter belongs to, for standing and debt.
-    public virtual Agents.Faction Company => Agents.Faction.HBC;
-    public virtual float BandStanding
-    {
-        get => Sim.Band?.StandingWithCompany ?? 50f;
-        set { if (Sim.Band != null) Sim.Band.StandingWithCompany = value; }
-    }
-    public virtual float BandDebt
-    {
-        get => Sim.Band?.DebtMb ?? 0f;
-        set { if (Sim.Band != null) Sim.Band.DebtMb = value; }
-    }
+	// Which company this counter belongs to, for standing and debt.
+	public virtual Agents.Faction Company => Agents.Faction.HBC;
+	public virtual float BandStanding
+	{
+		get => Sim.Band?.StandingWithCompany ?? 50f;
+		set { if (Sim.Band != null) Sim.Band.StandingWithCompany = value; }
+	}
+	public virtual float BandDebt
+	{
+		get => Sim.Band?.DebtMb ?? 0f;
+		set { if (Sim.Band != null) Sim.Band.DebtMb = value; }
+	}
 
-    // Standing and debt are between this counter and a particular band (design doc 3.6, 13.3).
+	// Standing and debt are between this counter and a particular band (design doc 3.6, 13.3).
 	// The Americans keep their own books with a band, apart from either British company's.
 	public float StandingOf(BandLedger b) => b == null ? 50f : Company switch { Agents.Faction.NWC => b.StandingWithNwc, Agents.Faction.American => b.StandingWithAmericans, _ => b.StandingWithCompany };
 	public void SetStanding(BandLedger b, float v) { if (b == null) return; if (Company == Agents.Faction.NWC) b.StandingWithNwc = v; else if (Company == Agents.Faction.American) b.StandingWithAmericans = v; else b.StandingWithCompany = v; }
@@ -169,14 +169,14 @@ public partial class FortLedger : Household
 
 		int mouths = Alive();
 		if (mouths == 0 || FoodDays(mouths) > 25f) return;
-		BandLedger from = null;
-		foreach (var b in Sim.Bands) if (b != null && b.WillTradeWith(this) && b.Stores.Count(ItemId.Pemmican) + b.Stores.Count(ItemId.DriedMeat) > 10) { from = b; break; }
+		var from = ProvisionSeller(out int spare);
 		if (from == null)
 		{
 			Sim.NoticeAt(this, $"{Title}: {FoodDays(mouths):0} days' food in the store and nobody selling provisions.");
 			return;
 		}
-		int goods = Mathf.Min(Stores.Count(ItemId.TradeGoods), Mathf.Max(4, mouths / 2));
+		// Two pieces for each piece of goods, and no more than the camp can spare.
+		int goods = Mathf.Min(Stores.Count(ItemId.TradeGoods), Mathf.Min(Mathf.Max(4, mouths / 2), Mathf.Max(1, spare / 2)));
 		if (goods <= 0) { Sim.NoticeAt(this, $"{Title}: no goods left to buy provisions with."); return; }
 		int got = 0;
 		for (int i = 0; i < goods; i++)
@@ -188,6 +188,42 @@ public partial class FortLedger : Household
 			GoodsPaidMb += 1;
 		}
 		if (got > 0) Sim.NoticeAt(this, $"{Title} bought {got} pieces of provisions from {from.Name} - {FoodDays(mouths):0} days' food in hand.");
+	}
+
+	// Who the master can send to for meat: the nearest people within a few
+	// days' travel with provisions to spare - York's own bands, as they always
+	// were, and the camps of the wider country (World/Camps), which are not in
+	// Sim.Bands. Before, every post on the continent could only send to York's
+	// two bands, so from Fort Chipewyan to Fort Astoria nobody was ever selling.
+	// A country camp sells only what is beyond two months of its own keep
+	// (StandardOfTrade.ProvisionsFor), and not into an enemy's country.
+	private BandLedger ProvisionSeller(out int spare)
+	{
+		BandLedger best = null; spare = 0;
+		var at = IsoGrid.ToWorld(AccessCell);
+		float bestD = StandardOfTrade.ReachPx;
+		void Consider(BandLedger b, int canSpare)
+		{
+			if (canSpare < 4) return;
+			float d = IsoGrid.ToWorld(b.AccessCell).DistanceTo(at);
+			if (d < bestD) { bestD = d; best = b; }
+		}
+		foreach (var b in Sim.Bands)
+			if (b != null && b.WillTradeWith(this))
+				Consider(b, b.Stores.Count(ItemId.Pemmican) + b.Stores.Count(ItemId.DriedMeat) - 10);
+		foreach (var c in Camps.All)
+		{
+			var b = c.Ledger;
+			if (b == null || Sim.Bands.Contains(b) || Gardens.IsTown(b) || !StandardOfTrade.Safe(b, this) || !Accords.MayTradeAt(b, this)) continue;
+			int n = 0;
+			foreach (var (id, k) in StandardOfTrade.ProvisionsFor(b)) if (id is ItemId.Pemmican or ItemId.DriedMeat) n += k;
+			Consider(b, n);
+		}
+		if (best == null) return null;
+		spare = Sim.Bands.Contains(best) ? best.Stores.Count(ItemId.Pemmican) + best.Stores.Count(ItemId.DriedMeat) - 10 : 0;
+		if (!Sim.Bands.Contains(best))
+			foreach (var (id, k) in StandardOfTrade.ProvisionsFor(best)) if (id is ItemId.Pemmican or ItemId.DriedMeat) spare += k;
+		return best;
 	}
 
 	// A Cree party sells furs at the counter. Returns the MB of goods paid.

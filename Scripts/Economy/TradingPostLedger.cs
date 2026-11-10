@@ -62,9 +62,17 @@ public partial class TradingPostLedger : FortLedger
         // country, and taken off those grounds (Economy/Subsistence).
         bool winter = cal.IsFrozen;
         float game = Subsistence.Game(this, out var ground), share = Subsistence.HandsShare(this, mouths);
-        int dried = Mathf.RoundToInt(mouths * (winter ? 6 : 7) * game * share);
+        int dried = Mathf.RoundToInt(mouths * (winter ? 5 : 6) * game * share);
+        // Part of it is eaten fresh: the hunters' meat (frozen, in winter, it
+        // keeps) and the nets, which is what an inland post really lived on.
+        // A post on nothing but dried meat had the whole house down with the
+        // scurvy by its second month (design doc 13.5).
+        int venison = Mathf.RoundToInt(mouths * 1.5f * game * share);
+        int fish = Sim.Ecology?.Catch(IsoGrid.ToWorld(AccessCell), Mathf.RoundToInt(mouths * 2f * share)) ?? 0;
         Stores.Add(ItemId.DriedMeat, dried);
-        Subsistence.Take(ground, dried);
+        Stores.Add(ItemId.Venison, venison);
+        Stores.Add(ItemId.Fish, fish);
+        Subsistence.Take(ground, dried + venison);
         if (Stores.Count(ItemId.Firewood) < 20 && share > 0f) Stores.Add(ItemId.Firewood, 6);
         // The trade itself is the country's camps coming in with their furs
         // (Economy/StandardOfTrade); the goods come up, and the furs go down,

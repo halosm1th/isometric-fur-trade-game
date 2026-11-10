@@ -671,6 +671,22 @@ A camp's fighting men ride against a camp or a post. Far from every player the f
 world.warParty("Beaver Hills Cree (Amiskwacîwiyiniwak)", "Blackfoot", why: "for the horses", withPlayer: true)
 ```
 
+### `world.tradeTrip(nation, post, near?, say?, to?)`
+
+`world.tradeTrip(string nation, string post, string near?, string say?, Company to?) : effect`
+
+The nearest camp of a nation (to the post `near`, or to `post` itself) carries its furs to a post: its men set out on foot or horseback and trade when they get there, for real where a player is near. The headline `say` is given only if they set out (a camp with no furs, or already away, stays home).
+
+- `nation` (string): The nation whose camp goes, by its name in Faction: "Blackfoot", "Cree", "Assiniboine" ...
+- `post` (string): The post they carry their furs to, by its exact name. It must stand.
+- `near` (string, optional): A post to look for the camp near (the camp of that nation nearest it goes); the trading post itself if not given.
+- `say` (string, optional): A headline given only if the camp does set out.
+- `to` (Company, optional): Which company's players hear the headline (everyone if not given).
+
+```c
+world.tradeTrip("Blackfoot", "Fort Augustus", near: "Edmonton House", say: "The Piegans go next door.", to: Company.HBC)
+```
+
 ### `world.truce(a, b, days?)`
 
 `world.truce(string a, string b, int days?) : effect`
@@ -1428,4 +1444,4 @@ TheHunt.fail()
 - **`Task`**: The work a quest step can hand the player, as the Factor would: Task.CarryCargo, Task.Firewood, Task.Brigade ... (Player/PlayerTask.cs).
   Values: `Task.Firewood`, `Task.CarryCargo`, `Task.DriveOffAnimals`, `Task.DeliverLetter`, `Task.Raid`, `Task.Report`, `Task.Courier`, `Task.Geese`, `Task.Brigade`
 
-Items: `Ale`, `Awl`, `Axe`, `Beads`, `BeaverPelt`, `Berries`, `Bow`, `Bread`, `BuffaloRobe`, `Capote`, `CaribouHide`, `Coin`, `Corn`, `DriedGoose`, `DriedMeat`, `Firewood`, `Fish`, `FishingLine`, `FishingNet`, `Flint`, `Flour`, `Goose`, `Grain`, `Hare`, `HideCoat`, `IceChisel`, `Kettle`, `Knife`, `MbToken`, `Musket`, `PackBasket`, `Pemmican`, `PointBlanket`, `Powder`, `Ptarmigan`, `Roots`, `Rum`, `SaltGeese`, `ShotHide`, `ShotPelt`, `Snowshoes`, `SpruceBeer`, `SteelTrap`, `Stroud`, `ThinPelt`, `Tobacco`, `Tomahawk`, `TradeGoods`, `Tumpline`, `Venison`, `Water`, `Wheat`, `WolfPelt`.
+Items: `Ale`, `Awl`, `Axe`, `Beads`, `BeaverPelt`, `Berries`, `BirchBark`, `Bow`, `Bread`, `BuffaloRobe`, `Capote`, `CaribouHide`, `Cedar`, `Coin`, `Corn`, `CrookedKnife`, `DriedGoose`, `DriedMeat`, `Firewood`, `Fish`, `FishingLine`, `FishingNet`, `Flint`, `Flour`, `Goose`, `Grain`, `Hare`, `HideCoat`, `IceChisel`, `Kettle`, `Knife`, `MbToken`, `Musket`, `Nails`, `Oakum`, `PackBasket`, `Pemmican`, `Pitch`, `Plank`, `PointBlanket`, `Powder`, `Ptarmigan`, `Roots`, `Rum`, `SaltGeese`, `ShotHide`, `ShotPelt`, `Snowshoes`, `SpruceBeer`, `SpruceGum`, `SteelTrap`, `Stroud`, `ThinPelt`, `Tobacco`, `Tomahawk`, `TradeGoods`, `Tumpline`, `Venison`, `Watap`, `Water`, `Wheat`, `WolfPelt`.

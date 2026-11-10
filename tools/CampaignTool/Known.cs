@@ -43,6 +43,7 @@ public static class Known
 		["desert"] = (new string[0], new[] { "to" }),
 		["pardon"] = (new string[0], new string[0]),
 		["war_party"] = (new[] { "from", "against" }, new[] { "why", "with_player" }),
+		["trade_trip"] = (new[] { "nation", "post" }, new[] { "near", "say", "to" }),
 		["truce"] = (new[] { "a", "b" }, new[] { "days" }),
 		["feud"] = (new[] { "holder", "against" }, new[] { "add" }),
 		// The towns at war (World/Towns.cs).

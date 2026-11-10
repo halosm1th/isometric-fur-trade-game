@@ -1,0 +1,293 @@
+# Notes on Various HBC Articles on the Company State and Metamorphosis Thesis
+## Jamaica, the Atlatnic world, and the 'new SYstem' of the HBC
+- Andrew Wedderburn (late Colvile) a scottish City of London Merchant with links to West Indies Sugar planations bought into the HBC on Jan 2nd 1810, and by the end of the MOnth was on the COmmittee pushing his new plan, which would make the COmpany more compettive by aligning management and governors interests in the trade. 
+- Plan came from Andreew giving the COMpany Abstract conseidaration, a response to the challenges of hte fur trade in North America 
+	- however Tolly challenges that this was not the result of abstract thinking but transfering knowledge from Slave Plantations tot he Fur Trade 
+- mix of biogtpahical sketch and compartgive history on the New system with plantation management in Jamacia 
+	- This ist he story of how the HBC revived itself not thgrough reinvigoration on the brink of bankruptcy but rather through a connection to the slave world of the West Indies
+- Not that surprising it was ripping off the sugar trade, after all it was one of the most innovative in England 
+	- most recent history of slaveryu show that in late 18th and ealry 19th cenutyr plnations were filled with constnat innovation. They were like early factories with sacle  of capital, output, technology and porcessing plus large labour 
+	- used science to improve themslves, not outmoded but semi-indsturial and Jamacia the the home innovation
+	- HBC accoutnign that came in in 1810 was based on the system used in West Indian sugar houses 
+- but Weddeburn was the real connection, thgouh new the trade,m he had knonw plantations as he'd worked a few minute walk away from his familial sugar importer which owned several plantations and by 1810 he owned at least four Jamaican plantatison and over 10,000 enslaved africans
+	- no proof he imported hte models and plans used ot mana g e hte system, however there are similarities and Wedderburn was using his knowledge to help reform the fur trade
+- hard-headed self sufficiency
+	- new strat to make each unit of production as self-suifficent as pssible
+		- in slave society most importnatly any land not used for cash crops like Cane or Aimal feed was for slaves to grow their own food, which while struggled to work the owner still used for profit 
+		- Weddeburn told his plantation in clear instructions how to managemtn livestock so maximize efficiency, and corn, and his overall goals were to make money, lower exepsees, use slaved labour and plantaion gorund ot  grow iproduciton of cash crops like sugar
+	- and this same system shows up in the fur trade. AS the transshipment of food across theocean was reduced and psots were supposed to use what was around them to feed themselves, inlcuding growing more local food while other psots should become provisioning centers with dried meat for other psots
+		- in 1811 Edmonton House was starting to try and grow food. BY 1814 there was talk of farming and plowing around Edmonton
+		- but wheat cultivation took energy away from fur trading and thus hurt hte bottom linee
+- One or Two Superior OFfciers
+	- use of specialised managers charged with improving organizaotin and corrdiantion, as the company moved west employes had little impetus and few skills to search fo efficiencies and the sentire system of hte Company became relatively disjointed and highly inefficient
+		- no account books or ways to calcualte their own profits and lsoes, while sevants waere poorly supevised and had litlte udnerstnading of how they contirbuted ot the bigger picture 
+		- No one knew who was in charge of hte overall trade or how to coordinate the system. Expansion across the contineent created a poorly aligned workforce and trade system and London didn't really understnad it
+	- To fix this HBC needed a displined work force, with a local manager in charge of cordianting and discpilingn overseas employees and telling london what was going on 
+		- by spirng 1810 this was setupo, there would be two special managers, one for the nothern and one for the southern departments aka the governors 
+		- the new system trying to create a new management structure for the HBC
+		- inspired by "attorneys" in Jamaica, or men on the spot, who were not expected to deal with day to day issues but ensured plantaitons were streamliend and worked to maximize profits while keeping the owner well informed 
+		- for the fur trade this would mean focusing on the efficient managemtn of human labour in the fur trade
+			- also managed flow of goods from NA to London, 
+		- This was a seperation fo capital from laboiurt, a trait associated with industrial capitalism 
+		- **so the HBC was shifting from mercantilism towards an efficency oriented modern industrial cpaitalism**
+	- only in hiring George Simpson who had connections to Jammacia did the system become functional 
+		- he was both trusted reprenestiav3e and surpemely capable of co-ordinating all spects of the trade including employees
+		- Simpson had learned a lot from Wedderbburn, who's uncle he had worekd for. THough he never owned a pantation, he would have knonw the aspects of the trade
+		- simpson approached hte trade with konwledg eof how his mentor Andrew Wedderburn had, and reazlied the ffiectiveness of hte superintendent/governor positions, highlghting the Atlatnic wodls imprint on the HBC
+- Labour and Race
+	- Slavery depended on racialized labour,, including creating an incetive syustem to force white employees to see themslve as sueporior in the racial hierahcy so they would be okay beating the black employees
+		- slave owneris teaching white kids to have fun whipping slaves
+	- in the fur trade race was not the cnetral deefining element of the trade, the new system does not want to force native labour into a european system or fall under company control
+		- Wedderburn didn't really care about banging natives and never developed the language of offensive ideas around that
+	- wanted Europeans to adapt to native practices in order to maitnain what he caleld hte "system of connections" which the Company enjoyed with Indigenous communities
+		- **in fact the company had to respct the indepdnece of the Indigeonus other in order to succeed**
+		- While Wedderburn was open about racial superiority re slavery, he didn't comment on race in the fur trade re retrenchment. said the comapny shoudl extend credit with the idea it will be lost and not be worried about the loses 
+			- while natives might've been othered in his thinking, they were more like trading partenrs or gatekeepers of fur who had to be treated like rational cusomters or suppliers rather than inferior subordinates a la slaves.
+		- Rested on the idea that HBC had little politicla influence in NA or Britain, and that it needed not forts orm ships but good relatiosn with native traders
+			- hbc had weak intenral discpline but strong relations with the natives 
+			- the stregnth was the Credit system whereby natives were supplied in fall and repaid the supplies come spring/summer with furs and that would be hard for small traders to compete with 
+			- so long as the indigeonus connections held the HBC would triumph, Wedderburn thought 
+	- agreed with Slavery that coerince labour was importnat for business sucess, and Wedderburn critized lack of discpilne among employees, wanted to stop hiring Orkneym,en, and instead reuite men from Western scotland to fill the ranks. AS wel, they shoulnd't be contract labour but hjired as indentured servants with £18 for three yeawrs and a land grant of threee acres with an additonal ten acres for each year of work thereafter
+		- this would keep labour easy to contorl he thoguht
+		- AS men in hte western islands would be more vigorous and skilled than Orkenymbut,m and would not be tied to the old practices, and their loyalty would be to the Company no their local officers or Indigeonus familes
+		- Second, usign land as payument the COmpany woudl ahve firmer control over the actions of servants and an easier time keeping them in line. The choice of going home with £18 and no land or staying, putting uip with company bullshit but getting land out of it was a big sway he figured
+			- realized this was a policy rooted in class not race as hte poor and landless scots would be easier to control. 
+			- understood as being beasts of burdens, not subject to the abuse of slaves but similar status
+			- This proposal never materialized though the terms for recruiting Red River Settlers was similar 
+		- both salves and settlers were people whos lives were embeded by force or coerince int he atlatnic eworld eonomy adn whose destinyh was shaped by the desires and schemes of men in London.
+			- Wedderburn woudl later import indentured servants from India to his plantation once slavery was banne
+- The Atlantic World and the HBC
+	- Before being part of Canada, the HBC understood itself as part of the British Empire and the Atlantic world of empire 
+	- "They felt that they were getting involved in hte commerical opportunityu of the Atlatnic WOrld and building wealth for themslves, hteir shareholdesr and the British Empire"
+	- what was different was how racial othering worked
+		- kinda a mix of Atlantic an dIndian OCena strats, a mixing of capitalist energy of west india with the alliances practiced by the EIC
+- "The historiography of the British empire has struggled to place the HBC and British North-West America into its imperial orbit and contexts. It does not readily fit the established patterns of the “first” and “second” British empire, nor the “mercantile” versus “settler” eras of colonialism. Perhaps in recognizing this inter-oceanic quality, we can better place both the imperial position of the HBC and Rupert’s Land within the empire, and also better understand the imperial and colonial patterns of western Canada during the era of the fur trade and beyond."
+
+## E. E. Rich, HBC, and the British Empire
+- Rich's history of the HBC does not descirbe thee HBC as an imperial factor or how it fits into the empire.
+	- the work was ignored as dry empericism 
+	- bcz rich was an empericist and because he wasn't on the new trends in history int he 1960s and he was the head of hte HBC history hee marginalized the HBC i historiography 
+	- and that in reality rich did argue how the HBC fit inot empire just they were implicit not explicit
+- RIch was born in Bristol in 1904, to artistic paretnts, he was a romnatic who wanted to live iwth style and panache in the post ww1 tragedy world.
+- Perrett directed Rich to the HBC in 1937 to be an editor of its records
+	- from 1938-1960 he was general editor of the HBRS and published 16 volumes of HBC records and his magnum opus history
+- But still he was sidelined by imperial histoirans and with him the HBC in imperial historiography
+	- bcz of changes in how imperial history was being written
+		- Richs' view was a mixture of traditioanl constitutional concern and an almost post modern conern for the complex unknowabilty of the British imperial project 
+		- "He begins by noting that the imperial historian’s concern is mainly with “economic and constitu tional issues as they occur in the relations between the metropolis and the outposts of an empire,”6 but then quickly notes that history is essentially the study of people, and that the essence of impe rial history is “to a large extent the history of the actions of almost irre sponsible individuals.” It is a story, he notes, that was “strongly marked by clashes between individuals who carry out the tasks of empire and their governments, whose wishes they are supposed to implement.”7 In these clashes, there is always an element of contradiction between policy at the hub of empire and practice on the fringes, and these conflict ing elements give much of the savour to the study of imperial history. This interaction of disparate elements must, he notes “be seen against a background in which the three great elements of race, culture and interest are constantly changing from co-operation to competition, pulling sometimes against imperial unity, sometime towards it, sometimes against each other, sometimes together. The result is a set of infinitely variable con ditions which defy easy analysis, elude classification, and render a dogmatic approach to imperial history inapplicable.”8 The challenge of British imperial history as a study, he noted, lies in the marked absence of any logical development or rhythmic movement towards an inevitable and desirable culmination in either success or failure. It is, he said, impossible to apply ideas and concepts not set in the natural and economic contexts in which they evolved. To see inevitable trends in imperial history “one should need not only the eye of faith but a most pronounced astigmatism.”9"
+	- Impeirali history was coimplex and unprediactable, which muyst start from accepting that there are competing forces and antipathes rahter htan sympathies in competition with one another 
+	- economic determinism ignored the human factors of Imperial history 
+	- Not just an empericist, he as it would miss the importnace of theory and idealism even thoguh the terms of thero were for complex, indefinte and largely undefinable concepts, useful so long as one doesn't look too hard at them. However, they were dangerous if one beliveed underlying causes had been found becuse of htem
+	- "In Rich’s estimation the most important factors were interactions of personalities and principles, as history was made by men acting as individuals, not classes, still less as the automata of some “logic of history”. Self-confidence was another important factor, for empires were always the creations of self-confident peoples with a faith in themselves and their purposes. And lastly, he valorized scruple, or choice in action, which led to changes of heart, which prevented a situation from developing to its logical conclusion.11"
+- One year later Ronald Robinson and John Andrew Gallagher published the Imperialism of free trade, which resulted in a shift frmo marxist models or constituaoinl apprahces ot see the britsh empire as an Informal Empire based on FRee Trade, emphasising the Empire not under the flag. 
+	- conceptual shift to uysing free trade infomral controls to expand economic power 
+	- This was the kind of theory history rich was arguign against, adn got lost in the resulting fight around 
+- When Rich  published his major work, it was generally well recieved by economic historians especailly in Canadian, but it wasnt seen as too importnat for the Empire. Its emphasis was on a defensive, trade focused company which virtued stability and coherence, and which did not seek to build a new world empire. Meanwhile the yougner especailly left found it dry as dust, confusing, lacking a general system of ideas, boring, and this view has held on for Imperial historians. 
+- Ens agues the following were rich's core insights
+	- 1) the charter was useless and the HBC stood strong bcz of its financial skill. The company was a fincail concern which profited because it had better knowledge fo rhe trade, higher qualtiy goods, and was willing to sustain losses for longer.
+	- 2) the British Government was not a friend to the copmany and was often its harshest critic. 
+	- 3) the Indigenous people dictated the temrs of hte trade, set the limits on rationalization, and controlled the rivalrty withe French and NWC
+	- 4) the HBC was only truly an imperial factor on the pacfiic after the 1790s when the Russian and Ameriacns became a big eonugh threat to warrant the status, at which point thje HBC coudl not longer deal with it, and so the situation had to be passed off to the state. 
+- In the debate with Cavanaugh on the question of whether the HBC was a company-state or part of the state, Ens argues that Cavanaugh misreads RIch. Rich's quote that the HBC was like a large pompous department of Government comes from a specific moment of stuggle early in the Company's life, and the comment is that as far as the public was concerned the company appeared that way, not even that it was such a thing. 
+
+## The pursuit of socioemotional wealth and the management of the HBC 1809-1863
+- The HBC often described as a Company focused on returns to investors can be seen as being like a family busineess, because
+	- 1) the four controlling families were motivated by social-emotive wealth - the social and emotional vlaue family ownesr ascribe to their companies.
+	- 2) that this shaped how the Companyy was governed, policy decsions made, people hired, and succcession was planned
+	- 3) these competing families drove the Company in different sometimes contradictory directions 
+- "Scholars have long assumed that this era of influence was due to its standing as a royal chartered, publicly traded joint-stock company, essentially that of a smaller and less wealthy version of the East India Company. These same scholars have debated the precise reasons it thrived during this period, some arguing it gained influence principally because it was able to lever age political power through its charter to establish itself as a sort of ‘Company State’, (Bradford & Connors, 2020; Cavanagh, 2011; Gettler, 2020), while others emphasising that it was simply a well-run corporation able to find economic efficiency in the face of commercial competition (Binnema & Ens, 2016; Carlos & Lewis, 2010; Galbraith, 1957; Rich, 1958b; Wagner, 2018; Williams, 1970, 1983). This paper introduces a third factor in the success and diversification of the HBC during this period: that before and during this era the HBC was a family business managed by a collection of four (later three) controlling families and that this family dynamic meant the company’s management privileged the goal of preserving the company over the long term in place of short-term financial profit."
+	- So scholars ahve understood it as something like a smaller, poorer, east india company, which was still a company-state, while others think that it was just a well run Company 
+	- while politicla power of charter and innovations in business management playued hteir role, the companyt was really driven by the desires of contorlling families to ust he company to acheive their familial goals, and that this was the key dynamic to the Company's survival and success. 
+	- not just an imperial endevour but also a familial and emotional one
+- two biz history debates
+	- on family firms, highlgihts that they were not driven by one set of eomtions bu a patchwork of socioemotional desires which may be shared or in conflict with one aonther
+	- Second, this paper is on the rethinking of hte HBC and other chartered company's. Shows the HBC was not just profit focused, nor though was it a state actor trying to do the job of governor of western CANda. 
+	- **Thus, family and emotion, as much as profit and power, were at the core of how the company was managed.**
+- Socioemotional wealth and family firms
+	- baseed on Andrea COlli's desire for a more holistic and historicla approach to emotion and sentiment in family bsuiness, which while often understood has been undertheroized on what exactly they are and how they affect the business.
+	- at the core, unlike a tad firm focsed on profit, hte socioemotive wealth was what the owning family was trying to maximize.
+	- Def of socioeconomic wealth: "by socioemotional wealth we refer to non-financial aspects of the firm that meet the family’s affective needs, such as identity, the ability to exercise family influence, and the perpetuation of the family dynasty"
+		- but for COlli this fails to consider a sufciently holistivc perspective. Its too mechnical to understand the actors in a family firm
+		- using history which allows for change over time, biogrpahyu for intimate details of family, and their emotions, help us better understnad the Socioeconomic approach
+	- Retelling HBC history through family firm lens, new things are revelaed. 
+		- combinds quantitiative analysis fo sharehodler pattenrs between 1809-1862 with qualitiative biograhical info, to link together hte structural reality of hte family ownership patterns fo the comapny with the qualitiative infomration about desciosn of contorlling families from other sources. 
+- Family ownership in hte HBC 1810-1860s
+	- ppl have often offhandedly mentioned the controlling families but never deep dived into them
+	- from 1810-1821 60 of 96 dif accoutns held belonge dot ppl with current or previosu family ties to the COmpany; 8 of 18 stock trasnferes were intra-familial while another six were made by a single-family group
+		- the small size of hte company meatn that a few wealthy and coordinated families could easily control it
+	- This aritcle explores how the Douglas/Colville family network came into power and created a patchwork of family ownesrhip which lasted through to the 1860s
+		- started when family Patriach Thomas DOuglas lord Slekirk started buying shares, to be followed byt JAmes Montgomery 2nd, Baronet Montgomery fo Stanhope (who was selkirks brother in law via Selkirk's wife in 1804), bought a mere £825 of stock
+			- Then Andrew Wedderburn COlvile, selkirks brother in law through marraige to Selkirks Sister, bought £2600 of stock 
+			- and then John Halkett, who was a cousin to both Wedderburn and Douglas, and who owuld later marry Selkirks other sister, Katherine in 1815, having bought £1700 in sharesa
+			- this meant that by the end of 1809 Douglas/Colvile unity family held more than 1/3rd of all the shares, more than all transfers recorded in the previous year
+		- the next year this cotninued in, with Andrew Wedderburn offering himslef ot the committee, by 24 being placed on it, and by the end of 1811 the family group becamet he most importnat family network in th Company, which woned approximately £30,000 or ~30% of the Company's stock, and both Halkett and Colville were on the governing Board
+	- This cemented itslef when the new arrivals aligned themselves with the three ruling familes: the Berens,m the Pelly/Harrison line, and hte Langley/Garry family, and between 1810-1811 the groups aligned to bring in the new system promoted by Colville
+		- Two plans in competition, the Wollaston plan of opening the trade by turning hte HBC on shipping and the tumber trade and would destroy the charter
+		- Wedderburn plan, to really go after the French through a streamlinign of communcations, accounting, management structure, and most importnatly fighting hte French head on in the interior.
+		- the Colville/Douglas team united the other powerful familes, defeated hte Wollaston plans, pushing him to resign as Governor, and selling all his shares. 
+		- This was confirmed a year later at a general shareholders meeting on the new plan and a colony at Red River which NWC shareholders in the HBC were outraged at
+			- 86% of the company voted in favour of hte plan at a general court, while 14% mostly aligned with the NWC voted against. Of those who voted for just under 42% were unattached to any family. 
+		- from 1810 onwards the four main family coalitions came to domiante the company until the 1860s. For example, 1812 saw Halkett on the commitee, Pelly as Deputy Governor, and Jpseh Berens as Govenror, and post 1820 these familes would retain their dominance
+			- in 1822 Pelly started his 33 years as governor, 12 of which had Andrew Colvile as his deputy. Harrison would stay on through both men leaving in 1853. The langley famiyl was the shortest ruling when Nicholas Garry stopped in 1838 due to heatlh isseus.
+			- sons of these men also servered unil 1863 when the Company was sold to the Internatioanl Financail SOciety with no relationmship to the company. They moved it from family business towards modern profit maximizing corporation
+		- The company was autocratically controlled by its govneronrs and committee kept in check by a general sharehodlers conference usualy in November. General sharehodlesr rarely attended court and were hardly invovled in the Company 
+			- between 1811-1826 average attendnace at court was just 10 stoclhodlers, only two on avetage were stockhodlers withiout seat or family on the committee
+			- just a rubber stamp on the committe, with no real debate
+			- this was like the 19th century EIC in which the court became moire peformantive than substantive
+				- this allowed a small, motviated, group to seize control
+			- This might've created an agency problem horizontally, as well, outsiders of the families were often not on the board and disincentivized from joinng it.
+				- this isolated hte families and rulers from the general shareholdersw hile creating a cooperative game to entrench further control for those families
+			- for the HBC however this provided great stability to the company, a they wanted to presrve their socioemotioal wealth engine 
+				- still sought a profit  via divident, but it tended to privelige socioemotaoinl wealth over just economic performance however in the HBC the patchwork of four families not just one complicates this ands oemtimes pulls the company in various directions
+	- family values and company policy
+		- sometime family values can be economicalyl good but sometimes they cana soo be harmful or lead ot the company taking unnecessary risk to appease them
+			- they might be emotian lly good, augemtn the ruling families sense of prestiege, or the families sense of identity, or its social capital 
+		- HBC did this at least twice: Colonization and Evangelism
+	- the Douglas/Colvile Family and the desires for colonization
+		- Red River is the most obvious example of socioeconomic wealth usign the coampny for its own goals 
+		- A way for selkikr ot play a role in the Scottish Enlightenment 
+		- initially selkirk was working with Alexander Mackenzie to buy HBC shares, thogh Mackenzie wanted to merge the HBC and the NWC, seliirk had also started with the NWC and moved to HBC over time
+		- the settlement, for Tolly, is a guiding reason behind the takeover of the HBC
+			- they bought a lot of stock for it, so much that Wedderburn colvile had to sell off a chunk after the deal went through, down to just a safe £1800 to stay on the governing committee
+				- and halket dif hte same, buying £5500 in 1811 to help selkirk and then selling all but £19800 to ensure he could stya on the govenring committee
+				- both Colvile and Halket interestinglyh sold to Mackenzie, 
+			- This suggests that the family bought in to support Selkirk not to make a quick buck or to secure the Company for themselves. 
+				- that Colvile actually increased investment in the west indies where he had a real interest shows that this was more familial than not
+		- aso importnat was Selkirks wife Jean Wedderburn Douglas who took an active role, visibly after 1815, but surely also before then.
+			- she helped coordinate business and creaTe social connections for her husband 
+			- for Jean the HBC stock had emotional value 
+		- there is not a storng reaosnf or the colony outside of family drives and even opponents at the time recognized this
+	- Pelly/Harrison and the family desire for evangelisation
+		- three goals o this group were put together by Bejamin Harrison, to 
+			- build a school for indigenous poeple
+			- use HBC employees to call their atention to education
+			- and to give land to natives graduates to start agri settlements of their own
+			- helped paid for by touside funds
+		- This was a marked change of company policy
+		- root in Harrison and familes christian faith as both Pelly and Harrison family's were devoute Church of England people
+			- Harrison was on New England Company trying ot evangelize to natives around new england but which was failing and really just teaching rich settlesr kids due to donations so figured a system udner the HBC woudl work better
+			- no settlers, schools run by company, and the land was better due to a larger antive population and they were apparently more advanced
+		- This was a radical break in company policy, the growing conflict between missoarines and idigenous some HBC ppl must've thoguh this was crazy, third this made little sense form a business perspective, and its n9ot like Wedderburn was realy pro indigneous ppl, he was a pro-slavery guy and Simpson hated evangelism
+			- however he knew that this was good for company image evne if he disagreed with it
+	- Family and recruitment practices
+		- family had its policy excuted through recruiting ppl who understooa dns upported hte companies vision
+		- so soemtimes ppl promoted but more often family appointed, ensures getting someone who will execute the objetive evne if not the best person for hte job in general
+			- hence hte appointment of orphan ally Simpson, a last minute hirihng for the position of govenror without even an interview 
+			- he was then brought inot hte copamny family, consulted them for marriaGe, and effectively became directory without designatiohn
+				- so he was always supported by hte committee, and the company was his family in effect, and the company needed to trust him with how big the operation would become
+		- Eden Colvile as succesor is an even clearer example of this same princi-al. and was made govenror after simpson until he was forced to leave and in hte process he resolve many of hte issues the company was facing, especially at Red River.
+		- Pelly hired his cousins inot the family but they, unlike Pelly's sons, never owned shares
+			-  this helped his standing and his family using his company
+		- the HBC was kinda like a big fictious estate family with the baord as hte owners and hte employees as labourers, and so not unsurpsiing ppl used hte cutlure ot insert hteir own literal family inot the system
+	- Succession planning
+		- The controlling families wanted ot keep the shares in hte family for two reasons
+			- this protected hte dyanstic family ambition 
+				- many had also gotten their position from inheritenace such as the Wegg exmaple
+				- others simply trasnfered stock to pass on wealth
+			- other reason was to retain control of the Company
+				- the BErens family used its sotkc ot retain almost 100 years of controlling interst in the HBC
+				- Pelly came up through this, his dad transferingh him £1800 to take this position and hten helping him get elected to the council, and others like the Douglas' did similar things
+		- TheLangley/Garry line of a bastard coming itno the company, styaing and dying in office without kids so his shares go to pelly just reinforces the idea of holding power
+		- by passing sets on the goenring committee those who took contorl in 1810 could ensure that their ideas continued ot be reflected in the Company hence its conservaitrms and opposition to new investors 
+			- refusd to shift ot being a railway invesetor or something, it was a fur trade comapny 
+			- rejected htis for threating hte longestvity and stabilty of the company 
+		- with patriachsa asnf family ppl all dead by 1860 the was changing and the ties loosened into a new fomr as it passes to later generationst he emotional ties weaken hence why the IFS reorgs hte coampny away from furtrade and towards retail
+			- Eden colville stuck around for a while longer and kpet up, and 90 yuears later Pellly great granddaughter was on the Company board 
+	- Family, Socioemotional wealth, and the management of the HBC
+		- this view challenges assumption that HBC was either a profit focused company or an imperial factor, it was something else, something wider. It let Douglas and Pelly see the North-West as a family estate in which they could hire and fire and place people as they chose
+		- this is an example of the domestication of empire
+		- the HBC also shows that famiyl firms can take many sizes and looks and many onjectives evne in the fomr and context of a joint stock company
+	- Conclusion
+		- family ownership gave hte HBC a sense of cohesion and purpose not ust commerical success. 
+			- move from trading coampny to de facto colonial force for hte British crown
+		- famiyl contorl offesr a reaosn for success differnet hfrom Charter Privileges, self-sufficency, and innovative accounting practices 
+		- look athte sale in 1870, often argued to have happened without consulting natives, employees, or othres, Tolly argues this is partially beacuse the familial netowrk of connections which had previously undergirded that system had been swept away and that without the emotional and sentimental ties to the trade the only thing of concern was the profit to be made and so it was sold.
+
+## A company with sovereignty and subjects of its own?
+- Soverignty here is defined as: "the ability to operate independently of other legal systms, and to acquire and arule over subjects" this took many forms outside of europe
+	- soverignty of indigenous groups, natural to the area, but it came to appear in the practrices of imperial-sponsored govnerments, private coampniews, and a growing number of small self governing white settlements
+	- could divide the world inot state and  non-state actors but when we look at how the overseas colonial companies operated and organized themselves it was often closer to being like a modern government civil service, so as stern asks, what if the companies are states in and of themselves?
+	- Most HBC scholars distance selves from the idea that HBC was an indepent politicla entity with its own legal regime and institutions, instead as rich described it once, it was like a great department of state
+	- drawing on stern, he submits "that hte HBC was, in fact, a company-state, whose 'settlements' were managed by a committee of advent ures in Lodnon as well as by the orders and individual discretion of its Bayside Governors." The crown barely played any role. it was "up to the HBC to estabslih itself in Rupert's Land, defend its establishemtns, make alliances with locals, and challenge any intruder that etgnered its juridsiction." THen company rule applied to indentured labours and the home guard, which is essenital as its "steps toward ensuring that its own soverignty was more formidable than indgienous forms of soverignty in Ruperts land." This grip was strengthed through the welfare regime which allowed the COmpany to draw in a loyal subject base in and around its settlements 
+-  **Framing and thesis**
+	- Sovereignty defined as "the ability to operate independently of other legal systems, and to acquire and rule over subjects" (p. 25). Outside Europe it took many forms regardless of state/non-state or Crown/Company divisions
+	    - monarchs were good at _declaring_ sovereignty overseas but these declarations "quite commonly amounted to little more than mere words." **Practice mattered more than theory**
+	    - result was Benton's "layered" sovereignty, stacked and overlapping until settler states monopolized it in the 19th century
+	- The usual move (Thomson) splits the world into "state" actors and "non-state realms of authority." Cavanagh rejects it: given how independently companies organized and conducted diplomacy, filing them alongside pirates and mercenaries is indefensible. Following Stern, **what if they were states themselves?**
+	    - Stern on the EIC: a world "in which sovereignty was composite, incomplete, hybrid, layered, and overlapping"; Atlantic companies were corporate bodies politic functioning as political authorities and communities in their own right
+	- Fur-trade historians have compared the HBC to everything (merchant marine, pre-industrial household, modern Japanese firms) but avoided calling it an independent political entity
+	    - Rich gets closest — it "resembl[ed] something of a great, and rather pompous, government department" — and no further. **Ens's rebuttal, per my other notes: Cavanagh misreads this, Rich was describing public perception at one early moment, not making a structural claim**
+	    - Smandych and Linden go further but Foucauldian, i.e. governance _outside_ the state: "a system of 'non-state' governance was put into effect by the officers of the Hudson's Bay Company"
+	- **Cavanagh's claim: the HBC was a company-state, run by the London Committee and by the often conflicting orders and discretion of its Bayside Governors. The Crown, beyond granting and extending the charter at home, "had barely a part to play."** Three arguments:
+	    1. it was up to the HBC, not the Crown, to establish itself, defend its posts, ally with locals and challenge intruders
+	    2. company rule covered not just indentured servants but eventually the "home guard Indians" — **steps toward making its own sovereignty more formidable than indigenous sovereignty in Rupert's Land**
+	    3. welfare provision strengthened that grip by securing a loyal subject base around the settlements
+	- Terminology: "Governor" = post factor/chief factor/Governor; "settlement" = the acreage around a post, _not_ a settler-colonial situation, which arrives with Selkirk in 1811
+- **Martial and diplomatic functions**
+	- Before settler law arrived, sovereignty in the English New World was "impermanent, shiftable, and highly contested"; both _imperium_ (legitimacy of rule) and _dominium_ (security over property) depended on how well you armed and defended your establishments
+	- Charter war powers were expansive: to build forts and plantations at discretion; to "right and recompense themselves upon the Goods, Estates or People of those Parts" who injured the trade; to send ships of war, commission its own officers under its Common Seal, and "to continue or make Peace or War with any Prince or People whatsoever, that are not Christians"
+	    - the "not Christians" limit reads as royal naïveté or face-saving — Bacon had already warned plantations needed "the ability to exercise Martial Laws." The Privy Council tried to curtail Atlantic companies' military capacity but failed, since the metropole kept needing colonists to fight its wars (Mancke)
+	    - **crucial footnote (n. 12): the HBC charter was null and void from 1697 and lucky to escape a London courtroom, whereas the EIC's was renewed in 1708, 1712, 1730, 1744, 1766, 1780, 1793. So this sovereignty runs on practice, not paper**
+	- To 1713 the company-state was expected to use violence against the French as it saw fit. London: "Wee Doe not question your Vigarous attacking and Seizeing of them their Shipps and Goods," which were "Lawfull prize"; on broken truces, "you have free liberty to repell force with force"
+	- **After Utrecht, Rupert's Land never automatically became an "overseas theatre" again — for all the anti-French bravado, HBC territory was to remain effectively neutral**
+	    - self-interested: unlike India, where European and inter-princely conflict paid (especially post-1707), conflict here was purely detrimental to the trade
+	    - so the French built a dozen-plus posts, some "within a day's [canoe] paddle" of an HBC settlement, and were never attacked
+	    - **upshot: the Governors pursued a diplomatic agenda openly different from the Crown's for most of the 18th century**
+	- Native diplomacy: Governors were to make "compacts and Agreements wth. the Capts. and chiefs of the Rivers & Territories," with two objectives — secure "a right & property" and a trade monopoly (legitimizing the charter's key claim), and, more importantly, build alliance for defence, cementing "Leagues of friendship & peaceable Cohabitation"
+	    - London hoped Crees might "unite & Joyne with us in any designe against the French," an overestimation of Cree loyalty; in practice alliances served defence
+	    - allied locals supplied intelligence on French traders and "French Indians" — those who "hold in any alliance with or doe assist or trade with the French... [and are] looke[d] upon as Enemies"
+	    - home guard numbers ran from two families to "150 to 200 men, women and children" per settlement by mid-century. **Best illustration of their security role: a militia-style home-guard "league" mobilized to defend Moose and Albany in 1783. The attack never came, but the capacity, and the loyalty it implies, is the point — and it parallels the EIC's "Indian Army"**
+	- Interlopers: charter barred all English subjects from the trade "unless they were affiliated with the HBC (_unless subjects of the company-state, in other words_)" (p. 33), on penalty of £1,000 and half their ship
+	    - two ex-employee attempts in the 1680s (the _Expectation_, destroyed on arrival in a display of strength London later deemed legal; the _Mary_, wrecked by weather)
+	    - New Englanders were the bigger worry to the 1760s. **First incursion 1683, the _Batchelors Delight_: handled by the HBC's own diplomacy with the government of Massachusetts Bay — two governments meeting and resolving the matter independently of the Crown**
+	    - Stern applies directly: the real problem with interlopers "was not that they impinged on the Company's monopoly but that they trespassed on its jurisdiction and resisted and flouted its authority as a government"
+	- **1741: temporary Governor Robert Pilgrim had shots fired across the Royal Navy's _Furnace_ as it entered Hudson Bay** — the company had refused to let Dobbs-era expedition ships winter at the Bay. Harmless, but revealing of HBC muscle; it relented in 1741 and 1746 but gave the crews little help
+	- Section conclusion: **companies operating in contested regions had to generate their own organic sovereignty** — own martial institutions, own allies and enemies, own campaigns, investigations and treaty programs
+- **Juridical function and jurisdictions**
+	- Two jurisdictions by consensus: "disciplinary" over employees, and a criminal one, potentially wider. The charter's power to make "reasonable Laws, Constitutions, Orders and Ordinances" went well past business strategy — it had to feed, house and regulate indentured Orkneymen and London apprentice boys, producing a paternalistic mix of "Company regulations and the common law of master and servant"
+	- On arrival servants swore allegiance to the King **and** "to be true & faithfull to the Governour & Compa. of Adventures of England tradeing into Hudsons Bay" — **a ritual repositioning loyalty to the company-state alongside loyalty to the Crown**
+	- Moral policing: daily prayers, Sabbath observance, orders to "punish & discourage all dessolute and prophane persons," summary punishment from blows to removal to England. Private trade was the worst offence — Robson: "To converse with an Indian is a great crime... but to trade with him for a skin is capital"
+	    - native women banned from the vicinity ("very prejudiciall to the Company affaires"), the Committee likely more worried about smuggling than debauchery; celibacy was unenforceable on officers, who saw native women as a perquisite of rank. Only labourers were policed effectively
+	    - **Cavanagh's read: the HBC was bad at enforcing a moral code, but that it tried, and needed to, more than most English enterprises shows how seriously it took its standing as an authority**
+	- Natives got "benign neglect" — no civilizing mission, no preaching, an outright refusal "to teach [the First Nations] to read or write." Surgeon Richard White told the 1749 Select Committee he had never heard of any attempt by the factors to civilize them
+	    - **Europeanization was postponed in the interest of revenue and good governance, as in India before the late 18th century.** Religion mattered only for policing servants; there was no profit in native souls, so it wasn't the company's business
+	- Courts: charter gave power "to judge all Persons belonging to the said Governor and Company, _or that shall live under them_," civil or criminal — i.e. to make and enforce whatever law seemed necessary and set punishments without fear of Crown reprimand
+	    - EIC comparison: pluralistic tribunals staffed by Europeans and Indians running two systems of law (selective English law for company men, its own reading of native convention for everyone else). **These courts were a boon for company sovereignty because Indians used them, "flocked to them in large numbers"** — the HBC's regime was far more discreet, activated mainly when the HBC was itself the offended party
+	    - **John Cartwright, 1696**, charged with "stirring up Mutiny and Rebellion in the Factory, Endeavouring the utter destruction of the Government and the Country" — crimes against the company-state's "Government" and "Country," not the Crown
+	    - **Thomas Butler, 1715**: procedurally English (Knight's court, twelve sworn witnesses, right to a defence) but substantively a fur-trade court — charges included slander of the Company "which lended to the Subverting of this Government" and "Abuseing the Natives here by lyeing with a Woman of this Country" as endangering the post
+	- Who else fell under it?
+	    - **the French, never.** Baker says the HBC lacked "the legal apparatus"; Cavanagh says lack of will and force, plus reluctance to set a radical precedent by subjugating French traders in peacetime. Graham in the 1770s: "a legal authority would do," but failing that, "drive them away by making settlements inland." **The French were to be traded out of the jurisdiction, not prosecuted within it**
+	    - natives: Foster and Slattery read "that shall live under them" as excluding peoples under their own rulers and laws. **Cavanagh's distinction is between autonomous First Nations polities — over which the HBC had neither the might nor the need to extend law inland — and the home guard settled around the posts, where he thinks we can't be so sure**
+	- Captaincy as indirect rule: post captains (unlike inland trading captains) were rewarded less and **depended on election and recognition by HBC Governors rather than their own influence**
+	    - Moose House, 1742: Governor Duffield gave Sakie a captain's coat, asking him to "appear like a captain in his own jurisdiction and use his utmost interest with all his Indians for my benefit." **"Sakie's 'own jurisdiction' was, at the same time, the HBC's"** (p. 41)
+	    - both companies ruled through existing native structures, but the EIC went far deeper into Mughal and successor-state politics; here it meant modifying Cree institutions to apparent mutual benefit — status, clothes, gifts to redistribute — without heavy-handed intrusion
+	- Two occasions in the 1750s when the heavy hand came out
+	    - **Henley House, 1754–55.** Three Albany home guards (Woudbee and his sons Shanap and Snuff the Blanket) were refused provisions by Governor William Lamb, who was keeping Woudbee's daughter and Shanap's wife as "bedfellows," and returned to kill him and four servants. Apprehended, confession coerced, tried by makeshift court, **publicly hanged in summer 1755**. Cavanagh: Lamb's refusal to share was itself at odds with the settlement system of shared resources, yet hasty company justice got the last word
+	    - **Esquawenoe, 1759.** A trading captain independent of home-guard society who urged home guards to help capture HBC forts during a provision shortage. **Threatening mutiny within the company-state's criminal jurisdiction was enough to justify seizing him**; he hanged himself in his cell four days later
+	- Section conclusion: firm management of employees is unremarkable. **What is astonishing is that the HBC extended a criminal jurisdiction of its own crafting over the home guard, using the charter's "that shall live under them"** — as the EIC had long done in India (which left a rich case-law archive; the absence of comparable HBC evidence could mean peaceful coexistence or something far worse, unknowable)
+	    - so the 1755 executions were **"perhaps the first time on record when indigenous sovereignty shirked and retracted in the face of company rule"** (p. 43)
+- **Welfare function**
+	- Ray argues "the modern welfare society of [Canada's] north... is deeply rooted in the fur trade." **Cavanagh accepts this but re-anchors it: read welfare society against the HBC-state rather than (or as well as) the Canadian state, because welfare and sovereignty turn out to be connected**
+	- Two portions of home-guard society:
+	    1. young and healthy, in a "symbiotic" or "mutual dependency" relation — Isham, 1743: "those Indians that hunts at Seasons for the forts, can not do without the assistance of the English, any more than the English without them"
+	    2. a growing body of "redundants" — the "young, weak, sick or elderly" who stayed year-round and contributed little. Some drew obligation (elderly loyalists, the "pretty Numerious" children of mixed descent); others were non-productive members deposited at the posts by Cree and allied families under economic pressure
+	- London regretted provision-sharing but could not stop it — accepted only on the proviso "you doe not suffer our Factories to want by so doeing," and Rich notes "endless complaints of the consumption of European provisions." Poor stocktaking kept the Committee in the dark
+	    - Governors were the only men able to provision dependents, sometimes over a hundred each. McCleish, 1716, on Miscamot: "He is Decripled & Ancient y he cannot hunt, for if I did not maintain him and his family... they would perish." London expected them to ignore "burdensome natives that are lying on the factory," which was impossible without wrecking trading relations
+	    - **Cavanagh's argument: welfare served a political function London never grasped. By providing for dependents the HBC cemented its authority and won the allegiance of able and disabled home guards alike**
+	- Comparative frame: Krieger (early modern rulers used welfare _and_ force to extend control over their realms), Biersteker and Weber (dependent economies let Arab leaders link material interests to political loyalty), Piven and Cloward (welfare pacifies), Paine's "welfare colonialism" applied to Ottawa's Arctic strategy
+	- Discursive evidence that subjecthood shifted:
+	    - **Isham, 1743, distinguished First Nations "_belonging_ to the Hudson's Bay company" from those that "comes Yearly" — dependents as possessions, everyone else visitors**
+	    - **Graham defined the home guard as those "who are become dependent on the English, and _retained_ by them"**
+	    - ownership language here isn't chattel slavery (the HBC traded furs, not people) but _imperium_: **people acquired and maintained as subjects of the HBC government**
+	- Why it was distinctive: **the EIC could never build anything like it** — scale, famine and financial impossibility, plus political uncertainty about responsibility. After the _diwani_ (1765) it "quite remarkably managed to disconnect its _right_ to raise revenue from its _responsibility_ to provide for its subject base." **The EIC was a sovereign regardless of whether subjects got relief; the HBC treated welfare as complementary to good government and good trade**
+	    - and it was secular: with no interest in souls, the usual imperial bargain where food and the Bible came together didn't happen here. Feeding "thouse hungary Dogges that are nevar from the facthory" **brings the HBC closer to modern state welfare than to churches or missionary societies**
+	- Against Mancke, who says natives were assumed to be friendly or enemy aliens rather than a new form of subject: **the home guard were seen as friendly subjects of the welfare system, and were anything but aliens**
+	    - his own caveat: whether this shows how sovereignty worked on the ground depends on how you read economic vs political autonomy, and **how malleable "welfare state," "subject" and "sovereignty" can be before they lose meaning**
+-  **Conclusion**
+	- The EIC/HBC parallel breaks after the 1760s: in India the Crown swallowed EIC sovereignty from Pitt's India Act (1784) through the aftermath of 1857. **Crucially, India was never seriously scouted for settler colonialism in this period; North America was**
+	- The Royal Proclamation of 1763 is the hinge — a document reflecting "a serious overestimation of the Crown's own importance and a grave misreading of the vast territory's complex political configuration," after which certain layers of sovereignty thickened and colonial governments moved to eradicate indigenous ones
+	    - the HBC jurisdiction was caught in this 150-year process: **Rupert's Land was never bequeathed to First Nations, Métis and Inuit but alienated and sold to Ottawa in 1870, "in what must surely be ranked among the most ludicrous transactions in the history of Canadian property law"**
+	- Summary: 1670–1763 the HBC was "an independent, multi-institutional construction from which a certain type of sovereignty emanated" — military skill, diplomacy, intimidation of interlopers, its own legal regime over a heterogeneous body of subjects, alliances, captaincies, welfare, and "benign neglect" to protect the trade network, all as they saw fit. **"And such were the skills not of the Crown but of an independent company-state, which were more than could be expected of any shopkeeper or merchant gentleman in London"**
+	- The stakes he leaves open: reading indigenous trajectories toward the US and Canada as running _via private intermediaries_. **If a company made subjects of indigenous people and altered property rights, should redress for historic injustice target the company instead of — or as much as — the Canadian state in lawsuits?** Closes on Arctic sovereignty, corporate accountability after the Gulf spill, and whether the era of companies as laws unto themselves is actually behind us
+## The making of a Company colony: the Fur Trade War, the Colonial Office, and the Metamorphosis of the HBC
+- 

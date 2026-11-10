@@ -424,6 +424,13 @@ public static class Plains
         }
     }
 
+    // A raid sent on purpose (the observer's hand, UI/ObserverPowers): tonight if anyone is near the herd, else in numbers now.
+    public static void SendRaid(BandLedger raider, Household target)
+    {
+        if (raider == null || target == null || raider == target) return;
+        if (IsLive(target)) _tonight.Add((raider, target)); else RaidInNumbers(raider, target);
+    }
+
     private static void RaidInNumbers(BandLedger raider, Household target)
     {
         int before = target.Herd.Horses;

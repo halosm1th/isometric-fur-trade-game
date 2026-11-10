@@ -451,6 +451,25 @@ public static class Campaign
                     }
                     else GD.PushWarning($"[campaign] {beat}: stock needs a standing post and an item, got '{S(a, "post")}' '{S(a, "item")}'");
                     break;
+                // A camp of a nation carries its furs to a post (Economy/TradeTrips): the
+                // nearest such camp to `near` (a post; the post itself if not given) sets
+                // out on foot. Its line is said only if they do set out.
+                case "trade_trip":
+                    {
+                        var post = World.Posts.Named(S(a, "post"))?.Ledger;
+                        if (post == null || !Enum.TryParse<Faction>(S(a, "nation"), true, out var nation)) { GD.PushWarning($"[campaign] {beat}: trade_trip needs a standing post and a nation, got '{S(a, "post")}' '{S(a, "nation")}'"); break; }
+                        var near = World.Posts.Named(S(a, "near", S(a, "post")))?.Centre ?? post.Post.Centre;
+                        Economy.BandLedger camp = null; float best = float.MaxValue;
+                        foreach (var c in World.Camps.All)
+                        {
+                            if (c.Ledger == null || c.Nation != nation || c.IsFamily || Economy.TradeTrips.Away(c.Ledger)) continue;
+                            float d = IsoGrid.ToWorld(c.Centre).DistanceTo(near);
+                            if (d < best) { best = d; camp = c.Ledger; }
+                        }
+                        if (camp == null || !Economy.TradeTrips.Start(camp, post, GameCalendar.Instance)) break;
+                        if (S(a, "say") != "") Effect("say", new Dictionary<string, object> { ["text"] = S(a, "say"), ["to"] = S(a, "to", "all"), ["headline"] = true, ["_beat"] = beat });
+                    }
+                    break;
                 // A line for the players of one company (or all): their journal, their screen, and the headline if asked.
                 case "say":
                     string text = S(a, "text"), to = S(a, "to", "all");

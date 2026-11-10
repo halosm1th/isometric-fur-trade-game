@@ -2047,16 +2047,12 @@
       ],
       "happens": [
         {
-          "do": "stock",
+          "do": "trade_trip",
+          "nation": "Blackfoot",
           "post": "Fort Augustus",
-          "item": "BeaverPelt",
-          "add": 15
-        },
-        {
-          "do": "say",
-          "text": "Edmonton House has nothing left on its shelves, and the Piegans are taking their furs next door to Fort Augustus.",
-          "to": "HBC",
-          "headline": true
+          "near": "Edmonton House",
+          "say": "Edmonton House has nothing left on its shelves, and the Piegans are taking their furs next door to Fort Augustus.",
+          "to": "HBC"
         }
       ]
     },

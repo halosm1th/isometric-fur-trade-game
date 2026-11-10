@@ -44,8 +44,14 @@ public partial class ObserverView : Node2D
         {
             var cam = GetViewport()?.GetCamera2D();
             float zoom = cam?.Zoom.X ?? 1f;
-            if (zoom > 0.55f) return;   // close in, the country speaks for itself
             float px = 1f / Mathf.Max(0.005f, zoom);   // one screen pixel in world units
+            // Whoever was clicked on, at any zoom.
+            if (Observer.Picked is { } picked && IsInstanceValid(picked) && picked.IsInsideTree())
+            {
+                var foot = picked.GlobalPosition;
+                DrawArc(foot, Mathf.Max(22f, 10f * px), 0f, Mathf.Tau, 32, new Color(1f, 0.9f, 0.5f, 0.9f), 2f * px);
+            }
+            if (zoom > 0.55f) return;   // close in, the country speaks for itself
             var font = ThemeDB.FallbackFont;
             bool names = zoom > 0.035f;
 

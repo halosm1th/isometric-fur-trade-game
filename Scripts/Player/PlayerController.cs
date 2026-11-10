@@ -76,6 +76,7 @@ public partial class PlayerController : Agent
 	// sheet.
 	public float FluencyWith(Agent who)
 	{
+		if (Ghost) return 1f;   // the observer hears every tongue
 		if (who == null || !Agents.Languages.IsNation(who.Faction)) return EffectiveFluency;
 		if (HasInterpreterFor(who)) return 1f;
 		float best = CreeFluency * Agents.Languages.Kin(Faction.Cree, who.Faction);
@@ -110,7 +111,7 @@ public partial class PlayerController : Agent
 			return false;
 		}
 	}
-	public float EffectiveFluency => HasInterpreter ? 1f : CreeFluency;
+	public float EffectiveFluency => Ghost || HasInterpreter ? 1f : CreeFluency;
 	// Time-skip agreement: how many hours this player wants to skip (0 = none).
 	public float WantsSkipHours;
 	// Leaving the controls alone, so the quiet days may pass (Core/QuietDays): on the server.

@@ -43,9 +43,9 @@ public partial class Ship : Node2D
     {
         float before = Cargo.TotalWeightLbs;
         float avail = _onWharfLbs;
-        // The Company's men leave a load for a player sent to the same work
-        // and standing by: six of them used to take every piece the boats
-        // landed, and the player's order to carry could not be done.
+		// The Company's men leave a load for a player sent to the same work
+		// and standing by: six of them used to take every piece the boats
+		// landed, and the player's order to carry could not be done.
         if (forMan && PlayerWaitingForCargo()) avail -= 100f;
         if (avail <= 0f) return 0;
         int moved = Cargo.MoveByWeight(to, Mathf.Min(lbs, avail));

@@ -72,6 +72,7 @@ public partial class HelpPanel : Control
 
     public override void _UnhandledInput(InputEvent @event)
     {
+        if (Core.Observer.On) return;   // watching, the help key brings up the observer's key (UI/ObserverKey)
         if (@event.IsActionPressed("help"))
         {
             _panel.Visible = !_panel.Visible;

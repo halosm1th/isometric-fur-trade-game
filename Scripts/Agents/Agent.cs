@@ -174,7 +174,7 @@ public partial class Agent : CharacterBody2D
             _exposure = Climate.ExposureAt(GlobalPosition, _daylight, cal.DayOfYear);
             _weatherExposure = cal.Weather.ExposureMultiplierAt(GlobalPosition);
             _rainedOn = cal.Weather.At(GlobalPosition) is SkyState.Rain or SkyState.Storm;
-            _wading = structures != null && Sim.Terrain != null && Sim.Terrain.IsWading(IsoGrid.FromWorld(GlobalPosition)) && !(this is Player.PlayerController { IsAfloat: true });
+            _wading = structures != null && Sim.Terrain != null && Sim.Terrain.IsWading(IsoGrid.FromWorld(GlobalPosition)) && !(this is Player.PlayerController { IsAfloat: true }) && !(this is Npc { InBoat: true });
             if (this is Npc) DressForWeather();
             _clothing = Inventory.ClothingWarmth + InnateWarmth;
         }

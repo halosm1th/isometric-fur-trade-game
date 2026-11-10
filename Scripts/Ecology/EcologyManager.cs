@@ -146,6 +146,13 @@ public class SpawnSite
             }
             return;
         }
+        // The geese come back down the flyway every spring and autumn whatever
+        // was shot at one marsh; the hare flats, the ptarmigan willows and the
+        // fisheries are thinned by a hard winter's snaring and netting, not
+        // ended by it. These grounds go lean and come back (WeeklyTick); only a
+        // lodge or a resident herd can be hunted out for good. A marsh killed
+        // for ever used to leave York with no goose hunt in every autumn after.
+        if (Species is Species.Goose or Species.Hare or Species.Ptarmigan or Species.Fish) return;
         if (!IsDead && Count < Capacity * Def.SustainFloor)
         {
             BreedingCapacity = 0f;

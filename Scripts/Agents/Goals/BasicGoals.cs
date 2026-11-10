@@ -72,7 +72,7 @@ public class WanderGoal : Goal
     {
         _centre = centre; _radius = radius; _hoursLeft = hours;
     }
-    public override string Label => "about";
+    public override string Label => "idling about";
 
     public override GoalStatus Tick(Npc npc, float dt, float hours)
     {

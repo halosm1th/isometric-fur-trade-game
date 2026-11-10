@@ -1,0 +1,365 @@
+# Red River Council Political Evolution (1835-1850)
+# Timeline From Council Minutes and Court Records
+
+- 1835
+	- Febuary 12th
+		- Red River Council Meeting
+			- People
+				- Councillors: 
+					- Company: George Simpson, Robert Logan, Alexander Christie
+					- Free Trader
+					- Catholic
+					- Anglican: Rev. David Jones, Rev. William Cockran
+					- Metis James Bird
+					- Other James Sutherland William Cook, , John Pritchard, John Charles, 
+				- Invited Guests: Joseph-Norbert Provencher, Donald Ross, Alexander Ross, John Bunn, Andrew McDermot
+	- April 30th
+		- R.R. Council Meeting
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- George Simpson (gov of ruperts land & president), {David Jones, James Bird, James Sutherland, Robert Logan, John Pritchard}(Councillor), { Alexander Ross, John Bunn} (Board of public works), {Alexander Christie, John Charels, John Less Lewis} (Councillors of ruperts land),  Cuthbert Grant JP of 4th district
+- 1836
+	- June 13th
+		- Council of Red River
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- George SImpson, Alexander Christie, David Jones, William Cockran, James Bird, James Sutherland, William Cook, Robert logan, John Pritchard, alexander Ross, John Bunn, John McAllum
+- 1837
+	- February 2nd
+		- R. R. Council meeting
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- Alexander Christie, David Jones, William COckran, James Bird, Robert Logan, John Pritchard, Alexander Ross, Andrew McDermot, John Bunn, John Macallum, Cuthburt grant (as JP not councillor)
+	- June 16th
+		- R.R. Coucnil
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- George Sipmson, Alexnader Christie, Provencher, David Jones, William Cockran, James Bird, Robert Logan, James Sutherland, John Pritchard, William Cook, Alexander Ross, John Bun, George Carry, John MacAllum
+- 1838
+	- June 15th
+		- Council of Red River
+			- people
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- Alexander Christie, Provencher, David JOnes, William Cockran, James Bird, Robert Logan, John PRitchard, Alexander Ross, John Bunn, George Cary, John Macallum, Andrew McDermont
+				- Cuthbert grant was invited to attend
+- 1839
+	- June
+		- 13th
+			- Red River council
+				- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+					- George Simpson,
+					- Of Red River: Duncan Finalyson, Adam THom, Provencher, William Cockran, James Bird, James Sutherlands, John Pritchard, George Cary, John bunn, John Macallu, Alexaner ross,
+					- Of Ruperts land: John McLoughlin, Alexander Christie, John Rowand, James Hargrave, Nichol Finlayson
+	- July 4th
+		- Red River Council 
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- George Simpson, Duncan Finlayson, Adam Thom, Rev Provencher,  Jame Bird, William Cockran, John Pritchard,  GEoge Cary, John Bunn, John Macallum, alexander ross, cuthert grant, 
+					- and from rupets land: john peter Rowand, and Allan MCDonell 
+- 1840
+	- June 8th
+		- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+			- Duncan Finlayson, Adam Thom, Provencher, William Cockran, James Bird, John Pritchard, Alexander Ross, Robert Logan, John Bunn, Cuthbert Grant, John MacAllum, GEorge Cary, Allen McDonell
+- 1841
+	- June 5th
+		- Red River Coucnil
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- George Simpson, Duncan Finlayson, Adam Thom, Provencher, William Cockran, James Bird, John Pritchard, Alexander Ross, Robert Logan, James Sutherland, GEorge Cary, Andrew McDermot, John MacAllum, John Rowand, Nicol Finlayson.
+- 1843
+	- July 3rd
+		- Red River Council
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- George Simpson, Duncan Finlayson, Adam Thom, William Cockran, James Bird, John Pritchard, Alexander Ross, Robert Logan, James Sutherland, GEorge Cary, Andrew McDermot, John MacAllum, Jonh Bunn, Cuthbert Grant, and John Peter Pruden.
+- 1844
+	- June 19th
+		- Red River Council meeting
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- George Simpson, Alexander Christie, Duncan Finlayson, Adam Thom, Provencher, William Cockran, James Bird, John Pritchard, Alexander Ross, Robert Logan, James Sutherland, George Cary, John MacAllum, Andrew McDermot,  John Bunn, Cuthbert Grant, and John Peter Pruden.
+	- April 3rd
+		- Red River Council
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				-  Alexander Christie, Adam Thom, Provencher, William Cockran, James Bird, John Pritchard, Alexander Ross, Robert Logan, George Cary, John MacAllum, Andrew McDermot,  John Bunn, Cuthbert Grant, and John Peter Pruden.
+	- June 
+		- 16th
+			- Red River Council
+				- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+					- George Simpson, Alexander Christie, Adam Thom, Provencher, William Cockran, John MacAllum, James Bird, Alexander Ross, John Pritchard,  Robert Logan, John Bunn, George Cary,  Andrew McDermot, and John Peter Pruden.
+		- 19th
+			- Council
+				- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+					- George Simpson, Alexander Christie, Adam Thom, Provencher, William Cockran, John MacAllum, James Bird, Alexander Ross, John Pritchard, John Bunn, George Cary,  Andrew McDermot, John Peter Pruden, and Cuthbert Grant.
+- 1847
+	- January 15th
+		-  Council Meeting
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- Alexander Christie, Adam Thom, Major J. Crofton, Provencher, John MacAllum, John Pritchard, Alexander Ross, George Cary,  John Bunn,  Andrew McDermot, John Peter Pruden, and Cuthbert Grant.
+	- Febuary 19th
+		- Council Meeting
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- Alexander Christie, Adam Thom, Major J. Crofton, Provencher, John MacAllum, John Pritchard, Alexander Ross, George Cary,  John Bunn,  Andrew McDermot, John Peter Pruden, and Cuthbert Grant.
+	- May 20th
+		- Council Meeting
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- Alexander Christie, Adam Thom, Major J. Crofton, Provencher, John MacAllum, John Pritchard, Alexander Ross, George Cary,  John Bunn,  Andrew McDermot, John Peter Pruden, and Cuthbert Grant. 
+				- Also present was John Edward Harriott, C.F.
+	- June 28th
+		- Council Meeting
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- Alexander Christie, Adam Thom, Major Griffiths, Provencher, John MacAllum, James Bird, John Pritchard, Alexander Ross, John Bunn,  Andrew McDermot, John Peter Pruden.
+	- November 18th
+		- Council Meeting
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- Alexander Christie, Adam Thom, Major Griffiths, Provencher, William Cockran, John MacAllum, James Bird, John Pritchard, Alexander Ross, John Bunn,  Andrew McDermot, John Peter Pruden, and Cuthbert Grant.
+	- May 9th
+		- Council
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- Alexander Christie, Adam Thom, Major Griffiths, Provencher, William Cockran, John MacAllum, James Bird, John Pritchard, Alexander Ross, John Bunn,  Andrew McDermot, John Peter Pruden, and Cuthbert Grant.
+	- July 27th
+		- Council
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- Alexander Christie, Adam Thom, Provencher, William Cockran, John MacAllum, James Bird, John Pritchard, Alexander Ross, John Bunn,  Andrew McDermot, John Peter Pruden, and Cuthbert Grant.
+	- September 20th 
+		- Council
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- Alexander Christie, Adam Thom, Provencher, William Cockran, John MacAllum, James Bird, John Pritchard, Alexander Ross, John Bunn,  Andrew McDermot, John Peter Pruden, Cuthbert Grant, John E Harriot (Councillor of Ruperts Land), and John Ballenden (Councillor of Ruperts Land).
+				- Resworn as:
+				- Major Caldwell (Governor of Assiniboia), Adam Thom, Provencher, William Cockran, John MacAllum, James Bird, John Pritchard, Alexander Ross, John Bunn,  Andrew McDermot, John Peter Pruden, Cuthbert Grant, Alexander Christie  (Councillor of Ruperts Land), John E Harriot (Councillor of Ruperts Land), and John Ballenden (Councillor of Ruperts Land).
+	- October 10th
+		- Council
+			- People
+				- Company
+				- Religion
+					- Catholic
+					- Anglican
+				- Local-Rule
+					- Free Trader
+					- Metis
+				- Major Caldwell, Adam Thom, Provencher, William Cockran, John MacAllum, James Bird, John Pritchard, Alexander Ross, John Bunn,  Andrew McDermot, and John Peter Pruden
+	- December 7th
+		- Council
+			- People
+				- Company: Major Caldwell, Adam Thom, James Bird, John Peter Pruden, John Pritchard
+				- Religion
+					- Catholic
+					- Anglican: William Cockran, John MacAllum
+				- Local-Rule
+					- Free Trader: Alexander Ross,  Andrew McDermot
+					- Metis: John Bunn, Cuthbert Grant
+	- May 31st
+		- Council
+			- People
+				- Company: Caldwell, Adam Thom, John ballenden, and John Black, James Bird, John Peter Pruden
+				- Religion
+					- Catholic: Provencher
+					- Anglican: William Cockran, John MacAllum
+				- Local-Rule
+					- Free Trader: Andrew McDermot, Alexander Ross
+					- Metis John Bunnand Cuthbert Grant
+	- July 13th
+		- Council
+			- People
+				- Company: Major Caldwell, James Bird, John Peter Pruden, and John Ballenden
+				- Religion
+					- Catholic: Provencher
+					- Anglican: William Cockran
+				- Local-Rule
+					- Free Trader: Alexander Ross, Andrew McDermot
+					- Metis John Bunn
+	- October 12th
+		- Council
+			- People
+				- Company Major Caldwell, James Bird,John Peter Pruden
+				- Religious
+					- Catholic Provencher (now as bishop of Rupets-land), Blanchet (now bishop of north-west) 
+					- Anglican: William Cockran, rev. John smithurst
+				- Local-Rule
+					- Free Trader Alexander Ross,
+					- Metis John Bunn,  Cuthbert Grant
+- 1850
+	- January 22nd
+		- Council
+			- People
+				- Company: Major Caldwell, James Bird,  John Peter Pruden
+				- Religious
+					- Catholic: Provencher , Blanchet, 
+				- Local-Rule
+					- Free Taders: Alexander Ross, 
+					- Metis: John Bunn
+	- July 18th
+		- Council
+			- People
+				- Company: Major Caldwell, James Bird Sr, John Peter Pruden, John Ballenden, John Black
+				- Religious
+					- Catholic: Blanchet,
+					- Anglican: Cockran, 
+				- Local-Rule
+					- Free Trader Alexander Ross, Andrew McDermot,
+					- Metis: Cuthbert Grant, John Bunn
+	- September 5th
+		- Council
+			- People
+				- Compnay: Eden Colvile (Gov of Ruperts Land), Major Caldwell, Adam Thom, John Ballenden, James Bird
+				- Religious
+					- Catholic: Bishop Provencher, Bishop Blanchet, 
+					- Anglican: Rev. William Cockran, Rev. Smithurst, Rev. Louis Lafleche,  
+				- Local Rule
+					- Free Trader:  Alexander Ross,  Andrew McDermot
+					- Metis: Cuthbert Grant, John Bunn
+	- October 16th
+		- Council
+			- People
+				- Company: Eden Colvile (Gov of Ruperts Land), Major Caldwell (gov of Assinaboina), Adam Thom, John Ballenden
+				- Religious
+					- Catholic: Bishop Provencher, Bishop Blanchet
+					- Anglican: Rev. William Cockran, Rev. Smithurst, Rev. Louis Lafleche
+				- Local-Rule
+					- Free Trader: Andrew McDermot,  Alexander Ross
+					- Metis: Cuthbert Grant, John Bunn\

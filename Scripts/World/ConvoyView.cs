@@ -246,7 +246,8 @@ public partial class ConvoyView : Node2D
 			{
 				var n = c.Men[i];
 				if (n == null || !IsInstanceValid(n)) continue;
-				if (n.IsDead || n.Conversing || n.Brain.Top is not ConvoyGoal) { n.Visible = true; continue; }
+				if (n.IsDead || n.Conversing || n.Brain.Top is not ConvoyGoal) { n.Visible = true; n.InBoat = false; continue; }
+				n.InBoat = c.Moving;
 				// Under way the painted crew are the men: the real ones ride
 				// unseen with them, so the boats aren't crewed twice over.
 				n.Visible = !c.Moving || craft.CrewTop <= 0f;
@@ -259,13 +260,22 @@ public partial class ConvoyView : Node2D
 					_wander.Remove(n);
 					continue;
 				}
-				if (i == 0) { n.GlobalPosition = n.GlobalPosition.MoveToward(craft.Pos + new Vector2(70f, 30f), 90f * dt); continue; }
+				if (i == 0)
+				{
+					// The guide by the boats, but on the bank: not stood in the river.
+					var by = craft.Pos + new Vector2(70f, 30f);
+					if (Sim.Terrain != null && Sim.Terrain.IsWater(IsoGrid.FromWorld(by))) by = c.HasCamp ? c.CampAt : n.GlobalPosition;
+					n.GlobalPosition = n.GlobalPosition.MoveToward(by, 90f * dt);
+					continue;
+				}
 				(Vector2 goal, float wait) w = _wander.TryGetValue(n, out var cur) ? cur : (n.GlobalPosition, 0f);
 				w.wait -= dt;
 				if (w.wait <= 0f && n.GlobalPosition.DistanceTo(w.goal) < 6f)
 				{
 					float a = GD.Randf() * Mathf.Tau, r = 45f + GD.Randf() * 80f;
-					w.goal = craft.Pos + new Vector2(Mathf.Cos(a) * r, Mathf.Sin(a) * r * 0.5f);
+					var goal = craft.Pos + new Vector2(Mathf.Cos(a) * r, Mathf.Sin(a) * r * 0.5f);
+					// Ashore, not knee-deep by the boats: a man stood in the river all night freezes.
+					if (Sim.Terrain == null || !Sim.Terrain.IsWater(IsoGrid.FromWorld(goal))) w.goal = goal;
 					w.wait = 1f + GD.Randf() * 5f;
 				}
 				if (n.GlobalPosition.DistanceTo(w.goal) > 6f)

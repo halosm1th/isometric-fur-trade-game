@@ -1,0 +1,278 @@
+{
+ "scale": 3,
+ "parts": {
+  "front_head": {
+   "box": [
+    330,
+    46,
+    480,
+    196
+   ],
+   "pivot": [
+    405.0,
+    184.0
+   ],
+   "what": "head and face, down to the jaw"
+  },
+  "front_torso": {
+   "box": [
+    504,
+    46,
+    669,
+    196
+   ],
+   "pivot": [
+    586.5,
+    58.0
+   ],
+   "what": "chest and belly, neck to waist"
+  },
+  "front_hips": {
+   "box": [
+    693,
+    46,
+    843,
+    136
+   ],
+   "pivot": [
+    768.0,
+    59.5
+   ],
+   "what": "hips and seat, waist to top of thighs"
+  },
+  "front_upper_arm": {
+   "box": [
+    867,
+    46,
+    933,
+    151
+   ],
+   "pivot": [
+    900.0,
+    58.6
+   ],
+   "what": "shoulder to elbow"
+  },
+  "front_forearm": {
+   "box": [
+    1003,
+    46,
+    1069,
+    166
+   ],
+   "pivot": [
+    1036.0,
+    58.0
+   ],
+   "what": "elbow to fingers, hand included"
+  },
+  "front_thigh": {
+   "box": [
+    1139,
+    46,
+    1217,
+    151
+   ],
+   "pivot": [
+    1178.0,
+    56.5
+   ],
+   "what": "hip to knee"
+  },
+  "front_shin": {
+   "box": [
+    1275,
+    46,
+    1365,
+    166
+   ],
+   "pivot": [
+    1320.0,
+    55.6
+   ],
+   "what": "knee to sole, foot included"
+  },
+  "side_head": {
+   "box": [
+    330,
+    351,
+    480,
+    501
+   ],
+   "pivot": [
+    405.0,
+    489.0
+   ],
+   "what": "head and face, down to the jaw"
+  },
+  "side_torso": {
+   "box": [
+    504,
+    351,
+    669,
+    501
+   ],
+   "pivot": [
+    586.5,
+    363.0
+   ],
+   "what": "chest and belly, neck to waist"
+  },
+  "side_hips": {
+   "box": [
+    693,
+    351,
+    843,
+    441
+   ],
+   "pivot": [
+    768.0,
+    364.5
+   ],
+   "what": "hips and seat, waist to top of thighs"
+  },
+  "side_upper_arm": {
+   "box": [
+    867,
+    351,
+    933,
+    456
+   ],
+   "pivot": [
+    900.0,
+    363.6
+   ],
+   "what": "shoulder to elbow"
+  },
+  "side_forearm": {
+   "box": [
+    1003,
+    351,
+    1069,
+    471
+   ],
+   "pivot": [
+    1036.0,
+    363.0
+   ],
+   "what": "elbow to fingers, hand included"
+  },
+  "side_thigh": {
+   "box": [
+    1139,
+    351,
+    1217,
+    456
+   ],
+   "pivot": [
+    1178.0,
+    361.5
+   ],
+   "what": "hip to knee"
+  },
+  "side_shin": {
+   "box": [
+    1275,
+    351,
+    1365,
+    471
+   ],
+   "pivot": [
+    1320.0,
+    360.6
+   ],
+   "what": "knee to sole, foot included"
+  },
+  "back_head": {
+   "box": [
+    330,
+    656,
+    480,
+    806
+   ],
+   "pivot": [
+    405.0,
+    794.0
+   ],
+   "what": "head and face, down to the jaw"
+  },
+  "back_torso": {
+   "box": [
+    504,
+    656,
+    669,
+    806
+   ],
+   "pivot": [
+    586.5,
+    668.0
+   ],
+   "what": "chest and belly, neck to waist"
+  },
+  "back_hips": {
+   "box": [
+    693,
+    656,
+    843,
+    746
+   ],
+   "pivot": [
+    768.0,
+    669.5
+   ],
+   "what": "hips and seat, waist to top of thighs"
+  },
+  "back_upper_arm": {
+   "box": [
+    867,
+    656,
+    933,
+    761
+   ],
+   "pivot": [
+    900.0,
+    668.6
+   ],
+   "what": "shoulder to elbow"
+  },
+  "back_forearm": {
+   "box": [
+    1003,
+    656,
+    1069,
+    776
+   ],
+   "pivot": [
+    1036.0,
+    668.0
+   ],
+   "what": "elbow to fingers, hand included"
+  },
+  "back_thigh": {
+   "box": [
+    1139,
+    656,
+    1217,
+    761
+   ],
+   "pivot": [
+    1178.0,
+    666.5
+   ],
+   "what": "hip to knee"
+  },
+  "back_shin": {
+   "box": [
+    1275,
+    656,
+    1365,
+    776
+   ],
+   "pivot": [
+    1320.0,
+    665.6
+   ],
+   "what": "knee to sole, foot included"
+  }
+ }
+}

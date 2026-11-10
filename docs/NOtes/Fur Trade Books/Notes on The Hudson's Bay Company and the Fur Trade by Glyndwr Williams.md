@@ -1,0 +1,342 @@
+---
+tags:
+  - reading_notes
+  - 2025-2026
+  - Hudsons_Bay_Company
+---
+
+# The Hudson's Bay Company and the Fur Trade by Glyndwr Williams
+## Autumn 1983
+## The Early Years
+- 1611 Henry Hudson trades two beavers and some deer skins from and indna 
+- French Coureurs de bois travelled northest from St Lawrence and heard from Huron's that Cree Indains lived near a north bay
+	- From this Medard Chouart (the Sieurs de Groseilliers) and Pierre Esprit Radisson wanted to trade with cree directly, conig back from west of lake superior in 59-60. 
+	- Went to england with in 1665 after failing to secure french support
+		- Charles secdond granted in part bcz of northwest passage memroies
+		- Nonsuch first ship sent in 1688 and arrived under Groseilliers command
+		- First trade was 300 Algoquin cree and eastablish trade routes with Eastenr jaems bay cree and similar but different western plains cree, with Assinboine allies streching into saskachewan. 
+	- Compay was free however it saw fit
+	- Company quit tyring to colonize around the bay by 1683
+	- Charter protected trade in the Bay region, not against competitoris in european or british markets. 
+		- Mostly it projected English claims inot frenh trade networks, important diplomatically in the wars to follow for the short period, and again against the US much later. 
+	- no dividend paid until 1684
+		- Policy was set by Gov + Committee of seven, but really the secretary and men of business
+		- Early governs chosen for their importances in roual affairs, from RUpert to James II, then John Churchill the future duke of Marlboroguh. Importnat ofr politicla and diplomatic support they provided. 
+	- 1672 sending 3 boats to bya and building long trem factories
+		- Charles Bayly an 'old Quaker with a long beard' and first gov of the bya, 
+		- posts build at Moose and Albany riveres and warehosue in Charlton Island
+		- The company was settlign into trade with indnisa comign donw by canoe and supplied by ships sent out from england
+			- not yet hte stable system it would develop into
+				- ships were uncertain, good captains rare, etc.
+	- Furs got a good price but market was eay to gliit. 
+		- Tapped souce so to speak, tapping Nelson and ahyes rivers
+	- Prime winter beaver was the standard to measure the value of of others furs and trade goods, becomign the stnadard of trade as the Made Beaver, starting from bayly onward
+		- Took in whatever furs because it would be bad policy to turn indains away
+	- 1671 French made first visit to the norhtern areas, 200 portages. Cmae again in 1674 and 1679. Showed englsih poss were meant to resits cold not attack
+	- in 1683 as tensions in Europe worsened the battle along hte bay turned hot and french hostilites sportaically began for the nexts 30 years. 
+		- posts captured and recaptued, battles both on land and in the sea, and deeply intricate diplomatic batlte started
+		- First battle in 1682 @ port nelson when french sihps from Quebec and a boston aid when the rech captured york fort.
+		- French wanted to prevent English encursion, Meanwhile English must've seen french recon as a sign of importnace and begun to fortify
+	- 1697 Treaty of Ryswick brought poor peace. 
+		- HBC had sufferd in the fighting as the fortrs and garrisons were hardly military, piss poor troops the servants were, but hte forts struggled against cannons and mortors. 
+		- Voyagers and soldiers were better fighers
+		- HBC never sent troops and only in 1696 and 1697 were military ships sent. Over 10 years after the battle fo the bay above. 
+	- 1690-92 Henry Kelsey young made inaldn journey from york. 
+		- Travels with cree and assiniboine, sees large populatiosn and hte buffallo hunts, and met naywatamee Poet's, invited them to trade but were scared off by muskets. 
+		- Comppnay did not use anything from the journal
+	- Frecnh recaptured york in 1697 nullifying the freshly inked treaty so far as HBC cared. 
+		- basically divide with English injames bay and French out of York
+		- War restarts in europe in 1702, Bay stays chill excpet for a french attack in 1709
+	- costs of military activities ate into company finances, leading to no dividient 1690-1718. Which stockholders accepted. 
+	- 1690 parliament post revolution confirmed the charter, but only for 7 years. Ater 1698 charter was effectively dead and the copmanys legal existence questionable. 
+		- effectivel the era of royal rule was over because those royals were dead. A short term security was reached and from then on it lived by surviving under the radar. There is a final boom with Utrecht in 1713, but really Dobbs will effect this and is importnat becaue it drags the company back inot the light, but it makes it rhgouh, then threatened with Canadins post 1763, culminating in Pemmincan wars and the legal protection securing merger in 1821, lasting in reality until 1870.
+	- Company survived the war on furs from Albany better than the french  had, whos truggled under a fur glut. 
+		- Company insisted french had over the whole bay, slowed negotaitons in 1709-1713, possibly inspring Bolingbrokes comment about 'these smug ancient gentlemen', but in the end the company got the whole bay and nearby area.\
+
+## The Consolidation and Crisis
+- James Knight worked from 1676 and in 1714 he reicved the surrender of port nelsom from the french, and laucnhed a period of inalnd explroation. 
+	- waned ot find north-west passage
+	- also wanted to meet with Chipewayan and Athapaskan indnas beyond churchill river. The latter feared hcb posts because cree with muskets attacked htem
+	- Knight ent out William Stuart with some cre and a chipewyan slave owman in 1715, he retunred with some chipewayn and a story about meeting variosu Athapaskan tribes,Beaver, slave, Dogrib and Yellowknife. 
+		- Knight setup new post at churchill rillver in 1717 to meet with northern indians 
+	- 1719 failure to find the streigths of Anian pushed company away from trying again
+	- 1712 Bibye Lake, a lawer from middle Temple beacme governor until his deaht in 1743
+		- brought more secretecy and started hte cautious lawyer period
+		- Lake also ran the Royal African Company
+	- South sea bubble and Knight expedion brought modest prosperty led byt he city men and Bibye after 1719-20. 
+	- No inland exploration posts at York, Churhcill ALbarn Moose (1730 restabslihed) and eastmain (1724)
+	- London wathced trade via letters, paid off ships in Autum, dispoed of furs at best prices, and then put togher supplies, good sevants and shipping, followe an unchanging timetable. 
+	- After 1718 regular dividends were paid. 
+	- lake's secrecy brought resetnemtn, whiched bubbled up after his death. 
+		- Company carefully guarded knowledge, regular capatins now ran the rade who ahd long records, over the unstable masters of the early period. 
+		- Controlled so no servants could send out messages or infomation, wnated ot controll sailing and eveyrthing else.
+			- Comittee looked over journals and letter brought home. Warned of letting charter out of posession
+		- Shares never wnet on open market. Arranged privately beween members of families, or some of the 35 shareholders 
+		- HBC saw no interlopers in the bay and stayed out of the news ina  timeo f attack on monopolies 
+	- Then Dobbs happens...
+		- Dobbs after attacking the coampby for a while in 1741 pays for an exploration with a former HBC captain 
+			- The fear was not competiion - that was bound to happen - but the concern that its affairs had gone public.
+			- middleton and dobbs had a pamphlet war 
+				- Dobbs attacked the compnby in his Account of the Dhusons bya in 1744, claimed it made 2000% profit and that while it had cliams ot massive land, it didn't use them.
+			- 1749 Parliametnary comittee showed Dobbs' profit claim was a myth, but shareholders, value of import epxports, standarsd of trade with indains, posessionfo bay posts, indsutrctos to factors. tempteation was potentiality not reality.
+				- Real threat was the failure to stop the french 
+				- however in 1743 **Joseph Isbister** setup Henley House upstrema fromAlbany to challenge hte french. Twice attacked and pillaged in Dians in 1753 and 1759 it showed the HBC fears of going inland. 
+	- 1752 Josseph Robson publsihed first account telling of oppressive copmany work conditions but parts were written by dobbs
+- post 1750 company was more exxploratory, though not clear if dobbs or competietion. 
+	- until 1730 the HBC could ignore the french except at bottomof hte bay
+	- by 1730-1740s the french were becoming a threat that had to be stopped 
+		- La Verendrye pushed onto the Saksachrew past the HCB and itnercepted the inaldn area, and by 1753 forts frnechf rom the Pas to Fort La corne near the forks of the saks river.
+	- Compnay ony took threat seriously after 1750, authorizing Isham's project in 53, ledding Anthony Henday go form York on a jounry to the interiod, going with Cree he reached saks and camped with Archithinue or atsina indains norht of Calgary, learned of plains indian life. 
+		- Learned Cree moved furs from Atsina and Assinaboine, and these meetings threatened Cree middleman positions. 
+		- Henday saw the french movements on the interior, but hte versionf o his journal sent how had misleaing assertions and failed to mentiont he french for some reason
+- Conquest of canada in 59-60 changed things. Thigns looked good for the company, at least at the moment.
+
+## Life by the Bay
+- Early period lfie had a unique stuel to it. 
+- Better life expectancy tha those in the ast indies or africa
+- Basically a pattern of group survival for unreamarkabel men. 
+- For the early period, **less than 200 men!**
+- Forts were two wooden buildings of two stores built of horizontal logs, four flankers or bastions with cannon and palisades, with plank garnished with iron points
+	- That they were military forts became blurred in peace
+	- by 1770 york the area from amin bulding and sotkcaid was clutter dwith other buidlings 
+- Garrisons had no real fighting men, thoguh people coudl use arms, and could not repel and attak by europeans
+	- Larger posts had sevearl officers, the chief facor, his seond, the surgeon and sloopmasters,
+		- a few speciallist trademsne, one armourer, balcksmoht, shipwright, carpenter, cooper, tailor, accountant and perhaps mason and harpooner.
+		- The rest were servants, eithe rlabourers or seamen, all contracted for 3-5 years with the company Had ot follow commands of suepors, defend propery, no private trade but really only sent home with the worst misbehavior
+			- It was jsut a useful lockin liek capital lockin.
+	- until 1770 salarlies varied from min 6 pondis to 10 a year for new labour, and up to 100 for a chief at a main post. Trademne were between 20-36, and mroe contracts coudl give more wages, and extraordinary serivce might get a bonus from 5 to 20 pounds to Henday for his exploration, or 180 to captian Coats in 50-51 for surveying East main coast. 
+		- Company held salaries in london, the wife or a relvattive could draw on themor else invest them in public securitys
+		- men could buy stuff at the warehosue for up to a third of their salaries. Soem coudl not save a pound, and others were able to save most hteir money, Henday who saved 113 of his 120 pound earnings in 1772.
+- men reached hte aby in late summer after 10 week voyage. 
+	- Three ships, oen for york, another for churchill and hte last for albany and moose
+	- ship time was a busy time so new arrivals had to move quickly 
+	- Ship left late august early september, endint trade eyar, and winter came, until indains came with furs when the rier broke. 
+- Trade goods from 1705 onwards include Guns, powdrer, kettle,s tobacco, brnacy nad ostrich feathers and hawks bells. Gathered from experience and some experimentaiton. Lots of food, essetnails like ammo, tools and sealing wax, salt celler, a falg and table napkin. 
+	- factor knew his warehosue had ot last one, maybe even two years so invetnroies were importnat, too little and peopel died, too mcuh and the company got pissed. 
+- Very cold, snow sometimes inside fort
+	- dress, diet and activity thoguh teh dress was least importnat, mostly in many layers of lan, duffle and deer leather with long ebaver coat andbe beaver cape. bag on back, tin pot and hatch. 
+		- wore furs in winter and euro clothes in summer
+	- tradesmen in fort doing jobs,sorting, repariting trade goods, budling furs, mainting fort, 
+	- labouers worked outside for winter fowood, trapping, htinign and fishing 
+		- Hunted dpende don season, geas shot in fall and spring, sometimes eaten fresh tohers salted
+		- ptarmigan was for winter, and rabbits rtraped. 
+		- Salt prok amd beef, flow, suet, peas, abcon,c heese, butter and oatmeal from england
+		- some men sent stuf like flour home.
+		- some garden for gereens at facories. 
+			- lowered bbill, brough tletuce, turnips, radish cabbage mustard sorrel 
+- Surgeons had little training, mystyer what hcehsts had, better healtht han workman in england, 
+- Copmany tried to rohobit idnan women, rpivate trianing, and excessive booze consumption, but they were lagely or at least partly ignored. 
+	- Various compromises over private trading 
+	- mainly protected cbz company controlled shipping out furs but yet it still happened. 
+	- whe private trading was stopped officers at posts and ships saw salary increases and granted bounties accoridng to the number of fur traded on company account
+	- fears of ilicit trading pushed distnace from indans. tried to ban them from factoies, banned an indian boy who was taught to read and write for asking to be baptized in england.
+	- Comapnies ban on women both englsih and indan was a joe. excempte facrors from his as early as the 1730s, when it allwoed norton at Churhcill tokeep wife and famiyl as long as the company dind't have to pay. Hard ot tell how widespread these relations were though
+	- some factors allowed sevants to bang indains, for exmapel moose nearly frnehc fighting awsaw men taking familes and lving in forst, anda ttmepst to restore authority nearly led ot rebellion, pissed indains,and the copmaby dind't really care, 
+	- Massacreof the little garison in 54-55 was bcz indaisn could mvoe freely
+- Differene in worker class also show in mess hal diviions, oficers had fine wine and brancy, lots of them, the rest porter and britis spirits derved byt he chief. There was a council but hte facotr dind't hae ot listne to them.
+- Heavy drinking byeond the normal standard sof hte age. Not much to do, plaing cards or draught with idnas, homge amde music and books, but the bottle was eaasiest. 
+- Company tried to hire orkney ment o avoid the drinking problme.
+- 1735 bost burning bcz of druneness an debuachery, limiting brandy sales. 
+- "This si not to say that life at hte psots was a squalid orgy with drunek sevants forcing idnan women into prostitution and orbbing hte coapmy at every turn. the compnay oculd not have urvide if this were so; but it is no more a caricuature than the asumption that thte garrisons lived by the letter of the coapmnys annual instructions. What havd evovled was a  local and distinctive lifestyle based on a combinatino of trading considerations, sexual needs, and the requirements of a harsh physical enviroment."
+
+## The Indians and the Bay Trade
+- Englsih ships in 1670  drew in cree and ojibway from around Lake nipigon and abitibi river, from french
+	- start of HBC compettion with St lawrence companies
+	- York drew in western cree and Assiniboine, and in 1682 the two were at war with the Poyets (probably blackfoot) to maintian supremacy of trade
+	- Cree and Assabonie had better job as middle men vs peopel from upper missouri. Also canoe was better for this voyage than horse which dominated hte plains. 
+- Indigenous were smart traders, trading axe for fur to give to french for higher prices
+- 1740s Isham said about 250 coneies and 550 indains each summer, 
+	- Fleet under command of leader or captain, 
+- initally thgoht a sign of bad trade to bring women and kids but 25 years later this had become normalized
+- arrival marked with ceremony, cannoes asmelbes out of sight and then coe around with a leader, who had a flag, smked pipe of peace, exhcange dspeechs and gifts, and then got dresse din captains outfit. HBC did it because it was an indain requirement. as they affirmed the trade compats. Then trade window would open for two weeks or so. 
+	- THe leader kept a few gifts for himself but hte need to buy off his supporters pushed him to give many away. 
+	- catains wre becaue of the fur trade, and out of season lost htier status thus flucutiang year over year. basically auhority  is only over family outside of fort
+	- presents given at departure were there and grew in size over hte years.
+- Problems incldued native disatistfaiction with trade goods or the standar dof trade at a particuarl post, the facor siappointemtn with types and conds of furs, 
+- Markup also happened with made beaver, soemtimes giving more to trade leader as gifts while increasing prices of MB, 
+	- but htere was overplus, a markuip, as Anthony baele in 1705-06 sent home a value of 18,171 MB but traded goods valued at only 12,538 MB. 
+- quality and type of good the company supplied led to criticism, natives anted lgiht but durable goods, not fireharm which burst, hatches which cracked, heavy kettles, and having no chance to replace them. They were better items but increased dependency. Especailyl with firearms.
+	- by 1738 when investigated, overplus was found via watering down brandy 
+	- bcz overplus came from measured goods Indians complained about being scammed. 
+	- also overplus connected to competition, the more competitoin the more erratic fluctations, the less competition the more stbale the overplus rate. With an upper limit around the 50% mark before furs went to the french
+	- 1769 Canaidan trade forced the company to update its standarsd to be more favourable for indians to entice more trade. 
+- indian credit devlopmeed. Enogh credit to see someone through withotu so mich they skip fort. Also thought debt departed when the holder died.
+- Home guard, youne mne working for coapmy, women living in fort, trpaped and fished for the garrison, and got prpovicnisnion sback. Lots of booze consumed and ruined lives. 
+	- but at this time booze had little impact on the interior
+- in 1715 idians assumped trapping activites over hunting would be supoprted but when supplies failed ot come people died from starvation. Dependence develoepd ont he forts for aid. 
+- The growt h fo debt system, family hunting lands, tade captins, all came from fur trade. Felt in the inteior as Cree armed with muskats pushe furhte rwest impacting other tribes. 
+
+## The Move Inland
+- The 1769 change in standard of trade and 1770 raise of salaries + private trpaping ban were part of operation to set company on better footing, largely in respones to the expansion of [[Notes on French Furtrade and Growth of Metis people#**II. Continuity in the Post-Conquest Era (1760–1770s)**| nor'westerners using British capital to supercharge their trade]] 
+	- Their key places were Quebec, Motreal and Michilimackinac
+	- used creidt, facilities quailty trade goods and marketing trchniques of london to become a serious threat to the HBC
+	- English pedlars worked form st lwerence threanting hbc
+		- The Indians traded best furs to them cauaing Albanys trade to drop from 10,000 MB in 63-64 to little more than 3k 10 years later. Thsu the committee was pushing traders to move inland for more furs. 
+- 1777 Gloucester House becmae first inalnd post from james bay. 
+- 1766 YWork heard of familiary from canoes without marten or beaver having goent o english pedlars inland. 
+	- Henlay House worried the company about oepning inalnd posts. private trade, relatiosnw with native women,booze, and loss of furs to bayside ports, plus the problem of transporation as no birchbark canoes nor servants for them. 
+	- Thus committee initally wassending 1-2 servants in each year. 
+- By 1722 this policy was clearly a failure, Canadian were using taboacco and booze to secure indian trade
+	- Previously skepticla, now Andrew Graham advocated for this solution
+- May 1773 commitee sent instructions that inland post shoudl be built by Samuel Hearne near The Pas, stared the next year. Building Cumberland House 450 miels from york, shorter supply line fromt he bay to sasks river was undercut by the failure of the servants to effectively utilize the transportation network. 
+- in 1778 Peter Pond he used suplies still left int he area to go inot the athabasca, and led in 1779 to the formation fo a 16 share mrchant consortiam which in 1783 beacme the North West Company, thoguh it kept changing. Used pemmican and rthelss north westers, who used sword to threaten indains to trade, so that the Norwesterns suffered attack compared to the HBC men. 
+- Land from lake supperior to alek winnipeg had become staging area for further laucnhing off operations. 
+	- new copman posts were small and short lived. Stuggled to man and supply them. 
+- Lost churchill and york to french navy in 1782, and in 1786 William Tomison Chef at york was appointed ot reside inalnd, so that bayside posts wre relegated to subordinate status copmaed to the posts deep in the interior. 
+- FOten peaceful enough relations lviing near the Canadians
+- Major hbc innovation with the york boat for suppl, more capacious durbale though heaver than the caidan canoes. 
+- Company struggled from worse employees and too amy objectives. Sask vs Athabasca for example
+- 1791 the Company fianlly reaches athabasca, where french fur traders reached far enough that now chipeway were nolonger going to HBC post at churchill.
+- Wars with france in 1793 onwards imapcted HBC. Hurt availablity of seamen as the anvy demanded them, hurt availbel credits and markets, and convoys, at the same time the orkneymen did not want to live inalnd for hte wage of baywide work, and did not adapt to the inalnd conditons well. They wanted lots  fo food with them and not new skills, and were not good officers, though obviously excptions existed.
+- HBC had nothing like NWC consultioant betwene summer and winter parnters and the monrela agents in Grnad Portage. The London committee never went to the bay. Whiel factories on the shores London could contorl them, but now inalnd the fast movement of psots hurt rule from london.  Trade was fluid and delays from london were causing problems. minro cahnges there could have major effects in the trade. 
+	- "Even consultation ebtwene officers in the bay was difficult; and there were occasions wen churchill, york, and albany seemed ot regard thier inland posts and pawns in a strenuous internecine rivalry."
+- Copmany opend new tade with blackfood, blood , pigean and other plans and moutnain indains, finally mving inalnd.
+- Might've been helped by Samuel Wegg, governor from 1780-1799, breaking hte Doiance of the Lake family, "beween 1710 and 1807 there were only 8 years whena mmebrf o the Lake family was not either governor or deputy governor" aided by realtions with admiraly and royal society, but he struggled to actually domiante the trade the way the Lake family had. 
+
+## Fur-Trade Rivalry and Union
+- Looked like the Canadins would win the fur trade, the NWC shipped 144,000 pounds worht of goods to briatn wheras he  HBC shpped a mere 38,000 pounds worth, and its dividend dropped to 4% and that was with great difficulty 
+- te XY copmany emered to rvial teh NWC 
+- violence beacme the tool to secure the trade, thogh the HBC tried not to fight as much as the free trading fur traders did
+- movement of fur traders hurt assinaboine and cree position as middlemen, drinfitn to plains. Ojiway took over ed river and lower assiniboine, 
+- in 1801 HBC hired 300 ioquois on 3 year contract to rid an area of beaver ot drive out competitoin 
+- Shift from trade captains with advances of goods an rpovisions, colelction fo debts etc, to fixed psots and regular visits by known trad ee bands. Inalnd posts, temporar as theywer,e and compettion desotrye the old framework. Indain badns were smaller, so more leadesr to trae with for presents, collecting debts beacme harder, and trade costs grew. Compettiont was good for natvies bcz cheaper goods, but increasesd the booze traded. This was probably the dakrest perido of the fur trade
+- 1780 smallpox epidcemic killed cree, assinboie nad ojibway regions, and Athabasca trade aws changing life. 
+- Compettion and usage of resoruecs mena that the whole of furs collect at churchill barely loaded hte ships longboat.
+- When the XY arrive din athatbatas in 1799 and the HBC in 1802 fighting becmae owrs,e inclduing beatings, kilings, hostages, and fights over women, forcing the XY company to merge with NWC in 1804 adn teh HBC to stop operating int eharea in 1806. 
+- 1803-1807 competition along james bay from NWC, fight was over contorl of the bay route leading to one dead in 1809. 
+- this period killed company moral, comeption was traping area bare, and the costs went up as furs to trade went down. GRowing employee costs was to stop NWC attakcs not out of corporate need. 
+- 1809 company could not pay dividend, was funding on creidt and ovedraft of 50,000 pounds. The continetnal blackade was killing hte company.
+- In light of this new mangemnt was brough tin, Andrew Wedderburn/Colvile , his brother-in-law Jhn Halkett and Tjomas Douglas Earht of Selkirk, brought in Retrenching New system based on Jamacian plantions (see Tolly article), convering the comany inot a northern and southern department, each with districts udner it. North had York, CurcChurch hill, saks, and winnipeg, the South albanym moose, and eastmain. More flexbility with rpecise cahin of command. Masters were expdcted to lvie off the coutrny, they could fix their own standard of trade with natives. Also got half the share of profits from trade. Hoped to incentiveize more loylaty and action, without violence
+	- did not wnat contest in athabsca, but Lord Selkrik championed new settlement in Red River. IN 1808/9 he was buying depressed share priced stock, and in 1810 he but in his recommendation as teh company Retrenched itself, saying it coudl lower the cost of supplies. In 1811 116,000 square miles of land was given for a small 10 shilling sum. 
+		- Basically the war pushed up supply costs, the retrenchment invovled living off land to reduce costs, and the settlement was justified on being abel to reduce said costs
+		- however the longer haul from te St Lawrence to the athabaska hurt the NWC more than the HBC, hence their great fear of the Red River outpost, which theatened hteir foodsuppyl jacking up costs and destroying htier trade 
+			- Settled clsoe to fort gibralter
+			- Hence the attack by the Metis in 1816
+				- Then Selkirk came in with the mercenies
+		- Company and colony were intelrinked, first recruist igne dup with coampny, the govenro was company.
+	- Thi scheme also inspired a push into the athabasca
+		- competitoin from inaldna trade made the posts more profitable than the bayside posts, oppositoin provided a stimulus leading
+- End of napoloen wars asaw fur trade resume
+- in 1818 RObertson took 27 canoes and 180 officesr and men and led a raid on Athabasca taking furs and showing the north wetners their postion was no longer secure.
+- 1819 William Williasm the new goenro f rupets land amushe dht einteirng partnes at grand rabpids and arrested them, 
+- by 1820 it seemed hte wintering and montreal partners of the NWc could no longe rteain agreement, and the wintering patners were thinkiong fo joinig the HBC. NEgoegiated over witner, where Edward Ellice agent for the NWC< an MP with friends int eh colony office was intermediary, selkirks death in april made this all easier. THe hbc was in a rough place, overdraft 75,000 pounds, so neithe rside wanted to contiune. 
+	- This led ot the 1821 merger agreement, which was a 21 year agreement and remodel of the HBC + next year a royal monopoly for 21 years was granted except for upper and lower canada. Profits divided among 100 shares, 20 to tehHBC proprietes, 20 for NWC props, 40 for traers in the fiel,d and he alst 20 for selkirks heirs, Simon McGillivray and Edward Ellice and a resrve fund. ONly ellice found a place int eh new committee. New company had NWC methods and personnel. 
+	- Retained from the NWc were the financial partnership of theteaders, adn the particpiatno of these partners in the mangaement of the commerical operations
+		- deed poll of 1821 named traders from wintering partenrs adn other officers to be givne the status of parner and share in profits from the trade. Two ranks, 25 chief factos and 28 chief traders, thus 53 ommissioned gentlement, 32 of whcih were north wetsernesr. Chief facotr smet with their govenros once a year. 
+		- Thus the most improtant fireus adn infleuces within both companys and had produed a compreheisve settlement to be permanetn and productive.
+
+## The Simpson Era
+- The peace treaty meant that all the useless build up of war could be purged. Prices to indains had grown, as had alcohol traded, and trappings for all ages of animals had happened. At hte same time, the HBC was now threatened by the Americans the Russians out west. 
+- In this period, 35 year old George Simpson, Governor of NOrthenr Department, was the main man, who removdelled the COmpanys admin system. He was able, resourceufl and tough for the next 40 years.
+	- he allwoed senior offices an easy and attractive off ram, fired shitty servants and thsoe with lrage families, so that within five years some 60% of the laboru force was dead, converting 2,000 regualr ppl in 1821 to less than 700 in 1826, though it wold rise to 1140 in 1839, and 1565 in 1845 as the company's trade grew.
+	- Ltos of energy even if not the best judegment
+		- mster of detail, prodigious memory, discern the main lines of buisness efficiencyand expasnsion, and ceaseless movement, he ctronlled fur trade
+		- by 1826 he was given contorl of the sotuher department, and in 1839 became the Govenor-in-Chief of RUper's Land, effectively the overseas governor.
+	- Canoes convers tto boats, and Fort Willliams which NWC used to fund athabasca was wound down for supplies via York factory.
+	- Pushed hard ot dfive alchool out of hte trade
+	- moved across the vast alnds he overasaw, even inot his 50s having 18 hour work days and 6 hours of rest
+- Simpson came to domina the councils of chief factors, but was constrained by the lndonom commitee, including John Pelly (Govneor 1822-1852), Andrew Colivlle )Committee 1808-1839, then deputy gov and finally gov) and Edward Ellice (committee from 1824-1837), Simpson was less repsctul and had many disagreemtns with foficer,s as shown iwth his secerte charcter book of 1832. Of the 25 cheef factros in service since 1821, 18 were NWC, some felt entitle dand others were out of date. Redone deedpoll in 1834 saw fewer cheif factors but more chief traders. 
+	- This inceaed differnece from officers to men, and made rising the ranks harder. 
+		- Thsi was essepcially bad for mixed bloodss, who struggled ot find emplpument, though the rnak of post-master was created to give them soem kind of job.
+	- By the mid 1500s nativeborns son were rising toranks and by 1860s a third of officesr in the nothern deparmtentw er native. 
+	- Simpson tried to keep balance of caniadn and orknymen for their respcie benefits. but canaidns prefered lumber, canal or railway building ot hard work. 
+	- the company was willing ot trap an area bare to deny it to fur trade rivals like Russia or America
+		- used sea power ot psu hout american tradesr on the coast and treaty for the russinas, Fort edmonton held conotrl and hte plaisn had na agreemtn reached with the Americna Fur Compay in 1833 for ten years, 
+- Merger killed native bariging power to the point of hiding furs for animals killed for meat for fear of retaliation. 
+	- hbc had this policy to try and protect supply of animals in regions it hadn't depopulated
+- York Factory had become hadmin center, and noway house an inalnd depo, for the athabasca trade. 
+- Fork Yukon opened in 1847  to trade with Inuit and byt he 1850s was average alsmto 25k a year 
+- indians didnt want ot do massive change sin wa to lfie in part because euroepans failed ot have supplies for them consistnelty. 
+	- struggle to supply Mackenzie River from YOrk Factory, long delays form requiitions to supply goods ariving and in bad conditon with many stolen along the way. 
+	- Thus the cost of sending european food for indolance was going ot raise costs enough to necessiate closing the posts so simpson said live off hte land. This led ot some bad moments like 1828 when simspon was offered only died berries anad remanf of oa dog, but alter sugar and tea were added, and cattle were kept at soem southern posts. 
+	- These regulatiosn wera  bitch and tradesr kinda hated htem. distance psots were very unhappy. 
+- This was the period of hghest profit for the trade, from 1825-1863 the dividend never dropped below 10%, once reaching 15%, and usuaully supplmented by a bonus A chief factors share averaged 720 a year and chef trade 360. 
+
+## The Pacific Coast
+- Company got a lot more pacific trade with the merger
+- Struggle over russia to the norht and US over boarder.
+- In 1824 Simpson visited hte area and appointed Chief Factor John McLoughlin to run the place. 
+	- He basically had his own little epmire there, as it was too far away for simpson to manage
+	- McLoughlin was a NWC man.
+	- Simpson saw potential there though, as new depo for columbia trade
+- Supplied the area by boat and horse not York factory
+- Ogden used schooners to engage Ameriacns and challenge russians, 
+- Fort Vancouver had 3 price levels, one for intieor, one for coast and one for competitive areas ont he coast
+	- used his ships against competitors
+	- Famous steamer was important \
+	- was more compromsiing with competition
+		- still effectively came to rule from Cali to Aslaska 
+- 1841 Simpson tried ot reorganize the caostal traed, 
+	- simpson wanted to embrace hte staemer and move the trade to vancouver island wheras McLoughlin was happy plauing host to all sorts of peopl coming to his land. 
+- Oregon question become popular as US population was taking the are, fur traders followed by missionaries and miltiar personnel. Coapmy tried ot send families form Red River to Columbia to secure it but failed. 
+	- The 1846 Oregon treaty final settled ht eboarder issue
+- 1849 Compamy got Vancouver island on promise to colonize which it was reluctatnt to do. it wanted ot move supply routes northward 
+	- this was really the deaht as colony was more importnat htan fur trade, and its needs overpowed the needs of the toher.
+	- sruggled with declining fur trade, and slow groth of vancouver. Fear of tensiosnw ith natives, colony draining fur resouces, 
+- 1858 The company lost its rights to th eregion and it became Briitsh Columbia like Van Island. 
+
+## Family and Community in the Fur Trade
+- Company banned ENglish wives and banging Indina women, but by the 1730s onwrds ths was changing, various men had childrenw ith natives, and mostly came from Cree home indains.
+	- traded sex and skills for supplies and security 
+- Women were guides, interpets, made moccasins and snow shows, and snared small game. Women helped make canoes, preseving food, harvest rice, making epmmican and sugar, and collecting berries
+- Employees on the ground knew value of women even if committee struggled 
+- 1750 Robert pilgtim retunred with cree wife and son and hten died leaving struggle for everyone invovled.
+	- HBC leaders on hte gorund saw their children as something important not just froma  tryst 
+	- but children and wife coudl go back to native as was cree custom
+- Multiple wives was not uncommon, but real issue area was children. Most partners and kids ahd little opportuniyt once spouse died
+	- Offiers and men ahd family ties that were lost when going home
+- Daughtres became more importnat as htey were kinda white kinda not, with skills and acclimated to the way of life. 
+	- Without indians wives the indian influence on the trade declined
+- 1794 sent out schoolbooks for native born children
+	- stopped hiring British ppl for youth jobs and instead hired local youth 
+	- by late 1790s factory boys were common enough 
+		- Useful because war was eating manpower availability
+- 1808 company opened school for moral, education and good order devlopment, with teachers sent to york, albany moose and east main thgouh the schools failed.
+	- Red river became more importnat, a place for familes adn country wives to retire to, with old colleges and an education system.
+- Thgouh also this time saw the trasnition form native or mixed wives to white wives, for soical advancement and other reasons
+	- NWC worried aobut large number of dependents, for example bannign country marraiges in 1806
+		- relations with naive could cause probles wheras mixed women were better servants for the compnaies and wives for hte men
+	- 1820 Anglicna clergy John West sent by Church missionary society and his successors jones and OCckran marraige a la facon du pays was a denial of church and living in sin, thus unacceptable. Also education beacme a wayt o bring pupils to english ways and deny indigenous heritage
+	- this hurt indian and mixed blood people who worked with NWC which had been nicer to them than the HBC had been
+	- The econmizing pushed fur traer andf amiles to red river where mixed bloods and metis ruled
+- Summed up in SImpson, who had hbanned natives, but looked badly on others who did so because though the marraiges were good for securing alliances, the pettycoat politics wa a problem as 'business is frequently a matter of secondary consideration compared to little family affairs and domestic arrangements, that their people na dcraft are employed in transporting women & childrne with their baggage pots, pans, kettles and bags of moss'
+	- simpson banged variou miedor idngeous women but in 1830 came back with white wife. . Williams Williams had brought his whitey in 1826, while Captain Pelly gov of red river did the same year but she returned in 1825 
+	- simpson thoguht white wives struggled in the trade and thus were bad but he still took one fo his own and brought her to the fur trade, build a fort for her, and she dind't like it and left. 
+	- some leadesr with white wives refused to let htem dine with mixed or indigenous wives creatiog tensiosn and promotino problems 
+	- simpson talked of native women as basically fuck-toy property 
+- red River wass british values thrust into a closed country
+	-  settlers sfrom ontario and britain made white wives a social necessity, and incresed awareness of colour 
+	- Indian women beacme closer to whores than wives, for example 1837 man taking a wife in the coutnry man was adi to have 'ideas about loev and sex [that] were too primitive to suit hte atmosphere of the world as it is _now_'
+- White wife struggled to adjust to red river, it was tedious and dperssing, and that was at the most civilized place. These women had no obvious place in the fur trade, and tended to break down in bad heatkh, go home, or convince husbands to retire early
+	- 'indina wives were at one time the vogue, the half breeed supplanted htese, and now we have the lovely tender eotic torn from tis parent bed, to pine and languish in the desert'
+- Country marraiges held on, thugh they may not have been nobles the natives wives were damn good at their jobs
+- from 1836 on chief factors who were also JPs could conduct civil marraige ceremones, and in 1845 this was extended to all chief factors, and couples were advised to be santioned by the church as soon as possible, closer to roman catholic liberal view of marraige cermony reaffirming an existing bond
+	- priest struggled to convince fur trades to accept marriage lol
+- Reverend herbert beaver at fort vancouver got in shit from mcLoughlin for calling the chief factors wife a kept misstress and 'a female of notoriously loose character' Douglas allowed hte missoinary to conduct a marriage ceremony for him and his wife, but ahd to remind the Reverend "of hte status of the country wife 'who lives chastley with the husband of her choice, in a state approved by firends and asnctioned by immemorial custom.'"
+	- also withstood european law courts when relatives tried to dismiss them. as it was just taha  long lasting uion with inviolable fidelity and devotion made more sacred by the brith adn education foa numerous family was good
+	- by 1840s simpson was bithcing about "impored wives, fancy hemeslves such great women that there is no possiblity of pleasing them," and that they affected "a supercilious air of superiority over the native wives and daughtres of getlemen in the country."
+	- Red River was hotbed of slowly Victorianizing gossip and tension,
+		- native born chidlren who lvied in Britain or Canada had less racism than at Red River 
+- 1832 Character book simpson has some racism slip through as he doesn't trust native born people and anotehr said of halfbreeds in 1843 "the fact is that there is somethign radically wrong abotu then all as is evidently shown from metnal science alone I mean phrenology, the turhs of which I have lately convined myself from extensive personal observation." and Captain Lefroy an conventionally eduated english army officesr desribed the chidlren at hte Red River school as "about 20 girls and nearly as many boys there, coarse looking animals, with little stmap of quality, not one pretty face"
+- APcififc also had awkward socal and economic impcats 
+	- For example cheif factor James Douglas who was knighted in 1863, ruled the area and took a part idan daguhter as a wife a la facon du pays in 1828, and whcih was formalized by Reverand beaver in 1837, after which he was a deovte husband and family man, who rose to prominece, but he had ot hide his wife out of sight. 
+	- She experineced descrimination from white women even thoguh she was very light. Not help that she struggled in English 
+- "Whether in the ethnically complex community of Red River, or in British Columbia, with its separate European and Indian peoples, the orthodox racial ttitudes of white settlement were dominated by the time of the surrender of the charter. By then the contact of races, the mixture of blood, nad hte exchange of skills and customs, which had makred the fur trade from its earliest days, were fading fast."
+
+
+## Last Years of Company Monopoly and Rule
+- Red River showed flaws with the HBC system. Troops in 1846 had a calming effect for the two years they were there. BUt the regions economy was being drawn south
+- Company survived because it was sene as a necessary imperial factor 
+- 1821 liescene renewed in 1838 and set to expire in 1859, so HOC commission called. 
+- Youle Hind  in 1857-8 and John Palliser in 1857-60 investigated the fur trader, the missionary and the metis. 
+	- palliser call to deal with claims of metis, compay free traer and indigneuos was ignored. 
+- 1859 Exclusive trade lost but terriotyr rights held for the moment. 
+- In 1863 the Compay was bought up by Edward Watkin of the Internaitonl Finaincal SOciety, a consoirtum of some of the most importnat banking hsoues in the CIty fo Lonodn, to try and relize settlement, minearl and communication potential in the area 
+- This period of uncertainty saw a good profit, beaver was in delcine, but marten and other furs from the Mackenzie Basin, and the Yukon held up. This let hte comapny keep fighting for a long time, 
+	- indians now wanted cash and flower raathr than the use stuff
+	- MB was discontinued to the annoyance of some traders. 
+	- trade routes fell into disuse
+		- symbol in 1859 Simson the great canoe man, ade his last journey to red river via st paul, and orderws that furs fromt ehupper lakes should no longer go via moose but steamer and rail to Toronto while goods to Red River went via monrela to sst paul and steamer north. So that Fort Garry replaced york factory in the 1860s
+- By 1863 onwards the governoer of the comany was filled with public politicla figures rather than busienss men like Edmund head (1863-68) and Stafford Northcote (1869-74)
+	- new deed poll in 1871 cut the traders out fo the land sale profits
+	- The sale let hte company go back to trading not colony building 

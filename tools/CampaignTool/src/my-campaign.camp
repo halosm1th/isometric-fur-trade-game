@@ -1,0 +1,16 @@
+// A new campaign. Beats are things that may happen; this one happens on a date.
+campaign TheBloodyWar(
+    title: "The Bloody War",
+    description: "This is all about war!",
+    seed: 2001,
+    postsByFoundingYear: true
+);
+
+beat TheFirstThing(
+    title: "The War starts",
+    date: date(1812, 6, 1)
+) {
+    OnActivate() {
+        say("Something has happened.", Company.HBC);
+    }
+}

@@ -74,6 +74,8 @@ public partial class Npc : Agent
     public bool Sleeping;
     // Stopped to talk to the player; movement pauses.
     public bool Conversing;
+    // Sitting in a brigade's boat (World/ConvoyView): over the water but dry, not wading.
+    public bool InBoat;
     // Whom we're walking with, if anyone (FollowGoal).
     public Agent Following;
     // Held by the other company (design doc 9.1): walked home, kept a few

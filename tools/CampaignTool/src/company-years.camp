@@ -810,9 +810,9 @@ beat EdmontonGoesToTheRival(
         && world.inMonths(10, 12)
         && world.hasPost("Fort Augustus");
     OnActivate() {
-        world.addStock("Fort Augustus", Item.BeaverPelt, 15);
-        shout("Edmonton House has nothing left on its shelves, and the Piegans are " +
-              "taking their furs next door to Fort Augustus.", Company.HBC);
+        world.tradeTrip("Blackfoot", "Fort Augustus", near: "Edmonton House",
+            say: "Edmonton House has nothing left on its shelves, and the Piegans are " +
+                 "taking their furs next door to Fort Augustus.", to: Company.HBC);
     }
 }
 

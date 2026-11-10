@@ -17,7 +17,7 @@ public enum WarPhase { Riding, Fighting, Home, Over }
 // ride home without one.
 public sealed class WarParty
 {
-	public BandLedger From;
+	public Household From;   // a camp, mostly; a town's garrison or a post's men when they are driven to it
 	public Household Against;
 	public string Why = "";
 	public readonly List<Npc> Men = new();
@@ -33,7 +33,7 @@ public sealed class WarParty
 	// the rivers at the fords), planned once in the background for the party.
 	public System.Threading.Tasks.Task<List<Vector2>> RouteTask;
 	public List<Vector2> Route;
-	public Vector2 Home => IsoGrid.ToWorld(From.Camp);
+	public Vector2 Home => IsoGrid.ToWorld(War.CampOf(From));
 }
 
 // War parties and truces between the country's peoples (and its posts).
@@ -87,14 +87,14 @@ public static class War
 
 	// Send a camp's fighting men against a camp or a post. A player who is
 	// given as the rider rides with them (and the fight is live).
-	public static WarParty Launch(BandLedger from, Household against, string why, Player.PlayerController rider = null)
+	public static WarParty Launch(Household from, Household against, string why, Player.PlayerController rider = null)
 	{
 		if (from == null || against == null || from == against) return null;
 		foreach (var p in Parties) if (p.From == from && p.Phase != WarPhase.Over) return p;   // one at a time from a camp
 		Accords.WarParty(from, against);
 		var party = new WarParty { From = from, Against = against, Why = why ?? "", Rider = rider, Started = Plains.Today };
 		bool live = rider != null || Plains.NearPlayer(party.Target, 12000f) || Plains.NearPlayer(party.Home, 12000f);
-		Chronicle.Event($"{from.Name} rode out against {NameOf(against)}{(party.Why != "" ? ", " + party.Why : "")}.", party.Home, subject: from.Name, weight: 1.2f);
+		Chronicle.Event($"{NameOf(from)} rode out against {NameOf(against)}{(party.Why != "" ? ", " + party.Why : "")}.", party.Home, subject: NameOf(from), weight: 1.2f);
 		if (!live) { InNumbers(party); return party; }
 
 		foreach (var n in Fighters(from))
@@ -113,7 +113,7 @@ public static class War
 		party.RouteTask = Routes.PlanAsync(party.Home, party.Target, Sim.Terrain?.FrozenAt(party.Home) ?? false);
 		party.Leader = from.Leader != null && party.Men.Contains(from.Leader) ? from.Leader : party.Men[0];
 		Parties.Add(party);
-		Sim.NoticeAt(from, $"{from.Name}'s war party rides out against {NameOf(against)}: {party.Men.Count} men{(rider != null ? ", and you with them" : "")}.");
+		Sim.NoticeAt(from, $"{NameOf(from)}'s war party rides out against {NameOf(against)}: {party.Men.Count} men{(rider != null ? ", and you with them" : "")}.");
 		return party;
 	}
 
@@ -144,7 +144,7 @@ public static class War
 		{
 			var m = side[i];
 			if (m.IsDead || m.Tier == Tier.Live) continue;   // nobody the player could be standing beside
-			Chronicle.Event($"{m.DisplayName} of {NameOf(m.HomeStores)} was killed when {p.From.Name} fought {NameOf(p.Against)}.", IsoGrid.ToWorld(CampOf(m.HomeStores)), m, NameOf(m.HomeStores), 2f);
+			Chronicle.Event($"{m.DisplayName} of {NameOf(m.HomeStores)} was killed when {NameOf(p.From)} fought {NameOf(p.Against)}.", IsoGrid.ToWorld(CampOf(m.HomeStores)), m, NameOf(m.HomeStores), 2f);
 			m.DieQuietly();
 			n--;
 		}
@@ -174,7 +174,7 @@ public static class War
 			{
 				var where = new System.Text.StringBuilder();
 				foreach (var m in p.Men) if (m != null && GodotObject.IsInstanceValid(m) && !m.IsDead) where.Append($" {m.DisplayName}: {m.GlobalPosition.DistanceTo(p.Target):0} px off, {m.Brain.Top?.Label};");
-				GD.Print($"[war] {p.From.Name} -> {NameOf(p.Against)} {p.Phase} {p.Hours:0}h rider {(p.Rider != null ? p.Rider.GlobalPosition.ToString() : "none")} route {(p.Route?.Count.ToString() ?? (p.RouteTask?.IsCompleted == true ? "done" : "planning"))}:{where}");
+				GD.Print($"[war] {NameOf(p.From)} -> {NameOf(p.Against)} {p.Phase} {p.Hours:0}h rider {(p.Rider != null ? p.Rider.GlobalPosition.ToString() : "none")} route {(p.Route?.Count.ToString() ?? (p.RouteTask?.IsCompleted == true ? "done" : "planning"))}:{where}");
 			}
 			// Ridden out of every player's sight (the tiers have put its men in
 			// the background): what is left of it is settled in numbers.
@@ -255,7 +255,7 @@ public static class War
 			w.Brain.Clear(w);
 			w.Brain.Push(w, new AttackGoal(nearest));
 		}
-		Sim.NoticeAt(p.Against, $"{p.From.Name}'s war party is at {NameOf(p.Against)}: they are fighting!");
+		Sim.NoticeAt(p.Against, $"{NameOf(p.From)}'s war party is at {NameOf(p.Against)}: they are fighting!");
 	}
 
 	private static void Retreat(WarParty p, string outcome)
@@ -264,13 +264,13 @@ public static class War
 		p.Phase = WarPhase.Home;
 		// The story hears how it went now, not a day later when the last of
 		// them is home: a quest waiting on the fight goes on from the field.
-		Campaign.Flag($"war:{p.From.Name}:{outcome}");
-		Campaign.Flag($"war:{p.From.Name}:{NameOf(p.Against)}:{outcome}");
+		Campaign.Flag($"war:{NameOf(p.From)}:{outcome}");
+		Campaign.Flag($"war:{NameOf(p.From)}:{NameOf(p.Against)}:{outcome}");
 		Sim.NoticeAt(p.Against, outcome switch
 		{
-			"won" => $"{NameOf(p.Against)} have broken: {p.From.Name}'s war party has the field.",
-			"lost" => $"{p.From.Name}'s war party is beaten and riding for home.",
-			_ => $"{p.From.Name}'s war party is turning for home without a fight.",
+			"won" => $"{NameOf(p.Against)} have broken: {NameOf(p.From)}'s war party has the field.",
+			"lost" => $"{NameOf(p.From)}'s war party is beaten and riding for home.",
+			_ => $"{NameOf(p.From)}'s war party is turning for home without a fight.",
 		});
 	}
 
@@ -293,11 +293,11 @@ public static class War
 				else if (n.HomeStores == p.Against) n.ChangeRapport(p.Rider, -25f);
 			}
 		string how = outcome switch { "won" => "won the fight", "lost" => "were beaten", _ => "came home without a fight" };
-		Chronicle.Event($"{p.From.Name}'s war party against {NameOf(p.Against)} {how}.", p.Home, subject: p.From.Name, weight: 2f);
-		if (Plains.NearPlayer(p.Home, 20000f) || Plains.NearPlayer(p.Target, 20000f)) Sim.NoticeAt(p.Home, $"{p.From.Name}'s war party against {NameOf(p.Against)} {how}.");
+		Chronicle.Event($"{NameOf(p.From)}'s war party against {NameOf(p.Against)} {how}.", p.Home, subject: NameOf(p.From), weight: 2f);
+		if (Plains.NearPlayer(p.Home, 20000f) || Plains.NearPlayer(p.Target, 20000f)) Sim.NoticeAt(p.Home, $"{NameOf(p.From)}'s war party against {NameOf(p.Against)} {how}.");
 		// For the story: war:<band>:won / lost / turned_back, and the same against the target.
-		Campaign.Flag($"war:{p.From.Name}:{outcome}");
-		Campaign.Flag($"war:{p.From.Name}:{NameOf(p.Against)}:{outcome}");
+		Campaign.Flag($"war:{NameOf(p.From)}:{outcome}");
+		Campaign.Flag($"war:{NameOf(p.From)}:{NameOf(p.Against)}:{outcome}");
 	}
 
 	// ---- the weekly reckoning ---------------------------------------------------------------

@@ -203,6 +203,10 @@ public static class Library
 			"A camp's fighting men ride against a camp or a post. Far from every player the fight is settled at once in numbers (men, guns, the defender's ground); near one, or with the player riding along (withPlayer: true), its men ride and fight for real. When it is over the flags war:<from>:won (or lost, or turned_back) and war:<from>:<against>:<outcome> are raised.",
 			"world.warParty(\"Beaver Hills Cree (Amiskwac\u00eewiyiniwak)\", \"Blackfoot\", why: \"for the horses\", withPlayer: true)",
 			(c, s, a) => Fx(c, "war_party", ("from", a.S("from")), ("against", a.S("against")), ("why", a.Has("why") ? a.S("why") : null), ("with_player", a.Has("withPlayer") && a["withPlayer"] is true ? true : null)));
+		Fn("world", "tradeTrip", P1("nation:string", "post:string", "near:string?", "say:string?", "to:Company?"), "effect",
+			"The nearest camp of a nation (to the post `near`, or to `post` itself) carries its furs to a post: its men set out on foot or horseback and trade when they get there, for real where a player is near. The headline `say` is given only if they set out (a camp with no furs, or already away, stays home).",
+			"world.tradeTrip(\"Blackfoot\", \"Fort Augustus\", near: \"Edmonton House\", say: \"The Piegans go next door.\", to: Company.HBC)",
+			(c, s, a) => Fx(c, "trade_trip", ("nation", a.S("nation")), ("post", a.S("post")), ("near", a.Has("near") ? a.S("near") : null), ("say", a.Has("say") ? a.S("say") : null), ("to", a.Has("to") ? Co(a["to"]) : null)));
 		Fn("world", "truce", P1("a:string", "b:string", "days:int?"), "effect", "Two peoples (camps or posts by name) make peace: no horse raids or war parties between them for that long (365 days if not given), and their old scores are laid down.", "world.truce(\"Beaver Hills Cree (Amiskwac\u00eewiyiniwak)\", \"Blackfoot\", 365)",
 			(c, s, a) => Fx(c, "truce", ("a", a.S("a")), ("b", a.S("b")), ("days", a.Has("days") ? a.N("days") : null)));
 		Fn("world", "heatFeud", P1("holder:string", "against:string", "amount:int?"), "effect", "The holder's old score against the other grows (0-10): at 4 and more they ride against them, in the season, unless there is a truce.", "world.heatFeud(\"Blackfoot\", \"Beaver Hills Cree (Amiskwac\u00eewiyiniwak)\", 3)",
@@ -365,6 +369,11 @@ public static class Library
 		["world.addStock.amount"] = "How many pieces to add; negative takes them away (never below 0).",
 		["world.regard.place"] = "A band, by its camp's name: \"Beaver Hills Cree (Amiskwacîwiyiniwak)\" ...",
 		["world.happened.beat"] = "A beat's id, of this campaign or the one it extends: \"seven-oaks\", \"pemmican-proclamation\" ...",
+		["world.tradeTrip.nation"] = "The nation whose camp goes, by its name in Faction: \"Blackfoot\", \"Cree\", \"Assiniboine\" ...",
+		["world.tradeTrip.post"] = "The post they carry their furs to, by its exact name. It must stand.",
+		["world.tradeTrip.near"] = "A post to look for the camp near (the camp of that nation nearest it goes); the trading post itself if not given.",
+		["world.tradeTrip.say"] = "A headline given only if the camp does set out.",
+		["world.tradeTrip.to"] = "Which company's players hear the headline (everyone if not given).",
 		["world.warParty.from"] = "The camp whose fighting men ride out, by its camp's name: \"Beaver Hills Cree (Amiskwacîwiyiniwak)\", \"Métis of the Forks\" ...",
 		["world.warParty.against"] = "Who they ride against: another camp, or a post by its exact name (\"Brandon House\").",
 		["world.warParty.why"] = "What they ride for, for the log and the news: \"for their dead and their horses\".",
